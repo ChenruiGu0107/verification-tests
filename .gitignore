@@ -1,0 +1,5 @@
+*.swp
+*.swo
+/private/
+/Gemfile
+/Gemfile.lock
