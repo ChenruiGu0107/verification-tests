@@ -1,7 +1,7 @@
 
 module CucuShift
   # @note this would extend default cucumber World
-  class World
+  class DefaultWorld
     include Common::Helper
     # attr_accessor :test
 

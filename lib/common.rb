@@ -40,15 +40,18 @@ module CucuShift
     end
 
     module Setup
-      def handle_signals
+      def self.handle_signals
         # Exit the process immediately when SIGINT/SIGTERM caught,
         # since cucumber traps these signals.
         Signal.trap('SIGINT') { Process.exit!(255) }
         Signal.trap('SIGTERM') { Process.exit!(255) }
       end
 
-      def set_cucushift_home
-        ENV["CUCUSHIFT_HOME"] = File.expand_path(File.dirname(File.dirname(__FILE__)))
+      def self.set_cucushift_home
+        # we call this method once early in execution so we can set const
+        CucuShift.const_set(:HOME, File.expand_path(__FILE__ + "../../.."))
+        CucuShift::HOME.freeze
+        ENV["CUCUSHIFT_HOME"] = CucuShift::HOME
       end
     end
 
