@@ -6,6 +6,7 @@ module CucuShift
   class DefaultManager
     include Singleton
     attr_accessor :world
+    attr_reader :logger
 
     def initialize
       @world = nil
