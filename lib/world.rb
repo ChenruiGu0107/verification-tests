@@ -1,9 +1,11 @@
+require 'common'
 
 module CucuShift
-  # @note this would extend default cucumber World
+  # @note this is our default cucumber World extension implementation
   class DefaultWorld
     include Common::Helper
-    # attr_accessor :test
+
+    attr_accessor :scenario
 
     def initialize
       # we want to keep a reference to current World in the manager
@@ -11,8 +13,16 @@ module CucuShift
       manager.world = self
     end
 
+    def setup_logger
+      CucuShift::Logger.runtime = @__cucumber_runtime
+    end
+
     def logger
-      # TODO: return logger
+      manager.logger
+    end
+
+    def debug_in_after_hook?
+      scenario.failed? && conf[:debug_in_after_hook] || conf[:debug_in_after_hook_always]
     end
 
     # this is defined in Helper

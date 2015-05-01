@@ -1,8 +1,19 @@
+require 'cucushift'
+require 'manager'
+
 module CucuShift
   module Common
     module Helper
       def manager
         CucuShift::Manager.instance
+      end
+
+      def conf
+        manager.conf
+      end
+
+      def logger
+        manager.logger
       end
 
       def to_bool(param)
@@ -48,8 +59,7 @@ module CucuShift
       end
 
       def self.set_cucushift_home
-        # we call this method once early in execution so we can set const
-        CucuShift.const_set(:HOME, File.expand_path(__FILE__ + "../../.."))
+        # CucuShift.const_set(:HOME, File.expand_path(__FILE__ + "../../.."))
         CucuShift::HOME.freeze
         ENV["CUCUSHIFT_HOME"] = CucuShift::HOME
       end
