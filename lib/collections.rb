@@ -18,28 +18,39 @@ module CucuShift
       end
     end
 
-    # @param [Hash] hash object to be symbolized
-    def self.deep_sym_keys(obj)
-      if obj.kind_of? Hash
-        obj.each do |k, v|
-          obj[k.to_sym] = deep_sym_keys(obj.delete(k))
+    # @param hash [Hash] object to be symbolized
+    # @param block to return new key/val pairs based on original values
+    def self.map_hash!(hash)
+      if hash.kind_of? Hash
+        hash.keys.each do |k|
+          new_k, new_v = yield [k, hash.delete(k)]
+          hash[new_k] = new_v
         end
       end
+      return hash # return the object itself to aid recursion
     end
 
-    def self.monkey_patch_deep_merge(hash_object)
-      hash_object.instance_eval <<      EOT
-      def deep_merge!(hash)
-        hash.each do |k, v|
-          if self[k].kind_of?(Hash) and hash[k].kind_of?(Hash)
-            Collections.monkey_patch_deep_merge(self[k])
-            self[k].deep_merge!(hash[k])
-          else
-            self[k] = hash[k]
-          end
+    # @param hash [Hash] object to be symbolized
+    # @param block to return new key/val pairs based on original values
+    def self.deep_map_hash!(hash)
+      map_hash!(hash) { |k, v|
+        new_k, new_v = yield [k, v]
+        [new_k, deep_map_hash!(new_v) { |nk, nv| yield [nk, nv] }]
+      }
+    end
+
+    # @param tgt [Hash] target hash that we will be **altering**
+    # @param src [Hash] read from this source hash
+    # @return the modified target hash
+    # @note this one does not merge Arrays
+    def self.deep_merge!(tgt_hash, src_hash)
+      tgt_hash.merge!(src_hash) { |key, oldval, newval|
+        if oldval.kind_of?(Hash) && newval.kind_of?(Hash)
+          deep_merge!(oldval, newval)
+        else
+          newval
         end
-      end
-      EOT
+      }
     end
   end
 end

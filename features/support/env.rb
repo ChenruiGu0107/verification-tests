@@ -21,12 +21,12 @@ World do
 end
 
 Before do |_scenario|
-  scenario = _scenario
+  self.scenario = _scenario
   setup_logger
 end
 
 After do |scenario|
-  if debug_in_after_hook_desired?
+  if debug_in_after_hook?
     require 'pry'
     binding.pry
   end

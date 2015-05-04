@@ -12,7 +12,7 @@ module CucuShift
       @opts = opts
       unless opts[:files]
         opts[:files] = []
-        opts[:files] << File.expand_path("#{HOME}/../../config/config.yaml")
+        opts[:files] << File.expand_path("#{HOME}/config/config.yaml")
         priv_config = File.expand_path(CucuShift::PRIVATE_DIR + "/config.yaml")
         opts[:files] << priv_config if File.exist?(priv_config)
       end
@@ -20,7 +20,7 @@ module CucuShift
 
     def load_file(config_file)
       config = YAML.load_file(config_file)
-
+    end
 
     ## return full raw configuration
     def raw
@@ -28,15 +28,10 @@ module CucuShift
 
       raw_configs = []
       @opts[:files].each { |f| raw_configs << load_file(f) }
-      @raw_config = raw_configs[0]
+      @raw_config = raw_configs.shift
+      raw_configs.each { |c| Collections.deep_merge!(@raw_config, c) }
 
-      if raw_configs.size > 1
-        Collections.monkey_patch_deep_merge(@raw_config)
-        raw_configs.shift
-        raw_configs.each {|c| @raw_config.deep_merge(c)}
-      end
-
-      Collections.deep_sym_keys(@raw_config)
+      Collections.deep_map_hash!(@raw_config) { |k, v| [k.to_sym, v] }
 
       env_overrides(@raw_config)
 
@@ -46,13 +41,25 @@ module CucuShift
       return @raw_config
     end
 
+    # logic to overrige configuration from environment variables
     def env_overrides(conf)
-      # conf[:global][:whatever] = ENV["ASD"] if ENV["ASD"]"
+      global_overrides = {
+        debug_in_after_hook: "CUCUSHIFT_DEBUG_AFTER_FAIL",
+        debug_in_after_hook_always: "CUCUSHIFT_DEBUG_AFTER_HOOK",
+        debug_failed_steps: "CUCUSHIFT_DEBUG_FAILSTEP",
+      }
+
+      # if envvariable is set, then override the value where "false" is false
+      global_overrides.each { |o, var|
+        if ENV.key? var
+          conf[:global][o] = ENV[key] == "false" ? false : ENV[key]
+        end
+      }
     end
 
     # @return value of configuration options
     # @note if opt isn't one of recognized root options, then :global is used
-    def self.[](opt)
+    def [](opt)
       opt = opt.to_sym
       root_options = [:global, :private]
       if root_options.include? opt
