@@ -48,6 +48,16 @@ module CucuShift
       def hash_symkeys(hash)
         Hash[hash.collect {|k,v| [k.to_sym, v]}]
       end
+
+      def exception_to_string(e)
+        str = "#{e}\n    #{e.backtrace.join("\n    ")}"
+        e = e.cause
+        while e do
+          str << "\nCaused by: #{e}\n    #{e.backtrace.join("\n    ")}"
+          e = e.cause
+        end
+        return str
+      end
     end
 
     module Setup

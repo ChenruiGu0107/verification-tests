@@ -1,6 +1,10 @@
 ## add our lib dir to load path
 $LOAD_PATH << File.expand_path("#{__FILE__}/../../../lib")
 
+if RUBY_VERSION.split('.')[0] < 2 || RUBY_VERSION.split('.')[0] == 2 &&  RUBY_VERSION.split('.')[1] < 2
+  puts "Ruby version earlier than 2.2 not supported"
+end
+
 require 'common' # common code
 require 'world' # our custom cucushift world
 require 'log' # CucuShift::Logger
@@ -23,6 +27,7 @@ end
 Before do |_scenario|
   self.scenario = _scenario
   setup_logger
+
 end
 
 After do |scenario|
@@ -30,6 +35,8 @@ After do |scenario|
     require 'pry'
     binding.pry
   end
+
+  manager.clean_up
 end
 
 AfterConfiguration do |config|

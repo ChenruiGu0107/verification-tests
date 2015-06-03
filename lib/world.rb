@@ -17,10 +17,6 @@ module CucuShift
       CucuShift::Logger.runtime = @__cucumber_runtime
     end
 
-    def logger
-      manager.logger
-    end
-
     def debug_in_after_hook?
       scenario.failed? && conf[:debug_in_after_hook] || conf[:debug_in_after_hook_always]
     end
