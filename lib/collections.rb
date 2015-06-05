@@ -2,6 +2,8 @@
 
 module CucuShift
   module Collections
+    # @param struc [Object] array, hash or object to be deeply freezed
+    # @return [Object] the freezed object
     def self.deep_freeze(struc)
       struc.freeze
       if struc.kind_of? Hash
@@ -16,10 +18,12 @@ module CucuShift
       else
         # we don't know how to go deeper here
       end
+      return struc
     end
 
-    # @param hash [Hash] object to be symbolized
+    # @param hash [Hash] object to be modified
     # @param block to return new key/val pairs based on original values
+    # @return modified hash
     def self.map_hash!(hash)
       if hash.kind_of? Hash
         hash.keys.each do |k|
