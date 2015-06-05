@@ -1,3 +1,5 @@
+require 'open3'
+
 require 'cucushift'
 require 'manager'
 
@@ -75,5 +77,73 @@ module CucuShift
       end
     end
 
+    # @note some platform neutral shell commands execution methods
+    #       to be included into Host classes
+    module LocalShell
+      # use the opt hash to introduce parameters you want to set
+      # the if no :timeout is sepecified, it will default to 600 seconds
+      def exec_raw(*cmds, **opts)
+        # TODO: user read_nonblock and implement proper timeout
+        # see: https://gist.github.com/lpar/1032297
+
+        cmds.flatten!
+        cmds.unshift(opts[:env]) if opts[:env]
+
+        res = opts[:result] || {}
+        res[:command] = cmd
+        instruction = "\`#{cmd}\`"
+        logger.info(instruction)
+        res[:instruction] = instruction
+        exit_status = nil
+        logger.info("Shell Command: #{cmd}")
+        if opts[:timeout]
+          timeout_value = opts[:timeout].to_i
+        else
+          timeout_value = 3600
+        end
+        Timeout::timeout(timeout_value) {
+          if opts[:stderr] == opts[:stdout]
+            stdout, exit_status = Open3.capture2e(stdin_data: opts[:stdin], *cmds)
+            stdout = opts[:stdout] << stdout if opts[:stdout]
+            res[:stdout] = res[:stderr] = stdout
+          else
+            stdout, stderr, exit_status = Open3.capture3(stdin_data: opts[:stdin], *cmds)
+            stdout = opts[:stdout] << stdout if opts[:stdout]
+            stderr = opts[:stderr] << stdout if opts[:stderr]
+            res[:stdout] = stdout
+            res[:stderr] = stderr
+          end
+
+          #stdin, stdout_and_stderr, wait_thr = Open3.popen2e(env=env, cmd)
+          ## should we avoid programs hanging waiting on input  or
+          ## make sure we catch instances where a program requests an input?
+          ## stdin.close
+          #result[:response] = stdout_and_stderr.read
+          #result[:exitstatus] = wait_thr.value.exitstatus
+        }
+        res[:exitstatus] = exit_status
+        res[:success] = exit_status == 0
+        res[:response] = res[:stdout]
+        logger.print(res[:stdout], false)
+        logger.print(res[:stderr], false) if res[:stderr] != res[:stdout]
+        logger.info("Exit Status: #{res[:exitstatus]}")
+        return result
+      end
+
+
+      #def self.exec_background(cmd, opts={})
+      #  env = opts[:env]
+      #  env ||= {}
+      #  result = {}
+      #  Common::Helper.logger.info("Shell Command: #{cmd}")
+      #  # env.merge!({CUCUSHIFT_KILL_COOKIE = "2h3_dJSasdsfd2BD"})
+      #  pid = Process.spawn(env, cmd, :pgroup => true)
+      #  result[:pid] = pid
+      #  Common::Helper.manager.pgids << pid
+      #
+      #  result[:instruction] = cmd
+      #  return result
+      #end
+    end
   end
 end

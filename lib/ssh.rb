@@ -106,6 +106,8 @@ module CucuShift
       if res[:response]
         # i.e. an error was raised durig the call
         res[:response] = "#{output}\n#{res[:response]}"
+      else
+        res[:response] = output
       end
 
       unless res.has_key? :success
@@ -115,10 +117,11 @@ module CucuShift
 
     # TODO: use shell service for greater flexibility and interactive commands
     #       http://net-ssh.github.io/ssh/v1/chapter-5.html
+    # TODO: allow setting environment variables via channel.env
     def exec_raw(command, opts={})
       res = opts[:result] || {}
       res[:command] = command
-      instruction = 'Remote cmd: `#{command}` @ssh://' +
+      instruction = 'Remote cmd: `' + command + '` @ssh://' +
                     @user ? "#{@user}@" : @host
       logger.info(instruction)
       res[:instruction] = instruction
