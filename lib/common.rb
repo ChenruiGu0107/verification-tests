@@ -87,6 +87,7 @@ module CucuShift
         # see: https://gist.github.com/lpar/1032297
 
         cmds.flatten!
+        # environment hash is first param according to docs
         cmds.unshift(opts[:env]) if opts[:env]
 
         res = opts[:result] || {}

@@ -26,6 +26,11 @@ module CucuShift
       @workdir
     end
 
+    # escape characters for use as command arguments
+    def shell_escape(str)
+      raise '#{__method__} method not implemented'
+    end
+
     def exec(commands, opts={})
       exec_as(nil, commands, opts)
     end
@@ -180,6 +185,12 @@ module CucuShift
       return commands.flatten.join("\n")
     end
 
+    # I don't like Shellwords.escape for readability
+    def shell_escape(str)
+      # basically single quote replacing occurances of `'` with `'\''`
+      return "'" << str.gsub("'") {|m| %q{'\''}} << "'"
+    end
+
     # @note executes commands on host in workdir
     def exec_as(user, *commands, **opts)
       case user
@@ -194,11 +205,11 @@ module CucuShift
         if self[:user] == "root"
           return exec_as(nil, *commands, **opts)
         else
-          cmd = "sudo bash -c '#{commands_to_string("cd '#{workdir}'", commands).gsub("'","'\\''")}'"
+          cmd = "sudo bash -c #{shell_escape(commands_to_string("cd '#{workdir}'", commands))}"
           return exec_raw(cmd, **opts)
         end
       else # try sudo -u
-        cmd = "sudo -u #{user} bash -c '#{commands_to_string("cd '#{workdir}'", commands).gsub("'","'\\''")}'"
+        cmd = "sudo -u #{user} bash -c #{shell_escape(commands_to_string("cd '#{workdir}'", commands))}"
         return exec_raw(cmd, **opts)
       end
     end
