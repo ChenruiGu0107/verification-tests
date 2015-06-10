@@ -6,6 +6,8 @@ require 'collections'
 
 module CucuShift
   class RulesCommandExecutor
+    # include CucuShift::Common::Helper
+
     # @param [Object] rules might be parsed rules, file, directory or array of any of these. All rules are merged and error is raised on duplicate rules. If directory string ends with slash `/` character, then it is loaded recursively.
     # @param [CucuShift::Host] host host to execute the commands on
     # @param [CucuShift::User] user host os user to execute command as (e.g. sudo)
@@ -15,13 +17,132 @@ module CucuShift
       @rules_source = rules
     end
 
+    # run cli command based on rules
+    #   rules in YAML would look like:
+    #   :global_options:
+    #     :login: --rhlogin <value>
+    #     :password: -p '<value>'
+    #   :domain_create:
+    #     :cmd: rhc domain create <domain_name>
+    #     :options:
+    #       :force: --force
+    #     :expected:
+    #     - Deleting domain '<domain_name>'
+    #     - !ruby/regexp '/deleted/i'
+    #     :unexpected:
+    #     - Domain <domain_name> not found
+    #     :properties:
+    #       :url: !ruby/regexp '/URL:\s*(\S+)$/i'
+    #     :optional_properties:
+    #       :teliid_user: !ruby/regexp '/Teiid User:\s(\S+)$/i'
+    #   `:global_options` are options common to all commands
+    #   `:domain_create` is the command key
+    #   `:expected` is strings in output that should match on success
+    #   `:unexpected` is strings in the output showing command failure
+    #   `:properties` are parsed proparties from the command output returned
+    #   `:optional_properties` same as above but will not cause fail if missing
+    # @return [Hash] result hash - {success: .., instruction: .., exitstatus: .., response: .., properties: .., ...}
     # @see #build_command_line
-    # @see #build_expected
-    # @see #parse_output
+    # @see #build_expectations
+    # @see #process_result
     def run(cmd_key, options)
       cmd = build_command_line(cmd_key, options)
-# TODO
 
+      res = @host.exec_as(@user, cmd)
+
+      process_result(result: res, rules: rules[cmd_key], options: options)
+      return res
+    end
+
+    # substitute options inside expected/unexpected patterns;
+    #   if option is not found, we do not fail here
+    def build_expectations(cmd_rules, options)
+      expected = cmd_rules[:expected] || []
+      unexpected = cmd_rules[:unexpected] || []
+      expected = expected.dup
+      unexpected = unexpected.dup
+
+      # replace only things that look like opt keys
+      gsub = proc do |str|
+        str.gsub(/<([a-z_]+?)>/) { |m|
+          val = options[$1.to_sym]
+          val ? normalize(val, :noescape => true) : m
+        }
+      end
+
+      [expected, unexpected].each do |patterns|
+        patterns.map do |pattern|
+          case pattern
+          when String
+            gsub.call(pattern)
+          when Regexp
+            # do some magic to gsun regular expressions
+            changed = gsub.call(pattern.source)
+            changed == pattern.source ? pattern : Regexp.new(changed)
+          else
+            raise "unsupported pattern type #{pattern.class}: #{pattern}"
+          end
+        end
+      end
+
+      return expected, unexpected
+    end
+
+    # process command execution result
+    # @param [Hash] result the result to operate on
+    # @param [Hash] rules the rules for particular command to use for processing
+    # @param [options] options the options provided by user
+    def process_result(result:, rules:, options:)
+      success = result[:success]
+      expected, unexpected = build_expectations(rules, options)
+
+      # check expected output
+      expected.delete_if { |pattern|
+        if pattern.respond_to? :~
+          pattern =~ result[:response]
+        else
+          result[:response].include? pattern
+        end
+      }
+      result[:expected_missing] = expected unless expected.empty?
+
+      # check unexpected output
+      unexpected.select! { |pattern|
+        if pattern.respond_to? :~
+          pattern =~ result[:response]
+        else
+          result[:response].include? pattern
+        end
+      }
+      result[:unexpected_present] = unexpected unless unexpected.empty?
+
+      # alter status based on expectations
+      success = success && expected.empty? && unexpected.empty?
+
+      ## handle :properties
+      result[:properties] = {}
+      get_props = proc { |prop_rules, optional|
+        prop_rules.each { |key, pattern|
+          match = pattern.match(result[:response])
+          case
+          when match.nil?
+            success = false unless optional
+            (result[:properties_missing] ||= []) << key
+          when match.size > 2
+            raise "regexp can have at most one capturing group"
+          when match.size == 2
+            result[:properties][key] = match[1]
+          when match.size ==1
+            result[:properties][key] = match[0]
+          else
+            puts "Santa Claus Does Really Exist!"
+          end
+        }
+      }
+      get_props.call(rules[:properties] || [], false)
+      get_props.call(rules[:optional_properties] || [], true)
+
+      result[:success] = success
     end
 
     # @param [Hash] raw_rules the rules for building the command line
@@ -97,9 +218,9 @@ module CucuShift
     # @param [#to_s] value value to normalize
     # @return [String] normalize value
     # @note imaplement {self#build_command_line} described handling of values
-    def normalize(value)
+    def normalize(value, **opts)
       value = value.to_s
-      noescape = false
+      noescape = opts.has_key? :noescape ? opts[:noescape] : false
       catch(:redo) do
         case value
         when /\Aliteral: (.*)\z/
