@@ -15,6 +15,17 @@ module CucuShift
       @workdir = opts[:workdir] ? opts[:workdir].dup.freeze : EXECUTOR_NAME
     end
 
+    def self.localhost
+      @localhost if @localhost
+
+      @localhost ||= case RUBY_PLATFORM
+      when /linux/
+        LocalLinuxLikeHost.new(nil)
+      else
+        raise "don't know a suitable host for your platform"
+      end
+    end
+
     private def properties
       @properties
     end
@@ -191,6 +202,11 @@ module CucuShift
       return "'" << str.gsub("'") {|m| %q{'\''}} << "'"
     end
 
+    # @param [String] file check this file for existence
+    def file_exist?(file)
+      exec("ls #{shell_escape(file)}")[:success]
+    end
+
     # @note executes commands on host in workdir
     def exec_as(user, *commands, **opts)
       case user
@@ -279,6 +295,7 @@ module CucuShift
     include Common::LocalShell
 
     def initialize(hostname, opts={})
+      hostname ||= self.hostname
       super
       unless @workdir.start_with? "/"
         # write everything to WORKSPACE on jenkins, otherwise use `~/workdir`
