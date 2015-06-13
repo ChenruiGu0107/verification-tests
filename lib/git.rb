@@ -62,6 +62,42 @@ module CucuShift
       exec("git clone #{host.shell_escape url} #{host.shell_escape dir}")
     end
 
-    TODO
+    def status
+      res = exec("git status")
+      res[:clean] = res[:response].include?("working directory clean")
+    end
+
+    def add(*files, **opts)
+      if opts[:all]
+        exec "git add -A"
+      else
+        files.map!{|f| host.shell_escape(f)}
+        exec "git add #{files.join(" ")}"
+      end
+    end
+
+    def commit(**opts)
+      msg = opts[:msg] || "new commit"
+      if opts[:amend]
+        raise "TODO: implement git amend"
+        exec "git commit --amend ???"
+      else
+        exec "git commit -m #{host.shell_escape(msg)}"
+      end
+    end
+
+    # @param [Boolean] new_file should we add a dummy file to push
+    def push(force: false, all: true, branch_spec:nil, new_file: true, commit:"new commit")
+      force = force ? " -f" : " "
+      add(all: true) if all
+      branch_spec ||= "HEAD"
+      if new_file && status[:clean]
+        file = "dummy.#{rand_str(4)}"
+        exec("touch #{file}")
+        add(file)
+      end
+      commit
+      exec "git push#{force}#{branch_spec}"
+    end
   end
 end

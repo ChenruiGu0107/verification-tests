@@ -60,6 +60,19 @@ module CucuShift
         end
         return str
       end
+
+      def rand_str(length=8)
+        result = Array.new
+        array = Array.new
+        for c in 'a'..'z' do array.push(c) end
+        for c in 'A'..'Z' do array.push(c) end
+        for n in '0'..'1' do array.push(n) end
+        result.push(array[rand(26)])
+        for i in 1..length-1
+          result.push(array[rand(array.length)])
+        end
+        return result.join
+      end
     end
 
     module Setup
