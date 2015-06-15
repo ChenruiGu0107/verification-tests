@@ -57,16 +57,27 @@ module CucuShift
       }
     end
 
-    # @return value of configuration options
-    # @note if opt isn't one of recognized root options, then :global is used
-    def [](opt)
-      opt = opt.to_sym
-      root_options = [:global, :private]
-      if root_options.include? opt
-        return raw[opt]
-      else
-        return raw[:global][opt]
+    # @return value of configuration options or nil if not found
+    # @note if opts do not start with one of the recognized root options,
+    #   then :global is assumed. The idea is to keep private options in the
+    #   :private namespace to avoid unintentional information leaks.
+    #   You usually call this for common options like:
+    #   `conf[:debug_in_after_hook]`
+    #   `conf[:private, :git_repo_ssh_key]
+    #   Also safe and possible to use deeper paths in configuration but I'd
+    #   discourage such usage as uglier to read:
+    #   `conf[:private, :auth, :git, :default_ssh_key]`
+    def [](*opts)
+      opts = opts.map {|o| o.to_sym}
+      root_options = [:global, :private, :environments]
+      unless root_options.include? opts.first
+        opts.unshift :global
       end
+
+      # go over each opt path to get its value
+      val = raw
+      opts.all? {|o| val = val[o]}
+      return val
     end
   end
 end

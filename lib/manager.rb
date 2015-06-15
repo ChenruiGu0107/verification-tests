@@ -11,19 +11,18 @@ module CucuShift
   class DefaultManager
     include Singleton
     attr_accessor :world
-    # attr_reader :logger
+    attr_reader :environments
 
     def initialize
       @world = nil
 
-      @environments = []
+      @environments = EnvironmentManager.get
       # @logger = ...
       # @browsers = ...
     end
 
     def clean_up
-      @environments.each {|e| e.clean_up}
-      @environments.clear
+      @environments.clean_up
       @world = nil
     end
 

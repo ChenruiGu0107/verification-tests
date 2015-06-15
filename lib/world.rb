@@ -21,6 +21,20 @@ module CucuShift
       scenario.failed? && conf[:debug_in_after_hook] || conf[:debug_in_after_hook_always]
     end
 
+    # @note call like `user(0)` or simply `user` for current user
+    def user(num=nil)
+      return @user if num.nil? && @user
+      num = 0 unless num
+      return env.users[num]
+    end
+
+    # @note call like `env(:key)` or simply `env` for current environment
+    def env(key=nil)
+      return @env if key.nil? && @env
+      key = :default unless key
+      return manager.environments[key]
+    end
+
     # this is defined in Helper
     # def manager
     # end

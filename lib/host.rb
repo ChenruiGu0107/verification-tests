@@ -153,7 +153,7 @@ module CucuShift
 
     # set setup lock on this broker instance
     private def setup_lock(key)
-      return mkdir("cucushift_lock_#{key}", :raw => true)
+      return mkdir("cucushift_lock_#{key}", :raw => true, :parents => false)
     end
 
     # clear setup lock for this instance
@@ -203,8 +203,8 @@ module CucuShift
     end
 
     # @param [String] file check this file for existence
-    def file_exist?(file)
-      exec("ls #{shell_escape(file)}")[:success]
+    def file_exist?(file, opts={})
+      exec("ls -d #{shell_escape(file)}", **opts)[:success]
     end
 
     # @note executes commands on host in workdir
@@ -232,10 +232,11 @@ module CucuShift
 
     # @return false if dir exists and raise if cannot be created
     def mkdir(remote_dir, opts={})
+      parents = opts[:parents] || ! opts.has_key?(:parents) ? " -p" : ""
       if opts[:raw]
-        res = exec_raw("mkdir '#{remote_dir}'", opts)
+        res = exec_raw("mkdir#{parents} '#{remote_dir}'", **opts)
       else
-        res = exec("mkdir '#{remote_dir}'", opts)
+        res = exec("mkdir#{parents} '#{remote_dir}'", **opts)
       end
 
       return res[:success]
