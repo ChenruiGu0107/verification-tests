@@ -20,6 +20,15 @@ module CucuShift
       # this method needs to be overriden per executor to find out version
     end
 
+    private def version_on_host(user, host)
+      # return user requested version if specified
+      return version if version
+
+      res = host.exec_as(user, "oadm version")
+      raise "cannot execute on host #{host.hostname} as admin" unless res[:success]
+      return opts[:admin_cli_version] = res[:response][/^oadm v(.+)$/][1]
+    end
+
     private def rules_version(str_version)
       return str_version[0]
     end
@@ -34,16 +43,15 @@ module CucuShift
     end
 
     def executor
-      @executor ||= RulesCommandExecutor.new(host: host, user: ADMIN_USER, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
-    end
-
-    private def version(user, host)
-      # return user requested version if set
-      return super() if super()
-
-      res = host.exec_as(ADMIN_USER, "oadm version")
-      raise "cannot execute on host #{host.hostname} as admin" unless res[:success]
-      return opts[:admin_cli_version] = res[:response][/^oadm v(.+)$/][1]
+      @executor ||= RulesCommandExecutor.new(
+          host: host,
+          user: ADMIN_USER,
+          rules: File.expand_path(
+                RULES_DIR +
+                "/" +
+                 rules_version(version_on_host(ADMIN_USER, host)) + ".yaml"
+          )
+      )
     end
 
     def exec(key, **opts)
