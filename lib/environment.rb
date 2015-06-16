@@ -29,11 +29,11 @@ module CucuShift
     alias users user_manager
 
     def cli_executor
-      @cli_executor ||= Object.const_get(opts[:cli]).new(**opts)
+      @cli_executor ||= Object.const_get(opts[:cli]).new(self, **opts)
     end
 
     def admin_cli_executor
-      @admin_cli_executor ||= Object.const_get(opts[:admin_cli]).new(,self, **opts)
+      @admin_cli_executor ||= Object.const_get(opts[:admin_cli]).new(self, **opts)
     end
 
     def clean_up

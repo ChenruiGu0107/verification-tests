@@ -26,6 +26,7 @@ module CucuShift
     #     :cmd: rhc domain create <domain_name>
     #     :options:
     #       :force: --force
+    #       :some_opt: --some_opt <value>
     #     :expected:
     #     - Deleting domain '<domain_name>'
     #     - !ruby/regexp '/deleted/i'

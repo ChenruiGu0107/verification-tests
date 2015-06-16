@@ -1,5 +1,20 @@
 ---
-:global_options: {}
+:global_options:
+  # these are options as seen by `oc options`
+  :api_version: --api-version=<value>
+  :ca: --certificate-authority=<value>
+  :config: --config=<value>
+  :user: --user=<value>
+  :insecure: --insecure-skip-tls-verify=<value>
+  :namespace: --namespace=<value>
+  :n: -n <value>
+  :loglevel: --loglevel=<value>
+  :log_dir: --log_dir=<value>
+  :log_flush_frequency: --log_flush_frequency=<value>
+  :logtostderr: --logtostderr=<value>
+  :server: --server=<value>
+  :stderrthreshold: --stderrthreshold=<value>
+  :token: --token=<value>
 :version:
   :cmd: oc version
   :expected:
@@ -8,3 +23,16 @@
   :properties:
     :oc_version: !ruby/regexp '/^oc v(.+)$/'
     :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
+:login:
+  :cmd: oc login
+  :options:
+    :u: -u <value>
+    :p: -p <value>
+    :username: --username=<value>
+    :password: --password=<value>
+  :expected:
+    - Login successful.
+:logout:
+  :cmd: oc logout
+  :expected:
+    - !ruby/regexp '/Logged ".+" out on/'

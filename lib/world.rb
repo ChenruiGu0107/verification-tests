@@ -31,6 +31,9 @@ module CucuShift
     # @note call like `env(:key)` or simply `env` for current environment
     def env(key=nil)
       return @env if key.nil? && @env
+      # TODO: make this read default key from environment so we can have
+      # different types of environments mostly preconfigured in configuration
+      # thus reducing significantly number of necessary ENV variables needed.
       key = :default unless key
       return manager.environments[key]
     end

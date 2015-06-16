@@ -2,9 +2,11 @@ require 'rules_command_executor'
 
 module CucuShift
   class CliExecutor
+    include Common::Helper
+
     RULES_DIR = File.expand_path(HOME + "/lib/rules/client")
 
-    def initialize(**opts)
+    def initialize(env, **opts)
       @opts = opts
     end
 
@@ -13,6 +15,22 @@ module CucuShift
     # @param [Hash] opts command options
     def exec(user, key, **opts)
       raise
+    end
+
+    def api_proto
+      opts[:api_proto] || "https"
+    end
+
+    def api_port
+      opts[:api_port] || "8443"
+    end
+
+    def api_hostname
+      opts[:api_hostname] || env.master_hostnames.first
+    end
+
+    def api_url
+      opts[:api_url] || "#{api_proto}://#{api_hostname}:#{api_port}"
     end
 
     private def version
@@ -26,8 +44,9 @@ module CucuShift
   end
 
   # execute cli commands on the first master machine as each user respectively
+  #   it also does prior cert and token setup
   class MasterOsPerUserCliExecutor < CliExecutor
-    def initialize(**opts)
+    def initialize(env, **opts)
       super
       @executors = {}
     end
@@ -39,8 +58,22 @@ module CucuShift
 
       host = user.env.master_hosts.first
       version = version_for_user(user, host)
-      @executors[user.name] = RulesCommandExecutor.new(host: host, user: user.name, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
-      return @executors[user.name]
+      executor = RulesCommandExecutor.new(host: host, user: user.name, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
+
+      # make sure cli execution environment is setup for the user
+      # in environments where we run client commands as single operating system
+      # user, perhaps we need to do this upon switching users
+      # clean-up:
+      #   .config/openshift/config
+      #   .kube/config
+      executor.run(:logout) # ignore outcome
+      res = executor.run(:login, username: user.name, password: user.password, ca: "/etc/openshift/master/ca.crt", server: "#{api_proto}://#{host.hostname}:#{api_port}")
+      unless res[:success]
+        logger.error res[:response]
+        raise "cannot login with command: #{res[:instruction]}"
+      end
+
+      return @executors[user.name] = executor
     end
 
     private def version_for_user(user, host)

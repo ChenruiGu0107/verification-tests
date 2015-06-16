@@ -1,0 +1,10 @@
+---
+:global_options: {}
+:version:
+  :cmd: oadm version
+  :expected:
+    - oadm v
+    - kubernetes v
+  :properties:
+    :oadm_version: !ruby/regexp '/^oadm v(.+)$/'
+    :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
