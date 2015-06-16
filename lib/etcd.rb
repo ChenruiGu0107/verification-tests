@@ -1,5 +1,5 @@
 module CucuShift
-  # @note allow Etcd operations
-  class Etcd
-  end
+  # allow Etcd interactions
+  #class Etcd
+  #end
 end

@@ -1,0 +1,10 @@
+---
+:global_options: {}
+:version:
+  :cmd: oc version
+  :expected:
+    - oc v
+    - kubernetes v
+  :properties:
+    :oc_version: !ruby/regexp '/^oc v(.+)$/'
+    :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'

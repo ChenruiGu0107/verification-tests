@@ -1,3 +1,5 @@
+require 'user'
+
 module CucuShift
   class UserManager
     attr_reader :env, :opts

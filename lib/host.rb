@@ -37,6 +37,14 @@ module CucuShift
       @workdir
     end
 
+    def roles
+      @properties[:roles] ||= {}
+    end
+
+    def has_role(role)
+      roles.include? role
+    end
+
     # escape characters for use as command arguments
     def shell_escape(str)
       raise '#{__method__} method not implemented'
