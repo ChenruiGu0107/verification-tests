@@ -2,6 +2,7 @@ require 'singleton'
 
 require 'log'
 require 'configuration'
+require 'environment_manager'
 # should not require 'common'
 
 module CucuShift
@@ -11,19 +12,21 @@ module CucuShift
   class DefaultManager
     include Singleton
     attr_accessor :world
-    attr_reader :environments
+    # attr_reader :environments
 
     def initialize
       @world = nil
 
-      @environments = EnvironmentManager.get
-      # @logger = ...
       # @browsers = ...
     end
 
     def clean_up
       @environments.clean_up
       @world = nil
+    end
+
+    def environments
+      @environments ||= EnvironmentManager.new
     end
 
     def logger

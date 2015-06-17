@@ -6,6 +6,8 @@ module CucuShift
 
     RULES_DIR = File.expand_path(HOME + "/lib/rules/client")
 
+    attr_reader :opts
+
     def initialize(env, **opts)
       @opts = opts
     end
@@ -26,7 +28,7 @@ module CucuShift
     end
 
     def api_hostname
-      opts[:api_hostname] || env.master_hostnames.first
+      opts[:api_hostname] || env.master_hosts.first.hostname
     end
 
     def api_url
@@ -66,7 +68,7 @@ module CucuShift
       # clean-up:
       #   .config/openshift/config
       #   .kube/config
-      executor.run(:logout) # ignore outcome
+      executor.run(:logout, {}) # ignore outcome
       res = executor.run(:login, username: user.name, password: user.password, ca: "/etc/openshift/master/ca.crt", server: "#{api_proto}://#{host.hostname}:#{api_port}")
       unless res[:success]
         logger.error res[:response]
@@ -84,7 +86,7 @@ module CucuShift
       raise "cannot execute on host #{host.hostname} as user #{user.name}" unless res[:success]
 
       # we assume all users will use same oc version
-      return opts[:cli_version] = res[:response][/^os?c v(.+)$/][1]
+      return opts[:cli_version] = res[:response].scan(/^os?c v(.+)$/)[0][0]
     end
 
     def exec(user, key, **opts)

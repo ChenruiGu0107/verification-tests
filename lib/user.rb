@@ -14,7 +14,7 @@ module CucuShift
     end
 
     def cli_exec(key, opts={})
-      cli_executor(self, key, opts)
+      cli_executor.exec(self, key, opts)
     end
   end
 end

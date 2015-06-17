@@ -117,11 +117,11 @@ module CucuShift
         end
         Timeout::timeout(timeout_value) {
           if opts[:stderr] == opts[:stdout]
-            stdout, exit_status = Open3.capture2e(stdin_data: opts[:stdin], *cmds)
+            stdout, exit_status = Open3.capture2e(*cmds, stdin_data: opts[:stdin])
             stdout = opts[:stdout] << stdout if opts[:stdout]
             res[:stdout] = res[:stderr] = stdout
           else
-            stdout, stderr, exit_status = Open3.capture3(stdin_data: opts[:stdin], *cmds)
+            stdout, stderr, exit_status = Open3.capture3(*cmds, stdin_data: opts[:stdin])
             stdout = opts[:stdout] << stdout if opts[:stdout]
             stderr = opts[:stderr] << stdout if opts[:stderr]
             res[:stdout] = stdout

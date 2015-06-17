@@ -21,9 +21,9 @@ module CucuShift
     end
 
     def load_users
-      @users << opts[:user_manager_users].split(",").map do |uspec|
+      opts[:user_manager_users].split(",").each do |uspec|
         username, colon,  password = uspec.partition(":")
-        User.new(username, password, env, **opts)
+        @users << User.new(username, password, env, **opts)
       end
     end
 

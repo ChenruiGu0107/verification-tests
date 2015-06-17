@@ -1,6 +1,7 @@
 require 'cli_executor'
-require 'dmin_cli_executor'
+require 'admin_cli_executor'
 require 'user_manager'
+require 'host'
 
 module CucuShift
   # @note this class represents an OpenShift test environment and allows setting it up and in some cases creating and destroying it
@@ -24,16 +25,16 @@ module CucuShift
     end
 
     def user_manager
-      @user_manager ||= Object.const_get(opts[:user_manager]).new(self, **opts)
+      @user_manager ||= CucuShift.const_get(opts[:user_manager]).new(self, **opts)
     end
     alias users user_manager
 
     def cli_executor
-      @cli_executor ||= Object.const_get(opts[:cli]).new(self, **opts)
+      @cli_executor ||= CucuShift.const_get(opts[:cli]).new(self, **opts)
     end
 
     def admin_cli_executor
-      @admin_cli_executor ||= Object.const_get(opts[:admin_cli]).new(self, **opts)
+      @admin_cli_executor ||= CucuShift.const_get(opts[:admin_cli]).new(self, **opts)
     end
 
     def clean_up
@@ -54,16 +55,16 @@ module CucuShift
     def hosts
       if @hosts.empty?
         # generate hosts based on spec like: hostname1:role1:role2,hostname2:r3
-        @hosts << opts[:hosts].split(",").map do |host|
+        opts[:hosts].split(",").each do |host|
           # TODO: might do convenience type to class conversion
           # TODO: we might also consider to support setting type per host
           host_type = opts[:hosts_type]
           hostname, garbage, roles = host.partition(":")
           roles = roles.split(":").map(&:to_sym)
-          Object.const_get(host_type).new(hostname, **opts, roles: roles)
+          @hosts << CucuShift.const_get(host_type).new(hostname, **opts, roles: roles)
         end
 
-        unless OPENSHIFT_ROLES.all? {|r| @hosts.find {|h| h.has_role(r)}}
+        unless OPENSHIFT_ROLES.all? {|r| @hosts.find {|h| h.has_role?(r)}}
           raise "environment should have hosts with all openshift roles"
         end
       end

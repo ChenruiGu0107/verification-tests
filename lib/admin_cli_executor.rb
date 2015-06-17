@@ -2,6 +2,8 @@ require 'rules_command_executor'
 
 module CucuShift
   class AdminCliExecutor
+    include Common::Helper
+
     attr_reader :env, :opts
 
     RULES_DIR = File.expand_path(HOME + "/lib/rules/admin")
@@ -20,13 +22,17 @@ module CucuShift
       # this method needs to be overriden per executor to find out version
     end
 
+    # @param [String, :admin, nil] user user to execute oadm command as
     private def version_on_host(user, host)
       # return user requested version if specified
       return version if version
 
       res = host.exec_as(user, "oadm version")
-      raise "cannot execute on host #{host.hostname} as admin" unless res[:success]
-      return opts[:admin_cli_version] = res[:response][/^oadm v(.+)$/][1]
+      unless res[:success]
+        logger.error(res[:response])
+        raise "cannot execute on host #{host.hostname} as admin"
+      end
+      return opts[:admin_cli_version] = res[:response].match(/^oadm v(.+)$/).captures[0]
     end
 
     private def rules_version(str_version)

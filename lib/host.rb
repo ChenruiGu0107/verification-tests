@@ -1,4 +1,5 @@
 require 'common'
+require 'ssh'
 
 module CucuShift
   # @note a generic machine; base for creating actual implementations
@@ -12,7 +13,7 @@ module CucuShift
     def initialize(hostname, opts={})
       @hostname = hostname.dup.freeze
       @properties = opts.dup
-      @workdir = opts[:workdir] ? opts[:workdir].dup.freeze : EXECUTOR_NAME
+      @workdir = opts[:workdir] ? opts[:workdir].dup.freeze : "/tmp/workdir/" + EXECUTOR_NAME
     end
 
     def self.localhost
@@ -30,6 +31,10 @@ module CucuShift
       @properties
     end
 
+    def [](key)
+      properties[key]
+    end
+
     private def workdir
       unless @workdir_exists
         @workdir_exists = mkdir(@workdir, :raw => true)
@@ -41,7 +46,7 @@ module CucuShift
       @properties[:roles] ||= {}
     end
 
-    def has_role(role)
+    def has_role?(role)
       roles.include? role
     end
 
@@ -215,6 +220,7 @@ module CucuShift
       exec("ls -d #{shell_escape(file)}", **opts)[:success]
     end
 
+    # @param [String, nil, :admin] user execute command as that OS user
     # @note executes commands on host in workdir
     def exec_as(user, *commands, **opts)
       case user
@@ -306,7 +312,7 @@ module CucuShift
     def initialize(hostname, opts={})
       hostname ||= self.hostname
       super
-      unless @workdir.start_with? "/"
+      unless opts[:workdir]
         # write everything to WORKSPACE on jenkins, otherwise use `~/workdir`
         basepath = ENV["WORKSPACE"] ? ENV["WORKSPACE"] + "/workdir/" : "~/workdir/"
         @workdir = File.expand_path("#{basepath}#{@workdir}").freeze
@@ -326,9 +332,7 @@ module CucuShift
       @ssh && @ssh.active?
     end
 
-    private def ssh(opts={})
-      return @ssh if connected?
-
+    private def ssh_opts(opts)
       ssh_opts = {}
       properties.each { |prop, val|
         if prop.to_s.start_with? 'ssh_'
@@ -339,7 +343,12 @@ module CucuShift
       }
       ssh_opts.merge! opts
 
-      return @ssh = SSH.new(hostname, ssh_opts)
+      return ssh_opts
+    end
+
+    private def ssh(opts={})
+      return @ssh if connected?
+      return @ssh = SSH.new(hostname, ssh_opts(opts))
     end
 
     # @note execute commands without special setup

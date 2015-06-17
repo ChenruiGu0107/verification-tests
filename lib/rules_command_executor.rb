@@ -185,7 +185,7 @@ module CucuShift
           when option_rules[key]
             parameters << " " << option_rules[key].gsub('<value>', normalize(value))
           when global_option_rules[key]
-            global_parameters << global_option_rules[key].gsub('<value>', normalize(value))
+            global_parameters << " " << global_option_rules[key].gsub('<value>', normalize(value))
           else
             raise "no rules found for option: #{key}"
           end
@@ -245,7 +245,7 @@ module CucuShift
       return sources.flatten.reduce({}) { |rules, source|
         if source.kind_of? Hash
         elsif File.file? source
-          source = YAML.load source
+          source = YAML.load_file source
         elsif File.directory? source
           files = []
           if source.end_with? "/"

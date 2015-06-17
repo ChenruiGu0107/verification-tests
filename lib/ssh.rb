@@ -23,20 +23,32 @@ module CucuShift
       ssh.close if defined?(ssh) and ssh
     end
 
+    # @param [String] host the hostname to establish ssh connection
+    # @param [Hash] opts other options
+    # @note if no password and no private key are specified, we assume
+    #   ssh is pre-configured to gain access
     def initialize(host, opts={})
       @host = host
+      raise "ssh host is mandatory" unless host && !host.empty?
+
       @user = opts[:user] # can be nil for default username
+      conn_opts = {}
       if opts[:private_key]
         logger.debug("SSH Authenticating with publickey method")
+        # TODO: make private key lookup more powerful and flexible
         private_key = File.expand_path(opts[:private_key])
-        @session = Net::SSH.start(host, @user, :keys => [private_key], :auth_methods => ["publickey"])
+        conn_opts[:keys] = [private_key]
+        conn_opts[:auth_methods] = ["publickey"]
       elsif opts[:password]
         logger.debug("SSH Authenticating with password method")
-        @session = Net::SSH.start(host, @user, :password => opts[:password], :auth_methods => ["password"])
+        conn_opts[:password] = opts[:password]
+        conn_opts[:auth_methods] = ["password"]
       else
-        logger.error("Please provide password or key for ssh authentication")
-        raise Net::SSH::AuthenticationFailed
+        ## lets hope ssh is already pre-configured
+        #logger.error("Please provide password or key for ssh authentication")
+        #raise Net::SSH::AuthenticationFailed
       end
+      @session = Net::SSH.start(host, @user, **conn_opts)
     end
 
     def close
@@ -84,19 +96,15 @@ module CucuShift
     def exec(command, opts={})
       # we want to have a handle over the result in case of error occurring
       # so that we catch any intermediate data for better reporting
-      if opts[:result]
-        res = opts[:result]
-      else
-        res = opts[:result] = {}
-      end
+      res = opts[:result] || {}
 
       # now actually execute the ssh call
       begin
-        exec_raw(command, opts)
+        exec_raw(command, **opts, result: res)
       rescue => e
         res[:success] = false
         res[:error] = e
-        res[:response] = exception_to_string
+        res[:response] = exception_to_string(e)
       end
       if res[:stdout].equal? res[:stderr]
         output = res[:stdout]
@@ -113,6 +121,8 @@ module CucuShift
       unless res.has_key? :success
         res[:success] = res[:exitstatus] == 0 && ! res[:exitsignal]
       end
+
+      return res
     end
 
     # TODO: use shell service for greater flexibility and interactive commands
@@ -122,12 +132,12 @@ module CucuShift
       res = opts[:result] || {}
       res[:command] = command
       instruction = 'Remote cmd: `' + command + '` @ssh://' +
-                    @user ? "#{@user}@" : @host
+                    ( @user ? "#{@user}@#{@host}" : @host )
       logger.info(instruction)
       res[:instruction] = instruction
       exit_status = nil
       stdout = res[:stdout] = opts[:stdout] || String.new
-      stderr = res[:stderr] = opts[:stderr] || output
+      stderr = res[:stderr] = opts[:stderr] || stdout
       exit_signal = nil
       @session.open_channel do |channel|
         channel.exec(command) do |ch, success|
@@ -163,9 +173,12 @@ module CucuShift
       Timeout::timeout(opts[:timeout]) {
         @session.loop
       }
-      logger.print(output, false)
+      unless opts[:quiet]
+        logger.print(stdout, false)
+        logger.print(stderr, false) unless stdout == stderr
+      end
       logger.info("Exit Status: #{exit_status}")
-      return res.merge({ exitstatus: exit_status, exitsignal: exit_signal })
+      return res.merge!({ exitstatus: exit_status, exitsignal: exit_signal })
     end
   end
 end
