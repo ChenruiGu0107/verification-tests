@@ -21,7 +21,7 @@ module CucuShift
     end
 
     def clean_up
-      @environments.clean_up
+      @environments.clean_up if @environments
       @world = nil
     end
 

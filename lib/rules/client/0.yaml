@@ -36,3 +36,7 @@
   :cmd: oc logout
   :expected:
     - !ruby/regexp '/Logged ".+" out on/'
+:get:
+  :cmd: oc get <resource>
+:delete:
+  :cmd: oc delete <object_type> <object_name_or_id>

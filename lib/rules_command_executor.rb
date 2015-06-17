@@ -66,13 +66,13 @@ module CucuShift
       # replace only things that look like opt keys
       gsub = proc do |str|
         str.gsub(/<([a-z_]+?)>/) { |m|
-          val = options[$1.to_sym]
+          val = options[m[1..-2].to_sym]
           val ? normalize(val, :noescape => true) : m
         }
       end
 
       [expected, unexpected].each do |patterns|
-        patterns.map do |pattern|
+        patterns.map! do |pattern|
           case pattern
           when String
             gsub.call(pattern)
@@ -170,7 +170,8 @@ module CucuShift
     #       in :cmd with `<options>` and `<global_options>`.
     def build_command_line(cmd_key, options)
       global_option_rules = rules[:global_options] || {}
-      option_rules = rules[cmd_key][:options]
+      raise "unknown command #{cmd_key}" unless rules[cmd_key]
+      option_rules = rules[cmd_key][:options] || {}
 
       ## build command parameters based on cmd options
       #  if rules are missing for a user provided option, we raise
@@ -187,7 +188,10 @@ module CucuShift
           when global_option_rules[key]
             global_parameters << " " << global_option_rules[key].gsub('<value>', normalize(value))
           else
-            raise "no rules found for option: #{key}"
+            # unknown options are threated like errors to avoid false positives
+            unless rules[cmd_key][:cmd].include? "<#{key}>"
+              raise "no rules found for option: #{key}"
+            end
           end
         }
       }
@@ -196,8 +200,8 @@ module CucuShift
       #  we raise when mandatory options in :cmd are missing
       cmd = rules[cmd_key][:cmd].dup
       opts_added = globals_added = false
-      cmd.gsub(/<(.+?)>/) { |m|
-        opt_key = $1.to_sym
+      cmd.gsub!(/<(.+?)>/) { |m|
+        opt_key = m[1..-2].to_sym
         case opt_key
         when :options
           opts_added = true
@@ -206,10 +210,10 @@ module CucuShift
           globals_added = true
           global_parameters
         else
-          raise "need to provide '#{opt_key}' option" unless options[opt_key]
-          options[opt_key]
+          options[opt_key] || raise("need to provide '#{opt_key}' option")
         end
       }
+
       cmd << parameters unless opts_added
       cmd << global_parameters unless globals_added
       return cmd
@@ -221,7 +225,7 @@ module CucuShift
     # @note imaplement {self#build_command_line} described handling of values
     def normalize(value, **opts)
       value = value.to_s
-      noescape = opts.has_key? :noescape ? opts[:noescape] : false
+      noescape = opts.has_key?(:noescape) ? opts[:noescape] : false
       catch(:redo) do
         case value
         when /\Aliteral: (.*)\z/
@@ -238,7 +242,13 @@ module CucuShift
 
     private def rules
       return @rules if @rules
-      return @rules = Collections.deep_freeze(self.class.load_rules(@rules_source))
+      rules = Collections.deep_freeze(self.class.load_rules(@rules_source))
+      self.class.validate_rules(rules)
+      return @rules = rules
+    end
+
+    def self.validate_rules(rules)
+      # TODO: raise if we find duplicate keys used in :cmd and :options as well in :global_options
     end
 
     def self.load_rules(*sources)

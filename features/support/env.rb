@@ -4,6 +4,9 @@ $LOAD_PATH << File.expand_path("#{__FILE__}/../../../lib")
 if RUBY_VERSION.split('.')[0].to_i < 2 || RUBY_VERSION.split('.')[0] == '2' &&  RUBY_VERSION.split('.')[1].to_i < 2
   raise "Ruby version earlier than 2.2 not supported"
 end
+if Cucumber::VERSION.split('.')[0].to_i < 2
+  raise "Cucumber version < 2 not supported"
+end
 
 require 'common' # common code
 require 'world' # our custom cucushift world
@@ -32,6 +35,7 @@ Before do |_scenario|
 end
 
 After do |scenario|
+  @scenario = scenario # this is different object than in Before hook
   if debug_in_after_hook?
     require 'pry'
     binding.pry

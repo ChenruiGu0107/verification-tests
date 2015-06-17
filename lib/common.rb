@@ -46,6 +46,14 @@ module CucuShift
         raise "can't translate #{which} to a number"
       end
 
+      # normalize strings used for keys
+      # @param [String] key the key to be converted
+      # @return string converted to a Symbol key
+      def str_to_sym(key)
+        return key if key.kind_of? Symbol
+        return key.gsub(" ", "_").sub(/^:/,'').to_sym
+      end
+
       # @return hash with same content but keys.to_sym
       def hash_symkeys(hash)
         Hash[hash.collect {|k,v| [k.to_sym, v]}]

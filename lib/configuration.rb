@@ -52,7 +52,7 @@ module CucuShift
       # if envvariable is set, then override the value where "false" is false
       global_overrides.each { |o, var|
         if ENV.key? var
-          conf[:global][o] = ENV[key] == "false" ? false : ENV[key]
+          conf[:global][o] = ENV[var] == "false" ? false : ENV[var]
         end
       }
     end
