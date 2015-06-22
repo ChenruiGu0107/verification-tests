@@ -42,6 +42,13 @@ module CucuShift
       @workdir
     end
 
+    # @ param [String] path the path to convert to an absolute path
+    # @return expanded path with workdir as basedir; no IO is done so workdir
+    #   may not exist after the call; absolute path is return intact
+    def absolute_path(path)
+      File.absolute_path(path, @workdir)
+    end
+
     def roles
       @properties[:roles] ||= {}
     end
@@ -312,10 +319,26 @@ module CucuShift
     def initialize(hostname, opts={})
       hostname ||= self.hostname
       super
-      unless opts[:workdir]
-        # write everything to WORKSPACE on jenkins, otherwise use `~/workdir`
-        basepath = ENV["WORKSPACE"] ? ENV["WORKSPACE"] + "/workdir/" : "~/workdir/"
-        @workdir = File.expand_path("#{basepath}#{@workdir}").freeze
+
+      # figure out workdir
+      # write everything to WORKSPACE on jenkins, otherwise use `~/workdir`
+      basepath = ENV["WORKSPACE"] ? ENV["WORKSPACE"]+"/workdir/" : "~/workdir/"
+      basepath = File.expand_path(basepath)
+
+      @workdir = opts[:workdir] ? opts[:workdir] : EXECUTOR_NAME
+      @workdir = File.absolute_path(@workdir, basepath).freeze
+    end
+
+    def file_exist?(file, opts={})
+      # intentionally use @workdir to avoid creating dir unnecessarily
+      File.exist?(File.absolute_path(file, @workdir))
+    end
+
+    def exec_raw(*cmds, **opts)
+      if opts.delete(:single) || cmds.size == 1
+        return exec_foreground(*cmds, **opts)
+      else
+        return exec_foreground(*commands_to_string(cmds), **opts)
       end
     end
 
@@ -328,8 +351,8 @@ module CucuShift
 
   class SSHAccessibleHost < LinuxLikeHost
     # @return [boolean] if there is currently an active connection to the host
-    private def connected?
-      @ssh && @ssh.active?
+    private def connected?(verify: false)
+      @ssh && @ssh.active?(verify: verify)
     end
 
     private def ssh_opts(opts)
@@ -347,7 +370,7 @@ module CucuShift
     end
 
     private def ssh(opts={})
-      return @ssh if connected?
+      return @ssh if connected?(verify: true)
       return @ssh = SSH.new(hostname, ssh_opts(opts))
     end
 
@@ -357,7 +380,7 @@ module CucuShift
     end
 
     private def close
-      @ssh.close
+      @ssh.close if @ssh
     end
 
     def cleanup
@@ -367,6 +390,3 @@ module CucuShift
     end
   end
 end
-
-
-

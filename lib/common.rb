@@ -98,26 +98,27 @@ module CucuShift
       end
     end
 
-    # @note some platform neutral shell commands execution methods
+    # @note some platform neutral shell commands execution methods;
     #       to be included into Host classes
     module LocalShell
       # use the opt hash to introduce parameters you want to set
       # the if no :timeout is sepecified, it will default to 600 seconds
-      def exec_raw(*cmds, **opts)
+      def exec_foreground(*cmd, **opts)
         # TODO: user read_nonblock and implement proper timeout
         # see: https://gist.github.com/lpar/1032297
 
-        cmds.flatten!
+        cmd.flatten!
+        cmdstr = cmd.size == 1 ? cmd.first : "#{cmd}"
         # environment hash is first param according to docs
-        cmds.unshift(opts[:env]) if opts[:env]
+        cmd.unshift(opts[:env]) if opts[:env]
 
         res = opts[:result] || {}
-        res[:command] = cmd
-        instruction = "\`#{cmd}\`"
+        res[:command] = cmdstr
+        instruction = "\`#{cmdstr}\`"
         logger.info(instruction)
         res[:instruction] = instruction
         exit_status = nil
-        logger.info("Shell Command: #{cmd}")
+        logger.info("Shell Commands:\n" + cmdstr)
         if opts[:timeout]
           timeout_value = opts[:timeout].to_i
         else
@@ -125,11 +126,11 @@ module CucuShift
         end
         Timeout::timeout(timeout_value) {
           if opts[:stderr] == opts[:stdout]
-            stdout, exit_status = Open3.capture2e(*cmds, stdin_data: opts[:stdin])
+            stdout, exit_status = Open3.capture2e(*cmd, stdin_data: opts[:stdin])
             stdout = opts[:stdout] << stdout if opts[:stdout]
             res[:stdout] = res[:stderr] = stdout
           else
-            stdout, stderr, exit_status = Open3.capture3(*cmds, stdin_data: opts[:stdin])
+            stdout, stderr, exit_status = Open3.capture3(*cmd, stdin_data: opts[:stdin])
             stdout = opts[:stdout] << stdout if opts[:stdout]
             stderr = opts[:stderr] << stdout if opts[:stderr]
             res[:stdout] = stdout
@@ -149,7 +150,7 @@ module CucuShift
         logger.print(res[:stdout], false)
         logger.print(res[:stderr], false) if res[:stderr] != res[:stdout]
         logger.info("Exit Status: #{res[:exitstatus]}")
-        return result
+        return res
       end
 
 
