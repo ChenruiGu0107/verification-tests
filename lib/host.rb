@@ -35,18 +35,35 @@ module CucuShift
       properties[key]
     end
 
-    private def workdir
+    private def workdir(**opts)
       unless @workdir_exists
         @workdir_exists = mkdir(@workdir, :raw => true)
       end
-      @workdir
+      if ! opts[:absolute] || ["/", "\\"].include?(@workdir[0])
+        return @workdir
+      else
+        return @workdir_abs ||= File.absolute_path(@workdir, pwd)
+      end
+    end
+
+    # @return pwd of raw commands executed on the host
+    private def pwd
+      raise '#{__method__} method not implemented'
     end
 
     # @ param [String] path the path to convert to an absolute path
-    # @return expanded path with workdir as basedir; no IO is done so workdir
-    #   may not exist after the call; absolute path is return intact
-    def absolute_path(path)
-      File.absolute_path(path, @workdir)
+    # @return expanded path with workdir as basedir; IO might not be done so
+    #   workdir may not exist after the call; if absolute, path is returned
+    #   intact
+    def absolute_path(path, **opts)
+      if ["/", "\\"].include? path[0]
+        return path
+      elsif opts[:raw]
+        return File.absolute_path(path, pwd)
+      else
+        ws_abs_path = ["/", "\\"].include?(@workdir[0]) ? @workdir : workdir(absolute: true)
+        return File.absolute_path(path, ws_abs_path)
+      end
     end
 
     def roles
@@ -145,8 +162,10 @@ module CucuShift
       raise '#{__method__} method not implemented'
     end
 
-    def cleanup
-      @workdir_exists = ! delete(@workdir, :r => true, :raw => true)
+    def clean_up
+      if @workdir_exists
+        @workdir_exists = ! delete(@workdir, :r => true, :raw => true)
+      end
     end
 
     # @param key [STRING] if you perform multiple unrelated setup operations on host, this param lets framework distinguish between lock directories
@@ -222,6 +241,18 @@ module CucuShift
       return "'" << str.gsub("'") {|m| %q{'\''}} << "'"
     end
 
+    # @return pwd of raw commands executed on the host
+    private def pwd
+      res = exec_raw('pwd', quiet: true)
+      unless res[:exitstatus] == 0
+        logger.error(res[:stdout])
+        logger.error(res[:stderr])
+        raise "could not get pwd, see log"
+      end
+
+      return res[:stdout].strip
+    end
+
     # @param [String] file check this file for existence
     def file_exist?(file, opts={})
       exec("ls -d #{shell_escape(file)}", **opts)[:success]
@@ -284,17 +315,21 @@ module CucuShift
       else
         r = ""
       end
+      file = shell_escape file
       if opts[:raw]
-        exec_raw("rm #{r} -f '#{file}'", opts)
-        res = exec_raw("ls -d '#{file}'", opts)
+        exec_raw("rm #{r} -f #{file}", opts)
+        opts[:quiet] = true
+        res = exec_raw("ls -d #{file}", opts)
       else
-        exec("rm #{r} -f '#{file}'", opts)
-        res = exec("ls -d '#{file}'", opts)
+        exec("rm #{r} -f #{file}", opts)
+        opts[:quiet] = true
+        res = exec("ls -d #{file}", opts)
       end
 
       return ! res[:success]
     end
 
+    # wait until one file in the list is found and returns its name
     def wait_for_files(*files, **opts)
       conditions = [files].flatten.map { |f|
         "[ -f \"#{f}\" ] && echo FOUND FILE: && break\n"
@@ -322,6 +357,7 @@ module CucuShift
 
       # figure out workdir
       # write everything to WORKSPACE on jenkins, otherwise use `~/workdir`
+      # on localhost, usage of relative workspace path may cause trouble
       basepath = ENV["WORKSPACE"] ? ENV["WORKSPACE"]+"/workdir/" : "~/workdir/"
       basepath = File.expand_path(basepath)
 
@@ -331,7 +367,13 @@ module CucuShift
 
     def file_exist?(file, opts={})
       # intentionally use @workdir to avoid creating dir unnecessarily
-      File.exist?(File.absolute_path(file, @workdir))
+      file = File.absolute_path(file, @workdir) unless opts[:raw]
+      return File.exist?(file)
+    end
+
+    # Do not use unless absolutey sure what you are doing
+    def chdir(dir=nil)
+      Dir.chdir(dir || workdir)
     end
 
     def exec_raw(*cmds, **opts)
@@ -343,6 +385,11 @@ module CucuShift
     end
 
     # TODO: implement delete, mkdir, touch in ruby
+
+    def clean_up
+      chdir(HOME)
+      super
+    end
 
     def hostname
       HOSTNAME
@@ -383,7 +430,7 @@ module CucuShift
       @ssh.close if @ssh
     end
 
-    def cleanup
+    def clean_up
       return unless connected?
       super
       close

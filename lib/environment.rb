@@ -39,6 +39,7 @@ module CucuShift
 
     def clean_up
       @user_manager.clean_up if @user_manager
+      @hosts.each {|h| h.clean_up } if @hosts
     end
   end
 

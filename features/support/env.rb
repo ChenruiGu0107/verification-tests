@@ -29,9 +29,9 @@ World do
 end
 
 Before do |_scenario|
+  localhost.chdir
   self.scenario = _scenario
   setup_logger
-
 end
 
 After do |scenario|

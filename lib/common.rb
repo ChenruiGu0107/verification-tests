@@ -18,6 +18,10 @@ module CucuShift
         manager.logger
       end
 
+      def localhost
+        Host.localhost
+      end
+
       def to_bool(param)
         return false unless param
         if param.kind_of? String
@@ -147,8 +151,10 @@ module CucuShift
         res[:exitstatus] = exit_status
         res[:success] = exit_status == 0
         res[:response] = res[:stdout]
-        logger.print(res[:stdout], false)
-        logger.print(res[:stderr], false) if res[:stderr] != res[:stdout]
+        unless opts[:quiet]
+          logger.print(res[:stdout], false)
+          logger.print(res[:stderr], false) if res[:stderr] != res[:stdout]
+        end
         logger.info("Exit Status: #{res[:exitstatus]}")
         return res
       end

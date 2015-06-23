@@ -70,7 +70,7 @@ module CucuShift
     end
 
     def closed?
-      return ! @session.active?(verify: false)
+      return ! active?(verify: false)
     end
 
     def active?(verify: false)

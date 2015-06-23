@@ -22,6 +22,7 @@ module CucuShift
 
     def clean_up
       @environments.clean_up if @environments
+      Host.localhost.clean_up
       @world = nil
     end
 
