@@ -41,7 +41,7 @@ module CucuShift
     end
 
     private def rules_version(str_version)
-      return str_version[0]
+      return str_version.split('.')[1]
     end
   end
 
