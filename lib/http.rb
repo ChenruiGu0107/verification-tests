@@ -51,15 +51,17 @@ module CucuShift
         result[:error] = e
         result[:cookies] = {}
         result[:headers] = {}
+        result[:size] = 0
         response = exception_to_string(e)
       end
     ensure
-      logger.info("HTTP status: #{result[:error] || result[:exitstatus]}") unless quiet
+      logger.info("HTTP status: #{result[:error] || response.description}") unless quiet
       result[:exitstatus] ||= response.code
       result[:response] = response
       result[:success] = result[:exitstatus].to_s[0] == "2"
       result[:cookies] ||= response.cookies
-      result[:headers] ||= response.headers
+      result[:headers] ||= response.raw_headers
+      result[:size] ||= response.size
       return result
     end
 
