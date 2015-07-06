@@ -1,0 +1,35 @@
+---
+:common:
+  :base_url: https://<server>/oapi/<oapi_version>
+  # array of headers to be included by default in each request
+  :include_headers:
+  - Accept
+  - Content-Type
+  - Authorization
+  # Array of headers to be excluded (override includes), e.g. Content-Type.
+  #   Keep default excludes always empty, because there's no way to override.
+  :exclude_headers: []
+  # default options
+  :options:
+    :oapi_version: v1
+    :accept: application/json
+    :content_type: application/json
+  :headers:
+    Accept: <accept>
+    Content-Type: <content_type>
+    Authorization: Bearer <oauth_token>
+  # payload is nil, Hash when json is desired or anything accepted by RestClient
+  # :payload: nil
+  # in the future we may put here client SSL certificate
+  # :ssl_client_certificate: nil
+:delete_oauthaccesstokens:
+  :url: oauthaccesstokens/<oauth_token>
+  :method: DELETE
+:list_projects:
+  :url: projects
+  :method: GET
+:create_project_request:
+  :url: projectrequests
+  :payload:
+    :description: <value>
+    :displayName: <value>

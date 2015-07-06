@@ -1,8 +1,8 @@
-require 'yaml'
 require 'find'
 # require 'shellwords'
 
 require 'collections'
+require 'rules_common.rb'
 
 module CucuShift
   class RulesCommandExecutor
@@ -242,43 +242,13 @@ module CucuShift
 
     private def rules
       return @rules if @rules
-      rules = Collections.deep_freeze(self.class.load_rules(@rules_source))
+      rules = Collections.deep_freeze(Common::Rules.load(@rules_source))
       self.class.validate_rules(rules)
       return @rules = rules
     end
 
     def self.validate_rules(rules)
       # TODO: raise if we find duplicate keys used in :cmd and :options as well in :global_options
-    end
-
-    def self.load_rules(*sources)
-      return sources.flatten.reduce({}) { |rules, source|
-        if source.kind_of? Hash
-        elsif File.file? source
-          source = YAML.load_file source
-        elsif File.directory? source
-          files = []
-          if source.end_with? "/"
-            # we should be recursive
-            Find.find(source) { |path|
-              if File.file?(path) && path.end_with?(".yaml",".yml")
-                files << path
-              end
-            }
-          else
-            # we should only load .yaml files in current dir
-            files << Dir.entries(source).select {|d| File.file?(d) && d.end_with?(".yaml",".yml")}
-          end
-
-          source = load_rules(files)
-        else
-          raise "unknown rules source '#{source.class}': #{source}"
-        end
-
-        rules.merge!(source) { |key, v1, v2|
-          raise "duplicate key '#{key}' in rules: #{sources}"
-        }
-      }
     end
   end
 end

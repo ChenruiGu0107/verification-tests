@@ -6,3 +6,4 @@ global:
   debug_in_after_hook: false
   debug_in_after_hook_always: false
 
+  default_rest_api_version: v1
