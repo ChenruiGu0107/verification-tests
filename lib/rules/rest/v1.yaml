@@ -18,7 +18,16 @@
     Accept: <accept>
     Content-Type: <content_type>
     Authorization: Bearer <oauth_token>
-  # payload is nil, Hash when json is desired or anything accepted by RestClient
+  # payload should be nil, in individual request rules it can be Hash when
+  #   json is desired or anything accepted by RestClient;
+  #   payload is handled interesting though. When it is a hash of param=>value
+  #   pairs, then a param is included in request only if there is a key in the
+  #   options hash (options[:myparam]) with a truish value. Then value of
+  #   parameter in rules is scanned for <value> placeholder to be replaced with
+  #   that value.
+  #   If there is no <value> placeholder, then nothing is replaced. Each param
+  #   rule value is also scanned for <something> placeholders to be replaced
+  #   with options[:something]
   # :payload: nil
   # in the future we may put here client SSL certificate
   # :ssl_client_certificate: nil
@@ -29,7 +38,8 @@
   :url: projects
   :method: GET
 :create_project_request:
+  :method: POST
   :url: projectrequests
   :payload:
-    :description: <value>
-    :displayName: <value>
+    :description: <description>
+    :displayName: <displayName>

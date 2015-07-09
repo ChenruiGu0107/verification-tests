@@ -1,3 +1,5 @@
+require 'set'
+
 require 'http'
 require 'result_hash'
 require 'common'
@@ -26,20 +28,85 @@ module CucuShift
       key = str_to_sym(key)
       opts = opts_array_to_hash(opts)
       http_opts = {}
+      used_opts = Set.new
 
       ## make sure opts contain only allowed values
       opts.keys.each { |k|
-        raise "use rest rules to set key: #{k}" unless [:options, :excluded_headers].include? k
+        raise "use rest rules to set key: #{k}" unless [:options, :excluded_headers, :included_headers].include? k
       }
 
+      ## lowest priority are common rules and highest - the user provided opts
       rules = merge_rest_rules(rules[:common], rules[key], opts)
 
-      url = rules[:base_url] + "/" + rules[:url]
-      raise "unimplemented"
+      http_opts[:url] = rules[:base_url] + "/" + rules[:url]
+      http_opts[:headers] = rules[:headers].select{|h,v| rules[:included_headers].include? h}.delete_if{|h| rules[:excluded_headers].include? h}
+      http_opts[:payload] = rules[:payload] if rules[:payload]
+
+      ## replace options within values again without modifying any rules
+      http_opts.keys.each do |key|
+        case http_opts[key]
+        when Hash
+        when String
+
+        else
+          raise "opt replace in #{http_opts[key].class} not implemented"
+        end
+      end
+
+      http_opts[:method] = rules[:method]
     end
 
-    def merge_rest_rules(*rules)
-      raise "unimplemented"
+    def self.get_oauth_token(server_url:, user:, password:)
+      # TODO
+      # :headers => {'X-CSRF-Token' => 'xxx'} seems not needed
+      opts = {:user=>"joe",
+              :password=>"redhat",
+              :max_redirects=>0,
+              :url=>"https://master.cluster.local:8443/oauth/authorize",
+              :params=> {"client_id"=>"openshift-challenging-client", "response_type"=>"token"},
+              :method=>"GET"
+             }
+      res = CucuShift::Http.http_request(**opts)
+    end
+
+    # replace <something> strings inside strings given option hash with symbol
+    #   keys
+    # @param [String] str string to replace
+    # @param [Hash] opts hash options to use for replacement
+    # @param [Set] used_opts put oprions used for replacement in that array
+    private def self.replace_str(str, opts, used_opts)
+      str.gsub!(/<(.+?)>/) { |m|
+        opt_key = m[1..-2].to_sym
+        if options[opt_key]
+          used_opts << opt_key
+          options[opt_key]
+        else
+          raise("need to provide '#{opt_key}' REST option")
+        end
+      }
+    end
+
+    # try to safety merge rules in order given without modifying them
+    private def self.merge_rest_rules(*rules)
+      res = rules.shift.dup
+      rules.each do |hash|
+        res.merge!(hash) do |key, old, new|
+          case
+          when key == :payload
+            # merging payload is a bad idea as payload type of different
+            #   requests may not match; each request is better independent
+            raise "do not try merging rest request :payload"
+          when Array === old && Array === new
+            old & new
+          when Hash === old && Hash === new
+            old.merge(new)
+          else
+            new
+          end
+        end
+      end
+
+      return res
     end
 
     # converts an options array into a Hash for performing a REST request.
@@ -61,7 +128,7 @@ module CucuShift
         # we assume that things are normalized when Hashed is passed in
         return opts
       when Array
-        res = {:options => {}, :excluded_headers => []}
+        res = {:options => {}, :excluded_headers => [], :included_headers => []}
         lastval = nil
         opts.each do |key, value|
           case key.strip!
@@ -71,10 +138,10 @@ module CucuShift
             else
               raise "cannot start rest request table with and empty key"
             end
-          when /^:excluded_headers$/
+          when /^:excluded_headers?$/
             res[:excluded_headers].concat(value.split(",").map(&:strip))
-          when /^:excluded_header$/
-            res[:excluded_headers] << value.strip
+          when /^:included_headers?$/
+            res[:included_headers].concat(value.split(",").map(&:strip))
           when /^:/
             res[str_to_sym(key)] = lastval = value
           else
