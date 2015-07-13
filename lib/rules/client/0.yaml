@@ -30,13 +30,21 @@
     :p: -p <value>
     :username: --username=<value>
     :password: --password=<value>
+    :token: --token=<value>
   :expected:
     - Login successful.
 :logout:
   :cmd: oc logout
   :expected:
     - !ruby/regexp '/Logged ".+" out on/'
-:get:
-  :cmd: oc get <resource>
-:delete:
-  :cmd: oc delete <object_type> <object_name_or_id>
+#:get:
+#  :cmd: oc get <resource>
+#:delete:
+#  :cmd: oc delete <object_type> <object_name_or_id>
+:config_view:
+  :cmd: oc config view
+  :options:
+    :output: --output <value>
+  :expected:
+    - apiVersion: v
+    - kind: Config

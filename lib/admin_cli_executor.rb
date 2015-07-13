@@ -38,6 +38,9 @@ module CucuShift
     private def rules_version(str_version)
       return str_version.split('.')[1]
     end
+
+    def clean_up
+    end
   end
 
   # execites admin commands as admin on first master host
@@ -62,6 +65,11 @@ module CucuShift
 
     def exec(key, **opts)
       executor.run(key, opts)
+    end
+
+    def clean_up
+      @executor.clean_up if @executor
+      super
     end
   end
 end

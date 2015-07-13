@@ -250,5 +250,9 @@ module CucuShift
     def self.validate_rules(rules)
       # TODO: raise if we find duplicate keys used in :cmd and :options as well in :global_options
     end
+
+    def clean_up
+      # I don't see what we can do here, not safe to clean_up host
+    end
   end
 end

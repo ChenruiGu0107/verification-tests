@@ -12,16 +12,19 @@ module CucuShift
   class DefaultManager
     include Singleton
     attr_accessor :world
-    # attr_reader :environments
+    attr_reader :temp_resources
 
     def initialize
       @world = nil
+      @temp_resources = []
 
       # @browsers = ...
     end
 
     def clean_up
       @environments.clean_up if @environments
+      @temp_resources.each(&:clean_up)
+      @temp_resources.clear
       Host.localhost.clean_up
       @world = nil
     end

@@ -1,7 +1,11 @@
+require 'json'
+
 require 'cli_executor'
 require 'admin_cli_executor'
 require 'user_manager'
 require 'host'
+require 'rest'
+require 'http'
 
 module CucuShift
   # @note this class represents an OpenShift test environment and allows setting it up and in some cases creating and destroying it
@@ -37,9 +41,59 @@ module CucuShift
       @admin_cli_executor ||= CucuShift.const_get(opts[:admin_cli]).new(self, **opts)
     end
 
+    def rest_request_executor
+      Rest::RequestExecutor
+    end
+
+    def api_proto
+      opts[:api_proto] || "https"
+    end
+
+    def api_port
+      opts[:api_port] || "8443"
+    end
+
+    def api_hostname
+      api_host.hostname
+    end
+
+    def api_host
+      opts[:api_host] || env.master_hosts.first
+    end
+
+    def api_endpoint_url
+      opts[:api_url] || "#{api_proto}://#{api_hostname}:#{api_port}"
+    end
+
+    # get environment supported API paths
+    def api_paths
+      return @api_paths if @api_paths
+
+      opts = {:max_redirects=>0,
+              :url=>api_endpoint_url,
+              :method=>"GET"
+      }
+      res = Http.http_request(**opts)
+
+      unless res[:success]
+        raise "could not get API paths, see log"
+      end
+
+      return @api_paths = JSON.load(res[:response])["paths"]
+    end
+
+    # get latest API version supported by server
+    def api_version
+      return @api_version if @api_version
+      idx = api_paths.rindex{|p| p.start_with?("/api/v")}
+      return @api_version = api_paths[idx][5..-1]
+    end
+
     def clean_up
       @user_manager.clean_up if @user_manager
       @hosts.each {|h| h.clean_up } if @hosts
+      @cli_executor.clean_up if @cli_executor
+      @admin_cli_executor.clean_up if @admin_cli_executor
     end
   end
 

@@ -1,10 +1,14 @@
 require 'time'
 
+require 'base_helper'
+
 # should not require 'common'
 # filename is log.rb to avoid interference with logger ruby feature
+require 'base_helper'
 
 module CucuShift
   class Logger
+    include Common::BaseHelper
     begin
       require 'term/ansicolor'
       include Term::ANSIColor
@@ -41,6 +45,12 @@ module CucuShift
     end
 
     def log(msg, prefix="INFO> ", show_datetime='time')
+      ## take case of special message types
+      case msg
+      when Exception
+        msg = exception_to_string(msg)
+      end
+
       m = ""
       if show_datetime == 'time'
         m = "#{Time.now.strftime("[%H:%M:%S]")} #{prefix}#{msg}"
@@ -49,10 +59,13 @@ module CucuShift
       else
         m = "#{prefix}#{msg}"
       end
+
+      # set colo/reset terminal if Term::ANSIColor installed, skip otherwise
       begin
         m = @@color+m+reset
-      rescue =>e
+      rescue => e
       end
+
       @@runtime.puts(m)
     end
 

@@ -1,4 +1,7 @@
+require 'yaml'
+
 require 'rules_command_executor'
+require 'token'
 
 module CucuShift
   class CliExecutor
@@ -19,22 +22,6 @@ module CucuShift
       raise
     end
 
-    def api_proto
-      opts[:api_proto] || "https"
-    end
-
-    def api_port
-      opts[:api_port] || "8443"
-    end
-
-    def api_hostname
-      opts[:api_hostname] || env.master_hosts.first.hostname
-    end
-
-    def api_url
-      opts[:api_url] || "#{api_proto}://#{api_hostname}:#{api_port}"
-    end
-
     private def version
       return opts[:cli_version]
       # this method needs to be overwriten per executor to find out version
@@ -42,6 +29,9 @@ module CucuShift
 
     private def rules_version(str_version)
       return str_version.split('.')[1]
+    end
+
+    def clean_up
     end
   end
 
@@ -58,7 +48,7 @@ module CucuShift
     def executor(user)
       return @executors[user.name] if @executors[user.name]
 
-      host = user.env.master_hosts.first
+      host = user.env.api_host
       version = version_for_user(user, host)
       executor = RulesCommandExecutor.new(host: host, user: user.name, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
 
@@ -68,11 +58,30 @@ module CucuShift
       # clean-up:
       #   .config/openshift/config
       #   .kube/config
-      executor.run(:logout, {}) # ignore outcome
-      res = executor.run(:login, username: user.name, password: user.password, ca: "/etc/openshift/master/ca.crt", server: "#{api_proto}://#{host.hostname}:#{api_port}")
+      if user.cached_tokens.size == 0
+        ## login with username and password and generate a bearer token
+        executor.run(:logout, {}) # ignore outcome
+        res = executor.run(:login, username: user.name, password: user.password, ca: "/etc/openshift/master/ca.crt", server: user.env.api_endpoint_url)
+      else
+        ## login with existing token
+        res = executor.run(:login, token: user.cached_tokens.first, ca: "/etc/openshift/master/ca.crt", server: user.env.api_endpoint_url)
+      end
       unless res[:success]
         logger.error res[:response]
         raise "cannot login with command: #{res[:instruction]}"
+      end
+
+      if user.cached_tokens.size == 0
+        ## lets cache tokens obtained by username/password
+        res = executor.exec(user, :config_view, output: "yaml")
+        unless res[:success]
+          logger.error res[:response]
+          raise "cannot read user configuration by: #{res[:instruction]}"
+        end
+        conf = YAML.load(res[:response])
+        uhash = conf["users"].find{|u| u["name"].start_with?(user.name + "/")}
+        # hardcode one day validity as we cannot get validity from config
+        user.cached_tokens << Token.new(user: user, token: uhash["user"]["token"], valid: Time.now + 24 * 60 * 60)
       end
 
       return @executors[user.name] = executor
@@ -91,6 +100,12 @@ module CucuShift
 
     def exec(user, key, **opts)
       executor(user).run(key, opts)
+    end
+
+    def clean_up
+      @executors.each(&:clean_up)
+      @executors.clear
+      super
     end
   end
 end
