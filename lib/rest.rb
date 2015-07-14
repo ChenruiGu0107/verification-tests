@@ -17,7 +17,7 @@ module CucuShift
           raise "you need to supply only one of: user or base_opts parameter"
         end
 
-        if ! base_opts
+        unless base_opts
           base_opts = get_base_opts(user: user, auth: auth)
         end
 
@@ -36,10 +36,11 @@ module CucuShift
         opts[:options][:content_type] = "application/json"
 
         opts[:base_url] = user.env.api_endpoint_url
+        opts[:headers] = {}
         opts[:headers]["Accept"] = "<accept>"
         opts[:headers]["Content-Type"] = "<content_type>"
 
-        auth ||= user.rest_preferences[:auth] || conf[:rest_default_auth] || :bearer_token
+        auth ||= user.rest_preferences[:auth] || Http.conf[:rest_default_auth] || :bearer_token
         case auth
         when :bearer_token
           opts[:options][:oauth_token] = user.get_bearer_token.token
@@ -64,7 +65,7 @@ module CucuShift
       #   to be performed; In most cases those will be simple key/value pairs
       def self.delegate_rest_request(req, base_opts, req_opts)
         ## use special hash like class to track usage of supplied options
-        tracked_opts = UsageTrackingHash.new(base_opts.delete(:options).merge(opts))
+        tracked_opts = UsageTrackingHash.new(base_opts.delete(:options).merge(req_opts))
         tracked_opts[:oapi_version] # make sure this is marked accessed
         tracked_opts[:api_version] # make sure this is marked accessed
 

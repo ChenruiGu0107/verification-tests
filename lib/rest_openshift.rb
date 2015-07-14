@@ -8,7 +8,7 @@ module CucuShift
 
       def self.populate_common(path, base_opts, opts)
         base_path = "/oapi/<oapi_version>"
-        base_opts[:url] = base_opts[:base_url] + base_path + path
+        base_opts[:url] = base_opts.delete(:base_url) + base_path + path
 
         replace_angle_brackets!(base_opts[:url], opts)
         base_opts[:headers].each {|h,v| replace_angle_brackets!(v, opts)}
@@ -24,15 +24,18 @@ module CucuShift
       end
 
       def self.delete_oauthaccesstoken(base_opts, opts)
-        base_opts = populate("/delete/<token_to_delete>", base_opts, opts)
-        base_opts[:method] = "DELETE"
-        return Http.request(**base_opts)
+        populate("/delete/<token_to_delete>", base_opts, opts)
+        return Http.request(**base_opts, method: "DELETE")
       end
 
       def self.list_projects(base_opts, opts)
-        base_opts = populate("/projects", base_opts, opts)
-        base_opts[:method] = "GET"
-        return Http.request(**base_opts)
+        populate("/projects", base_opts, opts)
+        return Http.request(**base_opts, method: "GET")
+      end
+
+      def self.delete_project(base_opts, opts)
+        populate("/projects/<project_name>", base_opts, opts)
+        return Http.request(**base_opts, method: "DELETE")
       end
 
       def self.create_project_request(base_opts, opts)
@@ -40,8 +43,7 @@ module CucuShift
         base_opts[:payload]["displayName"] = opts[:displayName] if opts[:displayName]
         base_opts[:payload]["description"] = opts[:description] if opts[:description]
         base_opts = populate("/projectrequests", base_opts, opts)
-        base_opts[:method] = "POST"
-        return Http.request(**base_opts)
+        return Http.request(**base_opts, method: "POST")
       end
     end
   end

@@ -63,7 +63,8 @@ module CucuShift
       )
     end
 
-    def exec(key, **opts)
+    # @param [Hash, Array] opts the options to pass down to executor
+    def exec(key, opts={})
       executor.run(key, opts)
     end
 

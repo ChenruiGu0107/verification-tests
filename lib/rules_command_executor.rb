@@ -66,7 +66,21 @@ module CucuShift
       # replace only things that look like opt keys
       gsub = proc do |str|
         str.gsub(/<([a-z_]+?)>/) { |m|
-          val = options[m[1..-2].to_sym]
+          key = m[1..-2].to_sym
+          val = nil
+          if options.kind_of?(Hash)
+            val = options[key]
+          else
+            options.each{ |k,v|
+              if k == key
+                if val
+                  raise "cannot handle multiple opts for expectations building"
+                else
+                  val = v
+                end
+              end
+            }
+          end
           val ? normalize(val, :noescape => true) : m
         }
       end
@@ -77,7 +91,7 @@ module CucuShift
           when String
             gsub.call(pattern)
           when Regexp
-            # do some magic to gsun regular expressions
+            # do some magic to gsub regular expressions
             changed = gsub.call(pattern.source)
             changed == pattern.source ? pattern : Regexp.new(changed)
           else
@@ -177,6 +191,8 @@ module CucuShift
       #  if rules are missing for a user provided option, we raise
       parameters = ""
       global_parameters = ""
+      cmd = rules[cmd_key][:cmd].dup
+      cmd_used_options = [] # to control ignorant multiple values
       options.each { |key, values|
         [values].flatten.each { |value|
           # false might be valid option so we don't ignore option on it
@@ -187,18 +203,22 @@ module CucuShift
             parameters << " " << option_rules[key].gsub('<value>', normalize(value))
           when global_option_rules[key]
             global_parameters << " " << global_option_rules[key].gsub('<value>', normalize(value))
+          when cmd.include?("<#{key}>")
+            if cmd_used_options.include? key
+              raise "options with multiple values given in cmd string forbidden"
+            else
+              cmd.gsub!("<#{key}>", normalize(value))
+              cmd_used_options << key
+            end
           else
             # unknown options are threated like errors to avoid false positives
-            unless rules[cmd_key][:cmd].include? "<#{key}>"
-              raise "no rules found for option: #{key}"
-            end
+            raise "no rules found for option: #{key}"
           end
         }
       }
 
       ## build final command
       #  we raise when mandatory options in :cmd are missing
-      cmd = rules[cmd_key][:cmd].dup
       opts_added = globals_added = false
       cmd.gsub!(/<(.+?)>/) { |m|
         opt_key = m[1..-2].to_sym
@@ -210,7 +230,9 @@ module CucuShift
           globals_added = true
           global_parameters
         else
-          options[opt_key] || raise("need to provide '#{opt_key}' option")
+          # cmd substitution is taken care of in the previous loop
+          # options[opt_key] || raise("need to provide '#{opt_key}' option")
+          raise "required command option not supplied: #{opt_key}"
         end
       }
 

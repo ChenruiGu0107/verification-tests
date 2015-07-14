@@ -70,7 +70,7 @@ module CucuShift
       def replace_angle_brackets!(str, opts)
         str.gsub!(/<(.+?)>/) { |m|
           opt_key = m[1..-2].to_sym
-          options[opt_key] || raise("need to provide '#{opt_key}' REST option")
+          opts[opt_key] || raise("need to provide '#{opt_key}' REST option")
         }
       end
     end

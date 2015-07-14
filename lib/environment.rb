@@ -58,7 +58,7 @@ module CucuShift
     end
 
     def api_host
-      opts[:api_host] || env.master_hosts.first
+      opts[:api_host] || master_hosts.first
     end
 
     def api_endpoint_url

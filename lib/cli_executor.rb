@@ -64,7 +64,7 @@ module CucuShift
         res = executor.run(:login, username: user.name, password: user.password, ca: "/etc/openshift/master/ca.crt", server: user.env.api_endpoint_url)
       else
         ## login with existing token
-        res = executor.run(:login, token: user.cached_tokens.first, ca: "/etc/openshift/master/ca.crt", server: user.env.api_endpoint_url)
+        res = executor.run(:login, token: user.cached_tokens.first.token, ca: "/etc/openshift/master/ca.crt", server: user.env.api_endpoint_url)
       end
       unless res[:success]
         logger.error res[:response]
@@ -73,7 +73,7 @@ module CucuShift
 
       if user.cached_tokens.size == 0
         ## lets cache tokens obtained by username/password
-        res = executor.exec(user, :config_view, output: "yaml")
+        res = executor.run(:config_view, output: "yaml")
         unless res[:success]
           logger.error res[:response]
           raise "cannot read user configuration by: #{res[:instruction]}"
@@ -98,14 +98,14 @@ module CucuShift
       return opts[:cli_version] = res[:response].scan(/^os?c v(.+)$/)[0][0]
     end
 
-    def exec(user, key, **opts)
+    # @param [Hash, Array] opts the options to pass down to executor
+    def exec(user, key, opts={})
       executor(user).run(key, opts)
     end
 
     def clean_up
-      @executors.each(&:clean_up)
+      @executors.values.each(&:clean_up)
       @executors.clear
-      super
     end
   end
 end

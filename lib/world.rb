@@ -1,8 +1,10 @@
 require 'common'
+require 'collections'
 
 module CucuShift
   # @note this is our default cucumber World extension implementation
   class DefaultWorld
+    include CollectionsIncl
     include Common::Helper
 
     attr_accessor :scenario

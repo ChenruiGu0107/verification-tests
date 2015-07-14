@@ -14,49 +14,27 @@ When /^I run the :(.*?) client command$/ do |yaml_key|
 end
 
 When /^I run the :([a-z_]*?)( background)? client command with:$/ do |yaml_key, background, table|
-  options = {}
-
-  # here we allow multiple options from same type
-  table.raw.each do |key, value|
-    key = str_to_sym key
-    case
-    when options.has_key?(key) && !options[key].kind_of?(Array)
-      options[key] = [options[key], value]
-    when options.has_key?(key)
-      options[key] << value
-    else
-      options[key] = value
-    end
-  end
-
   if background
     raise 'cli running background commands not supported yet'
   else
-    @result = user.cli_exec(yaml_key.to_sym, options)
+    @result = user.cli_exec(yaml_key.to_sym, opts_array_process(table.raw))
   end
 end
 
 When /^I run the :([a-z_]*?)( background)? admin command with:$/ do |yaml_key, background, table|
-  options = {}
-
-  # here we allow multiple options from same type
-  table.raw.each do |key, value|
-    key = str_to_sym key
-    case
-    when options.has_key?(key) && !options[key].kind_of?(Array)
-      options[key] = [options[key], value]
-    when options.has_key?(key)
-      options[key] << value
-    else
-      options[key] = value
-    end
-  end
-
   if background
     raise 'cli running background commands not supported yet'
   else
-    @result = env.admin_cli_executor.exec(yaml_key.to_sym, options)
+    @result = env.admin_cli_executor.exec(yaml_key.to_sym, opts_array_process(table.raw))
   end
+end
+
+When /^I perform the :([a-z_]*?) rest request$/ do |yaml_key|
+  @result = env.rest_request_executor.exec(user: user, req: yaml_key.to_sym)
+end
+
+When /^I perform the :([a-z_]*?) rest request with:$/ do |yaml_key, table|
+  @result = env.rest_request_executor.exec(user: user, req: yaml_key.to_sym, opts: opts_array_to_hash(table.raw))
 end
 
 # @param [String] negative Catches "not" if it is present
