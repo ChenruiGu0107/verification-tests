@@ -1,4 +1,6 @@
 require 'common'
+require 'rest_openshift'
+require 'rest_kubernetes'
 
 module CucuShift
   module Rest

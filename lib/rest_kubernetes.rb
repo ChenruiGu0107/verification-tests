@@ -1,3 +1,6 @@
+require 'http'
+require 'yaml'
+
 module CucuShift
   module Rest
     module Kubernetes
@@ -9,6 +12,15 @@ module CucuShift
 
         replace_angle_brackets!(base_opts[:url], opts)
         base_opts[:headers].each {|h,v| replace_angle_brackets!(v, opts)}
+
+        if base_opts[:headers]["Content-Type"].include?("json") &&
+            ( base_opts[:payload].kind_of?(Hash) ||
+              base_opts[:payload].kind_of?(Array) )
+          base_opts[:payload] = YAML.to_json(base_opts[:payload])
+        end
+      end
+      class << self
+        alias populate populate_common
       end
 
     end

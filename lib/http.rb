@@ -69,10 +69,16 @@ module CucuShift
       result[:size] ||= response.size
       return result
     end
+    class << self
+      alias request http_request
+    end
 
     # simple HTTP GET an URL
     def self.http_get(url: , max_redirects: 10)
       return http_request(url: url, method: :get, max_redirects: max_redirects)
+    end
+    class << self
+      alias get http_get
     end
   end
 end

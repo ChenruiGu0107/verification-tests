@@ -64,7 +64,7 @@ module CucuShift
               :params=> {"client_id"=>"openshift-challenging-client", "response_type"=>"token"},
               :method=>"GET"
       }
-      res = Http.http_request(**opts)
+      res = Http.request(**opts)
 
       if res[:exitstatus] == 302 && res[:headers]["location"]
         begin
