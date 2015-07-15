@@ -25,6 +25,14 @@ module CucuShift
       valid_until > Time.now + grace_period
     end
 
+    def delete
+      res = user.rest_request(:delete_oauthaccesstoken, token_to_delete: token)
+      if res[:success] || @what
+        user.cached_tokens.delete(t)
+      end
+      return res
+    end
+
     # @param [CucuShift::User] user the user we want token for
     # @return [CucuShift::Token]
     def self.new_oauth_bearer_token(user)

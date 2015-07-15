@@ -47,6 +47,7 @@ module CucuShift
         debug_in_after_hook: "CUCUSHIFT_DEBUG_AFTER_FAIL",
         debug_in_after_hook_always: "CUCUSHIFT_DEBUG_AFTER_HOOK",
         debug_failed_steps: "CUCUSHIFT_DEBUG_FAILSTEP",
+        default_environment: "CUCUSHIFT_DEFAULT_ENVIRONMENT"
       }
 
       # if envvariable is set, then override the value where "false" is false

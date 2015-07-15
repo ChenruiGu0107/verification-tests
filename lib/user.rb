@@ -48,5 +48,12 @@ module CucuShift
       return cached_tokens.first if cached_tokens.size > 0
       return Token.new_oauth_bearer_token(self) # this should add token to cache
     end
+
+    def clean_up
+      # clean_up any tokens
+      until cached_tokens.empty?
+        cached_tokens.last.delete
+      end
+    end
   end
 end

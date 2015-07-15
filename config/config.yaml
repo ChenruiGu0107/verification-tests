@@ -7,3 +7,28 @@ global:
   debug_in_after_hook_always: false
 
   rest_default_auth: :bearer_token
+
+  # use CUCUSHIFT_DEFAULT_ENVIRONMENT instead of setting here
+  # default_environment: ose
+
+environments:
+  ose:
+    # hosts: user ENV variable
+    ssh_user: root
+    hosts_type: SSHAccessibleHost
+    user: root
+    ssh_private_key: config/keys/libra.pem
+    type: StaticEnvironment
+    user_manager: StaticUserManager
+    user_manager_users: joe:redhat,alice:redhat
+    cli: MasterOsPerUserCliExecutor
+    admin_cli: MasterOsAdminCliExecutor
+    api_port: 8443
+  stage:
+    host: api.stg.openshift.com:etcd:master:node
+    hosts_type: RemoteNoShellHost
+    type: StaticEnvironment
+    user_manager: StaticUserManager
+    #user_manage_users: use ENV variable
+    cli: SharedLocalCliExecutor
+    admin_cli: ImpossibleAdminCliExecutor
