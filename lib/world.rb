@@ -33,8 +33,8 @@ module CucuShift
     # @note call like `env(:key)` or simply `env` for current environment
     def env(key=nil)
       return @env if key.nil? && @env
-      # setting CUCUSHIFT_DEFAULT_ENVIRONMENT overrides config
       key ||= conf[:default_environment]
+      raise "please specify default environment key in config or CUCUSHIFT_DEFAULT_ENVIRONMENT env variable" unless key
       return @env = manager.environments[key]
     end
 

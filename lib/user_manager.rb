@@ -1,3 +1,5 @@
+require 'set'
+
 require 'user'
 
 module CucuShift
@@ -10,14 +12,22 @@ module CucuShift
       @users = []
     end
 
+    def users_used
+      raise 'should use a subclass with #{__method__} implemented'
+    end
+
     def clean_up
+      users_used.each(&:clean_up)
     end
   end
 
   class StaticUserManager < UserManager
+    attr_reader :users_used
+
     def initialize(env, **opts)
       super
       load_users
+      @users_used = Set.new
     end
 
     def load_users
@@ -28,6 +38,7 @@ module CucuShift
     end
 
     def [](num)
+      @users_used << @users[num]
       return @users[num]
     end
   end

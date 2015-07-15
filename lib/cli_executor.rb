@@ -32,6 +32,8 @@ module CucuShift
     end
 
     def clean_up
+      # should we remove any cli configfiles here? maybe not..
+      #   also we should not logout as we remove tokens in another manner
     end
   end
 
@@ -104,6 +106,8 @@ module CucuShift
     end
 
     def clean_up
+      # should we remove any cli configfiles here? maybe not..
+      #   also we should not logout as we remove tokens in another manner
       @executors.values.each(&:clean_up)
       @executors.clear
     end

@@ -38,7 +38,17 @@ module CucuShift
     end
 
     def admin_cli_executor
-      @admin_cli_executor ||= CucuShift.const_get(opts[:admin_cli]).new(self, **opts)
+      @admin_cli_executor ||= if admin?
+        CucuShift.const_get(opts[:admin_cli]).new(self, **opts)
+                              else
+        raise "we cannot run as admins in this environment"
+                              end
+    end
+
+    # @return [Boolean] true if we have means to execute admin cli commands and
+    #   rest requests
+    def admin?
+      opts[:admin_cli] && ! opts[:admin_cli].empty?
     end
 
     def rest_request_executor
