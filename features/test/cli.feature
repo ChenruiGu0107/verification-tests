@@ -15,6 +15,7 @@ Feature: Testing CLI Scenarios
     When I run the :get client command with:
       | resource | projects |
     Then the step should succeed
+    And 5 seconds have passed
     And the output should contain:
       | OpenShift 3 Demo |
       | Active |
