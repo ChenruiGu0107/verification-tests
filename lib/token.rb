@@ -27,9 +27,9 @@ module CucuShift
 
     def delete
       res = user.rest_request(:delete_oauthaccesstoken, token_to_delete: token)
-      if res[:success] || @what
-        user.cached_tokens.delete(t)
-      end
+      #if res[:success] # TODO, also remove token when it's not valid/exist
+        user.cached_tokens.delete(self)
+      #end
       return res
     end
 

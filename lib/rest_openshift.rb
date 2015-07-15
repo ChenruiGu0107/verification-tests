@@ -24,7 +24,7 @@ module CucuShift
       end
 
       def self.delete_oauthaccesstoken(base_opts, opts)
-        populate("/delete/<token_to_delete>", base_opts, opts)
+        populate("/oauthaccesstokens/<token_to_delete>", base_opts, opts)
         return Http.request(**base_opts, method: "DELETE")
       end
 

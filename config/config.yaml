@@ -17,7 +17,6 @@ environments:
     ssh_user: root
     hosts_type: SSHAccessibleHost
     user: root
-    ssh_private_key: config/keys/libra.pem
     type: StaticEnvironment
     user_manager: StaticUserManager
     user_manager_users: joe:redhat,alice:redhat
@@ -31,4 +30,4 @@ environments:
     user_manager: StaticUserManager
     #user_manage_users: use ENV variable
     cli: SharedLocalCliExecutor
-    admin_cli: ImpossibleAdminCliExecutor
+    admin_cli: false

@@ -1,5 +1,3 @@
-require 'set'
-
 require 'token'
 
 module CucuShift
@@ -12,7 +10,7 @@ module CucuShift
       @password = password.freeze
       @config = config
       @rest_preferences = {}
-      @tokens = Set.new
+      @tokens = []
     end
 
     def cli_executor
