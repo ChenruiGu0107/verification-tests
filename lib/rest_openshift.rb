@@ -38,11 +38,15 @@ module CucuShift
         return Http.request(**base_opts, method: "DELETE")
       end
 
+      # this usually creates a project in fact
       def self.create_project_request(base_opts, opts)
         base_opts[:payload] = {}
         base_opts[:payload]["displayName"] = opts[:displayName] if opts[:displayName]
         base_opts[:payload]["description"] = opts[:description] if opts[:description]
-        base_opts = populate("/projectrequests", base_opts, opts)
+        base_opts[:payload][:metadata] = {name: opts[:project_name]}
+        base_opts[:payload][:apiVersion] = opts[:oapi_version]
+
+        populate("/projectrequests", base_opts, opts)
         return Http.request(**base_opts, method: "POST")
       end
     end

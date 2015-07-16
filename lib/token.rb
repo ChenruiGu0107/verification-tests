@@ -63,6 +63,7 @@ module CucuShift
     # @param [String] user the username to get a token for
     # @password [String] password
     # @return [CucuShift::ResultHash]
+    # @note curl -u joe -kv -H "X-CSRF-Token: xxx" 'https://master.cluster.local:8443/oauth/authorize?client_id=openshift-challenging-client&response_type=token'
     def self.oauth_bearer_token_challenge(server_url:, user:, password:)
       # :headers => {'X-CSRF-Token' => 'xx'} seems not needed
       opts = {:user=> user,
