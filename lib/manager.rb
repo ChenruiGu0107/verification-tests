@@ -18,7 +18,7 @@ module CucuShift
       @world = nil
       @temp_resources = []
 
-      # @browsers = ...
+      # # @browsers = ...
     end
 
     def clean_up

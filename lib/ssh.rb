@@ -109,10 +109,6 @@ module CucuShift
 
     # @param [String] local the local filename to upload
     # @param [String] remote the directory, where to upload
-    # @param [String] hostname the host where to upload
-    # @param [String] username
-    # @param [String] password
-    #
     def scp_to(local, remote)
       begin
         puts session.exec!("mkdir -p #{remote} || echo ERROR")
@@ -124,10 +120,6 @@ module CucuShift
 
     # @param [String] remote the absolute path to be copied from
     # @param [String] local directory
-    # @param [String] hostname the host where to upload from
-    # @param [String] username
-    # @param [String] password
-    #
     def scp_from(remote, local)
       begin
         FileUtils.mkdir_p local

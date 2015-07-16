@@ -402,6 +402,7 @@ module CucuShift
       @ssh && @ssh.active?(verify: verify)
     end
 
+    # processes ssh specific opts from the initialization options
     private def ssh_opts(opts)
       ssh_opts = {}
       properties.each { |prop, val|

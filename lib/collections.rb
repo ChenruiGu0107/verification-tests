@@ -25,7 +25,7 @@ module CucuShift
     end
 
     # @param hash [Hash] object to be worked on
-    # @param block to return new key/val pairs based on original values
+    # @yield block to return new key/val pairs based on original values
     # @return modified hash
     def map_hash(hash)
       if hash.kind_of? Hash
@@ -47,7 +47,7 @@ module CucuShift
     end
 
     # @param hash [Hash] object to be modified
-    # @param block to return new key/val pairs based on original values
+    # @yield block to return new key/val pairs based on original values
     # @return modified hash
     def map_hash!(hash)
       if hash.kind_of? Hash
@@ -65,7 +65,7 @@ module CucuShift
     end
 
     # @param hash [Hash] object to be symbolized
-    # @param block to return new key/val pairs based on original values
+    # @yield block to return new key/val pairs based on original values
     def deep_map_hash!(hash)
       map_hash!(hash) { |k, v|
         new_k, new_v = yield [k, v]
@@ -73,8 +73,8 @@ module CucuShift
       }
     end
 
-    # @param tgt [Hash] target hash that we will be **altering**
-    # @param src [Hash] read from this source hash
+    # @param tgt_hash [Hash] target hash that we will be **altering**
+    # @param src_hash [Hash] read from this source hash
     # @return the modified target hash
     # @note this one does not merge Arrays
     def deep_merge!(tgt_hash, src_hash)

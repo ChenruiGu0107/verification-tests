@@ -22,7 +22,7 @@ module CucuShift
       end
     end
 
-    # @param name [String] just a human readable identifier
+    # @param opts [Hash] initialization options
     def initialize(**opts)
       @opts = opts
       @hosts = []

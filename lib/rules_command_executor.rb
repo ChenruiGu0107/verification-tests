@@ -42,7 +42,7 @@ module CucuShift
     #   `:unexpected` is strings in the output showing command failure
     #   `:properties` are parsed proparties from the command output returned
     #   `:optional_properties` same as above but will not cause fail if missing
-    # @return [Hash] result hash - {success: .., instruction: .., exitstatus: .., response: .., properties: .., ...}
+    # @return [CucuShift::ResultHash] result hash
     # @see #build_command_line
     # @see #build_expectations
     # @see #process_result
@@ -160,15 +160,14 @@ module CucuShift
       result[:success] = success
     end
 
-    # @param [Hash] raw_rules the rules for building the command line
     # @param [Symbol] cmd_key the command key to invoke
     # @param [Hash, Array] options the options for building the command line
     #       If it is array, expected is to have each element to be a 2 element
-    #       {Array} itself where first element is option key and second is
-    #       option value. If {Hash}, then option key is the hash key. When
-    #       multiple arguments with same key are desired, then use an array of
-    #       values or in case you provie and array - multiple lements with same
-    #       option key.
+    #       Array itself where first element is option key and second
+    #       is option value. If Hash, then option key is the hash key.
+    #       When multiple arguments with same key are desired, then use an
+    #       array of values or in case you provie and array - multiple lements
+    #       with same option key.
     # @return [String] the built command
     # @note all commands are read from the rules. There is a special command
     #       :global_options that provides base rules for any other command.
