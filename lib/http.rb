@@ -19,7 +19,8 @@ module CucuShift
     #   automatically multipart mime to be chosen, you need to look at
     #   rest-client documentation.
     # @param headers [Hash] request heders
-    # @return standard cucushift result hash
+    # @return [CucuShift::ResultHash] standard cucushift result hash;
+    #   there is :headers populated as a [Hash] where headers are lower-cased
     def self.http_request(url:, cookies: nil, headers: {}, params: nil, payload: nil, method:, user: nil, password: nil, max_redirects: 10, verify_ssl: OpenSSL::SSL::VERIFY_NONE, proxy: ENV['http_proxy'], read_timeout: 30, open_timeout: 10, quiet: false)
       rc_opts = {}
       rc_opts[:url] = url

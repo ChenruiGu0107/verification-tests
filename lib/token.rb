@@ -14,9 +14,25 @@ module CucuShift
     # @param [String] token the actual token string
     # @param [Time] valid the time until token is valid
     def initialize(user:, token:, valid:)
+      if ! token || token.empty?
+        raise 'new token string should not be nil, false or empty'
+      end
+
       @user = user
-      @token = token.freeze
+      @token = token.to_s.freeze
       @valid_until = valid
+
+      # in some environments we can't obtain tokens dynamically
+      # lets make sure we do not revoke/delete these tokens
+      @protected = false
+    end
+
+    def protected?
+      @protected
+    end
+    def protect
+      @protected = true
+      return self
     end
 
     # it token still valid? 10 seconds given to avoid misleading result due to
@@ -25,11 +41,21 @@ module CucuShift
       valid_until > Time.now + grace_period
     end
 
-    def delete
-      res = user.rest_request(:delete_oauthaccesstoken, token_to_delete: token)
-      #if res[:success] # TODO, also remove token when it's not valid/exist
+    # @param [Boolean] uncache remove token from user object cache regardless of
+    #   success
+    def delete(uncache: false)
+      if protected?
+        res = { success: false, instruction: "delete token #{token}",
+                exitstatus: 1, response: "should not remove protected tokens"
+        }
+      else
+        res = user.rest_request(:delete_oauthaccesstoken, token_to_delete:token)
+      end
+
+      if res[:success] || uncache
         user.cached_tokens.delete(self)
-      #end
+      end
+
       return res
     end
 
@@ -61,7 +87,7 @@ module CucuShift
 
     # @param [String] server_url e.g. "https://master.cluster.local:8443"
     # @param [String] user the username to get a token for
-    # @password [String] password
+    # @param [String] password
     # @return [CucuShift::ResultHash]
     # @note curl -u joe -kv -H "X-CSRF-Token: xxx" 'https://master.cluster.local:8443/oauth/authorize?client_id=openshift-challenging-client&response_type=token'
     def self.oauth_bearer_token_challenge(server_url:, user:, password:)

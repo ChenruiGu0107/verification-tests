@@ -23,19 +23,48 @@ module CucuShift
         alias populate populate_common
       end
 
+      # executes rest request and yields block if given on success
+      def self.perform_common(**http_opts)
+        res =  Http.request(**http_opts)
+        if res[:success]
+          res[:props] = {}
+
+          if res[:headers] && res[:headers]['content-type'] && (
+                res[:headers]['content-type'][0].include?('json') ||
+                res[:headers]['content-type'][0].include?('yaml')
+             )
+            res[:parsed] = YAML.load(res[:response])
+          end
+
+          yield res if block_given?
+        end
+        return res
+      end
+      class << self
+        alias perform perform_common
+      end
+
       def self.delete_oauthaccesstoken(base_opts, opts)
         populate("/oauthaccesstokens/<token_to_delete>", base_opts, opts)
-        return Http.request(**base_opts, method: "DELETE")
+        return perform(**base_opts, method: "DELETE")
       end
 
       def self.list_projects(base_opts, opts)
         populate("/projects", base_opts, opts)
-        return Http.request(**base_opts, method: "GET")
+        return perform(**base_opts, method: "GET")
       end
 
       def self.delete_project(base_opts, opts)
         populate("/projects/<project_name>", base_opts, opts)
-        return Http.request(**base_opts, method: "DELETE")
+        return perform(**base_opts, method: "DELETE")
+      end
+
+      def self.get_user(base_opts, opts)
+        populate("/users/<username>", base_opts, opts)
+        return perform(**base_opts, method: "GET") { |res|
+          res[:props][:name] = res[:parsed]["metadata"]["name"]
+          res[:props][:uid] = res[:parsed]["metadata"]["uid"]
+        }
       end
 
       # this usually creates a project in fact

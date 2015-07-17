@@ -34,7 +34,7 @@ When /^I perform the :([a-z_]*?) rest request$/ do |yaml_key|
 end
 
 When /^I perform the :([a-z_]*?) rest request with:$/ do |yaml_key, table|
-  @result = env.rest_request_executor.exec(user: user, req: yaml_key.to_sym, opts: opts_array_to_hash(table.raw))
+  @result = user.rest_request(yaml_key.to_sym, opts_array_to_hash(table.raw))
 end
 
 # @param [String] negative Catches "not" if it is present

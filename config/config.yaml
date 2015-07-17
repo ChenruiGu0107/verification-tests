@@ -13,21 +13,23 @@ global:
 
 environments:
   ose:
-    # hosts: user ENV variable
+    # hosts: use OPENSHIFT_ENV_OSE_HOSTS=host:role1:...,host2:role1:...
     ssh_user: root
     hosts_type: SSHAccessibleHost
     user: root
     type: StaticEnvironment
     user_manager: StaticUserManager
-    user_manager_users: joe:redhat,alice:redhat
+    # set users in OPENSHIFT_ENV_OSE_USER_MANAGER_USERS=user:password,...
+    # user_manager_users: joe:redhat,alice:redhat
     cli: MasterOsPerUserCliExecutor
     admin_cli: MasterOsAdminCliExecutor
     api_port: 8443
   stage:
     host: api.stg.openshift.com:etcd:master:node
-    hosts_type: RemoteNoShellHost
+    hosts_type: Host # we can't basically access that host so this should work
     type: StaticEnvironment
     user_manager: StaticUserManager
-    #user_manage_users: use ENV variable
+    #set OPENSHIFT_ENV_STAGE_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
