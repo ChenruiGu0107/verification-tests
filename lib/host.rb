@@ -277,6 +277,7 @@ module CucuShift
           return exec_raw(cmd, **opts)
         end
       else # try sudo -u
+        raise "username cannot be empty" if user.empty?
         cmd = "sudo -u #{user} bash -c #{shell_escape(commands_to_string("cd '#{workdir}'", commands))}"
         return exec_raw(cmd, **opts)
       end
@@ -306,9 +307,9 @@ module CucuShift
     def delete(file, opts={})
       if opts[:r] || opts[:recursive]
         # make sure we do not cause catastrophic damage
-        bad_files = ["/", "../", "./", "..", ".", ""]
+        bad_files = ["/", "../", "./", "..", ".", "", nil, false]
         if bad_files.include? file
-          raise "should not remove #{file}"
+          raise "should not remove file named '#{file}'"
         end
 
         r = "-r"
@@ -316,6 +317,11 @@ module CucuShift
         r = ""
       end
       file = shell_escape file
+      if opts[:home] && ! file.start_with?('/','\\')
+        # relative to host local user home directory
+        # relies strongly on bad_files checking above
+        file = '~/' + file
+      end
       if opts[:raw]
         exec_raw("rm #{r} -f #{file}", opts)
         opts[:quiet] = true
@@ -371,7 +377,8 @@ module CucuShift
       return File.exist?(file)
     end
 
-    # Do not use unless absolutey sure what you are doing
+    # Do not use unless absolutey sure what you are doing; we should usually
+    #   sit inside workdir
     def chdir(dir=nil)
       Dir.chdir(dir || workdir)
     end

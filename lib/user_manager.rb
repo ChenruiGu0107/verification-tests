@@ -40,7 +40,9 @@ module CucuShift
       #   @users << User.new(username, password, env, **opts)
       # end
       @user_specs = opts[:user_manager_users].split(",").map do |uspec|
-        if uspec.start_with? ':'
+        if uspec.empty?
+          raise "empty user specification does not make sense"
+        elsif uspec.start_with? ':'
           # this user is specified by token only
           {token: uspec[1..-1]}
         else
