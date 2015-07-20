@@ -1,6 +1,6 @@
 Feature: Testing REST Scenarios
   Scenario: simple rest scenario
-    When I perform the :create_project_request rest request:
+    When I perform the :create_project_request rest request with:
       | project name | demo |
       | display name | OpenShift 3 Demo |
       | description  | This is the first demo project with OpenShift v3 |

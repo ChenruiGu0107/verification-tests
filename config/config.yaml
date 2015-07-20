@@ -23,7 +23,7 @@ environments:
     # user_manager_users: joe:redhat,alice:redhat
     cli: MasterOsPerUserCliExecutor
     # cli: SharedLocalCliExecutor
-    admin_cli: MasterOsAdminCliExecutor
+    #admin_cli: MasterOsAdminCliExecutor
     api_port: 8443
   stage:
     host: api.stg.openshift.com:etcd:master:node

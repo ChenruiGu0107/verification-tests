@@ -1,5 +1,5 @@
 require 'http'
-require 'yaml'
+require 'json'
 
 module CucuShift
   module Rest
@@ -16,7 +16,10 @@ module CucuShift
         if base_opts[:headers]["Content-Type"].include?("json") &&
             ( base_opts[:payload].kind_of?(Hash) ||
               base_opts[:payload].kind_of?(Array) )
-          base_opts[:payload] = YAML.to_json(base_opts[:payload])
+          # YAML was a bad idea https://github.com/tenderlove/psych/issues/243
+          #base_opts[:payload] = YAML.to_json(base_opts[:payload])
+          base_opts[:payload] = base_opts[:payload].to_json
+          #base_opts[:payload] = JSON.pretty_generate(base_opts[:payload])
         end
       end
       class << self
