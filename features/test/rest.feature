@@ -1,10 +1,9 @@
 Feature: Testing REST Scenarios
   Scenario: simple rest scenario
-    When I run the :new_project admin command with:
-      | new_project_name | demo |
+    When I perform the :create_project_request rest request:
+      | project name | demo |
       | display name | OpenShift 3 Demo |
-      | description | This is the first demo project with OpenShift v3 |
-      | admin | <%= user.name %> |
+      | description  | This is the first demo project with OpenShift v3 |
     Then the step should succeed
     When I perform the :list_projects rest request
     Then the step should succeed

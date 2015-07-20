@@ -32,8 +32,13 @@
     :username: --username=<value>
     :password: --password=<value>
     :token: --token=<value>
+  :optional_properties:
+    :username: !ruby/regexp '/ogged into ".+?" as "(.+?)"/'
   :expected:
-    - !ruby/regexp '/Login successful.|Logged into/'
+    # strange, sometimes "Already logged into..." is printed to console, and
+    #   sometimes when run multiple times - not (oc v3.0.0.0)
+    #   e.g. run multiple times `oc login --username=joe`
+    - !ruby/regexp '/Login successful.|ogged into/'
 :logout:
   :cmd: oc logout
   :expected:
@@ -51,3 +56,11 @@
     - "kind: Config"
   :optional_properties:
     :current_context: !ruby/regexp '/^current-context: (.+)/'
+:new_project:
+  :cmd: oc new-project <project_name>
+  #:expected:
+  #  - Created project <project_name>
+  :options:
+    :display_name: --display-name=<value>
+    :description: --description=<value>
+    :admin: --admin=<value>

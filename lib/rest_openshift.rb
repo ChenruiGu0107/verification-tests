@@ -70,7 +70,7 @@ module CucuShift
       # this usually creates a project in fact
       def self.create_project_request(base_opts, opts)
         base_opts[:payload] = {}
-        base_opts[:payload]["displayName"] = opts[:displayName] if opts[:displayName]
+        base_opts[:payload]["displayName"] = opts[:display_name] if opts[:display_name]
         base_opts[:payload]["description"] = opts[:description] if opts[:description]
         base_opts[:payload][:metadata] = {name: opts[:project_name]}
         base_opts[:payload][:apiVersion] = opts[:oapi_version]

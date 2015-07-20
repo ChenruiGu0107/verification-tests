@@ -9,9 +9,9 @@
     :oadm_version: !ruby/regexp '/^oadm v(.+)$/'
     :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
 :new_project:
-  :cmd: oadm new-project <new_project_name>
+  :cmd: oadm new-project <project_name>
   :expected:
-    - Created project <new_project_name>
+    - Created project <project_name>
   :options:
     :display_name: --display-name=<value>
     :description: --description=<value>
