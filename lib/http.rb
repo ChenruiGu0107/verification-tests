@@ -36,7 +36,8 @@ module CucuShift
       rc_opts[:read_timeout] = read_timeout
       rc_opts[:open_timeout] = open_timeout
 
-      RestClient.proxy = proxy if proxy && ! proxy.empty?
+      # RestClient.proxy = proxy if proxy && ! proxy.empty?
+      rc_opts[:proxy] = proxy if proxy && ! proxy.empty?
 
       userstr = user ? "#{user}@" : ""
       result = {}
