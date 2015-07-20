@@ -135,26 +135,26 @@ module CucuShift
       success = success && expected.empty? && unexpected.empty?
 
       ## handle :properties
-      result[:properties] = {}
+      result[:props] = {}
       get_props = proc { |prop_rules, optional|
         prop_rules.each { |key, pattern|
           match = pattern.match(result[:response])
           case
           when match.nil?
             success = false unless optional
-            (result[:properties_missing] ||= []) << key
+            (result[:props_missing] ||= []) << key
           when match.size > 2
             raise "regexp can have at most one capturing group"
           when match.size == 2
-            result[:properties][key] = match[1]
+            result[:props][key] = match[1]
           when match.size ==1
-            result[:properties][key] = match[0]
+            result[:props][key] = match[0]
           else
             puts "Santa Claus Does Really Exist!"
           end
         }
       }
-      get_props.call(rules[:properties] || [], false)
+      get_props.call(rules[:props] || [], false)
       get_props.call(rules[:optional_properties] || [], true)
 
       result[:success] = success

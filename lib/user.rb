@@ -3,6 +3,8 @@ require 'token'
 module CucuShift
   # @note represents an OpenShift environment user account
   class User
+    include Common::Helper
+
     attr_reader :name, :env, :rest_preferences
 
     def initialize(name: nil, password: nil, token: nil, env:)
@@ -20,6 +22,9 @@ module CucuShift
       if @tokens.empty? && (@name.nil? || @password.nil?)
         raise "to initialize user we need a token or username and password"
       end
+
+      # try to make sure user is in clean state
+      clean_up_on_load
     end
 
     def name
@@ -45,6 +50,10 @@ module CucuShift
     # @return true if we know user's password
     def password?
       return !! @password
+    end
+
+    def to_s
+      "#{@name || "unknown"}@#{env.opts[:key]}"
     end
 
     def password
@@ -90,7 +99,20 @@ module CucuShift
       return Token.new_oauth_bearer_token(self) # this should add token to cache
     end
 
+    def clean_up_on_load
+      # clean-up any projects
+      res = cli_exec(:delete, object_type: "projects", object_name_or_id: '--all')
+      # we don't need to check exit status, but some time is needed before
+      #   project deleted status propagates properly
+      unless res[:response].include? "No resources found"
+        logger.info("waiting for 5 seconds for clean-up to take place")
+        sleep 5
+      end
+    end
+
     def clean_up
+      clean_up_on_load
+
       # clean_up any tokens
       until cached_tokens.empty?
         cached_tokens.last.delete(uncache: true)

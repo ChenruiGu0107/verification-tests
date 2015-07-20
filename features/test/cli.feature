@@ -1,11 +1,5 @@
 Feature: Testing CLI Scenarios
   Scenario: simple create project
-    # this step will go into clean-up phase in the future
-    Given I run the :delete client command with:
-      | object_type | project |
-      | object_name_or_id | demo |
-    # looks like time needs to pass for the project to be really gone
-    And 5 seconds have passed
     When I run the :new_project admin command with:
       | new_project_name | demo |
       | display name | OpenShift 3 Demo |
@@ -31,6 +25,8 @@ Feature: Testing CLI Scenarios
       | object_name_or_id | demo |
     Then the step should succeed
 
+  # actually, because of user clean-up relying on cli, we never run REST
+  #   requests before we run cli requests
   Scenario: rest request before cli
     Given I perform the :delete_project rest request with:
       | project name | demo |

@@ -5,7 +5,7 @@ require 'rest_kubernetes'
 module CucuShift
   module Rest
     class RequestExecutor
-      # include Common::Helper
+      extend Common::Helper
 
       # def initialize(env)
       #  # @env = env
@@ -21,6 +21,7 @@ module CucuShift
           base_opts = get_base_opts(user: user, auth: auth)
         end
 
+        logger.info("REST #{req} for user '#{user}', base_opts: #{base_opts}, opts: #{opts}")
         return delegate_rest_request(req, base_opts, opts)
       end
 

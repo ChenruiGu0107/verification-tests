@@ -52,9 +52,21 @@ module CucuShift
       end
     end
 
+    def self.token_from_cli(user)
+      res = user.cli_exec(:config_view, output: "yaml")
+      unless res[:success]
+        user.env.master_hosts[0].logger.error res[:response]
+        raise "cannot read user configuration by: #{res[:instruction]}"
+      end
+      conf = YAML.load(res[:response])
+      uhash = conf["users"].find{|u| u["name"].start_with?(user.name + "/")}
+      # hardcode one day validity as we cannot get validity from config
+      return Token.new(user: user, token: uhash["user"]["token"], valid: Time.now + 24 * 60 * 60)
+    end
+
     def clean_up
       # Should we remove any cli configfiles here? only in subclass when that
-      #   is safe! Also we should not logout, because we remove clean-up tokens
+      #   is safe! Also we should not logout, because we clean-up tokens
       #   in User class where care is taken to avoid removing protected tokens.
     end
   end
@@ -77,11 +89,6 @@ module CucuShift
       executor = RulesCommandExecutor.new(host: host, user: user.name, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
 
       # make sure cli execution environment is setup for the user
-      # in environments where we run client commands as single operating system
-      # user, perhaps we need to do this upon switching users
-      # clean-up:
-      #   .config/openshift/config
-      #   .kube/config
       if user.cached_tokens.size == 0
         ## login with username and password and generate a bearer token
         executor.run(:logout, {}) # ignore outcome
@@ -95,20 +102,15 @@ module CucuShift
         raise "cannot login with command: #{res[:instruction]}"
       end
 
+      # this executor is ready to be used, set it early to allow caching token
+      @executors[user.name] = executor
+
       if user.cached_tokens.size == 0
-        ## lets cache tokens obtained by username/password
-        res = executor.run(:config_view, output: "yaml")
-        unless res[:success]
-          logger.error res[:response]
-          raise "cannot read user configuration by: #{res[:instruction]}"
-        end
-        conf = YAML.load(res[:response])
-        uhash = conf["users"].find{|u| u["name"].start_with?(user.name + "/")}
-        # hardcode one day validity as we cannot get validity from config
-        user.cached_tokens << Token.new(user: user, token: uhash["user"]["token"], valid: Time.now + 24 * 60 * 60)
+        ## lets cache token obtained by username/password
+        user.cached_tokens << self.class.token_from_cli(user)
       end
 
-      return @executors[user.name] = executor
+      return executor
     end
 
     # @param user [CucuShift::User] the user we want to get version for
@@ -139,13 +141,14 @@ module CucuShift
     def initialize(env, **opts)
       super
       @host = localhost
+      @logged_users = {}
     end
 
     # @return [RulesCommandExecutor] executor to run commands with
     private def executor
       return @executor if @executor
 
-      clean_old_config
+      # clean_old_config
 
       @executor = RulesCommandExecutor.new(host: host, user: nil, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
     end
@@ -155,31 +158,87 @@ module CucuShift
     end
 
     private def logged_users
-      @logged_users ||= {}
+      @logged_users
     end
 
     # clean-up .kube/config and .config/openshift/config
-    private def clean_old_config
-      # this should also work on windows %USERPROFILE%/.kube
-      kube = File.expand_path('.kube', '~')
-      os = File.expand_path('.config/openshift', '~')
-      host.delete(kube, :r => true, :raw => true)
-      host.delete(os, :r => true, :raw => true)
+    #   we don't need this as long as we use the --config option
+    #private def clean_old_config
+    #  # this should also work on windows %USERPROFILE%/.kube
+    #  host.delete('.kube', :r => true, :raw => true, :home => true)
+    #  host.delete('.config/openshift', :r => true, :raw => true, :home => true)
+    #end
+
+    # current implementation is to run client commands with
+    #   --config=<workdir>/<env key>_<user name>.kubeconfig to provide isolation
+    #   between users running cli commands. Another option considered was
+    #   --context=... but for this to work, we would have needed to execute
+    #   a second cli command after any cli command to obtain last user context.
+    #   And that has two issues - it is an overhead as well running simultaneous
+    #   commands may cause race conditions.
+    # @return [Hash] :config => "<workdir>/<env key>_<user name>.kubeconfig"
+    private def user_opts(user)
+      user_config = "#{user.env.opts[:key]}_#{user.name}.kubeconfig"
+      user_config = host.absolute_path user_config # inside workdir
+
+      # TODO: we may consider obtaining server CA chain and configuring it in
+      #   instead of setting insecure SSL
+      if user.cached_tokens.size == 0
+        ## login with username and password and generate a bearer token
+        res = executor.run(:login, username: user.name, password: user.password, insecure: "true", server: user.env.api_endpoint_url, config: user_config)
+      else
+        ## login with existing token
+        res = executor.run(:login, token: user.cached_tokens.first.token, insecure: "true", server: user.env.api_endpoint_url, config: user_config)
+      end
+      unless res[:success]
+        logger.error res[:response]
+        raise "cannot login with command: #{res[:instruction]}"
+      end
+
+      # success, set opts early to allow caching token
+      logged_users[user.name] = {config: user_config}
+
+      if user.cached_tokens.size == 0
+        ## lets cache token if obtained by username/password
+        user.cached_tokens << self.class.token_from_cli(user)
+      end
+
+      return logged_users[user.name]
     end
 
     # @param [Hash, Array] opts the options to pass down to executor
     def exec(user, key, opts={})
       unless logged_users[user.name]
-        # we need to login first
+        user_opts(user)
       end
 
-      executor.run(key, logged_users[user.name].merge(opts))
+      executor.run(key, merge_opts(logged_users[user.name],opts))
+    end
+
+    # merge opts from logged_users[user.name] and cli options given by user;
+    #   opts might be a Hash or an array of key/value pairs;
+    #   if `:config` key exists in opts, then it overrides base opts
+    # @param base [{:config => String}] the user config option
+    # @param opts [Hash, Array] the
+    # @return [Array,Hash] depending on `opts` parameter type
+    private def merge_opts(base, opts)
+      if opts.kind_of? Hash
+        return base.merge opts
+      elsif opts.kind_of? Array
+        if opts.find {|k,v| k == :config}
+          return opts.dup
+        else
+          return base.to_a.concat opts
+        end
+      end
+      raise "don't know how to handle options type: #{opts.class}"
     end
 
     def clean_up
       @executor.clean_up if @executor
-      # remove local kube/openshift config file unly before testing to let
-      #   manual configuration live on for inspectation
+      logged_users.clear
+      # do not remove local kube/openshift config file, workdir should be
+      #   cleaned automatically between scenarios
       # we do not logout, see {CliExecutor#clean_up}
     end
 

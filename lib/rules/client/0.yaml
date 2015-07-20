@@ -4,6 +4,7 @@
   :api_version: --api-version=<value>
   :ca: --certificate-authority=<value>
   :config: --config=<value>
+  :context: --context=<value>
   :user: --user=<value>
   :insecure: --insecure-skip-tls-verify=<value>
   :namespace: --namespace=<value>
@@ -48,3 +49,5 @@
   :expected:
     - "apiVersion: v"
     - "kind: Config"
+  :optional_properties:
+    :current_context: !ruby/regexp '/^current-context: (.+)/'
