@@ -60,7 +60,11 @@ module CucuShift
     end
 
     def api_port
-      opts[:api_port] || "8443"
+      opts[:api_port] || "80"
+    end
+
+    def api_port_str
+      api_port == '80' ? "" : ":#{opts[:api_port]}"
     end
 
     def api_hostname
@@ -72,7 +76,7 @@ module CucuShift
     end
 
     def api_endpoint_url
-      opts[:api_url] || "#{api_proto}://#{api_hostname}:#{api_port}"
+      opts[:api_url] || "#{api_proto}://#{api_hostname}#{api_port_str}"
     end
 
     # get environment supported API paths
@@ -130,7 +134,8 @@ module CucuShift
         end
 
         unless OPENSHIFT_ROLES.all? {|r| @hosts.find {|h| h.has_role?(r)}}
-          raise "environment should have hosts with all openshift roles"
+          raise "environment does not have hosts with roles: " +
+            "#{OPENSHIFT_ROLES.select{|r| @hosts.find {|h| h.has_role?(r)}}}"
         end
       end
       return @hosts

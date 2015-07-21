@@ -77,6 +77,7 @@ module CucuShift
       # this usually creates a project in fact
       def self.create_project_request(base_opts, opts)
         base_opts[:payload] = {}
+        # see https://bugzilla.redhat.com/show_bug.cgi?id=1244889 for apiVersion
         base_opts[:payload][:apiVersion] = opts[:oapi_version]
         base_opts[:payload]["displayName"] = opts[:display_name] if opts[:display_name]
         base_opts[:payload]["description"] = opts[:description] if opts[:description]
@@ -85,6 +86,21 @@ module CucuShift
 
         populate("/projectrequests", base_opts, opts)
         return Http.request(**base_opts, method: "POST")
+      end
+
+      # did not find out how to use this one yet
+      def self.create_oauth_access_token(base_opts, opts)
+        base_opts[:payload] = {}
+        base_opts[:payload]["expiresIn"] = opts[:expires_in] if opts[:expires_in]
+        base_opts[:payload]["userName"] = opts[:user_name] if opts[:user_name]a
+        base_opts[:payload][:scopes] = opts[:scopes] if opts[:scopes]
+
+
+        populate("/oauthaccesstokens", base_opts, opts)
+        return perform(**base_opts, method: "POST") { |res|
+          # res[:props][:name] = res[:parsed]["metadata"]["name"]
+          # res[:props][:uid] = res[:parsed]["metadata"]["uid"]
+        }
       end
     end
   end

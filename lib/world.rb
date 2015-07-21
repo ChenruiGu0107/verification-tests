@@ -27,7 +27,7 @@ module CucuShift
     def user(num=nil)
       return @user if num.nil? && @user
       num = 0 unless num
-      return env.users[num]
+      return @user = env.users[num]
     end
 
     # @note call like `env(:key)` or simply `env` for current environment
@@ -36,6 +36,10 @@ module CucuShift
       key ||= conf[:default_environment]
       raise "please specify default environment key in config or CUCUSHIFT_DEFAULT_ENVIRONMENT env variable" unless key
       return @env = manager.environments[key]
+    end
+
+    def quit_cucumber
+      Cucumber.wants_to_quit = true
     end
 
     # this is defined in Helper

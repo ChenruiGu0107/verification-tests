@@ -26,7 +26,7 @@ environments:
     #admin_cli: MasterOsAdminCliExecutor
     api_port: 8443
   stage:
-    host: api.stg.openshift.com:etcd:master:node
+    hosts: api.stg.openshift.com:etcd:master:node
     hosts_type: Host # we can't basically access that host so this should work
     type: StaticEnvironment
     user_manager: StaticUserManager
