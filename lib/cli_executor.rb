@@ -1,7 +1,7 @@
 require 'yaml'
 
 require 'rules_command_executor'
-require 'token'
+require 'openshift/token'
 
 module CucuShift
   class CliExecutor

@@ -1,4 +1,4 @@
-require 'token'
+require_relative 'token'
 
 module CucuShift
   # @note represents an OpenShift environment user account

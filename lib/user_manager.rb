@@ -1,6 +1,6 @@
 require 'set'
 
-require 'user'
+require 'openshift/user'
 
 module CucuShift
   class UserManager

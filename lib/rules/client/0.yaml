@@ -43,10 +43,23 @@
   :cmd: oc logout
   :expected:
     - !ruby/regexp '/Logged ".+" out on/'
-:get:
-  :cmd: oc get <resource>
 :delete:
   :cmd: oc delete <object_type> <object_name_or_id>
+:expose:
+  :cmd: oc expose <resource> <name>
+  :options:
+    :route_port: --port=<value>
+    :route_protocol: --protocol=<value>
+    :target_port: --target-port=<value>
+    :route_name: --name=<value>
+    :route_type: --type=<value>
+    :output: --output=<value>
+    :o: -o <value>
+:get:
+  :cmd: oc get <resource>
+  :options:
+    :output: --output=<value>
+    :o: -o <value>
 :config_view:
   :cmd: oc config view
   :options:

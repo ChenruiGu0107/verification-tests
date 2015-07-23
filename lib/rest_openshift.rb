@@ -92,7 +92,7 @@ module CucuShift
       def self.create_oauth_access_token(base_opts, opts)
         base_opts[:payload] = {}
         base_opts[:payload]["expiresIn"] = opts[:expires_in] if opts[:expires_in]
-        base_opts[:payload]["userName"] = opts[:user_name] if opts[:user_name]a
+        base_opts[:payload]["userName"] = opts[:user_name] if opts[:user_name]
         base_opts[:payload][:scopes] = opts[:scopes] if opts[:scopes]
 
 
