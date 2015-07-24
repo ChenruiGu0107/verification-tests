@@ -46,7 +46,7 @@
 :delete:
   :cmd: oc delete <object_type> <object_name_or_id>
 :expose:
-  :cmd: oc expose <resource> <name>
+  :cmd: oc expose <resource> <resource_name>
   :options:
     :route_port: --port=<value>
     :route_protocol: --protocol=<value>
@@ -70,6 +70,25 @@
     - "kind: Config"
   :optional_properties:
     :current_context: !ruby/regexp '/^current-context: (.+)/'
+:new_app:
+  :cmd: oc new-app
+  :options:
+    :app_repo: <value>
+    :labels: --labels=<value>
+    :name: --name=<value>
+    :strategy: --strategy=<value>
+    :template: --template=<value>
+    :output: --output=<value>
+    :param: --param=<value>
+    :insecure_registry: --insecure-registry=<value>
+    :image_stream: --image-stream=<value>
+    :image: --image=<value>
+    :group: --group=<value>
+    :file: --file=<value>
+    :env: --env=<value>
+    :docker_image: --docker-image=<value>
+    :context_dir: --context-dir=<value>
+    :code: --code=<value>
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:
