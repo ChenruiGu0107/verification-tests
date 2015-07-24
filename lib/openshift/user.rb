@@ -1,4 +1,5 @@
 require_relative 'token'
+require_relative 'project'
 
 module CucuShift
   # @note represents an OpenShift environment user account
@@ -108,6 +109,10 @@ module CucuShift
         logger.info("waiting for 5 seconds for clean-up to take place")
         sleep 5
       end
+    end
+
+    def projects
+      Project.list(user: self)
     end
 
     def clean_up

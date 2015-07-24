@@ -16,3 +16,11 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:delete:
+  :cmd: oc delete <object_type> <object_name_or_id>
+:get:
+  :cmd: oc get <resource>
+  :options:
+    :resource_name: <value>
+    :output: --output=<value>
+    :o: -o <value>

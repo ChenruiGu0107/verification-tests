@@ -12,10 +12,14 @@ module CucuShift
       @users = []
     end
 
-    # @return [#each, #clear] a set of users that supports clear and each
-    #   methods; [Array] and [Set] should do
+    # @return [#each, #clear, #find] a set of users that supports #clear, #each
+    #   and #find methods; [Array] and [Set] should do
     def users_used
       raise 'should use a subclass with #{__method__} implemented'
+    end
+
+    def by_name(username)
+      users_used.find {|u| u.name == username}
     end
 
     def clean_up

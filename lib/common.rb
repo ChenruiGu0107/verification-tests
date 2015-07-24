@@ -26,6 +26,33 @@ module CucuShift
       end
     end
 
+    module UserObjectHelper
+      # execute cli command as user or admin
+      # @param as [CucuShift::User, :admin] the user to run cli with
+      # @param key [Symbol] the command key to execute
+      # @param opts [Hash] the command options
+      # @return [CucuShift::ResultHash]
+      # @note usually invoked by managed objects like projects, routes, etc.
+      #   that could have same operations executed by admin or user; this method
+      #   simplifies such calls
+      def cli_exec(as:, key:, **opts)
+        user = as
+
+        if user == :admin
+          if env.admin?
+            return env.admin_cli_executor.exec(key, **opts)
+          else
+            raise "user not specified and we don't have admin in this environment, what on earth do you expect?"
+          end
+        elsif user.kind_of? CucuShift::User
+          raise "user #{user} and self.env '#{env}' do not match, likely a logical issue in test scenario" if user.env != env
+          user.cli_exec(key, **opts)
+        else
+          raise "unknown user specification for the operation: '#{user}'"
+        end
+      end
+    end
+
     module Setup
       def self.handle_signals
         # Exit the process immediately when SIGINT/SIGTERM caught,

@@ -58,6 +58,7 @@
 :get:
   :cmd: oc get <resource>
   :options:
+    :resource_name: <value>
     :output: --output=<value>
     :o: -o <value>
 :config_view:
