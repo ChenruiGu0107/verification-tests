@@ -24,6 +24,24 @@ module CucuShift
       def localhost
         Host.localhost
       end
+
+      ## @param res [CucuShift::ResultHash] the result to verify
+      ## @note will log and raise error unless result is successful
+      #def result_should_be_success(res)
+      #  unless res[:success]
+      #    logger.error(res[:response])
+      #    raise "result unsuccessful, see log"
+      #  end
+      #end
+      #
+      ## @param res [CucuShift::ResultHash] the result to examine
+      ## @note will log and raise error unless result is failure
+      #def result_should_be_failure(res)
+      #  if res[:success]
+      #    logger.error(res[:response])
+      #    raise "result successful but should have been failure, see log"
+      #  end
+      #end
     end
 
     module UserObjectHelper
@@ -34,7 +52,7 @@ module CucuShift
       # @return [CucuShift::ResultHash]
       # @note usually invoked by managed objects like projects, routes, etc.
       #   that could have same operations executed by admin or user; this method
-      #   simplifies such calls
+      #   simplifies such calls; requires `#env` method defined
       def cli_exec(as:, key:, **opts)
         user = as
 

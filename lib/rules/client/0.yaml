@@ -75,6 +75,7 @@
   :options:
     :app_repo: <value>
     :labels: --labels=<value>
+    :l: -l <value>
     :name: --name=<value>
     :strategy: --strategy=<value>
     :template: --template=<value>

@@ -86,7 +86,7 @@ module CucuShift
       when Time.now - @last_accessed < 120 # 2 minutes
         return true
       else
-        res = exec("echo")
+        res = exec("echo", timeout: 30)
         if res[:success]
           @last_accessed = Time.now
           return true

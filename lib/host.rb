@@ -323,13 +323,13 @@ module CucuShift
         file = '~/' + file
       end
       if opts[:raw]
-        exec_raw("rm #{r} -f #{file}", opts)
+        exec_raw("rm #{r} -f -- #{file}", opts)
         opts[:quiet] = true
-        res = exec_raw("ls -d #{file}", opts)
+        res = exec_raw("ls -d -- #{file}", opts)
       else
-        exec("rm #{r} -f #{file}", opts)
+        exec("rm #{r} -f -- #{file}", opts)
         opts[:quiet] = true
-        res = exec("ls -d #{file}", opts)
+        res = exec("ls -d -- #{file}", opts)
       end
 
       return ! res[:success]

@@ -104,5 +104,14 @@ module CucuShift
       res[:project] = self
       return res
     end
+
+    def ==(p)
+      p.kind_of?(self.class) && name == p.name && env == p.env
+    end
+    alias eql? ==
+
+    def hash
+      :project.hash ^ name.hash ^ env.hash
+    end
   end
 end

@@ -28,6 +28,11 @@ module CucuShift
       @hosts = []
     end
 
+    # return environment key, mainly useful for logging purposes
+    def key
+      opts[:key]
+    end
+
     def user_manager
       @user_manager ||= CucuShift.const_get(opts[:user_manager]).new(self, **opts)
     end
