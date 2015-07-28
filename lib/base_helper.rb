@@ -50,17 +50,46 @@ module CucuShift
         return str
       end
 
-      def rand_str(length=8)
-        result = Array.new
-        array = Array.new
-        for c in 'a'..'z' do array.push(c) end
-        for c in 'A'..'Z' do array.push(c) end
-        for n in '0'..'1' do array.push(n) end
-        result.push(array[rand(26)])
-        for i in 1..length-1
-          result.push(array[rand(array.length)])
+      def rand_str(length=8, compat=:nospace_sane)
+        raise if length < 1
+
+        result = ""
+        array = []
+
+        case compat
+        when :dns
+          #  matching regex [a-z0-9]([-a-z0-9]*[a-z0-9])?
+          #  e.g. project name (up to 63 chars)
+          for c in 'a'..'z' do array.push(c) end
+          for n in '0'..'9' do array.push(n) end
+          array << '-'
+
+          result << array[rand(36)] # needs to start with non-hyphen
+          (length - 2).times { result << array[rand(array.length)] }
+          result << array[rand(36)] # end with non-hyphen
+        when :dns952
+          # matching regex [a-z]([-a-z0-9]*[a-z0-9])?
+          # e.g. service name (up to 24 chars)
+          for c in 'a'..'z' do array.push(c) end
+          for n in '0'..'9' do array.push(n) end
+          array << '-'
+
+          result << array[rand(26)] # start with letter
+          (length - 2).times { result << array[rand(array.length)] }
+          result << array[rand(36)] # end with non-hyphen
+        else # :nospace_sane
+          for c in 'a'..'z' do array.push(c) end
+          for c in 'A'..'Z' do array.push(c) end
+          for n in '0'..'9' do array.push(n) end
+
+          # avoid hiphen in the beginning to not confuse cmdline
+          result << array[rand(array.length)] # begin with non-hyphen
+          array << '-' << '_'
+
+          (length - 1).times { result << array[rand(array.length)] }
         end
-        return result.join
+
+        return result
       end
 
       # replace <something> strings inside strings given option hash with symbol
@@ -72,6 +101,28 @@ module CucuShift
           opt_key = m[1..-2].to_sym
           opts[opt_key] || raise("need to provide '#{opt_key}' REST option")
         }
+      end
+
+      # platform independent way to get monotonic timer seconds
+      def monotonic_seconds
+        Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      end
+
+      # repeats block until it returns true or timeout reached; timeout not
+      #   strictly enforced, use other timeout techniques to avoid freeze
+      # @param seconds [Numeric] the max number of seconds to try operation to
+      #   succeed
+      # @yield block the block will be yielded until it returns true or timeout
+      #   is reached
+      def wait_for(seconds)
+        start = monotonic_seconds
+        success = false
+        until monotonic_seconds - start > seconds
+          success = yield and break
+          sleep 1
+        end
+
+        return success
       end
     end
   end
