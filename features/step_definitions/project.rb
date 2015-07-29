@@ -25,7 +25,10 @@ When /^I create a new project$/ do
   @result = CucuShift::Project.create(by: user, name: rand_str(5, :dns))
   if @result[:success]
     @projects << @result[:project]
-    sleep 5 # TODO: need smarter check if change propagated
+    @result[:success] = @result[:project].wait_to_be_created(user)
+    unless @result[:success]
+      logger.warn("Project #{@result[:project].name} not visible on server after delete")
+    end
   end
 end
 
@@ -40,5 +43,10 @@ When /^I delete the(?: "(.+?)")? project$/ do |project_name|
   p = project(project_name)
   @result = project(project_name).delete(by: user)
   @projects.delete(p)
-  sleep 5 if @result[:success] # TODO: need smarter check if change propagated
+  if @result[:success]
+    @result[:success] = p.wait_to_be_deleted(user)
+    unless @result[:success]
+      logger.warn("Project #{p.name} still visible on server after delete")
+    end
+  end
 end

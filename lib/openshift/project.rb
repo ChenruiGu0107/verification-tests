@@ -1,4 +1,5 @@
 require 'yaml'
+require 'base_helper'
 
 module CucuShift
   # @note represents an OpenShift environment project
@@ -103,6 +104,18 @@ module CucuShift
       res = cli_exec(as: by, key: :new_project, project_name: name, **opts)
       res[:project] = self
       return res
+    end
+
+    def wait_to_be_created(user, seconds = 30)
+      return wait_for(seconds) {
+        exists?(user: user)
+      }
+    end
+
+    def wait_to_be_deleted(user, seconds = 30)
+      return wait_for(seconds) {
+        ! exists?(user: user)
+      }
     end
 
     def ==(p)

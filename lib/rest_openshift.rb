@@ -66,6 +66,11 @@ module CucuShift
         return perform(**base_opts, method: "DELETE")
       end
 
+      def self.get_project(base_opts, opts)
+        populate("/projects/<project_name>", base_opts, opts)
+        return perform(**base_opts, method: "GET")
+      end
+
       def self.get_user(base_opts, opts)
         populate("/users/<username>", base_opts, opts)
         return perform(**base_opts, method: "GET") { |res|
