@@ -50,3 +50,12 @@ When /^I delete the(?: "(.+?)")? project$/ do |project_name|
     end
   end
 end
+
+Given /^the(?: "(.+?)")? project is deleted$/ do |project_name|
+  project_name = ' "' + project_name + '"' if project_name
+  step "I delete the#{project_name} project"
+  unless @result[:success]
+    logger.error(@result[:response])
+    raise "unable to delete project, see log"
+  end
+end

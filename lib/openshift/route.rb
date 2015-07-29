@@ -1,5 +1,7 @@
 require 'yaml'
 
+require 'common'
+
 module CucuShift
   # @note represents an OpenShift route to a service
   #   https://docs.openshift.com/enterprise/3.0/architecture/core_concepts/routes.html
