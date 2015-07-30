@@ -66,10 +66,37 @@ module CucuShift
           raise "user #{user} and self.env '#{env}' do not match, likely a logical issue in test scenario" if user.env != env
           user.cli_exec(key, **opts)
         else
-          raise "unknown user specification for the operation: '#{user}'"
+          raise "unknown user specification for the operation: '#{user.inspect}'"
         end
       end
     end
+
+    #module UserObjectClassHelper
+      # execute cli command as user or admin
+      # @param as [CucuShift::User, CucuShift::Environment] the user to run cli
+      #   with or environment when admin command is desired
+      # @param key [Symbol] the command key to execute
+      # @param opts [Hash] the command options
+      # @return [CucuShift::ResultHash]
+      # @note usually invoked by managed classes like projects, routes, etc.
+      #   that could have same operations executed by admin or user; this method
+      #   simplifies such calls;
+    #  def cli_exec(as:, key:, **opts)
+    #    as
+
+    #    if as.kind_of? Environment
+    #      if as.admin?
+    #        return as.admin_cli_executor.exec(key, **opts)
+    #      else
+    #        raise "we don't have admin in this environment, what on earth do you expect?"
+    #      end
+    #    elsif as.kind_of? CucuShift::User
+    #      as.cli_exec(key, **opts)
+    #    else
+    #      raise "unknown user specification for the operation: '#{as.inspect}'"
+    #    end
+    #  end
+    #end
 
     module Setup
       def self.handle_signals

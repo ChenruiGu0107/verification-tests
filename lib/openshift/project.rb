@@ -1,5 +1,7 @@
 require 'yaml'
+
 require 'base_helper'
+require 'openshift/pod'
 
 module CucuShift
   # @note represents an OpenShift environment project
@@ -41,12 +43,12 @@ module CucuShift
 
       if res[:success]
         res[:parsed] = YAML.load(res[:response])
-        update_from_project_hash(res[:parsed])
+        update_from_api_object(res[:parsed])
       end
 
       return res
     end
-    alias populate_props get
+    alias reload get
 
     # list projects for a user
     # @param user [CucuShift::User] the user who's projects we want to list
@@ -57,7 +59,7 @@ module CucuShift
       if res[:success]
         list = YAML.load(res[:response])["items"]
         return list.map { |project_hash|
-          self.from_project_hash(user.env, project_hash)
+          self.from_api_object(user.env, project_hash)
         }
       else
         logger.error(res[:response])
@@ -74,18 +76,18 @@ module CucuShift
     end
 
     # creates new project from an OpenShift API Project object
-    def self.from_project_hash(env, project_hash)
+    def self.from_api_object(env, project_hash)
       self.new(env: env, name: project_hash["metadata"]["name"]).
-                                update_from_project_hash(project_hash)
+                                update_from_api_object(project_hash)
     end
 
-    def update_from_project_hash(project_hash)
+    def update_from_api_object(project_hash)
       h = project_hash["metadata"]
       props[:uid] = h["uid"]
       props[:description] = h["annotations"]["openshift.io/description"]
       props[:display_name] = h["annotations"]["openshift.io/display-name"]
 
-      return self # mainly to help ::from_project_hash
+      return self # mainly to help ::from_api_object
     end
 
     def delete(by:)
@@ -118,6 +120,20 @@ module CucuShift
       }
     end
 
+    ############### related to objects owned by this project ###############
+    def get_pods(by:, **get_opts)
+      opts = {resource: :pod, n: name, o: :yaml}
+      opts.merge! get_opts
+      res = cli_exec(as: by, key: :get, **opts)
+      if res[:success]
+        res[:parsed] = YAML.load(res[:response])
+        res[:pods] = res[:parsed]["items"].map {|p| Pod.from_api_object(self, p)}
+      end
+
+      return res
+    end
+
+    ############### take care of object comparison ###############
     def ==(p)
       p.kind_of?(self.class) && name == p.name && env == p.env
     end

@@ -115,6 +115,10 @@ module CucuShift
       # @yield block the block will be yielded until it returns true or timeout
       #   is reached
       def wait_for(seconds)
+        if seconds > 60
+          Kernel.puts("waiting for operation up to #{seconds} seconds..")
+        end
+
         start = monotonic_seconds
         success = false
         until monotonic_seconds - start > seconds

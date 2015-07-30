@@ -16,14 +16,45 @@
   :server: --server=<value>
   :stderrthreshold: --stderrthreshold=<value>
   :token: --token=<value>
-:version:
-  :cmd: oc version
+:config_view:
+  :cmd: oc config view
+  :options:
+    :output: --output=<value>
   :expected:
-    - oc v
-    - kubernetes v
-  :properties:
-    :oc_version: !ruby/regexp '/^oc v(.+)$/'
-    :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
+    - "apiVersion: v"
+    - "kind: Config"
+  :optional_properties:
+    :current_context: !ruby/regexp '/^current-context: (.+)/'
+:delete:
+  :cmd: oc delete <object_type> <object_name_or_id>
+:exec:
+  # reorder global_options and options to allow specifying exec command
+  :cmd: oc exec <pod> <global_options> <options>
+  :options:
+    :c: -c <value>
+    :container: --container=<value>
+    :stdin: --stdin=<value>
+    :tty: --tty=<value>
+    :oc_opts_end: --
+    :exec_command: <value>
+    :exec_command_arg: <value>
+:expose:
+  :cmd: oc expose <resource> <resource_name>
+  :options:
+    :route_port: --port=<value>
+    :route_protocol: --protocol=<value>
+    :target_port: --target-port=<value>
+    :route_name: --name=<value>
+    :route_type: --type=<value>
+    :output: --output=<value>
+    :o: -o <value>
+:get:
+  :cmd: oc get <resource>
+  :options:
+    :resource_name: <value>
+    :output: --output=<value>
+    :o: -o <value>
+    :l: -l <value>
 :login:
   :cmd: oc login
   :options:
@@ -43,33 +74,6 @@
   :cmd: oc logout
   :expected:
     - !ruby/regexp '/Logged ".+" out on/'
-:delete:
-  :cmd: oc delete <object_type> <object_name_or_id>
-:expose:
-  :cmd: oc expose <resource> <resource_name>
-  :options:
-    :route_port: --port=<value>
-    :route_protocol: --protocol=<value>
-    :target_port: --target-port=<value>
-    :route_name: --name=<value>
-    :route_type: --type=<value>
-    :output: --output=<value>
-    :o: -o <value>
-:get:
-  :cmd: oc get <resource>
-  :options:
-    :resource_name: <value>
-    :output: --output=<value>
-    :o: -o <value>
-:config_view:
-  :cmd: oc config view
-  :options:
-    :output: --output=<value>
-  :expected:
-    - "apiVersion: v"
-    - "kind: Config"
-  :optional_properties:
-    :current_context: !ruby/regexp '/^current-context: (.+)/'
 :new_app:
   :cmd: oc new-app
   :options:
@@ -98,3 +102,12 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:version:
+  :cmd: oc version
+  :expected:
+    - oc v
+    - kubernetes v
+  :properties:
+    :oc_version: !ruby/regexp '/^oc v(.+)$/'
+    :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
+

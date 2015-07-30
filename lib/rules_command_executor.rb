@@ -204,7 +204,7 @@ module CucuShift
             global_parameters << " " << global_option_rules[key].gsub('<value>', normalize(value))
           when cmd.include?("<#{key}>")
             if cmd_used_options.include? key
-              raise "options with multiple values given in cmd string forbidden"
+              raise "option '#{key}' allowed only once in #{cmd_key} command"
             else
               cmd.gsub!("<#{key}>", normalize(value))
               cmd_used_options << key
@@ -229,7 +229,7 @@ module CucuShift
           globals_added = true
           global_parameters
         else
-          # cmd substitution is taken care of in the previous loop
+          # cmd substitution is already performed in the previous loop
           # options[opt_key] || raise("need to provide '#{opt_key}' option")
           raise "required command option not supplied: #{opt_key}"
         end

@@ -123,7 +123,7 @@ module CucuShift
           return @routes.last
         end
       elsif @routes.empty?
-        # we do not create a random service like with projects because that
+        # we do not create a random route like with projects because that
         #   would rarely make sense
         raise "what route are you talking about?"
       else
@@ -131,8 +131,31 @@ module CucuShift
       end
     end
 
-    def pod
-      raise "getting pod not implemented"
+    # @return pod by name from scenario cache; with no params given,
+    #   returns last requested pod; otherwise creates a [Pod] object
+    # @note you need the project already created
+    def pod(name = nil, project = nil)
+      project ||= self.project
+
+      if name
+        s = @pods.find {|p| p.name == name && p.project == project}
+        if p && @pods.last == p
+          return p
+        elsif p
+          @pods << @pods.delete(p)
+          return p
+        else
+          # create new CucuShift::Service object with specified name
+          @pods << Pod.new(name: name, project: project)
+          return @pods.last
+        end
+      elsif @pods.empty?
+        # we do not create a random pod like with projects because that
+        #   would rarely make sense
+        raise "what pod are you talking about?"
+      else
+        return @pods.last
+      end
     end
 
     def quit_cucumber
