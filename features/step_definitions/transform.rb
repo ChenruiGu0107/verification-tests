@@ -7,8 +7,10 @@ Transform /.*/ do |arg|
   # @note original string object should never be modified here
   expand_str = proc do |str|
     begin
+      x = str
       # handle cases like <user-max_gears-2> -> value of @user[:max_gears]-2
-      x = str.gsub(/<(\w+)-([\w\_]+)(.*)??\>/, "<%=@\\1[:\\2]\\3%>")
+      #   this is disabled for v3 as it is complicated and has little/no use
+      # x = str.gsub(/<(\w+)-([\w\_]+)(.*)??\>/, "<%=@\\1[:\\2]\\3%>")
       # substitute inline expressions
       x = x.gsub(/<%=([^%]+)%>/) { |c|
         eval $1
