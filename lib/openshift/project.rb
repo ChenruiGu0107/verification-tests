@@ -35,6 +35,13 @@ module CucuShift
     end
     alias exists? visible?
 
+    def empty?(user:)
+      res = cli_exec(as: user, key: :status, n: name)
+
+      res[:success] = res[:response] =~ /ou have no.+services.+deployment.+configs/
+      return res
+    end
+
     def get(user:)
       res = cli_exec(as: user, key: :get,
                 resource_name: name,
@@ -131,6 +138,30 @@ module CucuShift
       end
 
       return res
+    end
+
+    # def get_services
+    # end
+
+    #oc delete all -l app=hi -n ie2yc
+    #buildconfigs/ruby-hello-world
+    #builds/ruby-hello-world-1
+    #imagestreams/mysql-55-centos7
+    #imagestreams/ruby-20-centos7
+    #imagestreams/ruby-hello-world
+    #deploymentconfigs/mysql-55-centos7
+    #deploymentconfigs/ruby-hello-world
+    #services/mysql-55-centos7
+    #services/ruby-hello-world
+    def delete_all_labeled(*labels, by:, **cmd_opts)
+      default_opts = {
+        object_type: :all,
+        l: selector_to_label_arr(*labels),
+        n: name
+      }
+      opts = default_opts.merge cmd_opts
+
+      return cli_exec(as: by, key: :delete, **opts)
     end
 
     ############### take care of object comparison ###############

@@ -60,10 +60,14 @@ Given /^the(?: "(.+?)")? project is deleted$/ do |project_name|
   end
 end
 
-#When(/^I delete all resources by label$/) do
-#  pending # Write code here that turns the phrase above into concrete actions
-#end
+When(/^I delete all resources by labels:$/) do |table|
+  @result = project.delete_all_labeled(*table.raw.flatten, by: user)
+end
 
-#Then(/^the project should be empty$/) do
-#  pending
-#end
+Then(/^the project should be empty$/) do
+  @result = project.empty?(user: user)
+  unless @result[:success]
+    logger.error(@result[:response])
+    raise "project not empty, see logs"
+  end
+end

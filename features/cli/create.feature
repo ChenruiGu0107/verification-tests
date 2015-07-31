@@ -97,9 +97,9 @@ Feature: creating 'apps' with CLI
       | curl -k <%= service.url %> |
     Then the step should succeed
     And the output should contain "Demo App"
-    And I pry
 
     # delete resources by label
-    When I delete all resources by label
+    When I delete all resources by labels:
+     | app=hi |
     Then the step should succeed
     And the project should be empty

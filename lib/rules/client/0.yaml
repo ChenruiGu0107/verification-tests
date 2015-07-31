@@ -26,7 +26,11 @@
   :optional_properties:
     :current_context: !ruby/regexp '/^current-context: (.+)/'
 :delete:
-  :cmd: oc delete <object_type> <object_name_or_id>
+  :cmd: oc delete <object_type>
+  :options:
+    :l: -l <value>
+    :all: --all
+    :object_name_or_id: <value>
 :exec:
   # reorder global_options and options to allow specifying exec command
   :cmd: oc exec <pod> <global_options> <options>
@@ -102,6 +106,8 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:status:
+  :cmd: oc status
 :version:
   :cmd: oc version
   :expected:
