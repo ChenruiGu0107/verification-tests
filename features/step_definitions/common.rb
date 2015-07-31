@@ -41,10 +41,10 @@ end
 # @param [Table] Array of the strings we are searching for
 # @note Checks whether the output contains/(does not contain) any of the
 # strings or regular expressions listed in the given table
-Then /^the( all)? outputs?( by order)? should( not)? (contain|match)(?: "(\d+)" times)?:/ do |all, in_order, negative, match_type, times, table|
+Then /^(the|all)? outputs?( by order)? should( not)? (contain|match)(?: (\d+) times)?:$/ do |all, in_order, negative, match_type, times, table|
   raise "incompatible options 'times' and 'by order'" if times && in_order
 
-  if all
+  if all == "all"
     case
     when @result.kind_of?(Array)
       outputs = @result.map {|r| r[:response].to_s}
@@ -93,6 +93,15 @@ Then /^the( all)? outputs?( by order)? should( not)? (contain|match)(?: "(\d+)" 
       end
     end
   end
+end
+
+# @param [String] negative Catches "not" if it is present
+# @param [Table] Array of the strings we are searching for
+# @note Checks whether the output contains/(does not contain) any of the
+# strings or regular expressions listed in the given table
+Then /^(the|all)? outputs?( by order)? should( not)? (contain|match) "(.+)"(?: (\d+) times)?$/ do |all, in_order, negative, match_type, pattern, times|
+  step "#{all} output#{in_order} should#{negative} #{match_type}#{times}:",
+    table(%{|#{pattern}|})
 end
 
 Given /^([0-9]+?) seconds have passed$/ do |num|
