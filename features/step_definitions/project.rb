@@ -59,3 +59,11 @@ Given /^the(?: "(.+?)")? project is deleted$/ do |project_name|
     raise "unable to delete project, see log"
   end
 end
+
+#When(/^I delete all resources by label$/) do
+#  pending # Write code here that turns the phrase above into concrete actions
+#end
+
+#Then(/^the project should be empty$/) do
+#  pending
+#end

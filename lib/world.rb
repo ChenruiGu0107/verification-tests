@@ -158,6 +158,11 @@ module CucuShift
       end
     end
 
+    # add pods to list avoiding duplicates
+    def pods_add(*new_pods)
+      new_pods.each {|p| @pods.delete(p); @pods << p}
+    end
+
     def quit_cucumber
       Cucumber.wants_to_quit = true
     end

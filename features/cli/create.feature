@@ -69,7 +69,37 @@ Feature: creating 'apps' with CLI
       | env          | MYSQL_USER=root,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Then the step should succeed
 
-    # TODO: check mysql
-    # service access via ip and hostname
-    # delete all resources with label
-    # check all is gone
+    # check MySQL pod
+    Given a pod becomes ready with labels:
+      | deployment=mysql-55-centos7-1 |
+    When I execute on the pod:
+      | bash                                                  |
+      | -c                                                    |
+      | mysql -h $HOSTNAME -uroot -ptest -e 'show databases;' |
+    Then the step should succeed
+    And the output should contain "test"
+
+    # access mysql through the service
+    Given I use the "mysql-55-centos7" service
+    And I reload the service
+    When I execute on the pod:
+      | bash                                                           |
+      | -c                                                             |
+      | mysql -h <%= service.ip %> -uroot -ptest -e 'show databases;' |
+    Then the step should succeed
+    And the output should contain "test"
+
+    # access web app through the service
+    Given I wait for the "ruby-hello-world" service to become ready
+    When I execute on the pod:
+      | bash                       |
+      | -c                         |
+      | curl -k <%= service.url %> |
+    Then the step should succeed
+    And the output should contain "Demo App"
+    And I pry
+
+    # delete resources by label
+    When I delete all resources by label
+    Then the step should succeed
+    And the project should be empty

@@ -71,9 +71,12 @@ module CucuShift
       res = get(user: user)
 
       if res[:success]
-        res[:success] = res[:parsed]["status"]["conditions"].any? { |c|
-          c["type"] == "Ready" && c["status"] == "True"
-        }
+        res[:success] =
+          res[:parsed]["status"] &&
+          res[:parsed]["status"]["conditions"] &&
+          res[:parsed]["status"]["conditions"].any? { |c|
+            c["type"] == "Ready" && c["status"] == "True"
+          }
       end
 
       return res
@@ -104,9 +107,10 @@ module CucuShift
       return res
     end
 
+    # @param labels [Array<String>, Hash, Array<Array>] labels to filter on
     def self.wait_for_labeled(*labels, user:, project:, seconds:)
       wait_for_matching(user: user, project: project, seconds: seconds,
-                        get_opts: {l: labels}) {true}
+                        get_opts: {l: selector_to_label_arr(labels)}) {true}
     end
 
     # @yield block that selects pods by returning true; see [#get_matching]

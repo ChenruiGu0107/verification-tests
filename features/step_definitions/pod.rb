@@ -1,6 +1,6 @@
 Given /^a pod becomes ready with labels:$/ do |table|
   labels = table.raw.flatten # dimentions irrelevant
-  pod_timeout = 2 * 60
+  pod_timeout = 10 * 60
   ready_timeout = 15 * 60
 
   @result = CucuShift::Pod.wait_for_labeled(*labels, user: user, project: project, seconds: pod_timeout)
@@ -10,7 +10,7 @@ Given /^a pod becomes ready with labels:$/ do |table|
     raise "See log, waiting for labeled pods futile: #{labels.join(',')}"
   end
 
-  @result[:matching].each {|p| @pods.delete(p); @pods << p}
+  pods_add(*@result[:matching])
 
   @result = pod.wait_till_ready(user, ready_timeout)
 

@@ -128,6 +128,36 @@ module CucuShift
 
         return success
       end
+
+      # converts known label selectors to a [Array<String>] for use with cli
+      #   commands
+      # @param labels [String, Array] labels to filter on; e.g. you can use
+      #   like `selector_to_label_arr(*hash, *array, str1, str2)`
+      # @return [Array<String>]
+      def selector_to_label_arr(*sel)
+        sel.map do |l|
+          case l
+          when String
+            l
+          when Array
+            if l.size < 1 && l.size > 2
+              raise "array parameters need to have 1 or 2 elements: #{l}"
+            end
+
+            if ! l[0].kind_of?(String) || (l[1] && ! l[1].kind_of?(String))
+              raise "all label key value pairs passed should be strings: #{l}"
+            end
+
+            str_l = l[0].to_s.dup
+            str_l << "=" << l[1].to_s unless l[1].nil?
+            str_l
+          when Hash
+            raise 'to pass hashes, expand them with star, e.g. `*hash`'
+          else
+            raise "cannot convert labels to string array: #{sel}"
+          end
+        end
+      end
     end
   end
 end
