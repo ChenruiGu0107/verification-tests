@@ -1,3 +1,5 @@
+require 'shellwords'
+
 require 'common'
 require 'ssh'
 
@@ -235,10 +237,12 @@ module CucuShift
       return commands.flatten.join("\n")
     end
 
-    # I don't like Shellwords.escape for readability
     def shell_escape(str)
       # basically single quote replacing occurances of `'` with `'\''`
-      return "'" << str.gsub("'") {|m| %q{'\''}} << "'"
+      # return "'" << str.gsub("'") {|m| %q{'\''}} << "'"
+
+      # escape nesting reads better with backslashes
+      Shellwords.escape(str)
     end
 
     # @return pwd of raw commands executed on the host

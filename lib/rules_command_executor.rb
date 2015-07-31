@@ -48,7 +48,6 @@ module CucuShift
     # @see #process_result
     def run(cmd_key, options)
       cmd = build_command_line(cmd_key, options)
-
       res = @host.exec_as(@user, cmd)
 
       process_result(result: res, rules: rules[cmd_key], options: options)
@@ -199,14 +198,14 @@ module CucuShift
 
           case
           when option_rules[key]
-            parameters << " " << option_rules[key].gsub('<value>', normalize(value))
+            parameters << " " << option_rules[key].gsub('<value>') {normalize(value)}
           when global_option_rules[key]
-            global_parameters << " " << global_option_rules[key].gsub('<value>', normalize(value))
+            global_parameters << " " << global_option_rules[key].gsub('<value>') {normalize(value)}
           when cmd.include?("<#{key}>")
             if cmd_used_options.include? key
               raise "option '#{key}' allowed only once in #{cmd_key} command"
             else
-              cmd.gsub!("<#{key}>", normalize(value))
+              cmd.gsub!("<#{key}>") {normalize(value)}
               cmd_used_options << key
             end
           else
