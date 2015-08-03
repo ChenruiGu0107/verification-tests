@@ -39,6 +39,8 @@
     :container: --container=<value>
     :stdin: --stdin=<value>
     :tty: --tty=<value>
+    :t: -t
+    :i: -i
     :oc_opts_end: --
     :exec_command: <value>
     :exec_command_arg: <value>
