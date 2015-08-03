@@ -34,7 +34,7 @@ module CucuShift
       if opts[:private_key]
         logger.debug("SSH Authenticating with publickey method")
         # TODO: make private key lookup more powerful and flexible
-        private_key = expand_private_key(opts[:private_key])
+        private_key = expand_private_path(opts[:private_key])
         conn_opts[:keys] = [private_key]
         conn_opts[:auth_methods] = ["publickey"]
       elsif opts[:password]
@@ -48,21 +48,6 @@ module CucuShift
       end
       @session = Net::SSH.start(host, @user, **conn_opts)
       @last_accessed = Time.now
-    end
-
-    # find key as an absolute file, relative to private, home or workdir;
-    #   relative to main repo it is not allowed to avoid leaks if possible
-    def expand_private_key(path)
-      if Host.localhost.file_exist?(path)
-        # absolute path or relative to workdir
-        return Host.localhost.absolute_path(path)
-      elsif File.exist?(PRIVATE_DIR + "/" + path)
-        return PRIVATE_DIR + "/" + path
-      elsif File.exist?(File.expand_path("~/#{path}"))
-        return File.expand_path("~/#{path}")
-      else
-        raise "cannot find private key file"
-      end
     end
 
     def close
