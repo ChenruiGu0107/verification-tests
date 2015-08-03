@@ -14,9 +14,9 @@ module CucuShift
     def self.get_cert_chain(dst:, port:, hostname: nil)
       context = OpenSSL::SSL::SSLContext.new
       context.verify_mode = OpenSSL::SSL::VERIFY_NONE
-      tcp_client = TCPSocket.new host, port.to_i
+      tcp_client = TCPSocket.new dst, port.to_i
       ssl_client = OpenSSL::SSL::SSLSocket.new tcp_client, context
-      ssl_client.hostname = hostname is hostname
+      ssl_client.hostname = hostname if hostname
       ssl_client.connect
       # ssl_client.peer_cert
       chain = ssl_client.peer_cert_chain
