@@ -7,7 +7,7 @@ Feature: creating 'apps' with CLI
     And I create a new application with:
       | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
       | name         | myapp                |
-      # | namespace    | <%= @project.name %> |
+      # | namespace    | <%= project.name %>  |
     Then the step should succeed
     When I expose "myapp" service
     Then the step should succeed
@@ -85,7 +85,7 @@ Feature: creating 'apps' with CLI
     When I execute on the pod:
       | bash                                                           |
       | -c                                                             |
-      | mysql -h <%= service.ip %> -uroot -ptest -e 'show databases;' |
+      | mysql -h <%= service.ip %> -uroot -ptest -e 'show databases;'  |
     Then the step should succeed
     And the output should contain "test"
 
