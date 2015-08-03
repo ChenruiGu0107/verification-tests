@@ -13,8 +13,13 @@ module CucuShift
       unless opts[:files]
         opts[:files] = []
         opts[:files] << File.expand_path("#{HOME}/config/config.yaml")
-        priv_config = File.expand_path(CucuShift::PRIVATE_DIR + "/config.yaml")
-        opts[:files] << priv_config if File.exist?(priv_config)
+        [
+          "/config/config.yaml",
+          "/config.yaml"
+        ].each { |priv_config|
+          file = File.expand_path(CucuShift::PRIVATE_DIR + priv_config)
+          opts[:files] << file if File.exist?(file)
+        }
       end
     end
 
