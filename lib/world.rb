@@ -34,6 +34,13 @@ module CucuShift
       scenario.failed? && conf[:debug_in_after_hook] || conf[:debug_in_after_hook_always]
     end
 
+    def debug_in_after_hook
+      if debug_in_after_hook?
+        require 'pry'
+        binding.pry
+      end
+    end
+
     # @note call like `user(0)` or simply `user` for current user
     def user(num=nil)
       return @user if num.nil? && @user
@@ -167,8 +174,11 @@ module CucuShift
       Cucumber.wants_to_quit = true
     end
 
-    # this is defined in Helper
-    # def manager
-    # end
+    def hook_error!(err)
+      if err
+        quit_cucumber
+        raise err
+      end
+    end
   end
 end
