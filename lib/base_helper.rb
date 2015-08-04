@@ -108,6 +108,12 @@ module CucuShift
         Process.clock_gettime(Process::CLOCK_MONOTONIC)
       end
 
+      def capture_error
+        return true, yield
+      rescue => e
+        return false, e
+      end
+
       # repeats block until it returns true or timeout reached; timeout not
       #   strictly enforced, use other timeout techniques to avoid freeze
       # @param seconds [Numeric] the max number of seconds to try operation to
