@@ -11,6 +11,9 @@ global:
   # use CUCUSHIFT_DEFAULT_ENVIRONMENT instead of setting here
   # default_environment: ose
 
+  # use CUCUSHIFT_TEST_CASE_MANAGER instead of setting here
+  # test_case_manager: tcms
+
 environments:
   ose:
     # hosts: use OPENSHIFT_ENV_OSE_HOSTS=host:role1:...,host2:role1:...
@@ -34,3 +37,9 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+
+custom_classes:
+  tcms:
+    include_path: tcms/tcms_manager
+    class: CucuShift::TCMSManager
+    opts: {}
