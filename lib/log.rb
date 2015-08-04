@@ -41,7 +41,7 @@ module CucuShift
     end
 
     def time
-      @@runtime.puts("#{Time.now.localtime}")
+      @@runtime.puts("#{Time.now.utc}")
     end
 
     def log(msg, prefix="INFO> ", show_datetime='time')
@@ -53,9 +53,9 @@ module CucuShift
 
       m = ""
       if show_datetime == 'time'
-        m = "#{Time.now.strftime("[%H:%M:%S]")} #{prefix}#{msg}"
+        m = "#{Time.now.utc.strftime("[%H:%M:%S]")} #{prefix}#{msg}"
       elsif show_datetime == 'datetime'
-        m ="#{Time.now.strftime("[%Y-%m-%d %H:%M:%S]")} #{prefix}#{msg}"
+        m ="#{Time.now.utc.strftime("[%Y-%m-%d %H:%M:%S]")} #{prefix}#{msg}"
       else
         m = "#{prefix}#{msg}"
       end
