@@ -28,37 +28,59 @@ World do
   CucuShift::World.new
 end
 
+## while we can move everything inside World, lets try to outline here the
+#    basic steps to have world ready to execute scenario
 Before do |_scenario|
   localhost.chdir
   self.scenario = _scenario
   setup_logger
+
+  ## raise inside block only if error can affect scenarios execution ##
+  no_err, val = capture_error {
+    # put other calls here to setup world according to tags, etc.
+  }
+  err = no_err ? nil : val
+
+  manager.test_case_manager.before_scenario(scenario, err)
+  hook_error!(err)
 end
 
-After do |scenario|
-  @scenario = scenario # this is different object than in Before hook
-  if debug_in_after_hook?
-    require 'pry'
-    binding.pry
-  end
+## while we can move everything inside World, lets try to outline here the
+#    basic steps that are run after each scenario execution
+After do |_scenario|
+  self.scenario = _scenario # this is different object than in Before hook
+  debug_in_after_hook
 
-  manager.clean_up
+  ## raise inside block only if error can affect next scenarios execution ##
+  no_err, val = capture_error {
+    # put calls here to clean based on tags, etc.
+    manager.clean_up
+  }
+  err = no_err ? nil : val
+
+  manager.test_case_manager.after_scenario(scenario, err)
+  hook_error!(err)
 end
 
 AfterConfiguration do |config|
   CucuShift::Common::Setup.handle_signals
   CucuShift::Common::Setup.set_cucushift_home
 
-  # use default classes if these were not overriden by private ones
+  ## use default classes if these were not overriden by private ones
   CucuShift::Manager ||= CucuShift::DefaultManager
   CucuShift::World   ||= CucuShift::DefaultWorld
 
-  # install step failure debugging code
+  ## install step failure debugging code
   if CucuShift::Manager.conf[:debug_failed_steps]
     CucuShift::Debug.step_fail_cucumber2
   end
+
+  ## set test case manager if requested (adds a scenario filter as well)
+  CucuShift::Manager.instance.init_test_case_manager(config)
 end
 
 at_exit do
   CucuShift::Logger.reset_runtime # otherwise we lose output
-  CucuShift::Manager.instance.clean_up
+  CucuShift::Manager.instance.test_case_manager.at_exit
+  CucuShift::Manager.instance.at_exit
 end
