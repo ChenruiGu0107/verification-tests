@@ -3,13 +3,16 @@
 ---
 <% now = Time.now.to_i %>
 <% default_args = " --color -r features -f pretty --expand --strict" %>
-<% todo_args = " --color -r features -f pretty -f CustomFormatter -o ~/workdir/log --expand --strict --tags ~@disabled --tags ~@orphaned" %>
+<% tcms_args = " --color -r features -f pretty -f CucuShift::CucuFormatter -o :auto --expand --strict" %>
+<% tcms_desired = " --color -r features -f pretty -f CucuShift::CucuFormatter -o :auto --expand --strict --order random" %>
+<% old = " --color -r features -f pretty -f CustomFormatter -o ~/workdir/log --expand --strict --tags ~@disabled --tags ~@orphaned" %>
 <% branch = `git branch | grep "*"  | sed "s/* //"`.strip %>
 <% common_libs = " -r features/step_definitions/ -r features/support/ "%>
 
 
 default: <%= default_args %>
 debug: CUCUSHIFT_LOG_LEVEL=debug CUCUSHIFT_DEBUG=true <%= default_args %>
-devel: CUCUSHIFT_LOG_LEVEL=debug CUCUSHIFT_DEBUG=true CUCUSHIFT_DEVEL=true --expand --strict --color -r features -f pretty
+devel: CUCUSHIFT_DEBUG_AFTER_FAIL <%= default_args %>
+tcms: CUCUSHIFT_TEST_CASE_MANAGER=tcms  <%= tcms_args %>
 #
 # vim: set tabstop=2:shiftwidth=2:expandtab:
