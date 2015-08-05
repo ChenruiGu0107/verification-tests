@@ -12,13 +12,18 @@ module CucuShift
   class DefaultManager
     include Singleton
     attr_accessor :world
-    attr_reader :temp_resources, :test_case_manager
+    attr_reader :temp_resources, :test_case_manager, :custom_formatters
 
     def initialize
       @world = nil
       @temp_resources = []
 
       # # @browsers = ...
+
+      # keep reference to CucuShift custom formatters so we can interact;
+      #   at the moment we use to call #process_scenario_log from the test case
+      #   manager to get hold on scenario log and artifacts at convenient time
+      @custom_formatters = []
     end
 
     def clean_up
