@@ -31,9 +31,10 @@ end
 ## while we can move everything inside World, lets try to outline here the
 #    basic steps to have world ready to execute scenario
 Before do |_scenario|
+  setup_logger
+  logger.info("=== Before Scenario: #{_scenario.name} ===")
   localhost.chdir
   self.scenario = _scenario
-  setup_logger
 
   ## raise inside block only if error can affect scenarios execution ##
   no_err, val = capture_error {
@@ -43,11 +44,13 @@ Before do |_scenario|
 
   manager.test_case_manager.before_scenario(scenario, err)
   hook_error!(err)
+  logger.info("=== End Before Scenario: #{_scenario.name} ===")
 end
 
 ## while we can move everything inside World, lets try to outline here the
 #    basic steps that are run after each scenario execution
 After do |_scenario|
+  logger.info("=== After Scenario: #{_scenario.name} ===")
   self.scenario = _scenario # this is different object than in Before hook
   debug_in_after_hook
 
@@ -60,6 +63,7 @@ After do |_scenario|
 
   manager.test_case_manager.after_scenario(scenario, err)
   hook_error!(err)
+  logger.info("=== End After Scenario: #{_scenario.name} ===")
 end
 
 AfterConfiguration do |config|
@@ -81,6 +85,7 @@ end
 
 at_exit do
   CucuShift::Logger.reset_runtime # otherwise we lose output
+  CucuShift::Manager.instance.logger.info("=== At Exit ===")
   CucuShift::Manager.instance.test_case_manager.at_exit
   CucuShift::Manager.instance.at_exit
 end
