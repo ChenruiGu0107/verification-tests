@@ -32,7 +32,10 @@ module CucuShift
 
     def at_exit
       # test_case_manager.at_exit # call in env.rb for visibility
-      # clean_up # clean-up should already be called in After hook
+
+      # perform clean up in case of abrupt interruption (ctrl+c)
+      #   duplicate call after proper clean up in After hook should not hurt
+      clean_up
     end
 
     def environments
