@@ -37,7 +37,7 @@ module CucuShift
       properties[key]
     end
 
-    private def workdir(**opts)
+    def workdir(**opts)
       unless @workdir_exists
         @workdir_exists = mkdir(@workdir, :raw => true)
       end
