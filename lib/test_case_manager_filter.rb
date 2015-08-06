@@ -3,6 +3,9 @@ require 'cucumber/core/filter'
 module CucuShift
   # this class lives throughout the whole test execution
   #  it passes filter events to the Test Case Manager
+  #  IMPORTANT: needs to run as last filter in the chain because test case
+  #    manager expects to be called at the time a scenario would be run;
+  #    other filters will compromise this assumption
   TestCaseManagerFilter = Cucumber::Core::Filter.new(:tc_manager) do
     # called upon new scenario
     def test_case(test_case)
