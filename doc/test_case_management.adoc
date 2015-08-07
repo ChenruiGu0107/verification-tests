@@ -1,0 +1,9 @@
+= Test Case Management
+
+CucuShift has a feature to use an external test case manager for cases to be run and reporting of status and test artifacts. This is achieved by the collaboration of the following classes:
+* TestCaseManagerFilter - this is a cucumber filter that would ask actual test case manager if a test case is to be run and inform test case manager that all cases are completed. It needs to be the last Cucumber filter, otherwise operation of the whole system will be compromised.
+* CucuFormatter - custom cucumber formatter that creates HTML log files and sends embedding requests to test actual case manager; also accepts requests to produce scenario result html file for attaching to test case by the test case manager
+* Manager - it keeps reference to actual test case manager and CucuFormatter so they can talk to each other
+* env.rb - instantiates test case manager and calls some more hooks
+* config/cucumber.yml - can define cucumber profiles for using different test case managers
+* actual test case manager - should implement some methods and that's all. See an example manager - TCMSManager
