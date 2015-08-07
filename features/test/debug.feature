@@ -11,10 +11,14 @@ Feature: Debug and Explore Stuff
   @pry_outline
   Scenario Outline: I want to pry an outline
     When I pry
-    Examples:
+    Examples: first test case
       | garga|marga |
       |hodi | brodi |
       |mura |    ura|
+
+    Examples: second test case
+      |fff|ddd|
+      |aaa|bbb|
 
   @pry_table_step
   Scenario: I want to pry in a step with table
