@@ -9,11 +9,15 @@ module CucuShift
   TestCaseManagerFilter = Cucumber::Core::Filter.new(:tc_manager) do
     # called upon new scenario
     def test_case(test_case)
-      if tc_manager.should_run? test_case
-        super
-      else
-        return self
+      tc_manager.push(test_case)
+
+      # run each test case that manager returns; it means ready to be executed
+      while case_to_run = tc_manager.shift # yes, assignment
+        tc_manager.signal(:start_case, case_to_run)
+        case_to_run.describe_to receiver
+        tc_manager.signal(:end_case, case_to_run)
       end
+      return self
 
       # example fiddling with steps
       #activated_steps = test_case.test_steps.map do |test_step|
@@ -28,7 +32,7 @@ module CucuShift
 
     # called at end of execution to print summary
     def done
-      tc_manager.all_test_cases_completed
+      tc_manager.signal(:end_of_cases)
 
       super
       # super source at time of writing

@@ -42,7 +42,7 @@ Before do |_scenario|
   }
   err = no_err ? nil : val
 
-  manager.test_case_manager.before_scenario(scenario, err)
+  manager.test_case_manager.signal(:finish_before_hook, scenario, err)
   hook_error!(err)
   logger.info("=== End Before Scenario: #{_scenario.name} ===")
 end
@@ -61,7 +61,7 @@ After do |_scenario|
   }
   err = no_err ? nil : val
 
-  manager.test_case_manager.after_scenario(scenario, err)
+  manager.test_case_manager.signal(:finish_after_hook, scenario, err)
   hook_error!(err)
   logger.info("=== End After Scenario: #{_scenario.name} ===")
 end
@@ -86,6 +86,6 @@ end
 at_exit do
   CucuShift::Logger.reset_runtime # otherwise we lose output
   CucuShift::Manager.instance.logger.info("=== At Exit ===")
-  CucuShift::Manager.instance.test_case_manager.at_exit
+  CucuShift::Manager.instance.test_case_manager.signal(:at_exit)
   CucuShift::Manager.instance.at_exit
 end

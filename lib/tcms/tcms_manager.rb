@@ -15,6 +15,40 @@ module CucuShift
       # @attach_queue = Queue.new
     end
 
+    ############ test case manager interface methods ############
+
+    def signal(signal, *args)
+    end
+
+    def push(test_case)
+      @tcs||=[]
+      @tcs << test_case
+    end
+
+    def shift
+      @tcs.shift
+    end
+
+    def attach_logs(caserunid, *urls)
+    end
+
+    # @param scenario [Hash] with keys :name, :file_colon_line, :arg
+    # @param dir [String] to be attached to test case run; dir emptied on return
+    def attach_dir(dir)
+      require 'pry'
+      binding.pry
+    end
+
+    def before_failed?
+    end
+
+    def after_failed?
+    end
+
+    ############ test case manager interface methods end ############
+
+    private
+
     def tcms
       return @tcms if @tcms
 
@@ -26,22 +60,6 @@ module CucuShift
       return @tcms
     end
 
-    def attach_logs(caserunid, *urls)
-    end
-
-    def should_run?(test_case)
-      # Fist thing, lets finalize operation with previous test_case
-      finalize(current_test_case)
-
-      self.current_test_case = test_case
-      logger.info("Skipping scenario: " << test_case.name)
-      true
-    end
-
-    def all_test_cases_completed
-      finalize(current_test_case)
-    end
-
     # @param test_case [Hash] a hash tracking test case execution progress
     def finalize(test_case)
       return unless test_case # no test cases executed yet
@@ -51,20 +69,5 @@ module CucuShift
 
       # TODO: ???
     end
-
-    # @param scenario [Hash] with keys :name, :file_colon_line, :arg
-    # @param dir [String] to be attached to test case run; dir emptied on return
-    def attach_dir(dir)
-      require 'pry'
-      binding.pry
-    end
-
-    ## TODO: implement class and remove noop fallback
-    def method_missing(m, *args, &block)
-      #puts "There's no method called #{m} here -- please try again."
-      # require 'pry'
-      #binding.pry
-    end
-
   end
 end
