@@ -153,6 +153,10 @@ module CucuShift
     #deploymentconfigs/ruby-hello-world
     #services/mysql-55-centos7
     #services/ruby-hello-world
+    # @param labels [String, Array<String,String>, read carefully description of
+    #   [CucuShift::Common::BaseHelper#selector_to_label_arr]
+    # @param by [User] the user to execute operation with
+    # @param cmd_opts [**Hash] command line options overrides
     def delete_all_labeled(*labels, by:, **cmd_opts)
       default_opts = {
         object_type: :all,

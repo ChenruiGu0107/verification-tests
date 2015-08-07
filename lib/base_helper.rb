@@ -140,6 +140,11 @@ module CucuShift
       # @param labels [String, Array] labels to filter on; e.g. you can use
       #   like `selector_to_label_arr(*hash, *array, str1, str2)`
       # @return [Array<String>]
+      # @note it is somehow confusing to call this method properly, examples:
+      #   selector_to_label_arr(*hash_selector)
+      #   selector_to_label_arr(*array_of_arrays_with_label_key_value_pairs)
+      #   selector_to_label_arr(str_label1, str_label2, ...)
+      #   selector_to_label_arr(*hash, str_label1, *arry, ...)
       def selector_to_label_arr(*sel)
         sel.map do |l|
           case l
@@ -152,6 +157,10 @@ module CucuShift
 
             if ! l[0].kind_of?(String) || (l[1] && ! l[1].kind_of?(String))
               raise "all label key value pairs passed should be strings: #{l}"
+            end
+
+            if l[0].include?('=') || (l[1] && l[1].include?('='))
+              raise "only accept expanded label selector arrays, e.g. selector_to_label_arr(*arry); either that or your label request is plain wrong: key='#{l[0]}' val='#{l[1]}'"
             end
 
             str_l = l[0].to_s.dup
