@@ -71,11 +71,9 @@ module CucuShift
         require 'test_case_manager_filter'
         cucumbler_config.filters << TestCaseManagerFilter.new(tc_mngr_obj)
       else
-        # dummy class to always return true and never raise
+        # dummy test case manager to avoid no method defined errors
         @test_case_manager = Class.new do
-          def method_missing(m, *args, &block)
-            true
-          end
+          def method_missing(m, *args, &block); end
         end.new
       end
     end
