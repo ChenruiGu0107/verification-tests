@@ -277,12 +277,12 @@ module CucuShift
         if self[:user] == "root"
           return exec_as(nil, *commands, **opts)
         else
-          cmd = "sudo bash -c #{shell_escape(commands_to_string("cd '#{workdir}'", commands))}"
+          cmd = "sudo bash -c #{shell_escape(commands_to_string("cd #{shell_escape(workdir)}", commands))}"
           return exec_raw(cmd, **opts)
         end
       else # try sudo -u
         raise "username cannot be empty" if user.empty?
-        cmd = "sudo -u #{user} bash -c #{shell_escape(commands_to_string("cd '#{workdir}'", commands))}"
+        cmd = "sudo -u #{user} bash -c #{shell_escape(commands_to_string("cd #{shell_escape(workdir)}", commands))}"
         return exec_raw(cmd, **opts)
       end
     end
