@@ -1,6 +1,7 @@
 ruby
 ruby-devel
-libxml2-devel
+
+rubygem-bundler
+
 gcc-c++
 openssl
-
