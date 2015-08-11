@@ -11,12 +11,13 @@ require 'uri'
 require 'openssl'
 require 'log'
 require 'io/console' # for reading password without echo
+require 'timeout' # to avoid freezes waiting for user input
 
-require 'base_helper'
+require 'common'
 
 module CucuShift
   class TCMS
-    include Common::BaseHelper
+    include Common::Helper
 
     [:ENABLE_NIL_PARSER, :ENABLE_NIL_CREATE, :ENABLE_MULTICALL].each do |const|
       XMLRPC::Config.send(:remove_const, const)
@@ -41,32 +42,44 @@ module CucuShift
     #mapping tags=>Integer
     @@tags = {}
 
-    def initialize(user, password, options={})
-      @options = options.dup
-      @options[:user] = user if user
-      @options[:password] = password if password
-      @logger = @options[:logger] || Logger.new
+    def initialize(options={})
+      @options = default_opts.merge options
 
-      raise "specify TCMS user and password" unless @options[:user] && @options[:password]
+      ## try to obtain user/password in all possible ways
+      @options[:user] = ENV['TCMS_USER'] if ENV['TCMS_USER']
+      @options[:password] = ENV['TCMS_PASSWORD'] if ENV['TCMS_PASSWORD']
+      unless @options[:user]
+        Timeout::timeout(120) {
+          STDERR.puts "TCMS user (timeout in 2 minutes): "
+          @options[:user] = STDIN.gets.chomp
+        }
+      end
+      unless @options[:password]
+        STDERR.puts "TCMS Password: "
+        @options[:password] = STDIN.noecho(&:gets).chomp
+      end
+
+      ## set logger
+      @logger = @options[:logger] || logger
+
+
+      # make sure ca_paths are absolute
+      if @options[:ca_file]
+        @options[:ca_file] = expand_private_path(@options[:ca_file],
+                                                 public_safe: true)
+      elsif @options[:ca_path]
+        @options[:ca_path] = expand_private_path(@options[:ca_path],
+                                                 public_safe: true)
+      end
+
+      raise "specify TCMS user and password" unless @options[:user] && @options[:password] && !@options[:user].empty? && !@options[:password].empty?
+    end
+
+    def default_opts
+      return  conf[:services, :tcms]
     end
 
     def finalize
-    end
-
-    def self.get_tcms(opts={})
-      if ENV['TCMS_USER']
-        tcms_user = ENV['TCMS_USER']
-      else
-        STDERR.puts "TCMS user: "
-        tcms_user = STDIN.gets.chomp
-      end
-      if ENV['TCMS_PASSWORD']
-        tcms_pass = ENV['TCMS_PASSWORD']
-      else
-        STDERR.puts "TCMS Password: "
-        tcms_pass = STDIN.noecho(&:gets).chomp
-      end
-      tcms =  CucuShift::TCMS.new(tcms_user, tcms_pass, opts)
     end
 
     def client
@@ -96,8 +109,8 @@ module CucuShift
       rescue => e
         @logger.error("Error: #{e.to_s}")
         # @client = nil # client automatically reconnects
+        raise "TCMS: Unable to call #{method}(#{args})"
       end
-      raise "TCMS: Unable to call #{method}(#{args})"
     end
 
     def multicall(*methods)
@@ -173,8 +186,17 @@ module CucuShift
     alias_method :get_script, :get_case_script
 
     # @param [Integer] the testrun ID
+    # @return [Array<Hash>] array of hashes containing test case intermixed
+    #   with caserun properties
+    def get_runs_cases(testrun_ids)
+      testrun_ids.reduce([]) { |all, testrun_id|
+        all.concat(get_cases(testrun_id))
+      }
+    end
+
+    # @param [Integer] the testrun ID
     # @return [Array of TestCase]
-    def get_cases(testrun_id)
+    def get_run_cases(testrun_id)
       testcases = self.call('TestRun.get_test_cases', testrun_id.to_i)
       testcases.each do |testcase|
         testcase['run_id'] = testrun_id.to_i

@@ -12,7 +12,7 @@ module CucuShift
       tc_manager.push(test_case)
 
       # run each test case that manager returns; it means ready to be executed
-      while case_to_run = tc_manager.shift # yes, assignment
+      while case_to_run = tc_manager.next # yes, assignment
         tc_manager.signal(:start_case, case_to_run)
         case_to_run.describe_to receiver
         tc_manager.signal(:end_case, case_to_run)

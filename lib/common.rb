@@ -27,12 +27,14 @@ module CucuShift
 
       # find an absolute file, relative to private, home or workdir;
       #   relative to main repo it is not allowed to avoid leaks if possible
-      def expand_private_path(path)
+      def expand_private_path(path, public_safe: false)
         if Host.localhost.file_exist?(path)
           # absolute path or relative to workdir
           return Host.localhost.absolute_path(path)
         elsif File.exist?(PRIVATE_DIR + "/" + path)
           return PRIVATE_DIR + "/" + path
+        elsif public_safe && File.exist?(CucuShift::HOME + "/" + path)
+          return CucuShift::HOME + "/" + path
         elsif File.exist?(File.expand_path("~/#{path}"))
           return File.expand_path("~/#{path}")
         else

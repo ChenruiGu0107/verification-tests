@@ -61,8 +61,10 @@ module CucuShift
 
     def init_test_case_manager(cucumbler_config)
       tc_mngr = ENV['CUCUSHIFT_TEST_CASE_MANAGER'] || conf[:test_case_manager]
+      tc_mngr = tc_mngr ? tc_mngr + '_tc_manager' : false
       if tc_mngr
-        tc_mngr_obj = conf.get_custom_class_instance(tc_mngr)
+        logger.info("Using #{tc_mngr} test case manager")
+        tc_mngr_obj = conf.get_optional_class_instance(tc_mngr)
 
         ## register our test case manager
         @test_case_manager = tc_mngr_obj

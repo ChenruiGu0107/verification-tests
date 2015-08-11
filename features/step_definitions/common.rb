@@ -1,5 +1,5 @@
 When /^I switch to(?: the)? ([a-z]+) user$/ do |who|
-  @user = user(word_to_num(who))
+  user(word_to_num(who))
 end
 
 Then /^the step should( not)? (succeed|fail)$/ do |negative, outcome|

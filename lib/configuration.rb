@@ -75,7 +75,11 @@ module CucuShift
     #   `conf[:private, :auth, :git, :default_ssh_key]`
     def [](*opts)
       opts = opts.map {|o| o.to_sym}
-      root_options = [:global, :private, :environments, :custom_classes]
+      root_options = [:global,
+                      :private,
+                      :environments,
+                      :optional_classes,
+                      :services]
       unless root_options.include? opts.first
         opts.unshift :global
       end
@@ -86,10 +90,10 @@ module CucuShift
       return val
     end
 
-    # instanciates a custom class based on custom_classes configuration key
-    def get_custom_class_instance(keyword)
-      class_opts = self[:custom_classes, keyword.to_sym]
-      require class_opts[:include_path]
+    # instanciates optional class based on optional_classes configuration key
+    def get_optional_class_instance(keyword)
+      class_opts = self[:optional_classes, keyword.to_sym]
+      require class_opts[:include_path] if class_opts[:include_path]
       return Object.const_get(class_opts[:class]).new(**class_opts[:opts])
     end
   end

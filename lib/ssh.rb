@@ -33,7 +33,6 @@ module CucuShift
       conn_opts = {}
       if opts[:private_key]
         logger.debug("SSH Authenticating with publickey method")
-        # TODO: make private key lookup more powerful and flexible
         private_key = expand_private_path(opts[:private_key])
         conn_opts[:keys] = [private_key]
         conn_opts[:auth_methods] = ["publickey"]

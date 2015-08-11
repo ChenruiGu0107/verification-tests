@@ -51,8 +51,8 @@ environments:
     cli: SharedLocalCliExecutor
     admin_cli: false
 
-custom_classes:
-  tcms:
+optional_classes:
+  tcms_tc_manager:
     include_path: tcms/tcms_manager
     class: CucuShift::TCMSManager
     opts: {}
