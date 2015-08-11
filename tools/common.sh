@@ -11,6 +11,11 @@ function setup_git()
         git config --global user.email "$USER@redhat.com"
 }
 
+function install_rvm_ruby()
+{
+  echo "not implemented, please install ruby 2.2.2+ manually"
+  return 1
+}
 #################################################
 ############ system-wide functions ##############
 #################################################
