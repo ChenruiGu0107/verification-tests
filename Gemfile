@@ -23,8 +23,8 @@ gem 'watir-webdriver', '>=0.6.11'
 ## tools
 gem 'asciidoctor'
 ## Debugging
-gem 'byebug'
 gem 'pry'
+gem 'pry-byebug'
 # gem 'mongo'
 # gem 'bson_ext'
 # gem 'parseconfig'
