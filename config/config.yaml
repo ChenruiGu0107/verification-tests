@@ -28,7 +28,7 @@ environments:
     # cli: SharedLocalCliExecutor
     admin_cli: MasterOsAdminCliExecutor
     api_port: 8443
-  oso_fedora:
+  origin:
     # hosts: use OPENSHIFT_ENV_OSE_HOSTS=host:role1:...,host2:role1:...
     hosts_type: SSHAccessibleHost
     # this is the user for remote access to the OpenShift nodes
