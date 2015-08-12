@@ -24,7 +24,9 @@ gem 'watir-webdriver', '>=0.6.11'
 gem 'asciidoctor'
 ## Debugging
 gem 'pry'
-gem 'pry-byebug'
+# https://github.com/deivid-rodriguez/pry-byebug/issues/71
+# gem 'pry-byebug', :require => false
+gem 'byebug'
 # gem 'mongo'
 # gem 'bson_ext'
 # gem 'parseconfig'
