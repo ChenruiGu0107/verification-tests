@@ -20,9 +20,8 @@ module CucuShift
 
     def self.localhost
       @localhost if @localhost
-
       @localhost ||= case RUBY_PLATFORM
-      when /linux/
+      when /linux/, /darwin/   # for Mac it's darwin
         LocalLinuxLikeHost.new(nil)
       else
         raise "don't know a suitable host for your platform"
