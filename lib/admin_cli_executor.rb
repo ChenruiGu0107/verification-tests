@@ -6,7 +6,7 @@ module CucuShift
 
     attr_reader :env, :opts
 
-    RULES_DIR = File.expand_path(HOME + "/lib/rules/admin")
+    RULES_DIR = File.expand_path(HOME + "/lib/rules/cli")
 
     def initialize(env, **opts)
       @env = env

@@ -7,7 +7,7 @@ module CucuShift
   class CliExecutor
     include Common::Helper
 
-    RULES_DIR = File.expand_path(HOME + "/lib/rules/client")
+    RULES_DIR = File.expand_path(HOME + "/lib/rules/cli")
 
     attr_reader :opts
 

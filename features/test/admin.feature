@@ -1,6 +1,6 @@
 Feature: Testing Admin Scenarios
   Scenario: simple create project admin scenario
-    When I run the :new_project admin command with:
+    When I run the :oadm_new_project admin command with:
       | project_name | demo                                             |
       | display name | OpenShift 3 Demo                                 |
       | description  | This is the first demo project with OpenShift v3 |
