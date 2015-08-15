@@ -212,26 +212,7 @@ module CucuShift
         user_opts(user)
       end
 
-      executor.run(key, merge_opts(logged_users[user.name],opts))
-    end
-
-    # merge opts from logged_users[user.name] and cli options given by user;
-    #   opts might be a Hash or an array of key/value pairs;
-    #   if `:config` key exists in opts, then it overrides base opts
-    # @param base [{:config => String}] the user config option
-    # @param opts [Hash, Array] the
-    # @return [Array,Hash] depending on `opts` parameter type
-    private def merge_opts(base, opts)
-      if opts.kind_of? Hash
-        return base.merge opts
-      elsif opts.kind_of? Array
-        if opts.find {|k,v| k == :config}
-          return opts.dup
-        else
-          return base.to_a.concat opts
-        end
-      end
-      raise "don't know how to handle options type: #{opts.class}"
+      executor.run(key, Common::Rules.merge_opts(logged_users[user.name],opts))
     end
 
     def clean_up

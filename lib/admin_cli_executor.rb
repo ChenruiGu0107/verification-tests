@@ -73,4 +73,50 @@ module CucuShift
       super
     end
   end
+
+  # execites admin commands with downloaded .kube/config from first master
+  class MasterKubeconfigLocalAdminCliExecutor < AdminCliExecutor
+    def master_host
+      env.master_hosts.first
+    end
+
+    def executor
+      @executor ||= RulesCommandExecutor.new(
+          host: localhost,
+          user: nil,
+          rules: File.expand_path(
+                RULES_DIR +
+                "/" +
+                 rules_version(version_on_host(nil, localhost)) + ".yaml"
+          )
+      )
+    end
+
+    private def cli_opts
+      return @cli_opts if @cli_opts
+      config = "#{env.opts[:key]}_admin.kubeconfig"
+      config = localhost.absolute_path config
+
+      res = master_host.exec_as(:admin, "cat /root/.kube/config")
+      if res[:success]
+        File.write(config, res[:stdout])
+      else
+        logger.error(res[:response])
+        raise "error running command on master #{master.host.hostname} as admin, see log"
+      end
+
+      return @cli_opts = {config: config} # yes, assignment
+    end
+
+    # @param [Hash, Array] opts the options to pass down to executor
+    def exec(key, opts={})
+      executor.run(key, Common::Rules.merge_opts(cli_opts,opts))
+    end
+
+    def clean_up
+      @executor.clean_up if @executor
+      @cli_opts = nil # kubeconfig removed from workspace between scenarios
+      super
+    end
+  end
 end
