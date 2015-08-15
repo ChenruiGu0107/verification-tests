@@ -1,0 +1,146 @@
+---
+:global_options:
+  # these are options as seen by `oc options`
+  :api_version: --api-version=<value>
+  :ca: --certificate-authority=<value>
+  :config: --config=<value>
+  :context: --context=<value>
+  :user: --user=<value>
+  :insecure: --insecure-skip-tls-verify=<value>
+  :namespace: --namespace=<value>
+  :n: -n <value>
+  :loglevel: --loglevel=<value>
+  :log_dir: --log_dir=<value>
+  :log_flush_frequency: --log_flush_frequency=<value>
+  :logtostderr: --logtostderr=<value>
+  :server: --server=<value>
+  :stderrthreshold: --stderrthreshold=<value>
+  :token: --token=<value>
+:config_view:
+  :cmd: oc config view
+  :options:
+    :output: --output=<value>
+  :expected:
+    - "apiVersion: v"
+    - "kind: Config"
+  :optional_properties:
+    :current_context: !ruby/regexp '/^current-context: (.+)/'
+:delete:
+  :cmd: oc delete <object_type>
+  :options:
+    :l: -l <value>
+    :all: --all
+    :object_name_or_id: <value>
+:exec:
+  # reorder global_options and options to allow specifying exec command
+  :cmd: oc exec <pod> <global_options> <options>
+  :options:
+    :c: -c <value>
+    :container: --container=<value>
+    :stdin: --stdin=<value>
+    :tty: --tty=<value>
+    :t: -t
+    :i: -i
+    :oc_opts_end: --
+    :exec_command: <value>
+    :exec_command_arg: <value>
+:expose:
+  :cmd: oc expose <resource> <resource_name>
+  :options:
+    :route_port: --port=<value>
+    :route_protocol: --protocol=<value>
+    :target_port: --target-port=<value>
+    :route_name: --name=<value>
+    :route_type: --type=<value>
+    :output: --output=<value>
+    :o: -o <value>
+:get:
+  :cmd: oc get <resource>
+  :options:
+    :resource_name: <value>
+    :output: --output=<value>
+    :o: -o <value>
+    :l: -l <value>
+:login:
+  :cmd: oc login
+  :options:
+    :u: -u <value>
+    :p: -p <value>
+    :username: --username=<value>
+    :password: --password=<value>
+    :token: --token=<value>
+  :optional_properties:
+    :username: !ruby/regexp '/ogged into ".+?" as "(.+?)"/'
+  :expected:
+    # strange, sometimes "Already logged into..." is printed to console, and
+    #   sometimes when run multiple times - not (oc v3.0.0.0)
+    #   e.g. run multiple times `oc login --username=joe`
+    - !ruby/regexp '/Login successful.|ogged into/'
+:logout:
+  :cmd: oc logout
+  :expected:
+    - !ruby/regexp '/Logged ".+" out on/'
+:new_app:
+  :cmd: oc new-app
+  :options:
+    :app_repo: <value>
+    :labels: --labels=<value>
+    :l: -l <value>
+    :name: --name=<value>
+    :strategy: --strategy=<value>
+    :template: --template=<value>
+    :output: --output=<value>
+    :param: --param=<value>
+    :insecure_registry: --insecure-registry=<value>
+    :image_stream: --image-stream=<value>
+    :image: --image=<value>
+    :group: --group=<value>
+    :file: --file=<value>
+    :env: --env=<value>
+    :docker_image: --docker-image=<value>
+    :context_dir: --context-dir=<value>
+    :code: --code=<value>
+:new_project:
+  :cmd: oc new-project <project_name>
+  #:expected:
+  #  - Created project <project_name>
+  :options:
+    :display_name: --display-name=<value>
+    :description: --description=<value>
+    :admin: --admin=<value>
+:status:
+  :cmd: oc status
+:version:
+  :cmd: oc version
+  :expected:
+    - oc v
+    - kubernetes v
+  :properties:
+    :oc_version: !ruby/regexp '/^oc v(.+)$/'
+    :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
+:help:
+  :cmd: oc -h
+:types:
+  :cmd: oc types
+:edit:
+  :cmd: oc edit
+  :options:
+    :filename: --filename=<value>
+    :output: --output=<value>
+    :help: --help
+:oadm_version:
+  :cmd: oadm version
+  :expected:
+    - oadm v
+    - kubernetes v
+  :properties:
+    :oadm_version: !ruby/regexp '/^oadm v(.+)$/'
+    :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
+:oadm_new_project:
+  :cmd: oadm new-project <project_name>
+  :expected:
+    - Created project <project_name>
+  :options:
+    :display_name: --display-name=<value>
+    :description: --description=<value>
+    :admin: --admin=<value>
