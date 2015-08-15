@@ -118,4 +118,13 @@
   :properties:
     :oc_version: !ruby/regexp '/^oc v(.+)$/'
     :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
-
+:help:
+  :cmd: oc -h
+:types:
+  :cmd: oc types
+:edit:
+  :cmd: oc edit
+  :options:
+    :filename: --filename=<value>
+    :output: --output=<value>
+    :help: --help

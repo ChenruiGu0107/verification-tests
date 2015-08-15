@@ -2,3 +2,4 @@
 *.swo
 /private/
 /Gemfile.lock
+.idea/
