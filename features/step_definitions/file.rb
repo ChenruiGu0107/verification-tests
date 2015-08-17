@@ -1,4 +1,4 @@
-Given /^I save the (?:output|response) to file>.+$/ do |filepath|
+Given /^I save the (?:output|response) to file>(.+)$/ do |filepath|
   File.write(File.expand_path(filepath.strip), @result[:response])
 end
 
@@ -78,4 +78,39 @@ Given /^I replace (lines|content) in "(.+)":$/ do |mode, file, table|
     end
   end
   FileUtils.mv("#{file}.test",file)
+end
+
+# author gusun@redhat.com
+# Note This step is used to restore the modified file
+# Usage
+#
+#    Given I backup the "/home/gusun/test/file" file
+#
+Given(/^I backup the file>(.+)$/) do |file|
+  file.strip!
+  filename = File.basename(file)
+
+  if File.exist?("#{filename}.bak")
+    raise "Backup already exists."
+  else
+    FileUtils.cp(file,"#{filename}.bak")
+  end
+end
+
+# author gusun@redhat.com
+# Note This step is used to restore the modified file
+# Usage
+#
+#    Given I restore the "/home/gusun/test/file" file
+#
+Given /^I restore the file>(.+)$/ do |file|
+  file.strip!
+  filename = File.basename(file)
+
+  if !File.exist?("#{filename}.bak")
+    raise "There is no #{filename}.bak backup."
+  else
+    FileUtils.rm(file) if File.exist?(file)
+    FileUtils.mv("./#{filename}.bak",file)
+  end
 end
