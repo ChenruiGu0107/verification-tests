@@ -20,6 +20,15 @@ Given /^a pod becomes ready with labels:$/ do |table|
   end
 end
 
+Given /^the pod(?: named ".+")? becomes ready$/ do |name|
+  @result = pod(name).wait_till_ready(user, ready_timeout)
+
+  unless @result[:success]
+    logger.error(@result[:response])
+    raise "#{pod.name} pod did not become ready"
+  end
+end
+
 # args can be a table where each cell is a command or an argument, or a
 #   multiline string where each line is a command or an argument
 When /^I execute on the pod:$/ do |raw_args|
