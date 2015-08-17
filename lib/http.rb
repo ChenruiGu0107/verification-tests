@@ -1,4 +1,5 @@
 require 'rest-client'
+require 'http-cookie'
 
 module CucuShift
   module Http
@@ -56,7 +57,7 @@ module CucuShift
         # request failed badly, server/network issue?
         result[:exitstatus] = -1
         result[:error] = e
-        result[:cookies] = {}
+        result[:cookies] = HTTP::CookieJar.new #ampty cookies
         result[:headers] = {}
         result[:size] = 0
         response = exception_to_string(e)
@@ -66,7 +67,7 @@ module CucuShift
       result[:exitstatus] ||= response.code
       result[:response] = response
       result[:success] = result[:exitstatus].to_s[0] == "2"
-      result[:cookies] ||= response.cookies
+      result[:cookies] ||= response.cookie_jar
       result[:headers] ||= response.raw_headers
       result[:size] ||= response.size
       return result
