@@ -16,6 +16,8 @@
   :server: --server=<value>
   :stderrthreshold: --stderrthreshold=<value>
   :token: --token=<value>
+:add_role_to_user:
+  :cmd: oadm policy add-role-to-user <role> <username>
 :config_view:
   :cmd: oc config view
   :options:
@@ -25,6 +27,11 @@
     - "kind: Config"
   :optional_properties:
     :current_context: !ruby/regexp '/^current-context: (.+)/'
+:create:
+  :cmd: oc create
+  :options:
+    :f: -f <value>
+    :filename: --filename=<value>
 :delete:
   :cmd: oc delete <object_type>
   :options:
