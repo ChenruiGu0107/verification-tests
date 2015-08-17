@@ -56,8 +56,10 @@ After do |_scenario|
 
   ## raise inside block only if error can affect next scenarios execution ##
   no_err, val = capture_error {
-    # put calls here to clean based on tags, etc.
-    manager.clean_up
+    # World after_scenario clean up
+    self.after_scenario
+    # Manager after_scenario clean up
+    manager.after_scenario
   }
   err = no_err ? nil : val
 

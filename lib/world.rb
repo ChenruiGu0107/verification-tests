@@ -24,6 +24,9 @@ module CucuShift
       @services = []
       @routes = []
       @pods = []
+
+      # procs and lambdas to call on clean-up
+      @teardown = []
     end
 
     def setup_logger
@@ -152,7 +155,7 @@ module CucuShift
           @pods << @pods.delete(p)
           return p
         else
-          # create new CucuShift::Service object with specified name
+          # create new CucuShift::Pod object with specified name
           @pods << Pod.new(name: name, project: project)
           return @pods.last
         end
@@ -170,8 +173,26 @@ module CucuShift
       new_pods.each {|p| @pods.delete(p); @pods << p}
     end
 
+    # @param proc_obj [Proc] a proc or lambda to add to teardown
+    # @yield [] a block that will be added to teardown
+    # @note teardowns should ever raise only if issue can break further
+    #   scenario execution. When a teardown raises, that causes cucumber to
+    #   skip executing any further scenarios.
+    def teardown_add(proc_obj=nil, &block)
+      if block
+        @teardown << block
+      else
+        @teardown << proc_obj
+      end
+    end
+
     def quit_cucumber
       Cucumber.wants_to_quit = true
+    end
+
+    def after_scenario
+      # call all teardown lambdas and procs; see [#teardown_add]
+      @teardown.each { |f| f.call }
     end
 
     def hook_error!(err)
