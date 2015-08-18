@@ -32,3 +32,13 @@ If a method or class is too long, there is probably an issue. If a class touches
 In `features/test/` we have feature files with scenarios used for testing particular funktionality. We don't have a formal test suite for our test framework (yet), but when touching some part of the system, try to run related scenarios and see if they behave as expected. Also write new or extend existing scenarios to cover your changes.
 
 Issue is that some test scenarios are expected to fail. We need something like the Cucumber test suite, so we can write proper tests for ours. I hope we implement something eventually.
+
+=== Git guidelines
+
+When submitting pull-requests (PR) for review, try to not put too many things into same PR but separate between affected features.
+
+Have self-contained commits with descriptive message. i.e. do not put unrelated features/fixes in the same commit.
+
+When reviewer requests changes, ammend the commits, do not just add new commits.
+
+Rebase to upstream instead of merge upstream.  What happens is that when git pull can't fast forward, it does a merge commit, and a merge commit puts the sucked in changes ON TOP of yours whereas a rebase puts them BELOW yours. In other words a merge commit makes the history a graph, and we prefer a cleaner, easier to follow linear history (hence the rebasing). Further once you do a merge commit it will be difficult to rebase the history before that commit (say you want to combine two commits to one later). `git pull --rebase upstream <branch>` or `git fetch upstream; git rebase upstream/<branch>`
