@@ -38,6 +38,12 @@
     :l: -l <value>
     :all: --all
     :object_name_or_id: <value>
+:edit:
+  :cmd: oc edit
+  :options:
+    :filename: --filename=<value>
+    :output: --output=<value>
+    :help: --help
 :exec:
   # reorder global_options and options to allow specifying exec command
   :cmd: oc exec <pod> <global_options> <options>
@@ -68,6 +74,8 @@
     :output: --output=<value>
     :o: -o <value>
     :l: -l <value>
+:help:
+  :cmd: oc -h
 :login:
   :cmd: oc login
   :options:
@@ -121,6 +129,8 @@
     :project_name: <value>
 :status:
   :cmd: oc status
+:types:
+  :cmd: oc types
 :version:
   :cmd: oc version
   :expected:
@@ -129,16 +139,16 @@
   :properties:
     :oc_version: !ruby/regexp '/^oc v(.+)$/'
     :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
-:help:
-  :cmd: oc -h
-:types:
-  :cmd: oc types
-:edit:
-  :cmd: oc edit
+:whoami:
+  :cmd: oc whoami
   :options:
-    :filename: --filename=<value>
-    :output: --output=<value>
+    :context: --context=<value>
+    :token: --token=<value>
     :help: --help
+    :invalid_option:  -b   # for negative testing
+
+#################### admin commands section
+
 :oadm_version:
   :cmd: oadm version
   :expected:

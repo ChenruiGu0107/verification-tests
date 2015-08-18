@@ -1,3 +1,4 @@
+require 'ostruct'
 require 'common'
 require 'collections'
 
@@ -19,6 +20,7 @@ module CucuShift
       # hopefully cucumber does not instantiate us too early
       manager.world = self
 
+      @clipboard = OpenStruct.new
       # some arrays to store cached objects
       @projects = []
       @services = []
@@ -27,6 +29,11 @@ module CucuShift
 
       # procs and lambdas to call on clean-up
       @teardown = []
+    end
+
+    # shorthand accessor for @clipboard
+    def cb
+      return @clipboard
     end
 
     def setup_logger

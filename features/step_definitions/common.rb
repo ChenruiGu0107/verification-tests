@@ -107,3 +107,25 @@ end
 Given /^([0-9]+?) seconds have passed$/ do |num|
   sleep(num.to_i)
 end
+
+Given /^evaluation of `(.+?)` is stored in the(?: :(.*?))? clipboard$/ do |what, clipboard_name|
+  @clipboard ||= {}
+  clipboard_name = 'tmp' unless clipboard_name
+  cb[clipboard_name] = eval(what)
+end
+
+Then /^(?:the )?expression should be true> (.+)$/ do |expr|
+  res = eval expr
+  unless res
+    raise "expression \"#{expr}\" returned non-positive status: #{res}"
+  end
+end
+
+Given /^an?(?: (\d+) characters?)? random string(?: of type :(.*?))? is (?:saved|stored) into the(?: :(.*?))? clipboard$/ do |chars, rand_type, clipboard_name|
+  chars = 8 unless chars
+  rand_type = rand_type.to_sym unless rand_type.nil?
+  rand_str = rand_str(chars.to_i, rand_type)
+  clipboard_name = 'tmp' unless clipboard_name
+  cb[clipboard_name] = rand_str
+end
+

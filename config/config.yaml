@@ -24,8 +24,8 @@ environments:
     user_manager: StaticUserManager
     # set users in OPENSHIFT_ENV_OSE_USER_MANAGER_USERS=user:password,...
     # user_manager_users: joe:redhat,alice:redhat
-    cli: MasterOsPerUserCliExecutor
-    # cli: SharedLocalCliExecutor
+    #cli: MasterOsPerUserCliExecutor
+    cli: SharedLocalCliExecutor
     admin_cli: MasterOsAdminCliExecutor
     api_port: 8443
   origin:
