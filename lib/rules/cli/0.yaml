@@ -17,7 +17,7 @@
   :stderrthreshold: --stderrthreshold=<value>
   :token: --token=<value>
 :add_role_to_user:
-  :cmd: oadm policy add-role-to-user <role> <username>
+  :cmd: oadm policy add-role-to-user <role> <user_name>
 :config_view:
   :cmd: oc config view
   :options:
@@ -115,6 +115,10 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:project:
+  :cmd: oc project
+  :options:
+    :project_name: <value>
 :status:
   :cmd: oc status
 :version:

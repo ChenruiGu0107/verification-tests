@@ -36,6 +36,28 @@ Given /^I use the "(.+?)" project$/ do |project_name|
   # this would find project in cache and move it up the stack
   # or create a new CucuShift::Project object and put it on top of stack
   project(project_name)
+
+  # setup cli to have it as default project
+  user.cli_exec(:project, project_name: project_name)
+end
+
+Given /^I imagine a project$/ do
+  project(rand_str(5, :dns))
+end
+
+When /^admin creates a project$/ do
+  project(rand_str(5, :dns))
+
+  # first make sure we clean-up this project at the end
+  _project = project # we need variable for the teardown proc
+  teardown_add { @result = _project.delete(by: :admin) }
+
+  # create with raw command to avoid safety project without admin user check in
+  #   Project#create method
+  @result = env.admin_cli_executor.exec( :oadm_new_project,
+                                         project_name: project.name,
+                                         display_name: "Fancy project",
+                                         description: "OpenShift v3 rocks" )
 end
 
 # tries to delete last used project or a project with given name (if name given)
@@ -70,4 +92,8 @@ Then(/^the project should be empty$/) do
     logger.error(@result[:response])
     raise "project not empty, see logs"
   end
+end
+
+When /^I get project ([-a-zA-Z_]+)$/ do |resource|
+  @result = user.cli_exec(:get, resource: resource, n: project.name)
 end
