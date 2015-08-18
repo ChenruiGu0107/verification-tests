@@ -54,10 +54,10 @@ When /^admin creates a project$/ do
 
   # create with raw command to avoid safety project without admin user check in
   #   Project#create method
-  @result = env.admin_cli_executor.exec( :oadm_new_project,
-                                         project_name: project.name,
-                                         display_name: "Fancy project",
-                                         description: "OpenShift v3 rocks" )
+  @result = admin.cli_exec( :oadm_new_project,
+                            project_name: project.name,
+                            display_name: "Fancy project",
+                            description: "OpenShift v3 rocks" )
 end
 
 # tries to delete last used project or a project with given name (if name given)

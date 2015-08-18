@@ -75,7 +75,7 @@ module CucuShift
     end
 
     # creates a new project
-    # @param by [CucuShift::User, :admin] the user to create project as
+    # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create project as
     # @param name [String] the name of the project
     # @return [CucuShift::ResultHash]
     def self.create(by: , name:, **opts)
@@ -106,7 +106,7 @@ module CucuShift
       # note that search for users is only done inside the set of users
       #   currently used by scenario; we don't expect scenario to know
       #   usernames before a user is actually requested from the user_manager
-      if by == :admin && ! env.users.by_name(opts[:admin])
+      if by.kind_of?(ClusterAdmin) && ! env.users.by_name(opts[:admin])
         raise "creating project as admin without administrators may easily lead to project leaks in the test framework, avoid doing so"
       end
 

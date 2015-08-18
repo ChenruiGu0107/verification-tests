@@ -63,7 +63,8 @@ module CucuShift
 
     module UserObjectHelper
       # execute cli command as user or admin
-      # @param as [CucuShift::User, :admin] the user to run cli with
+      # @param as [CucuShift::User, CucuShift::ClusterAdmin, :admin] the user
+      #   to run cli with
       # @param key [Symbol] the command key to execute
       # @param opts [Hash] the command options
       # @return [CucuShift::ResultHash]
@@ -75,11 +76,11 @@ module CucuShift
 
         if user == :admin
           if env.admin?
-            return env.admin_cli_executor.exec(key, **opts)
+            return env.admin.cli_exec(key, **opts)
           else
             raise "user not specified and we don't have admin in this environment, what on earth do you expect?"
           end
-        elsif user.kind_of? CucuShift::User
+        elsif user.respond_to?(:env) && user.respond_to?(:cli_exec)
           raise "user #{user} and self.env '#{env}' do not match, likely a logical issue in test scenario" if user.env != env
           user.cli_exec(key, **opts)
         else

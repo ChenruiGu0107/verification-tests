@@ -2,6 +2,7 @@ require 'json'
 
 require 'cli_executor'
 require 'admin_cli_executor'
+require 'cluster_admin'
 require 'user_manager'
 require 'host'
 require 'rest'
@@ -40,6 +41,10 @@ module CucuShift
 
     def cli_executor
       @cli_executor ||= CucuShift.const_get(opts[:cli]).new(self, **opts)
+    end
+
+    def admin
+      @admin ||= admin? ? ClusterAdmin.new(env: self) : raise("no admin rights")
     end
 
     def admin_cli_executor

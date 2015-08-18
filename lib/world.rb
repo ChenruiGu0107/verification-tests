@@ -59,6 +59,10 @@ module CucuShift
       return @env = manager.environments[key]
     end
 
+    def admin
+      env.admin
+    end
+
     # @return project from cached projects for this scenario
     #   note that you need to have default `#env` set already;
     #   if no name is spefified, returns the last requested project;
