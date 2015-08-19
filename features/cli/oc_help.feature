@@ -38,4 +38,11 @@ Feature: oc related features
       | Usage:                                                                                    |
       | oc edit (RESOURCE/NAME \| -f FILENAME) [options] |
 
-
+  # @author cryan@redhat.com
+  # @case_id 497907
+  Scenario: Check --list/-L option for new-app
+    When I run the :new_app client command with:
+      |help|true|
+    Then the output should contain:
+      | oc new-app --list |
+      | -L, --list=false  |
