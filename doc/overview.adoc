@@ -1,5 +1,12 @@
 = High Level CucuShift v3 Overview
 
+== Knowledge needed to understand this doc
+
+* basic programming and ruby
+* Cucumber basics (look at http://cucumber.io for getting started)
+** what is scenario, step, step definition, World, hook
+** where do you usually find the above things
+
 == Requirements
 
 * ruby 2.2.2 or newer
