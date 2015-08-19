@@ -129,3 +129,35 @@ Feature: creating 'apps' with CLI
       | mysql -h <%= service.ip %> -P5434 -uadmin -padmin -e 'show databases;'|
     Then the step should succeed
     And the output should contain "xxingtest"
+
+  # @author wsun@redhat.com
+  # case_id 476293
+  Scenario: Could not create any context in non-existent project
+    Given I create a new application with:
+      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | name         | myapp          |
+      | n            | noproject      |
+    Then the step should fail
+    Then the output should contain "Error: User "<%=@user.name%>" cannot create imagestreams in project "noproject""
+    Then the output should contain "Error: User "<%=@user.name%>" cannot create buildconfigs in project "noproject""
+    Then the output should contain "Error: User "<%=@user.name%>" cannot create services in project "noproject""
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+      | n | noproject |
+    Then the step should fail
+    Then the output should contain "User "<%=@user.name%>" cannot create pods in project "noproject""
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      | n | noproject |
+    Then the step should fail
+    Then the output should contain "User "<%=@user.name%>" cannot create deploymentconfigs in project "noproject""
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
+      | n | noproject |
+    Then the step should fail
+    Then the output should contain "Error from server: User "<%=@user.name%>" cannot create imagestreams in project "noproject""
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | n | noproject |
+    Then the step should fail
+    Then the output should contain "User "<%=@user.name%>" cannot create templates in project "noproject""
