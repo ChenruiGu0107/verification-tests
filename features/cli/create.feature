@@ -104,3 +104,28 @@ Feature: creating 'apps' with CLI
      | app=hi |
     Then the step should succeed
     And the project should be empty
+
+  #@author xxing@redhat.com
+  #@case_id 470351
+  Scenario: Create application from template via cli
+    Given I have a project
+    When I run the :create client command with:
+      |f|https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json|
+    And I create a new application with:
+      |template|ruby-helloworld-sample|
+      |param   |MYSQL_USER=admin,MYSQL_PASSWORD=admin,MYSQL_DATABASE=xxingtest|
+    Then the step should succeed
+    Given I wait for the "frontend" service to become ready
+    When I execute on the pod:
+      | bash                       |
+      | -c                         |
+      | curl -k <%= service.url %> |
+    Then the step should succeed
+    And the output should contain "Demo App"
+    Given I wait for the "database" service to become ready
+    When I execute on the pod:
+      | bash                                                           |
+      | -c                                                             |
+      | mysql -h <%= service.ip %> -P5434 -uadmin -padmin -e 'show databases;'|
+    Then the step should succeed
+    And the output should contain "xxingtest"
