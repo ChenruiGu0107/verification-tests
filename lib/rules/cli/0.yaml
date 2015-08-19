@@ -128,6 +128,14 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:oadm_add_cluster_role_to_user:
+  :cmd: oadm policy add-cluster-role-to-user <role_name> <user_name>
+:oadm_add_cluster_role_to_group:
+  :cmd: oadm policy add-cluster-role-to-user <role_name> <group_name>
+:oadm_remove_cluster_role_from_user:
+  :cmd: oadm policy remove-cluster-role-from-user <role_name> <user_name>
+:oadm_remove_cluster_role_from_group:
+  :cmd: oadm policy remove-cluster-role-from-user <role_name> <group_name>
 :project:
   :cmd: oc project
   :options:
@@ -171,9 +179,3 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
-:oadm_policy:
-  :cmd: oadm policy <policy_type>
-  :options:
-    :role_name: <value>
-    :project: --namespace= <value> 
-    :user_name: <value> 
