@@ -136,10 +136,6 @@
   :cmd: oadm policy add-cluster-role-to-user <role_name> <user_name>
 :oadm_add_cluster_role_to_group:
   :cmd: oadm policy add-cluster-role-to-group <role_name> <group_name>
-:oadm_remove_cluster_role_from_user:
-  :cmd: oadm policy remove-cluster-role-from-user <role_name> <user_name>
-:oadm_remove_cluster_role_from_group:
-  :cmd: oadm policy remove-cluster-role-from-group <role_name> <group_name>
 :oadm_add_role_to_user:
   :cmd: oadm policy add-role-to-user <role_name> <user_name>
   :options:
@@ -148,6 +144,10 @@
   :cmd: oadm policy add-role-to-group <role_name> <group_name>
   :options:
      :project_name: --namespace=<value>
+:oadm_remove_cluster_role_from_user:
+  :cmd: oadm policy remove-cluster-role-from-user <role_name> <user_name>
+:oadm_remove_cluster_role_from_group:
+  :cmd: oadm policy remove-cluster-role-from-group <role_name> <group_name>
 :oadm_remove_role_from_user:
   :cmd: oadm policy remove-role-from-user <role_name> <user_name>
   :options:
