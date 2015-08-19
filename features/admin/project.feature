@@ -2,6 +2,7 @@ Feature: project permissions
 
   # @author akostadi@redhat.com
   # @case_id 470300
+  @admin
   Scenario: Admin could get/edit/delete the project resources
     ## create project without any user admins
     When admin creates a project
