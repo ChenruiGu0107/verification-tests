@@ -20,12 +20,8 @@
   :token: --token=<value>
 :add_role_to_user:
   :cmd: oc policy add-role-to-user <role> <user_name>
-  :options:
-    :project_name: --namespace=<value>
 :add_role_to_group:
   :cmd: oc policy add-role-to-group <role> <group_name>
-  :options:
-    :project_name: --namespace=<value>
 :config_view:
   :cmd: oc config view
   :options:
@@ -132,42 +128,14 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
-:oadm_add_cluster_role_to_user:
-  :cmd: oadm policy add-cluster-role-to-user <role_name> <user_name>
-:oadm_add_cluster_role_to_group:
-  :cmd: oadm policy add-cluster-role-to-group <role_name> <group_name>
-:oadm_add_role_to_user:
-  :cmd: oadm policy add-role-to-user <role_name> <user_name>
-  :options:
-    :project_name: --namespace=<value>
-:oadm_add_role_to_group:
-  :cmd: oadm policy add-role-to-group <role_name> <group_name>
-  :options:
-    :project_name: --namespace=<value>
-:oadm_remove_cluster_role_from_user:
-  :cmd: oadm policy remove-cluster-role-from-user <role_name> <user_name>
-:oadm_remove_cluster_role_from_group:
-  :cmd: oadm policy remove-cluster-role-from-group <role_name> <group_name>
-:oadm_remove_role_from_user:
-  :cmd: oadm policy remove-role-from-user <role_name> <user_name>
-  :options:
-    :project_name: --namespace=<value>
-:oadm_remove_role_from_group:
-  :cmd: oadm policy remove-role-from-group <role_name> <group_name>
-  :options:
-    :project_name: --namespace=<value>
 :project:
   :cmd: oc project
   :options:
     :project_name: <value>
 :remove_role_from_user:
   :cmd: oc policy remove-role-from-user <role> <user_name>
-  :options:
-    :project_name: --namespace=<value>
 :remove_role_from_group:
   :cmd: oc policy remove-role-from-group <role> <group_name>
-  :options:
-    :project_name: --namespace=<value>
 :status:
   :cmd: oc status
 :types:
@@ -187,14 +155,14 @@
 
 #################### admin commands section
 
-:oadm_version:
-  :cmd: oadm version
-  :expected:
-    - oadm v
-    - kubernetes v
-  :properties:
-    :oadm_version: !ruby/regexp '/^oadm v(.+)$/'
-    :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
+:oadm_add_cluster_role_to_user:
+  :cmd: oadm policy add-cluster-role-to-user <role_name> <user_name>
+:oadm_add_cluster_role_to_group:
+  :cmd: oadm policy add-cluster-role-to-group <role_name> <group_name>
+:oadm_add_role_to_user:
+  :cmd: oadm policy add-role-to-user <role_name> <user_name>
+:oadm_add_role_to_group:
+  :cmd: oadm policy add-role-to-group <role_name> <group_name>
 :oadm_new_project:
   :cmd: oadm new-project <project_name>
   :expected:
@@ -203,3 +171,19 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:oadm_remove_cluster_role_from_user:
+  :cmd: oadm policy remove-cluster-role-from-user <role_name> <user_name>
+:oadm_remove_cluster_role_from_group:
+  :cmd: oadm policy remove-cluster-role-from-group <role_name> <group_name>
+:oadm_remove_role_from_user:
+  :cmd: oadm policy remove-role-from-user <role_name> <user_name>
+:oadm_remove_role_from_group:
+  :cmd: oadm policy remove-role-from-group <role_name> <group_name>
+:oadm_version:
+  :cmd: oadm version
+  :expected:
+    - oadm v
+    - kubernetes v
+  :properties:
+    :oadm_version: !ruby/regexp '/^oadm v(.+)$/'
+    :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
