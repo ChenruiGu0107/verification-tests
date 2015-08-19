@@ -85,7 +85,7 @@ Then /^(the|all)? outputs?( by order)? should( not)? (contain|match)(?: (\d+) ti
     else
       patterns.each do |p|
         if p.kind_of? Regexp
-          found = o.match p
+          found = !! o.match(p)
         else
           found = o.include? p
         end
@@ -109,7 +109,6 @@ Given /^([0-9]+?) seconds have passed$/ do |num|
 end
 
 Given /^evaluation of `(.+?)` is stored in the(?: :(.*?))? clipboard$/ do |what, clipboard_name|
-  @clipboard ||= {}
   clipboard_name = 'tmp' unless clipboard_name
   cb[clipboard_name] = eval(what)
 end

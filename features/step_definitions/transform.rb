@@ -12,7 +12,7 @@ Transform /.*/ do |arg|
       #   this is disabled for v3 as it is complicated and has little/no use
       # x = str.gsub(/<(\w+)-([\w\_]+)(.*)??\>/, "<%=@\\1[:\\2]\\3%>")
       # substitute inline expressions
-      x = x.gsub(/<%=([^%]+)%>/) { |c|
+      x = x.gsub(/<%=(.+?)%>/) { |c|
         eval $1
       }
     rescue => e

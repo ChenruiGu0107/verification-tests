@@ -13,6 +13,11 @@ And /^I fail the scenario$/ do
 end
 
 And /^I log the message> (.+)$/ do |message|
+  @result = {}
+  @result[:response] = message
+  @result[:success] = true
+  @result[:instruction] = "log message: #{message}"
+  @result[:exitstatus] = 0
   logger.info(message)
 end
 

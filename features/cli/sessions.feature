@@ -8,7 +8,7 @@ Feature: sessions realated scenarios
     When I run the :whoami client command with:
       | context | true |
     Then the output should contain:
-      | <%= user.env.hosts[0].hostname.gsub('.', '-') + ":8443/" + user.name %> |
+      | <%= env.api_endpoint_url.gsub(%r{https?://},'').gsub('.', '-') + "/" + user.name %> |
     When I run the :whoami client command with:
       | token | true |
     Then the output should contain:

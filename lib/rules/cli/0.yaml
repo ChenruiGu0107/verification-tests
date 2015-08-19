@@ -5,6 +5,8 @@
   :ca: --certificate-authority=<value>
   :config: --config=<value>
   :context: --context=<value>
+  :h: -h
+  :help: --help
   :user: --user=<value>
   :insecure: --insecure-skip-tls-verify=<value>
   :namespace: --namespace=<value>
@@ -43,7 +45,6 @@
   :options:
     :filename: --filename=<value>
     :output: --output=<value>
-    :help: --help
 :exec:
   # reorder global_options and options to allow specifying exec command
   :cmd: oc exec <pod> <global_options> <options>
@@ -75,7 +76,9 @@
     :o: -o <value>
     :l: -l <value>
 :help:
-  :cmd: oc -h
+  :cmd: oc <help_word>
+  :options:
+    :command: <value>
 :login:
   :cmd: oc login
   :options:
@@ -142,9 +145,6 @@
 :whoami:
   :cmd: oc whoami
   :options:
-    :context: --context=<value>
-    :token: --token=<value>
-    :help: --help
     :invalid_option:  -b   # for negative testing
 
 #################### admin commands section
