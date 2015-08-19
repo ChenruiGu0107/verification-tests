@@ -107,7 +107,6 @@
     :docker_image: --docker-image=<value>
     :context_dir: --context-dir=<value>
     :code: --code=<value>
-    :help: -h
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:
