@@ -19,7 +19,9 @@
   :stderrthreshold: --stderrthreshold=<value>
   :token: --token=<value>
 :add_role_to_user:
-  :cmd: oadm policy add-role-to-user <role> <user_name>
+  :cmd: oc policy add-role-to-user <role> <user_name>
+:add_role_to_group:
+  :cmd: oc policy add-role-to-group <role> <group_name>
 :config_view:
   :cmd: oc config view
   :options:
@@ -130,6 +132,10 @@
   :cmd: oc project
   :options:
     :project_name: <value>
+:remove_role_from_user:
+  :cmd: oc policy remove-role-from-user <role> <user_name>
+:remove_role_from_group:
+  :cmd: oc policy remove-role-from-group <role> <group_name>
 :status:
   :cmd: oc status
 :types:
@@ -165,3 +171,9 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:oadm_policy:
+  :cmd: oadm policy <policy_type>
+  :options:
+    :role_name: <value>
+    :project: --namespace= <value> 
+    :user_name: <value> 
