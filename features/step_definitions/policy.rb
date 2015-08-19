@@ -26,6 +26,6 @@ Given /^(the [a-z]+) user is cluster-admin$/ do |which_user|
         raise "could not restore user #{user_name}" unless @res[:success]
       }
     else
-        raise "could not give #{user_name} role cluster-admin"
+      raise "could not give #{user_name} role cluster-admin"
     end
 end
