@@ -4,7 +4,7 @@ When /^I give (.+?) role to (the [a-z]+) user$/ do |role_name, which_user|
    
 end
 
-When /^I revoke (.+?) role from (the [a-z]+) user$/ do |role_name, which_user|
+When /^I remove (.+?) role from (the [a-z]+) user$/ do |role_name, which_user|
    user_name=env.users[word_to_num(which_user)].name
    user.cli_exec(:remove_role_from_user, role:role_name, user_name:user_name)
 end
