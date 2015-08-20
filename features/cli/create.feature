@@ -161,3 +161,13 @@ Feature: creating 'apps' with CLI
       | n | noproject |
     Then the step should fail
     Then the output should contain "User "<%=@user.name%>" cannot create templates in project "noproject""
+
+  # @author anli@redhat.com
+  # @case_id 470297
+  Scenario: Project admin could not grant cluster-admin permission to other users
+    When I have a project
+    And I run the :oadm_add_cluster_role_to_user client command with:
+      | role_name | cluster-admin  | 
+      | user_name | <%= user(1).name %>  |
+    Then the step should fail
+    And the output should contain "cannot get clusterpolicybindings at the cluster scope"
