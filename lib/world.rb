@@ -203,7 +203,8 @@ module CucuShift
 
     def after_scenario
       # call all teardown lambdas and procs; see [#teardown_add]
-      @teardown.each { |f| f.call }
+      # run last registered teardown routines first
+      @teardown.reverse_each { |f| f.call }
     end
 
     def hook_error!(err)

@@ -15,5 +15,6 @@ Given /^I have a NFS service in the(?: "([^ ]+?)")? project$/ do |project_name|
 
   step 'I wait for the "nfs-service" service to become ready'
 
-  # now you have NFS running, to get IP, call `service.ip`
+  # now you have NFS running, to get IP, call `service.ip` or
+  #   `service("nfs-service").ip`
 end

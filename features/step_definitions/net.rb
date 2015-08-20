@@ -11,6 +11,11 @@ end
 Given /^I wait(?: up to ([0-9]+) seconds)? for a server to become available via the(?: "(.+?)")? route$/ do |seconds, route_name|
   success = wait_for(seconds || 15*60) {
     @result = CucuShift::Http.get(url: "http://" + route(route_name).dns(by: user))
+    if SocketError === @result[:error] &&
+        @result[:error].to_s.include?('getaddrinfo')
+      # unlikely to ever succeed when we can't resolve domain name
+      raise @result[:error]
+    end
     @result[:success]
   }
 

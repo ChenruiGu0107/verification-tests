@@ -31,7 +31,7 @@ end
 
 # args can be a table where each cell is a command or an argument, or a
 #   multiline string where each line is a command or an argument
-When /^I execute on the pod:$/ do |raw_args|
+When /^I execute on the(?: "(.+?)")? pod:$/ do |pod_name, raw_args|
   if raw_args.respond_to? :raw
     # this is table, we don't mind dimentions used by user
     args = raw_args.raw.flatten
@@ -40,6 +40,6 @@ When /^I execute on the pod:$/ do |raw_args|
     args = raw_args.split("\n").map(&:strip)
   end
 
-  @result = pod.exec(*args, as: user)
+  @result = pod(pod_name).exec(*args, as: user)
 end
 
