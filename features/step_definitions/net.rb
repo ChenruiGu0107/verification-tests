@@ -32,6 +32,8 @@ When /^I download a file from "(.+?)"/ do |url|
   if @result[:success]
     file_name = File.basename(URI.parse(url).path)
     File.write(file_name, @result[:response])
+    @result[:file_name] = file_name
+    @result[:abs_path] = File.absolute_path(file_name)
   else
     raise "Failed to download file from #{url} with HTTP status #{@result[:exitstatus]}"
   end

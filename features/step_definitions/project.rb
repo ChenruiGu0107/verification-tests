@@ -1,5 +1,6 @@
 Given /^I have a project$/ do
-  project = @projects.reverse.find {|p| p.visible?(user)}
+  # 'default' project should not be selected by default
+  project = @projects.reverse.find {|p| p.visible?(user) && p.name != "default"}
   if project
     # project does exist as visible is doing an actual query
     # also move project up the stack
