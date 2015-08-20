@@ -41,7 +41,6 @@ module CucuShift
 
     #mapping tags=>Integer
     @@tags = {}
-
     def initialize(options={})
       @options = default_opts.merge options
 
@@ -301,7 +300,7 @@ module CucuShift
     end
 
     def get_test_case_runs(testrun_id)
-      testcase_runs = self.call('TestRun.get_test_case_runs', testrun_id)
+      return self.call('TestRun.get_test_case_runs', testrun_id)
     end
 
     # Given a testrun_id, reset all status that's not IDLE to
