@@ -136,6 +136,10 @@
   :cmd: oc policy remove-role-from-user <role> <user_name>
 :remove_role_from_group:
   :cmd: oc policy remove-role-from-group <role> <group_name>
+:rsh:
+  :cmd: oc rsh
+  :options:
+    :app_name: <value>
 :status:
   :cmd: oc status
 :types:
