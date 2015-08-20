@@ -42,7 +42,7 @@ Feature: oc related features
   # @case_id 497907
   Scenario: Check --list/-L option for new-app
     When I run the :new_app client command with:
-      |help|true|
+      |help||
     Then the output should contain:
       | oc new-app --list |
       | -L, --list=false  |
