@@ -8,6 +8,8 @@ if Cucumber::VERSION.split('.')[0].to_i < 2
   raise "Cucumber version < 2 not supported"
 end
 
+SkipCucuShiftManagerDefault = true # should manager.rb skip setting Manager
+
 require 'common' # common code
 require 'world' # our custom cucushift world
 require 'log' # CucuShift::Logger

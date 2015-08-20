@@ -80,4 +80,9 @@ module CucuShift
       end
     end
   end
+
+  # allow seamless use of manager outside Cucumber
+  unless defined?(SkipCucuShiftManagerDefault) && SkipCucuShiftManagerDefault
+    Manager ||= DefaultManager
+  end
 end
