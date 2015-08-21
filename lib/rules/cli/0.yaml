@@ -77,7 +77,10 @@
     :exec_command: <value>
     :exec_command_arg: <value>
 :exec_raw_oc_cmd_for_neg_tests:   # used for negative testing in which we want to deviate from yaml
-  :cmd: oc <cmd>    
+  :cmd: oc
+  :options:
+    :arg: <value>
+    :test_do_not_use: <value>
 :expose:
   :cmd: oc expose <resource> <resource_name>
   :options:

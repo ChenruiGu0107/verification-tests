@@ -60,3 +60,10 @@ Feature: Testing CLI Scenarios
     And the output should match:
       |Developer .*? Client|
 
+  Scenario: muti-args
+    When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
+      | arg             | help   |
+      | test do not use | create |
+      | arg             | -h     |
+    Then the step should succeed
+    And the expression should be true> @result[:instruction] =~ /oc.+?help.+?create.+?-h/

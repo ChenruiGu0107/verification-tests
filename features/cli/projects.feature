@@ -19,7 +19,7 @@ Feature: projects related features via cli
   # @case_id 494759
   Scenario: Could not create the project with invalid name via CLI
     When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
-      | cmd | new-project  |
+      | arg | new-project  |
     Then the step should fail
     And the output should contain:
       | Create a new project for yourself |
