@@ -170,12 +170,12 @@ module CucuShift
     # @return [String] the built command
     # @note all commands are read from the rules. There is a special command
     #       :global_options that provides base rules for any other command.
-    #       There are three special option values - :false, `:literal thing`
-    #       and `:noescape thing`.
-    #       :false means to avoid setting this option and `:literal :false`
+    #       There are three special option values - :false, `literal: thing`
+    #       and `noescape: thing`.
+    #       :false means to avoid setting this option and `literal: :false`
     #       would translate to `:false` for the remote chance one needs to set
     #       literal `:false` as a string value. Basically everything after
-    #       `:literal` will be threated like a literal string. `:noescape thing`
+    #       `literal:` will be threated like a literal string. `noescape: thing`
     #       will avoid shell escaping `thing`, but usage is discouraged.
     #       Multiple arguments from the same type are supported.
     #       Placeholders for options and global command options can be specified

@@ -36,3 +36,27 @@ Feature: Testing CLI Scenarios
     Then the step should succeed
     And the output should not contain:
       | demo |
+
+  Scenario: noescape, literal and false rules executor features
+    When I run the :help client command with:
+      | help word | help create |
+      # we fail because "help create" is treated as a single option
+    Then the step should fail
+    When I run the :help client command with:
+      | help word | noescape: help create |
+      # here noescape prevents that
+    Then the step should succeed
+    When I run the :help client command with:
+      | help word | literal: :false |
+    Then the step should fail
+    And the output should contain:
+      |unknown command ":false"|
+    And the output should not contain:
+      |:literal|
+    When I run the :help client command with:
+      | help word | help |
+      | fake option to be skipped | :false |
+    Then the step should succeed
+    And the output should match:
+      |Developer .*? Client|
+
