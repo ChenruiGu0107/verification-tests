@@ -447,4 +447,13 @@ module CucuShift
       close
     end
   end
+
+  # hack to help this file autoloaded whenever Common::Helper wants to use
+  #   that class (at the same time avoiding circular dependencies). For the
+  #   other part of the hack see #autoload call in Helper.
+  module Common
+    module Helper
+      Host = CucuShift::Host
+    end
+  end
 end

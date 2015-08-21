@@ -59,6 +59,11 @@ module CucuShift
       #    raise "result successful but should have been failure, see log"
       #  end
       #end
+
+      # hack to have host.rb autoloaded when it is used through Helper (at the
+      #   same time avoiding circular dependencies). See also host.rb:
+      #   `Host = CucuShift::Host` line
+      autoload :Host, "host"
     end
 
     module UserObjectHelper
