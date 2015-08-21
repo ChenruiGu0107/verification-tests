@@ -9,18 +9,9 @@ Then /^a web server should be available via the(?: "(.+?)")? route$/ do |route_n
 end
 
 Given /^I wait(?: up to ([0-9]+) seconds)? for a server to become available via the(?: "(.+?)")? route$/ do |seconds, route_name|
-  success = wait_for(seconds || 15*60) {
-    @result = CucuShift::Http.get(url: "http://" + route(route_name).dns(by: user))
-    if SocketError === @result[:error] &&
-        @result[:error].to_s.include?('getaddrinfo')
-      # unlikely to ever succeed when we can't resolve domain name
-      raise @result[:error]
-    end
-    @result[:success]
-  }
+  @result = route(route_name).wait_http_accessible(by: user, timeout: seconds)
 
-
-  unless success
+  unless @result[:success]
     logger.error(@result[:response])
     # you may notice now `route` refers to last called route,
     #   i.e. route(route_name)
