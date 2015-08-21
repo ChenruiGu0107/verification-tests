@@ -46,6 +46,11 @@
     :l: -l <value>
     :all: --all
     :object_name_or_id: <value>
+:describe:
+  :cmd: oc describe <resource> <name>
+  :options:
+    :l: -l <value>
+    :selector: --selector=<value>
 :edit:
   :cmd: oc edit
   :options:
@@ -64,6 +69,8 @@
     :oc_opts_end: --
     :exec_command: <value>
     :exec_command_arg: <value>
+:exec_raw_oc_cmd_for_neg_tests:   # used for negative testing in which we want to deviate from yaml
+  :cmd: oc <cmd>    
 :expose:
   :cmd: oc expose <resource> <resource_name>
   :options:
