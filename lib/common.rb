@@ -60,10 +60,10 @@ module CucuShift
       #  end
       #end
 
-      # hack to have host.rb autoloaded when it is used through Helper (at the
-      #   same time avoiding circular dependencies). See also host.rb:
-      #   `Host = CucuShift::Host` line
-      autoload :Host, "host"
+      # hack to have host.rb autoloaded when it is used through Helper outside
+      # Cucumber (at the same time avoiding circular dependencies). That avoids
+      # need for the external script to know that host.rb is required.
+      CucuShift.autoload :Host, "host"
     end
 
     module UserObjectHelper
