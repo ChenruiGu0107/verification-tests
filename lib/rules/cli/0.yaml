@@ -22,6 +22,10 @@
   :cmd: oc policy add-role-to-user <role> <user_name>
 :add_role_to_group:
   :cmd: oc policy add-role-to-group <role> <group_name>
+:config:
+  :cmd: oc config
+  :options:
+    :subcommand: <subcommand>
 :config_view:
   :cmd: oc config view
   :options:
