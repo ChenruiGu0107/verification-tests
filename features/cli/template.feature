@@ -11,7 +11,6 @@ Feature: template related scnearios:
       | resource | template |
     Then the output should contain:
       | ruby-helloworld-sample   This example shows how to create a simple ruby application in openshift origi...   5 (4 generated)   8 |
-    And I run the :new_app client command
     And I create a new application with:
       | template | ruby-helloworld-sample~git@github.com/openshift/ruby-hello-world.git |
     And the step should fail
