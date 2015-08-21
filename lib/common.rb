@@ -118,10 +118,11 @@ module CucuShift
 
     module Setup
       def self.handle_signals
-        # Exit the process immediately when SIGINT/SIGTERM caught,
-        # since cucumber traps these signals.
-        Signal.trap('SIGINT') { Process.exit!(255) }
-        Signal.trap('SIGTERM') { Process.exit!(255) }
+        # Cucumber traps SIGINT anf SIGTERM to allow graceful shutdown,
+        #   i.e. interrupting scenario and letting After and at_exit execute.
+        #   This is safer than immediate exit. To exit quick, hit Ctrl+C twice.
+        #Signal.trap('SIGINT') { Process.exit!(255) }
+        #Signal.trap('SIGTERM') { Process.exit!(255) }
       end
 
       def self.set_cucushift_home
