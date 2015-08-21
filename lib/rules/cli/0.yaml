@@ -46,6 +46,13 @@
     :l: -l <value>
     :all: --all
     :object_name_or_id: <value>
+:deploy:
+  :cmd: oc deploy <deployment_config>
+  :options:
+    :cancel: --cancel
+    :enable-triggers: --enable-triggers
+    :latest: --latest
+    :retry: --retry
 :describe:
   :cmd: oc describe <resource> <name>
   :options:
