@@ -46,3 +46,13 @@ Feature: oc related features
     Then the output should contain:
       | oc new-app --list |
       | -L, --list=false  |
+
+  # @author cryan@redhat.com
+  # @case_id 470720
+  Scenario: Check help info for oc config
+    When I run the :config client command with:
+      | h ||
+    Then the output should contain:
+      | Manage the client config files |
+      | oc config SUBCOMMAND [options] |
+      | Examples |
