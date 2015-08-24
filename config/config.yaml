@@ -26,7 +26,7 @@ environments:
     # user_manager_users: joe:redhat,alice:redhat
     #cli: MasterOsPerUserCliExecutor
     cli: SharedLocalCliExecutor
-    admin_cli: MasterOsAdminCliExecutor
+    admin_cli: MasterKubeconfigLocalAdminCliExecutor
     api_port: 8443
   origin:
     # hosts: use OPENSHIFT_ENV_OSE_HOSTS=host:role1:...,host2:role1:...
@@ -39,7 +39,7 @@ environments:
     # user_manager_users: joe:redhat,alice:redhat
     cli: SharedLocalCliExecutor
     # cli: SharedLocalCliExecutor
-    admin_cli: MasterOsAdminCliExecutor
+    admin_cli: MasterKubeconfigLocalAdminCliExecutor
     api_port: 8443
   stage:
     hosts: api.stg.openshift.com:etcd:master:node

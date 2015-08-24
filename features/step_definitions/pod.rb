@@ -20,7 +20,8 @@ Given /^a pod becomes ready with labels:$/ do |table|
   end
 end
 
-Given /^the pod(?: named ".+")? becomes ready$/ do |name|
+Given /^the pod(?: named "(.+)")? becomes ready$/ do |name|
+  ready_timeout = 15 * 60
   @result = pod(name).wait_till_ready(user, ready_timeout)
 
   unless @result[:success]

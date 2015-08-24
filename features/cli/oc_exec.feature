@@ -7,6 +7,7 @@ Feature: containers related features
     When I run the :create client command with:
       | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/double_containers.json  |
     Then the step should succeed
+    And the pod named "doublecontainers" becomes ready
     When I run the :describe client command with:
       | resource | pod       |
       | name | <%= cb.pod_name %> |
