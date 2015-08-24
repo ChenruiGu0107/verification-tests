@@ -121,6 +121,12 @@
   :cmd: oc logout
   :expected:
     - !ruby/regexp '/Logged ".+" out on/'
+:logs:
+  :cmd: oc logs <pod_name> 
+  :options:
+    :c: -c <value>
+    :f: -f
+    :p: -p
 :new_app:
   :cmd: oc new-app
   :options:
