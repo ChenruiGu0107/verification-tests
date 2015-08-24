@@ -8,6 +8,7 @@ require_relative 'tcms'
 
 module CucuShift
   # this is our TCMS test case manager
+  # tried to make it quick and dirty but it became only dirty
   class TCMSManager
     include Common::Helper
 
@@ -23,61 +24,66 @@ module CucuShift
 
     ############ test case manager interface methods ############
 
+    # act according to signal from CucuShift
+    #   job == TCMS test case == some set of Cucumber scenarios/test cases
+    #   test case == Cucumber scenario
+    # @note see [TCMSTestCaseRun#overall_status=] for how status works
     def signal(signal, *args)
       case signal
       when :end_of_cases
       when :start_case
+        ## mark specified scenario from current job as executing
         test_case = args[0]
         job = current_job(test_case)
         job.executing!(test_case)
       when :end_case
+        ## mark the specified scenario from current job as completed
         test_case = args[0]
         job = current_job(test_case)
         job.completed!(test_case)
+        ## generate/upload logs and other artifacts to TCMS
         handle_artifacts(job, test_case)
+        @before_failed = false
+        @after_failed = false
+        ## set TCMS test case final status in TCMS
         if job.completed?
           tcms_final_status(job)
-          finished_jobs << cucumber_test_cases.delete(job)
+          finished_jobs << ready_jobs.delete(job)
         end
-      when :finish_before_hook, :finish_after_hook
+      when :finish_before_hook
         test_case = args[0]
         err = args[1]
+        job = current_job(test_case)
         if err
-          job = current_job(test_case)
-          job.force_status = :error
-          if signal == :finish_before_hook
-            # TODO: make this per test job
-            @before_failed = true
-          else
-            @after_failed = true
-          end
+          job.overall_status = "ERROR"
+          @before_failed = true
+        else
+          job.overall_status = test_case.passed? ? "PASSED" : "FAILED"
+        end
+      when :finish_after_hook
+        test_case = args[0]
+        err = args[1]
+        job = current_job(test_case)
+        if err
+          job.overall_status = "ERROR"
+          @after_failed = true
+        else
+          job.overall_status = test_case.passed? ? "PASSED" : "FAILED"
         end
       when :at_exit
-        # TODO: log any incomplete and ready jobs
-      end
-    end
-
-    # @param job [TCMSTestCase]
-    # @param test_case [Cucumber::Core::Test::Case]
-    def handle_artifacts(job, test_case)
-      # TODO
-    end
-
-    # @param job [TCMSTestCase]
-    def tcms_final_status(job)
-      # TODO now
-    end
-
-    def current_job(test_case)
-        job = ready_jobs[0]
-        if job.nil? || job.status != :running || !job.matches?(test_case)
-          raise "looks like a TCMS manager bug: #{job.inspect}, #{test_case.name}?!"
+        finished_jobs do |job|
+          Kernel.puts("case #{job.case_id} executed")
         end
-        return job
-    end
-
-    def finished_jobs
-      @finished_jobs ||= []
+        locked_jobs do |job|
+          Kernel.puts("case #{job.case_id} was not IDLE")
+        end
+        ready_jobs.each do |job|
+          Kernel.puts("case #{job.case_id} not executed (completely)")
+        end
+        incomplete_jobs.each do |job|
+          Kernel.puts("case #{job.case_id} could not find all scenarios")
+        end
+      end
     end
 
     def after_failed?
@@ -90,9 +96,6 @@ module CucuShift
 
     # @param test_case [Cucumber::Core::Test::Case]
     def push(test_case)
-      # WIP pls leave debug statement alone
-      require 'pry'
-      binding.pry
       job = incomplete_jobs.find { |job| job.matches?(test_case) }
       if job && job.ready? # job may still require more scenarios
         ready_jobs << incomplete_jobs.delete(job)
@@ -106,7 +109,7 @@ module CucuShift
       # try to set next job to running (already running is ok)
       until ready_jobs.empty? || ready_jobs.first.running?
         unless set_to_running(ready_jobs.first)
-          ready_jobs.shift # some other executor running this
+          locked_jobs << ready_jobs.shift # some other executor running this
         end
       end
       if ready_jobs.empty?
@@ -117,19 +120,13 @@ module CucuShift
     end
 
     def attach_logs(caserunid, *urls)
+      # TODO
     end
 
     # @param scenario [Hash] with keys :name, :file_colon_line, :arg
     # @param dir [String] to be attached to test case run; dir emptied on return
     def attach_dir(dir)
-      require 'pry'
-      binding.pry
-    end
-
-    def before_failed?
-    end
-
-    def after_failed?
+      # TODO
     end
 
     ############ test case manager interface methods end ############
@@ -140,8 +137,74 @@ module CucuShift
       return @tcms ||= TCMS.new(opts[:tcms_opts] || {})
     end
 
+    # @param job [TCMSTestCase]
+    # @param test_case [Cucumber::Core::Test::Case]
+    def handle_artifacts(job, test_case)
+      return unless job.caserun?
+      # TODO
+    end
+
+    # @param job [TCMSTestCase]
+    def tcms_final_status(job)
+      return unless job.caserun?
+
+      tcms.update_caserun_status(job.case_run_id , job.overall_status)
+    end
+
+    # reserve a test case run or return false
+    # @return false when could not lock case
+    def set_to_running(job)
+      if !job.caserun?
+        job.running!
+        return true
+      end
+
+      return false if job.case_run_status_id != 1 # IDLE
+      cur_status = tcms.get_caserun_status(job.case_run_id)
+      return false if cur_status != 'IDLE'
+
+      # use cookie in notes field to later check to avoid race conditions
+      cookie = rand_str(8)
+      tcms.update_caserun(job.case_run_id, {
+        'notes' => cookie,
+        'case_run_status' => TCMS::CASE_RUN_STATUS["RUNNING"]
+      })
+
+      # wait for any other concurrent updates to take place before we check if
+      #   the test case run was reserved by us
+      sleep 2
+      updated = tcms.get_caserun_raw(job.case_run_id)
+      return false if updated['notes'] != cookie
+      job.notes = cookie
+      job.case_run_status_id = updated['case_run_status_id']
+      job.case_run_status = updated['case_run_status']
+      job.running!
+
+      return true
+    end
+
+    def current_job(test_case)
+      job = ready_jobs.first
+      if job.nil? || !job.running? || !job.matches?(test_case)
+        raise "looks like a TCMS manager bug: #{job.inspect}, #{test_case.name}?!"
+      end
+      return job
+    end
+
+    def finished_jobs
+      @finished_jobs ||= []
+    end
+
+    def ready_jobs
+      @ready_jobs ||= []
+    end
+
+    def locked_jobs
+      @locked_jobs ||= []
+    end
+
     # @return [Array[ExecutionUnit]>
-    # @note TEST_SPEC would be like "run:12356" or "caseruns:123,43,23"
+    # @note TCMS_SPEC would be like "run:12356" or "caseruns:123,43,23"
     def incomplete_jobs
       return @incomplete_jobs if @incomplete_jobs
 
@@ -187,9 +250,15 @@ module CucuShift
     # represents the TCMS test case with list of scenario specifications to
     #   execute and status of everything related
     class TCMSTestCaseRun < OpenStruct
+      attr_reader :overall_status
 
       def runnable?
         auto? && confirmed? && scenario_specification
+      end
+
+      def caserun?
+        # must be populated when first loaded from TCMS_SPEC
+        !! case_run_id
       end
 
       # @param test_case [Cucumber::Core::Test::Case]
@@ -206,7 +275,7 @@ module CucuShift
             test_case.source[-3].name != scenario_specification[:scenario_name]
           ) ||
           ( test_case.keyword.length == "Scenario".length &&
-            test_case.name.start_with != scenario_specification[:scenario_name]
+            test_case.name != scenario_specification[:scenario_name]
           )
             return false # surely we do not match
         end
@@ -278,13 +347,24 @@ module CucuShift
         @cucumber_test_cases ||= []
       end
 
+      def cucumber_test_cases_completed
+        @cucumber_test_cases ||= []
+      end
+
+      def next_cucumber_test_case
+        if cucumber_test_cases.empty?
+          raise "strange, case #{case_id} #next called but no more scenarios to run"
+        end
+        return cucumber_test_cases.first
+      end
+
       def scenario_specification
         return @scenario_specification if defined?(@scenario_specification)
 
         @scenario_specification = nil
 
         if self.script.nil? || self.script.empty?
-          Kernel.puts "Skipping #{self.case_run_id} with empty script."
+          Kernel.puts "Skipping #{self.case_id} with empty script."
           return nil
         end
 
@@ -293,21 +373,21 @@ module CucuShift
         begin
           parsed_script = JSON.load(self.script)
           unless parsed_script["ruby"]
-            Kernel.puts "Skipping #{self.case_run_id} with no ruby element."
+            Kernel.puts "Skipping #{self.case_id} with no ruby element."
             return nil
           end
 
           res[:file], nothing, res[:scenario_name] = parsed_script["ruby"].partition(':')
 
-          # normalize file used
-          unless res[:scenario_name].start_with?("features/", File.basename(PRIVATE_DIR), PRIVATE_DIR)
-            res[:scenario_name] = "features/" + res[:scenario_name]
+          # normalize file to hopefully match what's returned by cucumber
+          unless res[:file].start_with?("features/", "private/")
+            res[:file] = "features/" + res[:file]
           end
 
           if self.arguments && !self.arguments.empty?
             parsed_args = JSON.load(self.arguments)
             if !parsed_args.kind_of?(Hash)
-              Kernel.puts "Skipping #{self.case_run_id} with faux arguments."
+              Kernel.puts "Skipping #{self.case_id} with faux arguments."
               return nil
             end
             if parsed_args.size == 1 && parsed_args.keys[0] == "Examples"
@@ -317,7 +397,7 @@ module CucuShift
             end
           end
         rescue => e
-          Kernel.puts "Skipping #{self.case_run_id}: #{e}"
+          Kernel.puts "Skipping #{self.case_id}: #{e}"
           return nil
         end
 
@@ -338,6 +418,18 @@ module CucuShift
         @ready
       end
 
+      def running?
+        return !!@running && !completed?
+      end
+
+      def executing!(test_case)
+        # not sure we can do anything useful with this
+      end
+
+      def running!
+        @running = true
+      end
+
       # @param test_case [Cucumber::Core::Test::Case]
       def completed!(test_case)
         res = cucumber_test_cases.find { |tc| tc.location.to_s ==
@@ -346,9 +438,27 @@ module CucuShift
           raise "how on earth we were told test case is completed when we do not own it: #{test_case.location}"
         end
 
+        # mostly for debugging record completed cases
+        cucumber_test_cases_completed << test_case
         cucumber_test_cases.delete(res)
+      end
 
-        # TODO: set completed, forse status and status
+      # FAILED cannot override ERROR, PASSED cannot override any other status
+      def overall_status=(status)
+        raise "unknown status #{status}" unless [ "PASSED", "FAILED", "ERROR" ].include?(status)
+
+        case @overall_status
+        when nil, "PASSED"
+          @overall_status = status
+        when "ERROR"
+          # this status cannot be overriden
+        when "FAILED"
+          @overall_status = status if status != "PASSED"
+        end
+      end
+
+      def completed?
+        ready? && cucumber_test_cases.empty?
       end
     end
   end

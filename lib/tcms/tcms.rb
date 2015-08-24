@@ -189,7 +189,7 @@ module CucuShift
     #   with caserun properties
     def get_runs_cases(testrun_ids)
       testrun_ids.reduce([]) { |all, testrun_id|
-        all.concat(get_cases(testrun_id))
+        all.concat(get_run_cases(testrun_id))
       }
     end
 
@@ -297,6 +297,10 @@ module CucuShift
       caserun = self.call('TestCaseRun.get', caserun_id.to_i)
       testcase = self.get_case(caserun['case_id'])
       return testcase.merge(caserun)
+    end
+
+    def get_caserun_raw(caserun_id)
+      return self.call('TestCaseRun.get', caserun_id.to_i)
     end
 
     def get_test_case_runs(testrun_id)
