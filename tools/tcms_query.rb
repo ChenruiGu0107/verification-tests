@@ -336,7 +336,6 @@ if __FILE__ == $0
       options.plan = id
     end
   end.parse!
-  raise "ENV TCMS_USER and TCMS_PASSWORD must be defined for the script to work" if ENV['TCMS_USER'].nil? or ENV['TCMS_PASSWORD'].nil?
   tcms = CucuShift::TCMS.new(options.to_h)
 
   options.tcms = tcms
