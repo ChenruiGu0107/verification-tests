@@ -66,6 +66,7 @@ Feature: projects related features via cli
 
   # @author pruan@redhat.com
   # @case_id 478983
+  @admin
   Scenario: A user could create a project successfully via CLI
     Given I have a project
     When I run the :get client command with:
