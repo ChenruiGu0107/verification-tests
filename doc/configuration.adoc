@@ -33,6 +33,8 @@ So far we only have `StaticUserManager` so users are defined with the `OPENSHIFT
 
 User/password pairs are easier unless you run in environment where you can't login with a password, e.g. google auth, kerberos auth, etc. You have to generate atoken via browser and then supply it to CucuShift.
 
+Username should be written in full. e.g. with kerberos auth the client tool can take a short username like `asd`. But you need to use the full username like `asd@EXAMPLE.COM`.
+
 Some examples:
 
 * `export OPENSHIFT_ENV_OSE_USER_MANAGER_USERS=joe:password` - one user with name joe and password `password`
