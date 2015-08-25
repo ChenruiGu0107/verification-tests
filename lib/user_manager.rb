@@ -62,6 +62,7 @@ module CucuShift
         return @users_used[num]
       elsif @user_specs[num]
         @users_used[num] = User.new(**@user_specs[num], env: env)
+        @users_used[num].clean_up_on_load
         return @users_used[num]
       else
         raise "missing soecification for user index #{num}"
