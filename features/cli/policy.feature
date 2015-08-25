@@ -2,6 +2,7 @@ Feature: change the policy of user/service account
 
   # @author anli@redhat.com
   # @case_id 479042
+  @smoke
   Scenario: Add/Remove a global role
     Given the first user is cluster-admin
     Given I have a project
