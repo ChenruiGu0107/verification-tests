@@ -147,6 +147,18 @@
     :docker_image: --docker-image=<value>
     :context_dir: --context-dir=<value>
     :code: --code=<value>
+:new_build:
+  :cmd: oc new-build
+  :options:
+    :app_repo: <value>
+    :code: --code=<value>
+    :docker_image: --docker-image=<value>
+    :image: --image=<value>
+    :l: -l <value>
+    :name: --name=<value>
+    :output: --output=<value>
+    :strategy: --strategy=<value>
+    :template: --template=<value>  
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:
@@ -167,6 +179,13 @@
   :cmd: oc rsh
   :options:
     :app_name: <value>
+:start_build:
+  :cmd: oc start-build <buildconfig>
+  :options:
+    :follow: --follow
+    :from_build: --from-build=<value>
+    :from_webhook: --from-webhook=<value>
+    :git_repo: --git-repository=<value>
 :status:
   :cmd: oc status
 :types:
