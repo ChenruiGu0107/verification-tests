@@ -81,6 +81,21 @@
   :options:
     :arg: <value>
     :test_do_not_use: <value>
+:export:
+  :cmd: oc export
+  :options:
+    :resource: <value>
+    :name: <value>
+    :filename: --filename=<value>
+    :output_format: --output=<value>
+    :all: --all=<value>
+    :f: -f <value>
+    :o: -o <value>
+    :l: -l <value>
+    :t: -t <value>
+    :as_template: --as-template=<value>
+    :exact: --exact=<value>
+    :output_version: --output-version=<value>
 :expose:
   :cmd: oc expose <resource> <resource_name>
   :options:
@@ -122,7 +137,7 @@
   :expected:
     - !ruby/regexp '/Logged ".+" out on/'
 :logs:
-  :cmd: oc logs <pod_name> 
+  :cmd: oc logs <pod_name>
   :options:
     :c: -c <value>
     :f: -f
