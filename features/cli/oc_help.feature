@@ -56,3 +56,15 @@ Feature: oc related features
       | Manage the client config files |
       | oc config SUBCOMMAND [options] |
       | Examples |
+
+  # @author pruan@redhat.com
+  # @case_id 487931
+  Scenario: Check the help page for oc export
+    When I run the :help client command with:
+      | help_word | --help |
+      | command | export |
+    Then the output should contain:
+      | Export resources so they can be used elsewhere |
+      | The export command makes it easy to take existing objects and convert them to configuration files |
+      | for backups or for creating elsewhere in the cluster. |
+      | oc export RESOURCE/NAME ... [options] [options] |
