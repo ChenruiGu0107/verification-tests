@@ -47,6 +47,17 @@ module CucuShift
       end
     end
 
+    # @return [String] absolute path
+    def absolutize(path, raw: false)
+      if path.start_with?("/", "\\")
+        return path
+      elsif raw
+        File.absolute_path(path, pwd)
+      else
+        return File.absolute_path(path, workdir(absolute: true))
+      end
+    end
+
     # @return pwd of raw commands executed on the host
     private def pwd
       raise '#{__method__} method not implemented'
@@ -435,6 +446,14 @@ module CucuShift
     # @note execute commands without special setup
     def exec_raw(*commands, **opts)
       ssh(opts).exec(commands_to_string(commands),opts)
+    end
+
+    def copy_to(local, remote, **opts)
+      ssh.scp_to(local, absolutize(remote, raw: opts[:raw]))
+    end
+
+    def copy_from(remote, local, **opts)
+      ssh.scp_from(remote, absolutize(local, raw: opts[:raw]))
     end
 
     private def close
