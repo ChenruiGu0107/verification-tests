@@ -19,9 +19,9 @@ gem 'term-ansicolor'
 gem 'watir-webdriver', '>=0.6.11'
 #gem 'headless'
 ## Docs
-# gem 'yard-cucumber' # works only with old cucumber
-## tools
-gem 'asciidoctor'
+# beware https://github.com/pry/pry/issues/1465
+#        https://bugzilla.redhat.com/show_bug.cgi?id=1257578
+# gem 'yard-cucumber' # something broken vs pry; requires cucumber 1.3
 ## Debugging
 gem 'pry'
 # https://github.com/deivid-rodriguez/pry-byebug/issues/71

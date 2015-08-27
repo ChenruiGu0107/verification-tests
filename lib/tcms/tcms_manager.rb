@@ -13,6 +13,7 @@ module CucuShift
   # tried to make it quick and dirty but it became only dirty
   class TCMSManager
     include Common::Helper
+    include Common::Hacks
 
     attr_accessor :current_test_case, :opts
     # attr_reader :attach_queue
@@ -37,6 +38,8 @@ module CucuShift
     #   test case == Cucumber scenario
     # @note see [TCMSTestCaseRun#overall_status=] for how status works
     def signal(signal, *args)
+      fix_require_lock # see method in Common::Hacks
+
       case signal
       when :end_of_cases
       when :start_case
@@ -94,22 +97,11 @@ module CucuShift
           end
         end
 
+        ## let attacher know we finish and wait for queue drain
         @attach_queue << false
-        # wait for artifacts upload/attach
-        # FYI if we join without timeout, it sometimes can raise error:
-        #   No live threads left. Deadlock?
-        # That's because thread is in sleep while waiting for queue item and
-        #   without timeout, there is no guarantee it will ever return.
-        if !@attacher.join(120)
-          if conf[:debug_attacher_timeout]
-            require 'pry'
-            binding.pry
-          end
-          logger.error("Attacher thread join timeout, state: #{@attacher.status}")
-          logger.error(@attacher.backtrace.join("\n"))
-        end
+        wait_for_attacher
         @artifacts_filer.clean_up if @artifacts_filer
-        sleep 1 # try avoid `zlib(finalizer): the stream was freed prematurely.`
+        # TODO: check `zlib(finalizer): the stream was freed prematurely.`
       end
     end
 
@@ -149,6 +141,27 @@ module CucuShift
     ############ test case manager interface methods end ############
 
     private
+
+    # let some time attacher perform its duties
+    def wait_for_attacher
+      # wait for artifacts upload/attach
+      # FYI if we join without timeout, it sometimes can raise error:
+      #   No live threads left. Deadlock?
+      # That's because thread is in sleep while waiting for queue item and
+      #   without timeout, there is no guarantee it will ever return.
+      # See also locking issue with pry vs yard-cucumber
+      #   https://bugzilla.redhat.com/show_bug.cgi?id=1257578
+      #   https://github.com/pry/pry/issues/1465
+      # We try to warn an fix the above with call to #fix_require_lock
+      if !@attacher.join(120)
+        if conf[:debug_attacher_timeout]
+          require 'pry'
+          binding.pry
+        end
+        logger.error("Attacher thread join timeout, state: #{@attacher.status}")
+        logger.error(@attacher.backtrace.join("\n"))
+      end
+    end
 
     # executed from within the attacher thread to actually upload/attach log;
     #   for workitem format, see [#attach_scenario_artifacts]
@@ -214,7 +227,8 @@ module CucuShift
 
         ## add attach_queue workitem
         @attach_queue << [job, dir]
-        #handle_attach([job, dir]) # debug in main thread
+        # to use main thread for debugging use following line instead:
+        # handle_attach([job, dir])
       end
     end
 

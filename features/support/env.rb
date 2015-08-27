@@ -58,6 +58,7 @@ end
 After do |_scenario|
   logger.info("=== After Scenario: #{_scenario.name} ===")
   self.scenario = _scenario # this is different object than in Before hook
+
   debug_in_after_hook
 
   ## raise inside block only if error can affect next scenarios execution ##
