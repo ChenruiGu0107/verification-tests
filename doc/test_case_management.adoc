@@ -37,7 +37,7 @@ services:
 
 `ca_path` is in the format of openssl ca_path directory. The path or file specified can be absolute or relative. When relative, it is searched for in the `PRIVATE` dir, user home dir or CucuShift::HOME dir.
 
-Only HTTP basic auth is supported by xmlrpc client. User/password pair can be supplied wither through `user` adn `password` configuration options, or using environment variables `TCMS_USER`, `TCMS_PASSWORD`. In absense of the abouve, user is asked for them on the console prompt. The latter method is most secure but not possible with jenkins and cron test runs.
+Only HTTP basic auth is supported by xmlrpc client. User/password pair can be supplied wither through `user` adn `password` configuration options, or using environment variables `TCMS_USER`, `TCMS_PASSWORD`. In absense of the above, user is asked for them on the console prompt. The latter method is most secure but not possible with jenkins and cron test runs.
 
 === Usage
 
