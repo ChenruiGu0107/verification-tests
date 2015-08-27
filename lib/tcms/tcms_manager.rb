@@ -1,5 +1,7 @@
-# require 'thread'
-
+require 'thread' # for the uploader thread
+require 'tmpdir'
+require 'fileutils'
+require 'find'
 require 'ostruct' # for TCMSTestCase
 require 'json'
 
@@ -18,8 +20,14 @@ module CucuShift
     def initialize(**opts)
       @opts = opts
 
-
-      # @attach_queue = Queue.new
+      # will contain [caserun_id, directory] pairs to upload;
+      #   when thread sees a `false` value, it will quit
+      @attach_queue = Queue.new
+      @attacher = Thread.new do
+        while workitem = @attach_queue.pop # yes, assignment
+          handle_attach(workitem)
+        end
+      end
     end
 
     ############ test case manager interface methods ############
@@ -40,9 +48,9 @@ module CucuShift
         ## mark the specified scenario from current job as completed
         test_case = args[0]
         job = current_job(test_case)
-        job.completed!(test_case)
         ## generate/upload logs and other artifacts to TCMS
-        handle_artifacts(job, test_case)
+        handle_formatter_artifacts(job, test_case)
+        job.completed!(test_case)
         @before_failed = false
         @after_failed = false
         ## set TCMS test case final status in TCMS
@@ -71,18 +79,37 @@ module CucuShift
           job.overall_status = test_case.passed? ? "PASSED" : "FAILED"
         end
       when :at_exit
-        finished_jobs do |job|
-          Kernel.puts("case #{job.case_id} executed")
+        if @incomplete_jobs
+          finished_jobs do |job|
+            Kernel.puts("case #{job.case_id} executed")
+          end
+          locked_jobs do |job|
+            Kernel.puts("case #{job.case_id} was not IDLE")
+          end
+          ready_jobs.each do |job|
+            Kernel.puts("case #{job.case_id} not executed (completely)")
+          end
+          incomplete_jobs.each do |job|
+            Kernel.puts("case #{job.case_id} could not find all scenarios")
+          end
         end
-        locked_jobs do |job|
-          Kernel.puts("case #{job.case_id} was not IDLE")
+
+        @attach_queue << false
+        # wait for artifacts upload/attach
+        # FYI if we join without timeout, it sometimes can raise error:
+        #   No live threads left. Deadlock?
+        # That's because thread is in sleep while waiting for queue item and
+        #   without timeout, there is no guarantee it will ever return.
+        if !@attacher.join(120)
+          if conf[:debug_attacher_timeout]
+            require 'pry'
+            binding.pry
+          end
+          logger.error("Attacher thread join timeout, state: #{@attacher.status}")
+          logger.error(@attacher.backtrace.join("\n"))
         end
-        ready_jobs.each do |job|
-          Kernel.puts("case #{job.case_id} not executed (completely)")
-        end
-        incomplete_jobs.each do |job|
-          Kernel.puts("case #{job.case_id} could not find all scenarios")
-        end
+        @artifacts_filer.clean_up if @artifacts_filer
+        sleep 1 # try avoid `zlib(finalizer): the stream was freed prematurely.`
       end
     end
 
@@ -119,29 +146,93 @@ module CucuShift
       end
     end
 
-    def attach_logs(caserunid, *urls)
-      # TODO
-    end
-
-    # @param scenario [Hash] with keys :name, :file_colon_line, :arg
-    # @param dir [String] to be attached to test case run; dir emptied on return
-    def attach_dir(dir)
-      # TODO
-    end
-
     ############ test case manager interface methods end ############
 
     private
 
-    def tcms
-      return @tcms ||= TCMS.new(opts[:tcms_opts] || {})
+    # executed from within the attacher thread to actually upload/attach log;
+    #   for workitem format, see [#attach_scenario_artifacts]
+    def handle_attach(workitem)
+      job, dir = workitem
+      relative_path = File.join(*TIME_SUFFIX)
+      remote_path = File.join(
+        conf[:services, :artifacts_file_server, :upload_path],
+        relative_path
+      )
+      base_url = File.join(
+        conf[:services, :artifacts_file_server, :url],
+        relative_path,
+        File.basename(dir)
+      )
+      ## upload files
+      artifacts_filer.copy_to(dir, remote_path, raw: true)
+
+      ## link uploaded files in TCMS
+      specs = []
+      dirchars = dir.length + ( dir.end_with?("/","\\") ? 0 : 1 )
+      Find.find(dir) do |file|
+        if File.file? file
+          specs << [
+            File.basename(file),
+            File.join(base_url, file[dirchars..-1])
+          ]
+        end
+      end
+      link_logs_to_tcms_async(job.case_run_id, specs)
+    rescue => e
+      Kernel.puts exception_to_string(e)
+    ensure
+      FileUtils.remove_entry dir
+    end
+
+    # @param specs [Array<Array>] list [name, URL] pairs
+    # @param caserun_id [Numeric]
+    # @note run by attacher thread; ignore errors, TCMS should log them anyway
+    def link_logs_to_tcms_async(caserun_id, specs)
+      op = 'TestCaseRun.attach_log'
+      commands = specs.map { |name, url| [op, caserun_id, name, url] }
+      if commands.size == 1
+        not_err, res = tcms.call2_async(*commands[0])
+      else
+        not_err, res = tcms.multicall2_async(*commands)
+      end
     end
 
     # @param job [TCMSTestCase]
     # @param test_case [Cucumber::Core::Test::Case]
-    def handle_artifacts(job, test_case)
+    # @note to avoid upload/attaching delay, perform rsync and attach within
+    #   a thread
+    def handle_formatter_artifacts(job, test_case)
       return unless job.caserun?
-      # TODO
+
+      manager.custom_formatters.each do |formatter|
+        ## move artifacts to a separate dir
+        dir = formatter.process_scenario_log(after_failed: after_failed?,
+                                             before_failed: before_failed?)
+        #target_dir = Dir.mktmpdir("cucushift_artifacts_")
+        #FileUtils.mv dir, target_dir
+
+        ## add attach_queue workitem
+        @attach_queue << [job, dir]
+        #handle_attach([job, dir]) # debug in main thread
+      end
+    end
+
+    # @return [CucuShift::Host] of the server storing logs and artifacts
+    def artifacts_filer
+      @artifacts_filer if @artifacts_filer
+
+      @artifacts_filer = CucuShift.
+        const_get(conf[:services, :artifacts_file_server, :host_type]).
+        new(
+          conf[:services, :artifacts_file_server, :hostname],
+          **conf[:services, :artifacts_file_server]
+        )
+      return @artifacts_filer
+    end
+
+    def tcms
+      return @tcms ||= TCMS.new(opts[:tcms_opts] || {})
     end
 
     # @param job [TCMSTestCase]
@@ -236,16 +327,6 @@ module CucuShift
       jobs.select! { |c| c.runnable? }
       return jobs
     end
-
-    # @param test_case [Hash] a hash tracking test case execution progress
-    #def finalize(test_case)
-    #  return unless test_case # no test cases executed yet
-    #
-    #  # attach any scenario artifacts
-    #  manager.custom_formatters.each(&:process_scenario_log)
-    #
-    #  # TODO: ???
-    #end
 
     # represents the TCMS test case with list of scenario specifications to
     #   execute and status of everything related

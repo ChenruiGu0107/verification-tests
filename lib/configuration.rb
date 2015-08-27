@@ -51,6 +51,7 @@ module CucuShift
       global_overrides = {
         debug_in_after_hook: "CUCUSHIFT_DEBUG_AFTER_FAIL",
         debug_in_after_hook_always: "CUCUSHIFT_DEBUG_AFTER_HOOK",
+        debug_attacher_timeout: "CUCUSHIFT_DEBUG_ATTACHER_TIMEOUT",
         debug_failed_steps: "CUCUSHIFT_DEBUG_FAILSTEP",
         default_environment: "CUCUSHIFT_DEFAULT_ENVIRONMENT"
       }

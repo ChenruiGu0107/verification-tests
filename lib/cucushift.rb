@@ -10,8 +10,11 @@ module CucuShift
   HOSTNAME = Socket.gethostname.freeze
   LOCAL_USER = Etc.getlogin.freeze
 
-  GIT_HASH = `git rev-parse HEAD --git-dir="#{File.join(HOME,'.git')}"`.chomp rescue :unknown
-  GIT_PRIVATE_HASH = `git rev-parse HEAD --git-dir="#{File.join(PRIVATE_DIR,'.git')}"`.chomp rescue :unknown
+  GIT_HASH = `git rev-parse HEAD --git-dir="#{File.join(HOME,'.git')}"`.
+                lines[0].chomp rescue :unknown
+  GIT_PRIVATE_HASH =
+    `git rev-parse HEAD --git-dir="#{File.join(PRIVATE_DIR,'.git')}"`.
+      lines[0].chomp rescue :unknown
 
   if ENV["NODE_NAME"]
     # likely a jenkins environment
@@ -19,4 +22,12 @@ module CucuShift
   else
     EXECUTOR_NAME = "#{HOSTNAME.split('.')[0]}-#{LOCAL_USER}".freeze
   end
+
+  START_TIME = Time.now
+  TIME_SUFFIX = [
+    START_TIME.strftime("%Y"),
+    START_TIME.strftime("%m"),
+    START_TIME.strftime("%d"),
+    START_TIME.strftime("%H:%M:%S")
+  ]
 end

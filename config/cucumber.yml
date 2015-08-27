@@ -16,7 +16,7 @@ webdevel: --profile _webdevel --profile devel
 tcms: CUCUSHIFT_TEST_CASE_MANAGER=tcms <%= tcms_args %>
 
 _debug: CUCUSHIFT_LOG_LEVEL=debug
-_devel: CUCUSHIFT_DEBUG_AFTER_FAIL=true
+_devel: CUCUSHIFT_DEBUG_AFTER_FAIL=true CUCUSHIFT_DEBUG_ATTACHER_TIMEOUT=true
 _webdevel: CUCUSHIFT_DEBUG_WEB=true
 #
 # vim: set tabstop=2:shiftwidth=2:expandtab:

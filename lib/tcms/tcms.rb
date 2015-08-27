@@ -86,12 +86,33 @@ module CucuShift
       xmlrpc_client = XMLRPC::Client.new2(@options[:xmlrpc_url],
                                           (ENV.has_key?'http_proxy')?ENV['http_proxy'].sub(/https?:\/\//,''):nil,
                                           @options[:timeout])
+
+      # see
+      # https://bugs.ruby-lang.org/issues/11489
+      # original #net_http method
       if @options[:ca_file]
-        xmlrpc_client.instance_variable_get("@http").ca_file = @options[:ca_file]
+        xmlrpc_client.http.ca_file = @options[:ca_file]
+        xmlrpc_client.instance_variable_set(:@ca_file, @options[:ca_file])
+        def xmlrpc_client.net_http(host, port, proxy_host, proxy_port)
+          h = Net::HTTP.new host, port, proxy_host, proxy_port
+          h.ca_file = @ca_file
+          h
+        end
       elsif @options[:ca_path]
-        xmlrpc_client.instance_variable_get("@http").ca_path = @options[:ca_path]
+        xmlrpc_client.http.ca_path = @options[:ca_path]
+        xmlrpc_client.instance_variable_set(:@ca_path, @options[:ca_path])
+        def xmlrpc_client.net_http(host, port, proxy_host, proxy_port)
+          h = Net::HTTP.new host, port, proxy_host, proxy_port
+          h.ca_path = @ca_path
+          h
+        end
       else
-        xmlrpc_client.instance_variable_get("@http").verify_mode = OpenSSL::SSL::VERIFY_NONE
+        xmlrpc_client.http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        def xmlrpc_client.net_http(host, port, proxy_host, proxy_port)
+          h = Net::HTTP.new host, port, proxy_host, proxy_port
+          h.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          h
+        end
       end
       xmlrpc_client.user = @options[:user]
       xmlrpc_client.password = @options[:password]
@@ -123,17 +144,17 @@ module CucuShift
     # need to run in a new thread
     def call2_async(method, *args)
       @logger.info("TCMS async: #{method} #{args}")
-      noerr, ret = client.call2_async(method, *args)
-      @logger.error(exception_to_string(ret)) unless noerr
-      return noerr, ret
+      not_err, ret = client.call2_async(method, *args)
+      @logger.error(exception_to_string(ret)) unless not_err
+      return not_err, ret
     end
 
     # need to run in a new thread
     def multicall2_async(*methods)
       @logger.info("TCMS async: calling #{methods.size} methods")
-      noerr, ret = client.multicall2_async(*methods)
-      @logger.error(exception_to_string(ret)) unless noerr
-      return noerr, ret
+      not_err, ret = client.multicall2_async(*methods)
+      @logger.error(exception_to_string(ret)) unless not_err
+      return not_err, ret
     end
 
     def version
