@@ -1,4 +1,6 @@
 = Test Case Management
+:toc:
+:toc-placement: preamble
 
 == Overview
 
