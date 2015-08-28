@@ -190,6 +190,22 @@
   :cmd: oc policy remove-role-from-user <role> <user_name>
 :remove_role_from_group:
   :cmd: oc policy remove-role-from-group <role> <group_name>
+:replace:
+  :cmd: oc replace
+  :options:
+    :f: -f <value>
+    :force: --force
+    :output: --output=<value>
+:rollback:
+  :cmd: oc rollback <deployment_name>
+  :options:
+    :change_scaling_settings: --change-scaling-settings
+    :change_strategy: --change-strategy
+    :change_triggers: --change-triggers
+    :dry_run: --dry-run
+    :output: --output=<value>
+    :template: --template=<value>
+    :to_version: --to-version=<value>
 :rsh:
   :cmd: oc rsh
   :options:
