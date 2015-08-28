@@ -68,3 +68,19 @@ Feature: oc related features
       | The export command makes it easy to take existing objects and convert them to configuration files |
       | for backups or for creating elsewhere in the cluster. |
       | oc export RESOURCE/NAME ... [options] [options] |
+
+  # @author pruan@redhat.com
+  # @case_id 483189
+  Scenario: Check the help page for oc deploy
+    When I run the :help client command with:
+      | help_word | --help |
+      | command   | deploy |
+    Then the output should contain:
+      | View, start, cancel, or retry a deployment |
+      | This command allows you to control a deployment config. |
+      | oc deploy DEPLOYMENTCONFIG [options]                    |
+      | --cancel=false: Cancel the in-progress deployment.      |
+      | --enable-triggers=false: Enables all image triggers for the deployment config. |
+      | --latest=false: Start a new deployment now.                                    |
+      | --retry=false: Retry the latest failed deployment.                             |
+
