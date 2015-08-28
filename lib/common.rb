@@ -59,7 +59,12 @@ module CucuShift
       #    raise "result successful but should have been failure, see log"
       #  end
       #end
-    end
+
+      # hack to have host.rb autoloaded when it is used through Helper outside
+      # Cucumber (at the same time avoiding circular dependencies). That avoids
+      # need for the external script to know that host.rb is required.
+      CucuShift.autoload :Host, "host"
+    end # module Helper
 
     module UserObjectHelper
       # execute cli command as user or admin
@@ -87,41 +92,30 @@ module CucuShift
           raise "unknown user specification for the operation: '#{user.inspect}'"
         end
       end
+    end # module UserObjectHelper
+
+    # some ugly hack that we need to be more reliable
+    module Hacks
+      # we'll try calling this one after common pry calls as well by affected
+      #   thread users (to make sure we didn't miss some pry call)
+      def fix_require_lock
+        if defined?(Pry) &&
+           Kernel::RUBYGEMS_ACTIVATION_MONITOR.instance_variable_get(:@mon_owner) == Thread.current
+          Kernel.puts("ERROR: Detected stale RUBYGEMS_ACTIVATION_MONITOR lock, see: https://bugzilla.redhat.com/show_bug.cgi?id=1257578")
+          Kernel::RUBYGEMS_ACTIVATION_MONITOR.mon_exit
+        end
+      rescue => e
+        Kernel.puts("ERROR: Ruby private API changed? cannot execute fix_require_lock: #{e.inspect}")
+      end
     end
-
-    #module UserObjectClassHelper
-      # execute cli command as user or admin
-      # @param as [CucuShift::User, CucuShift::Environment] the user to run cli
-      #   with or environment when admin command is desired
-      # @param key [Symbol] the command key to execute
-      # @param opts [Hash] the command options
-      # @return [CucuShift::ResultHash]
-      # @note usually invoked by managed classes like projects, routes, etc.
-      #   that could have same operations executed by admin or user; this method
-      #   simplifies such calls;
-    #  def cli_exec(as:, key:, **opts)
-    #    as
-
-    #    if as.kind_of? Environment
-    #      if as.admin?
-    #        return as.admin_cli_executor.exec(key, **opts)
-    #      else
-    #        raise "we don't have admin in this environment, what on earth do you expect?"
-    #      end
-    #    elsif as.kind_of? CucuShift::User
-    #      as.cli_exec(key, **opts)
-    #    else
-    #      raise "unknown user specification for the operation: '#{as.inspect}'"
-    #    end
-    #  end
-    #end
 
     module Setup
       def self.handle_signals
-        # Exit the process immediately when SIGINT/SIGTERM caught,
-        # since cucumber traps these signals.
-        Signal.trap('SIGINT') { Process.exit!(255) }
-        Signal.trap('SIGTERM') { Process.exit!(255) }
+        # Cucumber traps SIGINT anf SIGTERM to allow graceful shutdown,
+        #   i.e. interrupting scenario and letting After and at_exit execute.
+        #   This is safer than immediate exit. To exit quick, hit Ctrl+C twice.
+        #Signal.trap('SIGINT') { Process.exit!(255) }
+        #Signal.trap('SIGTERM') { Process.exit!(255) }
       end
 
       def self.set_cucushift_home

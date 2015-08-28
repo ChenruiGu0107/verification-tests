@@ -1,7 +1,11 @@
 ## add our lib dir to load path
 $LOAD_PATH << File.expand_path("#{__FILE__}/../../../lib")
 
-if RUBY_VERSION.split('.')[0].to_i < 2 || RUBY_VERSION.split('.')[0] == '2' &&  RUBY_VERSION.split('.')[1].to_i < 2
+ruby_ver = RUBY_VERSION.split('.')
+if ruby_ver[0].to_i < 2 ||
+    ruby_ver[0] == '2' && ruby_ver[1].to_i < 2 # ||
+    # ruby_ver[0] == '2' && ruby_ver[1] == '2' && ruby_ver[2].to_i < 3
+
   raise "Ruby version earlier than 2.2 not supported"
 end
 if Cucumber::VERSION.split('.')[0].to_i < 2
@@ -54,6 +58,7 @@ end
 After do |_scenario|
   logger.info("=== After Scenario: #{_scenario.name} ===")
   self.scenario = _scenario # this is different object than in Before hook
+
   debug_in_after_hook
 
   ## raise inside block only if error can affect next scenarios execution ##
@@ -68,6 +73,7 @@ After do |_scenario|
   manager.test_case_manager.signal(:finish_after_hook, scenario, err)
   hook_error!(err)
   logger.info("=== End After Scenario: #{_scenario.name} ===")
+  CucuShift::Logger.reset_runtime # otherwise we lose output from test case mgmt
 end
 
 AfterConfiguration do |config|

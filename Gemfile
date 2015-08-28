@@ -5,8 +5,8 @@ gem 'rest-client', '2.0.0.rc1'
 # gem 'rest-client', '>=2.0'
 # gem 'httpclient', '>=2.4'
 gem 'net-ssh'
+gem 'net-scp'
 # gem 'net-ssh-multi'
-# gem 'net-scp'
 gem 'cucumber', '>=2.0.2'
 # gem 'rspec', '~>2.14.1'
 # gem 'rspec-expectations', '~>2.14.0'
@@ -19,9 +19,9 @@ gem 'term-ansicolor'
 gem 'watir-webdriver', '>=0.6.11'
 #gem 'headless'
 ## Docs
-# gem 'yard-cucumber' # works only with old cucumber
-## tools
-gem 'asciidoctor'
+# beware https://github.com/pry/pry/issues/1465
+#        https://bugzilla.redhat.com/show_bug.cgi?id=1257578
+# gem 'yard-cucumber' # something broken vs pry; requires cucumber 1.3
 ## Debugging
 gem 'pry'
 # https://github.com/deivid-rodriguez/pry-byebug/issues/71

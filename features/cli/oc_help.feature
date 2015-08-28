@@ -46,3 +46,41 @@ Feature: oc related features
     Then the output should contain:
       | oc new-app --list |
       | -L, --list=false  |
+
+  # @author cryan@redhat.com
+  # @case_id 470720
+  Scenario: Check help info for oc config
+    When I run the :config client command with:
+      | h ||
+    Then the output should contain:
+      | Manage the client config files |
+      | oc config SUBCOMMAND [options] |
+      | Examples |
+
+  # @author pruan@redhat.com
+  # @case_id 487931
+  Scenario: Check the help page for oc export
+    When I run the :help client command with:
+      | help_word | --help |
+      | command | export |
+    Then the output should contain:
+      | Export resources so they can be used elsewhere |
+      | The export command makes it easy to take existing objects and convert them to configuration files |
+      | for backups or for creating elsewhere in the cluster. |
+      | oc export RESOURCE/NAME ... [options] [options] |
+
+  # @author pruan@redhat.com
+  # @case_id 483189
+  Scenario: Check the help page for oc deploy
+    When I run the :help client command with:
+      | help_word | --help |
+      | command   | deploy |
+    Then the output should contain:
+      | View, start, cancel, or retry a deployment |
+      | This command allows you to control a deployment config. |
+      | oc deploy DEPLOYMENTCONFIG [options]                    |
+      | --cancel=false: Cancel the in-progress deployment.      |
+      | --enable-triggers=false: Enables all image triggers for the deployment config. |
+      | --latest=false: Start a new deployment now.                                    |
+      | --retry=false: Retry the latest failed deployment.                             |
+

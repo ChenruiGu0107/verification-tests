@@ -1,0 +1,4 @@
+eval_gemfile File.expand_path(__FILE__ + "/../../Gemfile")
+
+gem 'asciidoctor'
+gem 'text-table'

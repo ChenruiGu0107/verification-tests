@@ -22,6 +22,10 @@
   :cmd: oc policy add-role-to-user <role> <user_name>
 :add_role_to_group:
   :cmd: oc policy add-role-to-group <role> <group_name>
+:config:
+  :cmd: oc config
+  :options:
+    :subcommand: <subcommand>
 :config_view:
   :cmd: oc config view
   :options:
@@ -42,6 +46,18 @@
     :l: -l <value>
     :all: --all
     :object_name_or_id: <value>
+:deploy:
+  :cmd: oc deploy <deployment_config>
+  :options:
+    :cancel: --cancel
+    :enable-triggers: --enable-triggers
+    :latest: --latest
+    :retry: --retry
+:describe:
+  :cmd: oc describe <resource> <name>
+  :options:
+    :l: -l <value>
+    :selector: --selector=<value>
 :edit:
   :cmd: oc edit
   :options:
@@ -65,6 +81,26 @@
     :oc_opts_end: --
     :exec_command: <value>
     :exec_command_arg: <value>
+:exec_raw_oc_cmd_for_neg_tests:   # used for negative testing in which we want to deviate from yaml
+  :cmd: oc
+  :options:
+    :arg: <value>
+    :test_do_not_use: <value>
+:export:
+  :cmd: oc export
+  :options:
+    :resource: <value>
+    :name: <value>
+    :filename: --filename=<value>
+    :output_format: --output=<value>
+    :all: --all=<value>
+    :f: -f <value>
+    :o: -o <value>
+    :l: -l <value>
+    :t: -t <value>
+    :as_template: --as-template=<value>
+    :exact: --exact=<value>
+    :output_version: --output-version=<value>
 :expose:
   :cmd: oc expose <resource> <resource_name>
   :options:
@@ -105,6 +141,12 @@
   :cmd: oc logout
   :expected:
     - !ruby/regexp '/Logged ".+" out on/'
+:logs:
+  :cmd: oc logs <pod_name>
+  :options:
+    :c: -c <value>
+    :f: -f
+    :p: -p
 :new_app:
   :cmd: oc new-app
   :options:
@@ -125,6 +167,18 @@
     :docker_image: --docker-image=<value>
     :context_dir: --context-dir=<value>
     :code: --code=<value>
+:new_build:
+  :cmd: oc new-build
+  :options:
+    :app_repo: <value>
+    :code: --code=<value>
+    :docker_image: --docker-image=<value>
+    :image: --image=<value>
+    :l: -l <value>
+    :name: --name=<value>
+    :output: --output=<value>
+    :strategy: --strategy=<value>
+    :template: --template=<value>  
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:
@@ -147,10 +201,33 @@
   :cmd: oc policy remove-role-from-user <role> <user_name>
 :remove_role_from_group:
   :cmd: oc policy remove-role-from-group <role> <group_name>
+:replace:
+  :cmd: oc replace
+  :options:
+    :f: -f <value>
+    :force: --force
+    :output: --output=<value>
+:rollback:
+  :cmd: oc rollback <deployment_name>
+  :options:
+    :change_scaling_settings: --change-scaling-settings
+    :change_strategy: --change-strategy
+    :change_triggers: --change-triggers
+    :dry_run: --dry-run
+    :output: --output=<value>
+    :template: --template=<value>
+    :to_version: --to-version=<value>
 :rsh:
   :cmd: oc rsh
   :options:
     :app_name: <value>
+:start_build:
+  :cmd: oc start-build <buildconfig>
+  :options:
+    :follow: --follow
+    :from_build: --from-build=<value>
+    :from_webhook: --from-webhook=<value>
+    :git_repo: --git-repository=<value>
 :status:
   :cmd: oc status
 :types:

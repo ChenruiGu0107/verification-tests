@@ -12,6 +12,7 @@ module CucuShift
   class DefaultWorld
     include CollectionsIncl
     include Common::Helper
+    include Common::Hacks
 
     attr_accessor :scenario
 
@@ -48,6 +49,7 @@ module CucuShift
       if debug_in_after_hook?
         require 'pry'
         binding.pry
+        fix_require_lock # see method in Common::Hacks
       end
     end
 

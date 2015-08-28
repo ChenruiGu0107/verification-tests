@@ -1,3 +1,5 @@
+require 'yaml'
+
 require_relative 'token'
 require_relative 'project'
 
@@ -23,9 +25,6 @@ module CucuShift
       if @tokens.empty? && (@name.nil? || @password.nil?)
         raise "to initialize user we need a token or username and password"
       end
-
-      # try to make sure user is in clean state
-      clean_up_on_load
     end
 
     def name
@@ -105,9 +104,19 @@ module CucuShift
       res = cli_exec(:delete, object_type: "projects", object_name_or_id: '--all')
       # we don't need to check exit status, but some time is needed before
       #   project deleted status propagates properly
-      unless res[:response].include? "No resources found"
-        logger.info("waiting for 5 seconds for clean-up to take place")
-        sleep 5
+      unless res[:response].include? "No resource"
+        logger.info("waiting up to 30 seconds for user clean-up to take place")
+        success = wait_for(30) {
+          res = cli_exec(:get, resource: "projects", o: :yaml)
+          if res[:success]
+            next YAML.load(res[:response])['items'].empty?
+          else
+            raise "cannot list user projects? too bad to continue"
+          end
+        }
+        unless success
+          logger.warn("user has visible projects after clean-up, beware")
+        end
       end
     end
 
@@ -118,9 +127,9 @@ module CucuShift
     def clean_up
       clean_up_on_load
 
-      # clean_up any tokens
-      until cached_tokens.empty?
-        cached_tokens.last.delete(uncache: true)
+      # best effort remove any non-protected tokens
+      cached_tokens.reverse_each do |token|
+        token.delete(uncache: true) unless token.protected?
       end
     end
   end

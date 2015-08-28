@@ -11,7 +11,7 @@ require 'uri'
 require 'cgi' # to escape html content
 require 'tmpdir' # Dir.tmpdir
 
-require 'common'
+require 'common' # mainly localhost is used
 
 module CucuShift
   # custom Cucumber HTML formatter that also cooperates with test case manager
@@ -55,7 +55,7 @@ class CucuFormatter
   # make sure log dir exists and is empty
   def prepare_log_dir
     wipe_log_dir
-    FileUtils.mkdir_p(@log_dir)
+    # FileUtils.mkdir_p(@log_dir) # subdirs should be created on demand
   end
 
   def wipe_log_dir
@@ -79,7 +79,7 @@ class CucuFormatter
     # before we handled last scenario log here, now we process log at better
     #   time by calling it from TestCaseManagerFilter
     # process_scenario_log
-    wipe_log_dir
+    # wipe_log_dir # avoid interfering with uploaders; posible harm negligible
   end
 
   def scenario_name(keyword, name, file_colon_line, source_indent)
@@ -139,14 +139,11 @@ class CucuFormatter
 
   ################## END FORMATTER HOOKS ####################
 
-  def test_case_manager
-    manager.test_case_manager
-  end
-
-  # @Note deal with creation and uploading of scenario html log
-  def process_scenario_log
+  # @return [String] directory to attach artifacts from
+  # @note deal with creation and uploading of scenario html log
+  def process_scenario_log(opts={})
     if @feature and @scenario
-      if test_case_manager.before_failed?
+      if opts[:before_failed]
         # lets give a clue in html log what went wrong
         @scenario[:steps].unshift(
           { :status=>:failed,
@@ -154,7 +151,7 @@ class CucuFormatter
             :messages=>["[42:42:42] ERROR> See console log for actual errors"]
           }
         )
-      elsif test_case_manager.after_failed?
+      elsif opts[:after_failed]
         # lets give a clue in html log what went wrong
         @scenario[:steps].unshift(
           { :status=>:failed,
@@ -168,10 +165,10 @@ class CucuFormatter
         @scenario[:status] = self.scenario_status(@scenario)
       end
 
-      if @scenario[:status] != :skipped
-        gen_html_file(@scenario, @feature[:name])
-        test_case_manager.attach_dir(@log_dir) # dir should be empty after call
-      end
+      gen_html_file(@scenario, @feature[:name]) if @scenario[:status]!=:skipped
+
+      # dir would usually be removed soon
+      return scenario_artifacts_dir(@scenario)
     end
   end
 
@@ -307,15 +304,40 @@ class CucuFormatter
   end
 
   def html_filename(scenario_hash)
-    arg = scenario_hash[:arg] ? scenario_hash[:arg].strip.gsub(/\s\|\s/,"-").gsub(/[^a-zA-Z0-9-]+/,"_" ).gsub(/_+/,"_").gsub(/^_|_$/,"") : nil
-    name = scenario_hash[:name].strip.gsub(/\s\|\s/,"-").gsub(/[^a-zA-Z0-9-]+/,"_" ).gsub(/_+/,"_").gsub(/^_|_$/,"")
-    return arg ? "#{name}-#{arg}.html" : "#{name}.html"
+    return "#{scenario_normalized_name(scenario_hash)}.html"
+  end
+
+  def scenario_normalized_name(scenario_hash)
+    if scenario_hash[:normalized_name]
+      return scenario_hash[:normalized_name]
+    else
+      arg = scenario_hash[:arg] ? scenario_hash[:arg].strip.gsub(/\s\|\s/,"-").gsub(/[^a-zA-Z0-9-]+/,"_" ).gsub(/_+/,"_").gsub(/^_|_$/,"") : nil
+      name = scenario_hash[:name].strip.gsub(/\s\|\s/,"-").gsub(/[^a-zA-Z0-9-]+/,"_" ).gsub(/_+/,"_").gsub(/^_|_$/,"")
+      scenario_hash[:normalized_name] = arg ? "#{name}-#{arg}" : "#{name}"
+      return scenario_hash[:normalized_name]
+    end
+  end
+
+  def scenario_artifacts_dir(scenario_hash)
+    if scenario_hash[:artifacts_dir]
+      return scenario_hash[:artifacts_dir]
+    else
+      scenario_hash[:artifacts_dir] = File.join(
+        @log_dir,
+        scenario_normalized_name(scenario_hash)
+      )
+      FileUtils.mkdir_p(scenario_hash[:artifacts_dir])
+      return scenario_hash[:artifacts_dir]
+    end
   end
 
   def gen_html_file(scenario_hash, feature_name)
     html_body = self.build_scenario(scenario_hash, feature_name)
     file_name = self.html_filename(scenario_hash)
-    file_path = File.join(@log_dir, file_name)
+    file_path = File.join(
+      scenario_artifacts_dir(scenario_hash),
+      file_name
+    )
     begin
       File.write(file_path, @template.gsub(/#HTML_BODY#/) { html_body })
     rescue => e

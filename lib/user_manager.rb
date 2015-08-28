@@ -43,6 +43,7 @@ module CucuShift
       #   username, colon,  password = uspec.partition(":")
       #   @users << User.new(username, password, env, **opts)
       # end
+      raise "no users specification" unless opts[:user_manager_users]
       @user_specs = opts[:user_manager_users].split(",").map do |uspec|
         if uspec.empty?
           raise "empty user specification does not make sense"
@@ -62,6 +63,7 @@ module CucuShift
         return @users_used[num]
       elsif @user_specs[num]
         @users_used[num] = User.new(**@user_specs[num], env: env)
+        @users_used[num].clean_up_on_load
         return @users_used[num]
       else
         raise "missing soecification for user index #{num}"

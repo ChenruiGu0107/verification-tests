@@ -2,6 +2,7 @@ Feature: creating 'apps' with CLI
 
   # @author akostadi@redhat.com
   # @case_id 482262
+  @smoke
   Scenario: Create an application with overriding app name
     Given I have a project
     And I create a new application with:

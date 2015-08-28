@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'net/ssh'
+require 'net/scp'
 require 'fileutils'
 
 module CucuShift

@@ -83,6 +83,22 @@ module CucuShift
       return res
     end
 
+    def wait_http_accessible(by: user, timeout: nil, proto: "http")
+      # TODO: are there non-http routes? we may try to auto-sense the proto
+      res = nil
+      timeout ||= 15*60
+      wait_for(timeout) {
+        res = CucuShift::Http.get(url: proto + "://" + dns(by: by))
+        if SocketError === res[:error] &&
+            res[:error].to_s.include?('getaddrinfo')
+          # unlikely to ever succeed when we can't resolve domain name
+          break
+        end
+        res[:success]
+      }
+      return res
+    end
+
     def dns(by:)
       if props[:dns]
         return props[:dns]
