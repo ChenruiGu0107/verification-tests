@@ -152,7 +152,7 @@ end
 def report_auto_testcases_by_author(options)
   tcms = options.tcms
   table = Text::Table.new
-  table.head = ['case_id', 'summary', 'author', 'auto_flag']
+  table.head = ['case_id', 'summary', 'author', 'auto_by`']
   regex = /(automated by)\s(\w+)?/
   script_pattern = "\"ruby\""
   cases = []
@@ -173,7 +173,7 @@ def report_auto_testcases_by_author(options)
         #authors.push(auto_by) unless authors.include? auto_by
         if options.by_author
           if auto_by ==  options.author
-            table.rows << [testcase['case_id'], testcase['summary'].strip[0..20], auto_by, testcase['is_automated']]
+            table.rows << [testcase['case_id'], testcase['summary'].strip[0..20], auto_by] #, testcase['is_automated']]
           end
         end
       end
@@ -194,13 +194,14 @@ end
 def report_auto_testcases(options)
   tcms = options.tcms
   table = Text::Table.new
-  table.head = ['case_id', 'summary', 'ruby script', 'auto']
+  table.head = ['case_id', 'summary', 'ruby script', 'auto_by']
   script_pattern = "\"ruby\""
   cases = []
   res = tcms.filter_cases()
   ruby_scripts_count = 0
   ruby_cases = []
   need_update = 0
+  regex = /(automated)? by\s(\w+)?/
   res.each do | testcase |
     if not testcase['script'].nil?
       if (testcase['script'].include? script_pattern and testcase['case_status'] == 'CONFIRMED')
@@ -211,15 +212,16 @@ def report_auto_testcases(options)
           print "Error parsing testcase #{testcase["case_id"]} entry in TCMS, please check for formatting" + "\n" + e.message
         end
 
+        auto_by = testcase['notes'].match(regex)[2] if testcase['notes'].match(regex)
         if options.exclude_auto
           if testcase['is_automated'] == 0
             need_update += 1
             table.rows << [testcase['case_id'], testcase['summary'].strip[0..20],
-                           script['ruby'].strip[0..40], testcase['is_automated']]
+                           script['ruby'].strip[0..40], auto_by] #testcase['is_automated']]
           end
         else
           table.rows << [testcase['case_id'], testcase['summary'].strip[0..20],
-                         script['ruby'].strip[0..40], testcase['is_automated']]
+                         script['ruby'].strip[0..40], auto_by] #testcase['is_automated']]
 
         end
         ruby_cases.push(testcase['case_id'])
