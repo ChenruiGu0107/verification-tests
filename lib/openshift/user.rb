@@ -10,6 +10,11 @@ module CucuShift
 
     attr_reader :name, :env, :rest_preferences
 
+    # @param token [String] auth bearer token in plain string format
+    # @param name [String] username (optional if we auth with token)
+    # @param password [String] password if we have such for the user
+    # @param env [CucuShift::Environment] the test environment user belongs to
+    # @note user needs either token or password and username
     def initialize(name: nil, password: nil, token: nil, env:)
       @name = name.freeze if name
       @env = env
@@ -17,10 +22,7 @@ module CucuShift
       @rest_preferences = {}
       @tokens = []
 
-      # we just guess token validity of one day, it should be persisting
-      #   long enough to conduct testing anyway; I don't see reason to do the
-      #   extra step getting validity from API
-      @tokens << Token.new(user: self, token: token, valid: Time.now + 24 * 60 * 60).protect if token
+      add_str_token(token, protect: true) if token
 
       if @tokens.empty? && (@name.nil? || @password.nil?)
         raise "to initialize user we need a token or username and password"
@@ -61,8 +63,22 @@ module CucuShift
         return @password
       else
         # most likely we initialized user with token only so we don't know pswd
-        raise "user #{name} initialized without a password"
+        raise "user '#{name}' initialized without a password"
       end
+    end
+
+    # add a token in plain string format to cached tokens
+    # @param token [String] the bearer token
+    def add_str_token(str_token, protect: false)
+      # we just guess token validity of one day, it should be persisting
+      #   long enough to conduct testing anyway; I don't see reason to do the
+      #   extra step getting validity from API
+      unless cached_tokens.find { |t| t.token == str_token }
+        cached_tokens << Token.new(user: self, token: str_token,
+                                   valid: Time.now + 24 * 60 * 60)
+        cached_tokens.last.protect if protect
+      end
+
     end
 
     def cli_executor

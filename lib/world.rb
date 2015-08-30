@@ -4,6 +4,7 @@ require 'collections'
 
 require 'openshift/project'
 require 'openshift/service'
+require 'openshift/service_account'
 require 'openshift/route'
 require 'openshift/pod'
 
@@ -25,6 +26,7 @@ module CucuShift
       # some arrays to store cached objects
       @projects = []
       @services = []
+      @service_accounts = []
       @routes = []
       @pods = []
 
@@ -54,10 +56,35 @@ module CucuShift
     end
 
     # @note call like `user(0)` or simply `user` for current user
-    def user(num=nil)
+    def user(num=nil, switch: true)
       return @user if num.nil? && @user
       num = 0 unless num
-      return @user = env.users[num]
+      @user = env.users[num] if switch
+      return env.users[num]
+    end
+
+    def service_account(name=nil, project: nil, project_name: nil, switch: true)
+      return @service_accounts.last if name.nil? && !@service_accounts.empty?
+
+      if project && project_name && project.name != project_name
+        raise "project names inconsistent: #{project.name} vs #{project_name}"
+      end
+      project ||= self.project(project_name, generate: false)
+
+      if name.nil?
+        raise "requesting service account for the first time with no name"
+      end
+
+      sa = @service_accounts.find { |s|
+        [ s.name, s.shortname ].include?(name) &&
+        s.project == project
+      }
+      unless sa
+        sa = ServiceAccount.new(name: name, project: project)
+        @service_accounts << sa
+      end
+      @service_accounts << @service_accounts.delete(sa) if switch
+      return sa
     end
 
     # @note call like `env(:key)` or simply `env` for current environment
@@ -77,7 +104,7 @@ module CucuShift
     #   if no name is spefified, returns the last requested project;
     #   otherwise a CucuShift::Project object is created (but not created in
     #   the actual OpenShift environment)
-    def project(name = nil, env = nil)
+    def project(name = nil, env: nil, generate: true)
       env ||= self.env
 
       if name
@@ -89,14 +116,16 @@ module CucuShift
           @projects << @projects.delete(p)
           return p
         else
-          #raise "no project named '#{name}' in cache for env '#{env.key}'"
           @projects << Project.new(name: name, env: env)
           return @projects.last
         end
       elsif @projects.empty?
-        #raise "no projects in cache"
-        @projects << Project.new(name: rand_str(5, :dns), env: env)
-        return @projects.last
+        if generate
+          @projects << Project.new(name: rand_str(5, :dns), env: env)
+          return @projects.last
+        else
+          raise "no projects in cache"
+        end
       else
         return @projects.last
       end
