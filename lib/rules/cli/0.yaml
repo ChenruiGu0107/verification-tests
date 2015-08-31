@@ -63,6 +63,11 @@
   :options:
     :filename: --filename=<value>
     :output: --output=<value>
+:env:
+  :cmd: oc env
+  :options:
+    :resource: <value>
+    :keyval: <value>
 :exec:
   # reorder global_options and options to allow specifying exec command
   :cmd: oc exec <pod> <global_options> <options>
@@ -182,6 +187,12 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:process:
+  :cmd: oc process
+  :options:
+    :f: -f <value>
+    :template: <value>
+    :v: --value=<value>
 :project:
   :cmd: oc project
   :options:
