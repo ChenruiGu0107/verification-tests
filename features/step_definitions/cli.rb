@@ -8,3 +8,4 @@
 Given /^I create a new application with:$/ do |table|
   step 'I run the :new_app client command with:', table
 end
+
