@@ -129,13 +129,8 @@ module CucuShift
 
     ############### related to objects owned by this project ###############
     def get_pods(by:, **get_opts)
-      opts = {resource: :pod, n: name, o: :yaml}
-      opts.merge! get_opts
-      res = cli_exec(as: by, key: :get, **opts)
-      if res[:success]
-        res[:parsed] = YAML.load(res[:response])
-        res[:pods] = res[:parsed]["items"].map {|p| Pod.from_api_object(self, p)}
-      end
+      Pod.list(user: by, project: self, **get_opts)
+    end
 
       return res
     end

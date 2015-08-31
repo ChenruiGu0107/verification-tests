@@ -135,19 +135,28 @@ module CucuShift
     # @return [CucuShift::ResultHash] with :matching key being array of matched
     #   pods
     def self.get_matching(user:, project:, get_opts: {})
-      res = project.get_pods(by: user, **get_opts)
-      unless res[:success]
-        project.logger.error(res[:response])
+      opts = {resource: 'pod', n: project.name, o: 'yaml'}
+      opts.merge! get_opts
+      res = cli_exec(as: user, key: :get, **opts)
+
+      if res[:success]
+        res[:parsed] = YAML.load(res[:response])
+        res[:pods] = res[:parsed]["items"].map { |p|
+          self.from_api_object(project, p)
+        }
+      else
+        user.logger.error(res[:response])
         raise "cannot get pods for project #{project.name}"
       end
 
       res[:matching] = []
       res[:pods].zip(res[:parsed]["items"]) { |p, p_hash|
-        res[:matching] << p if yield(p, p_hash)
+        res[:matching] << p if !block_given? || yield(p, p_hash)
       }
 
       return res
     end
+    alias list get_matching
 
     # executes command on pod
     def exec(command, *args, as:)

@@ -190,7 +190,7 @@ module CucuShift
       project ||= self.project
 
       if name
-        s = @pods.find {|p| p.name == name && p.project == project}
+        p = @pods.find {|p| p.name == name && p.project == project}
         if p && @pods.last == p
           return p
         elsif p
