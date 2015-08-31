@@ -1,6 +1,7 @@
 Feature: Testing route
 
-  # @author zzhao@redhat.com
+  # @author: zzhao@redhat.com
+  # @case_id: 470698
   Scenario: Be able to add more alias for service
     Given I have a project
     When I run the :create client command with:
@@ -15,5 +16,4 @@ Feature: Testing route
     Then the step should succeed
     And I wait for a server to become available via the route
     And I wait for a server to become available via the "route" route
-    And the project is deleted
 
