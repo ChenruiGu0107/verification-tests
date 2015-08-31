@@ -1,7 +1,6 @@
 require 'yaml'
 
 require 'rules_command_executor'
-require 'openshift/token'
 
 module CucuShift
   class CliExecutor
@@ -60,8 +59,7 @@ module CucuShift
       end
       conf = YAML.load(res[:response])
       uhash = conf["users"].find{|u| u["name"].start_with?(user.name + "/")}
-      # hardcode one day validity as we cannot get validity from config
-      return Token.new(user: user, token: uhash["user"]["token"], valid: Time.now + 24 * 60 * 60)
+      return uhash["user"]["token"]
     end
 
     def clean_up
@@ -107,7 +105,7 @@ module CucuShift
 
       if user.cached_tokens.size == 0
         ## lets cache token obtained by username/password
-        user.cached_tokens << self.class.token_from_cli(user)
+        user.add_str_token(self.class.token_from_cli(user))
       end
 
       return executor
@@ -200,7 +198,7 @@ module CucuShift
 
       if user.cached_tokens.size == 0
         ## lets cache token if obtained by username/password
-        user.cached_tokens << self.class.token_from_cli(user)
+        user.add_str_token(self.class.token_from_cli(user))
       end
 
       return logged_users[user.name]

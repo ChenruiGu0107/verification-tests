@@ -1,5 +1,13 @@
-When /^I give (.+?) role to (the [a-z]+) user$/ do |role_name, which_user|
-  user_name=env.users[word_to_num(which_user)].name
+When /^I give project (.+?) role to the(?: (.+?))? (user|service account)$/ do |role_name, user_name, user_type|
+  case user_type
+  when "user"
+    user_name=user(word_to_num(user_name), switch: false).name
+  when "service account"
+    user_name=service_account(user_name, switch: false).name
+  else
+    raise "unknown user type: #{user_type}"
+  end
+
   user.cli_exec(
     :add_role_to_user,
     role: role_name,
@@ -8,8 +16,16 @@ When /^I give (.+?) role to (the [a-z]+) user$/ do |role_name, which_user|
   )
 end
 
-When /^I remove (.+?) role from (the [a-z]+) user$/ do |role_name, which_user|
-  user_name=env.users[word_to_num(which_user)].name
+When /^I remove project (.+?) role from the(?: (.+))? (user|service account)$/ do |role_name, user_name, user_type|
+  case user_type
+  when "user"
+    user_name=user(word_to_num(user_name), switch: false).name
+  when "service account"
+    user_name=service_account(user_name, switch: false).name
+  else
+    raise "unknown user type: #{user_type}"
+  end
+
   user.cli_exec(
     :remove_role_from_user,
     role: role_name,
