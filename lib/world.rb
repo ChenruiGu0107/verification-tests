@@ -6,6 +6,7 @@ require 'openshift/project'
 require 'openshift/service'
 require 'openshift/service_account'
 require 'openshift/route'
+require 'openshift/build'
 require 'openshift/pod'
 
 module CucuShift
@@ -28,6 +29,7 @@ module CucuShift
       @services = []
       @service_accounts = []
       @routes = []
+      @builds = []
       @pods = []
 
       # procs and lambdas to call on clean-up
@@ -180,6 +182,33 @@ module CucuShift
         raise "what route are you talking about?"
       else
         return @routes.last
+      end
+    end
+
+    # @return build by name from scenario cache; with no params given,
+    #   returns last requested build; otherwise creates a [Build] object
+    # @note you need the project already created
+    def build(name = nil, project = nil)
+      project ||= self.project(generate: false)
+
+      if name
+        b = @builds.find {|b| b.name == name && b.project == project}
+        if b && @builds.last == b
+          return b
+        elsif b
+          @builds << @ubilds.delete(b)
+          return b
+        else
+          # create new CucuShift::Build object with specified name
+          @builds << Build.new(name: name, project: project)
+          return @builds.last
+        end
+      elsif @builds.empty?
+        # we do not create a random build like with projects because that
+        #   would rarely make sense
+        raise "what build are you talking about?"
+      else
+        return @builds.last
       end
     end
 

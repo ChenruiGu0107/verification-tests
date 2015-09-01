@@ -2,6 +2,7 @@ require 'yaml'
 
 require 'base_helper'
 require 'openshift/pod'
+require 'openshift/build'
 
 module CucuShift
   # @note represents an OpenShift environment project
@@ -132,7 +133,8 @@ module CucuShift
       Pod.list(user: by, project: self, **get_opts)
     end
 
-      return res
+    def get_builds(by:, **get_opts)
+      Build.list(user: by, project: self, **get_opts)
     end
 
     # def get_services

@@ -156,7 +156,9 @@ module CucuShift
 
       return res
     end
-    alias list get_matching
+    class << self
+      alias list get_matching
+    end
 
     # executes command on pod
     def exec(command, *args, as:)
