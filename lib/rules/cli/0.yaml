@@ -178,7 +178,7 @@
     :name: --name=<value>
     :output: --output=<value>
     :strategy: --strategy=<value>
-    :template: --template=<value>  
+    :template: --template=<value>
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:
@@ -221,6 +221,14 @@
   :cmd: oc rsh
   :options:
     :app_name: <value>
+:secrets:
+  :cmd: oc secrets <action>
+  :options:
+    :name: <value>
+    :source: <value>
+    :serviceaccount: <value>
+    :secrets_name: <value>
+    :for: --for=<value>
 :start_build:
   :cmd: oc start-build <buildconfig>
   :options:
