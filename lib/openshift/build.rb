@@ -69,7 +69,8 @@ module CucuShift
         running: "Running",
         pending: "Pending",
         new: "New",
-        failed: "Failed"
+        failed: "Failed",
+        cancelled: "Cancelled"
       }
 
       res = get(user: user)
@@ -95,7 +96,7 @@ module CucuShift
     # @return [CucuShift::ResultHash] :success if build completes regardless of
     #   completion status
     def finished?(user:)
-      status(user: user, status: [:complete, :failed])
+      status(user: user, status: [:complete, :failed, :cancelled])
     end
 
     # @return [CucuShift::ResultHash] with :success depending on status
@@ -125,6 +126,10 @@ module CucuShift
       wait_till_status(:failed, user, seconds)
     end
 
+    def wait_till_cancelled(user, seconds)
+      wait_till_status(:cancelled, user, seconds)
+    end
+
     def wait_till_running(user, seconds)
       wait_till_status(:running, user, seconds)
     end
@@ -134,7 +139,7 @@ module CucuShift
       success = wait_for(seconds) {
         res = status?(user: user, status: status)
         # if build completed there's no chance to change status so exit early
-        break if [:complete, :failed].include?(res[:matched_status])
+        break if [:complete, :failed, :cancelled].include?(res[:matched_status])
         res[:success]
       }
 

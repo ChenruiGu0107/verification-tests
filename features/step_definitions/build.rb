@@ -33,6 +33,15 @@ Given /^the "([^"]*)" build failed$/ do |build_name|
   end
 end
 
+# success if build was cancelled
+Given /^the "([^"]*)" build was cancelled$/ do |build_name|
+  @result = build(build_name).wait_till_cancelled(user, 60*15)
+
+  unless @result[:success]
+    raise "build #{build_name} was not canceled"
+  end
+end
+
 Given /^the "([^"]*)" build becomes running$/ do |build_name|
   @result = build(build_name).wait_till_running(user, 30)
 

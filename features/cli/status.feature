@@ -71,7 +71,7 @@ Feature: Check oc status cli
       |service/database\s+-\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\d+\s+->\s+3306|
       |service/frontend\s+-\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\d+\s+->\s+8080|
         ## "\x7C" is '|' character
-      |not built yet<%= "\x7C" %>build 1 pending|
+      |not built yet<%= "\x7C" %>build 1 pending<%= "\x7C" %>build 1 new|
       |deployment|
 
     # When I run the :start_build client command with:
