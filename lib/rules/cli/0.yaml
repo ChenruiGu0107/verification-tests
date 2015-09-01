@@ -178,7 +178,7 @@
     :name: --name=<value>
     :output: --output=<value>
     :strategy: --strategy=<value>
-    :template: --template=<value>  
+    :template: --template=<value>
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:
@@ -187,6 +187,12 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:port_forward:
+  :cmd: oc port-forward
+  :options:
+    :pod: <value>
+    :local_port: <value>
+    :remote_port: <value>
 :process:
   :cmd: oc process
   :options:
