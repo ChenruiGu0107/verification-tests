@@ -14,6 +14,7 @@ function setup_git()
 function install_rvm_ruby()
 {
   echo "not implemented, please install ruby 2.2.2+ manually"
+  # see http://10.66.129.213/index.php/archives/372/ for RHEL notes
   return 1
 }
 #################################################
