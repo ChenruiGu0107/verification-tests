@@ -2,6 +2,7 @@ require 'yaml'
 
 require 'base_helper'
 require 'openshift/pod'
+require 'openshift/build'
 
 module CucuShift
   # @note represents an OpenShift environment project
@@ -129,15 +130,11 @@ module CucuShift
 
     ############### related to objects owned by this project ###############
     def get_pods(by:, **get_opts)
-      opts = {resource: :pod, n: name, o: :yaml}
-      opts.merge! get_opts
-      res = cli_exec(as: by, key: :get, **opts)
-      if res[:success]
-        res[:parsed] = YAML.load(res[:response])
-        res[:pods] = res[:parsed]["items"].map {|p| Pod.from_api_object(self, p)}
-      end
+      Pod.list(user: by, project: self, **get_opts)
+    end
 
-      return res
+    def get_builds(by:, **get_opts)
+      Build.list(user: by, project: self, **get_opts)
     end
 
     # def get_services

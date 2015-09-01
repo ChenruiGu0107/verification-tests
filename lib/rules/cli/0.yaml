@@ -136,7 +136,7 @@
     # strange, sometimes "Already logged into..." is printed to console, and
     #   sometimes when run multiple times - not (oc v3.0.0.0)
     #   e.g. run multiple times `oc login --username=joe`
-    - !ruby/regexp '/Login successful.|ogged into/'
+    - !ruby/regexp '/Login successful.|ogged into|sing project/'
 :logout:
   :cmd: oc logout
   :expected:
