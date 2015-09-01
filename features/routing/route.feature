@@ -12,7 +12,7 @@ Feature: Testing route
     When I run the :create client command with:
       | f  | https://raw.githubusercontent.com/zhouying7780/v3-testfiles/master/routing/negative/route_with_no_host.json| 
     Then the step should succeed
-    When I expose "hello-nginx" service
+    When the "hello-nginx" service is exposed
     Then the step should succeed
     And I wait for a server to become available via the route
     And I wait for a server to become available via the "route" route

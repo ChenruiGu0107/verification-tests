@@ -17,7 +17,8 @@ Feature: quickstarts.feature
     When I run the :start_build client command with:
       | buildconfig | rails-postgresql-example |
     Then the step should succeed
-    Given I expose the "rails-postgresql-example" service
+    When the "rails-postgresql-example" service is exposed
+    Then the step should succeed
     And I wait for a server to become available via the route
     When I get project builds
     Then the step should succeed
