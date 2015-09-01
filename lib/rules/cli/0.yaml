@@ -124,6 +124,10 @@
   :cmd: oc <help_word>
   :options:
     :command: <value>
+:import_image:
+  :cmd: oc import-image
+  :options:
+    :image_name: <value>
 :login:
   :cmd: oc login
   :options:
