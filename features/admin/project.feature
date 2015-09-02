@@ -26,7 +26,7 @@ Feature: project permissions
     Then the step should succeed
 
     ## test the admin user can actually manage the resources
-    When the "myapp" service is exposed
+    When I expose the "myapp" service
     Then the step should succeed
 
     ## test user can see all project resources
