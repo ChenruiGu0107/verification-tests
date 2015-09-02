@@ -196,7 +196,7 @@ module CucuShift
         if b && @builds.last == b
           return b
         elsif b
-          @builds << @ubilds.delete(b)
+          @builds << @builds.delete(b)
           return b
         else
           # create new CucuShift::Build object with specified name
