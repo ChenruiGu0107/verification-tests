@@ -1,7 +1,7 @@
 Feature: deployment related features
 
-  #@author: xxing@redhat.com
-  #@case_id: 483193
+  # @author: xxing@redhat.com
+  # @case_id: 483193
   Scenario: Restart a failed deployment by oc deploy
     Given I have a project
     When I run the :create client command with:
@@ -24,8 +24,8 @@ Feature: deployment related features
       | deployment_config | hooks |
     Then the output should contain "hooks #1 deployment running"
 
-  #@author: xxing@redhat.com
-  #@case_id: 457713
+  # @author: xxing@redhat.com
+  # @case_id: 457713
   Scenario: CLI rollback dry run
     Given I have a project
     When I run the :create client command with:
@@ -55,3 +55,53 @@ Feature: deployment related features
       | Triggers:\s+Config   |
       | Strategy:\s+Recreate |
       | Replicas:\s+1        |
+
+  # @author: xxing@redhat.com
+  # @case_id: 489262
+  Scenario: Can't stop a deployment in Complete status
+    Given I have a project
+    When I run the :process client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    Given I save the output to file>app-stibuild.json
+    When I run the :create client command with:
+      | f | app-stibuild.json |
+    Then the step should succeed
+    #wait till the deploy complete
+    Given a pod becomes ready with labels:
+      | deployment=database-1 |
+    Given I wait for the "database" service to become ready
+    When I run the :deploy client command with:
+      | deployment_config | database |
+    Then the output should contain "database #1 deployed"
+    When  I run the :describe client command with:
+      | resource | dc |
+      | name     | database |
+    Then the output should match:
+      | Deployment #1 \(latest\) |
+      | Status:\s+Complete       |
+      | Pods Status:\s+1 Running |
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | cancel            ||
+    Then the output should contain "no active deployments to cancel"
+    When I run the :deploy client command with:
+      | deployment_config | database |
+    Then the output should contain "database #1 deployed"
+    When I run the :describe client command with:
+      | resource | dc |
+      | name     | database |
+    Then the output should match:
+      | Status:\s+Complete |
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | retry             ||
+    Then the output should contain:
+      | error: #1 is Complete; only failed deployments can be retried |
+      | You can start a new deployment using the --latest option      |
+    When I run the :get client command with:
+      | resource | pod |
+    Then the output should not contain:
+      | database-1-deploy   |
+      | database-1-prehook  |
+      | database-1-posthook |
