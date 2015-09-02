@@ -10,7 +10,7 @@ Feature: creating 'apps' with CLI
       | name         | myapp                |
       # | namespace    | <%= project.name %>  |
     Then the step should succeed
-    When the "myapp" service is exposed
+    When I expose the "myapp" service
     Then the step should succeed
     And I wait for a server to become available via the route
     And the project is deleted
