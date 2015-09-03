@@ -227,6 +227,14 @@
   :cmd: oc rsh
   :options:
     :app_name: <value>
+:secrets:
+  :cmd: oc secrets <action>
+  :options:
+    :name: <value>
+    :source: <value>
+    :serviceaccount: <value>
+    :secrets_name: <value>
+    :for: --for=<value>
 :start_build:
   :cmd: oc start-build <buildconfig>
   :options:
