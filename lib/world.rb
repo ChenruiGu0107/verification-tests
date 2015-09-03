@@ -106,16 +106,21 @@ module CucuShift
     #   if no name is spefified, returns the last requested project;
     #   otherwise a CucuShift::Project object is created (but not created in
     #   the actual OpenShift environment)
-    def project(name = nil, env: nil, generate: true)
+    def project(name = nil, env: nil, generate: true, switch: true)
       env ||= self.env
 
-      if name
+      if name.kind_of? Integer
+        p = @projects(name)
+        raise "no project cached with index #{name}" unless p
+        @projects << @projects.delete(p) if switch
+        return p
+      elsif name
         p = @projects.find {|p| p.name == name && p.env == env}
         if p && @projects.last.equal?(p)
           return p
         elsif p
           # put requested project at top of the stack
-          @projects << @projects.delete(p)
+          @projects << @projects.delete(p) if switch
           return p
         else
           @projects << Project.new(name: name, env: env)
