@@ -1,7 +1,7 @@
 Feature: template related scnearios:
 
   # @author pruan@redhat.com
-  # @case_id 
+  # @case_id 483165
   Scenario: template with code explicitly attached should not be supported when creating app with template via cli
     Given I have a project
     And I run the :create client command with:
