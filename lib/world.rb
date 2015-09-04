@@ -8,6 +8,7 @@ require 'openshift/service_account'
 require 'openshift/route'
 require 'openshift/build'
 require 'openshift/pod'
+require 'openshift/pv'
 
 module CucuShift
   # @note this is our default cucumber World extension implementation
@@ -31,6 +32,7 @@ module CucuShift
       @routes = []
       @builds = []
       @pods = []
+      @pvs = []
 
       # procs and lambdas to call on clean-up
       @teardown = []
@@ -165,6 +167,31 @@ module CucuShift
       end
     end
 
+    # @return PV by name from scenario cache; with no params given,
+    #   returns last requested PV; otherwise creates a PV object
+    def pv(name = nil, env = nil, switch: true)
+      env ||= self.env
+
+      if name
+        pv = @pvs.find {|pv| pv.name == name && pv.env == env}
+        if pv && @pvs.last == pv
+          return pv
+        elsif pv
+          @pvs << @pvs.delete(s) if switch
+          return pv
+        else
+          # create new CucuShift::PV object with specified name
+          @pvs << PV.new(name: name, env: env)
+          return @pvs.last
+        end
+      elsif @pvs.empty?
+        # we do not create a random PV like with projects because that
+        #   would rarely make sense
+        raise "what PV are you talking about?"
+      else
+        return @pvs.last
+      end
+    end
 
     def route(name = nil, service = nil)
       service ||= self.service

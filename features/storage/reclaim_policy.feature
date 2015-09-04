@@ -10,7 +10,7 @@ Feature: Persistent Volume reclaim policy tests
 
         # Creating PV and PVC
         Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
-          | ["spec"]["nfs"]["server"] | service("nfs-service").ip |
+          | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
         When I run the :create client command with:
           | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc.json |
         Then the step should succeed
@@ -24,7 +24,6 @@ Feature: Persistent Volume reclaim policy tests
           | resource | pod/nfs |
         Then the output should contain:
           | Running |
-        Then I pry
 
         Given I run the :delete client command with:
           | object_type       | pod |
@@ -34,6 +33,6 @@ Feature: Persistent Volume reclaim policy tests
           | object_name_or_id | nfsc |
         And the PV becomes :available
         When I run the :get admin command with:
-          | resource | pv/nfs |
+          | resource | pv/<%= pv.name %> |
         Then the output should contain:
           | Available |
