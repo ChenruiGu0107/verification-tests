@@ -84,3 +84,26 @@ Feature: oc related features
       | --latest=false: Start a new deployment now.                                    |
       | --retry=false: Retry the latest failed deployment.                             |
 
+  # @author pruan@redhat.com
+  # @case_id 492274
+  Scenario: Check help doc of command 'oc tag'
+    When I run the :help client command with:
+      | help_word | -h  |
+      | command   | tag |
+    Then the output should contain:
+      | Tag existing images into image streams                                         |
+      | The tag command allows you to take an existing tag or image from an image      |
+      | stream, or a Docker image pull spec, and set it as the most recent image for a |
+      | tag in 1 or more other image streams. It is similar to the 'docker tag'        |
+      | command, but it operates on image streams instead.                             |
+      | oc tag [--source=SOURCETYPE] SOURCE DEST [DEST ...] [options]                  |
+    When I run the :help client command with:
+      | help_word | help  |
+      | command   | tag   |
+    Then the output should contain:
+      | Tag existing images into image streams                                         |
+      | The tag command allows you to take an existing tag or image from an image      |
+      | stream, or a Docker image pull spec, and set it as the most recent image for a |
+      | tag in 1 or more other image streams. It is similar to the 'docker tag'        |
+      | command, but it operates on image streams instead.                             |
+      | oc tag [--source=SOURCETYPE] SOURCE DEST [DEST ...] [options]                  |

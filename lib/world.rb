@@ -110,7 +110,7 @@ module CucuShift
       env ||= self.env
 
       if name.kind_of? Integer
-        p = @projects(name)
+        p = @projects[name]
         raise "no project cached with index #{name}" unless p
         @projects << @projects.delete(p) if switch
         return p
