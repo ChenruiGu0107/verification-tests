@@ -179,6 +179,7 @@
     :output: --output=<value>
     :strategy: --strategy=<value>
     :template: --template=<value>
+    :to_docker: --to-docker=<value>
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:
