@@ -28,3 +28,26 @@ Feature: resouces related scenarios
       | o        | invalid-format |
     Then the output should contain:
       | error: output format "invalid-format" not recognized |
+
+  # @author cryan@redhat.com
+  # @case_id 474089
+  Scenario: Display resources with multiple options
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift/origin/e21d95cedad8f0ce06ff5d04ae9b978ce3d04d87/examples/sample-app/application-template-stibuild.json"
+    And I run the :process client command with:
+      |f|application-template-stibuild.json|
+    And the step should succeed
+    And I save the output to file> processed-stibuild.json
+    When I run the :create client command with:
+      |f|processed-stibuild.json|
+    Then the step should succeed
+    Given the pod named "ruby-sample-build-1-build" becomes ready
+    #the w (watch) flag is set to false. Please set to true once timeouts are
+    #implemented in steps.
+    When I run the :get client command with:
+      | resource   | pods  |
+      | no_headers | false |
+      | w          | false |
+      | l          |       |
+    Then the step should succeed
+    Then the output should match "ruby-sample-build-1-build\s+1/1\s+Running\s+0"

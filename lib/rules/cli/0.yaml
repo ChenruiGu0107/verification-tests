@@ -116,8 +116,10 @@
   :options:
     :resource_name: <value>
     :output: --output=<value>
+    :no_headers: --no-headers=<value>
     :o: -o <value>
     :l: -l <value>
+    :w: --watch=<value>
 :help:
   :cmd: oc <help_word>
   :options:
