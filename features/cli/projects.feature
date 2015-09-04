@@ -46,7 +46,7 @@ Feature: projects related features via cli
       | project_name | ALLUPERCASE |
     Then the step should fail
     Then the output should contain:
-      | invalid value 'ALLUPERCASE': must be a DNS label (at most 63 characters, matching regex [a-z0-9]([-a-z0-9]*[a-z0-9])?): e.g. "my-name |
+      | The ProjectRequest "ALLUPERCASE" is invalid. |
     When I run the :new_project client command with:
       | project_name | -abc |
     Then the step should fail
@@ -56,13 +56,13 @@ Feature: projects related features via cli
       | project_name | xyz- |
     Then the step should fail
     And the output should contain:
-      | invalid value 'xyz-': must be a DNS label (at most 63 characters, matching regex [a-z0-9]([-a-z0-9]*[a-z0-9])?): e.g. "my-name" |
+      | The ProjectRequest "xyz-" is invalid. |
 
     When I run the :new_project client command with:
       | project_name | $pe#cial& |
     Then the step should fail
     And the output should contain:
-      | invalid value '$pe#cial&': must be a DNS label (at most 63 characters, matching regex [a-z0-9]([-a-z0-9]*[a-z0-9])?): e.g. "my-name" |
+      | The ProjectRequest "$pe#cial&" is invalid. |
 
   # @author pruan@redhat.com
   # @case_id 478983
@@ -148,7 +148,7 @@ Feature: projects related features via cli
   # @case_id 497401
   Scenario: Indicate when build failed to push in 'oc status'
     Given I have a project
-    When I run the :status client command 
+    When I run the :status client command
     Then the step should succeed
     And the output should contain:
       | <%= project.name %> |
@@ -156,7 +156,7 @@ Feature: projects related features via cli
       |Run 'oc new-app' to create an application|
     When I run the :new_app client command with:
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | l | app=ruby | 
+      | l | app=ruby |
     Then the step should succeed
     And the output should contain:
       | WARNING |

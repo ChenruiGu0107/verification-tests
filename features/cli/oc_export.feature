@@ -13,8 +13,8 @@ Feature: oc exports related scenarios
       | resource | service |
     Then the step should succeed
     And the output should contain:
-      | database   template=application-template-stibuild   name=database |
-      | frontend   template=application-template-stibuild   name=frontend |
+      | database |
+      | frontend |
     And I run the :get client command with:
       | resource | dc |
     Then the step should succeed
@@ -44,10 +44,10 @@ Feature: oc exports related scenarios
       | f | dc_output.json |
     Then the step should succeed
     And I run the :get client command with:
-      | resource | se |
+      | resource | svc |
     Then the step should succeed
     And the output should contain:
-      | frontend   template=application-template-stibuild   name=frontend |
+      | frontend |
     And I run the :get client command with:
       | resource | dc |
     Then the step should succeed
@@ -68,8 +68,8 @@ Feature: oc exports related scenarios
       | resource | service |
     Then the step should succeed
     And the output should contain:
-      | database   template=application-template-stibuild   name=database |
-      | frontend   template=application-template-stibuild   name=frontend |
+      | database |
+      | frontend |
     And I run the :get client command with:
       | resource | dc |
     Then the step should succeed
@@ -103,8 +103,8 @@ Feature: oc exports related scenarios
       | resource | service |
     Then the step should succeed
     And the output should contain:
-      | database   template=application-template-stibuild   name=database |
-      | frontend   template=application-template-stibuild   name=frontend |
+      | database |
+      | frontend |
 
   # @author pruan@redhat.com
   # @case_id 488871
@@ -120,14 +120,14 @@ Feature: oc exports related scenarios
       | resource | service |
     Then the step should succeed
     And the output should contain:
-      | database   template=application-template-stibuild   name=database |
-      | frontend   template=application-template-stibuild   name=frontend |
+      | database |
+      | frontend |
     And I run the :export client command with:
       | resource | svc |
       | name     | nonexist |
     Then the step should fail
     And the output should contain:
-      | Error from server: service "nonexist" not found |
+      | Error from server: services "nonexist" not found |
     And I run the :export client command with:
       | resource | dc |
       | name     | nonexist |
@@ -152,7 +152,7 @@ Feature: oc exports related scenarios
       | resource | svc |
     Then the step should succeed
     And the output should contain:
-      |   NAME      LABELS    SELECTOR   IP(S)     PORT(S)    |
+      |   NAME\s+CLUSTER_IP\s+EXTERNAL_IP\s+PORT(S)\s+SELECTOR\s+AGE   |
     And the output should not contain:
       | template |
     And I run the :export client command with:

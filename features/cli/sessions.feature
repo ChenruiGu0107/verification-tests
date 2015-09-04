@@ -17,4 +17,3 @@ Feature: sessions realated scenarios
       | invalid_option | true |
     Then the output should contain:
       | Error: unknown shorthand flag: 'b' in -b |
-      | Run 'oc help' for usage.                 |
