@@ -7,7 +7,8 @@ Feature: resouces related scenarios
       | docker image | openshift/mysql-55-centos7                             |
       | code         | https://github.com/openshift/ruby-hello-world          |
     Then the step should succeed
-    Then I run the :get client command with:
+    Given the pod named "mysql-55-centos7-1-deploy" becomes ready
+    When I run the :get client command with:
       | resource | pods |
     Then the step should succeed
     And the output should contain:
@@ -15,15 +16,13 @@ Feature: resouces related scenarios
     Then I run the :get client command with:
       | resource | pods |
       | o        | json |
-    And evaluation of `JSON.parse(@result[:response])` is stored in the :json_output clipboard
-    Then the step should succeed
-    And the expression should be true> cb.json_output['items'][0]['metadata']['name'].include? 'mysql-55-centos7'
+    And evaluation of `JSON.parse(@result[:response])` is stored in the :json clipboard
+    And the expression should be true> cb.json['items'].any? {|p| p['metadata']['name'].include? 'mysql-55-centos7-1-deploy'}
     Then I run the :get client command with:
       | resource | pods |
       | o        | yaml |
-    And evaluation of `YAML.parse(@result[:response])` is stored in the :yaml_output clipboard
-    Then the step should succeed
-    And the expression should be true> @result[:response].include? 'mysql-55-centos7'
+    And evaluation of `YAML.load(@result[:response])` is stored in the :yaml clipboard
+    And the expression should be true> cb.yaml['items'].any? {|p| p['metadata']['name'].include? 'mysql-55-centos7-1-deploy'}
     Then I run the :get client command with:
       | resource | pods |
       | o        | invalid-format |

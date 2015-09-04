@@ -92,12 +92,12 @@ Feature: projects related features via cli
   # @case_id 470729
   Scenario: Should use and show the existing projects after the user login
     Given I create a new project
-    And evaluation of `@user.projects` is stored in the :user1_proj clipboard
+    And evaluation of `user.projects` is stored in the :user1_proj clipboard
     And I switch to the second user
     And I create a new project
     And I create a new project
     And I create a new project
-    And evaluation of `@user.projects` is stored in the :user2_proj clipboard
+    And evaluation of `user.projects` is stored in the :user2_proj clipboard
     And I switch to the first user
     And I run the :login client command with:
       | u | <%= @user.name %>     |
@@ -122,18 +122,18 @@ Feature: projects related features via cli
   # @author pruan@redhat.com
   # @case_id 470730
   Scenario: User should be able to switch projects via CLI
+    Given I create a new project
     And I create a new project
     And I create a new project
-    And I create a new project
-    And I run the :project client command with:
-      | project_name | <%= project(2).name %> |
+    When I run the :project client command with:
+      | project_name | <%= project(2, switch: false).name %> |
     Then the output should contain:
-      | Now using project "<%= project(2).name %>" on server |
-    And I run the :project client command with:
-      | project_name | <%= project(1).name %> |
+      | Now using project "<%= project(2, switch: false).name %>" on server |
+    When I run the :project client command with:
+      | project_name | <%= project(1, switch: false).name %> |
     Then the output should contain:
-      | Now using project "<%= project.name %>" on server |
-    And I run the :project client command with:
+      | Now using project "<%= project(1, switch: false).name %>" on server |
+    When I run the :project client command with:
       | project_name | <%= project.name %> |
     Then the output should contain:
       | Now using project "<%= project.name %>" on server |
@@ -145,5 +145,3 @@ Feature: projects related features via cli
       | * <%= project(0).name %>                              |
       | * <%= project(1).name %>                              |
       | * <%= project(2).name %>                              |
-
-
