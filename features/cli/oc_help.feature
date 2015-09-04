@@ -1,6 +1,6 @@
 Feature: oc related features
-  #@author pruan@redhat.com
-  #@case_id 497509
+  # @author pruan@redhat.com
+  # @case_id 497509
   Scenario: Check OpenShift Concepts and Types via oc types
     When I run the :help client command
     Then the output should contain:
@@ -25,8 +25,8 @@ Feature: oc related features
       | Usage:                                                              |
       |  oc types [options]                                                 |
 
-  #@author pruan@redhat.com
-  #@case_id 497521
+  # @author pruan@redhat.com
+  # @case_id 497521
   Scenario: Check the help page of oc edit
     When I run the :edit client command with:
       | help | true |

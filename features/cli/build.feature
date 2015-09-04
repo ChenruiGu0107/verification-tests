@@ -1,7 +1,7 @@
 Feature: build 'apps' with CLI
 
-  #@author xxing@redhat.com
-  #@case_id 489753
+  # @author xxing@redhat.com
+  # @case_id 489753
   Scenario: Create a build config from a remote repository using branch
     Given I have a project
     When I run the :new_build client command with:
