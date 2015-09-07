@@ -22,6 +22,21 @@
   :cmd: oc policy add-role-to-user <role> <user_name>
 :add_role_to_group:
   :cmd: oc policy add-role-to-group <role> <group_name>
+:annotate: 
+  :cmd: oc annotate 
+  :options:
+    :resource: <value>
+    :resourcename: <value>
+    :keyval: <value>
+    :all: --all=<value>
+    :noheadersfalse: --no-headers=<value>
+    :o: -o <value>
+    :output: --output=<value>
+    :outputversion: --output-version=<value>
+    :overwrite: --overwrite=<value>
+    :resourceversion: --resource-version=<value>
+    :t: -t <value>
+    :template: --template=<value> 
 :config:
   :cmd: oc config
   :options:

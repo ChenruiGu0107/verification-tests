@@ -107,3 +107,23 @@ Feature: oc related features
       | tag in 1 or more other image streams. It is similar to the 'docker tag'        |
       | command, but it operates on image streams instead.                             |
       | oc tag [--source=SOURCETYPE] SOURCE DEST [DEST ...] [options]                  |
+  
+  # @author wsun@redhat.com
+  # @case_id 499948
+  Scenario: Check the help page for oc annotate
+    When I run the :help client command with:
+      | help_word | -h |
+    Then the output should contain:
+      | annotate     Update the annotations on a resource |
+    When I run the :help client command with:
+      | help_word | --help |
+      | command | annotate |
+    Then the output should contain:
+      | Update the annotations on one or more resources |
+      | oc annotate [--overwrite] RESOURCE NAME KEY_1=VAL_1 ... KEY_N=VAL_N [--resource-version=version] [options] |
+      | --all=false: select all resources in the namespace of the specified resource types |
+      | --no-headers=false: When using the default output, don't print headers. |
+      | --output-version='': Output the formatted object with the given version (default api-version). |
+      | --overwrite=false: If true, allow annotations to be overwritten, otherwise reject annotation updates that overwrite existing annotations. |
+      | --resource-version='': If non-empty, the annotation update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource. |
+      | -t, --template='': Template string or path to template file to use when -o=template or -o=templatefile.  The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview] |
