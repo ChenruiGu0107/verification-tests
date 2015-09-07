@@ -1,6 +1,6 @@
 Feature: Check oc status cli
-  #@author yapei@redhat.com
-  #@case_id 497402
+  # @author yapei@redhat.com
+  # @case_id 497402
   Scenario: Show RC info and indicate bad secrets reference in 'oc status'
     Given I have a project
 

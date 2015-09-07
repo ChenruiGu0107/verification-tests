@@ -1,7 +1,7 @@
 Feature: Testing route
 
-  #@author: zzhao@redhat.com
-  #@case_id: 470698
+  # @author: zzhao@redhat.com
+  # @case_id: 470698
   Scenario: Be able to add more alias for service
     Given I have a project
     When I run the :create client command with:

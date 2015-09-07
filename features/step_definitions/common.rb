@@ -1,3 +1,6 @@
+require 'json'
+require 'yaml'
+
 Then /^the step should( not)? (succeed|fail)$/ do |negative, outcome|
   if ((outcome == "succeed") ^ negative ) != @result[:success]
     raise "the step #{@result[:success] ? "succeeded" : "failed"}"
@@ -124,3 +127,13 @@ Given /^an?(?: (\d+) characters?)? random string(?: of type :(.*?))? is (?:saved
   cb[clipboard_name] = rand_str
 end
 
+Given /^the output is parsed as (YAML|JSON)$/ do |format|
+  case format
+  when "YAML"
+    @result[:parsed] = YAML.load @result[:response]
+  when "JSON"
+    @result[:parsed] = JSON.load @result[:response]
+  else
+    raise "unknown format: #{format}"
+  end
+end

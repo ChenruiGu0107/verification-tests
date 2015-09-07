@@ -137,7 +137,7 @@ module CucuShift
     def self.get_matching(user:, project:, get_opts: {})
       opts = {resource: 'pod', n: project.name, o: 'yaml'}
       opts.merge! get_opts
-      res = cli_exec(as: user, key: :get, **opts)
+      res = user.cli_exec(:get, **opts)
 
       if res[:success]
         res[:parsed] = YAML.load(res[:response])
