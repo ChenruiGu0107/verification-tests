@@ -87,7 +87,6 @@ Feature: projects related features via cli
     Then the step should fail
     And the output should contain:
       | You may not request a new project via this API |
-
   # @author pruan@redhat.com
   # @case_id 470729
   Scenario: Should use and show the existing projects after the user login
@@ -145,3 +144,28 @@ Feature: projects related features via cli
       | * <%= project(0).name %>                              |
       | * <%= project(1).name %>                              |
       | * <%= project(2).name %>                              |
+  # @author haowang@redhat.com
+  # @case_id 497401
+  Scenario: Indicate when build failed to push in 'oc status'
+    Given I have a project
+    When I run the :status client command 
+    Then the step should succeed
+    And the output should contain:
+      | <%= project.name %> |
+      |no services |
+      |Run 'oc new-app' to create an application|
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | l | app=ruby | 
+    Then the step should succeed
+    And the output should contain:
+      | WARNING |
+      | it does not look like a Docker registry has been integrated |
+    Given the "ruby-hello-world-1" was created
+    When I run the :status client command
+    Then the step should succeed
+    And the output should contain:
+      | can't push to image |
+      | Warning |
+      | administrator has not configured the integrated Docker registry |
+
