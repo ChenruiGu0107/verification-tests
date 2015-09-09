@@ -105,3 +105,87 @@ Feature: deployment related features
       | database-1-deploy   |
       | database-1-prehook  |
       | database-1-posthook |
+
+  # @author xxing@redhat.com
+  # @case_id 454714
+  Scenario: Negative test for rollback
+    Given I have a project
+    When I run the :rollback client command with:
+      | deployment_name | non-exist |
+    Then the output should contain:
+      | error: non-exist is not a valid deployment or deploymentconfig |
+    When I run the :rollback client command with:
+      | deployment_name         | non-exist |
+      | change_strategy         ||
+      | change_triggers         ||
+      | change_scaling_settings ||
+    Then the output should contain:
+      | error: non-exist is not a valid deployment or deploymentconfig |
+    When I run the :rollback client command with:
+      | deployment_name         | non-exist |
+      | change_strategy         ||
+      | change_triggers         ||
+      | change_scaling_settings ||
+      | dry_run                 ||
+    Then the output should contain:
+      | error: non-exist is not a valid deployment or deploymentconfig |
+    When I run the :rollback client command with:
+      | deployment_name         | non-exist |
+      | output                  | yaml      |
+      | change_strategy         ||
+      | change_triggers         ||
+      | change_scaling_settings ||
+    Then the output should contain:
+      | error: non-exist is not a valid deployment or deploymentconfig |
+
+  # @author xxing@redhat.com
+  # @case_id 491013
+  Scenario: Manually make deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/manual.json |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+    Then the output should contain "hooks #1 deployment waiting for manual"
+    When I run the :get client command with:
+      | resource      | dc |
+      | resource_name | hooks |
+    Then the output should match:
+      |NAME\s+TRIGGERS\s+LATEST VERSION |
+      | hooks\s+0                       |
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            ||
+    Then the output should contain "Started deployment #1"
+    # Wait the deployment till complete
+    Given I wait for the pod named "hooks-1-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+    Then the output should contain "hooks #1 deployed"
+    When I run the :get client command with:
+      | resource      | dc |
+      | resource_name | hooks |
+    Then the output should match:
+      |NAME\s+TRIGGERS\s+LATEST VERSION |
+      | hooks\s+1                       |
+    # Make the edit action
+    When I run the :get client command with:
+      | resource      | dc |
+      | resource_name | hooks |
+      | o             | json |
+    And I save the output to file>hooks.json
+    And I replace lines in "hooks.json":
+      | Recreate | Rolling |
+    When I run the :replace client command with:
+      | f | hooks.json |
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            ||
+    Then the output should contain "Started deployment #2"
+    When I run the :get client command with:
+      | resource      | dc |
+      | resource_name | hooks |
+      | o             | yaml |
+    Then the output should contain:
+      | type: Rolling |
