@@ -42,6 +42,10 @@ module CucuShift
       @os_tenant_id = ENV['OPENSTACK_TENANT_ID'] || opts[:tenant_id]
       @os_url = ENV['OPENSTACK_URL'] || opts[:url]
 
+      opts[:image] = ENV.fetch('OPENSTACK_IMAGE_NAME') { opts[:image] }
+      opts[:flavor] = ENV.fetch('OPENSTACK_FLAVOR_NAME') { opts[:flavor] }
+      opts[:key] = ENV.fetch('OPENSTACK_KEY_NAME') { opts[:key] }
+
       self.get_token()
     end
 
@@ -123,11 +127,16 @@ module CucuShift
       @os_flavor = get_obj_ref(flavor_name, 'flavors')
     end
 
-    def create_instance(instance_name, image_name, flavor_name, key='libra')
+    def create_instance(instance_name, image_name = nil,
+                        flavor_name = nil, key = nil)
+      image_name ||= opts[:image]
+      flavor_name ||= opts[:flavor]
+      key ||= opts[:key]
+
       self.delete_instance(instance_name)
       self.get_image_ref(image_name)
       self.get_flavor_ref(flavor_name)
-      params = {:server => {:name => instance_name, :key_name => key ,:imageRef => self.os_image, :flavorRef => self.os_flavor}}    
+      params = {:server => {:name => instance_name, :key_name => key ,:imageRef => self.os_image, :flavorRef => self.os_flavor}}
       url = self.os_ApiUrl + '/' + 'servers'
       res = self.rest_run(url, "POST", params, self.os_token)
       begin
@@ -137,7 +146,7 @@ module CucuShift
       rescue => e
         logger.error("Can not create #{instance_name} instance:  #{e.message}")
         raise e
-      end 
+      end
       params = {}
       url = self.os_ApiUrl + '/' + 'servers/' + server_id
       result_flag = true

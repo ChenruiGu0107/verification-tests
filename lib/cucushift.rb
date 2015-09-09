@@ -5,6 +5,10 @@ require 'socket'
 
 # @note put only very base things here, do not use for configuration settings
 module CucuShift
+  # autoload to avoid too much require statements and speed-up load times
+  autoload :OpenStack, "launchers/openstack"
+  autoload :EnvironmentLauncher, "launchers/environment_launcher"
+
   HOME = File.expand_path(__FILE__ + "/../..")
   PRIVATE_DIR = ENV['CUCUSHIFT_PRIVATE_DIR'] || File.expand_path(HOME + "/private")
   HOSTNAME = Socket.gethostname.freeze
