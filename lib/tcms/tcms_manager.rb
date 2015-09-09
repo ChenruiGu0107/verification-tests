@@ -264,7 +264,10 @@ module CucuShift
         return true
       end
 
-      return false if job.case_run_status_id != 1 # IDLE
+      # sometimes one of the properties might be missing
+      if job.case_run_status_id != 1 && job.case_run_status != 'IDLE'
+        return false
+      end
       cur_status = tcms.get_caserun_status(job.case_run_id)
       return false if cur_status != 'IDLE'
 
