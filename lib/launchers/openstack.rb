@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-lib_path = File.expand_path(File.dirname(__FILE__))
+lib_path = File.expand_path(File.dirname(File.dirname(__FILE__)))
 unless $LOAD_PATH.any? {|p| File.expand_path(p) == lib_path}
     $LOAD_PATH.unshift(lib_path)
 end
