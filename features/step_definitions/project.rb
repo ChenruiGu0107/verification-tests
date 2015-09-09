@@ -24,8 +24,8 @@ Given /^I have a project$/ do
 end
 
 # try to create a new project with current user
-When /^I create a new project$/ do
-  @result = CucuShift::Project.create(by: user, name: rand_str(5, :dns))
+When /^I create a new project(?: via (.*?))?$/ do |via|
+  @result = CucuShift::Project.create(by: user, name: rand_str(5, :dns), _via: (via.to_sym if via))
   if @result[:success]
     @projects << @result[:project]
     @result[:success] = @result[:project].wait_to_be_created(user)

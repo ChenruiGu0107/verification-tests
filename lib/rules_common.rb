@@ -22,7 +22,7 @@ module CucuShift
               files << Dir.entries(source).select {|d| File.file?(d) && d.end_with?(".yaml",".yml")}
             end
 
-            source = load_rules(files)
+            source = load(files)
           else
             raise "unknown rules source '#{source.class}': #{source}"
           end

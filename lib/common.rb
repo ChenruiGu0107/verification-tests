@@ -166,6 +166,13 @@ module CucuShift
           raise "unknown user specification for the operation: '#{user.inspect}'"
         end
       end
+
+      def webconsole_exec(as:, action:, **opts)
+        user = as
+        ## todo: some invalid check
+        user.webconsole_exec(action, **opts)
+      end
+
     end # module UserObjectHelper
 
     # some ugly hack that we need to be more reliable
@@ -180,7 +187,8 @@ module CucuShift
         end
       rescue => e
         Kernel.puts("ERROR: Ruby private API changed? cannot execute fix_require_lock: #{e.inspect}")
-      end
+
+      end 
     end
 
     module Setup

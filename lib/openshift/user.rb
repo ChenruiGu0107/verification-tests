@@ -1,5 +1,4 @@
 require 'yaml'
-
 require_relative 'token'
 require_relative 'project'
 
@@ -9,6 +8,7 @@ module CucuShift
     include Common::Helper
 
     attr_reader :name, :env, :rest_preferences
+    attr_accessor :web_logged_in
 
     # @param token [String] auth bearer token in plain string format
     # @param name [String] username (optional if we auth with token)
@@ -88,6 +88,14 @@ module CucuShift
     def cli_exec(key, opts={})
       cli_executor.exec(self, key, opts)
     end
+    
+    def webconsole_executor
+      env.webconsole_executor(self)
+    end
+
+    def webconsole_exec(action, opts={})
+      webconsole_executor.run(self, action, opts)
+    end
 
     # execute a rest request as this user
     # @param [Symbol] req the request to be executed
@@ -142,7 +150,6 @@ module CucuShift
 
     def clean_up
       clean_up_on_load
-
       # best effort remove any non-protected tokens
       cached_tokens.reverse_each do |token|
         token.delete(uncache: true) unless token.protected?

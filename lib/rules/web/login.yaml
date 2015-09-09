@@ -1,0 +1,21 @@
+---
+:login:
+  :pages:
+    - 'login_page'
+:login_page:
+  :url: /console
+  :elements:
+    - :selector:
+        :id: inputUsername
+      :action: set <username>
+      :tag: input
+    - :selector:
+        :id: inputPassword
+      :action: set <password>
+      :tag: input
+    - :selector:
+        :text: Log In
+      :action: click
+      :tag: button
+  :checkpoints: 
+    - :text: Welcome to OpenShift.

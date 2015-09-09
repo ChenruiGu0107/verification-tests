@@ -1,0 +1,26 @@
+---
+:new_project:
+  :pages:
+    - 'new_project_page'
+:new_project_page:
+  :url: /console/createProject
+  :elements:
+    - :selector:
+        :id: name
+      :action: set <project_name>
+      :tag: input
+    - :selector: 
+        :id: displayName
+      :action: set <display_name>
+      :tag: input
+    - :selector: 
+        :id: description
+      :action: set <description>
+      :tag: textarea
+    - :selector:
+        :text: Create
+        :class: btn-primary
+      :action: click
+      :tag: button
+  :checkpoints:
+    - :text: Get started with your project.

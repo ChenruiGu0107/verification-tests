@@ -162,7 +162,6 @@ Given /^the output is parsed as (YAML|JSON)$/ do |format|
   end
 end
 
-
 # this step basically wraps around the steps we use for simulating 'oc edit <resource_name'  which includes the following steps:
 # #   1.  When I run the :get client command with:
 #       | resource      | dc |
@@ -191,7 +190,6 @@ Given /^I replace resource "([^"]+)" named "([^"]+)"(?: saving edit to "([^"]+)"
     })
 end
 
-
 # wrapper around  oc logs, keep executing the command until we have an non-empty response
 # There are few occassion that the 'oc logs' cmd returned empty response
 #   this step should address those situations
@@ -214,3 +212,6 @@ Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |po
   @result  = res_cache
 end
 
+When /^I do the :(.*?) web operation with:$/ do |action, table|
+  @result = user.webconsole_exec(action.to_sym, opts_array_to_hash(table.raw))
+end
