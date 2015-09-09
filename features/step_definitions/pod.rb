@@ -30,6 +30,17 @@ Given /^the pod(?: named "(.+)")? becomes ready$/ do |name|
   end
 end
 
+# useful for waiting the deployment pod to die and complete
+Given /^I wait for the pod(?: named "(.+)")? to die$/ do |name|
+  ready_timeout = 15 * 60
+  @result = pod(name).wait_till_not_ready(user, ready_timeout)
+
+  unless @result[:success]
+    logger.error(@result[:response])
+    raise "#{pod.name} pod did not die"
+  end
+end
+
 # args can be a table where each cell is a command or an argument, or a
 #   multiline string where each line is a command or an argument
 When /^I execute on the(?: "(.+?)")? pod:$/ do |pod_name, raw_args|
