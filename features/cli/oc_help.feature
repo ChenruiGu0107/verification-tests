@@ -2,10 +2,13 @@ Feature: oc related features
   # @author pruan@redhat.com
   # @case_id 497509
   Scenario: Check OpenShift Concepts and Types via oc types
-    When I run the :help client command
+    When I run the :help client command with:
+      | help_word | -h | 
     Then the output should contain:
       | types        An introduction to concepts and types |
-    When I run the :types client command
+    When I run the :help client command with:
+      | help_word | --help |
+      | command | types |
     Then the output should contain:
       | Concepts: |
       | * Containers: |
