@@ -152,7 +152,7 @@ end
 def report_auto_testcases_by_author(options)
   tcms = options.tcms
   table = Text::Table.new
-  table.head = ['case_id', 'summary', 'author', 'auto_by`']
+  table.head = ['case_id', 'summary', 'author', 'auto_by']
   regex = /(automated by)\s(\w+)?/
   script_pattern = "\"ruby\""
   cases = []

@@ -22,8 +22,8 @@
   :cmd: oc policy add-role-to-user <role> <user_name>
 :add_role_to_group:
   :cmd: oc policy add-role-to-group <role> <group_name>
-:annotate: 
-  :cmd: oc annotate 
+:annotate:
+  :cmd: oc annotate
   :options:
     :resource: <value>
     :resourcename: <value>
@@ -36,11 +36,40 @@
     :overwrite: --overwrite=<value>
     :resourceversion: --resource-version=<value>
     :t: -t <value>
-    :template: --template=<value> 
+    :template: --template=<value>
 :config:
   :cmd: oc config
   :options:
     :subcommand: <subcommand>
+:config_set:
+  :cmd: oc config set <prop_name> <prop_value>
+:config_set_cluster:
+  :cmd: oc config set-cluster <name>
+  :options:
+    :api_version: --api-version=<value>
+    :cert: --certificate-authority=<value>
+    :embed: --embed-certs=<value>
+    :insecure: --insecure-skip-tls-verify=<value>
+    :server: --server=<value>
+:config_set_context:
+  :cmd: oc config set-context <name>
+  :options:
+    :cluster: --cluster=<value>
+    :namespace: --namespace=<value>
+    :user: --user=<value>
+:config_set_creds:
+  :cmd: oc config set-credentials <name>
+  :options:
+    :cert:  --client-certificate=<value>
+    :key:  --client-key=<value>
+    :embed:  --embed-certs=<value>
+    :password:  --password=<value>
+    :token: --token=<value>
+    :user:  --username=<value>
+:config_use_context:
+  :cmd: oc config use-context <name>
+:config_unset:
+  :cmd: oc config unset <prop_name>
 :config_view:
   :cmd: oc config view
   :options:
