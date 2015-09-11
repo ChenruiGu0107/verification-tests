@@ -67,10 +67,8 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | app-stibuild.json |
     Then the step should succeed
-    #wait till the deploy complete
-    Given a pod becomes ready with labels:
-      | deployment=database-1 |
-    Given I wait for the "database" service to become ready
+    # Wait till the deploy complete
+    Given I wait for the pod named "database-1-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | database |
     Then the output should contain "database #1 deployed"
@@ -189,3 +187,37 @@ Feature: deployment related features
       | o             | yaml |
     Then the output should contain:
       | type: Rolling |
+
+  # @author xxing@redhat.com
+  # @case_id 457715
+  Scenario: CLI rollback output to file
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    When I run the :replace client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | hooks |
+    Then the output should match:
+      | NAME\s+TRIGGERS\s+LATEST VERSION |
+      | hooks\s+ImageChange\s+2          |
+    When I run the :rollback client command with:
+      | deployment_name         | hooks-1 |
+      | output                  | json  |
+    #Show the container config only
+    Then the output should match:
+      | "value": "Plqe5Wev" |
+    When I run the :rollback client command with:
+      | deployment_name         | hooks-1 |
+      | output                  | yaml  |
+      | change_strategy         ||
+      | change_triggers         ||
+      | change_scaling_settings ||
+    Then the output should match:
+      | replicas:\s+1        |
+      | type:\s+Recreate     |
+      | value:\s+Plqe5Wev    |
+      | type:\s+ConfigChange |
