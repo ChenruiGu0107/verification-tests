@@ -33,8 +33,11 @@ end
 # useful for waiting the deployment pod to die and complete
 Given /^I wait for the pod(?: named "(.+)")? to die$/ do |name|
   ready_timeout = 15 * 60
-  @result = pod(name).wait_till_not_ready(user, ready_timeout)
-
+  # Should wait the pod running first
+  @result = pod(name).wait_till_ready(user, ready_timeout)
+  if @result[:success]
+    @result = pod(name).wait_till_not_ready(user, ready_timeout)
+  end
   unless @result[:success]
     logger.error(@result[:response])
     raise "#{pod.name} pod did not die"

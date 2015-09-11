@@ -21,9 +21,8 @@ Feature: edit.feature
     And I save the output to file>hooks.json
     And I replace lines in "hooks.json":
       | Plqe5Wev | Plqchange |
-    #Wait the deployment till complete
-    Given a pod becomes ready with labels:
-      | deployment=hooks-1 |
+    # Wait the deployment till complete
+    Given I wait for the pod named "hooks-1-deploy" to die
     When I run the :replace client command with:
       | f | hooks.json |
     Then the step should succeed
