@@ -102,3 +102,27 @@ Feature: project permissions
     ## test delete project
     When I delete the project
     Then the step should succeed
+
+  # @author wyue@redhat.com
+  # @case_id 470315
+  @admin
+  Scenario: Only cluster-admin could get namespaces
+    ## create a project with non cluster-admin user
+    Given I have a project
+    Then the step should succeed
+
+    ## get no projects with another user who has no projects
+    When I switch to the second user
+    And I run the :get command with:
+      | resource | project |
+    Then the output should contain:
+      | <%= project.name %> |
+
+    ## can get all project with cluster-admin
+    When I run the :get admin command with:
+      | resource | project |
+    Then the output should contain:
+      | <%= project.name %> |
+    And the output should contain:
+      | default |
+
