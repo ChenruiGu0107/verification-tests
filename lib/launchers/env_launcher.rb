@@ -1,11 +1,23 @@
 require 'socket'
+require 'erb'
 
 require 'common'
+require 'host'
 require_relative 'openstack'
 
 module CucuShift
-  class EnvironmentLauncher
+  class EnvLauncher
     include Common::Helper
+
+    ALTERNATING_AUTH = ['LDAP', 'KERBEROS']
+
+    # raise on failing [CucuShift::ResultHash]
+    private def check_res(res)
+      unless res[:success]
+        logger.error res[:response]
+        raise "last operation failed: #{res[:instruction]}"
+      end
+    end
 
     # @param os_opts [Hash] options to pass to [OpenStack::new]
     # @param names [Array<String>] array of names to give to new machines
@@ -22,27 +34,254 @@ module CucuShift
       return res
     end
 
-    def reverse_lookup(ip)
+    # @return single DNS entry for a hostname
+    private def dns_lookup(hostname, af: Socket::AF_INET)
+      res = Socket.getaddrinfo(hostname, 0, af, Socket::SOCK_STREAM, nil, Socket::AI_CANONNAME)
+
+      if res.size < 1
+        raise "cannot resolve hostname: #{hostname}"
+      end
+
+      return res[0][3]
+    end
+
+    private def reverse_lookup(ip)
       res = Socket.getaddrinfo(ip, 0, Socket::AF_UNSPEC, Socket::SOCK_STREAM, nil, Socket::AI_CANONNAME, true)
 
       if res.size != 1
         raise "not sure how to handle multiple entries, please report to author"
       end
 
-      return res[0][1] # btw this might be same IP if reverse entry missing
+      return res[0][2] # btw this might be same IP if reverse entry missing
     end
 
-    def ansible_install(hosts_spec)
-      # TODO:
+    private def spec_to_hosts(spec, ssh_key:, ssh_user:)
+      hosts={}
+      spec.gsub!(/all:/, 'master:')
+      host_opts = {user: ssh_user, ssh_private_key: ssh_key}
+      spec.split(',').each do |role_host_pair|
+        role, _, hostname = role_host_pair.partition(':')
+        (hosts[role] ||= []) << SSHAccessibleHost.new(hostname, host_opts)
+      end
+    end
+
+    # @param hosts [Hash<String,Array>] role=>[host1, ..,hostN] pairs
+    def ansible_install(hosts_spec:, auth_type:,
+                        ssh_key:, ssh_user:,
+                        app_domain:, host_domain:,
+                        rhel_base_repo:,
+                        dns: nil,
+                        deployment_type:,
+                        crt_path:,
+                        image_pre:,
+                        puddle_repo:,
+                        network_plugin:,
+                        etcd_num:,
+                        registry_ha:,
+                        ansible_branch:,
+                        ansible_url:)
+      hosts = spec_to_hosts(host_spec, ssh_key: ssh_key, ssh_user: ssh_user)
+      conf_script_file = File.join(__FILE__, 'env_scripts', 'configure_env.sh')
+      hosts_erb = File.join(__FILE__, 'env_scripts', 'hosts.erb')
+
+      conf_script = File.read(conf_script_file)
+
+      conf_script.gsub!(/#CONF_HOST_LIST=.*$/, "CONF_HOST_LIST=#{hosts_spec}")
+      conf_script.gsub!(/#CONF_AUTH_TYPE=.*$/, "CONF_AUTH_TYPE=#{auth_type}")
+      conf_script.gsub!(/#CONF_IMAGE_PRE=.*$/, "CONF_IMAGE_PRE='#{image_pre}'")
+      conf_script.gsub!(/#CONF_CRT_PATH=.*$/) { "CONF_CRT_PATH='#{crt_path}'" }
+      conf_script.gsub!(/#CONF_HOST_DOMAIN=.*$/,
+                        "CONF_HOST_DOMAIN=#{host_domain}")
+      conf_script.gsub!(/#CONF_APP_DOMAIN=.*$/,
+                        "CONF_APP_DOMAIN=#{app_domain}")
+      conf_script.gsub!(/#CONF_RHEL_BASE_REPO=.*$/,
+                        "CONF_RHEL_BASE_REPO=#{rhel_base_repo}")
+
+      case dns
+      when nil, false
+        # do nothing
+      when "embedded"
+        conf_script.gsub!(
+          /#CONF_DNS_IP=.*$/,
+          "CONF_DNS_IP=#{hosts['master'][0].ip}"
+        )
+        conf_script.gsub!(/#USE_OPENSTACK_DNS=.*$/, "USE_OPENSTACK_DNS=true")
+      when "embedded_skydns"
+        conf_script.gsub!(
+          /#CONF_DNS_IP=.*$/,
+          "CONF_DNS_IP=#{hosts['master'][0].ip}"
+        )
+      when /^shared/
+        shared_dns_config = conf[:services, :shared_dns]
+        conf_script.gsub!(
+          /#CONF_DNS_IP=.*$/,
+          "CONF_DNS_IP=#{shared_dns_config[:ip]}"
+        )
+        host_opts = {user: shared_dns_config[:user],
+                     ssh_private_key: shared_dns_config[:key_file]}
+        dns_host = SSHAccessibleHost.new(shared_dns_config[:ip], host_opts)
+        begin
+          check_res \
+            dns_host.exec_admin('cat > configure_env.sh',
+                                stdin: conf_script)
+          check_res \
+            dns_host.exec_admin('sh configure_env.sh configure_shared_dns')
+        ensure
+          dns_host.clean_up
+        end
+      else
+        conf_script.gsub!(/#CONF_DNS_IP=.*$/, dns)
+      end
+
+
+      case auth_type
+      when "HTPASSWD"
+        identity_providers = "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/openshift/htpasswd'}]"
+      else
+        identity_providers = "[{'name': 'basicauthurl', 'login': 'true', 'challenge': 'true', 'kind': 'BasicAuthPasswordIdentityProvider', 'url': 'https://<serviceIP>:8443/validate', 'ca': '#{crt_path}master/ca.crt'}]"
+      end
+
+      hosts_str = ERB.new(File.read(hosts_erb)).result binding
+      etcd_cur_num = 0
+      node_index = 1
+
+      hosts.each do |role, hosts|
+        hosts.each do |host|
+          # upload to host with cat
+          check_res \
+            host.exec_admin('cat > configure_env.sh', stdin: conf_script)
+
+          check_res host.exec_admin("sh configure_env.sh configure_repos")
+          if dns.start_with?("embedded")
+            check_res host.exec_admin("sh configure_env.sh configure_hosts")
+          end
+
+          if etcd_num < etcd_cur_num
+            etcd_cur_num = etcd_cur_num + 1
+            hosts_str.gsub!(/(\[etcd\])/, "\\1\n" + host.hostname + "\n")
+          end
+
+          case role
+          when "master"
+            # TODO: assumption is only one master
+            if dns == "embedded"
+              check_res host.exec_admin('sh configure_env.sh configure_dns')
+            elsif dns
+              check_res \
+                host.exec_admin('sh configure_env.sh configure_dns_resolution')
+            end
+
+            if dns == "embedded_skydns"
+              hosts_str.gsub!(/(\[masters\])/, "\\1\n#{host.hostname} openshift_hostname=master.#{host_domain}\n")
+            else
+              hosts_str.gsub!(/(\[masters\])/, "\\1\n" + host.hostname + "\n")
+            end
+
+            if hosts.size > 1
+              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_scheduleable=False"\n*)
+            else
+              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"\n*)
+            end
+          else
+            if dns == "embedded_skydns"
+              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=minion#{node_index}.#{host_domain}\n*)
+            else
+              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"\n*)
+            end
+            if dns
+              check_res \
+                host.exec_admin('sh configure_env.sh configure_dns_resolution')
+            end
+          end
+        end
+      end
+
+      if registry_ha
+        check_res hosts['master'][0].exec_admin(
+          'sh configure_env.sh configure_nfs_service'
+        )
+      end
+
+      # finally run download repo and run ansible (this is in workdir)
+      # we need git and ansible available pre-installed
+      check_res Host.loalhost.exec(
+        "git clone #{ansible_url} -b #{ansible_branch}"
+      )
+      res = nil
+      Dir.chdir(Host.loalhost.workdir) {
+        File.write("hosts", hosts_str)
+        # want to see output in real-time
+        res = system('ansible-playbook -i hosts openshift-ansible/playbooks/byo/config.yml -v')
+      }
+      raise "ansible failed" unless res
+
+      check_res hosts['master'][0].exec_admin(
+        "sh configure_env.sh replace_template_domain"
+      )
+      check_res hosts['master'][0].exec_admin(
+        "sh configure_env.sh create_router_registry"
+      )
+
+      if registry_ha
+        check_res hosts['master'][0].exec_admin(
+          'sh configure_env.sh configure_registry_to_ha'
+        )
+      end
+      if dns == "embedded_skydns"
+        check_res hosts['master'][0].exec_admin(
+          "sh configure_env.sh add_skydns_hosts"
+        )
+      end
+      unless auth_type == "HTPASSWD"
+        check_res hosts['master'][0].exec_admin(
+          'sh configure_env.sh configure_auth'
+        )
+      end
+    ensure
+      # Host clean_up
+      if defined?(hosts) && hosts.kind_of?(Hash)
+        hosts.each do |role, hosts|
+          if hosts.kind_of? Array
+            hosts.each do |host|
+              if host.kind_of? Host
+                host.clean_up
+              end
+            end
+          end
+        end
+      end # Host clean_up
+      Host.localhost.clean_up
+    end
+
+    # update launch options from ENV
+    # @param opts [Hash] instance launch opts to modify based on ENV
+    # @return [Hash] the modified hash options
+    def env_options(opts)
+      if ENV["AUTH_TYPE"]
+        if ENV["AUTH_TYPE"] == "RANDOM"
+          ## each day we want to use different auth type ignoring weekends
+          time = Time.now
+          day_of_year = time.yday
+          passed_weeks_of_year = time.strftime('%W').to_i - 1
+          opts[:auth_type] = ALTERNATING_AUTH[
+            (day_of_year - 2 * passed_weeks_of_year)/ALTERNATING_AUTH.size ]
+        end
+      end
+
+      case product_type
+      when "OSE"
+        crt_path = '/etc/openshift/'
+        deployment_type="enterprise"
+      else
+        crt_path = '/etc/origin/'
+        deployment_type="atomic-enterprise"
+      end
+
     end
 
     def launch(**opts)
       # TODO:
     end
 
-    # update launch options from ENV
-    def env_options(opts)
-      # TODO:
-    end
   end
 end
