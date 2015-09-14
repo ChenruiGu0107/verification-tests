@@ -221,3 +221,63 @@ Feature: deployment related features
       | type:\s+Recreate     |
       | value:\s+Plqe5Wev    |
       | type:\s+ConfigChange |
+
+  # @author xxing@redhat.com
+  # @case_id 457712 457717 457718
+  Scenario Outline: CLI rollback two more components of deploymentconfig
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | hooks |
+      | o             | json |
+    Then the output should contain:
+      | "type": "Recreate"     |
+      | "type": "ConfigChange" |
+      | "replicas": 1          |
+      | "value": "Plqe5Wev"    |
+    When I run the :replace client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | hooks |
+      | o             | json |
+    Then the output should contain:
+      | "type": "Rolling"         |
+      | "type": "ImageChange"     |
+      | "replicas": 2             |
+      | "value": "Plqe5Wevchange" |
+    When I run the :rollback client command with:
+      | deployment_name         | hooks-1 |
+      | change_triggers         ||
+      | change_scaling_settings | <change_scaling_settings> |
+      | change_strategy         | <change_strategy> |
+    Then the output should contain:
+      | #3 rolled back to hooks-1 |
+    Given I wait for the pod named "hooks-3-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+    Then the output should contain:
+      | hooks #3 deployed |
+    When I run the :get client command with:
+      | resource | pod |
+    Then the output should match:
+      | READY\s+STATUS |
+      | 1/1\s+Running  |
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | hooks |
+      | o             | json |
+    Then the output should contain:
+      | "type": "ConfigChange" |
+      | "value": "Plqe5Wev"    |
+      | <changed_val1>         |
+      | <changed_val2>         |
+    Examples:
+      | change_scaling_settings | change_strategy | changed_val1  | changed_val2       |
+      | :false                  | :false          |               |                    |
+      |                         | :false          | "replicas": 1 |                    |
+      |                         |                 | "replicas": 1 | "type": "Recreate" |
