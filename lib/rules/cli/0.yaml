@@ -278,6 +278,12 @@
   :cmd: oc rsh
   :options:
     :app_name: <value>
+:scale:
+  :cmd: oc scale <resource> <name>
+  :options:
+    :current_replicas: --current-replicas=<value>
+    :replicas:  --replicas=<value>
+    :resource_ver: --resource-version=<value>
 :secrets:
   :cmd: oc secrets <action>
   :options:
