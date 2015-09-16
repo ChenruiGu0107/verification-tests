@@ -94,7 +94,7 @@
   :cmd: oc deploy <deployment_config>
   :options:
     :cancel: --cancel
-    :enable-triggers: --enable-triggers
+    :enable_triggers: --enable-triggers
     :latest: --latest
     :retry: --retry
 :describe:
