@@ -281,3 +281,61 @@ Feature: deployment related features
       | :false                  | :false          |               |                    |
       |                         | :false          | "replicas": 1 |                    |
       |                         |                 | "replicas": 1 | "type": "Recreate" |
+
+  # @author xxing@redhat.com
+  # @case_id 457716
+  Scenario: CLI rollback with one component
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | hooks |
+      | o             | json |
+    Then the output should contain:
+      | "type": "Recreate"     |
+      | "type": "ConfigChange" |
+      | "replicas": 1          |
+      | "value": "Plqe5Wev"    |
+    When I run the :replace client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | hooks |
+      | o             | json |
+    Then the output should contain:
+      | "type": "Rolling"         |
+      | "type": "ImageChange"     |
+      | "replicas": 2             |
+      | "value": "Plqe5Wevchange" |
+    When I run the :rollback client command with:
+      | deployment_name         | hooks-1 |
+    Then the output should contain:
+      | #3 rolled back to hooks-1                                      |
+      | Warning: the following images triggers were disabled           |
+      | You can re-enable them with: oc deploy hooks --enable-triggers |
+    Given I wait for the pod named "hooks-3-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+    Then the output should contain:
+      | hooks #3 deployed |
+    When I run the :get client command with:
+      | resource | pod |
+    Then the output should match:
+      | READY\s+STATUS |
+      | 1/1\s+Running  |
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | hooks |
+      | o             | json |
+    Then the output should contain:
+      | "value": "Plqe5Wev"    |
+    And the output should not contain:
+      | "type": "ConfigChange" |
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | enable_triggers   ||
+    Then the output should contain:
+      | enabled image triggers |
