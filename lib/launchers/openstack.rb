@@ -22,8 +22,8 @@ module CucuShift
     def initialize(**options)
       # by default we look for 'openstack' service in configuration but lets
       #   allow users to keep configuration for multiple OpenStack instances
-      service_name = ENV['OPENSTACK_SERVICE_NAME'] ||
-                     options[:service_name] ||
+      service_name = options[:service_name] ||
+                     ENV['OPENSTACK_SERVICE_NAME'] ||
                      'openstack'
       @opts = default_opts(service_name).merge options
 

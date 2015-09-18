@@ -27,7 +27,7 @@ module CucuShift
       res = {}
       names.each { |name|
         _, res[name] = os_server.create_instance(name)
-        res[name] = reverse_lookup(res[name]) unless use_hostnames
+        res[name] = reverse_lookup(res[name]) if use_hostnames
         sleep 10 # why?
       }
       sleep 60 # why?
@@ -62,6 +62,7 @@ module CucuShift
       spec.split(',').each do |role_host_pair|
         role, _, hostname = role_host_pair.partition(':')
         (hosts[role] ||= []) << SSHAccessibleHost.new(hostname, host_opts)
+
       end
     end
 
@@ -211,7 +212,7 @@ module CucuShift
       Dir.chdir(Host.loalhost.workdir) {
         File.write("hosts", hosts_str)
         # want to see output in real-time
-        res = system('ansible-playbook -i hosts openshift-ansible/playbooks/byo/config.yml -v')
+        res = system("ansible-playbook -i hosts openshift-ansible/playbooks/byo/config.yml -v --private-key #{expand_private_path ssh_key}")
       }
       raise "ansible failed" unless res
 
@@ -256,31 +257,53 @@ module CucuShift
     # update launch options from ENV
     # @param opts [Hash] instance launch opts to modify based on ENV
     # @return [Hash] the modified hash options
-    def env_options(opts)
-      if ENV["AUTH_TYPE"]
+    def launcher_env_options(opts)
+      if ENV["AUTH_TYPE"] && !ENV["AUTH_TYPE"].empty?
         if ENV["AUTH_TYPE"] == "RANDOM"
           ## each day we want to use different auth type ignoring weekends
           time = Time.now
           day_of_year = time.yday
           passed_weeks_of_year = time.strftime('%W').to_i - 1
           opts[:auth_type] = ALTERNATING_AUTH[
-            (day_of_year - 2 * passed_weeks_of_year)/ALTERNATING_AUTH.size ]
+            (day_of_year - 2 * passed_weeks_of_year) % ALTERNATING_AUTH.size
+          ]
+        else
+          opts[:auth_type] = ENV["AUTH_TYPE"]
         end
       end
 
-      case product_type
-      when "OSE"
-        crt_path = '/etc/openshift/'
-        deployment_type="enterprise"
-      else
-        crt_path = '/etc/origin/'
-        deployment_type="atomic-enterprise"
-      end
+      keys = [:crt_path, :deployment_type,
+              :hosts_spec, :auth_type,
+              :ssh_key, :ssh_user,
+              :app_domain, :host_domain,
+              :rhel_base_repo,
+              :dns, :deployment_type,
+              :crt_path, :image_pre,
+              :puddle_repo:, :network_plugin,
+              :etcd_num, :registry_ha,
+              :ansible_branch, :ansible_url]
 
+      #when "OSE"
+      #  crt_path = '/etc/openshift/'
+      #  deployment_type="enterprise"
+      #else
+      #  crt_path = '/etc/origin/'
+      #  deployment_type="atomic-enterprise"
+      #end
+
+      keys.each do |key|
+        if ENV[key.to_s.upcase] && !ENV[key.to_s.upcase].empty?
+          opts[key] = ENV[key.to_s.upcase]
+        end
+      end
     end
 
     def launch(**opts)
-      # TODO:
+      # set OPENSTACK_SERVICE_NAME
+      launch_os_instances(names:)
+
+      opts = launcher_env_options()
+      ansible_install(**opts)
     end
 
   end
