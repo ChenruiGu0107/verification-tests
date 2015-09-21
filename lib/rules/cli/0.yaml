@@ -22,6 +22,10 @@
   :cmd: oc policy add-role-to-user <role> <user_name>
 :add_role_to_group:
   :cmd: oc policy add-role-to-group <role> <group_name>
+:add_secret:
+  :cmd: oc secrets add serviceaccount/<sa_name> secrets/<secret_name>
+  :options:
+    :for: --for=<value>
 :annotate:
   :cmd: oc annotate
   :options:
@@ -37,6 +41,11 @@
     :resourceversion: --resource-version=<value>
     :t: -t <value>
     :template: --template=<value>
+:build_logs:
+  :cmd: oc build-logs <build_name>
+  :options:
+    :follow: --follow=<value>
+    :nowait: --nowait=<value>
 :config:
   :cmd: oc config
   :options:
@@ -230,6 +239,17 @@
     :output: --output=<value>
     :strategy: --strategy=<value>
     :template: --template=<value>
+:new_dockercfg:
+  :cmd: oc secrets new-dockercfg <secret_name>
+  :options:
+    :docker_email: --docker-email=<value>
+    :docker_password: --docker-password=<value>
+    :docker_server: --docker-server=<value>
+    :docker_username: --docker-username=<value>
+    :no_headers: --no-headers=<value>
+    :output: --output=<value>  # One of: json|yaml|template|templatefile|wide
+    :output_version: --output-version=<value>
+    :template: --template=<value>
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:
@@ -238,6 +258,16 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:new_secret:
+  :cmd: oc secrets new <secret_name> <credential_file>
+  :options:
+    :no_headers: --no-headers=<value>
+    :output: --output=<value>  # One of: json|yaml|template|templatefile|wide
+    :output_version: --output-version=<value>
+    :template: --template=<value>
+    :type: --type=<value>
+    :quiet: --quiet=<value>
+
 :port_forward:
   :cmd: oc port-forward
   :options:
