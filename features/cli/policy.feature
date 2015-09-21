@@ -54,3 +54,67 @@ Feature: change the policy of user/service account
     Then the output should match:
       | Role:\s+admin              |
       | Users:\s+<%= @user.name %> |
+
+  # @author wyue@redhat.com
+  # @case_id 470304
+  @admin
+  Scenario: Creation of new project roles when allowed by cluster-admin
+    ##cluster admin create a project and add another user as admin
+    When admin creates a project
+    Then the step should succeed
+    When I run the :add_role_to_user admin command with:
+      | role            |   admin               |
+      | user name       |   <%= user.name %>    |
+      | n               |   <%= project.name %> |
+    Then the step should succeed
+
+    ## switch user to the test project
+    When I use the "<%= project.name %>" project
+    Then the step should succeed
+
+    ##create role that only could view service
+    When I run the :create client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/projectviewservice.json|
+    Then the step should succeed
+
+    ##no policybinding for this role in project
+    When I run the :describe client command with:
+      | resource | policybindings |
+      | name     | :default       |
+    Then the output should not contain:
+      | viewservices |
+
+    ##admin try to add one user to the project as vs role
+    When I run the :oadm_add_role_to_user client command with:
+      | role name       |   viewservices    |
+      | user name       |   <%= user.name %>    |
+      | role namespace  |   <%= project.name %> |
+    Then the step should fail
+    And the output should contain:
+      | not found |
+
+    ## download json filed for role and update the project name
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/policy.json"
+    And I replace lines in "policy.json":
+      |"namespace": "wsuntest"|"namespace": "<%= project.name %>"|
+    Then the step should succeed
+
+    ##cluster admin create a PolicyBinding
+    When I run the :create admin command with:
+      |f|policy.json|
+    Then the step should succeed
+
+    ##create role again after PolicyBinding is created
+    When I run the :delete client command with:
+      | object type | roles |
+      | all |  |
+    When I run the :create client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/projectviewservice.json|
+    Then the step should succeed
+
+    ##admin try to add one user to the project as vs role
+    When I run the :oadm_add_role_to_user client command with:
+      | role name       |   viewservices    |
+      | user name       |   <%= user.name %>    |
+      | role namespace  |   <%= project.name %> |
+    Then the step should succeed

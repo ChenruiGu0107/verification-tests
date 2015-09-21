@@ -318,6 +318,8 @@
   :cmd: oadm policy add-cluster-role-to-group <role_name> <group_name>
 :oadm_add_role_to_user:
   :cmd: oadm policy add-role-to-user <role_name> <user_name>
+  :options:
+    :role_namespace: --role-namespace=<value>
 :oadm_add_role_to_group:
   :cmd: oadm policy add-role-to-group <role_name> <group_name>
 :oadm_new_project:
