@@ -46,3 +46,46 @@ Feature: containers related features
     Then the output should contain:
       | serving on 8080 |
       | serving on 8888 |
+
+  # @author xxing@redhat.com
+  # @case_id 497482
+  Scenario: Add env variables to postgresql-92-centos7 image
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-92-centos7-env-test.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=database-1 |
+    When I run the :get client command with:
+      | resource | pods |
+    Then the output should contain:
+      | NAME            |
+      | <%= pod.name %> |
+    When I run the :describe client command with:
+      | resource | pod             |
+      | name     | <%= pod.name %> |
+    Then the output should match:
+      | Status:\s+Running                        |
+      | Image:\s+openshift/postgresql-92-centos7 |
+      | Ready\s+True                             |
+    When I execute on the pod:
+      | bash                |
+      | -c                  |
+      | env \| grep POSTGRE |
+    Then the output should contain:
+      | POSTGRESQL_SHARED_BUFFERS=64MB |
+      | POSTGRESQL_MAX_CONNECTIONS=42  |
+    When I execute on the pod:
+      | bash                           |
+      | -c                             |
+      | psql -c 'show shared_buffers;' |
+    Then the output should contain:
+      | shared_buffers |
+      | 64MB           |
+    And I execute on the pod:
+      | bash                            |
+      | -c                              |
+      | psql -c 'show max_connections;' |
+    Then the output should contain:
+      | max_connections |
+      | 42              |
