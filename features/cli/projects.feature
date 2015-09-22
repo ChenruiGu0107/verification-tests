@@ -161,7 +161,7 @@ Feature: projects related features via cli
     And the output should contain:
       | WARNING |
       | it does not look like a Docker registry has been integrated |
-    Given the "ruby-hello-world-1" was created
+    Given the "ruby-hello-world-1" build was created
     When I run the :status client command
     Then the step should succeed
     And the output should contain:

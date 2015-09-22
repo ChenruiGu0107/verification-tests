@@ -1,4 +1,4 @@
-Given /^the "([^"]*)" was created$/ do |build_name|
+Given /^the "([^"]*)" build was created$/ do |build_name|
   @result = build(build_name).wait_to_appear(user, 60)
 
   unless @result[:success]

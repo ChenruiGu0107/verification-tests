@@ -36,7 +36,7 @@ Feature: build 'apps' with CLI
       | app_repo        | <app_repo>                  |
       | context_dir     | <context_dir>               |
     Then the step should succeed
-    Given the "<first_build_name>" was created
+    Given the "<first_build_name>" build was created
     And the "<first_build_name>" build completed
     When I run the :describe client command with:
       | resource        | build                       |
@@ -54,7 +54,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     When I run the :new_app client command with:
       | file            | <template_file>             |
-    Given the "<second_build_name>" was created
+    Given the "<second_build_name>" build was created
     And the "<second_build_name>" build completed
     When I run the :describe client command with:
       | resource        | build                       |

@@ -143,8 +143,8 @@ module CucuShift
           str == res[:parsed]["status"]["phase"]
         }
       # missing pods mean pod has been destroyed already probably deploy pod
-      elsif (status.include?(:missing)) && (res[:stderr].include? ('not found'))
-        res[:success] = true
+      elsif res[:stderr].include? 'not found'
+        res[:success] = true if status.include? :missing
         res[:matched_status] = :missing
       end
       return res

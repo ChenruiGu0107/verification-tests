@@ -37,16 +37,24 @@ Given /^all pods in the project are ready$/ do
   pods[:parsed]['items'].each do | pod |
     pod_name = pod['metadata']['name']
     logger.info("POD: #{pod_name}, STATUS: #{pod['status']['conditions']}")
-    pod(pod_name).wait_till_status([:running, :succeeded, :missing], user)
+    res = pod(pod_name).wait_till_status([:running, :succeeded, :missing], user)
+
+    unless res[:success]
+      raise "pod #{self.pod.name} did not reach expected status"
+    end
   end
 end
 
-# to reliablely wait for all the replicas to be come ready, we do 
-# 'oc get rc <rc_name>' and wait until the spec['replicas'] == status['replicas'] 
+# to reliablely wait for all the replicas to be come ready, we do
+# `oc get rc <rc_name>` and wait until `spec['replicas'] == status['replicas']`
 Given /^I wait until replicationController(?: "(.+)")? with (\d+) replicas is ready$/ do |rc_name, num|
-  ready_timeout = 15 * 60 
+  ready_timeout = 15 * 60
   num_of_replicas = num.to_i
   rc(rc_name).wait_till_ready(user, ready_timeout)
+
+  unless res[:success]
+    raise "replication controller #{rc.name} never became ready"
+  end
 end
 
 # useful for waiting the deployment pod to die and complete
