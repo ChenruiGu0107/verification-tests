@@ -392,13 +392,13 @@ function configure_ldap_source()
     mkdir -p basicauthurl/
     cp /etc/yum.repos.d/rhel.repo basicauthurl/
     cat >basicauthurl/Dockerfile <<EOF
-FROM registry.access.redhat.com/library/rhel
+FROM $CONF_KERBEROS_BASE_DOCKER_IMAGE
 ADD rhel.repo /etc/yum.repos.d/rhel.repo
 RUN yum install -y wget mod_ldap tar httpd mod_ssl php mod_auth_kerb mod_auth_mellon mod_authnz_pam
-RUN sed -i "/\[realms/,/\[/ s/kdc =.*/kdc = 10.66.79.109/" /etc/krb5.conf
-RUN sed -i "/\[realms/,/\[/ s/admin_server =.*/admin_server = 10.66.79.109/" /etc/krb5.conf
+RUN sed -i "/\[realms/,/\[/ s/kdc =.*/kdc = $CONF_KERBEROS_KDC/" /etc/krb5.conf
+RUN sed -i "/\[realms/,/\[/ s/admin_server =.*/admin_server = $CONF_KERBEROS_ADMIN/" /etc/krb5.conf
 RUN sed -i "s/^#//" /etc/krb5.conf
-RUN wget http://virt-openshift-08.lab.eng.nay.redhat.com/autoinstall/http.keytab -O /etc/http.keytab
+RUN wget $CONF_KERBEROS_KEYTAB_URL -O /etc/http.keytab
 EOF
     docker build -t docker.io/basicauthurl basicauthurl/
 
@@ -426,7 +426,7 @@ Krb5Keytab /etc/http.keytab
 KrbSaveCredentials off
 EOF
     else
-        sed -i -e 's/example.com/10.66.79.109/' -e 's/dc=example/dc=my-domain/g' ldap.conf
+        sed -i -e "s/example.com/$CONF_KERBEROS_KDC/" -e 's/dc=example/dc=my-domain/g' ldap.conf
     fi
     \cp $CONF_CRT_PATH/master/ca.crt .
     oc secrets new httpd-auth  conf=ldap.conf key=key.key cert=cert.crt ca=ca.crt
@@ -448,6 +448,10 @@ EOF
 #CONF_AUTH_TYPE=value
 #CONF_CRT_PATH=value
 #CONF_IMAGE_PRE=value
+#CONF_KERBEROS_KDC=value
+#CONF_KERBEROS_ADMIN=value
+#CONF_KERBEROS_KEYTAB_URL=value
+#CONF_KERBEROS_BASE_DOCKER_IMAGE=value
 interface="${CONF_INTERFACE:-eth0}"
 nameservers="$(awk '/nameserver/ { printf "%s; ", $2 }' /etc/resolv.conf)"
 named_hostname=ns1.$CONF_HOST_DOMAIN

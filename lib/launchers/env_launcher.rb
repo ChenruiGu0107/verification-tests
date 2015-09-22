@@ -66,12 +66,24 @@ module CucuShift
       end
     end
 
-    # @param hosts [Hash<String,Array>] role=>[host1, ..,hostN] pairs
+    # @param hosts_spec [Hash<String,Array>] role=>[host1, ..,hostN] pairs
+    # @param auth_type [String] LDAL, HTTPASSWD, KERBEROS
+    # @param ssh_user [String] the username to use for ssh to env hosts
+    # @param dns [String] the dns server to use; can be keyword or an IP
+    #   address; see the dns case/when construct for available options
+    # @param app_domain [String] domain used to generate route dns names;
+    #   can be auto-sensed in certain setups, see dns code below
+    # @param host_domain [String] domain used to access env hosts; not always
+    #   used, see dns code below
+    # @param rhel_base_repo [String] rhel/centos base repo URL to configure on
+    #   env hosts
+    # @param deployment_type [String] ???
+    # @param image_pre [String] ???
     def ansible_install(hosts_spec:, auth_type:,
                         ssh_key:, ssh_user:,
-                        app_domain:, host_domain:,
-                        rhel_base_repo:,
                         dns: nil,
+                        app_domain: nil, host_domain: nil,
+                        rhel_base_repo:,
                         deployment_type:,
                         crt_path:,
                         image_pre:,
@@ -80,7 +92,14 @@ module CucuShift
                         etcd_num:,
                         registry_ha:,
                         ansible_branch:,
-                        ansible_url:)
+                        ansible_url:,
+                        kerberos_kdc: conf[:sercices, :test_kerberos, :kdc],
+                        kerberos_keytab_url:
+                          conf[:sercices, :test_kerberos, :keytab_url],
+                        kerberos_admin_server:
+                          conf[:sercices, :test_kerberos, :admin_server],
+                        kerberos_docker_base_image:
+                          conf[:sercices, :test_kerberos, :docker_base_image])
       hosts = spec_to_hosts(host_spec, ssh_key: ssh_key, ssh_user: ssh_user)
       conf_script_file = File.join(__FILE__, 'env_scripts', 'configure_env.sh')
       hosts_erb = File.join(__FILE__, 'env_scripts', 'hosts.erb')
@@ -91,28 +110,41 @@ module CucuShift
       conf_script.gsub!(/#CONF_AUTH_TYPE=.*$/, "CONF_AUTH_TYPE=#{auth_type}")
       conf_script.gsub!(/#CONF_IMAGE_PRE=.*$/, "CONF_IMAGE_PRE='#{image_pre}'")
       conf_script.gsub!(/#CONF_CRT_PATH=.*$/) { "CONF_CRT_PATH='#{crt_path}'" }
-      conf_script.gsub!(/#CONF_HOST_DOMAIN=.*$/,
-                        "CONF_HOST_DOMAIN=#{host_domain}")
-      conf_script.gsub!(/#CONF_APP_DOMAIN=.*$/,
-                        "CONF_APP_DOMAIN=#{app_domain}")
       conf_script.gsub!(/#CONF_RHEL_BASE_REPO=.*$/,
                         "CONF_RHEL_BASE_REPO=#{rhel_base_repo}")
 
+
+      conf_script.gsub!(/#(CONF_KERBEROS_ADMIN)=.*$/,
+                        "\\1=#{kerberos_admin_server}")
+      conf_script.gsub!(/#(CONF_KERBEROS_KEYTAB_URL)=.*$/,
+                        "\\1=#{kerberos_keytab_url}")
+      conf_script.gsub!(/#(CONF_KERBEROS_BASE_DOCKER_IMAGE)=.*$/,
+                        "\\1=#{kerberos_docker_base_image}")
+      conf_script.gsub!(/#(CONF_KERBEROS_KDC)=.*$/, "\\1=#{kerberos_kdc}")
+
       case dns
-      when nil, false
-        # do nothing
+      when nil, false, "", "none"
+        # basically do nothing
+        host_domain ||= "cluster.local"
+        raise "specify :app_domain and :host_domain" unless app_domain
       when "embedded"
+        host_domain ||= "cluster.local"
+        app_domain ||= rand_str(5, :dns) + ".example.com"
         conf_script.gsub!(
           /#CONF_DNS_IP=.*$/,
           "CONF_DNS_IP=#{hosts['master'][0].ip}"
         )
         conf_script.gsub!(/#USE_OPENSTACK_DNS=.*$/, "USE_OPENSTACK_DNS=true")
       when "embedded_skydns"
+        host_domain ||= "cluster.local"
+        app_domain = "router.cluster.local"
         conf_script.gsub!(
           /#CONF_DNS_IP=.*$/,
           "CONF_DNS_IP=#{hosts['master'][0].ip}"
         )
       when /^shared/
+        host_domain ||= "cluster.local"
+        app_domain ||= rand_str(5, :dns) + ".example.com"
         shared_dns_config = conf[:services, :shared_dns]
         conf_script.gsub!(
           /#CONF_DNS_IP=.*$/,
@@ -131,9 +163,15 @@ module CucuShift
           dns_host.clean_up
         end
       else
+        host_domain ||= "cluster.local"
+        raise "specify :app_domain and :host_domain" unless app_domain
         conf_script.gsub!(/#CONF_DNS_IP=.*$/, dns)
       end
 
+      conf_script.gsub!(/#CONF_HOST_DOMAIN=.*$/,
+                        "CONF_HOST_DOMAIN=#{host_domain}")
+      conf_script.gsub!(/#CONF_APP_DOMAIN=.*$/,
+                        "CONF_APP_DOMAIN=#{app_domain}")
 
       case auth_type
       when "HTPASSWD"
@@ -254,7 +292,7 @@ module CucuShift
       Host.localhost.clean_up
     end
 
-    # update launch options from ENV
+    # update launch options from ENV (used usually by jenkins jobs)
     # @param opts [Hash] instance launch opts to modify based on ENV
     # @return [Hash] the modified hash options
     def launcher_env_options(opts)
@@ -279,9 +317,13 @@ module CucuShift
               :rhel_base_repo,
               :dns, :deployment_type,
               :crt_path, :image_pre,
-              :puddle_repo:, :network_plugin,
+              :puddle_repo, :network_plugin,
               :etcd_num, :registry_ha,
-              :ansible_branch, :ansible_url]
+              :ansible_branch, :ansible_url,
+              :kerberos_docker_base_image,
+              :kerberos_kdc, :kerberos_keytab_url,
+              :kerberos_docker_base_image,
+              :kerberos_admin_server]
 
       #when "OSE"
       #  crt_path = '/etc/openshift/'
@@ -298,13 +340,13 @@ module CucuShift
       end
     end
 
-    def launch(**opts)
-      # set OPENSTACK_SERVICE_NAME
-      launch_os_instances(names:)
-
-      opts = launcher_env_options()
-      ansible_install(**opts)
-    end
+    #def launch(**opts)
+    #  # set OPENSTACK_SERVICE_NAME
+    #  launch_os_instances(names:)
+    #
+    #  opts = launcher_env_options()
+    #  ansible_install(**opts)
+    #end
 
   end
 end
