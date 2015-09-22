@@ -132,6 +132,7 @@ module CucuShift
     def get_pods(by:, **get_opts)
       Pod.list(user: by, project: self, **get_opts)
     end
+    alias_method :pods, :get_pods
 
     def get_builds(by:, **get_opts)
       Build.list(user: by, project: self, **get_opts)

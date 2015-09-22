@@ -30,6 +30,25 @@ Given /^the pod(?: named "(.+)")? becomes ready$/ do |name|
   end
 end
 
+# for a rc that has multiple pods, oc describe currently doesn't support json/yaml output format, so do 'oc get pod' to get the status of each pod 
+Given /^all pods in the project are ready$/ do
+  pods = project.pods(by:user)
+  logger.info("Number of pods: #{pods[:parsed]['items'].count}")
+  pods[:parsed]['items'].each do | pod |
+    pod_name = pod['metadata']['name']
+    logger.info("POD: #{pod_name}, STATUS: #{pod['status']['conditions']}")
+    pod(pod_name).wait_till_status([:running, :succeeded, :missing], user)
+  end
+end
+
+# to reliablely wait for all the replicas to be come ready, we do 
+# 'oc get rc <rc_name>' and wait until the spec['replicas'] == status['replicas'] 
+Given /^I wait until replicationController(?: "(.+)")? with (\d+) replicas is ready$/ do |rc_name, num|
+  ready_timeout = 15 * 60 
+  num_of_replicas = num.to_i
+  rc(rc_name).wait_till_ready(user, ready_timeout)
+end
+
 # useful for waiting the deployment pod to die and complete
 Given /^I wait for the pod(?: named "(.+)")? to die$/ do |name|
   ready_timeout = 15 * 60
@@ -57,4 +76,3 @@ When /^I execute on the(?: "(.+?)")? pod:$/ do |pod_name, raw_args|
 
   @result = pod(pod_name).exec(*args, as: user)
 end
-
