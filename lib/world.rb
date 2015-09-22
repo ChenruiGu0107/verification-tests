@@ -8,7 +8,7 @@ require 'openshift/service_account'
 require 'openshift/route'
 require 'openshift/build'
 require 'openshift/pod'
-require 'openshift/pv'
+require 'openshift/persistent_volume'
 require 'openshift/replication_controller'
 
 module CucuShift
@@ -183,13 +183,13 @@ module CucuShift
           return pv
         else
           # create new CucuShift::PV object with specified name
-          @pvs << PV.new(name: name, env: env)
+          @pvs << PersistentVolume.new(name: name, env: env)
           return @pvs.last
         end
       elsif @pvs.empty?
         # we do not create a random PV like with projects because that
         #   would rarely make sense
-        raise "what PV are you talking about?"
+        raise "what PersistentVolume are you talking about?"
       else
         return @pvs.last
       end
