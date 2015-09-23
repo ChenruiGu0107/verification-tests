@@ -1,11 +1,14 @@
 Feature: oc related features
-  #@author pruan@redhat.com
-  #@case_id 497509
+  # @author pruan@redhat.com
+  # @case_id 497509
   Scenario: Check OpenShift Concepts and Types via oc types
-    When I run the :help client command
+    When I run the :help client command with:
+      | help_word | -h | 
     Then the output should contain:
       | types        An introduction to concepts and types |
-    When I run the :types client command
+    When I run the :help client command with:
+      | help_word | --help |
+      | command | types |
     Then the output should contain:
       | Concepts: |
       | * Containers: |
@@ -25,8 +28,8 @@ Feature: oc related features
       | Usage:                                                              |
       |  oc types [options]                                                 |
 
-  #@author pruan@redhat.com
-  #@case_id 497521
+  # @author pruan@redhat.com
+  # @case_id 497521
   Scenario: Check the help page of oc edit
     When I run the :edit client command with:
       | help | true |
@@ -107,3 +110,53 @@ Feature: oc related features
       | tag in 1 or more other image streams. It is similar to the 'docker tag'        |
       | command, but it operates on image streams instead.                             |
       | oc tag [--source=SOURCETYPE] SOURCE DEST [DEST ...] [options]                  |
+  
+  # @author wsun@redhat.com
+  # @case_id 499948
+  Scenario: Check the help page for oc annotate
+    When I run the :help client command with:
+      | help_word | -h |
+    Then the output should contain:
+      | annotate     Update the annotations on a resource |
+    When I run the :help client command with:
+      | help_word | --help |
+      | command | annotate |
+    Then the output should contain:
+      | Update the annotations on one or more resources |
+      | oc annotate [--overwrite] RESOURCE NAME KEY_1=VAL_1 ... KEY_N=VAL_N [--resource-version=version] [options] |
+      | --all=false: select all resources in the namespace of the specified resource types |
+      | --no-headers=false: When using the default output, don't print headers. |
+      | --output-version='': Output the formatted object with the given version (default api-version). |
+      | --overwrite=false: If true, allow annotations to be overwritten, otherwise reject annotation updates that overwrite existing annotations. |
+      | --resource-version='': If non-empty, the annotation update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource. |
+      | -t, --template='': Template string or path to template file to use when -o=template or -o=templatefile.  The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview] |
+
+  # @author: yanpzhan@redhat.com
+  # @case_id: 499893
+  Scenario: Check help info for oc run
+    When I run the :help client command with:
+      | help_word | -h |
+    Then the output should contain:
+      | run          Run a particular image on the cluster. |
+    When I run the :help client command with:
+      | help_word | --help |
+      |  command  | run    |
+    Then the output should contain:
+      |Create and run a particular image, possibly replicated                                                 |
+      |oc run NAME --image=image [--port=port] [--replicas=replicas] [--dry-run=bool] [--overrides=inline-json] [options]|
+      |--attach=false: If true, wait for the Pod to start running, and then attach to the Pod as if 'kubectl attach ...' were called.  Default false, unless '-i/--interactive' is set, in which case the default is true. |
+      |--dry-run=false: If true, only print the object that would be sent, without sending it.                |
+      |--generator='': The name of the API generator to use.  Default is 'run/v1' if --restart=Always, otherwise the default is 'run-pod/v1'.|
+      |--hostport=-1: The host port mapping for the container port. To demonstrate a single-machine container.|
+      |--image='': The image for the container to run.|
+      |-l, --labels='': Labels to apply to the pod(s).|
+      |--no-headers=false: When using the default output, don't print headers.      |
+      |--output-version='': Output the formatted object with the given version (default api-version).|
+      |--overrides='': An inline JSON override for the generated object. If this is non-empty, it is used to override the generated object. Requires that the object supply a valid apiVersion field.|
+      |--port=-1: The port that this container exposes.|
+      |-r, --replicas=1: Number of replicas to create for this container. Default is 1.|
+      |--restart='Always': The restart policy for this Pod.  Legal values [Always, OnFailure, Never].|
+      |-i, --stdin=false: Keep stdin open on the container(s) in the pod, even if nothing is attached.|
+      |-t, --template='': Template string or path to template file to use when -o=template or -o=templatefile.  The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview]|
+      |--tty=false: Allocated a TTY for each container in the pod.|
+

@@ -1,6 +1,6 @@
 Feature: Check oc status cli
-  #@author yapei@redhat.com
-  #@case_id 497402
+  # @author yapei@redhat.com
+  # @case_id 497402
   Scenario: Show RC info and indicate bad secrets reference in 'oc status'
     Given I have a project
 
@@ -77,7 +77,7 @@ Feature: Check oc status cli
     # When I run the :start_build client command with:
     #   |buildconfig|ruby-sample-build|
     #Then the step should succeed
-    Given the "ruby-sample-build-1" was created
+    Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build becomes running
     When I run the :status client command
     Then the step should succeed
@@ -105,7 +105,7 @@ Feature: Check oc status cli
       |f|processed-stibuild-bad-url.json|
     Then the step should succeed
 
-    Given the "ruby-sample-build-1" was created
+    Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build failed
     When I run the :status client command
     Then the step should succeed

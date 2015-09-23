@@ -83,14 +83,17 @@ module CucuShift
         end
       when :at_exit
         if @incomplete_jobs
-          finished_jobs do |job|
+          finished_jobs.each do |job|
             Kernel.puts("case #{job.case_id} executed")
           end
-          locked_jobs do |job|
+          locked_jobs.each do |job|
             Kernel.puts("case #{job.case_id} was not IDLE")
           end
           ready_jobs.each do |job|
             Kernel.puts("case #{job.case_id} not executed (completely)")
+          end
+          non_runnable_jobs.each do |job|
+            Kernel.puts("case #{job.case_id} not runnable")
           end
           incomplete_jobs.each do |job|
             Kernel.puts("case #{job.case_id} could not find all scenarios")
@@ -264,7 +267,10 @@ module CucuShift
         return true
       end
 
-      return false if job.case_run_status_id != 1 # IDLE
+      # sometimes one of the properties might be missing
+      if job.case_run_status_id != 1 && job.case_run_status != 'IDLE'
+        return false
+      end
       cur_status = tcms.get_caserun_status(job.case_run_id)
       return false if cur_status != 'IDLE'
 
@@ -308,6 +314,10 @@ module CucuShift
       @locked_jobs ||= []
     end
 
+    def non_runnable_jobs
+      @non_runnable_jobs ||= []
+    end
+
     # @return [Array[ExecutionUnit]>
     # @note TCMS_SPEC would be like "run:12356" or "caseruns:123,43,23"
     def incomplete_jobs
@@ -338,7 +348,14 @@ module CucuShift
     #   optionally intermixed with test case run fields
     def jobs_from_case_list(case_list)
       jobs = case_list.map { |c| TCMSTestCaseRun.new(c) }
-      jobs.select! { |c| c.runnable? }
+      jobs.select! do |c|
+        if c.runnable?
+          true
+        else
+          non_runnable_jobs << c
+          false
+        end
+      end
       return jobs
     end
 

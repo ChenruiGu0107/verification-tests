@@ -106,8 +106,8 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     And the project should be empty
 
-  #@author xxing@redhat.com
-  #@case_id 470351
+  # @author xxing@redhat.com
+  # @case_id 470351
   Scenario: Create application from template via cli
     Given I have a project
     When I run the :create client command with:

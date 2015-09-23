@@ -152,16 +152,19 @@ end
 def report_auto_testcases_by_author(options)
   tcms = options.tcms
   table = Text::Table.new
-  table.head = ['case_id', 'summary', 'author', 'auto_by`']
+  table.head = ['case_id', 'summary', 'author']
   regex = /(automated by)\s(\w+)?/
   script_pattern = "\"ruby\""
   cases = []
   authors = {}
+  auto_case_total = 0
   res = tcms.filter_cases()
+  total_cases = res.count
   res.each do | testcase|
     # we only care about script field that's not empty (meaning it's automated)
     if not testcase['script'].nil?
       if (testcase['script'].include? script_pattern and testcase['case_status'] == 'CONFIRMED')
+        auto_case_total += 1
         auto_by = testcase['notes'].match(regex)[2] if testcase['notes'].match(regex)
         auto_by = "unknown" if auto_by.nil?
         if authors.keys().include? auto_by
@@ -173,7 +176,7 @@ def report_auto_testcases_by_author(options)
         #authors.push(auto_by) unless authors.include? auto_by
         if options.by_author
           if auto_by ==  options.author
-            table.rows << [testcase['case_id'], testcase['summary'].strip[0..20], auto_by] #, testcase['is_automated']]
+            table.rows << [testcase['case_id'], testcase['summary'].strip[0..20], auto_by]
           end
         end
       end
@@ -186,6 +189,7 @@ def report_auto_testcases_by_author(options)
     table_sum.rows << [a, c]
   end
   print table_sum
+  print "Automated a total of #{auto_case_total} out of #{total_cases} possible testcases for a ratio of #{(auto_case_total.to_f/total_cases * 100).round(2)}%"
 end
 
 

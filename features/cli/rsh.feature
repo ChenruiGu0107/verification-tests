@@ -15,7 +15,7 @@ Feature: rsh.feature
       | help ||
     Then the output should contain "Open a remote shell session to a container"
     When I run the :get client command with:
-      | pods||
+      | resource | pods |
     When I run the :rsh client command with:
       | app_name | myapp |
     Then the step should succeed

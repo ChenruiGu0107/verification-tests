@@ -46,7 +46,7 @@ Feature: projects related features via cli
       | project_name | ALLUPERCASE |
     Then the step should fail
     Then the output should contain:
-      | invalid value 'ALLUPERCASE': must be a DNS label (at most 63 characters, matching regex [a-z0-9]([-a-z0-9]*[a-z0-9])?): e.g. "my-name |
+      | The ProjectRequest "ALLUPERCASE" is invalid. |
     When I run the :new_project client command with:
       | project_name | -abc |
     Then the step should fail
@@ -56,13 +56,13 @@ Feature: projects related features via cli
       | project_name | xyz- |
     Then the step should fail
     And the output should contain:
-      | invalid value 'xyz-': must be a DNS label (at most 63 characters, matching regex [a-z0-9]([-a-z0-9]*[a-z0-9])?): e.g. "my-name" |
+      | The ProjectRequest "xyz-" is invalid. |
 
     When I run the :new_project client command with:
       | project_name | $pe#cial& |
     Then the step should fail
     And the output should contain:
-      | invalid value '$pe#cial&': must be a DNS label (at most 63 characters, matching regex [a-z0-9]([-a-z0-9]*[a-z0-9])?): e.g. "my-name" |
+      | The ProjectRequest "$pe#cial&" is invalid. |
 
   # @author pruan@redhat.com
   # @case_id 478983
@@ -87,7 +87,6 @@ Feature: projects related features via cli
     Then the step should fail
     And the output should contain:
       | You may not request a new project via this API |
-
   # @author pruan@redhat.com
   # @case_id 470729
   Scenario: Should use and show the existing projects after the user login
@@ -145,3 +144,106 @@ Feature: projects related features via cli
       | * <%= project(0).name %>                              |
       | * <%= project(1).name %>                              |
       | * <%= project(2).name %>                              |
+  # @author haowang@redhat.com
+  # @case_id 497401
+  Scenario: Indicate when build failed to push in 'oc status'
+    Given I have a project
+    When I run the :status client command
+    Then the step should succeed
+    And the output should contain:
+      | <%= project.name %> |
+      |no services |
+      |Run 'oc new-app' to create an application|
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | l | app=ruby |
+    Then the step should succeed
+    And the output should contain:
+      | WARNING |
+      | it does not look like a Docker registry has been integrated |
+    Given the "ruby-hello-world-1" build was created
+    When I run the :status client command
+    Then the step should succeed
+    And the output should contain:
+      | can't push to image |
+      | Warning |
+      | administrator has not configured the integrated Docker registry |
+      
+  # @author yapei@redhat.com
+  # @case_id 476297
+  Scenario: Could delete all resources when delete the project   
+    Given a 5 characters random string of type :dns is stored into the :prj_name clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.prj_name %> |
+    Then the step should succeed
+    And I create a new application with:
+      | docker image | openshift/mysql-55-centos7 |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | n            | <%= cb.prj_name %>           |
+    Then the step should succeed
+
+    ### get project resource
+    When I run the :get client command with:
+      | resource | deploymentconfigs |
+      | n        | <%= cb.prj_name %>  |
+    Then the output should contain:
+      | mysql-55-centos7 |
+      | ruby-hello-world |
+    
+    When I run the :get client command with:
+      | resource | buildconfigs |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | ruby-hello-world |
+
+    When I run the :get client command with:
+      | resource | services |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | mysql-55-centos7 |
+      | ruby-hello-world |
+
+    When I run the :get client command with:
+      | resource | pods  |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | mysql-55-centos7-1-deploy |
+      | ruby-hello-world-1-build |
+
+    ### delete this project
+    Then I run the :delete client command with:
+      | object_type       | project |
+      | object_name_or_id | <%= cb.prj_name %> |
+    And the step should succeed
+
+    ### get project resource after project is deleted
+    When I run the :get client command with:
+      | resource | deploymentconfigs |
+      | n        | <%= cb.prj_name %>  |
+    Then the output should contain:
+      | Error from server: User "<%= @user.name %>" cannot list deploymentconfigs in project "<%= cb.prj_name %>" |
+    When I run the :get client command with:
+      | resource | buildconfigs |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | Error from server: User "<%= @user.name %>" cannot list buildconfigs in project "<%= cb.prj_name %>" |
+    When I run the :get client command with:
+      | resource | services |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | Error from server: User "<%= @user.name %>" cannot list services in project "<%= cb.prj_name %>" |
+    When I run the :get client command with:
+      | resource | pods  |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | Error from server: User "<%= @user.name %>" cannot list pods in project "<%= cb.prj_name %>" |
+
+    ### create a project with same name, no context for this new one
+    Given I run the :new_project client command with:
+      | project_name | <%= cb.prj_name %> | 
+    And the step should succeed
+    Then I run the :status client command
+    And the output should contain:
+      | In project <%= cb.prj_name %> on server |
+      | You have no services, deployment configs, or build configs |
+

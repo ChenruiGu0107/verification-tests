@@ -71,7 +71,7 @@ Given /^I replace (lines|content) in "(.+)":$/ do |mode, file, table|
       end
     elsif mode == "content"
       content = File.read(file)
-      pattern.each do |pattern, repl_string|
+      patterns.each do |pattern, repl_string|
         content.gsub!(pattern, repl_string)
       end
       filenew.write content

@@ -8,6 +8,8 @@ require 'openshift/service_account'
 require 'openshift/route'
 require 'openshift/build'
 require 'openshift/pod'
+require 'openshift/persistent_volume'
+require 'openshift/replication_controller'
 
 module CucuShift
   # @note this is our default cucumber World extension implementation
@@ -31,6 +33,8 @@ module CucuShift
       @routes = []
       @builds = []
       @pods = []
+      @pvs = []
+      @rcs = []
 
       # procs and lambdas to call on clean-up
       @teardown = []
@@ -165,6 +169,31 @@ module CucuShift
       end
     end
 
+    # @return PV by name from scenario cache; with no params given,
+    #   returns last requested PV; otherwise creates a PV object
+    def pv(name = nil, env = nil, switch: true)
+      env ||= self.env
+
+      if name
+        pv = @pvs.find {|pv| pv.name == name && pv.env == env}
+        if pv && @pvs.last == pv
+          return pv
+        elsif pv
+          @pvs << @pvs.delete(s) if switch
+          return pv
+        else
+          # create new CucuShift::PV object with specified name
+          @pvs << PersistentVolume.new(name: name, env: env)
+          return @pvs.last
+        end
+      elsif @pvs.empty?
+        # we do not create a random PV like with projects because that
+        #   would rarely make sense
+        raise "what PersistentVolume are you talking about?"
+      else
+        return @pvs.last
+      end
+    end
 
     def route(name = nil, service = nil)
       service ||= self.service
@@ -214,6 +243,33 @@ module CucuShift
         raise "what build are you talking about?"
       else
         return @builds.last
+      end
+    end
+
+    # @return rc by name from scenario cache; with no params given,
+    #   returns last requested build; otherwise creates a [rc] object
+    # @note you need the project already created
+    def rc(name = nil, project = nil)
+      project ||= self.project(generate: false)
+
+      if name
+        r = @rcs.find {|r| r.name == name && r.project == project}
+        if r && @rcs.last == r
+          return r
+        elsif r
+          @rcs << @rcs.delete(b)
+          return r
+        else
+          # create new CucuShift::ReplicationControler object with specified name
+          @rcs << ReplicationController.new(name: name, project: project)
+          return @rcs.last
+        end
+      elsif @rcs.empty?
+        # we do not create a random build like with projects because that
+        #   would rarely make sense
+        raise "what rc are you talking about?"
+      else
+        return @rc.last
       end
     end
 

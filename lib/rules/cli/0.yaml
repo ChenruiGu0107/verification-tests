@@ -22,10 +22,63 @@
   :cmd: oc policy add-role-to-user <role> <user_name>
 :add_role_to_group:
   :cmd: oc policy add-role-to-group <role> <group_name>
+:add_secret:
+  :cmd: oc secrets add serviceaccount/<sa_name> secrets/<secret_name>
+  :options:
+    :for: --for=<value>
+:annotate:
+  :cmd: oc annotate
+  :options:
+    :resource: <value>
+    :resourcename: <value>
+    :keyval: <value>
+    :all: --all=<value>
+    :noheadersfalse: --no-headers=<value>
+    :o: -o <value>
+    :output: --output=<value>
+    :outputversion: --output-version=<value>
+    :overwrite: --overwrite=<value>
+    :resourceversion: --resource-version=<value>
+    :t: -t <value>
+    :template: --template=<value>
+:build_logs:
+  :cmd: oc build-logs <build_name>
+  :options:
+    :follow: --follow=<value>
+    :nowait: --nowait=<value>
 :config:
   :cmd: oc config
   :options:
     :subcommand: <subcommand>
+:config_set:
+  :cmd: oc config set <prop_name> <prop_value>
+:config_set_cluster:
+  :cmd: oc config set-cluster <name>
+  :options:
+    :api_version: --api-version=<value>
+    :cert: --certificate-authority=<value>
+    :embed: --embed-certs=<value>
+    :insecure: --insecure-skip-tls-verify=<value>
+    :server: --server=<value>
+:config_set_context:
+  :cmd: oc config set-context <name>
+  :options:
+    :cluster: --cluster=<value>
+    :namespace: --namespace=<value>
+    :user: --user=<value>
+:config_set_creds:
+  :cmd: oc config set-credentials <name>
+  :options:
+    :cert:  --client-certificate=<value>
+    :key:  --client-key=<value>
+    :embed:  --embed-certs=<value>
+    :password:  --password=<value>
+    :token: --token=<value>
+    :user:  --username=<value>
+:config_use_context:
+  :cmd: oc config use-context <name>
+:config_unset:
+  :cmd: oc config unset <prop_name>
 :config_view:
   :cmd: oc config view
   :options:
@@ -50,7 +103,7 @@
   :cmd: oc deploy <deployment_config>
   :options:
     :cancel: --cancel
-    :enable-triggers: --enable-triggers
+    :enable_triggers: --enable-triggers
     :latest: --latest
     :retry: --retry
 :describe:
@@ -116,12 +169,18 @@
   :options:
     :resource_name: <value>
     :output: --output=<value>
+    :no_headers: --no-headers=<value>
     :o: -o <value>
     :l: -l <value>
+    :w: --watch=<value>
 :help:
   :cmd: oc <help_word>
   :options:
     :command: <value>
+:import_image:
+  :cmd: oc import-image
+  :options:
+    :image_name: <value>
 :login:
   :cmd: oc login
   :options:
@@ -167,6 +226,7 @@
     :docker_image: --docker-image=<value>
     :context_dir: --context-dir=<value>
     :code: --code=<value>
+    :search: --search=<value>
 :new_build:
   :cmd: oc new-build
   :options:
@@ -180,6 +240,17 @@
     :strategy: --strategy=<value>
     :template: --template=<value>
     :to_docker: --to-docker=<value>
+:new_dockercfg:
+  :cmd: oc secrets new-dockercfg <secret_name>
+  :options:
+    :docker_email: --docker-email=<value>
+    :docker_password: --docker-password=<value>
+    :docker_server: --docker-server=<value>
+    :docker_username: --docker-username=<value>
+    :no_headers: --no-headers=<value>
+    :output: --output=<value>  # One of: json|yaml|template|templatefile|wide
+    :output_version: --output-version=<value>
+    :template: --template=<value>
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:
@@ -188,6 +259,16 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:new_secret:
+  :cmd: oc secrets new <secret_name> <credential_file>
+  :options:
+    :no_headers: --no-headers=<value>
+    :output: --output=<value>  # One of: json|yaml|template|templatefile|wide
+    :output_version: --output-version=<value>
+    :template: --template=<value>
+    :type: --type=<value>
+    :quiet: --quiet=<value>
+
 :port_forward:
   :cmd: oc port-forward
   :options:
@@ -228,6 +309,12 @@
   :cmd: oc rsh
   :options:
     :app_name: <value>
+:scale:
+  :cmd: oc scale <resource> <name>
+  :options:
+    :current_replicas: --current-replicas=<value>
+    :replicas:  --replicas=<value>
+    :resource_ver: --resource-version=<value>
 :secrets:
   :cmd: oc secrets <action>
   :options:
@@ -255,6 +342,11 @@
   :properties:
     :oc_version: !ruby/regexp '/^oc v(.+)$/'
     :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
+:volume:
+  :cmd: oc volume <resource>
+  :options:
+    :all: --all=<value>
+    :selector: --selector='<value>'
 :whoami:
   :cmd: oc whoami
   :options:
@@ -268,6 +360,8 @@
   :cmd: oadm policy add-cluster-role-to-group <role_name> <group_name>
 :oadm_add_role_to_user:
   :cmd: oadm policy add-role-to-user <role_name> <user_name>
+  :options:
+    :role_namespace: --role-namespace=<value>
 :oadm_add_role_to_group:
   :cmd: oadm policy add-role-to-group <role_name> <group_name>
 :oadm_new_project:

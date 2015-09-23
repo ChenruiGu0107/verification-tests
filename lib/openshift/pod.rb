@@ -107,6 +107,49 @@ module CucuShift
       return res
     end
 
+    def wait_till_status(status, user, seconds=15*60)
+      res = nil
+      success = wait_for(seconds) {
+        res = status?(user: user, status: status)
+        # if pod completed there's no chance to change status so exit early
+        break if [:failed, :unknown, :missing].include?(res[:matched_status])
+        res[:success]
+      }
+      return res
+    end
+
+    # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
+    # @return [Boolean] if pod status is what's expected
+    def status?(user:, status:)
+      statuses = {
+        pending: "Pending",
+        running: "Running",
+        succeeded: "Succeeded",
+        failed: "Failed",
+        unknown: "Unknown"
+      }
+      res = get(user: user)
+      if res[:success]
+        status = status.respond_to?(:map) ?
+          status.map{ |s| statuses[s] } :
+          [ statuses[status] ]
+
+        res[:success] =
+          res[:parsed]["status"] &&
+          res[:parsed]["status"]["phase"] &&
+          status.include?(res[:parsed]["status"]["phase"])
+
+        res[:matched_status], garbage = statuses.find { |sym, str|
+          str == res[:parsed]["status"]["phase"]
+        }
+      # missing pods mean pod has been destroyed already probably deploy pod
+      elsif res[:stderr].include? 'not found'
+        res[:success] = true if status.include? :missing
+        res[:matched_status] = :missing
+      end
+      return res
+    end
+
     # @param labels [String, Array<String,String>] labels to filter on, read
     #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
     def self.wait_for_labeled(*labels, user:, project:, seconds:)
@@ -137,7 +180,7 @@ module CucuShift
     def self.get_matching(user:, project:, get_opts: {})
       opts = {resource: 'pod', n: project.name, o: 'yaml'}
       opts.merge! get_opts
-      res = cli_exec(as: user, key: :get, **opts)
+      res = user.cli_exec(:get, **opts)
 
       if res[:success]
         res[:parsed] = YAML.load(res[:response])
@@ -190,4 +233,3 @@ module CucuShift
     end
   end
 end
-

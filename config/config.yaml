@@ -9,6 +9,12 @@ global:
 
   rest_default_auth: :bearer_token
 
+  # this is the base repo prefix we pull images from; can configure to replace
+  #   that one in templates by setting OPENSHIFT_BASE_DOCKER_REPO_PREFIX;
+  #   here "openshift" means "docker.io/openshift" as docker.io is the default
+  #   repo; see examples in features/cli/quickstarts.feature
+  base_repo_prefix: openshift
+
   # use CUCUSHIFT_DEFAULT_ENVIRONMENT instead of setting here
   # default_environment: ose
 
