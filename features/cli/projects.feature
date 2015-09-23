@@ -168,4 +168,82 @@ Feature: projects related features via cli
       | can't push to image |
       | Warning |
       | administrator has not configured the integrated Docker registry |
+      
+  # @author yapei@redhat.com
+  # @case_id 476297
+  Scenario: Could delete all resources when delete the project   
+    Given a 5 characters random string of type :dns is stored into the :prj_name clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.prj_name %> |
+    Then the step should succeed
+    And I create a new application with:
+      | docker image | openshift/mysql-55-centos7 |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | n            | <%= cb.prj_name %>           |
+    Then the step should succeed
+
+    ### get project resource
+    When I run the :get client command with:
+      | resource | deploymentconfigs |
+      | n        | <%= cb.prj_name %>  |
+    Then the output should contain:
+      | mysql-55-centos7 |
+      | ruby-hello-world |
+    
+    When I run the :get client command with:
+      | resource | buildconfigs |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | ruby-hello-world |
+
+    When I run the :get client command with:
+      | resource | services |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | mysql-55-centos7 |
+      | ruby-hello-world |
+
+    When I run the :get client command with:
+      | resource | pods  |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | mysql-55-centos7-1-deploy |
+      | ruby-hello-world-1-build |
+
+    ### delete this project
+    Then I run the :delete client command with:
+      | object_type       | project |
+      | object_name_or_id | <%= cb.prj_name %> |
+    And the step should succeed
+
+    ### get project resource after project is deleted
+    When I run the :get client command with:
+      | resource | deploymentconfigs |
+      | n        | <%= cb.prj_name %>  |
+    Then the output should contain:
+      | Error from server: User "<%= @user.name %>" cannot list deploymentconfigs in project "<%= cb.prj_name %>" |
+    When I run the :get client command with:
+      | resource | buildconfigs |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | Error from server: User "<%= @user.name %>" cannot list buildconfigs in project "<%= cb.prj_name %>" |
+    When I run the :get client command with:
+      | resource | services |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | Error from server: User "<%= @user.name %>" cannot list services in project "<%= cb.prj_name %>" |
+    When I run the :get client command with:
+      | resource | pods  |
+      | n        | <%= cb.prj_name %> |
+    Then the output should contain:
+      | Error from server: User "<%= @user.name %>" cannot list pods in project "<%= cb.prj_name %>" |
+
+    ### create a project with same name, no context for this new one
+    Given I run the :new_project client command with:
+      | project_name | <%= cb.prj_name %> | 
+    And the step should succeed
+    Then I run the :status client command
+    And the output should contain:
+      | In project <%= cb.prj_name %> on server |
+      | You have no services, deployment configs, or build configs |
 
