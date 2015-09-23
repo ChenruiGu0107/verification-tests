@@ -6,7 +6,7 @@ require 'base_helper'
 
 module CucuShift
   # @note represents an OpenShift environment Persistent Volume
-  class PV
+  class PersistentVolume
     include Common::Helper
     include Common::UserObjectHelper
 
@@ -32,7 +32,7 @@ module CucuShift
         return false
       else
         # e.g. when called by user without rights to list PVs
-        raise "error getting PV existence: #{res[:response]}"
+        raise "error getting Persistent Volume existence: #{res[:response]}"
       end
     end
     alias exists? visible?

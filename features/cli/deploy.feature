@@ -339,3 +339,41 @@ Feature: deployment related features
       | enable_triggers   ||
     Then the output should contain:
       | enabled image triggers |
+
+  # @author pruan@redhat.com
+  # @case_id 483192
+  Scenario: oc deploy negative test
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | hooks            |
+      | o             | json             |
+    And the output is parsed as JSON
+    Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 1
+    When I get project deploymentconfig as JSON
+    And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :dc_name clipboard
+    When I run the :deploy client command with:
+      | deployment_config | notreal |
+    Then the step should fail
+    Then the output should contain:
+      | Error from server: deploymentConfig "notreal" not found |
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | retry | true |
+    Then the step should fail
+    And the output should contain:
+      | only failed deployments can be retried |
+    Given I wait for the pod named "hooks-1-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            |true |
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | hooks |
+      | o             | json  |
+    And the output is parsed as JSON
+    Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 2
+
