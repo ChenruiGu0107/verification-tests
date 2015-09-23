@@ -69,3 +69,53 @@ Feature: build 'apps' with CLI
       | app_repo                                                            | context_dir                  | first_build_name   | second_build_name          | template_file | output_image | dockercfg_file |
       | openshift/python-33-centos7~https://github.com/openshift/sti-python | 3.3/test/standalone-test-app | sti-python-1       | python-sample-build-sti-1  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476357/application-template-stibuild.json        | aosqe\/python\-sample\-sti                  | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %>       | 
       | https://github.com/openshift/ruby-hello-world.git                   |                              | ruby-hello-world-1 | ruby-sample-build-1        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476356/application-template-dockerbuild.json     | aosqe\/ruby\-sample\-docker                 | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %>       |
+
+  # @author xxing@redhat.com
+  # @case_id 491409
+  Scenario: Create an application with multiple images and same repo
+    Given I create a new project
+    And I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
+    Then the step should succeed
+    Given I use the "<%= @projects[0].name %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | image_stream | <%= @projects[0].name %>/ruby |
+      | image_stream | <%= @projects[1].name %>/ruby |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | l            | app=test |
+    When I run the :get client command with:
+      |resource| buildConfig |
+    Then the output should match:
+      | NAME\s+TYPE                 |
+      | ruby-hello-world\s+Source   |
+      | ruby-hello-world-1\s+Source |
+    When I run the :describe client command with:
+      | resource | buildConfig      |
+      | name     | ruby-hello-world |
+    Then the output should match:
+      | Image Reference:\s+ImageStreamTag <%= @projects[0].name %>/ruby:latest |
+    When I run the :describe client command with:
+      | resource | buildConfig      |
+      | name     | ruby-hello-world-1 |
+    Then the output should match:
+      | Image Reference:\s+ImageStreamTag <%= @projects[1].name %>/ruby:latest |
+    Given the "ruby-hello-world-1" build completed
+    Given the "ruby-hello-world-1-1" build completed
+    Given I wait for the "ruby-hello-world" service to become ready
+    When I execute on the pod:
+      | bash                       |
+      | -c                         |
+      | curl -k <%= service.url %> |
+    Then the step should succeed
+    And the output should contain "Demo App"
+    Given I wait for the "ruby-hello-world-1" service to become ready
+    When I execute on the pod:
+      | bash                       |
+      | -c                         |
+      | curl -k <%= service.url %> |
+    Then the step should succeed
+    And the output should contain "Demo App"
