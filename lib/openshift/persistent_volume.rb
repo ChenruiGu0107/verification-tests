@@ -57,7 +57,7 @@ module CucuShift
     # @return [Array<PV>]
     # @note raises error on issues
     def self.list(user:)
-      res = user.cli_exec(:get, resource: "", output: "yaml")
+      res = user.cli_exec(:get, resource: "pv", output: "yaml")
       if res[:success]
         list = YAML.load(res[:response])["items"]
         return list.map { |pv_hash|
