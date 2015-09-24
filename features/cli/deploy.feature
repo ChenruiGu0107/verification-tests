@@ -377,3 +377,53 @@ Feature: deployment related features
     And the output is parsed as JSON
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 2
 
+  # @author pruan@redhat.com
+  # @case_id 483192
+  Scenario: Negative test for deployment history
+    Given I have a project
+    When I run the :describe client command with:
+      | resource | dc         |
+      | name     | no-such-dc |
+    Then the step should fail
+    And the output should contain:
+      | Error from server: deploymentConfig "no-such-dc" not found |
+    When I run the :describe client command with:
+      | resource | dc              |
+      | name     | docker-registry |
+    Then the step should fail
+    And the output should contain:
+      | Error from server: deploymentConfig "docker-registry" not found |
+
+  # @author pruan@redhat.com
+  # @case_id 487644
+  Scenario: New depployment will be created once the old one is complete - single deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/sleepv1.json |
+    # simulate 'oc edit'
+    When I run the :get client command with:
+      | resource      | dc |
+      | resource_name | hooks |
+      | o             | yaml |
+    And I save the output to file>hooks.yaml
+    And I replace lines in "hooks.yaml":
+      | 200 | 10 |
+      | latestVersion: 1 | latestVersion: 2 |
+    When I run the :replace client command with:
+      | f      | hooks.yaml |
+    Then the step should succeed
+    # the 10 seconds are needed due to the pre-hooks
+    And 10 seconds have passed
+    When I run the :deploy client command with:
+      | deployment_config      | hooks |
+    Then the step should succeed
+    And the output should contain:
+      | hooks #2 deployment pending on update |
+      | hooks #1 deployment running for       |
+    And I run the :describe client command with:
+      | resource | dc |
+      | name     | hooks |
+    Then the step should succeed
+    And the output should contain:
+      | <%= "Latest Version:\\t2" %>|
+
