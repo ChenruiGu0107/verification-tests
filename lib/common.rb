@@ -43,14 +43,18 @@ module CucuShift
       end
 
       # @return the desired base docker image tag prefix based on
-      #   OPENSHIFT_BASE_DOCKER_REPO_PREFIX
-      def base_docker_repo_prefix
-        if ENV["OPENSHIFT_BASE_DOCKER_REPO_PREFIX"] &&
-            !ENV["OPENSHIFT_BASE_DOCKER_REPO_PREFIX"].empty?
-          ENV["OPENSHIFT_BASE_DOCKER_REPO_PREFIX"]
+      #   PRODUCT_DOCKER_REPO_PREFIX env variable
+      def product_docker_repo_prefix
+        if ENV["PRODUCT_DOCKER_REPO_PREFIX"] &&
+            !ENV["PRODUCT_DOCKER_REPO_PREFIX"].empty?
+          ENV["PRODUCT_DOCKER_REPO_PREFIX"]
         else
-          conf[:base_repo_prefix]
+          conf[:product_docker_repo_prefix]
         end
+      end
+
+      def project_docker_repo_prefix
+        conf[:project_docker_repo_prefix]
       end
 
       ## @param res [CucuShift::ResultHash] the result to verify

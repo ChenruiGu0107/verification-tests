@@ -9,11 +9,14 @@ global:
 
   rest_default_auth: :bearer_token
 
-  # this is the base repo prefix we pull images from; can configure to replace
-  #   that one in templates by setting OPENSHIFT_BASE_DOCKER_REPO_PREFIX;
+  # base docker registry prefixes for quickstarts;
+  #   (one is for the upstream community supported *projects* and the other one
+  #   is for the Red Hat enterprise supported *products*);
+  #   product one can be overriden by PRODUCT_DOCKER_REPO_PREFIX
   #   here "openshift" means "docker.io/openshift" as docker.io is the default
-  #   repo; see examples in features/cli/quickstarts.feature
-  base_repo_prefix: openshift
+  #   repo; see examples in features/quickstarts/quickstarts.feature
+  project_docker_repo_prefix: openshift
+  product_docker_repo_prefix: registry.access.redhat.com/openshift3
 
   # use CUCUSHIFT_DEFAULT_ENVIRONMENT instead of setting here
   # default_environment: ose

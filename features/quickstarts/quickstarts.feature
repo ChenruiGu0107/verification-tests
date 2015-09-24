@@ -9,7 +9,7 @@ Feature: quickstarts.feature
 
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/rails-ex/master/openshift/templates/rails-postgresql.json"
     And I replace lines in "rails-postgresql.json":
-      |openshift/postgresql-92-centos7|<%=base_docker_repo_prefix%>/<image_tag>|
+      |openshift/postgresql-92-centos7|<image_tag>|
     When I run the :process client command with:
       | f | rails-postgresql.json |
       | v | SOURCE_REPOSITORY_URL=https://github.com/openshift-qe/rails-ex.git|
@@ -43,6 +43,6 @@ Feature: quickstarts.feature
     And the output should not contain "static"
 
     Examples: OS Type
-      | image_tag             |
-      | postgresql-92-centos7 |
-      | postgresql-92-rhel7   |
+      | image_tag                                                   |
+      | <%= project_docker_repo_prefix %>/postgresql-92-centos7     |
+      | <%= product_docker_repo_prefix %>/postgresql-92-rhel7       |
