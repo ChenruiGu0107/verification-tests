@@ -49,6 +49,8 @@ Given /^I imagine a project$/ do
 end
 
 When /^admin creates a project$/ do
+  ensure_admin_tagged
+
   project(rand_str(5, :dns))
 
   # first make sure we clean-up this project at the end

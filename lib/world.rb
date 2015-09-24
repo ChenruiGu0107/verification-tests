@@ -61,6 +61,18 @@ module CucuShift
       end
     end
 
+    def scenario_tags
+      scenario.source_tag_names
+    end
+
+    def tagged_admin?
+      scenario_tags.include? '@admin'
+    end
+
+    def ensure_admin_tagged
+      raise 'tag scenario @admin as you use admin access' unless tagged_admin?
+    end
+
     # @note call like `user(0)` or simply `user` for current user
     def user(num=nil, switch: true)
       return @user if num.nil? && @user

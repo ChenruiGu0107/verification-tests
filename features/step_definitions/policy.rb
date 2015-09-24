@@ -35,6 +35,8 @@ When /^I remove project (.+?) role from the(?: (.+))? (user|service account)$/ d
 end
 
 Given /^(the [a-z]+) user is cluster-admin$/ do |which_user|
+  ensure_admin_tagged
+
   user_name=env.users[word_to_num(which_user)].name
   _admin = admin
   @result=_admin.cli_exec(

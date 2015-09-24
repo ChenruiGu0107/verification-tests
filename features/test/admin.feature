@@ -13,3 +13,18 @@ Feature: Testing Admin Scenarios
     And the output should contain:
       | OpenShift 3 Demo |
       | Active |
+
+  @admin
+  Scenario: exec in defailt repo pod
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | docker-registry=default |
+    When I execute on the pod:
+      | find            |
+      | /registry       |
+      | -type           |
+      | f               |
+    Then the step should succeed
+    And the output should contain:
+      |blobs/sha|

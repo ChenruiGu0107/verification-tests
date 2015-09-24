@@ -10,6 +10,11 @@ Given /^I switch to the ([a-z:]+) service account$/ do |who|
   @user = service_account(who)
 end
 
+Given /^I switch to cluster admin pseudo user$/ do
+  ensure_admin_tagged
+  @user = admin
+end
+
 Given /^I create the serviceaccount "([^"]*)"$/ do |name|
   sa = service_account(name)
   @result = sa.create(by: user)

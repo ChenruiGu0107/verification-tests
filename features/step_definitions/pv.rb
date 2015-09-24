@@ -12,6 +12,8 @@ end
 #   the object hash with the given value e.g.
 # | ["spec"]["nfs"]["server"] | service("nfs-service").ip |
 When /^admin creates a PV from "([^"]*)" where:$/ do |location, table|
+  ensure_admin_tagged
+
   if location.include? '://'
     step %Q/I download a file from "#{location}"/
     pv_hash = YAML.load @result[:response]

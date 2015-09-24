@@ -1,4 +1,6 @@
 Given /^service account "(.+?)" is granted the following scc policy: (.+?)$/ do |account, policy|
+  ensure_admin_tagged
+
   if policy.include? '://'
     step %Q{I download a file from "#{policy}"}
     path = @result[:abs_path]

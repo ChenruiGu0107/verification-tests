@@ -21,6 +21,8 @@ When /^I run the :([a-z_]*?)( background)? client command with:$/ do |yaml_key, 
 end
 
 When /^I run the :([a-z_]*?)( background)? admin command with:$/ do |yaml_key, background, table|
+  ensure_admin_tagged
+
   if background
     raise 'cli running background commands not supported yet'
   else
