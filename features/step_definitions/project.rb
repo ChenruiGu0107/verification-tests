@@ -65,6 +65,10 @@ When /^admin creates a project$/ do
                             description: "OpenShift v3 rocks" )
 end
 
+When /^admin deletes the #{QUOTED} project$/ do |project_name|
+  @result = project(project_name).delete(by: :admin)
+end
+
 # tries to delete last used project or a project with given name (if name given)
 When /^I delete the(?: "(.+?)")? project$/ do |project_name|
   p = project(project_name)

@@ -78,7 +78,8 @@ module CucuShift
     # @param rhel_base_repo [String] rhel/centos base repo URL to configure on
     #   env hosts
     # @param deployment_type [String] ???
-    # @param image_pre [String] ???
+    # @param image_pre [String] image pattern (see configure_env.sh)
+    #
     def ansible_install(hosts_spec:, auth_type:,
                         ssh_key:, ssh_user:,
                         dns: nil,
