@@ -44,5 +44,5 @@ Feature: quickstarts.feature
 
     Examples: OS Type
       | image_tag                                                   |
-      | <%= project_docker_repo_prefix %>/postgresql-92-centos7     |
-      | <%= product_docker_repo_prefix %>/postgresql-92-rhel7       |
+      | <%= project_docker_repo %>openshift/postgresql-92-centos7   |
+      | <%= product_docker_repo %>openshift3/postgresql-92-rhel7         |
