@@ -1,8 +1,8 @@
 require 'common'
 
 module CucuShift
-  # represents an OpenShift ReplicationController (rc for short) used for scaling pods
-  class ReplicationController
+  # represents an OpenShift DeploymentConfig (dc for short) used for scaling pods
+  class DeploymentConfig
     include Common::Helper
     include Common::UserObjectHelper
     extend  Common::BaseHelper
@@ -39,7 +39,7 @@ module CucuShift
     def get(user:)
       res = cli_exec(as: user, key: :get, n: project.name,
                 resource_name: name,
-                resource: "rc",
+                resource: "dc",
                 output: "yaml")
 
       if res[:success]
@@ -50,22 +50,63 @@ module CucuShift
       return res
     end
 
-    # @return [CucuShift::ResultHash] with :success depending on status['replicas'] == spec['replicas']
-    def ready?(user:)
-      res = get(user: user)
+    def describe(user, version)
+      res = cli_exec(as: user, key: :describe, n: project.name,
+        name: name + "-#{version}",
+        resource: "rc")
+
+    end
+
+
+    def wait_till_status(status, version, user, seconds=15*60)
+      res = nil
+      success = wait_for(seconds) {
+        res = status?(user, status, version)
+        # if pod completed there's no chance to change status so exit early
+        break if [:failed, :unknown, :missing].include?(res[:matched_status])
+        res[:success]
+      }
+      return res
+    end
+
+    # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
+    # @return [Boolean] if pod status is what's expected
+    def status?(user, status, version)
+      statuses = {
+        waiting: "Waiting",
+        running: "Running",
+        succeeded: "Succeeded",
+        failed: "Failed",
+      }
+      res = describe(user, version)
       if res[:success]
-        res[:success] = res[:parsed]["status"]["replicas"] == res[:parsed]["spec"]["replicas"]
+        pods_status = parse_oc_describe(res[:response])[:pods_status]
+        res[:success] = (pods_status[status].to_i != 0)
       end
       return res
     end
 
+    # @return [CucuShift::ResultHash] with :success depending on status['replicas'] == spec['replicas']
+    def ready?(user, version)
+      #res = get(user: user)
+      res = describe(user, version)
+
+      if res[:success]
+        oc_output = parse_oc_describe(res[:response])
+        # return success if the pod is running  
+        res[:success] =  parse_oc_describe(res[:response])[:pods_status][:running].to_i == 1
+      end
+      return res
+    end
+
+
     # @return [CucuShift::ResultHash] with :success true if we've eventually
-    #   got the pod in ready status; the result hash is from last executed get
-    #   call
-    def wait_till_ready(user, seconds)
+    #   got the status to equal to the expected version in ready status; the result hash is
+    #   from last executed get call
+    def wait_till_ready(user, version, seconds)
       res = nil
       success = wait_for(seconds) {
-        res = ready?(user: user)
+        res = ready?(user, version)
         res[:success]
       }
 
@@ -115,8 +156,8 @@ module CucuShift
       end
 
       res[:matching] = []
-      res[:rcs].zip(res[:parsed]["items"]) { |rc, rc_hash|
-        res[:matching] << rc if !block_given? || yield(rc, rc_hash)
+      res[:rcs].zip(res[:parsed]["items"]) { |r, r_hash|
+        res[:matching] << p if !block_given? || yield(r, r_hash)
       }
 
       return res
@@ -130,8 +171,8 @@ module CucuShift
       project.env
     end
 
-    def ==(r)
-      r.kind_of?(self.class) && name == r.name && project == p.project
+    def ==(p)
+      p.kind_of?(self.class) && name == p.name && project == p.project
     end
     alias eql? ==
 

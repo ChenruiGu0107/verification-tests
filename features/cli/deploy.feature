@@ -412,18 +412,23 @@ Feature: deployment related features
     When I run the :replace client command with:
       | f      | hooks.yaml |
     Then the step should succeed
-    # the 10 seconds are needed due to the pre-hooks
-    And 10 seconds have passed
+    And I wait until the status of depolyment config "hooks" with version "1" is :running
     When I run the :deploy client command with:
       | deployment_config      | hooks |
     Then the step should succeed
     And the output should contain:
       | hooks #2 deployment pending on update |
-      | hooks #1 deployment running for       |
+      | hooks #1 deployment running |
+    And I wait until the status of depolyment config "hooks" with version "2" is :running
     And I run the :describe client command with:
       | resource | dc |
       | name     | hooks |
     Then the step should succeed
     And the output should contain:
       | <%= "Latest Version:\\t2" %>|
+      | Deployment #2 (latest) |
+      | <%= "Status:\\t\\tRunning" %> |
+      | Deployment #1:   | 
+      | <%= "Status:\\t\\tComplete" %> |
+
 

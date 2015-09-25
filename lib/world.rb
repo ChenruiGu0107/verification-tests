@@ -10,6 +10,7 @@ require 'openshift/build'
 require 'openshift/pod'
 require 'openshift/persistent_volume'
 require 'openshift/replication_controller'
+require 'openshift/deployment_config'
 
 module CucuShift
   # @note this is our default cucumber World extension implementation
@@ -35,6 +36,7 @@ module CucuShift
       @pods = []
       @pvs = []
       @rcs = []
+      @dcs = []
 
       # procs and lambdas to call on clean-up
       @teardown = []
@@ -258,7 +260,7 @@ module CucuShift
       end
     end
 
-    # @return rc by name from scenario cache; with no params given,
+    # @return rc (ReplicationController) by name from scenario cache; with no params given,
     #   returns last requested build; otherwise creates a [rc] object
     # @note you need the project already created
     def rc(name = nil, project = nil)
@@ -269,7 +271,7 @@ module CucuShift
         if r && @rcs.last == r
           return r
         elsif r
-          @rcs << @rcs.delete(b)
+          @rcs << @rcs.delete(r)
           return r
         else
           # create new CucuShift::ReplicationControler object with specified name
@@ -285,6 +287,32 @@ module CucuShift
       end
     end
 
+    # @return dc (DeploymentConfig) by name from scenario cache; with no params given,
+    #   returns last requested build; otherwise creates a [dc] object
+    # @note you need the project already created
+    def dc(name = nil, project = nil)
+      project ||= self.project(generate: false)
+
+      if name
+        dc = @dcs.find {|d| d.name == name && d.project == project}
+        if dc && @dcs.last == dc
+          return dc
+        elsif dc
+          @dcs << @dcs.delete(dc)
+          return dc
+        else
+          # create new CucuShift::DeploymentConfig object with specified name
+          @dcs << DeploymentConfig.new(name: name, project: project)
+          return @dcs.last
+        end
+      elsif @dcs.empty?
+        # we do not create a random build like with projects because that
+        #   would rarely make sense
+        raise "what dc are you talking about?"
+      else
+        return @dc.last
+      end
+    end
     # @return pod by name from scenario cache; with no params given,
     #   returns last requested pod; otherwise creates a [Pod] object
     # @note you need the project already created
