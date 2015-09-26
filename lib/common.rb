@@ -85,7 +85,7 @@ module CucuShift
             end
           end
         end
-        # more parsing for commonly used properties
+        # more parsing for commonly used properties 
         pods_regexp = /Pods Status:\s+(\d+)\s+Running\s+\/\s+(\d+)\s+Waiting\s+\/\s+(\d+)\s+Succeeded\s+\/\s+(\d+)\s+Failed/
         replicas_regexp = /Replicas:\s+(\d+)\s+current\s+\/\s+(\d+)\s+desired/
         pods_status = pods_regexp.match(oc_output)

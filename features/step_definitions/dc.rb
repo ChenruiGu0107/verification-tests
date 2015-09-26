@@ -1,5 +1,4 @@
 #### deployConfig related steps
-#
 Given /^I wait until deployment config(?: "(.+)")? matches version "(.+)"$/ do |dc_name, version|
   ready_timeout = 15 * 60
   dc(dc_name).wait_till_ready(user, version, ready_timeout)
