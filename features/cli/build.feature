@@ -119,3 +119,48 @@ Feature: build 'apps' with CLI
       | curl -k <%= service.url %> |
     Then the step should succeed
     And the output should contain "Demo App"
+
+  # @author xxing@redhat.com
+  # @case_id 482198
+  Scenario: Set dump-logs and restart flag for cancel-build in openshift
+    Given I have a project
+    When I run the :process client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    Given I save the output to file>app-stibuild.json
+    When I run the :create client command with:
+      | f | app-stibuild.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | buildConfig |
+    Then the output should contain:
+      | NAME              |
+      | ruby-sample-build |
+    # As the trigger of bc is "ConfigChange" and sometime the first build doesn't create quickly,
+    # so wait the first build complete，wanna start maunally for testing this cli well
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :cancel_build client command with:
+      | build_name | ruby-sample-build-2 |
+      | dump_logs  | true                |
+    Then the output should contain:
+      | Build logs for ruby-sample-build-2 |
+    And the "ruby-sample-build-2" build was cancelled
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :cancel_build client command with:
+      | build_name | ruby-sample-build-3 |
+      | restart    | true                |
+      | dump_logs  | true                |
+    Then the output should contain:
+      | Build logs for ruby-sample-build-3 |
+    And the "ruby-sample-build-3" build was cancelled
+    When I run the :get client command with:
+      | resource | build |
+    # Should contain the new start build
+    Then the output should match:
+      | ruby-sample-build-3-\d+.+(?:Running)?(?:Pending)?|
