@@ -173,6 +173,15 @@ module CucuShift
           end
         end
       end
+
+      # test if a stirng is a number or not
+      # @return float of int equivalent if the val is a number otherwise return val unmodified
+      def str_to_num(val)
+        num = Integer(val) rescue nil
+        num = Float(val) rescue nil unless num
+        return num if num
+        return val
+      end
     end
   end
 end

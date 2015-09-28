@@ -11,6 +11,7 @@ require 'io/console' # for reading password without echo
 require 'timeout' # to avoid freezes waiting for user input
 
 require 'common'
+require 'net'
 
 module CucuShift
   class OpenStack
@@ -219,6 +220,21 @@ module CucuShift
     #   to lookup in configuration
     def default_opts(service_name)
       return  conf[:services, service_name.to_sym]
+    end
+
+    # launch multiple instances in OpenStack
+    # @param os_opts [Hash] options to pass to [OpenStack::new]
+    # @param names [Array<String>] array of names to give to new machines
+    # @return [Hash] a hash of name => hostname pairs
+    def launch_instances(names:, use_hostnames: true)
+      res = {}
+      names.each { |name|
+        _, res[name] = create_instance(name)
+        res[name] = Common::Net.reverse_lookup(res[name]) if use_hostnames
+        sleep 10 # why?
+      }
+      sleep 60 # why?
+      return res
     end
   end
 end

@@ -202,7 +202,14 @@ function add_infra_records()
 	for host in ${CONF_HOST_LIST//,/ }; do
 		key=$(echo $host|awk -F":" '{print $1}')
 		value=$(echo $host|awk -F":" '{print $2}')
-        echo "${key}                    IN A    ${value}" >>/var/named/dynamic/${CONF_HOST_DOMAIN}.db
+        if [[ "$value" == *[A-Za-z]* ]]; then
+          REC_TYPE=CNAME
+          value+=.
+        else
+          REC_TYPE=A
+        fi
+
+        echo "${key}                    IN $REC_TYPE    ${value}" >>/var/named/dynamic/${CONF_HOST_DOMAIN}.db
      done
 }
 
@@ -212,12 +219,18 @@ function add_route_records()
 	for host in ${CONF_HOST_LIST//,/ }; do
 		key=$(echo $host|awk -F":" '{print $1}')
 		value=$(echo $host|awk -F":" '{print $2}')
+		if [[ "$value" == *[A-Za-z]* ]]; then
+			REC_TYPE=CNAME
+			value+=.
+		else
+			REC_TYPE=A
+		fi
 		if [ x"$key" == x"master" ];then
 			if [ x"$tmpStr" == x"" ]; then
-				echo "*                    IN A    ${value}" >>/var/named/dynamic/${CONF_APP_DOMAIN}.db
+				echo "*                    IN $REC_TYPE    ${value}" >>/var/named/dynamic/${CONF_APP_DOMAIN}.db
 			fi
 		else
-			echo "*                    IN A    ${value}" >>/var/named/dynamic/${CONF_APP_DOMAIN}.db
+			echo "*                    IN $REC_TYPE    ${value}" >>/var/named/dynamic/${CONF_APP_DOMAIN}.db
 		fi
 
 	done

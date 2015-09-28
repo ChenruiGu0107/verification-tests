@@ -9,12 +9,15 @@ require 'commander'
 
 require 'common'
 require 'launchers/env_launcher'
+require 'launchers/openstack'
 
 module CucuShift
   class EnvLauncherCli
     include Commander::Methods
+    include Common::Helper
 
     def initialize
+      always_trace!
     end
 
     def run
@@ -43,16 +46,22 @@ module CucuShift
             # TODO: allow choosing other launchers, not only openstack
 
             ## launch instances
+            ostack = CucuShift::OpenStack.new()
             hostnames = [ options.launched_instances_name_prefix + "_master" ]
             options.node_num.times { |i|
               hostnames << options.launched_instances_name_prefix +
                             "_node_#{i+1}"
             }
-            hosts = el.launch_os_instances(names: hostnames)
+            hosts = ostack.launch_instances(names: hostnames)
 
             # ansible setup
-            hosts_spec = {master: hosts.shift[1], node: hosts.values}
-            launch_opts = {hosts_spec: hosts_spec}
+            hosts_spec = { "master"=>[hosts.shift[1]], "node"=>hosts.values }
+            # TODO: allow custom ssh username
+            launch_opts = {
+              hosts_spec: hosts_spec,
+              ssh_key: expand_private_path(ostack.opts[:key_file]),
+              ssh_user: 'root'
+            }
             el.launcher_env_options(launch_opts)
             el.ansible_install(**launch_opts)
           else

@@ -1,9 +1,9 @@
 require 'socket'
 require 'erb'
+require 'yaml'
 
 require 'common'
 require 'host'
-require_relative 'openstack'
 
 module CucuShift
   class EnvLauncher
@@ -19,54 +19,51 @@ module CucuShift
       end
     end
 
-    # @param os_opts [Hash] options to pass to [OpenStack::new]
-    # @param names [Array<String>] array of names to give to new machines
-    # @return [Hash] a hash of name => hostname pairs
-    def launch_os_instances(names:, use_hostnames: true, **os_opts)
-      os_server = CucuShift::OpenStack.new(**os_opts)
-      res = {}
-      names.each { |name|
-        _, res[name] = os_server.create_instance(name)
-        res[name] = reverse_lookup(res[name]) if use_hostnames
-        sleep 10 # why?
-      }
-      sleep 60 # why?
-      return res
-    end
 
-    # @return single DNS entry for a hostname
-    private def dns_lookup(hostname, af: Socket::AF_INET)
-      res = Socket.getaddrinfo(hostname, 0, af, Socket::SOCK_STREAM, nil, Socket::AI_CANONNAME)
+    # @param spec [String, Hash<String,Array>] the specification.
+    #   If [String], then it looks like: `master:hostname1,node:hostname2,...`;
+    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`
+    private def spec_to_str(spec)
+      return spec if spec.kind_of?(String)
 
-      if res.size < 1
-        raise "cannot resolve hostname: #{hostname}"
+      res = []
+      spec.each do |role, hostnames|
+        hostnames.each do |hostname|
+          res << "#{role}:#{hostname}"
+        end
       end
-
-      return res[0][3]
+      return res.join(',')
     end
 
-    private def reverse_lookup(ip)
-      res = Socket.getaddrinfo(ip, 0, Socket::AF_UNSPEC, Socket::SOCK_STREAM, nil, Socket::AI_CANONNAME, true)
-
-      if res.size != 1
-        raise "not sure how to handle multiple entries, please report to author"
-      end
-
-      return res[0][2] # btw this might be same IP if reverse entry missing
-    end
-
+    # @param spec [String, Hash<String,Array>] the specification.
+    #   If [String], then it looks like: `master:hostname1,node:hostname2,...`;
+    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`
     private def spec_to_hosts(spec, ssh_key:, ssh_user:)
       hosts={}
-      spec.gsub!(/all:/, 'master:')
-      host_opts = {user: ssh_user, ssh_private_key: ssh_key}
-      spec.split(',').each do |role_host_pair|
-        role, _, hostname = role_host_pair.partition(':')
-        (hosts[role] ||= []) << SSHAccessibleHost.new(hostname, host_opts)
 
+      if spec.kind_of? String
+        res = {}
+        spec.gsub!(/all:/, 'master:')
+        spec.split(',').each { |p|
+          role, _, hostname = p.partition(':')
+          (res[role] ||= []) << hostname
+        }
+        spec = res
       end
+
+      host_opts = {user: ssh_user, ssh_private_key: ssh_key}
+      spec.each do |role, hostnames|
+        hosts[role] = hostnames.map do |hostname|
+          SSHAccessibleHost.new(hostname, host_opts)
+        end
+      end
+
+      return hosts
     end
 
-    # @param hosts_spec [Hash<String,Array>] role=>[host1, ..,hostN] pairs
+    # @param hosts_spec [String, Hash<String,Array>] the specification.
+    #   If [String], then it looks like: `master:hostname1,node:hostname2,...`;
+    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`
     # @param auth_type [String] LDAL, HTTPASSWD, KERBEROS
     # @param ssh_user [String] the username to use for ssh to env hosts
     # @param dns [String] the dns server to use; can be keyword or an IP
@@ -101,13 +98,17 @@ module CucuShift
                           conf[:sercices, :test_kerberos, :admin_server],
                         kerberos_docker_base_image:
                           conf[:sercices, :test_kerberos, :docker_base_image])
-      hosts = spec_to_hosts(host_spec, ssh_key: ssh_key, ssh_user: ssh_user)
-      conf_script_file = File.join(__FILE__, 'env_scripts', 'configure_env.sh')
-      hosts_erb = File.join(__FILE__, 'env_scripts', 'hosts.erb')
+      hosts = spec_to_hosts(hosts_spec, ssh_key: ssh_key, ssh_user: ssh_user)
+      spec_str = spec_to_str(hosts_spec)
+      logger.info hosts.to_yaml
+
+      conf_script_dir = File.join(File.dirname(__FILE__), 'env_scripts')
+      conf_script_file = File.join(conf_script_dir, 'configure_env.sh')
+      hosts_erb = File.join(conf_script_dir, 'hosts.erb')
 
       conf_script = File.read(conf_script_file)
 
-      conf_script.gsub!(/#CONF_HOST_LIST=.*$/, "CONF_HOST_LIST=#{hosts_spec}")
+      conf_script.gsub!(/#CONF_HOST_LIST=.*$/, "CONF_HOST_LIST=#{spec_str}")
       conf_script.gsub!(/#CONF_AUTH_TYPE=.*$/, "CONF_AUTH_TYPE=#{auth_type}")
       conf_script.gsub!(/#CONF_IMAGE_PRE=.*$/, "CONF_IMAGE_PRE='#{image_pre}'")
       conf_script.gsub!(/#CONF_CRT_PATH=.*$/) { "CONF_CRT_PATH='#{crt_path}'" }
@@ -122,6 +123,13 @@ module CucuShift
       conf_script.gsub!(/#(CONF_KERBEROS_BASE_DOCKER_IMAGE)=.*$/,
                         "\\1=#{kerberos_docker_base_image}")
       conf_script.gsub!(/#(CONF_KERBEROS_KDC)=.*$/, "\\1=#{kerberos_kdc}")
+
+      dns_subst = proc do
+        conf_script.gsub!(/#CONF_HOST_DOMAIN=.*$/,
+                          "CONF_HOST_DOMAIN=#{host_domain}")
+        conf_script.gsub!(/#CONF_APP_DOMAIN=.*$/,
+                          "CONF_APP_DOMAIN=#{app_domain}")
+      end
 
       case dns
       when nil, false, "", "none"
@@ -155,11 +163,11 @@ module CucuShift
                      ssh_private_key: shared_dns_config[:key_file]}
         dns_host = SSHAccessibleHost.new(shared_dns_config[:ip], host_opts)
         begin
+          dns_subst.call
           check_res \
-            dns_host.exec_admin('cat > configure_env.sh',
-                                stdin: conf_script)
+            dns_host.exec_admin('cat > configure_env.sh', stdin: conf_script)
           check_res \
-            dns_host.exec_admin('sh configure_env.sh configure_shared_dns')
+            dns_host.exec_admin('sh -x configure_env.sh configure_shared_dns')
         ensure
           dns_host.clean_up
         end
@@ -169,10 +177,7 @@ module CucuShift
         conf_script.gsub!(/#CONF_DNS_IP=.*$/, dns)
       end
 
-      conf_script.gsub!(/#CONF_HOST_DOMAIN=.*$/,
-                        "CONF_HOST_DOMAIN=#{host_domain}")
-      conf_script.gsub!(/#CONF_APP_DOMAIN=.*$/,
-                        "CONF_APP_DOMAIN=#{app_domain}")
+      dns_subst.call # double substritution (if happens) should not hurt
 
       case auth_type
       when "HTPASSWD"
@@ -196,7 +201,7 @@ module CucuShift
             check_res host.exec_admin("sh configure_env.sh configure_hosts")
           end
 
-          if etcd_num < etcd_cur_num
+          if Integer(etcd_num) < etcd_cur_num
             etcd_cur_num = etcd_cur_num + 1
             hosts_str.gsub!(/(\[etcd\])/, "\\1\n" + host.hostname + "\n")
           end
@@ -244,16 +249,23 @@ module CucuShift
 
       # finally run download repo and run ansible (this is in workdir)
       # we need git and ansible available pre-installed
-      check_res Host.loalhost.exec(
+      check_res Host.localhost.exec(
         "git clone #{ansible_url} -b #{ansible_branch}"
       )
       res = nil
-      Dir.chdir(Host.loalhost.workdir) {
+      Dir.chdir(Host.localhost.workdir) {
         File.write("hosts", hosts_str)
         # want to see output in real-time
-        res = system("ansible-playbook -i hosts openshift-ansible/playbooks/byo/config.yml -v --private-key #{expand_private_path ssh_key}")
+        ansible_cmd = "ansible-playbook -i hosts -v --private-key #{Host.localhost.shell_escape(expand_private_path(ssh_key))} openshift-ansible/playbooks/byo/config.yml"
+        logger.info("Running: #{ansible_cmd}")
+        res = system(ansible_cmd)
       }
-      raise "ansible failed" unless res
+      case res
+      when false
+        raise "ansible failed with status: #{$?}"
+      when nil
+        raise "ansible failed to execute"
+      end
 
       check_res hosts['master'][0].exec_admin(
         "sh configure_env.sh replace_template_domain"
