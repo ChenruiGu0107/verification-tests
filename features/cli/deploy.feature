@@ -432,3 +432,29 @@ Feature: deployment related features
       | <%= "Status:\\t\\tComplete" %> |
 
 
+  # @author pruan@redhat.com
+  # @case_id 484483
+  Scenario: Deployment succeed when running time is less than ActiveDeadlineSeconds
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+       # simulate 'oc edit'
+    When the pod named "hooks-1-deploy" becomes ready
+
+    When I run the :get client command with:
+      | resource      | pod            |
+      | resource_name | hooks-1-deploy |
+      | o             | yaml           |
+    And I save the output to file>hooks.yaml
+   And I replace lines in "hooks.yaml":
+      | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 300 |
+    When I run the :replace client command with:
+      | f | hooks.yaml |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deployment=hooks-1 |
+      | deploymentconfig=hooks |
+
