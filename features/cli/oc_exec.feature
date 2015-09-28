@@ -89,3 +89,23 @@ Feature: containers related features
     Then the output should contain:
       | max_connections |
       | 42              |
+
+  # @author pruan@redhat.com
+  # @case_id 472859
+  Scenario: Executing commands in a container that isn't running
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json|
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should contain:
+      | Pending |
+    And I run the :exec client command with:
+      | pod | hello-openshift |
+      | container | hello-openshift |
+      | exec_command | ls      |
+    Then the step should fail
+    And the output should contain:
+      | error: pod hello-openshift is not running and cannot execute commands; current phase is Pending |
+
