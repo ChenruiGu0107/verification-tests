@@ -438,9 +438,8 @@ Feature: deployment related features
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
-       # simulate 'oc edit'
+    # simulate 'oc edit'
     When the pod named "hooks-1-deploy" becomes ready
-
     When I run the :get client command with:
       | resource      | pod            |
       | resource_name | hooks-1-deploy |
@@ -458,3 +457,38 @@ Feature: deployment related features
       | deployment=hooks-1 |
       | deploymentconfig=hooks |
 
+  # @author pruan@redhat.com
+  # @case_id 489263
+  Scenario: Can't stop a deployment in Failed status
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-stop-failed-deployment.json |
+    When the pod named "test-stop-failed-deployment-1-deploy" becomes ready
+    When I run the :deploy client command with:
+      | deployment_config | test-stop-failed-deployment |
+    Then the step should succeed
+    And I run the :deploy client command with:
+      | deployment_config | test-stop-failed-deployment |
+      | cancel            | true                        |
+    Then the step should succeed
+    And the output should contain:
+      | cancelled deployment #1 |
+    When  I run the :describe client command with:
+      | resource | dc |
+      | name     | test-stop-failed-deployment  |
+    Then the step should succeed
+    And the output should contain:
+      | <%= "Deployment #1 (latest)" %> |
+      | <%= "Status:\\t\\tFailed" %>    |
+    And I run the :deploy client command with:
+      | deployment_config | test-stop-failed-deployment |
+      | cancel            | true                        |
+    Then the step should succeed
+    And the output should contain:
+      | no active deployments to cancel |
+    And I run the :deploy client command with:
+      | deployment_config | test-stop-failed-deployment |
+    Then the step should succeed
+    And the output should contain:
+      | test-stop-failed-deployment #1 deployment failed |
+      | The deployment was cancelled by the user         |
