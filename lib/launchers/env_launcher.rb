@@ -253,10 +253,14 @@ module CucuShift
         "git clone #{ansible_url} -b #{ansible_branch}"
       )
       res = nil
+      ENV["ANSIBLE_FORCE_COLOR"] = "true"
       Dir.chdir(Host.localhost.workdir) {
+        logger.info("hosts file:\n" + hosts_str)
         File.write("hosts", hosts_str)
-        # want to see output in real-time
-        ansible_cmd = "ansible-playbook -i hosts -v --private-key #{Host.localhost.shell_escape(expand_private_path(ssh_key))} openshift-ansible/playbooks/byo/config.yml"
+        # want to see output in real-time so Host#exec does not work
+        ssh_key_param = expand_private_path(ssh_key)
+        File.chmod(0600, ssh_key_param)
+        ansible_cmd = "ansible-playbook -i hosts -v --private-key #{Host.localhost.shell_escape(ssh_key_param)} -vvvv openshift-ansible/playbooks/byo/config.yml"
         logger.info("Running: #{ansible_cmd}")
         res = system(ansible_cmd)
       }
