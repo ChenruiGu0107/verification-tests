@@ -22,6 +22,11 @@ And /^I log the message> (.+)$/ do |message|
 end
 
 And /^I log the messages:$/ do |table|
+  @result = {}
+  @result[:success] = true
+  @result[:response] = "log message: #{table.raw.flatten.join("\n")}"
+  @result[:instruction] = "log message:\n#{@result[:response]}"
+  @result[:exitstatus] = 0
   table.raw.flatten.each { |m| logger.info(m) }
 end
 

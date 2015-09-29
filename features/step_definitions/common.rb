@@ -76,17 +76,40 @@ Then /^(the|all)? outputs?( by order)? should( not)? (contain|match)(?: (\d+) ti
         end
       end
     when in_order
-      raise "by order not implemented yet"
-      #o = o.dup
-      #patterns.each do |p|
-      #  if m = o.match(p)
-      #  else
-      #  end
-      #end
+      i = 0
+      pattern = "nil"
+      found = false
+      patterns.each do |p|
+        pattern = p
+        if p.kind_of? Regexp
+          match = p.match(o, i)
+          if match
+            found = true
+            i = match.end(0)
+          else
+            found = false
+            break
+          end
+        else
+          match = o.index(p, i)
+          if match
+            found = true
+            i = match + p.size
+          else
+            found = false
+            break
+          end
+        end
+      end
+      if !found && !negative
+        raise "pattern #{pattern} not found in specified order"
+      elsif found && negative
+        raise "all patterns found in specified order"
+      end
     else
       patterns.each do |p|
         if p.kind_of? Regexp
-          found = !! o.match(p)
+          found = !!o.match(p)
         else
           found = o.include? p
         end
