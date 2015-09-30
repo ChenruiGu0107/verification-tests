@@ -190,8 +190,8 @@ module CucuShift
       etcd_cur_num = 0
       node_index = 1
 
-      hosts.each do |role, hosts|
-        hosts.each do |host|
+      hosts.each do |role, role_hosts|
+        role_hosts.each do |host|
           # upload to host with cat
           check_res \
             host.exec_admin('cat > configure_env.sh', stdin: conf_script)
@@ -219,19 +219,19 @@ module CucuShift
             if dns == "embedded_skydns"
               hosts_str.gsub!(/(\[masters\])/, "\\1\n#{host.hostname} openshift_hostname=master.#{host_domain}\n")
             else
-              hosts_str.gsub!(/(\[masters\])/, "\\1\n" + host.hostname + "\n")
+              hosts_str.gsub!(/(\[masters\])/, "\\1\n#{host.hostname} openshift_hostname=#{host.hostname}\n")
             end
 
-            if hosts.size > 1
-              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_scheduleable=False"\n*)
+            if hosts.values.flatten.size > 1
+              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_scheduleable=False openshift_hostname=#{host.hostname}\n*)
             else
-              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"\n*)
+              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=#{host.hostname}\n*)
             end
           else
             if dns == "embedded_skydns"
               hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=minion#{node_index}.#{host_domain}\n*)
             else
-              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"\n*)
+              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=#{host.hostname}\n*)
             end
             if dns
               check_res \
