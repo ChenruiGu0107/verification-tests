@@ -413,6 +413,8 @@ Feature: deployment related features
       | f      | hooks.yaml |
     Then the step should succeed
     And I wait until the status of depolyment config "hooks" with version "1" is :running
+    # take this out later
+    And I wait until deployment config "hooks" matches version "1"
     When I run the :deploy client command with:
       | deployment_config      | hooks |
     Then the step should succeed
@@ -424,12 +426,12 @@ Feature: deployment related features
       | resource | dc |
       | name     | hooks |
     Then the step should succeed
-    And the output should contain:
-      | <%= "Latest Version:\\t2" %>|
-      | Deployment #2 (latest) |
-      | <%= "Status:\\t\\tRunning" %> |
+    And the output should match:
+      | Latest Version:\\s+2|
+      | Deployment\\s+#2\\s+ |
+      | Status:\\s+Running |
       | Deployment #1:   | 
-      | <%= "Status:\\t\\tComplete" %> |
+      | Status:\\s+Complete |
 
 
   # @author pruan@redhat.com
@@ -473,13 +475,15 @@ Feature: deployment related features
     Then the step should succeed
     And the output should contain:
       | cancelled deployment #1 |
+    And I wait for the pod named "test-stop-failed-deployment-1-deploy" to die
     When  I run the :describe client command with:
       | resource | dc |
       | name     | test-stop-failed-deployment  |
     Then the step should succeed
-    And the output should contain:
-      | <%= "Deployment #1 (latest)" %> |
-      | <%= "Status:\\t\\tFailed" %>    |
+
+    Then the output by order should match:
+      | Deployment #1 |
+      | Status:\\s+Failed  |
     And I run the :deploy client command with:
       | deployment_config | test-stop-failed-deployment |
       | cancel            | true                        |

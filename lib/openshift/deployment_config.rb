@@ -8,8 +8,8 @@ module CucuShift
     extend  Common::BaseHelper
     attr_reader :props, :name, :project
 
-    # @param name [String] name of rc
-    # @param project [CucuShift::Project] the project rc belongs to
+    # @param name [String] name of dc
+    # @param project [CucuShift::Project] the project dc belongs to
     # @param props [Hash] additional properties of the rc
     def initialize(name:, project:, props: {})
       @name = name
@@ -54,7 +54,7 @@ module CucuShift
       res = cli_exec(as: user, key: :describe, n: project.name,
         name: name + "-#{version}",
         resource: "rc")
-
+      return res
     end
 
 
@@ -62,8 +62,8 @@ module CucuShift
       res = nil
       success = wait_for(seconds) {
         res = status?(user, status, version)
-        # if pod completed there's no chance to change status so exit early
-        break if [:failed, :unknown, :missing].include?(res[:matched_status])
+        # if dc completed there's no chance to change status so exit early
+        break if [:failed, :missing].include?(res[:matched_status])
         res[:success]
       }
       return res
@@ -93,8 +93,9 @@ module CucuShift
 
       if res[:success]
         oc_output = parse_oc_describe(res[:response])
-        # return success if the pod is running  
+        # return success if the pod is running
         res[:success] =  parse_oc_describe(res[:response])[:pods_status][:running].to_i == 1
+        res[:parsed] = oc_output
       end
       return res
     end
@@ -171,13 +172,13 @@ module CucuShift
       project.env
     end
 
-    def ==(p)
-      p.kind_of?(self.class) && name == p.name && project == p.project
+    def ==(dc)
+      dc.kind_of?(self.class) && name == dc.name && project == dc.project
     end
     alias eql? ==
 
     def hash
-      :pod.hash ^ name.hash ^ project.hash
+      :dc.hash ^ name.hash ^ project.hash
     end
   end
 end

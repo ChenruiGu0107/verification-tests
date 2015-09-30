@@ -19,7 +19,7 @@ module CucuShift
 
     # creates new rc from an OpenShift API rc object
     def self.from_api_object(project, rc_hash)
-      self.new(project: project, name: pod_hash["metadata"]["name"]).
+      self.new(project: project, name: rc_hash["metadata"]["name"]).
                                 update_from_api_object(rc_hash)
     end
 
@@ -95,8 +95,8 @@ module CucuShift
       return res
     end
 
-    # @yield block that selects pods by returning true; block receives
-    #   |pod, pod_hash| as parameters where pod is a reloaded [Pod]
+    # @yield block that selects rcs by returning true; block receives
+    #   |rc, rc_hash| as parameters where rc is a reloaded [RepicationController]
     # @return [CucuShift::ResultHash] with :matching key being array of matched
     #   rcs
     def self.get_matching(user:, project:, get_opts: {})
@@ -136,7 +136,7 @@ module CucuShift
     alias eql? ==
 
     def hash
-      :pod.hash ^ name.hash ^ project.hash
+      :rc.hash ^ name.hash ^ project.hash
     end
   end
 end
