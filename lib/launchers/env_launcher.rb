@@ -327,6 +327,10 @@ module CucuShift
         end
       end
 
+      # workaround https://issues.jenkins-ci.org/browse/JENKINS-30719
+      # that means to remove extra `\` chars
+      ENV['IMAGE_PRE'] = ENV['IMAGE_PRE'].gsub(/\\\${/,'${') if ENV['IMAGE_PRE']
+
       keys = [:crt_path, :deployment_type,
               :hosts_spec, :auth_type,
               :ssh_key, :ssh_user,
