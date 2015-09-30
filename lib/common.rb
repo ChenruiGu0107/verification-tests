@@ -57,27 +57,26 @@ module CucuShift
         conf[:project_docker_repo]
       end
 
-      # the 'oc describe xxx' output is key-value formatted with ':' as the 
-      #  separator.  
+      # the 'oc describe xxx' output is key-value formatted with ':' as the
+      #  separator.
       def parse_oc_describe(oc_output)
         result = {}
-        res = oc_output.split("\n")
-        multi_line_keys = []
+        multi_line_key = nil
         multi_line = false
-        res.each do |line|
+        oc_output.each_line do |line|
           if multi_line
             if line.size == 0
               # multline value ended reset it for the next prop
-              multi_line = false  
-              multi_line_keys.pop
+              multi_line = false
+              multi_line_key = nil
             else
-              result[multi_line_keys[0]] += line + "\n"
+              result[multi_line_key] += line + "\n"
             end
           else
-            name, val = line.split(':')
-            if val.nil?
+            name, sep, val = line.partition(':')
+            if val == "\n"
               # multiline output
-              multi_line_keys.push(name)
+              multi_line_key = name
               result[name] = ""
               multi_line = true
             else
@@ -85,14 +84,18 @@ module CucuShift
             end
           end
         end
-        # more parsing for commonly used properties 
+        # more parsing for commonly used properties
         pods_regexp = /Pods Status:\s+(\d+)\s+Running\s+\/\s+(\d+)\s+Waiting\s+\/\s+(\d+)\s+Succeeded\s+\/\s+(\d+)\s+Failed/
         replicas_regexp = /Replicas:\s+(\d+)\s+current\s+\/\s+(\d+)\s+desired/
         pods_status = pods_regexp.match(oc_output)
         replicas_status = replicas_regexp.match(oc_output)
-        result[:pods_status] = {:running => pods_status[1], :waiting => pods_status[2],
-          :succeeded=>pods_status[3], :failed => pods_status[4]} if pods_status
-        result[:replicas_status] = {:current => replicas_status[1], :desired => replicas_status[2]} if replicas_status
+        if pods_status
+          result[:pods_status] = {:running => pods_status[1], :waiting => pods_status[2],
+            :succeeded=>pods_status[3], :failed => pods_status[4]}
+        end
+        if replicas_status
+          result[:replicas_status] = {:current => replicas_status[1], :desired => replicas_status[2]}
+        end
         return result
       end
 
