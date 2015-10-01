@@ -95,7 +95,7 @@ Feature: containers related features
   Scenario: Executing commands in a container that isn't running
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json|
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc472859/hello-pod.json|
     When I run the :get client command with:
       | resource | pods |
     Then the step should succeed
