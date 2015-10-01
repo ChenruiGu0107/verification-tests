@@ -10,24 +10,24 @@ module CucuShift
 
     # @param name [String] name of dc
     # @param project [CucuShift::Project] the project dc belongs to
-    # @param props [Hash] additional properties of the rc
+    # @param props [Hash] additional properties of the dc
     def initialize(name:, project:, props: {})
       @name = name
       @project = project
       @props = props
     end
 
-    # creates new rc from an OpenShift API rc object
-    def self.from_api_object(project, rc_hash)
-      self.new(project: project, name: pod_hash["metadata"]["name"]).
-                                update_from_api_object(rc_hash)
+    # creates new dc from an OpenShift API dc object
+    def self.from_api_object(project, dc_hash)
+      self.new(project: project, name: dc_hash["metadata"]["name"]).
+                                update_from_api_object(dc_hash)
     end
 
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that can change at any time like status and spec
-    def update_from_api_object(rc_hash)
-      m = rc_hash["metadata"]
-      s = rc_hash["spec"]
+    def update_from_api_object(dc_hash)
+      m = dc_hash["metadata"]
+      s = dc_hash["spec"]
       props[:uid] = m["uid"]
       props[:labels] = m["labels"]
       props[:created] = m["creationTimestamp"] # already [Time]
@@ -54,6 +54,7 @@ module CucuShift
       res = cli_exec(as: user, key: :describe, n: project.name,
         name: name + "-#{version}",
         resource: "rc")
+      res[:parsed] = parse_oc_describe(res[:response]) if res[:success]
       return res
     end
 
@@ -80,7 +81,7 @@ module CucuShift
       }
       res = describe(user, version)
       if res[:success]
-        pods_status = parse_oc_describe(res[:response])[:pods_status]
+        pods_status = res[:parsed][:pods_status]
         res[:success] = (pods_status[status].to_i != 0)
       end
       return res
@@ -92,10 +93,8 @@ module CucuShift
       res = describe(user, version)
 
       if res[:success]
-        oc_output = parse_oc_describe(res[:response])
         # return success if the pod is running
-        res[:success] =  parse_oc_describe(res[:response])[:pods_status][:running].to_i == 1
-        res[:parsed] = oc_output
+        res[:success] =  res[:parsed][:pods_status][:running].to_i == 1
       end
       return res
     end
@@ -121,15 +120,15 @@ module CucuShift
                         get_opts: {l: selector_to_label_arr(*labels)}) {true}
     end
 
-    # @yield block that selects rcs by returning true; see [#get_matching]
+    # @yield block that selects dcs by returning true; see [#get_matching]
     # @return [CucuShift::ResultHash] with :matching key being array of matched
     #   pods;
     def self.wait_for_matching(user:, project:, seconds:, get_opts: {})
       res = nil
 
       wait_for(seconds) {
-        res = get_matching(user: user, project: project, get_opts: get_opts) { |r, r_hash|
-          yield r, r_hash
+        res = get_matching(user: user, project: project, get_opts: get_opts) { |d, d_hash|
+          yield d, d_hash
         }
         ! res[:matching].empty?
       }
@@ -137,28 +136,28 @@ module CucuShift
       return res
     end
 
-    # @yield block that selects pods by returning true; block receives
-    #   |pod, pod_hash| as parameters where pod is a reloaded [Pod]
+    # @yield block that selects dcs by returning true; block receives
+    #   |dc, dc_hash| as parameters where dc is a reloaded [DeployConfig]
     # @return [CucuShift::ResultHash] with :matching key being array of matched
-    #   rcs
+    #   dcs
     def self.get_matching(user:, project:, get_opts: {})
-      opts = {resource: 'rc', n: project.name, o: 'yaml'}
+      opts = {resource: 'dc', n: project.name, o: 'yaml'}
       opts.merge! get_opts
       res = user.cli_exec(:get, **opts)
 
       if res[:success]
         res[:parsed] = YAML.load(res[:response])
-        res[:rcs] = res[:parsed]["items"].map { |r|
-          self.from_api_object(project, r)
+        res[:dcs] = res[:parsed]["items"].map { |d|
+          self.from_api_object(project, d)
         }
       else
         user.logger.error(res[:response])
-        raise "cannot get rcs for project #{project.name}"
+        raise "cannot get dcs for project #{project.name}"
       end
 
       res[:matching] = []
-      res[:rcs].zip(res[:parsed]["items"]) { |r, r_hash|
-        res[:matching] << p if !block_given? || yield(r, r_hash)
+      res[:dcs].zip(res[:parsed]["items"]) { |dc, dc_hash|
+        res[:matching] << dc if !block_given? || yield(dc, dc_hash)
       }
 
       return res

@@ -60,7 +60,7 @@ module CucuShift
     end
 
     # @return [CucuShift::ResultHash] with :success true if we've eventually
-    #   got the pod in ready status; the result hash is from last executed get
+    #   got the rc in ready status; the result hash is from last executed get
     #   call
     def wait_till_ready(user, seconds)
       res = nil
@@ -81,7 +81,7 @@ module CucuShift
 
     # @yield block that selects rcs by returning true; see [#get_matching]
     # @return [CucuShift::ResultHash] with :matching key being array of matched
-    #   pods;
+    #   rcs;
     def self.wait_for_matching(user:, project:, seconds:, get_opts: {})
       res = nil
 
@@ -131,7 +131,7 @@ module CucuShift
     end
 
     def ==(r)
-      r.kind_of?(self.class) && name == r.name && project == p.project
+      r.kind_of?(self.class) && name == r.name && project == r.project
     end
     alias eql? ==
 
