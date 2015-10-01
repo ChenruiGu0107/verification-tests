@@ -377,3 +377,122 @@ Feature: deployment related features
     And the output is parsed as JSON
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 2
 
+  # @author pruan@redhat.com
+  # @case_id 483192
+  Scenario: Negative test for deployment history
+    Given I have a project
+    When I run the :describe client command with:
+      | resource | dc         |
+      | name     | no-such-dc |
+    Then the step should fail
+    And the output should contain:
+      | Error from server: deploymentConfig "no-such-dc" not found |
+    When I run the :describe client command with:
+      | resource | dc              |
+      | name     | docker-registry |
+    Then the step should fail
+    And the output should contain:
+      | Error from server: deploymentConfig "docker-registry" not found |
+
+  # @author pruan@redhat.com
+  # @case_id 487644
+  Scenario: New depployment will be created once the old one is complete - single deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/sleepv1.json |
+    # simulate 'oc edit'
+    When I run the :get client command with:
+      | resource      | dc |
+      | resource_name | hooks |
+      | o             | yaml |
+    And I save the output to file>hooks.yaml
+    And I replace lines in "hooks.yaml":
+      | 200 | 10 |
+      | latestVersion: 1 | latestVersion: 2 |
+    When I run the :replace client command with:
+      | f      | hooks.yaml |
+    Then the step should succeed
+    And I wait until the status of depolyment config "hooks" with version "1" is :running
+    # take this out later
+    And I wait until deployment config "hooks" matches version "1"
+    When I run the :deploy client command with:
+      | deployment_config      | hooks |
+    Then the step should succeed
+    And the output should contain:
+      | hooks #2 deployment pending on update |
+      | hooks #1 deployment running |
+    And I wait until the status of depolyment config "hooks" with version "2" is :running
+    And I run the :describe client command with:
+      | resource | dc |
+      | name     | hooks |
+    Then the step should succeed
+    And the output should match:
+      | Latest Version:\\s+2|
+      | Deployment\\s+#2\\s+ |
+      | Status:\\s+Running |
+      | Deployment #1:   | 
+      | Status:\\s+Complete |
+
+
+  # @author pruan@redhat.com
+  # @case_id 484483
+  Scenario: Deployment succeed when running time is less than ActiveDeadlineSeconds
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    # simulate 'oc edit'
+    When the pod named "hooks-1-deploy" becomes ready
+    When I run the :get client command with:
+      | resource      | pod            |
+      | resource_name | hooks-1-deploy |
+      | o             | yaml           |
+    And I save the output to file>hooks.yaml
+   And I replace lines in "hooks.yaml":
+      | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 300 |
+    When I run the :replace client command with:
+      | f | hooks.yaml |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deployment=hooks-1 |
+      | deploymentconfig=hooks |
+
+  # @author pruan@redhat.com
+  # @case_id 489263
+  Scenario: Can't stop a deployment in Failed status
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-stop-failed-deployment.json |
+    When the pod named "test-stop-failed-deployment-1-deploy" becomes ready
+    When I run the :deploy client command with:
+      | deployment_config | test-stop-failed-deployment |
+    Then the step should succeed
+    And I run the :deploy client command with:
+      | deployment_config | test-stop-failed-deployment |
+      | cancel            | true                        |
+    Then the step should succeed
+    And the output should contain:
+      | cancelled deployment #1 |
+    And I wait for the pod named "test-stop-failed-deployment-1-deploy" to die
+    When  I run the :describe client command with:
+      | resource | dc |
+      | name     | test-stop-failed-deployment  |
+    Then the step should succeed
+
+    Then the output by order should match:
+      | Deployment #1 |
+      | Status:\\s+Failed  |
+    And I run the :deploy client command with:
+      | deployment_config | test-stop-failed-deployment |
+      | cancel            | true                        |
+    Then the step should succeed
+    And the output should contain:
+      | no active deployments to cancel |
+    And I run the :deploy client command with:
+      | deployment_config | test-stop-failed-deployment |
+    Then the step should succeed
+    And the output should contain:
+      | test-stop-failed-deployment #1 deployment failed |
+      | The deployment was cancelled by the user         |

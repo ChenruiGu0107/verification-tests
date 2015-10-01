@@ -22,7 +22,7 @@ Feature: scaling related scenarios
       | resource | replicationcontrollers |
       | name     | <%= cb.rc_name %>      |
       | replicas | 2                      |
-    And I wait until replicationController "<%= cb.rc_name %>" with 2 replicas is ready
+    And I wait until replicationController "<%= cb.rc_name %>" is ready
     And all pods in the project are ready
     Then I run the :describe client command with:
       | resource | replicationcontrollers |
@@ -38,7 +38,7 @@ Feature: scaling related scenarios
       | name     | <%= cb.dc_name %> |
       | replicas | 3                 |
     Then the step should succeed
-    And I wait until replicationController "<%= cb.rc_name %>" with 3 replicas is ready
+    And I wait until replicationController "<%= cb.rc_name %>" is ready
     And all pods in the project are ready
     # check replicas is modified
     Then I run the :describe client command with:

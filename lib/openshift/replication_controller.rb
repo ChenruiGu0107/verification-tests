@@ -19,7 +19,7 @@ module CucuShift
 
     # creates new rc from an OpenShift API rc object
     def self.from_api_object(project, rc_hash)
-      self.new(project: project, name: pod_hash["metadata"]["name"]).
+      self.new(project: project, name: rc_hash["metadata"]["name"]).
                                 update_from_api_object(rc_hash)
     end
 
@@ -54,14 +54,13 @@ module CucuShift
     def ready?(user:)
       res = get(user: user)
       if res[:success]
-        res[:success] =
-          res[:parsed]["status"]["replicas"] == res[:parsed]["spec"]["replicas"]
+        res[:success] = res[:parsed]["status"]["replicas"] == res[:parsed]["spec"]["replicas"]
       end
       return res
     end
 
     # @return [CucuShift::ResultHash] with :success true if we've eventually
-    #   got the pod in ready status; the result hash is from last executed get
+    #   got the rc in ready status; the result hash is from last executed get
     #   call
     def wait_till_ready(user, seconds)
       res = nil
@@ -82,7 +81,7 @@ module CucuShift
 
     # @yield block that selects rcs by returning true; see [#get_matching]
     # @return [CucuShift::ResultHash] with :matching key being array of matched
-    #   pods;
+    #   rcs;
     def self.wait_for_matching(user:, project:, seconds:, get_opts: {})
       res = nil
 
@@ -96,8 +95,8 @@ module CucuShift
       return res
     end
 
-    # @yield block that selects pods by returning true; block receives
-    #   |pod, pod_hash| as parameters where pod is a reloaded [Pod]
+    # @yield block that selects rcs by returning true; block receives
+    #   |rc, rc_hash| as parameters where rc is a reloaded [RepicationController]
     # @return [CucuShift::ResultHash] with :matching key being array of matched
     #   rcs
     def self.get_matching(user:, project:, get_opts: {})
@@ -116,8 +115,8 @@ module CucuShift
       end
 
       res[:matching] = []
-      res[:rcs].zip(res[:parsed]["items"]) { |r, r_hash|
-        res[:matching] << p if !block_given? || yield(r, r_hash)
+      res[:rcs].zip(res[:parsed]["items"]) { |rc, rc_hash|
+        res[:matching] << rc if !block_given? || yield(rc, rc_hash)
       }
 
       return res
@@ -131,13 +130,13 @@ module CucuShift
       project.env
     end
 
-    def ==(p)
-      p.kind_of?(self.class) && name == p.name && project == p.project
+    def ==(r)
+      r.kind_of?(self.class) && name == r.name && project == r.project
     end
     alias eql? ==
 
     def hash
-      :pod.hash ^ name.hash ^ project.hash
+      :rc.hash ^ name.hash ^ project.hash
     end
   end
 end

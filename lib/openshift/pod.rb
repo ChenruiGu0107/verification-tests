@@ -112,7 +112,7 @@ module CucuShift
       success = wait_for(seconds) {
         res = status?(user: user, status: status)
         # if pod completed there's no chance to change status so exit early
-        break if [:failed, :unknown, :missing].include?(res[:matched_status])
+        break if [:failed, :unknown].include?(res[:matched_status])
         res[:success]
       }
       return res
@@ -129,11 +129,11 @@ module CucuShift
         unknown: "Unknown"
       }
       res = get(user: user)
-      if res[:success]
-        status = status.respond_to?(:map) ?
+      status = status.respond_to?(:map) ?
           status.map{ |s| statuses[s] } :
           [ statuses[status] ]
 
+      if res[:success]
         res[:success] =
           res[:parsed]["status"] &&
           res[:parsed]["status"]["phase"] &&
