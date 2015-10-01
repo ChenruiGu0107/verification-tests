@@ -64,7 +64,7 @@ module CucuShift
       success = wait_for(seconds) {
         res = status?(user, status, version)
         # if dc completed there's no chance to change status so exit early
-        break if [:failed, :missing].include?(res[:matched_status])
+        break if [:failed, :succeeded].include?(res[:matched_status])
         res[:success]
       }
       return res
