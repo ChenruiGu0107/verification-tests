@@ -215,8 +215,8 @@ function add_infra_records()
 
 function add_route_records()
 {
-	tmpStr=${CONF_HOST_LIST//[^,]}	
-	for host in ${CONF_HOST_LIST//,/ }; do
+	multinode=${CONF_IP_LIST//[^,]}
+	for host in ${CONF_IP_LIST//,/ }; do
 		key=$(echo $host|awk -F":" '{print $1}')
 		value=$(echo $host|awk -F":" '{print $2}')
 		if [[ "$value" == *[A-Za-z]* ]]; then
@@ -225,11 +225,7 @@ function add_route_records()
 		else
 			REC_TYPE=A
 		fi
-		if [ x"$key" == x"master" ];then
-			if [ x"$tmpStr" == x"" ]; then
-				echo "*                    IN $REC_TYPE    ${value}" >>/var/named/dynamic/${CONF_APP_DOMAIN}.db
-			fi
-		else
+		if [ "$key" != "master" ] || [ x"$multinode" == x"" ]; then
 			echo "*                    IN $REC_TYPE    ${value}" >>/var/named/dynamic/${CONF_APP_DOMAIN}.db
 		fi
 
@@ -452,6 +448,7 @@ EOF
 }
 
 #CONF_HOST_LIST=vaule
+#CONF_IP_LIST=value
 #CONF_HOST_DOMAIN=value
 #CONF_APP_DOMAIN=value
 #CONF_RHEL_BASE_REPO=value

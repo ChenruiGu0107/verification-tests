@@ -20,19 +20,19 @@ module CucuShift
     end
 
 
-    # @param spec [String, Hash<String,Array>] the specification.
-    #   If [String], then it looks like: `master:hostname1,node:hostname2,...`;
-    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`
-    private def spec_to_str(spec)
-      return spec if spec.kind_of?(String)
-
-      res = []
-      spec.each do |role, hostnames|
-        hostnames.each do |hostname|
-          res << "#{role}:#{hostname}"
+    # @param hosts [Hash<String,Array<Host>>] the hosts hash
+    # @return [Array<String>] specification like:
+    #   `["master:host1,...,node:hostX", "master:ip1,...,node:ipX"]`
+    private def hosts_to_specstr(hosts)
+      hosts_str = []
+      ips_str = []
+      hosts.each do |role, role_hosts|
+        role_hosts.each do |host|
+          hosts_str << "#{role}:#{host.hostname}"
+          ips_str << "#{role}:#{host.ip}"
         end
       end
-      return res.join(',')
+      return hosts_str.join(','), ips_str.join(',')
     end
 
     # @param spec [String, Hash<String,Array>] the specification.
@@ -99,7 +99,7 @@ module CucuShift
                         kerberos_docker_base_image:
                           conf[:sercices, :test_kerberos, :docker_base_image])
       hosts = spec_to_hosts(hosts_spec, ssh_key: ssh_key, ssh_user: ssh_user)
-      spec_str = spec_to_str(hosts_spec)
+      hosts_str, ips_str = hosts_to_specstr(hosts)
       logger.info hosts.to_yaml
 
       conf_script_dir = File.join(File.dirname(__FILE__), 'env_scripts')
@@ -108,7 +108,8 @@ module CucuShift
 
       conf_script = File.read(conf_script_file)
 
-      conf_script.gsub!(/#CONF_HOST_LIST=.*$/, "CONF_HOST_LIST=#{spec_str}")
+      conf_script.gsub!(/#CONF_HOST_LIST=.*$/, "CONF_HOST_LIST=#{hosts_str}")
+      conf_script.gsub!(/#CONF_IP_LIST=.*$/, "CONF_IP_LIST=#{ips_str}")
       conf_script.gsub!(/#CONF_AUTH_TYPE=.*$/, "CONF_AUTH_TYPE=#{auth_type}")
       conf_script.gsub!(/#CONF_IMAGE_PRE=.*$/, "CONF_IMAGE_PRE='#{image_pre}'")
       conf_script.gsub!(/#CONF_CRT_PATH=.*$/) { "CONF_CRT_PATH='#{crt_path}'" }
