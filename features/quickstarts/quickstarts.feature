@@ -87,17 +87,20 @@ Feature: quickstarts.feature
     And the output should not contain "static"
 
     Examples: OS Type
-      | orig_image                      | image_tag                                                 | repo       | template               | buildcfg               | name        |
-      | openshift/postgresql-92-centos7 | <%= project_docker_repo %>openshift/postgresql-92-centos7 | django-ex  | django-postgresql.json | django-psql-example    | python:3.3  |
-      | openshift/postgresql-92-centos7 | <%= product_docker_repo %>openshift3/postgresql-92-rhel7  | django-ex  | django-postgresql.json | django-psql-example    | python:3.3  |
-      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-centos7      | dancer-ex  | dancer-mysql.json      | dancer-mysql-example   | perl:5.16   |
-      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-rhel7        | dancer-ex  | dancer-mysql.json      | dancer-mysql-example   | perl:5.16   |
-      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-centos7      | dancer-ex  | dancer-mysql.json      | dancer-mysql-example   | perl:5.20   |
-      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-rhel7        | dancer-ex  | dancer-mysql.json      | dancer-mysql-example   | perl:5.20   |
-      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-centos7      | cakephp-ex | cakephp-mysql.json     | cakephp-mysql-example  | php:5.5     |
-      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-rhel7        | cakephp-ex | cakephp-mysql.json     | cakephp-mysql-example  | php:5.5     |
-      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-centos7      | cakephp-ex | cakephp-mysql.json     | cakephp-mysql-example  | php:5.6     |
-      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-rhel7        | cakephp-ex | cakephp-mysql.json     | cakephp-mysql-example  | php:5.6     |
-      | openshift/mongodb-24-centos7    | <%= product_docker_repo %>openshift/mongodb-24-centos7    | nodejs-ex  | nodejs-mongodb.json    | nodejs-mongodb-example | nodejs:0.10 |
-      | openshift/mongodb-24-centos7    | <%= product_docker_repo %>openshift/mongodb-24-rhel7      | nodejs-ex  | nodejs-mongodb.json    | nodejs-mongodb-example | nodejs:0.10 |
+      | orig_image                      | image_tag                                                 | repo       | template               | buildcfg                 | name        |
+      | openshift/postgresql-92-centos7 | <%= project_docker_repo %>openshift/postgresql-92-centos7 | django-ex  | django-postgresql.json | django-psql-example      | python:3.3  |
+      | openshift/postgresql-92-centos7 | <%= product_docker_repo %>openshift3/postgresql-92-rhel7  | django-ex  | django-postgresql.json | django-psql-example      | python:3.3  |
+      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-centos7      | dancer-ex  | dancer-mysql.json      | dancer-mysql-example     | perl:5.16   |
+      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-rhel7        | dancer-ex  | dancer-mysql.json      | dancer-mysql-example     | perl:5.16   |
+      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-centos7      | dancer-ex  | dancer-mysql.json      | dancer-mysql-example     | perl:5.20   |
+      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-rhel7        | dancer-ex  | dancer-mysql.json      | dancer-mysql-example     | perl:5.20   |
+      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-centos7      | cakephp-ex | cakephp-mysql.json     | cakephp-mysql-example    | php:5.5     |
+      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-rhel7        | cakephp-ex | cakephp-mysql.json     | cakephp-mysql-example    | php:5.5     |
+      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-centos7      | cakephp-ex | cakephp-mysql.json     | cakephp-mysql-example    | php:5.6     |
+      | openshift/mysql-55-centos7      | <%= product_docker_repo %>openshift/mysql-55-rhel7        | cakephp-ex | cakephp-mysql.json     | cakephp-mysql-example    | php:5.6     |
+      | openshift/mongodb-24-centos7    | <%= product_docker_repo %>openshift/mongodb-24-centos7    | nodejs-ex  | nodejs-mongodb.json    | nodejs-mongodb-example   | nodejs:0.10 |
+      | openshift/mongodb-24-centos7    | <%= product_docker_repo %>openshift/mongodb-24-rhel7      | nodejs-ex  | nodejs-mongodb.json    | nodejs-mongodb-example   | nodejs:0.10 |
+      | openshift/postgresql-92-centos7 | <%= product_docker_repo %>openshift/postgresql-92-centos7 | rails-ex   | rails-postgresql.json  | rails-postgresql-example | ruby:2.2    |
+      | openshift/postgresql-92-centos7 | <%= product_docker_repo %>openshift/postgresql-92-rhel7   | rails-ex   | rails-postgresql.json  | rails-postgresql-example | ruby:2.2    |
+
 
