@@ -51,10 +51,17 @@ module CucuShift
     end
 
     def describe(user, version)
+      if version.nil?
+        resource_type = "dc"
+        resource_name = name
+      else
+        resource_type = "rc"
+        resource_name = name + "-#{version}"
+      end
       res = cli_exec(as: user, key: :describe, n: project.name,
-        name: name + "-#{version}",
-        resource: "rc")
-      res[:parsed] = parse_oc_describe(res[:response]) if res[:success]
+        name: resource_name,
+        resource: resource_type)
+      res[:parsed] = self.parse_oc_describe(res[:response]) if res[:success]
       return res
     end
 
@@ -78,11 +85,16 @@ module CucuShift
         running: "Running",
         succeeded: "Succeeded",
         failed: "Failed",
+        complete: "Complete",
       }
       res = describe(user, version)
       if res[:success]
-        pods_status = res[:parsed][:pods_status]
-        res[:success] = (pods_status[status].to_i != 0)
+        if version
+          pods_status = res[:parsed][:pods_status]
+          res[:success] = (pods_status[status].to_i != 0)
+        else
+          res[:success] = res[:parsed][:overall_status] == statuses[status]
+        end
       end
       return res
     end

@@ -61,34 +61,47 @@ module CucuShift
       #  separator.
       def parse_oc_describe(oc_output)
         result = {}
-        multi_line_key = nil
-        multi_line = false
-        oc_output.each_line do |line|
-          if multi_line
-            if line.size == 0
-              # multline value ended reset it for the next prop
-              multi_line = false
-              multi_line_key = nil
-            else
-              result[multi_line_key] += line + "\n"
-            end
-          else
-            name, sep, val = line.partition(':')
-            if val == "\n"
-              # multiline output
-              multi_line_key = name
-              result[name] = ""
-              multi_line = true
-            else
-              result[name] = val.strip()
-            end
-          end
-        end
+        ### the following has become un-reliable per bugs https://bugzilla.redhat.com/show_bug.cgi?id=1268954 & https://bugzilla.redhat.com/show_bug.cgi?id=1268933
+        ## for now, we disable the parsing part and just use regexp to capture properties that is of interest
+        
+        # multi_line_key = nil
+        # multi_line = false
+        # oc_output.each_line do |line|
+        #   if multi_line
+        #     if line.size == 0
+        #       # multline value ended reset it for the next prop
+        #       multi_line = false
+        #       multi_line_key = nil
+        #     else
+        #       result[multi_line_key] += line + "\n"
+        #     end
+        #   else
+        #     name, sep, val = line.partition(':')
+        #     if val == "\n"
+        #       # multiline output
+        #       multi_line_key = name
+        #       result[name] = ""
+        #       multi_line = true
+        #     else
+        #       result[name] = val.strip()
+        #     end
+        #   end
+        # end
         # more parsing for commonly used properties
         pods_regexp = /Pods Status:\s+(\d+)\s+Running\s+\/\s+(\d+)\s+Waiting\s+\/\s+(\d+)\s+Succeeded\s+\/\s+(\d+)\s+Failed/
         replicas_regexp = /Replicas:\s+(\d+)\s+current\s+\/\s+(\d+)\s+desired/
+        labels_regexp = /Labels:\s+(.+)/
+        selectors_regexp = /Selector:\s+(.+)/
+        images_regexp = /Images(s):\s+(.+)/
+        status_regexp = /\s+Status:\s+(.+)/
+
+
         pods_status = pods_regexp.match(oc_output)
         replicas_status = replicas_regexp.match(oc_output)
+        overall_status = status_regexp.match(oc_output)
+        selectors_status = selectors_regexp.match(oc_output)
+        images_status = images_regexp.match(oc_output)
+
         if pods_status
           result[:pods_status] = {:running => pods_status[1], :waiting => pods_status[2],
             :succeeded=>pods_status[3], :failed => pods_status[4]}
@@ -96,6 +109,10 @@ module CucuShift
         if replicas_status
           result[:replicas_status] = {:current => replicas_status[1], :desired => replicas_status[2]}
         end
+        result[:images] = images_status[1] if images_status
+        result[:overall_status] = overall_status[1] if overall_status
+        result[:selectors] = selectors_status[1] if selectors_status
+
         return result
       end
 
