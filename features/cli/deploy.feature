@@ -528,11 +528,34 @@ Feature: deployment related features
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
-    When I run the :get client command with:
-      | resource | pods |
+    And I wait until the status of deployment config "hooks" becomes :running
+    And I run the :deploy client command with:
+      | deployment_config | hooks |
+      | cancel            ||
     Then the step should succeed
-    And the output should contain:
-      | Pending |
+    And the output should match:
+      | cancelled deployment #1 |
+    And I wait until the status of deployment config "hooks" becomes :failed
+    And I run the :deploy client command with:
+      | deployment_config | hooks |
+      | retry | |
+    Then the output should match:
+      | retried #1 |
+    And I run the :describe client command with:
+      | resource | dc |
+      | name | hook |
+    Then the step should succeed
+    And I run the :deploy client command with:
+      | deployment_config | hooks |
+    And I wait until the status of deployment config "hooks" becomes :complete
+
+  # @author pruan@redhat.com
+  # @case_id 489265
+  Scenario: Stop a "Running" deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    And I wait until the status of deployment config "hooks" becomes :running
     And I run the :deploy client command with:
       | deployment_config | hooks |
       | cancel            ||
