@@ -54,7 +54,8 @@ module CucuShift
     def ready?(user:)
       res = get(user: user)
       if res[:success]
-        res[:success] = res[:parsed]["status"]["replicas"] == res[:parsed]["spec"]["replicas"]
+        res[:success] = (res[:parsed]["status"]["replicas"] == res[:parsed]["spec"]["replicas"] \
+                         and res[:parsed]["spec"]["replicas"].to_i > 0)
       end
       return res
     end
