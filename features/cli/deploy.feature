@@ -413,8 +413,6 @@ Feature: deployment related features
       | f      | hooks.yaml |
     Then the step should succeed
     And I wait until the status of deployment config "hooks" with version 1 becomes :running
-    # take this out later
-    And I wait until deployment config "hooks" matches version "1"
     When I run the :deploy client command with:
       | deployment_config      | hooks |
     Then the step should succeed
@@ -430,7 +428,7 @@ Feature: deployment related features
       | Latest Version:\\s+2|
       | Deployment\\s+#2\\s+ |
       | Status:\\s+Running |
-      | Deployment #1:   | 
+      | Deployment #1:   |
       | Status:\\s+Complete |
 
 

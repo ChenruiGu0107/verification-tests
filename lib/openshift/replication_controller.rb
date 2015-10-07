@@ -50,7 +50,47 @@ module CucuShift
       return res
     end
 
+    def describe(user)
+      resource_type = "rc"
+      resource_name = name
+        # resource_name = name + "-#{version}"
+      res = cli_exec(as: user, key: :describe, n: project.name,
+        name: resource_name,
+        resource: resource_type)
+      res[:parsed] = self.parse_oc_describe(res[:response]) if res[:success]
+      return res
+    end
+
+    def wait_till_status(status, user, seconds=15*60)
+      res = nil
+      success = wait_for(seconds) {
+        res = status?(user, status)
+        # if rc completed there's no chance to change status so exit early
+        break if [:failed, :succeeded].include?(res[:matched_status])
+        res[:success]
+      }
+      return res
+    end
+
+    # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
+    # @return [Boolean] if pod status is what's expected
+    def status?(user, status)
+      statuses = {
+        waiting: "Waiting",
+        running: "Running",
+        succeeded: "Succeeded",
+        failed: "Failed",
+        complete: "Complete",
+      }
+      res = describe(user)
+      if res[:success]
+        pods_status = res[:parsed][:pods_status]
+        res[:success] = (pods_status[status].to_i != 0)
+      end
+      return res
+    end
     # @return [CucuShift::ResultHash] with :success depending on status['replicas'] == spec['replicas']
+    #  Please note we also need to check that the spec.replicas is > 0
     def ready?(user:)
       res = get(user: user)
       if res[:success]
