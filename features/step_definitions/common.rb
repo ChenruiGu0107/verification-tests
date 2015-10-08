@@ -184,6 +184,7 @@ Given /^I replace resource "([^"]+)" named "([^"]+)"(?: saving edit to "([^"]+)"
     | resource_name |  #{resource_name} |
     | o | yaml |
     })
+  step %Q/the step should succeed/
   step %Q/I save the output to file>#{filename}/
   step %Q/I replace lines in "#{filename}":/, table
   step %Q/I run the :replace client command with:/, table(%{
