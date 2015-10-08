@@ -412,16 +412,14 @@ Feature: deployment related features
     When I run the :replace client command with:
       | f      | hooks.yaml |
     Then the step should succeed
-    And I wait until the status of depolyment config "hooks" with version "1" is :running
-    # take this out later
-    And I wait until deployment config "hooks" matches version "1"
+    And I wait until the status of deployment "hooks" becomes :running
     When I run the :deploy client command with:
       | deployment_config      | hooks |
     Then the step should succeed
     And the output should contain:
       | hooks #2 deployment pending on update |
       | hooks #1 deployment running |
-    And I wait until the status of depolyment config "hooks" with version "2" is :running
+    And I wait until the status of deployment "hooks" becomes :running
     And I run the :describe client command with:
       | resource | dc |
       | name     | hooks |
@@ -430,7 +428,7 @@ Feature: deployment related features
       | Latest Version:\\s+2|
       | Deployment\\s+#2\\s+ |
       | Status:\\s+Running |
-      | Deployment #1:   | 
+      | Deployment #1:   |
       | Status:\\s+Complete |
 
 
@@ -496,3 +494,111 @@ Feature: deployment related features
     And the output should contain:
       | test-stop-failed-deployment #1 deployment failed |
       | The deployment was cancelled by the user         |
+
+  # @author pruan@redhat.com
+  # @case_id 484482
+  Scenario: Deployment is automatically stopped when running time is more than ActiveDeadlineSeconds
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/sleepv1.json|
+    # simulate 'oc edit'
+    When the pod named "hooks-1-deploy" becomes ready
+    When I run the :get client command with:
+      | resource      | pod            |
+      | resource_name | hooks-1-deploy |
+      | o             | yaml           |
+    And I save the output to file>hooks.yaml
+    And I replace lines in "hooks.yaml":
+      | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 2 |
+    When I run the :replace client command with:
+      | f | hooks.yaml |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+    Then the step should succeed
+    And the output should match:
+      | hooks #1 deployment failed \\d+ seconds ago |
+
+
+  # @author pruan@redhat.com
+  # @case_id 489264
+  Scenario: Stop a "Pending" deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    And I wait until the status of deployment "hooks" becomes :running
+    And I run the :deploy client command with:
+      | deployment_config | hooks |
+      | cancel            ||
+    Then the step should succeed
+    And the output should match:
+      | cancelled deployment #1 |
+    And I wait until the status of deployment "hooks" becomes :failed
+    And I run the :deploy client command with:
+      | deployment_config | hooks |
+      | retry | |
+    Then the output should match:
+      | retried #1 |
+    And I run the :describe client command with:
+      | resource | dc |
+      | name | hook |
+    Then the step should succeed
+    And I run the :deploy client command with:
+      | deployment_config | hooks |
+    And I wait until the status of deployment "hooks" becomes :complete
+
+  # @author pruan@redhat.com
+  # @case_id 489265
+  Scenario: Stop a "Running" deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    And I wait until the status of deployment "hooks" becomes :running
+    And I run the :deploy client command with:
+      | deployment_config | hooks |
+      | cancel            ||
+    Then the step should succeed
+    And the output should match:
+      | cancelled deployment #1 |
+    And I wait until the status of deployment "hooks" becomes :failed
+    And I run the :deploy client command with:
+      | deployment_config | hooks |
+      | retry | |
+    Then the output should match:
+      | retried #1 |
+    And I run the :describe client command with:
+      | resource | dc |
+      | name | hook |
+    Then the step should succeed
+    And I run the :deploy client command with:
+      | deployment_config | hooks |
+    And I wait until the status of deployment "hooks" becomes :complete
+
+  # @author pruan@redhat.com
+  # @case_id 490716
+  Scenario: Make a new deployment by using a invalid LatestVersion
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            |true |
+    And I wait until the status of deployment "hooks" becomes :complete
+    And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
+      | latestVersion: 2 | latestVersion: -1 |
+    Then the step should fail
+    And the output should match:
+      | latestVersion: invalid value '-1', Details: latestVersion cannot be negative |
+      | atestVersion: invalid value '-1', Details: latestVersion cannot be decremented |
+    And I replace resource "dc" named "hooks":
+      | latestVersion: 2 | latestVersion: 0 |
+    Then the step should fail
+    And the output should contain:
+      | latestVersion: invalid value '0', Details: latestVersion cannot be decremented |
+    And I replace resource "dc" named "hooks":
+      | latestVersion: 2 | latestVersion: 5 |
+    Then the step should fail
+    And the output should contain:
+      | latestVersion: invalid value '5', Details: latestVersion can only be incremented by 1 |
+

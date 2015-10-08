@@ -50,19 +50,20 @@ module CucuShift
       return res
     end
 
-    def describe(user, version)
+    def describe(user)
+      resource_type = "dc"
+      resource_name = name
       res = cli_exec(as: user, key: :describe, n: project.name,
-        name: name + "-#{version}",
-        resource: "rc")
-      res[:parsed] = parse_oc_describe(res[:response]) if res[:success]
+        name: resource_name,
+        resource: resource_type)
+      res[:parsed] = self.parse_oc_describe(res[:response]) if res[:success]
       return res
     end
 
-
-    def wait_till_status(status, version, user, seconds=15*60)
+    def wait_till_status(status, user, seconds=15*60)
       res = nil
       success = wait_for(seconds) {
-        res = status?(user, status, version)
+        res = status?(user, status)
         # if dc completed there's no chance to change status so exit early
         break if [:failed, :succeeded].include?(res[:matched_status])
         res[:success]
@@ -72,25 +73,24 @@ module CucuShift
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if pod status is what's expected
-    def status?(user, status, version)
+    def status?(user, status)
       statuses = {
         waiting: "Waiting",
         running: "Running",
         succeeded: "Succeeded",
         failed: "Failed",
+        complete: "Complete",
       }
-      res = describe(user, version)
+      res = describe(user)
       if res[:success]
-        pods_status = res[:parsed][:pods_status]
-        res[:success] = (pods_status[status].to_i != 0)
+        res[:success] = res[:parsed][:overall_status] == statuses[status]
       end
       return res
     end
 
     # @return [CucuShift::ResultHash] with :success depending on status['replicas'] == spec['replicas']
-    def ready?(user, version)
-      #res = get(user: user)
-      res = describe(user, version)
+    def ready?(user)
+      res = describe(user)
 
       if res[:success]
         # return success if the pod is running
@@ -103,10 +103,10 @@ module CucuShift
     # @return [CucuShift::ResultHash] with :success true if we've eventually
     #   got the status to equal to the expected version in ready status; the result hash is
     #   from last executed get call
-    def wait_till_ready(user, version, seconds)
+    def wait_till_ready(user, seconds)
       res = nil
       success = wait_for(seconds) {
-        res = ready?(user, version)
+        res = ready?(user)
         res[:success]
       }
 
