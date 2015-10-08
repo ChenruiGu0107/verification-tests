@@ -162,3 +162,31 @@ Given /^the output is parsed as (YAML|JSON)$/ do |format|
     raise "unknown format: #{format}"
   end
 end
+
+
+# this step basically wraps around the steps we use for simulating 'oc edit <resource_name'  which includes the following steps:
+# #   1.  When I run the :get client command with:
+#       | resource      | dc |
+#       | resource_name | hooks |
+#       | o             | yaml |
+#     And I save the output to file>hooks.yaml
+#     And I replace lines in "hooks.yaml":
+#       | 200 | 10 |
+#       | latestVersion: 1 | latestVersion: 2 |
+#     When I run the :replace client command with:
+#       | f      | hooks.yaml |
+#  So the output file name will be hard-coded to 'tmp_out.yaml', we still need to
+#  supply the resouce_name and the lines we are replacing
+Given /^I replace resource "([^"]+)" named "([^"]+)"(?: saving edit to "([^"]+)")?:$/ do |resource, resource_name, filename,table |
+  filename = "edit_resource.yaml" if filename.nil?
+  step %Q/I run the :get client command with:/, table(%{
+    | resource | #{resource} |
+    | resource_name |  #{resource_name} |
+    | o | yaml |
+    })
+  step %Q/I save the output to file>#{filename}/
+  step %Q/I replace lines in "#{filename}":/, table
+  step %Q/I run the :replace client command with:/, table(%{
+    | f | #{filename} |
+    })
+end
