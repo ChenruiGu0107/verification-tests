@@ -25,3 +25,35 @@ Feature: ServiceAccount and Policy Managerment
       | resource | buildconfig        |
     Then the output should contain:
       | myapp   |
+
+  # @author xxing@redhat.com
+  # @case_id 490722
+  Scenario: The default service account could only get access to imagestreams in its own project
+    Given I have a project
+    When I run the :who_can client command with:
+      | verb     | get |
+      | resource | imagestreams/layers |
+    Then the output should match:
+      | Groups:\s+system:cluster-admins |
+      | system:serviceaccounts:<%= project.name %> |
+    When I run the :who_can client command with:
+      | verb     | get |
+      | resource | pods/layers |
+    Then the output should not match:
+      | system:serviceaccount(?:s)? |
+    Given I create a new project
+    When I run the :who_can client command with:
+      | verb     | get |
+      | resource | imagestreams/layers |
+    Then the output should not match:
+      | system:serviceaccount(?:s)?:<%= @projects[0].name %>  |
+    When I run the :who_can client command with:
+      | verb     | update |
+      | resource | imagestreams/layers |
+    Then the output should not contain:
+      | system:serviceaccounts:<%= project.name %> |
+    When I run the :who_can client command with:
+      | verb     | delete |
+      | resource | imagestreams/layers |
+    Then the output should not match:
+      | system:serviceaccount(?:s)?:<%= project.name %> |

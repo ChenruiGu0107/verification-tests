@@ -355,6 +355,8 @@
   :cmd: oc whoami
   :options:
     :invalid_option:  -b   # for negative testing
+:who_can:
+  :cmd: oc policy who-can <verb> <resource>
 
 #################### admin commands section
 
