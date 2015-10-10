@@ -99,11 +99,13 @@
     :f: -f <value>
     :filename: --filename=<value>
 :delete:
-  :cmd: oc delete <object_type>
+  :cmd: oc delete
   :options:
+    :f: -f <value>
     :l: -l <value>
     :all: --all
     :object_name_or_id: <value>
+    :object_type: <value>
 :deploy:
   :cmd: oc deploy <deployment_config>
   :options:
