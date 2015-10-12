@@ -1,0 +1,19 @@
+---
+login:
+  url: /console
+  elements:
+    - selector:
+        id: inputUsername
+      op: send_keys <username>
+      type: input
+    - selector:
+        id: inputPassword
+      op: send_keys <password>
+      type: input
+    - selector:
+        text: Log In
+      op: click
+      type: button
+  elements:
+    - selector:
+        text: Welcome to OpenShift.

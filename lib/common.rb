@@ -169,7 +169,11 @@ module CucuShift
 
       def webconsole_exec(as:, action:, **opts)
         user = as
-        ## todo: some invalid check
+
+        if !user.respond_to?(:webconsole_exec)
+          raise "user #{user} cannot perform web operations"
+        end
+
         user.webconsole_exec(action, **opts)
       end
 
@@ -187,8 +191,7 @@ module CucuShift
         end
       rescue => e
         Kernel.puts("ERROR: Ruby private API changed? cannot execute fix_require_lock: #{e.inspect}")
-
-      end 
+      end
     end
 
     module Setup

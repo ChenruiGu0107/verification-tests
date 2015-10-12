@@ -7,7 +7,7 @@ require 'user_manager'
 require 'host'
 require 'rest'
 require 'http'
-require 'webconsole_executor'
+require 'webauto/webconsole_executor'
 
 module CucuShift
   # @note this class represents an OpenShift test environment and allows setting it up and in some cases creating and destroying it
@@ -55,10 +55,11 @@ module CucuShift
         raise "we cannot run as admins in this environment"
                               end
     end
-    
-    def webconsole_executor(user)
-      @webconsole_executor ||= CucuShift::WebConsoleExecutor.new(self, user, **opts)
+
+    def webconsole_executor
+      @webconsole_executor ||= WebConsoleExecutor.new(self, **opts)
     end
+
     # @return [Boolean] true if we have means to execute admin cli commands and
     #   rest requests
     def admin?

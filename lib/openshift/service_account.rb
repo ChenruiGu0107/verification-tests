@@ -33,6 +33,9 @@ module CucuShift
       normalize_name
     end
 
+    undef webconsole_exec
+    undef webconsole_executor
+
     # set name to the full string "system:serviceaccount:#{project}:#{name}"
     private def normalize_name
       if @name.include? ":"

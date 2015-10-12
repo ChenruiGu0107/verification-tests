@@ -109,10 +109,9 @@ module CucuShift
       #   usernames before a user is actually requested from the user_manager
       if by.kind_of?(ClusterAdmin) && ! env.users.by_name(opts[:admin])
         raise "creating project as admin without administrators may easily lead to project leaks in the test framework, avoid doing so"
-      elsif _via = opts.delete(:_via) == :web 
+      elsif opts.delete(:_via) == :web
         res = webconsole_exec(as: by, action: :new_project, project_name: name, **opts)
       else
-
         res = cli_exec(as: by, key: :new_project, project_name: name, **opts)
       end
       res[:project] = self

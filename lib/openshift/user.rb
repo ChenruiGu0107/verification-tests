@@ -8,7 +8,6 @@ module CucuShift
     include Common::Helper
 
     attr_reader :name, :env, :rest_preferences
-    attr_accessor :web_logged_in
 
     # @param token [String] auth bearer token in plain string format
     # @param name [String] username (optional if we auth with token)
@@ -81,20 +80,20 @@ module CucuShift
 
     end
 
-    def cli_executor
+    private def cli_executor
       env.cli_executor
     end
 
     def cli_exec(key, opts={})
       cli_executor.exec(self, key, opts)
     end
-    
-    def webconsole_executor
-      env.webconsole_executor(self)
+
+    private def webconsole_executor
+      env.webconsole_executor
     end
 
     def webconsole_exec(action, opts={})
-      webconsole_executor.run(self, action, opts)
+      webconsole_executor.run_action(self, action, **opts)
     end
 
     # execute a rest request as this user
@@ -105,7 +104,7 @@ module CucuShift
       env.rest_request_executor.exec(user: self, req: req, opts: opts)
     end
 
-    def rest_request_executor
+    private def rest_request_executor
       env.rest_request_executor
     end
 
