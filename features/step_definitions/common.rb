@@ -209,6 +209,8 @@ Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |po
       res_cache = res
     end
   }
+  res_cache ||= res
+  res_cache[:success] = success
   @result  = res_cache
 end
 
