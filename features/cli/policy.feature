@@ -118,3 +118,27 @@ Feature: change the policy of user/service account
       | user name       |   <%= user.name %>    |
       | role namespace  |   <%= project.name %> |
     Then the step should succeed
+
+  # @author xxing@redhat.com
+  # @case_id 470312
+  @admin
+  Scenario: Could get projects for new role which has permission to get projects
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/clustergetproject.json |
+    Then the step should succeed
+    #clean-up clusterrole
+    And I register clean-up steps:
+     | the step should succeed               |
+     | I run the :delete admin command with: |
+     |   ! f ! https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/clustergetproject.json ! |
+    When admin creates a project
+    Then the step should succeed
+    When I run the :oadm_add_role_to_user admin command with:
+      | role_name      | viewproject      |
+      | user_name      | <%= user.name %> |
+      | n              | <%= project.name %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | project |
+    Then the output should match:
+      | <%= project.name %>.*Active |
