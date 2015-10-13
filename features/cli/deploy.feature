@@ -602,3 +602,55 @@ Feature: deployment related features
     And the output should contain:
       | latestVersion: invalid value '5', Details: latestVersion can only be incremented by 1 |
 
+  # @author pruan@redhat.com
+  # @case_id 487643
+  Scenario: Deployment will be failed if deployer pod no longer exists
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    # deployment 1
+    And I wait until the status of deployment "hooks" becomes :complete
+    # deployment 2
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            | true  |
+    And I wait until the status of deployment "hooks" becomes :complete
+    # deployment 3
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            | true  |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    Then I run the :describe client command with:
+      | resource | dc    |
+      | name     | hooks |
+    And the output by order should contain:
+      | Deployment #3 (latest): |
+      |  Status:		Complete      |
+      | Deployment #2:          |
+      |  Status:		Complete      |
+      | Deployment #1:          |
+      | Status:		Complete       |
+    And I replace resource "rc" named "hooks-2":
+      | Complete | Running |
+    Then the step should succeed
+    And I replace resource "rc" named "hooks-3":
+      | Complete | Pending |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            | true  |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    Then I run the :describe client command with:
+      | resource | dc    |
+      | name     | hooks |
+    And the output by order should contain:
+      | Deployment #4 (latest): |
+      | Status:		Complete       |
+      | Deployment #3:          |
+      | Status:		Failed         |
+      | Deployment #2:          |
+      | Status:		Failed         |
+      | Deployment #1:          |
+      | Status:		Complete       |
