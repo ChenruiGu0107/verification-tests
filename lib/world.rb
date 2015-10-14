@@ -345,16 +345,15 @@ module CucuShift
       new_pods.each {|p| @pods.delete(p); @pods << p}
     end
 
-    # @param proc_obj [Proc] a proc or lambda to add to teardown
+    # @param procs [Proc] a proc or lambda to add to teardown
     # @yield [] a block that will be added to teardown
     # @note teardowns should ever raise only if issue can break further
     #   scenario execution. When a teardown raises, that causes cucumber to
     #   skip executing any further scenarios.
-    def teardown_add(proc_obj=nil, &block)
+    def teardown_add(*procs, &block)
+      @teardown.concat procs
       if block
         @teardown << block
-      else
-        @teardown << proc_obj
       end
     end
 

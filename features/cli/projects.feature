@@ -79,6 +79,7 @@ Feature: projects related features via cli
      | I run the :oadm_add_cluster_role_to_group admin command with: |
      |   ! role_name  ! self-provisioner     !                       |
      |   ! group_name ! system:authenticated !                       |
+     | the step should succeed                                       |
     When I run the :oadm_remove_cluster_role_from_group admin command with:
       | role_name  | self-provisioner     |
       | group_name | system:authenticated |
