@@ -1,6 +1,11 @@
 # Use this step to register clean up steps to be executed in the AfterHook
 #   regardless of scenario success status.
-#   Embedded table delimiter is '!'
+# Clean-up steps are registered in reverse order to make first step execute
+#   first as test developer would expect. Still separate register step
+#   invocations will execute in reverse order as designed. We in general run
+#   clean-up steps in reverse order so that environment for resource clean-up
+#   is same as on creation.
+# Embedded table delimiter is '!' if '|' not used
 Then /^I register clean\-up steps:$/ do |table|
   if table.respond_to? :lines
     # multi-line string
@@ -11,6 +16,7 @@ Then /^I register clean\-up steps:$/ do |table|
     table.raw.each{ |row| data << row.last unless row.last.strip.empty? }
   end
 
+  step_list = []
   step_name = ''
   params = []
   data.each_with_index do |line, index|
@@ -36,13 +42,13 @@ Then /^I register clean\-up steps:$/ do |table|
       proc {
         _step_name = step_name
         if params.empty?
-          teardown_add {
+          step_list.unshift proc {
             logger.info("Step: " << _step_name)
             step _step_name
           }
         else
           _params = params.join("\n")
-          teardown_add {
+          step_list.unshift proc {
             logger.info("Step: #{_step_name}\n#{_params}")
             step _step_name, table(_params)
           }
@@ -52,4 +58,6 @@ Then /^I register clean\-up steps:$/ do |table|
       step_name = ''
     end
   end
+
+  teardown_add *step_list
 end

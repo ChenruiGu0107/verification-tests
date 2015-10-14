@@ -128,9 +128,9 @@ Feature: change the policy of user/service account
     Then the step should succeed
     #clean-up clusterrole
     And I register clean-up steps:
-     | the step should succeed               |
      | I run the :delete admin command with: |
      |   ! f ! https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/clustergetproject.json ! |
+     | the step should succeed               |
     When admin creates a project
     Then the step should succeed
     When I run the :oadm_add_role_to_user admin command with:
