@@ -168,7 +168,22 @@ Feature: creating 'apps' with CLI
   Scenario: Project admin could not grant cluster-admin permission to other users
     When I have a project
     And I run the :oadm_add_cluster_role_to_user client command with:
-      | role_name | cluster-admin  | 
+      | role_name | cluster-admin  |
       | user_name | <%= user(1).name %>  |
     Then the step should fail
     And the output should contain "cannot get clusterpolicybindings at the cluster scope"
+
+  # @author pruan@redhat.com
+  # @case_id 508046
+  @admin
+  Scenario: Limit range does not allow min > defaultRequest
+    Given I run the :new_project client command with:
+      | project_name | proj1 |
+    Given the first user is cluster-admin
+    Then the step should succeed
+    Then I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc508046/limits.yaml |
+    Then the step should fail
+    And the output should contain:
+      | invalid value '200m', Details: min value 400m is greater than default request value 200m |
+      |  invalid value '1Gi', Details: min value 2Gi is greater than default request value 1Gi   |
