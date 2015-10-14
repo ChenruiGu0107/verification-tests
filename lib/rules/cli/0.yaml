@@ -315,6 +315,17 @@
   :cmd: oc rsh
   :options:
     :app_name: <value>
+:run:
+  :cmd: oc run <name>
+  :options:
+    :image: --image <value>
+    :port: --port <value>
+    :replicas: --replicas <value>
+    :dry_run: --dry-run
+    :-l: --labels=<value>
+    :-t: --template=<value>
+    :-o: --output=<value>
+
 :scale:
   :cmd: oc scale <resource> <name>
   :options:
