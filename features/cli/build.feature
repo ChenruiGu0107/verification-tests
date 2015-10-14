@@ -66,12 +66,12 @@ Feature: build 'apps' with CLI
       | name     | ruby-hello-world |
     Then the output should match:
       | URL:\s+https://github.com/openshift/ruby-hello-world|
-    Given the pod named "ruby-hello-world-1-build" becomes ready
+    Given the pod named "n1-1-build" becomes ready
     When I run the :get client command with:
       | resource | builds |
     Then the output should contain:
       | NAME                |
-      | ruby-hello-world-1  |
+      | n1-1-build |
     When I run the :get client command with:
       |resource| is |
     Then the output should contain:
