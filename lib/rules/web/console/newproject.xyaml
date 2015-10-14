@@ -17,7 +17,7 @@ new_project:
     ref: new_project_form
   element:
     selector:
-      text: "Get started with your project."
+      text: "Choose from web frameworks, databases, and other components."
   element:
     selector:
       id: fake_id
