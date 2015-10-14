@@ -200,3 +200,21 @@ Feature: config related scenarios
     When I run the :config_view client command
     And the output should contain:
       | current-context: context-label2 |
+
+  # @author yanpzhan@redhat.com
+  # @case_id 477174
+  Scenario: Kubeconfig file can be round-trip used
+    Given I have a project
+    And I run the :create client command with:
+      |f|https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json|
+    Then the step should succeed
+    When I run the :config_view client command
+    And the output is parsed as YAML
+    And I save the output to file> user1.kubeconfig
+    And I switch to the second user
+    When I run the :get client command with:
+      |resource|pod|
+      |config|user1.kubeconfig|
+    Then the step should succeed
+    And the output should contain:
+      |hello-openshift|
