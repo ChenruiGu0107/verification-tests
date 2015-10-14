@@ -1,5 +1,4 @@
 require 'yaml'
-
 require_relative 'token'
 require_relative 'project'
 
@@ -81,12 +80,20 @@ module CucuShift
 
     end
 
-    def cli_executor
+    private def cli_executor
       env.cli_executor
     end
 
     def cli_exec(key, opts={})
       cli_executor.exec(self, key, opts)
+    end
+
+    private def webconsole_executor
+      env.webconsole_executor
+    end
+
+    def webconsole_exec(action, opts={})
+      webconsole_executor.run_action(self, action, **opts)
     end
 
     # execute a rest request as this user
@@ -97,7 +104,7 @@ module CucuShift
       env.rest_request_executor.exec(user: self, req: req, opts: opts)
     end
 
-    def rest_request_executor
+    private def rest_request_executor
       env.rest_request_executor
     end
 
@@ -142,7 +149,6 @@ module CucuShift
 
     def clean_up
       clean_up_on_load
-
       # best effort remove any non-protected tokens
       cached_tokens.reverse_each do |token|
         token.delete(uncache: true) unless token.protected?

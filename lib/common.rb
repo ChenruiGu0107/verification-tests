@@ -166,6 +166,17 @@ module CucuShift
           raise "unknown user specification for the operation: '#{user.inspect}'"
         end
       end
+
+      def webconsole_exec(as:, action:, **opts)
+        user = as
+
+        if !user.respond_to?(:webconsole_exec)
+          raise "user #{user} cannot perform web operations"
+        end
+
+        user.webconsole_exec(action, **opts)
+      end
+
     end # module UserObjectHelper
 
     # some ugly hack that we need to be more reliable
