@@ -246,6 +246,7 @@
     :output: --output=<value>
     :strategy: --strategy=<value>
     :template: --template=<value>
+    :to_docker: --to-docker=<value>
 :new_dockercfg:
   :cmd: oc secrets new-dockercfg <secret_name>
   :options:
