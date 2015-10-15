@@ -279,9 +279,8 @@
 :port_forward:
   :cmd: oc port-forward
   :options:
-    :pod: <value>
-    :local_port: <value>
-    :remote_port: <value>
+    :pod: -p <value>
+    :port_spec: <value>
 :process:
   :cmd: oc process
   :options:
