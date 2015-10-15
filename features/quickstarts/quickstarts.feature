@@ -108,11 +108,11 @@ Feature: quickstarts.feature
       | openshift/postgresql-92-centos7 | <%= product_docker_repo %>openshift3/postgresql-92-rhel7  | rails-ex   | rails-postgresql.json  | rails-postgresql-example | ruby:2.0    | ruby:2.2    | Rails   |
 
   # @author cryan@redhat.com
-  # @case_id 499621
-  Scenario: Application with rhel7 base images with oc command
+  # @case_id 499621 499622
+  Scenario Outline: Application with base images with oc command
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499621/python-27-rhel7.json |
+      | file | <json> |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | python-sample-build |
@@ -132,3 +132,7 @@ Feature: quickstarts.feature
     When I use the "route-edge" service
     Then I wait for a server to become available via the "route-edge" route
     Then the output should contain "OpenShift"
+    Examples:
+      | json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499621/python-27-rhel7.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499622/python-27-centos7-stibuild.json |
