@@ -242,12 +242,7 @@
   :cmd: oc port-forward
   :options:
     :pod: -p <value>
-    :local_port: <value>
-    :remote_port: <value>
-    #please use the following when specifying a specific port-to-port range,
-    #like oc port-forward -p hello-openshift 5000:8080. When doing this, do
-    #not use the above local_port and remote_port.
-    :port_range: <value>
+    :port_spec: <value>
 :process:
   :cmd: oc process
   :options:

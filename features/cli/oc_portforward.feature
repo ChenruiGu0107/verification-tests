@@ -28,16 +28,16 @@ Feature: oc_portforward.feature
     Then the output should contain "Running"
     When I run the :port_forward client command with:
       | pod | hello-openshift   |
-      | port_range  | 5000:8080 |
+      | port_spec | 5000:8080 |
     Then the step should succeed
     And the output should match "Forwarding from 127.0.0.1:5000 -> 8080"
     When I run the :port_forward client command with:
       | pod | hello-openshift |
-      | local_port | :8080    |
+      | port_spec | :8080    |
     Then the step should succeed
     And the output should match "Forwarding from 127.0.0.1:\d+ -> 8080"
     When I run the :port_forward client command with:
       | pod | hello-openshift  |
-      | port_range | 8000:8080 |
+      | port_spec | 8000:8080 |
     Then the step should succeed
     And the output should match "Forwarding from 127.0.0.1:8000 -> 8080"
