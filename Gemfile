@@ -17,7 +17,7 @@ gem 'cucumber', '>=2.0.2'
 gem 'term-ansicolor'
 ## Webauto
 gem 'watir-webdriver', '>=0.6.11'
-#gem 'headless'
+gem 'headless'
 ## Docs
 # beware https://github.com/pry/pry/issues/1465
 #        https://bugzilla.redhat.com/show_bug.cgi?id=1257578
