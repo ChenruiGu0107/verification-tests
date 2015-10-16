@@ -182,7 +182,7 @@ module CucuShift
 
       case auth_type
       when "HTPASSWD"
-        identity_providers = "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/openshift/htpasswd'}]"
+        identity_providers = "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '#{crt_path}/htpasswd'}]"
       else
         identity_providers = "[{'name': 'basicauthurl', 'login': 'true', 'challenge': 'true', 'kind': 'BasicAuthPasswordIdentityProvider', 'url': 'https://<serviceIP>:8443/validate', 'ca': '#{crt_path}master/ca.crt'}]"
       end
@@ -338,7 +338,7 @@ module CucuShift
               :app_domain, :host_domain,
               :rhel_base_repo,
               :dns, :deployment_type,
-              :crt_path, :image_pre,
+              :image_pre,
               :puddle_repo, :network_plugin,
               :etcd_num, :registry_ha,
               :ansible_branch, :ansible_url,
@@ -346,14 +346,6 @@ module CucuShift
               :kerberos_kdc, :kerberos_keytab_url,
               :kerberos_docker_base_image,
               :kerberos_admin_server]
-
-      #when "OSE"
-      #  crt_path = '/etc/openshift/'
-      #  deployment_type="enterprise"
-      #else
-      #  crt_path = '/etc/origin/'
-      #  deployment_type="atomic-enterprise"
-      #end
 
       keys.each do |key|
         if ENV[key.to_s.upcase] && !ENV[key.to_s.upcase].empty?

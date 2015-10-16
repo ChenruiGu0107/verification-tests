@@ -146,6 +146,7 @@ module CucuShift
         server_id = result["server"]["id"]
       rescue => e
         logger.error("Can not create #{instance_name} instance:  #{e.message}")
+        logger.error(result.to_a.flatten(1).join("\n")) rescue nil
         raise e
       end
       params = {}
