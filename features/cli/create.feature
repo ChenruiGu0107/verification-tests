@@ -187,3 +187,30 @@ Feature: creating 'apps' with CLI
     And the output should contain:
       | invalid value '200m', Details: min value 400m is greater than default request value 200m |
       |  invalid value '1Gi', Details: min value 2Gi is greater than default request value 1Gi   |
+
+  # @author pruan@redhat.com
+  # @case_id 483163
+  Scenario: create app from existing template via CLI with parameter passed
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | template |
+    Then the step should succeed
+    And the output should contain:
+      | ruby-helloworld-sample   This example shows how to create a simple ruby application in openshift |
+    And I run the :new_app client command with:
+      | template | ruby-helloworld-sample |
+      | param    | MYSQL_DATABASE=db1,ADMIN_PASSWORD=pass1|
+    Then the step should succeed
+    Given I wait for the "frontend" service to become ready
+    And I run the :get client command with:
+      | resource | deploymentConfig |
+      | resource_name | frontend    |
+      | output        | yaml        |
+    Then the output by order should match:
+      | name: ADMIN_PASSWORD |
+      | value: pass1         |
+      | name: MYSQL_DATABASE |
+      | value: db1           |
