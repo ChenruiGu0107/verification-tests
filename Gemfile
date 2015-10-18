@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 gem 'json'
 gem 'psych'
-gem 'rest-client', '2.0.0.rc1'
+gem 'rest-client', '2.0.0.rc2'
 # gem 'rest-client', '>=2.0'
 # gem 'httpclient', '>=2.4'
 gem 'net-ssh'
