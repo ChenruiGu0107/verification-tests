@@ -5,6 +5,7 @@ $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib")
 Utility to launch OpenShift v3 instances
 """
 
+require 'base64'
 require 'commander'
 
 require 'common'
@@ -31,6 +32,7 @@ module CucuShift
       global_option('-c', '--config KEY', 'default config options should be read from?')
       global_option('-l', '--launched_instances_name_prefix', 'if instances are launched, use this prefix')
       global_option('-n', '--node_num', "number of nodes to launch")
+      global_option('-d', '--user_data', "file containing user instances' data")
 
       command :launch do |c|
         c.syntax = 'env_launcher_cli.rb launcher -c [ENV|<conf keyword>]'
@@ -40,21 +42,35 @@ module CucuShift
           case options.config
           when 'env', 'ENV'
             el = EnvLauncher.new
-            options.launched_instances_name_prefix ||= ENV['INSTANCE_NAME_PREFIX']
+
+            ## set some opts based on Environment Variables
             options.node_num ||= ENV['NODE_NUM'].to_i
+            options.user_data ||= ENV['INSTANCES_USER_DATA']
+            if options.user_data
+              user_data_string = Base64.encode64(
+                File.read(
+                  expand_private_path(options.user_data, public_safe: true)
+                )
+              )
+            else
+              user_data_string = ""
+            end
+            options.launched_instances_name_prefix ||= ENV['INSTANCE_NAME_PREFIX']
+
             # TODO: allow specifying pre-launched machines
             # TODO: allow choosing other launchers, not only openstack
 
-            ## launch instances
+            ## launch OpenStack instances
             ostack = CucuShift::OpenStack.new()
             hostnames = [ options.launched_instances_name_prefix + "_master" ]
             options.node_num.times { |i|
               hostnames << options.launched_instances_name_prefix +
                             "_node_#{i+1}"
             }
-            hosts = ostack.launch_instances(names: hostnames)
+            hosts = ostack.launch_instances(names: hostnames,
+                                            user_data: user_data_string)
 
-            # ansible setup
+            ## run ansible setup
             hosts_spec = { "master"=>[hosts.shift[1]], "node"=>hosts.values }
             # TODO: allow custom ssh username
             launch_opts = {

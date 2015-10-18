@@ -68,7 +68,7 @@ module CucuShift
       rescue => e
         # REST request unsuccessful
         if e.respond_to?(:response) and e.response.respond_to?(:code) and e.response.code.kind_of? Integer
-          logger.info("error:  #{e.response}")
+          logger.info("HTTP error:  #{e.response}")
           # server replied with non-success HTTP status, that's ok
           res = e.response
         else
@@ -92,6 +92,10 @@ module CucuShift
             break
           end
         end
+      rescue JSON::ParserError => e
+        logger.info("HTTP CODE: #{res.code}")
+        logger.info(res.to_s)
+        raise e
       rescue => e
         logger.error("OpenStack Error: #{e.inspect}")
         raise e
@@ -129,7 +133,7 @@ module CucuShift
     end
 
     def create_instance(instance_name, image_name = nil,
-                        flavor_name = nil, key = nil)
+                        flavor_name = nil, key = nil, create_opts={})
       image_name ||= opts[:image]
       flavor_name ||= opts[:flavor]
       key ||= opts[:key]
@@ -137,7 +141,7 @@ module CucuShift
       self.delete_instance(instance_name)
       self.get_image_ref(image_name)
       self.get_flavor_ref(flavor_name)
-      params = {:server => {:name => instance_name, :key_name => key ,:imageRef => self.os_image, :flavorRef => self.os_flavor}}
+      params = {:server => {:name => instance_name, :key_name => key ,:imageRef => self.os_image, :flavorRef => self.os_flavor}.merge(create_opts)}
       url = self.os_ApiUrl + '/' + 'servers'
       res = self.rest_run(url, "POST", params, self.os_token)
       begin
@@ -227,10 +231,10 @@ module CucuShift
     # @param os_opts [Hash] options to pass to [OpenStack::new]
     # @param names [Array<String>] array of names to give to new machines
     # @return [Hash] a hash of name => hostname pairs
-    def launch_instances(names:, use_hostnames: true)
+    def launch_instances(names:, use_hostnames: true, **create_opts)
       res = {}
       names.each { |name|
-        _, res[name] = create_instance(name)
+        _, res[name] = create_instance(name, **create_opts)
         res[name] = Common::Net.reverse_lookup(res[name]) if use_hostnames
         sleep 10 # why?
       }
