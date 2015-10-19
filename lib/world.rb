@@ -313,6 +313,14 @@ module CucuShift
         return @dc.last
       end
     end
+
+    # @return web4cucumber object from scenario cache
+    def web_browser(user = nil)
+      return @browsers if user.nil? && @browsers
+      user ||= self.user
+      return @browsers = env.webconsole_executor.executor(user)
+    end
+
     # @return pod by name from scenario cache; with no params given,
     #   returns last requested pod; otherwise creates a [Pod] object
     # @note you need the project already created
