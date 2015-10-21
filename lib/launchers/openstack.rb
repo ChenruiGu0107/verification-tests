@@ -163,20 +163,18 @@ module CucuShift
           logger.error("The status of instance is ERROR")
           self.create_instance(instance_name, image_name, flavor_name, key)
         elsif result["server"]["status"] == "ACTIVE"
+          address_key = result["server"]["addresses"].keys[0]
           result_flag = false
-          if result["server"]["addresses"].has_key?("os1-internal-1400")
-            logger.info("Get the Pulic and Private IP: #{result["server"]["addresses"]["os1-internal-1400"][0]["addr"]}")
-            logger.info("Get the Pulic and Private IP: #{result["server"]["addresses"]["os1-internal-1400"][1]["addr"]}")
-            return result["server"]["addresses"]["os1-internal-1400"][0]["addr"],result["server"]["addresses"]["os1-internal-1400"][1]["addr"]
+          if result["server"]["addresses"][address_key].length == 2
+            logger.info("Get the Private IP: #{result["server"]["addresses"][address_key][0]["addr"]}")
+            logger.info("Get the Pulic IP:   #{result["server"]["addresses"][address_key][1]["addr"]}")
+            return [
+              result["server"]["addresses"][address_key][0]["addr"],
+              result["server"]["addresses"][address_key][1]["addr"]
+            ]
           else
-            if result["server"]["addresses"]["private"].length == 2
-              logger.info("Get the Pulic and Private IP: #{result["server"]["addresses"]["private"][0]["addr"]}")
-              logger.info("Get the Pulic and Private IP: #{result["server"]["addresses"]["private"][1]["addr"]}")
-              return result["server"]["addresses"]["private"][0]["addr"],result["server"]["addresses"]["private"][1]["addr"] 
-            else
-              self.assign_ip(instance_name)
-              next
-            end
+            self.assign_ip(instance_name)
+            next
           end
         else
           logger.info("Wait 10 seconds to get the IP of #{instance_name}")
@@ -185,7 +183,7 @@ module CucuShift
       end
       self.create_instance(instance_name, image_name, flavor_name, key) if result_flag
     end
-    
+
     def delete_instance(instance_name)
       params = {}
       url = self.get_obj_ref(instance_name,"servers")
