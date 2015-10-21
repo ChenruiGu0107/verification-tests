@@ -133,7 +133,7 @@ module CucuShift
     end
 
     def create_instance(instance_name, image_name = nil,
-                        flavor_name = nil, key = nil, create_opts={})
+                        flavor_name = nil, key = nil, **create_opts)
       image_name ||= opts[:image]
       flavor_name ||= opts[:flavor]
       key ||= opts[:key]
