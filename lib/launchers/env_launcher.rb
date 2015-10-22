@@ -81,7 +81,7 @@ module CucuShift
                         ssh_key:, ssh_user:,
                         dns: nil,
                         app_domain: nil, host_domain: nil,
-                        rhel_base_repo:,
+                        rhel_base_repo: nil,
                         deployment_type:,
                         crt_path:,
                         image_pre:,
@@ -197,7 +197,9 @@ module CucuShift
           check_res \
             host.exec_admin('cat > configure_env.sh', stdin: conf_script)
 
-          check_res host.exec_admin("sh configure_env.sh configure_repos")
+          if rhel_base_repo
+            check_res host.exec_admin("sh configure_env.sh configure_repos")
+          end
           if dns.start_with?("embedded")
             check_res host.exec_admin("sh configure_env.sh configure_hosts")
           end

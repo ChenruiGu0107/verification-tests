@@ -7,6 +7,7 @@ Utility to launch OpenShift v3 instances
 
 require 'base64'
 require 'commander'
+require 'uri'
 
 require 'common'
 require 'launchers/env_launcher'
@@ -45,17 +46,28 @@ module CucuShift
 
             ## set some opts based on Environment Variables
             options.node_num ||= ENV['NODE_NUM'].to_i
-            options.user_data ||= ENV['INSTANCES_USER_DATA']
+            options.launched_instances_name_prefix ||= ENV['INSTANCE_NAME_PREFIX']
+
+            ## process user data
+            if ENV['INSTANCES_USER_DATA'] && !ENV['INSTANCES_USER_DATA'].empty?
+              options.user_data ||= ENV['INSTANCES_USER_DATA']
+            end
             if options.user_data
-              user_data_string = Base64.encode64(
-                File.read(
-                  expand_private_path(options.user_data, public_safe: true)
+              case options.user_data
+              when URI.regexp
+                user_data_string = Base64.encode64(
+                  "#include\n#{options.user_data}"
                 )
-              )
+              else
+                user_data_string = Base64.encode64(
+                  File.read(
+                    expand_private_path(options.user_data, public_safe: true)
+                  )
+                )
+              end
             else
               user_data_string = ""
             end
-            options.launched_instances_name_prefix ||= ENV['INSTANCE_NAME_PREFIX']
 
             # TODO: allow specifying pre-launched machines
             # TODO: allow choosing other launchers, not only openstack
