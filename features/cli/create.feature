@@ -26,13 +26,13 @@ Feature: creating 'apps' with CLI
     #Then the step should fail
     #And the project is deleted
 
-    # disabled for https://bugzilla.redhat.com/show_bug.cgi?id=1247680
-    #Given I have a project
-    #When I create a new application with:
-    #  | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
-    #  | name         | <%= rand_str(25, :dns952) %> |
-    #Then the step should fail
-    #And the project is deleted
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1247680
+    Given I have a project
+    When I create a new application with:
+      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | name         | <%= rand_str(25, :dns952) %> |
+    Then the step should fail
+    And the project is deleted
 
     Given I have a project
     When I create a new application with:

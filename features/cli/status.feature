@@ -67,11 +67,10 @@ Feature: Check oc status cli
     And I run the :status client command
     Then the step should succeed
     And the output should match:
-      |n\s+project\s+<%= project.name %>|
+      |n\s+project\s+<%= Regexp.escape(project.name) %>|
       |service/database\s+-\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\d+\s+->\s+3306|
       |service/frontend\s+-\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\d+\s+->\s+8080|
-        ## "\x7C" is '|' character
-      |not built yet<%= "\x7C" %>build 1 pending<%= "\x7C" %>build 1 new|
+      |not built yet\|1 build pending\|1 build new|
       |deployment|
 
     # When I run the :start_build client command with:
@@ -82,14 +81,15 @@ Feature: Check oc status cli
     When I run the :status client command
     Then the step should succeed
     And the output should contain:
-      |build 1 running|
+      |1 build running|
       |deployment waiting|
 
     Given the "ruby-sample-build-1" build completed
     When I run the :status client command
     Then the step should succeed
-    And the output should contain:
-      |deployment running|
+    And the output by order should match:
+      |frontend deploys |
+      |deployment running\|deployed|
 
     # check build with wrong URL
     Given I delete the project
@@ -110,4 +110,4 @@ Feature: Check oc status cli
     When I run the :status client command
     Then the step should succeed
     And the output should match:
-      |build 1 failed|
+      |1 build failed|
