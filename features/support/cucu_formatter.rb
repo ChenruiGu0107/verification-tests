@@ -10,6 +10,7 @@ require 'fileutils'
 require 'uri'
 require 'cgi' # to escape html content
 require 'tmpdir' # Dir.tmpdir
+require 'zlib'
 
 require 'common' # mainly localhost is used
 
@@ -304,7 +305,21 @@ class CucuFormatter
   end
 
   def html_filename(scenario_hash)
-    return "#{scenario_normalized_name(scenario_hash)}.html"
+    return "console.html"
+    # return "#{scenario_normalized_name(scenario_hash)}.html"
+  end
+
+  # limits a string length adding crc32 as a suffix for the truncated chars
+  # @return unmodified string or truncated string + crc32 suffix
+  def str_truncate(str, max_chars=100)
+    if str.length <= max_chars
+      return str
+    else
+      keep_str = str[0..max_chars-12]
+      rem_str = str[max_chars-11..-1]
+      crc32 = Zlib::crc32(rem_str).to_s.rjust(10, "0")
+      return "#{keep_str}_#{crc32}"
+    end
   end
 
   def scenario_normalized_name(scenario_hash)
@@ -324,7 +339,7 @@ class CucuFormatter
     else
       scenario_hash[:artifacts_dir] = File.join(
         @log_dir,
-        scenario_normalized_name(scenario_hash)
+        str_truncate(scenario_normalized_name(scenario_hash))
       )
       FileUtils.mkdir_p(scenario_hash[:artifacts_dir])
       return scenario_hash[:artifacts_dir]
@@ -341,7 +356,11 @@ class CucuFormatter
     begin
       File.write(file_path, @template.gsub(/#HTML_BODY#/) { html_body })
     rescue => e
-      @io.write("Failed to generate log file for scenario: #{scenario_hash[:name]}, #{scenario_hash[:arg]}\n")
+      output = "Failed to generate log file for scenario: "
+      output << "#{scenario_hash[:name]}, #{scenario_hash[:arg]}\n"
+      output << exception_to_string(e) << "\n"
+      @io.write(output)
+      Kernel.puts(output)
     end
   end
 
