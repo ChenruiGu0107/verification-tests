@@ -21,6 +21,13 @@ function is_false()
 	return 1
 }
 
+function wait_cloud_init()
+{
+  while :; do
+    tail -n5 /var/log/cloud-init.log | grep -q 'Cloud-init .* finished' && break
+    sleep 1
+  done
+}
 
 function yum_install_or_exit()
 {
@@ -468,13 +475,16 @@ named_hostname=ns1.$CONF_HOST_DOMAIN
 
 
 case $1 in
+	wait_cloud_init)
+		wait_cloud_init
+		;;
 	configure_dns)
 		#configure_repos
-        install_named_pkg
-        configure_bind
+		install_named_pkg
+		configure_bind
 		#clean_repos
-        ;;
-    configure_dns_resolution)
+		;;
+	configure_dns_resolution)
 		configure_dns_resolution
 		;;
 	create_router_registry)
@@ -498,14 +508,14 @@ case $1 in
 	configure_registry_to_ha)
 		configure_registry_to_ha
 		;;
-    configure_auth)
-        configure_auth
-        ;;
-    configure_repos)
-        clean_repos
-        configure_repos
-        yum update -y
-        ;;
+	configure_auth)
+		configure_auth
+		;;
+	configure_repos)
+		clean_repos
+		configure_repos
+		yum update -y
+		;;
 	*)
 		echo "Invalid Action: $1"
-esac 
+esac

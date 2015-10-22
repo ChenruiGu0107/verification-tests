@@ -197,6 +197,10 @@ module CucuShift
           check_res \
             host.exec_admin('cat > configure_env.sh', stdin: conf_script)
 
+          ## wait cloud-init setup to finish
+          check_res host.exec_admin("sh configure_env.sh wait_cloud_init",
+                                    timeout: 1800)
+
           if rhel_base_repo
             check_res host.exec_admin("sh configure_env.sh configure_repos")
           end
