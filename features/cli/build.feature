@@ -44,7 +44,7 @@ Feature: build 'apps' with CLI
       | resource | bc               |
       | name     | ruby-hello-world |
     Then the output should match:
-      | URL:\s+https://github.com/openshift/ruby-hello-world|
+      | URL:\\s+https://github.com/openshift/ruby-hello-world|
     Given the pod named "ruby-hello-world-1-build" becomes ready
     When I run the :get client command with:
       | resource | builds |
@@ -65,7 +65,7 @@ Feature: build 'apps' with CLI
       | resource | bc               |
       | name     | ruby-hello-world |
     Then the output should match:
-      | URL:\s+https://github.com/openshift/ruby-hello-world|
+      | URL:\\s+https://github.com/openshift/ruby-hello-world|
     Given the pod named "n1-1-build" becomes ready
     When I run the :get client command with:
       | resource | builds |
