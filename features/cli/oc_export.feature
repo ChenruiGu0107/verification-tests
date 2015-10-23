@@ -91,7 +91,6 @@ Feature: oc exports related scenarios
     And evaluation of `@result[:response]` is stored in the :export_via_filter clipboard
     And I run the :export client command with:
       | resource | svc |
-      | all | true |
     And evaluation of `@result[:response]` is stored in the :export_all clipboard
     Given I save the response to file> export_all.yaml
     Then the expression should be true> cb.export_via_filter == cb.export_all
@@ -151,8 +150,8 @@ Feature: oc exports related scenarios
     And I run the :get client command with:
       | resource | svc |
     Then the step should succeed
-    And the output should contain:
-      |   NAME\s+CLUSTER_IP\s+EXTERNAL_IP\s+PORT(S)\s+SELECTOR\s+AGE   |
+    And the output should match:
+      | NAME\\s+CLUSTER_IP\\s+EXTERNAL_IP\\s+PORT\\(S\\)\\s+SELECTOR\\s+AGE |
     And the output should not contain:
       | template |
     And I run the :export client command with:
