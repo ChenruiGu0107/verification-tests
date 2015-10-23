@@ -35,6 +35,7 @@ def print_report(options)
 
   testrun_id = options.testrun_id
   author_filter = options.author if options.author
+  outcome_filter = options.outcome if options.outcome
   tcms =  options.tcms
   res  = tcms.get_run_cases(testrun_id)
   table = Text::Table.new
@@ -46,14 +47,23 @@ def print_report(options)
     if author_filter
       if author_filter == auto_by
         # only include the row if the filter matches what's in the notes column
-        table.rows << [row['case_run_id'], row['case_id'], row['summary'].strip[0..50], row['case_run_status'], auto_by]
+        if outcome_filter
+          table.rows << [row['case_run_id'], row['case_id'], row['summary'].strip[0..50], row['case_run_status'], auto_by] if outcome_filter == row['case_run_status']
+        else
+          table.rows << [row['case_run_id'], row['case_id'], row['summary'].strip[0..50], row['case_run_status'], auto_by]
+        end
       end
     else
-      table.rows << [row['case_run_id'], row['case_id'], row['summary'].strip[0..50], row['case_run_status'], auto_by]
+      if outcome_filter
+        table.rows << [row['case_run_id'], row['case_id'], row['summary'].strip[0..50], row['case_run_status'], auto_by] if outcome_filter == row['case_run_status']
+      else
+        table.rows << [row['case_run_id'], row['case_id'], row['summary'].strip[0..50], row['case_run_status'], auto_by]
+      end
     end
 
   end
   puts table
+  puts "Total: #{table.rows.count}\n"
   if options.create_run
     table.rows.each do |row|
       cases.push(row[1])
@@ -315,7 +325,10 @@ if __FILE__ == $0
       options.get_auto=true
     end
     opts.on('-b', '--by_author', "query for all cases that has is CONFIRMED, and report it by author name") do
-      options.by_author=true
+      options.author=true
+    end
+    opts.on('-o', '--outcome [testcase run outcome]', String, "the output to filter by per status_lookup table") do |outcome|
+      options.outcome = outcome
     end
     opts.on('-e', '--exclude_auto', "exclude displaying those that have ruby scripts and marked as AUTO already") do
       options.exclude_auto=true
