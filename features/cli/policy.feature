@@ -32,8 +32,8 @@ Feature: change the policy of user/service account
       | resource | policyBindings |
       | name     | :default       |
     Then the output should match:
-      | Role:\s+admin              |
-      | Users:\s+<%= @user.name %> |
+      | Role:\\s+admin              |
+      | Users:\\s+<%= @user.name %> |
     When I run the :oadm_add_role_to_user client command with:
       | role_name | admin            |
       | user_name | <%= user(1, switch: false).name %> |
@@ -42,8 +42,8 @@ Feature: change the policy of user/service account
       | resource | policyBindings |
       | name     | :default       |
     Then the output should match:
-      | Role:\s+admin                                                  |
-      | Users:\s+<%= @user.name %>, <%= user(1, switch: false).name %> |
+      | Role:\\s+admin                                                  |
+      | Users:\\s+<%= @user.name %>, <%= user(1, switch: false).name %> |
     When I run the :oadm_remove_role_from_user client command with:
       | role_name | admin            |
       | user_name | <%= user(1, switch: false).name %> |
@@ -52,8 +52,8 @@ Feature: change the policy of user/service account
       | resource | policyBindings |
       | name     | :default       |
     Then the output should match:
-      | Role:\s+admin              |
-      | Users:\s+<%= @user.name %> |
+      | Role:\\s+admin              |
+      | Users:\\s+<%= @user.name %> |
 
   # @author wyue@redhat.com
   # @case_id 470304

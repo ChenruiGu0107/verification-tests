@@ -65,9 +65,9 @@ Feature: containers related features
       | resource | pod             |
       | name     | <%= pod.name %> |
     Then the output should match:
-      | Status:\s+Running                        |
-      | Image:\s+openshift/postgresql-92-centos7 |
-      | Ready\s+True                             |
+      | Status:\\s+Running                        |
+      | Image:\\s+openshift/postgresql-92-centos7 |
+      | Ready\\s+True                             |
     When I execute on the pod:
       | bash                |
       | -c                  |
