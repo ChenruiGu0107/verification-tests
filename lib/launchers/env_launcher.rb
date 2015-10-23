@@ -224,22 +224,26 @@ module CucuShift
             end
 
             if dns == "embedded_skydns"
-              hosts_str.gsub!(/(\[masters\])/, "\\1\n#{host.hostname} openshift_hostname=master.#{host_domain}\n")
+              host_line = "#{host.hostname} openshift_hostname=master.#{host_domain} openshift_public_hostname=master.#{host_domain}"
             else
-              hosts_str.gsub!(/(\[masters\])/, "\\1\n#{host.hostname} openshift_hostname=#{host.hostname}\n")
+              host_line = "#{host.hostname} openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
             end
+            hosts_str.gsub!(/(\[masters\])/, "\\1\n#{host_line}\n")
 
             if hosts.values.flatten.size > 1
-              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_scheduleable=False openshift_hostname=#{host.hostname}\n*)
+              host_line << " openshift_scheduleable=False"
             else
-              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=#{host.hostname}\n*)
+              host_line << %Q* openshift_node_labels="{'region': 'primary', 'zone': 'default'}*
             end
+            hosts_str.gsub!(/(\[nodes\])/, "\\1\n#{host_line}\n")
           else
             if dns == "embedded_skydns"
-              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=minion#{node_index}.#{host_domain}\n*)
+              host_line = %Q*#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=minion#{node_index}.#{host_domain} openshift_public_hostname=minion#{node_index}.#{host_domain}*
             else
-              hosts_str.gsub!(/(\[nodes\])/, %Q*\\1\n#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=#{host.hostname}\n*)
+              host_line = %Q*#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}*
             end
+            hosts_str.gsub!(/(\[nodes\])/, "\\1\n#{host_line}\n")
+
             if dns
               check_res \
                 host.exec_admin('sh configure_env.sh configure_dns_resolution')
