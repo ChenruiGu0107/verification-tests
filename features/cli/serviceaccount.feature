@@ -34,8 +34,8 @@ Feature: ServiceAccount and Policy Managerment
       | verb     | get |
       | resource | imagestreams/layers |
     Then the output should match:
-      | Groups:\s+system:cluster-admins |
-      | system:serviceaccounts:<%= project.name %> |
+      | Groups:\\s+system:cluster-admins |
+      | system:serviceaccounts:<%= Regexp.escape(project.name) %> |
     When I run the :who_can client command with:
       | verb     | get |
       | resource | pods/layers |
@@ -46,7 +46,7 @@ Feature: ServiceAccount and Policy Managerment
       | verb     | get |
       | resource | imagestreams/layers |
     Then the output should not match:
-      | system:serviceaccount(?:s)?:<%= @projects[0].name %>  |
+      | system:serviceaccount(?:s)?:<%= Regexp.escape(@projects[0].name) %>  |
     When I run the :who_can client command with:
       | verb     | update |
       | resource | imagestreams/layers |
@@ -56,4 +56,4 @@ Feature: ServiceAccount and Policy Managerment
       | verb     | delete |
       | resource | imagestreams/layers |
     Then the output should not match:
-      | system:serviceaccount(?:s)?:<%= project.name %> |
+      | system:serviceaccount(?:s)?:<%= Regexp.escape(project.name) %> |

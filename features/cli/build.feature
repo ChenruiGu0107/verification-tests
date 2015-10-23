@@ -12,8 +12,8 @@ Feature: build 'apps' with CLI
       | resource | bc |
       | name     | ruby-hello-world |
     Then the output should match:
-      | URL:\s+https://github.com/openshift/ruby-hello-world|
-      | Ref:\s+beta2                                        |
+      | URL:\\s+https://github.com/openshift/ruby-hello-world|
+      | Ref:\\s+beta2                                        |
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
     Then the step should succeed  
@@ -126,11 +126,11 @@ Feature: build 'apps' with CLI
     Given I create a new project
     And I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
     Given I use the "<%= @projects[0].name %>" project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | image_stream | <%= @projects[0].name %>/ruby |
@@ -140,19 +140,19 @@ Feature: build 'apps' with CLI
     When I run the :get client command with:
       |resource| buildConfig |
     Then the output should match:
-      | NAME\s+TYPE                 |
-      | ruby-hello-world\s+Source   |
-      | ruby-hello-world-1\s+Source |
+      | NAME\\s+TYPE                 |
+      | <%= Regexp.escape("ruby-hello-world") %>\\s+Source   |
+      | <%= Regexp.escape("ruby-hello-world-1") %>\\s+Source |
     When I run the :describe client command with:
       | resource | buildConfig      |
       | name     | ruby-hello-world |
     Then the output should match:
-      | Image Reference:\s+ImageStreamTag <%= @projects[0].name %>/ruby:latest |
+      | Image Reference:\\s+ImageStreamTag <%= Regexp.escape(@projects[0].name) %>/ruby:latest |
     When I run the :describe client command with:
       | resource | buildConfig      |
       | name     | ruby-hello-world-1 |
     Then the output should match:
-      | Image Reference:\s+ImageStreamTag <%= @projects[1].name %>/ruby:latest |
+      | Image Reference:\\s+ImageStreamTag <%= Regexp.escape(@projects[1].name) %>/ruby:latest |
     Given the "ruby-hello-world-1" build completed
     Given the "ruby-hello-world-1-1" build completed
     Given I wait for the "ruby-hello-world" service to become ready

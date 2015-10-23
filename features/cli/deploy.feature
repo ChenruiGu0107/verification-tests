@@ -38,13 +38,13 @@ Feature: deployment related features
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      | NAME\s+TRIGGERS\s+LATEST VERSION |
-      | hooks\s+ImageChange\s+2          |
+      | NAME\\s+TRIGGERS\\s+LATEST VERSION |
+      | hooks\\s+ImageChange\\s+2          |
     When I run the :rollback client command with:
       | deployment_name | hooks-1 |
       | dry_run         ||
     Then the output should match:
-      | Strategy:\s+Rolling |
+      | Strategy:\\s+Rolling |
     When I run the :rollback client command with:
       | deployment_name         | hooks-1 |
       | dry_run                 ||
@@ -52,9 +52,9 @@ Feature: deployment related features
       | change_strategy         ||
       | change_triggers         ||
     Then the output should match:
-      | Triggers:\s+Config   |
-      | Strategy:\s+Recreate |
-      | Replicas:\s+1        |
+      | Triggers:\\s+Config   |
+      | Strategy:\\s+Recreate |
+      | Replicas:\\s+1        |
 
   # @author: xxing@redhat.com
   # @case_id: 489262
@@ -76,9 +76,9 @@ Feature: deployment related features
       | resource | dc |
       | name     | database |
     Then the output should match:
-      | Deployment #1 \(latest\) |
-      | Status:\s+Complete       |
-      | Pods Status:\s+1 Running |
+      | Deployment\\s+#1.*latest |
+      | Status:\\s+Complete       |
+      | Pods Status:\\s+1 Running |
     When I run the :deploy client command with:
       | deployment_config | database |
       | cancel            ||
@@ -90,7 +90,7 @@ Feature: deployment related features
       | resource | dc |
       | name     | database |
     Then the output should match:
-      | Status:\s+Complete |
+      | Status:\\s+Complete |
     When I run the :deploy client command with:
       | deployment_config | database |
       | retry             ||
@@ -150,8 +150,8 @@ Feature: deployment related features
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\s+TRIGGERS\s+LATEST VERSION |
-      | hooks\s+0                       |
+      |NAME\\s+TRIGGERS\\s+LATEST VERSION |
+      | hooks\\s+0                        |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            ||
@@ -165,8 +165,8 @@ Feature: deployment related features
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\s+TRIGGERS\s+LATEST VERSION |
-      | hooks\s+1                       |
+      |NAME\\s+TRIGGERS\\s+LATEST VERSION |
+      | hooks\\s+1                        |
     # Make the edit action
     When I run the :get client command with:
       | resource      | dc |
@@ -202,8 +202,8 @@ Feature: deployment related features
       | resource      | deploymentConfig |
       | resource_name | hooks |
     Then the output should match:
-      | NAME\s+TRIGGERS\s+LATEST VERSION |
-      | hooks\s+ImageChange\s+2          |
+      | NAME\\s+TRIGGERS\\s+LATEST VERSION |
+      | hooks\\s+ImageChange\\s+2          |
     When I run the :rollback client command with:
       | deployment_name         | hooks-1 |
       | output                  | json  |
@@ -217,10 +217,10 @@ Feature: deployment related features
       | change_triggers         ||
       | change_scaling_settings ||
     Then the output should match:
-      | replicas:\s+1        |
-      | type:\s+Recreate     |
-      | value:\s+Plqe5Wev    |
-      | type:\s+ConfigChange |
+      | replicas:\\s+1        |
+      | type:\\s+Recreate     |
+      | value:\\s+Plqe5Wev    |
+      | type:\\s+ConfigChange |
 
   # @author xxing@redhat.com
   # @case_id 457712 457717 457718
@@ -265,8 +265,8 @@ Feature: deployment related features
     When I run the :get client command with:
       | resource | pod |
     Then the output should match:
-      | READY\s+STATUS |
-      | 1/1\s+Running  |
+      | READY\\s+STATUS |
+      | 1/1\\s+Running  |
     When I run the :get client command with:
       | resource      | deploymentConfig |
       | resource_name | hooks |
@@ -324,8 +324,8 @@ Feature: deployment related features
     When I run the :get client command with:
       | resource | pod |
     Then the output should match:
-      | READY\s+STATUS |
-      | 1/1\s+Running  |
+      | READY\\s+STATUS |
+      | 1/1\\s+Running  |
     When I run the :get client command with:
       | resource      | deploymentConfig |
       | resource_name | hooks |
