@@ -46,7 +46,13 @@ module CucuShift
         #logger.error("Please provide password or key for ssh authentication")
         #raise Net::SSH::AuthenticationFailed
       end
-      @session = Net::SSH.start(host, @user, **conn_opts)
+      begin
+        @session = Net::SSH.start(host, @user, **conn_opts)
+      rescue Net::SSH::HostKeyMismatch => e
+        raise e if opts[:strict]
+        e.remember_host!
+        retry
+      end
       @last_accessed = Time.now
     end
 
