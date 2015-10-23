@@ -124,7 +124,7 @@ end
 # strings or regular expressions listed in the given table
 Then /^(the|all)? outputs?( by order)? should( not)? (contain|match) "(.+)"(?: (\d+) times)?$/ do |all, in_order, negative, match_type, pattern, times|
   step "#{all} output#{in_order} should#{negative} #{match_type}#{times}:",
-    table(%{|#{pattern}|})
+    table([[pattern]])
 end
 
 Given /^([0-9]+?) seconds have passed$/ do |num|
