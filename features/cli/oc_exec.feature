@@ -36,6 +36,7 @@ Feature: containers related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
+    Given the pod named "hello-openshift" becomes ready
     When I run the :get client command with:
       | resource | pods |
     Then the output should contain:
@@ -44,8 +45,7 @@ Feature: containers related features
     When I run the :logs client command with:
       | pod_name | hello-openshift |
     Then the output should contain:
-      | serving on 8080 |
-      | serving on 8888 |
+      | Started, serving at 8080 |
 
   # @author xxing@redhat.com
   # @case_id 497482

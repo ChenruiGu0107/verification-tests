@@ -7,12 +7,13 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-    And I run the :deploy client command with:
+    # Wait and make the cancel succeed stably
+    And I wait until the status of deployment "hooks" becomes :running
+    When  I run the :deploy client command with:
       | deployment_config | hooks |
       | cancel            ||
     Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :failed
     When I run the :deploy client command with:
       | deployment_config | hooks |
     Then the output should contain "hooks #1 deployment failed"
@@ -20,9 +21,10 @@ Feature: deployment related features
       | deployment_config | hooks |
       | retry             ||
     Then the output should contain "retried #1"
+    And I wait until the status of deployment "hooks" becomes :complete
     When I run the :deploy client command with:
       | deployment_config | hooks |
-    Then the output should contain "hooks #1 deployment running"
+    Then the output should contain "hooks #1 deployed"
 
   # @author: xxing@redhat.com
   # @case_id: 457713
