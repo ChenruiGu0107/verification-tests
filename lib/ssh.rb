@@ -208,7 +208,7 @@ module CucuShift
       end
       if channel.active?
         # looks like we hit the timeout
-        channel.kill
+        channel.close
         logger.error("ssh channel timeout @#{@host}: #{command}")
       end
       unless opts[:quiet]
