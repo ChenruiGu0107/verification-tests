@@ -118,7 +118,6 @@ Feature: quickstarts.feature
       | buildconfig | python-sample-build |
     Then the step should succeed
     And the "python-sample-build-1" build was created
-    And the "python-sample-build-1" build completed
     When I run the :get client command with:
       | resource | builds |
     Then the step should succeed
