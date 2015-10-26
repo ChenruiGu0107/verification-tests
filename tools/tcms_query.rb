@@ -42,25 +42,12 @@ def print_report(options)
   table.head = ['caserun_id', 'case_id', 'summary', 'status', 'notes']
   regex = /(automated)? by\s(\w+)?/
   cases = []
-  res.each do |row|
-    auto_by = row['notes'].match(regex)[2] if row['notes'].match(regex)
-    if author_filter
-      if author_filter == auto_by
-        # only include the row if the filter matches what's in the notes column
-        if outcome_filter
-          table.rows << [row['case_run_id'], row['case_id'], row['summary'].strip[0..50], row['case_run_status'], auto_by] if outcome_filter == row['case_run_status']
-        else
-          table.rows << [row['case_run_id'], row['case_id'], row['summary'].strip[0..50], row['case_run_status'], auto_by]
-        end
-      end
-    else
-      if outcome_filter
-        table.rows << [row['case_run_id'], row['case_id'], row['summary'].strip[0..50], row['case_run_status'], auto_by] if outcome_filter == row['case_run_status']
-      else
-        table.rows << [row['case_run_id'], row['case_id'], row['summary'].strip[0..50], row['case_run_status'], auto_by]
-      end
-    end
-
+  res.each do |caserun|
+    auto_by = caserun['notes'].match(regex)[2] if caserun['notes'].match(regex)
+    row = [caserun['case_run_id'], caserun['case_id'], caserun['summary'].strip[0..50], caserun['case_run_status'], auto_by]
+    next if author_filter && author_filter != auto_by
+    next if outcome_filter && outcome_filter != caserun['case_run_status']
+    table.rows << row
   end
   puts table
   puts "Total: #{table.rows.count}\n"
