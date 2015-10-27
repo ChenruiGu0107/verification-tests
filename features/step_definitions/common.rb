@@ -70,7 +70,7 @@ Then /^(the|all)? outputs?( by order)? should( not)? (contain|match)(?: (\d+) ti
     when times
       patterns.each do |p|
         found_times = o.scan(p).size
-        if (found_times == times) ^ negative
+        unless (found_times == times) ^ negative
           raise "found pattern #{found_times} times with baseline #{times} times: #{p}"
         end
       end
