@@ -54,7 +54,6 @@ Feature: build 'apps' with CLI
     When I run the :get client command with:
       |resource| is |
     Then the output should contain:
-      | ruby-20-centos7  |
       | ruby-hello-world |
     When I run the :new_build client command with:
       | app_repo |  openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world.git |
