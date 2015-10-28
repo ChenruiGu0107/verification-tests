@@ -253,6 +253,8 @@ module CucuShift
       end
 
       if registry_ha
+        #configure nfs service on master before run ansible
+        #  ansible should save the iptables
         check_res hosts['master'][0].exec_admin(
           'sh configure_env.sh configure_nfs_service'
         )
@@ -362,6 +364,8 @@ module CucuShift
           opts[key] = ENV[key.to_s.upcase]
         end
       end
+
+      opts[:registry_ha] = false unless to_bool(opts[:registry_ha])
     end
 
     #def launch(**opts)
