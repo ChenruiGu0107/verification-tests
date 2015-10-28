@@ -199,6 +199,7 @@ def report_auto_testcases(options)
   script_pattern = "\"ruby\""
   cases = []
   res = tcms.filter_cases()
+  total_cases = res.count
   ruby_scripts_count = 0
   ruby_cases = []
   need_update = 0
@@ -234,7 +235,7 @@ def report_auto_testcases(options)
     cases.push(row[0])
   end
 
-  puts "Total: #{ruby_scripts_count}, need_update: #{need_update}"
+  puts "Total: #{ruby_scripts_count} out of possible #{total_cases}, need_update: #{need_update}"
 
   return cases
 end
@@ -312,7 +313,7 @@ if __FILE__ == $0
       options.get_auto=true
     end
     opts.on('-b', '--by_author', "query for all cases that has is CONFIRMED, and report it by author name") do
-      options.author=true
+      options.by_author=true
     end
     opts.on('-o', '--outcome [testcase run outcome]', String, "the output to filter by per status_lookup table") do |outcome|
       options.outcome = outcome
