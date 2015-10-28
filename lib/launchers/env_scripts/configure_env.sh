@@ -349,6 +349,10 @@ function configure_nfs_service()
 	iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 50825 -j ACCEPT
 	iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 53248 -j ACCEPT
 
+	# save rules and make sure iptables service is active and enabled
+	/usr/libexec/iptables/iptables.init save || exit 1
+	systemctl is-enabled iptables && systemctl is-active iptables || exit 1
+
 	sed -i 's/RPCMOUNTDOPTS=.*/RPCMOUNTDOPTS="-p 20048"/' /etc/sysconfig/nfs
 	sed -i 's/STATDARG=.*/STATDARG="-p 50825"/' /etc/sysconfig/nfs
 	echo "fs.nfs.nlm_tcpport=53248" >>/etc/sysctl.conf

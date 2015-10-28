@@ -252,14 +252,6 @@ module CucuShift
         end
       end
 
-      if registry_ha
-        #configure nfs service on master before run ansible
-        #  ansible should save the iptables
-        check_res hosts['master'][0].exec_admin(
-          'sh configure_env.sh configure_nfs_service'
-        )
-      end
-
       # finally run download repo and run ansible (this is in workdir)
       # we need git and ansible available pre-installed
       check_res Host.localhost.exec(
@@ -292,6 +284,9 @@ module CucuShift
       )
 
       if registry_ha
+        check_res hosts['master'][0].exec_admin(
+          'sh configure_env.sh configure_nfs_service'
+        )
         check_res hosts['master'][0].exec_admin(
           'sh configure_env.sh configure_registry_to_ha'
         )
