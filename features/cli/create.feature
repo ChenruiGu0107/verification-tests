@@ -111,7 +111,7 @@ Feature: creating 'apps' with CLI
   Scenario: Create application from template via cli
     Given I have a project
     When I run the :create client command with:
-      |f|https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json|
+      |f| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
     And I create a new application with:
       |template|ruby-helloworld-sample|
       |param   |MYSQL_USER=admin,MYSQL_PASSWORD=admin,MYSQL_DATABASE=xxingtest|
