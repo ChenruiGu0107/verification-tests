@@ -174,7 +174,7 @@ Feature: build 'apps' with CLI
   Scenario: Set dump-logs and restart flag for cancel-build in openshift
     Given I have a project
     When I run the :process client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
     Then the step should succeed
     Given I save the output to file>app-stibuild.json
     When I run the :create client command with:
@@ -197,7 +197,9 @@ Feature: build 'apps' with CLI
       | dump_logs  | true                |
     Then the output should contain:
       | Build logs for ruby-sample-build-2 |
-    And the "ruby-sample-build-2" build was cancelled
+    # "cancelled" comes quickly after "failed" status, wait
+    # "failed" has the same meaning
+    And the "ruby-sample-build-2" build failed
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
@@ -207,9 +209,9 @@ Feature: build 'apps' with CLI
       | dump_logs  | true                |
     Then the output should contain:
       | Build logs for ruby-sample-build-3 |
-    And the "ruby-sample-build-3" build was cancelled
+    And the "ruby-sample-build-3" build failed
     When I run the :get client command with:
       | resource | build |
     # Should contain the new start build
     Then the output should match:
-      | ruby-sample-build-3-\d+.+(?:Running)?(?:Pending)?|
+      | <%= Regexp.escape("ruby-sample-build-4") %>.+(?:Running)?(?:Pending)?|
