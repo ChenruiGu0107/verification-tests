@@ -66,3 +66,20 @@ optional_classes:
     include_path: tcms/tcms_manager
     class: CucuShift::TCMSManager
     opts: {}
+services:
+  AWS:
+    # the actual key-pair name is under the private repo and will be over-written
+    key_pair: "secret_key_pair"
+    instance_type: "m3.medium"
+    min_count: 1
+    max_count: 1
+    #instance_type: "c4.large"
+    zone: "us-east-1d"
+    region: "us-east-1"
+    qe_ready: "qe-ready"
+    fedora: "devenv-fedora_*"
+    centos7: "devenv-centos7_*"
+    rhel7: "devenv-rhel7_*"
+    rhel7next: "devenv-rhel7next_*"
+    devenv_wildcard: "devenv-*"
+    stable_ami: "devenv-stage-*"

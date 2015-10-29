@@ -3,11 +3,13 @@ require 'open3'
 require 'cucushift'
 require 'manager'
 require 'base_helper'
+require 'cloud_helper'
 
 module CucuShift
   module Common
     module Helper
       include BaseHelper
+      include CloudHelper
 
       def manager
         CucuShift::Manager.instance
