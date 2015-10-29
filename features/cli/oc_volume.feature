@@ -13,4 +13,4 @@ Feature: oc_volume.feature
       | all | true |
       | selector | frontend |
     Then the step should fail
-    And the output should contain "either specify --selector or --all but not both"
+    And the output should contain "you may specify either --selector or --all but not both"
