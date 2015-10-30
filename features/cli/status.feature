@@ -40,7 +40,7 @@ Feature: Check oc status cli
       | resource    | rc |
       | name | rcmatchse |
     And the output should match:
-      | Selector:\s+name=database |
+      | Selector:\\s+name=database |
     When I run the :status client command
     Then the output should contain:
       | service/database |
