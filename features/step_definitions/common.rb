@@ -212,6 +212,3 @@ Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |po
   @result  = res_cache
 end
 
-When /^I perform the :(.*?) web action with:$/ do |action, table|
-  @result = user.webconsole_exec(action.to_sym, opts_array_to_hash(table.raw))
-end

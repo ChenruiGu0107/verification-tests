@@ -27,6 +27,7 @@ module CucuShift
       manager.world = self
 
       @clipboard = OpenStruct.new
+      @browsers = []
       # some arrays to store cached objects
       @projects = []
       @services = []
@@ -315,10 +316,24 @@ module CucuShift
     end
 
     # @return web4cucumber object from scenario cache
-    def web_browser(user = nil)
-      return @browsers if user.nil? && @browsers
-      user ||= self.user
-      return @browsers = env.webconsole_executor.executor(user)
+    def browser(num = -1)
+      num = Integer(num) rescue word_to_num(num)
+
+      raise "no web browsers cached in World" if @browsers.empty?
+
+      case
+      when num > @browsers.size + 1 || num < -@browsers.size
+        raise "web browsers index not found: #{num} for size #{@browsers.size}"
+      else
+        cache_browser(@browsers[num]) unless num == -1
+        return @browsers.last
+      end
+    end
+
+    # put the specified browser at top of our cache avoiding duplicates
+    def cache_browser(browser)
+      @browsers.delete(browser)
+      @browsers << browser
     end
 
     # @return pod by name from scenario cache; with no params given,
@@ -349,7 +364,7 @@ module CucuShift
     end
 
     # add pods to list avoiding duplicates
-    def pods_add(*new_pods)
+    def cache_pods(*new_pods)
       new_pods.each {|p| @pods.delete(p); @pods << p}
     end
 

@@ -10,7 +10,7 @@ Given /^a pod becomes ready with labels:$/ do |table|
     raise "See log, waiting for labeled pods futile: #{labels.join(',')}"
   end
 
-  pods_add(*@result[:matching])
+  cache_pods(*@result[:matching])
 
   @result = pod.wait_till_ready(user, ready_timeout)
 
