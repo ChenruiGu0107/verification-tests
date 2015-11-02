@@ -66,7 +66,7 @@ module CucuShift
         @users_used[num].clean_up_on_load
         return @users_used[num]
       else
-        raise "missing soecification for user index #{num}"
+        raise "missing specification for user index #{num}"
       end
     end
   end
