@@ -642,7 +642,6 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            | true  |
-    Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     Then I run the :describe client command with:
       | resource | dc    |

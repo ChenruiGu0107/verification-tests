@@ -113,6 +113,27 @@ module CucuShift
       return res
     end
 
+    # @return [Boolean]
+    def replica_count_match?(user:, state:, replica_count:)
+      res = nil
+      res = describe(user)
+      if res[:success]
+        res[:success] = res[:parsed][:pods_status][state].to_i == replica_count
+        res
+      end
+    end
+
+    # @return [CucuShift::ResultHash] with :success true if we've eventually get the number of reclicas 'running'
+    #   to match the desired number
+
+    def wait_till_replica_count_match(user:, state:, seconds:, replica_count:)
+      res = nil
+      success = wait_for(seconds) {
+        res = replica_count_match?(user: user, state: state, replica_count: replica_count)
+        res[:success]
+      }
+    end
+
     # @param labels [String, Array<String,String>] labels to filter on, read
     #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
     def self.wait_for_labeled(*labels, user:, project:, seconds:)
