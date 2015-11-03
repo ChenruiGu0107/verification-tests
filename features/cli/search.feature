@@ -35,7 +35,6 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |ruby|
       |Project: <%= project.name %>|
-      |Tracks:  openshift/ruby-20-centos7|
       |Tags:    2.0,latest|
       |Docker images (oc new-app --docker-image=<docker-image> [--code=<source>])|
       |ruby|
@@ -71,7 +70,6 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |mysql|
       |Project: <%= project.name %>|
-      |Tracks:  openshift/mysql-55-centos7|
       |Tags:    5.5,latest|
 
     When I run the :new_app client command with:
@@ -128,7 +126,6 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |php|
       |Project: <%= project.name %>|
-      |Tracks:  openshift/php-55-centos7|
       |Tags:    5.5,latest|
       |Docker images (oc new-app --docker-image=<docker-image> [--code=<source>])|
       |ruby|
@@ -148,9 +145,8 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |php|
       |Project: <%= project.name %>|
-      |Tracks:  openshift/php-55-centos7|
       |Tags:    5.5,latest|
-    
+
     #Search with partial match
     When I run the :new_app client command with:
       | search | true |
@@ -164,7 +160,6 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |ruby|
       |Project: <%= project.name %>|
-      |Tracks:  openshift/ruby-20-centos7|
       |Tags:    2.0,latest|
     When I run the :new_app client command with:
       | search | true |
@@ -174,7 +169,6 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |php|
       |Project: <%= project.name %>|
-      |Tracks:  openshift/php-55-centos7|
       |Tags:    5.5,latest|
     When I run the :new_app client command with:
       | search | true |
