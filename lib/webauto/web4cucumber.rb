@@ -305,6 +305,11 @@ require 'watir-webdriver'
       return get_elements(type, selector).select { |e| e.visible? }
     end
 
+    # return HTML code of current page
+    def page_html
+      return browser.html
+    end
+
     # this somehow convoluted method can be used to wait for multiple elements
     #   for a given timeout; that means there is one timeout to get all of the
     #   requested elements

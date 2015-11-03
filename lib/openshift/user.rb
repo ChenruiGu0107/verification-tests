@@ -88,12 +88,12 @@ module CucuShift
       cli_executor.exec(self, key, opts)
     end
 
-    private def webconsole_executor
-      env.webconsole_executor
+    def webconsole_executor
+      env.webconsole_executor.executor(self)
     end
 
     def webconsole_exec(action, opts={})
-      webconsole_executor.run_action(self, action, **opts)
+      env.webconsole_executor.run_action(self, action, **opts)
     end
 
     # execute a rest request as this user
