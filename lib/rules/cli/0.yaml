@@ -342,12 +342,15 @@
     :secrets_name: <value>
     :for: --for=<value>
 :start_build:
-  :cmd: oc start-build <buildconfig>
+  :cmd: oc start-build
   :options:
-    :follow: --follow
+    :buildconfig: <value>
+    :follow: --follow=<value>
     :from_build: --from-build=<value>
     :from_webhook: --from-webhook=<value>
-    :git_repo: --git-repository=<value>
+    :git_post: --git-post-receive=<value>
+    :git_repository: --git-repository=<value>
+    :list_webhooks: --list-webhooks=<value>
 :status:
   :cmd: oc status
 :types:
