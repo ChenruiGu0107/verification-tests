@@ -35,11 +35,9 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |ruby|
       |Project: <%= project.name %>|
-      |Tags:    2.0,latest|
       |Docker images (oc new-app --docker-image=<docker-image> [--code=<source>])|
       |ruby|
       |Registry: Docker Hub|
-      |Tags:     latest|
 
     #Search by --docker-image
     When I run the :new_app client command with:
@@ -50,7 +48,6 @@ Feature: new-app with --search option
       |Docker images (oc new-app --docker-image=<docker-image> [--code=<source>])|
       |mysql|
       |Registry: Docker Hub|
-      |Tags:     latest|
     When I run the :new_app client command with:
       | search | true |
       | docker_image | ruby |
@@ -59,7 +56,6 @@ Feature: new-app with --search option
       |Docker images (oc new-app --docker-image=<docker-image> [--code=<source>])|
       |ruby|
       |Registry: Docker Hub|
-      |Tags:     latest|
 
     #Search by --image-stream
     When I run the :new_app client command with:
@@ -70,7 +66,6 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |mysql|
       |Project: <%= project.name %>|
-      |Tags:    5.5,latest|
 
     When I run the :new_app client command with:
       | search | true |
@@ -80,7 +75,6 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |ruby|
       |Project: <%= project.name %>|
-      |Tags:    2.0,latest|
 
     #Search by --template
     When I run the :new_app client command with:
@@ -126,11 +120,9 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |php|
       |Project: <%= project.name %>|
-      |Tags:    5.5,latest|
       |Docker images (oc new-app --docker-image=<docker-image> [--code=<source>])|
       |ruby|
       |Registry: Docker Hub|
-      |Tags:     latest|
 
     When I run the :new_app client command with:
       | search | true |
@@ -145,7 +137,6 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |php|
       |Project: <%= project.name %>|
-      |Tags:    5.5,latest|
 
     #Search with partial match
     When I run the :new_app client command with:
@@ -160,7 +151,6 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |ruby|
       |Project: <%= project.name %>|
-      |Tags:    2.0,latest|
     When I run the :new_app client command with:
       | search | true |
       | image_stream | ph |
@@ -169,7 +159,6 @@ Feature: new-app with --search option
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |php|
       |Project: <%= project.name %>|
-      |Tags:    5.5,latest|
     When I run the :new_app client command with:
       | search | true |
       | template | sql |
