@@ -387,8 +387,6 @@ module CucuShift
   end
 
   class LocalLinuxLikeHost < LinuxLikeHost
-    include Common::LocalShell
-
     def initialize(hostname, opts={})
       hostname ||= self.hostname
       super
@@ -416,10 +414,30 @@ module CucuShift
     end
 
     def exec_raw(*cmds, **opts)
+      background = opts.delete(:background)
       if opts.delete(:single) || cmds.size == 1
-        return exec_foreground(*cmds, **opts)
+        cmd_spec = cmds
       else
-        return exec_foreground(*commands_to_string(cmds), **opts)
+        cmd_spec = commands_to_string(cmds)
+      end
+
+      process = LocalProcess.new(*cmd_spec, **opts)
+
+      if background
+        process.finished? || manager.temp_resources << process
+        return process.result
+      else
+        return process.wait
+      end
+    end
+
+    def exec_as(user, *commands, **opts)
+      case user
+      when nil, self[:user]
+        # perform blind exec in workdir
+        return exec_raw(commands, chdir: workdir, **opts)
+      else
+        super
       end
     end
 
