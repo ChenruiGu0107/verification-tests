@@ -121,7 +121,7 @@ require 'watir-webdriver'
         logger.info("#{rule}..")
         case rule
         when :url
-          res_join result, handle_url(spec)
+          res_join result, handle_url(spec, **user_opts)
         when :element
           res_join result, handle_element(spec, **user_opts)
         when :elements
@@ -176,7 +176,11 @@ require 'watir-webdriver'
       end
     end
 
-    def goto_url(url)
+    def goto_url(url, **user_opts)
+      url = url.gsub(/<([a-z_]+?)>/) { |match|
+              user_opts[match[1..-2].to_sym] || match
+            }
+
       if !(url =~ URI.regexp)
         url = URI.join(base_url, url).to_s
       end
