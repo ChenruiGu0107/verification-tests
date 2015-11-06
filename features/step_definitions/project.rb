@@ -66,15 +66,17 @@ When /^admin creates a project$/ do
 end
 
 When /^admin deletes the #{QUOTED} project$/ do |project_name|
-  @result = project(project_name).delete(by: :admin)
+  p = project(project_name)
+  @result = p.delete(by: :admin)
+  @projects.delete(p) if @result[:success]
 end
 
 # tries to delete last used project or a project with given name (if name given)
 When /^I delete the(?: "(.+?)")? project$/ do |project_name|
   p = project(project_name)
   @result = project(project_name).delete(by: user)
-  @projects.delete(p)
   if @result[:success]
+    @projects.delete(p)
     @result[:success] = p.wait_to_be_deleted(user)
     unless @result[:success]
       logger.warn("Project #{p.name} still visible on server after delete")
