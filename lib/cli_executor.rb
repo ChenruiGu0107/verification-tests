@@ -71,6 +71,9 @@ module CucuShift
 
   # execute cli commands on the first master machine as each user respectively
   #   it also does prior cert and token setup
+  # @deprecated Please use [SharedLocalCliExecutor] instead
+  #   or another executor running on localhost. Remote excutors will fail for
+  #   scenarios that run commands to read for local files
   class MasterOsPerUserCliExecutor < CliExecutor
     def initialize(env, **opts)
       super

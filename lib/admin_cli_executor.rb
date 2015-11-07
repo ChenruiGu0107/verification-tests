@@ -44,6 +44,9 @@ module CucuShift
   end
 
   # execites admin commands as admin on first master host
+  # @deprecated Please use [MasterKubeconfigLocalAdminCliExecutor] instead
+  #   or another executor running on localhost. Remote excutors will fail for
+  #   scenarios that run commands to read for local files
   class MasterOsAdminCliExecutor < AdminCliExecutor
     ADMIN_USER = :admin # might use a config variable for that
 
