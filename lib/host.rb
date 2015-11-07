@@ -110,8 +110,16 @@ module CucuShift
     end
 
     # @note execute process in the background and inserts clean-up hooks
-    def exec_background(*commands, **opts)
+    def exec_background_as(user, commands, opts={})
       raise '#{__method__} method not implemented'
+    end
+
+    def exec_background(commands, opts={})
+      exec_background_as(nil, commands, opts)
+    end
+
+    def exec_background_admin(commands, opts={})
+      exec_background_as(:admin, commands, opts)
     end
 
     # @param spec - interaction specification
@@ -441,6 +449,11 @@ module CucuShift
       end
     end
 
+    # @note execute process in the background and inserts clean-up hooks
+    def exec_background_as(user, commands, opts)
+      exec_as(user, *commands, background: true, **opts)
+    end
+
     # TODO: implement delete, mkdir, touch in ruby
 
     def clean_up
@@ -481,6 +494,7 @@ module CucuShift
 
     # @note execute commands without special setup
     def exec_raw(*commands, **opts)
+      raise ":background not implemented" if opts[:background]
       ssh(opts).exec(commands_to_string(commands),opts)
     end
 

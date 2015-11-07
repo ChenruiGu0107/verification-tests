@@ -47,11 +47,39 @@ module CucuShift
     # @see #build_expectations
     # @see #process_result
     def run(cmd_key, options)
-      cmd = build_command_line(cmd_key, options)
-      res = @host.exec_as(@user, cmd)
+      cmd_options, exec_options = self.class.split_exec_options(options)
+      cmd = build_command_line(cmd_key, cmd_options)
+      res = @host.exec_as(@user, cmd, **exec_options)
 
-      process_result(result: res, rules: rules[cmd_key], options: options)
+      rules_execution_result_processor = proc {
+        process_result(result: res, rules: rules[cmd_key], options: cmd_options)
+      }
+
+      if exec_options[:background]
+        # insert a proc into res that can be called after command completion
+        #   if regular command result processing is desired by user
+        res[:rules_result_processor] = rules_execution_result_processor
+      else
+        # for foreground execution process command result right away
+        rules_execution_result_processor.call
+      end
       return res
+    end
+
+    # splits command options from host exec options
+    # @patam options [Hash, Array] options provided by user
+    # @return [Array] the plit options [cmd_options, exec_options]
+    def self.split_exec_options(options)
+      cmd_options = []
+      exec_options = []
+      options.each do |k, v|
+        if k.to_s.start_with? "_"
+          exec_options << [ k[1..-1].to_sym, v ]
+        else
+          cmd_options << [ k, v ]
+        end
+      end
+      return [ cmd_options, exec_options ]
     end
 
     # substitute options inside expected/unexpected patterns;
