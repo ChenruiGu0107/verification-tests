@@ -67,6 +67,7 @@ Feature: projects related features via cli
   # @author pruan@redhat.com
   # @case_id 478983
   @admin
+  @destructive
   Scenario: A user could create a project successfully via CLI
     Given I have a project
     When I run the :get client command with:
@@ -252,14 +253,10 @@ Feature: projects related features via cli
   # @case_id 481695
   @admin
   Scenario: Should be able to create a project with valid node selector
-    ##admin get a valid node label
-    Given the first node name is stored in the :node_name clipboard
-    And the first node label is stored in the :valid_node_label clipboard
-
     ##create a project with the node label
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/prj_with_invalid_node-selector.json"
     And I replace lines in "prj_with_invalid_node-selector.json":
-      |"openshift.io/node-selector": "env,qa"|"openshift.io/node-selector": "<%= cb.valid_node_label %>"|
+      |"openshift.io/node-selector": "env,qa"|"openshift.io/node-selector": "<%= env.nodes[0].labels.first.join("=") %>"|
     Then the step should succeed
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     And I replace lines in "prj_with_invalid_node-selector.json":
@@ -268,11 +265,16 @@ Feature: projects related features via cli
     When I run the :create admin command with:
       | f | prj_with_invalid_node-selector.json |
     Then the step should succeed
+
+    Given I register clean-up steps:
+      | admin deletes the "<%= cb.proj_name %>" project |
+      | the step should succeed                     |
+
     When I run the :describe admin command with:
       | resource | project |
       | name     | <%= cb.proj_name %> |
     Then the output should contain:
-      | <%= cb.valid_node_label %> |
+      | <%= env.nodes[0].labels.first.join("=") %> |
 
     ##grant admin to user
     When I run the :add_role_to_user admin command with:
@@ -292,5 +294,5 @@ Feature: projects related features via cli
       | resource      | pods            |
       | name | hello-openshift |
     Then the output should contain:
-      | <%= cb.node_name %> |
+      | <%= env.nodes.first.name %> |
 

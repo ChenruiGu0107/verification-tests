@@ -11,7 +11,6 @@ require 'openshift/pod'
 require 'openshift/persistent_volume'
 require 'openshift/replication_controller'
 require 'openshift/deployment_config'
-require 'openshift/node'
 
 module CucuShift
   # @note this is our default cucumber World extension implementation
@@ -39,7 +38,6 @@ module CucuShift
       @pvs = []
       @rcs = []
       @dcs = []
-      @nodes = []
 
       # procs and lambdas to call on clean-up
       @teardown = []

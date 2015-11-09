@@ -7,6 +7,7 @@ require 'user_manager'
 require 'host'
 require 'rest'
 require 'http'
+require 'openshift/node'
 require 'webauto/webconsole_executor'
 
 module CucuShift
@@ -155,6 +156,12 @@ module CucuShift
         end
       end
       return @hosts
+    end
+
+    def nodes(user: admin, refresh: false)
+      return @nodes if @nodes && !refresh
+
+      @nodes = Node.list(user: user)
     end
   end
 end

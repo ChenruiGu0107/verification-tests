@@ -1,11 +1,17 @@
-require 'yaml' 
-require 'common' 
+require 'yaml'
+require 'common'
 
 module CucuShift
-  #@note this class represents OpenShift environment nodes
+  # @note this class represents OpenShift environment Node API pbject and this
+  #   is different from a CucuShift::Host. Underlying a Node, there always is a
+  #   Host but not all Hosts are Nodes. Not sure if we can always have a
+  #   mapping between Nodes and Hosts. Depends on access we have to the env
+  #   under testing and proper configuration.
   class Node
-    include Common::Helper 
+    include Common::Helper
     include Common::UserObjectHelper
+
+    attr_reader :name, :env, :props
 
     def initialize (name:, env:, props: {})
       if name.nil? || env.nil?
@@ -16,8 +22,6 @@ module CucuShift
       @env = env
       @props = props
     end
-
-    attr_reader :name, :env, :props
 
     # list all nodes
     # @param user [CucuShift::User]
@@ -45,6 +49,46 @@ module CucuShift
       props[:uid] = h["uid"]
       props[:labels] = h["labels"]
       return self
+    end
+
+    # @note assuming admin here should be safe as working with nodes
+    #   usually means that we work with admin
+    def labels(user: :admin)
+      return props[:labels] if props[:labels]
+      reload(user: user)
+      props[:labels]
+    end
+
+    # @return [CucuShift:Host] underlying this node
+    # @note may raise depending on proper OPENSHIFT_ENV_<NAME>_HOSTS
+    def host
+      env.hosts.find { |h| h.hostname == self.name } ||
+        raise("no host mapping for #{self.name}")
+    end
+
+    def get(user:)
+      res = cli_exec(as: user, key: :get,
+                resource_name: name,
+                resource: "node",
+                output: "yaml")
+
+      if res[:success]
+        res[:parsed] = YAML.load(res[:response])
+        update_from_api_object(res[:parsed])
+      end
+
+      return res
+    end
+    alias reload get
+
+    ############### take care of object comparison ###############
+    def ==(n)
+      n.kind_of?(self.class) && name == n.name && env == n.env
+    end
+    alias eql? ==
+
+    def hash
+      :node.hash ^ name.hash ^ env.hash
     end
   end
 end
