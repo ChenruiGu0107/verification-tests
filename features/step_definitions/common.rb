@@ -212,3 +212,23 @@ Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |po
   @result  = res_cache
 end
 
+# When applying "oc delete" on one resource, the resource may take some time to
+# terminate, so use this step to wait for its dispapearing.
+Given /^I wait for the resource "(.+)" named "(.+)" to disappear$/ do |resource_type, resource_name|
+  opts = {resource_name: resource_name, resource: resource_type}
+  res = {}
+  seconds = 15 * 60   # just put a timeout so we don't hang there indefintely
+  success = wait_for(seconds) {
+    res = user.cli_exec(:get, **opts)
+    if res[:response].include? 'not found'
+      # the resource has terminated which means we are done waiting.
+      break true
+    end
+  }
+  res[:success] = success
+  @result  = res
+  unless @result[:success]
+    logger.error(@result[:response])
+    raise "#{resource_name} #{resource_type} did not terminate"
+  end
+end
