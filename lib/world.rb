@@ -28,6 +28,8 @@ module CucuShift
 
       @clipboard = OpenStruct.new
       @browsers = []
+      @bg_processes = []
+      @bg_rulesresults = []
       # some arrays to store cached objects
       @projects = []
       @services = []

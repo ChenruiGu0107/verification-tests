@@ -67,14 +67,14 @@ module CucuShift
     end
 
     # splits command options from host exec options
-    # @patam options [Hash, Array] options provided by user
-    # @return [Array] the plit options [cmd_options, exec_options]
+    # @param options [Hash, Array] options provided by user
+    # @return [Array<Array, Hash>] the split options [cmd_options, exec_options]
     def self.split_exec_options(options)
       cmd_options = []
-      exec_options = []
+      exec_options = {}
       options.each do |k, v|
         if k.to_s.start_with? "_"
-          exec_options << [ k[1..-1].to_sym, v ]
+          exec_options[k[1..-1].to_sym] = v
         else
           cmd_options << [ k, v ]
         end

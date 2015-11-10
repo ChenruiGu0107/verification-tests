@@ -47,7 +47,7 @@ module CucuShift
         res[:in] = @in_r
         @in_writer_proc = proc {
           @in_w.write(opts[:stdin])
-          @in_w.close rescue nil
+          @in_w.close
         }
       else
         raise "don't know how to handle stdin: #{opts[:stdin].class}"
@@ -61,7 +61,7 @@ module CucuShift
         res[:out] = @out_w
         @out_reader_proc = proc do
           o = @out_r.read
-          @out_r.close rescue nil
+          @out_r.close
           o
         end
       when IO, Symbol
@@ -81,7 +81,7 @@ module CucuShift
           res[:err] = @err_w
           @err_reader_proc = proc do
             e = @err_r.read
-            @err_r.close rescue nil
+            @err_r.close
             e
           end
         when IO, Symbol
@@ -145,10 +145,11 @@ module CucuShift
       @status = :running
     rescue => e
       @status = :error
+      close_io
       raise e
     end
 
-    private def process_timeout
+    private def wait_timeout
       opts[:timeout] ? opts[:timeout].to_i : DEFAULT_TIMEOUT
     end
 
@@ -178,7 +179,7 @@ module CucuShift
     end
 
     def wait(timeout = nil)
-      success = wait_for(timeout || DEFAULT_TIMEOUT) {
+      success = wait_for(timeout || wait_timeout) {
         finished?
       }
       unless success
@@ -194,34 +195,40 @@ module CucuShift
 
       thread_res = wait_thread.join(1)
       if thread_res
-        result[:exitstatus] = thread_res.value.to_i
-        result[:success] = result[:success] && result[:exitstatus] == 0
-        close_io
+        begin
+          result[:exitstatus] = thread_res.value.to_i
+          result[:success] = result[:success] && result[:exitstatus] == 0
 
-        if @out_reader
-          result[:stdout] = @out_reader.join(3) && @out_reader.value
-          unless result[:stdout]
-            raise("stdout never closed of: #{result[:instruction]}")
-          end
-        end
-        if @err_reader
-          result[:stderr] = @err_reader.join(3) && @err_reader.value
-          unless result[:stderr]
-            raise("stderr never closed of: #{result[:instruction]}")
+          if @out_reader
+            result[:stdout] = @out_reader.join(3) && @out_reader.value
+            unless result[:stdout]
+              raise("stdout never closed of: #{result[:instruction]}")
             end
-        end
-        result[:response] = result[:stdout].to_s
-
-        unless opts[:quiet]
-          logger.print(result[:stdout], false)
-          unless result[:stderr].equal?(result[:stdout])
-            logger.print(result[:stderr], false)
           end
-        end
-        logger.info("Exit Status: #{result[:exitstatus]}")
+          if @err_reader
+            result[:stderr] = @err_reader.join(3) && @err_reader.value
+            unless result[:stderr]
+              raise("stderr never closed of: #{result[:instruction]}")
+              end
+          end
+          result[:response] = result[:stdout].to_s
 
-        @status = :finished
-        return result
+          unless opts[:quiet]
+            logger.print(result[:stdout], false)
+            unless result[:stderr].equal?(result[:stdout])
+              logger.print(result[:stderr], false)
+            end
+          end
+          logger.info("Exit Status: #{result[:exitstatus]}")
+
+          @status = :finished
+          return result
+        ensure
+          # ensure IO streams are in all circumstances closed but *after* we
+          #   allowed IO threads to finish. Otherwise they will raise and
+          #   process output will *not* be captured.
+          close_io
+        end
       end
       return false
     end
@@ -249,10 +256,15 @@ module CucuShift
         Process.kill(:KILL, -@pid) rescue nil
         sleep 1
         unless finished?
-          close_io # make sure to clean-up as much as possible
-          raise("could not clean-up process #{result[:comand]}")
+          raise("could not clean-up process #{result[:command]}")
         end
       end
+    ensure
+      # Make sure to clean-up as much as possible but at the same time
+      #   this clean-up should be *after* IO threads have completed (if at all
+      #   possible). Otherwise they will raise and process output wont be
+      #   captured.
+      close_io
     end
   end
 end
