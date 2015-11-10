@@ -53,3 +53,36 @@ Feature: scaling related scenarios
     Then the step should fail
     And the output should contain:
       | error: --replicas=COUNT |
+
+  # @author xxia@redhat.com
+  # @case_id 470697
+  Scenario: Pod will automatically be created by replicationcontroller when it was deleted
+    Given I have a project
+    And I run the :run client command with:
+      | name         | myrun                 |
+      | image        | yapei/hello-openshift |
+      | generator    | run-controller/v1     |
+      | -l           | rc=myrun              |
+    Then the step should succeed
+
+    When I wait until replicationController "myrun" is ready
+    And I run the :get client command with:
+      | resource | pod                |
+      | l        | rc=myrun           |
+    Then the step should succeed
+    And the output should contain "myrun-"
+
+    Given evaluation of `project.pods(by: user)[:pods][0].name` is stored in the :pod_name clipboard
+    When I run the :delete client command with:
+      | object_type | pod             |
+      | l           | rc=myrun        |
+    Then the step should succeed
+
+    When I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear
+    And I run the :get client command with:
+      | resource | pod                |
+      | l        | rc=myrun           |
+    Then the step should succeed
+    And the output should contain "myrun-"
+    And the output should not contain "<%= cb.pod_name %>"
+
