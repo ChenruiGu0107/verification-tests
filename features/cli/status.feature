@@ -111,3 +111,28 @@ Feature: Check oc status cli
     Then the step should succeed
     And the output should match:
       |1 build failed|
+
+  # @author cryan@redhat.com
+  # @case_id 497403
+  Scenario: Show RCs for services in 'oc status'
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    And I run the :process client command with:
+      |f|application-template-stibuild.json|
+    And the step should succeed
+    And I save the output to file> processed-stibuild.json
+
+    When I run the :create client command with:
+      |f|processed-stibuild.json|
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource | svc |
+    Then the step should succeed
+    And the output should contain:
+      | frontend |
+      | database |
+
+    When I run the :status client command
+    Then the step should succeed
+    And the output should contain "1 deployment new"
