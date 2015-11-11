@@ -16,6 +16,7 @@ Feature: create app on web console related
     When I perform the :create_app_from_template web console action with:
       | project_name  | <%= cb.proj_name %>    |
       | template_name | ruby-helloworld-sample |
+      | namespace     | <%= cb.proj_name %>    |
       | param_one     | :null  |
       | param_two     | :null  |
       | param_three   | :null  |
