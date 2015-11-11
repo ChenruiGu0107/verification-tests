@@ -9,3 +9,17 @@ Given /^I create a new application with:$/ do |table|
   step 'I run the :new_app client command with:', table
 end
 
+When /^I run oc create( as admin)? over ERB URL: #{HTTP_URL}$/ do |admin, url|
+  step %Q|I download a file from "#{url}"|
+
+  # overwrite with ERB loaded content
+  loaded = ERB.new(File.read(@result[:abs_path])).result binding
+  File.write(@result[:abs_path], loaded)
+
+  if admin
+    #ensure_admin_tagged
+    @result = self.admin.cli_exec(:create, {f: @result[:abs_path]})
+  else
+    @result = user.cli_exec(:create, {f: @result[:abs_path]})
+  end
+end

@@ -81,6 +81,8 @@ module CucuShift
     end
 
     def get_token()
+      # TODO: get token via token
+      #   http://docs.openstack.org/developer/keystone/api_curl_examples.html
       params = {:auth => {"tenantId" => self.os_tenant_id, :passwordCredentials => { "username" => self.os_user, "password" => self.os_passwd }}}
       res = self.rest_run(self.os_url, "POST", params)
       begin
