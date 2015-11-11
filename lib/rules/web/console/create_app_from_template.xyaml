@@ -18,7 +18,7 @@ create_app_from_template:
     selector:
       text: Manage your app
 fromtemplate_navigate:
-  url: /console/project/<project_name>/create/fromtemplate?name=<template_name>&namespace=<project_name>
+  url: /console/project/<project_name>/create/fromtemplate?name=<template_name>&namespace=<namespace>
 fromtemplate_param_form:
   elements:
   - selector:
