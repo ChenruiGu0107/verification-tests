@@ -67,6 +67,7 @@ Feature: projects related features via cli
   # @author pruan@redhat.com
   # @case_id 478983
   @admin
+  @destructive
   Scenario: A user could create a project successfully via CLI
     Given I have a project
     When I run the :get client command with:
@@ -247,4 +248,51 @@ Feature: projects related features via cli
     And the output should contain:
       | In project <%= cb.prj_name %> on server |
       | You have no services, deployment configs, or build configs |
+
+  # @author wyue@redhat.com
+  # @case_id 481695
+  @admin
+  Scenario: Should be able to create a project with valid node selector
+    ##create a project with the node label
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/prj_with_invalid_node-selector.json"
+    And I replace lines in "prj_with_invalid_node-selector.json":
+      |"openshift.io/node-selector": "env,qa"|"openshift.io/node-selector": "<%= env.nodes[0].labels.first.join("=") %>"|
+    Then the step should succeed
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    And I replace lines in "prj_with_invalid_node-selector.json":
+      |"name": "jhou"|"name": "<%= cb.proj_name %>"|
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | prj_with_invalid_node-selector.json |
+    Then the step should succeed
+
+    Given I register clean-up steps:
+      | admin deletes the "<%= cb.proj_name %>" project |
+      | the step should succeed                     |
+
+    When I run the :describe admin command with:
+      | resource | project |
+      | name     | <%= cb.proj_name %> |
+    Then the output should contain:
+      | <%= env.nodes[0].labels.first.join("=") %> |
+
+    ##grant admin to user
+    When I run the :add_role_to_user admin command with:
+      | role            |   admin               |
+      | user name       |   <%= user.name %>    |
+      | n               |   <%= cb.proj_name %> |
+    Then the step should succeed
+
+    ##create a pod in the project
+    When I use the "<%= cb.proj_name %>" project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    Then  the step should succeed
+
+    ##check pod is create on the correspod node
+    When I run the :describe client command with:
+      | resource      | pods            |
+      | name | hello-openshift |
+    Then the output should contain:
+      | <%= env.nodes.first.name %> |
 
