@@ -232,3 +232,16 @@ Given /^I wait for the resource "(.+)" named "(.+)" to disappear$/ do |resource_
     raise "#{resource_name} #{resource_type} did not terminate"
   end
 end
+
+# repeat doing web action until success,useful for waiting resource to become visible and available on web
+Given /^I wait(?: (\d+) seconds)? for the :(.+?) web console action to succeed with:$/ do |time, web_action, table|
+  time = time ? time.to_i : 120
+  success = wait_for(time) {
+    step "I perform the :#{web_action} web console action with:",table
+    break true if @result[:success]
+  }
+  @result[:success] = success
+  unless @result[:success]
+    raise "can not wait the :#{web_action} web action to succeed"
+  end
+end

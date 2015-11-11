@@ -1,0 +1,58 @@
+--- # set app param and label to create app from image
+create_app_from_image:
+  action: fromimage_navigate
+  action: 
+    ref: fromimage_default_param_form
+  action:
+    ref: fromimage_advanced_param_form
+  element:
+    selector:
+      text: Create
+      class: btn-primary
+    op: click
+    type: button      
+  element:
+    selector:
+      text: Application created. Continue to overview.
+  element:
+    selector:
+      text: Manage your app
+fromimage_navigate:
+  url: /console/project/<project_name>/create/fromimage?imageName=<image_name>&imageTag=<image_tag>&namespace=<namespace>
+fromimage_default_param_form:
+  elements:
+  - selector:
+      id: appname
+    op: send_keys <app_name>
+    type: input
+  - selector:
+      id: sourceUrl
+    op: send_keys <source_url>
+    type: input
+fromimage_advanced_param_form:
+  elements:
+  - selector:
+      text: Show advanced build and deployment options
+    op: click
+    type: a
+  - selector:
+      id: gitref
+    op: send_keys <git_ref>
+    type: input
+  - selector:
+      id: contextdir
+    op: send_keys <context_dir>
+    type: input
+  # do not deal with router,bc,dc,rc,and scale settings,add below if need
+  - selector:
+      xpath: //label-editor/osc-form-section/div[2]/div[2]/osc-key-values/div/div[1]/form/div[1]/input[@name="key"]
+    op: send_keys <label_key>
+    type: input
+  - selector:
+      xpath: //label-editor/osc-form-section/div[2]/div[2]/osc-key-values/div/div[1]/form/div[2]/input[@name="value"]
+    op: send_keys <label_value>
+    type: input
+  - selector:
+      xpath: //label-editor/osc-form-section/div[2]/div[2]/osc-key-values/div/div[1]/form/button[text()="Add"]
+    op: click
+    type: button
