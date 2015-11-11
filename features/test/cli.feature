@@ -67,3 +67,35 @@ Feature: Testing CLI Scenarios
       | arg             | -h     |
     Then the step should succeed
     And the expression should be true> @result[:instruction] =~ /oc.+?help.+?create.+?-h/
+
+  @test_bg
+  Scenario: background and timeout 1
+    Given the expression should be true> cb.start_time = Time.new
+    When I run the :cucushift_test_do_not_use client command with:
+      | command  | sleep       |
+      | opt      | 6030        |
+      | opt      | noescape: # |
+      | _timeout | 5           |
+    And the expression should be true> cb.end_time = Time.new
+    Then the step should fail
+    And the output should not contain:
+      | 6030 |
+    And the expression should be true> @result[:timeout] == true
+    # note that the process cleanup sequence takes more than 10 seconds
+    And the expression should be true> cb.end_time - cb.start_time < 30
+
+    When I run the :cucushift_test_do_not_use background client command with:
+      | command  | sleep |
+      | opt      | 6030  |
+      | opt      | noescape: # |
+    Then the step should succeed
+      # now check the sleep command is killed after scenario end
+
+  @test_bg
+  Scenario: background and timeout 2
+    When I run the :cucushift_test_do_not_use client command with:
+      | command | ps  |
+      | opt     | -ef |
+      | opt     | noescape: # |
+    Then the output should not contain:
+      | 6030 |

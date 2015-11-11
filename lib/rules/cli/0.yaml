@@ -146,6 +146,10 @@
   :options:
     :arg: <value>
     :test_do_not_use: <value>
+:cucushift_test_do_not_use:
+  :cmd: <command>
+  :options:
+    :opt: <value>
 :export:
   :cmd: oc export
   :options:

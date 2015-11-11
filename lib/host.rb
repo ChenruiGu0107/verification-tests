@@ -110,8 +110,16 @@ module CucuShift
     end
 
     # @note execute process in the background and inserts clean-up hooks
-    def exec_background(*commands, **opts)
+    def exec_background_as(user, commands, opts={})
       raise '#{__method__} method not implemented'
+    end
+
+    def exec_background(commands, opts={})
+      exec_background_as(nil, commands, opts)
+    end
+
+    def exec_background_admin(commands, opts={})
+      exec_background_as(:admin, commands, opts)
     end
 
     # @param spec - interaction specification
@@ -387,8 +395,6 @@ module CucuShift
   end
 
   class LocalLinuxLikeHost < LinuxLikeHost
-    include Common::LocalShell
-
     def initialize(hostname, opts={})
       hostname ||= self.hostname
       super
@@ -416,11 +422,36 @@ module CucuShift
     end
 
     def exec_raw(*cmds, **opts)
+      background = opts.delete(:background)
       if opts.delete(:single) || cmds.size == 1
-        return exec_foreground(*cmds, **opts)
+        cmd_spec = cmds
       else
-        return exec_foreground(*commands_to_string(cmds), **opts)
+        cmd_spec = commands_to_string(cmds)
       end
+
+      process = LocalProcess.new(*cmd_spec, **opts)
+
+      if background
+        process.finished? || manager.temp_resources << process
+        return process.result
+      else
+        return process.wait
+      end
+    end
+
+    def exec_as(user, *commands, **opts)
+      case user
+      when nil, self[:user]
+        # perform blind exec in workdir
+        return exec_raw(commands, chdir: workdir, **opts)
+      else
+        super
+      end
+    end
+
+    # @note execute process in the background and inserts clean-up hooks
+    def exec_background_as(user, commands, opts)
+      exec_as(user, *commands, background: true, **opts)
     end
 
     # TODO: implement delete, mkdir, touch in ruby
@@ -463,6 +494,7 @@ module CucuShift
 
     # @note execute commands without special setup
     def exec_raw(*commands, **opts)
+      raise ":background not implemented" if opts[:background]
       ssh(opts).exec(commands_to_string(commands),opts)
     end
 

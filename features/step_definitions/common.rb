@@ -14,7 +14,12 @@ end
 
 When /^I run the :([a-z_]*?)( background)? client command with:$/ do |yaml_key, background, table|
   if background
-    raise 'cli running background commands not supported yet'
+    @result = user.cli_exec(
+      yaml_key.to_sym,
+      opts_array_process(table.raw) << [ :_background, true ]
+    )
+    @bg_rulesresults << @result
+    @bg_processes << @result[:process_object]
   else
     @result = user.cli_exec(yaml_key.to_sym, opts_array_process(table.raw))
   end
@@ -24,7 +29,12 @@ When /^I run the :([a-z_]*?)( background)? admin command with:$/ do |yaml_key, b
   ensure_admin_tagged
 
   if background
-    raise 'cli running background commands not supported yet'
+    @result = env.admin_cli_executor.exec(
+      yaml_key.to_sym,
+      opts_array_process(table.raw) << [ :_background, true ]
+    )
+    @bg_rulesresults << @result
+    @bg_processes << @result[:process_object]
   else
     @result = env.admin_cli_executor.exec(yaml_key.to_sym, opts_array_process(table.raw))
   end

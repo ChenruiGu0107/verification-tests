@@ -7,6 +7,7 @@ module CucuShift
     include Common::Helper
 
     RULES_DIR = File.expand_path(HOME + "/lib/rules/cli")
+    LOGIN_TIMEOUT = 20 # seconds
 
     attr_reader :opts
 
@@ -71,6 +72,9 @@ module CucuShift
 
   # execute cli commands on the first master machine as each user respectively
   #   it also does prior cert and token setup
+  # @deprecated Please use [SharedLocalCliExecutor] instead
+  #   or another executor running on localhost. Remote excutors will fail for
+  #   scenarios that run commands to read for local files
   class MasterOsPerUserCliExecutor < CliExecutor
     def initialize(env, **opts)
       super
@@ -90,7 +94,7 @@ module CucuShift
       if user.cached_tokens.size == 0
         ## login with username and password and generate a bearer token
         executor.run(:logout, {}) # ignore outcome
-        res = executor.run(:login, username: user.name, password: user.password, ca: "/etc/openshift/master/ca.crt", server: user.env.api_endpoint_url)
+        res = executor.run(:login, username: user.name, password: user.password, ca: "/etc/openshift/master/ca.crt", server: user.env.api_endpoint_url, _timeout: LOGIN_TIMEOUT)
       else
         ## login with existing token
         res = executor.run(:login, token: user.cached_tokens.first.token, ca: "/etc/openshift/master/ca.crt", server: user.env.api_endpoint_url)
@@ -183,7 +187,7 @@ module CucuShift
       #   instead of setting insecure SSL
       if user.cached_tokens.size == 0
         ## login with username and password and generate a bearer token
-        res = executor.run(:login, username: user.name, password: user.password, insecure: "true", server: user.env.api_endpoint_url, config: user_config)
+        res = executor.run(:login, username: user.name, password: user.password, insecure: "true", server: user.env.api_endpoint_url, config: user_config, _timeout: LOGIN_TIMEOUT)
       else
         ## login with existing token
         res = executor.run(:login, token: user.cached_tokens.first.token, insecure: "true", server: user.env.api_endpoint_url, config: user_config)

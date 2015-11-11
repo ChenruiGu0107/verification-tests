@@ -8,6 +8,7 @@ module CucuShift
   # autoload to avoid too much require statements and speed-up load times
   autoload :OpenStack, "launchers/openstack"
   autoload :EnvironmentLauncher, "launchers/environment_launcher"
+  autoload :LocalProcess, "local_process.rb"
 
   HOME = File.expand_path(__FILE__ + "/../..")
   PRIVATE_DIR = ENV['CUCUSHIFT_PRIVATE_DIR'] || File.expand_path(HOME + "/private")
