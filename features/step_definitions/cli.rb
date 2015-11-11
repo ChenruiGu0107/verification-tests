@@ -9,6 +9,10 @@ Given /^I create a new application with:$/ do |table|
   step 'I run the :new_app client command with:', table
 end
 
+# instead of writing multiple steps, this step does this in one go:
+# 1. download file from URL
+# 2. load it as an ERB file with the cucumber scenario variables binding
+# 3. runs `oc create` command over the resulting file
 When /^I run oc create( as admin)? over ERB URL: #{HTTP_URL}$/ do |admin, url|
   step %Q|I download a file from "#{url}"|
 
@@ -17,7 +21,7 @@ When /^I run oc create( as admin)? over ERB URL: #{HTTP_URL}$/ do |admin, url|
   File.write(@result[:abs_path], loaded)
 
   if admin
-    #ensure_admin_tagged
+    ensure_admin_tagged
     @result = self.admin.cli_exec(:create, {f: @result[:abs_path]})
   else
     @result = user.cli_exec(:create, {f: @result[:abs_path]})
