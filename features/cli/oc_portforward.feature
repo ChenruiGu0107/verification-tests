@@ -30,17 +30,17 @@ Feature: oc_portforward.feature
       | pod | hello-openshift   |
       | port_spec | 5000:8080   |
       | _timeout | 10           |
-    Then the step should succeed
+    Then the step should have timed out
     And the output should match "Forwarding from 127.0.0.1:5000 -> 8080"
     When I run the :port_forward client command with:
       | pod | hello-openshift  |
       | port_spec | :8080      |
       | _timeout | 10          |
-    Then the step should succeed
+    Then the step should have timed out
     And the output should match "Forwarding from 127.0.0.1:\d+ -> 8080"
     When I run the :port_forward client command with:
       | pod | hello-openshift  |
       | port_spec | 8000:8080  |
       | _timeout | 10          |
-    Then the step should succeed
+    Then the step should have timed out
     And the output should match "Forwarding from 127.0.0.1:8000 -> 8080"
