@@ -113,9 +113,9 @@ Feature: project permissions
 
     ## get no projects with another user who has no projects
     When I switch to the second user
-    And I run the :get command with:
+    And I run the :get client command with:
       | resource | project |
-    Then the output should contain:
+    Then the output should not contain:
       | <%= project.name %> |
 
     ## can get all project with cluster-admin
@@ -125,4 +125,3 @@ Feature: project permissions
       | <%= project.name %> |
     And the output should contain:
       | default |
-
