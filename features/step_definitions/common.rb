@@ -7,6 +7,11 @@ Then /^the step should( not)? (succeed|fail)$/ do |negative, outcome|
   end
 end
 
+# @note This step checks whether or not a step successfully timed out
+Then /^the step should have timed out$/ do
+  raise "The step did not timeout" unless @result[:timeout]
+end
+
 When /^I run the :(.*?) client command$/ do |yaml_key|
   yaml_key.sub!(/^:/,'')
   @result = user.cli_exec(yaml_key.to_sym, {})
