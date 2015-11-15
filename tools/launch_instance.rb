@@ -32,6 +32,7 @@ module CucuShift
 
       global_option('-c', '--config KEY', 'default config options should be read from?')
       global_option('-l', '--launched_instances_name_prefix', 'if instances are launched, use this prefix')
+      global_option('-m', '--master_num', "number of nodes to launch")
       global_option('-n', '--node_num', "number of nodes to launch")
       global_option('-d', '--user_data', "file containing user instances' data")
 
@@ -45,6 +46,7 @@ module CucuShift
             el = EnvLauncher.new
 
             ## set some opts based on Environment Variables
+            options.master_num ||= Integer(ENV['MASTER_NUM']) rescue 1
             options.node_num ||= ENV['NODE_NUM'].to_i
             options.launched_instances_name_prefix ||= ENV['INSTANCE_NAME_PREFIX']
 
@@ -74,7 +76,15 @@ module CucuShift
 
             ## launch OpenStack instances
             ostack = CucuShift::OpenStack.new()
-            hostnames = [ options.launched_instances_name_prefix + "_master" ]
+            hostnames = []
+            if options.master_num > 1
+              options.master_num.times { |i|
+                hostnames << options.launched_instances_name_prefix +
+                  "_master_#{i+1}"
+              }
+            else
+              hostnames << options.launched_instances_name_prefix + "_master"
+            end
             options.node_num.times { |i|
               hostnames << options.launched_instances_name_prefix +
                             "_node_#{i+1}"
@@ -83,7 +93,8 @@ module CucuShift
                                             user_data: user_data_string)
 
             ## run ansible setup
-            hosts_spec = { "master"=>[hosts.shift[1]], "node"=>hosts.values }
+            hosts_spec = { "master"=>hosts.values[0..options.master_num - 1],
+                           "node"=>hosts.values[options.master_num..-1] }
             # TODO: allow custom ssh username
             launch_opts = {
               hosts_spec: hosts_spec,

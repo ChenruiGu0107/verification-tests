@@ -13,12 +13,17 @@ oreg_url=<%=image_pre%>
 openshift_additional_repos=[{'id': 'ose-devel', 'name': 'ose-devel', 'baseurl': '<%=puddle_repo%>', 'enabled': 1, 'gpgcheck': 0}]
 openshift_use_openshift_sdn=true
 os_sdn_network_plugin_name=<%=network_plugin%>
+num_infra=<%=num_infra%>
+openshift_router_selector='region=primary'
+openshift_registry_selector='region=primary'
 osm_default_subdomain=<%=app_domain%>
+use_cluster_metrics=true
 openshift_master_identity_providers=<%=identity_providers%>
 osm_use_cockpit=true
 osm_cockpit_plugins=['cockpit-kubernetes']
 
 # host group for masters
+[lb]
 [masters]
 [etcd]
 [nodes]

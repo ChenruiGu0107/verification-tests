@@ -274,19 +274,19 @@ function clean_repos()
 function create_router_registry()
 {
 	oadm registry --credentials=$CONF_CRT_PATH/master/openshift-registry.kubeconfig --images="$CONF_IMAGE_PRE"
-	CA=$CONF_CRT_PATH/master
-	oadm ca create-server-cert --signer-cert=$CA/ca.crt --signer-key=$CA/ca.key --signer-serial=$CA/ca.serial.txt  --hostnames="*.${CONF_APP_DOMAIN}" --cert=cloudapps.crt --key=cloudapps.key
-	cat cloudapps.crt cloudapps.key $CA/ca.crt > cloudapps.router.pem
-	oc get scc privileged -o yaml >privileged.yaml
-	grep "system:serviceaccount:default:default" privileged.yaml || echo "- system:serviceaccount:default:default" >> privileged.yaml
-	oc replace -f privileged.yaml 
-	tmpStr=${CONF_HOST_LIST//[^,]}
-	if [ x"$tmpStr" == x"" ]; then
-		nodeNum=1
-	else
-		nodeNum=${#tmpStr}
-	fi
-	oadm router --default-cert=cloudapps.router.pem --credentials=$CONF_CRT_PATH/master/openshift-router.kubeconfig --images="$CONF_IMAGE_PRE" --replicas=$nodeNum --service-account=default
+	#CA=$CONF_CRT_PATH/master
+	#oadm ca create-server-cert --signer-cert=$CA/ca.crt --signer-key=$CA/ca.key --signer-serial=$CA/ca.serial.txt  --hostnames="*.${CONF_APP_DOMAIN}" --cert=cloudapps.crt --key=cloudapps.key
+	#cat cloudapps.crt cloudapps.key $CA/ca.crt > cloudapps.router.pem
+	#oc get scc privileged -o yaml >privileged.yaml
+	#grep "system:serviceaccount:default:default" privileged.yaml || echo "- system:serviceaccount:default:default" >> privileged.yaml
+	#oc replace -f privileged.yaml 
+	#tmpStr=${CONF_HOST_LIST//[^,]}
+	#if [ x"$tmpStr" == x"" ]; then
+	#	nodeNum=1
+	#else
+	#	nodeNum=${#tmpStr}
+	#fi
+	#oadm router --default-cert=cloudapps.router.pem --credentials=$CONF_CRT_PATH/master/openshift-router.kubeconfig --images="$CONF_IMAGE_PRE" --replicas=$nodeNum --service-account=default
 }
 
 

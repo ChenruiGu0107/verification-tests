@@ -64,7 +64,7 @@ module CucuShift
     # @param hosts_spec [String, Hash<String,Array>] the specification.
     #   If [String], then it looks like: `master:hostname1,node:hostname2,...`;
     #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`
-    # @param auth_type [String] LDAL, HTTPASSWD, KERBEROS
+    # @param auth_type [String] LDAP, HTTPASSWD, KERBEROS
     # @param ssh_user [String] the username to use for ssh to env hosts
     # @param dns [String] the dns server to use; can be keyword or an IP
     #   address; see the dns case/when construct for available options
@@ -97,13 +97,15 @@ module CucuShift
                         kerberos_admin_server:
                           conf[:sercices, :test_kerberos, :admin_server],
                         kerberos_docker_base_image:
-                          conf[:sercices, :test_kerberos, :docker_base_image])
+                          conf[:sercices, :test_kerberos, :docker_base_image],
+                        ldap_url: conf[:sercices, :test_ldap, :url])
       hosts = spec_to_hosts(hosts_spec, ssh_key: ssh_key, ssh_user: ssh_user)
       hosts_str, ips_str = hosts_to_specstr(hosts)
       logger.info hosts.to_yaml
 
       conf_script_dir = File.join(File.dirname(__FILE__), 'env_scripts')
       conf_script_file = File.join(conf_script_dir, 'configure_env.sh')
+
       hosts_erb = File.join(conf_script_dir, 'hosts.erb')
 
       conf_script = File.read(conf_script_file)
@@ -183,9 +185,18 @@ module CucuShift
       case auth_type
       when "HTPASSWD"
         identity_providers = "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '#{crt_path}/htpasswd'}]"
+      when "LDAP"
+        identity_providers = %Q|[{'name": "LDAPauth", "login": "true", "challenge": "true", "kind": "LDAPPasswordIdentityProvider", "attributes": {"id": "dn", "email": "mail", "name": "uid", "preferredUsername": "uid"}, "bindDN": "", "bindPassword": "", "ca": "", "insecure":"true", "url": "#{ldap_url}"}]|
       else
         identity_providers = "[{'name': 'basicauthurl', 'login': 'true', 'challenge': 'true', 'kind': 'BasicAuthPasswordIdentityProvider', 'url': 'https://<serviceIP>:8443/validate', 'ca': '#{crt_path}master/ca.crt'}]"
       end
+
+      ## lets sanity check this guy
+      if auth_type != "LDAP" && hosts["master"].size > 1
+        raise "multiple HA masters require LDAP auth"
+      end
+
+      num_infra = hosts.values.flatten.size > 1 ? 2 : 1
 
       hosts_str = ERB.new(File.read(hosts_erb)).result binding
       etcd_cur_num = 0
@@ -231,7 +242,8 @@ module CucuShift
             hosts_str.gsub!(/(\[masters\])/, "\\1\n#{host_line}\n")
 
             if hosts.values.flatten.size > 1
-              host_line << " openshift_scheduleable=False"
+              # host_line << " openshift_scheduleable=False"
+              host_line << %Q* openshift_node_labels="{'region': 'infra', 'zone': 'default'}"*
             else
               host_line << %Q* openshift_node_labels="{'region': 'primary', 'zone': 'default'}*
             end
@@ -276,9 +288,9 @@ module CucuShift
         raise "ansible failed to execute"
       end
 
-      check_res hosts['master'][0].exec_admin(
-        "sh configure_env.sh replace_template_domain"
-      )
+      # check_res hosts['master'][0].exec_admin(
+      #   "sh configure_env.sh replace_template_domain"
+      # )
       check_res hosts['master'][0].exec_admin(
         "sh configure_env.sh create_router_registry"
       )
@@ -296,7 +308,7 @@ module CucuShift
           "sh configure_env.sh add_skydns_hosts"
         )
       end
-      unless auth_type == "HTPASSWD"
+      if auth_type == "KERBEROS"
         check_res hosts['master'][0].exec_admin(
           'sh configure_env.sh configure_auth'
         )
