@@ -100,7 +100,7 @@ module CucuShift
                           conf[:sercices, :test_kerberos, :docker_base_image],
                         ldap_url: conf[:sercices, :test_ldap, :url])
       hosts = spec_to_hosts(hosts_spec, ssh_key: ssh_key, ssh_user: ssh_user)
-      hosts_str, ips_str = hosts_to_specstr(hosts)
+      hostnames_str, ips_str = hosts_to_specstr(hosts)
       logger.info hosts.to_yaml
 
       conf_script_dir = File.join(File.dirname(__FILE__), 'env_scripts')
@@ -110,7 +110,8 @@ module CucuShift
 
       conf_script = File.read(conf_script_file)
 
-      conf_script.gsub!(/#CONF_HOST_LIST=.*$/, "CONF_HOST_LIST=#{hosts_str}")
+      conf_script.gsub!(/#CONF_HOST_LIST=.*$/,
+                        "CONF_HOST_LIST=#{hostnames_str}")
       conf_script.gsub!(/#CONF_IP_LIST=.*$/, "CONF_IP_LIST=#{ips_str}")
       conf_script.gsub!(/#CONF_AUTH_TYPE=.*$/, "CONF_AUTH_TYPE=#{auth_type}")
       conf_script.gsub!(/#CONF_IMAGE_PRE=.*$/, "CONF_IMAGE_PRE='#{image_pre}'")
@@ -191,16 +192,40 @@ module CucuShift
         identity_providers = "[{'name': 'basicauthurl', 'login': 'true', 'challenge': 'true', 'kind': 'BasicAuthPasswordIdentityProvider', 'url': 'https://<serviceIP>:8443/validate', 'ca': '#{crt_path}master/ca.crt'}]"
       end
 
-      ## lets sanity check this guy
+      ose3_vars = []
+      etcd_host_lines = []
+      master_host_lines = []
+      node_host_lines = []
+      lb_host_lines = []
+
+      ## lets sanity check auth type
       if auth_type != "LDAP" && hosts["master"].size > 1
         raise "multiple HA masters require LDAP auth"
       end
 
-      num_infra = hosts.values.flatten.size > 1 ? 2 : 1
+      ## select load balancer node
+      if hosts["master"].size > 1
+        lb_node = hosts["node"].sample
+        # TODO: can we use one of masters for a load balancer?
+        raise "HA masters need a node for load balancer" unless lb_node
+      end
 
-      hosts_str = ERB.new(File.read(hosts_erb)).result binding
-      etcd_cur_num = 0
-      node_index = 1
+      # num infra needed only when creating a router by ansible
+      # https://bugzilla.redhat.com/show_bug.cgi?id=1274129
+      ose3_vars << "num_infra=#{hosts["master"].size}"
+
+      # only all-in-one environments have node service on master in
+      #   primary region
+      if hosts.values.flatten.size > 1
+        # master_nodes_labels_str = "openshift_scheduleable=False"
+        master_nodes_labels_str = %Q*openshift_node_labels="{'region': 'infra', 'zone': 'default'}"*
+        ose3_vars << "openshift_registry_selector='region=infra'"
+        ose3_vars << "openshift_router_selector='region=infra'"
+      else
+        master_nodes_labels_str = %Q*openshift_node_labels="{'region': 'primary', 'zone': 'default'}"*
+        ose3_vars << "openshift_registry_selector='region=primary'"
+        ose3_vars << "openshift_router_selector='region=primary'"
+      end
 
       hosts.each do |role, role_hosts|
         role_hosts.each do |host|
@@ -219,11 +244,6 @@ module CucuShift
             check_res host.exec_admin("sh configure_env.sh configure_hosts")
           end
 
-          if Integer(etcd_num) < etcd_cur_num
-            etcd_cur_num = etcd_cur_num + 1
-            hosts_str.gsub!(/(\[etcd\])/, "\\1\n" + host.hostname + "\n")
-          end
-
           case role
           when "master"
             # TODO: assumption is only one master
@@ -235,34 +255,49 @@ module CucuShift
             end
 
             if dns == "embedded_skydns"
-              host_line = "#{host.hostname} openshift_hostname=master.#{host_domain} openshift_public_hostname=master.#{host_domain}"
+              host_base_line = "#{host.hostname} openshift_hostname=master.#{host_domain} openshift_public_hostname=master.#{host_domain}"
             else
-              host_line = "#{host.hostname} openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+              host_base_line = "#{host.hostname} openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
             end
-            hosts_str.gsub!(/(\[masters\])/, "\\1\n#{host_line}\n")
 
-            if hosts.values.flatten.size > 1
-              # host_line << " openshift_scheduleable=False"
-              host_line << %Q* openshift_node_labels="{'region': 'infra', 'zone': 'default'}"*
-            else
-              host_line << %Q* openshift_node_labels="{'region': 'primary', 'zone': 'default'}*
-            end
-            hosts_str.gsub!(/(\[nodes\])/, "\\1\n#{host_line}\n")
+            host_line = host_base_line.dup
+            master_host_lines << host_line
+
+            host_line << " " << master_nodes_labels_str
+            node_host_lines << host_line
           else
             if dns == "embedded_skydns"
-              host_line = %Q*#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=minion#{node_index}.#{host_domain} openshift_public_hostname=minion#{node_index}.#{host_domain}*
+              node_index = node_host_lines.size + 1
+              host_base_line = "#{host.hostname} openshift_hostname=minion#{node_index}.#{host_domain} openshift_public_hostname=minion#{node_index}.#{host_domain}"
             else
-              host_line = %Q*#{host.hostname} openshift_node_labels="{'region': 'primary', 'zone': 'default'}" openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}*
+              host_base_line = "#{host.hostname} openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
             end
-            hosts_str.gsub!(/(\[nodes\])/, "\\1\n#{host_line}\n")
+            host_line = %Q*#{host_base_line} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"*
+            node_host_lines << host_line
 
             if dns
               check_res \
                 host.exec_admin('sh configure_env.sh configure_dns_resolution')
             end
           end
+
+          # select etcd nodes
+          if Integer(etcd_num) < etcd_host_lines.size
+            etcd_host_lines << host_base_line
+          end
+
+          # setup Load Balancer node(s); selected randomly before hosts loop
+          if host == lb_node
+            lb_host_lines << host_base_line
+            ose3_vars << "openshift_master_cluster_public_hostname=#{host.hostname}"
+            ose3_vars << "openshift_master_cluster_hostname=#{host.hostname}"
+            ose3_vars << "openshift_master_cluster_method=native"
+            ose3_vars << "openshift_master_ha=true"
+          end
         end
       end
+
+      hosts_str = ERB.new(File.read(hosts_erb)).result binding
 
       # finally run download repo and run ansible (this is in workdir)
       # we need git and ansible available pre-installed
@@ -275,6 +310,7 @@ module CucuShift
         logger.info("hosts file:\n" + hosts_str)
         File.write("hosts", hosts_str)
         # want to see output in real-time so Host#exec does not work
+        # TODO: use new LocalHost exec functionality
         ssh_key_param = expand_private_path(ssh_key)
         File.chmod(0600, ssh_key_param)
         ansible_cmd = "ansible-playbook -i hosts -v --private-key #{Host.localhost.shell_escape(ssh_key_param)} -vvvv openshift-ansible/playbooks/byo/config.yml"

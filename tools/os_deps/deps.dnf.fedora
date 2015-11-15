@@ -10,3 +10,4 @@ openssl
 firefox
 
 ansible
+pyOpenSSL
