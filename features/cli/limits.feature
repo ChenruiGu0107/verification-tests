@@ -3,16 +3,14 @@ Feature: limit range related scenarios:
   # @case_id 508038, 508039, 508040
   @admin
   Scenario Outline:  Limit range default request tests
-    Given I run the :new_project client command with:
-      | project_name | proj1 |
+    Given I have a project
     Given the first user is cluster-admin
     Then the step should succeed
-    Then I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml|
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
     Then the step should succeed
     And I run the :describe client command with:
       |resource | namespace |
-      | name    | proj1     |
+      | name    | <%= project.name %>     |
     And the output should match:
       | <expr1> |
       | <expr2> |
@@ -31,12 +29,10 @@ Feature: limit range related scenarios:
   # @case_id 508041, 508045
   @admin
   Scenario Outline: Limit range invalid values tests
-    Given I run the :new_project client command with:
-      | project_name | proj1 |
+    Given I have a project
     Given the first user is cluster-admin
     Then the step should succeed
-    Then I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml|
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
     And the step should fail
     And the output should contain:
       | The LimitRange "limits" is invalid |
@@ -54,12 +50,10 @@ Feature: limit range related scenarios:
   # @case_id 508047
   @admin
   Scenario Outline: Limit range incorrect values
-    Given I run the :new_project client command with:
-      | project_name | proj1 |
+    Given I have a project
     Given the first user is cluster-admin
     Then the step should succeed
-    Then I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml|
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
     And the step should fail
     And the output should contain:
       | spec.limits[0].min[memory]: invalid value '<expr1>', Details: <expr2> value <expr3> is greater than <expr4> value <expr5> |
@@ -74,12 +68,10 @@ Feature: limit range related scenarios:
   # @case_id 508046
   @admin
   Scenario: Limit range does not allow min > defaultRequest
-    Given I run the :new_project client command with:
-      | project_name | proj1 |
+    Given I have a project
     Given the first user is cluster-admin
     Then the step should succeed
-    Then I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508046/limits.yaml|
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508046/limit.yaml
     Then the step should fail
     And the output should contain:
       | invalid value '200m', Details: min value 400m is greater than default request value 200m |
