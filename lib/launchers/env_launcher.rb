@@ -212,7 +212,9 @@ module CucuShift
 
       # num infra needed only when creating a router by ansible
       # https://bugzilla.redhat.com/show_bug.cgi?id=1274129
-      ose3_vars << "num_infra=#{hosts["master"].size}"
+      # I think it selects number of router replicas. Should be same as
+      #   masters number as shared DNS creates entries for all masters.
+      ose3_vars << "num_infra=#{ hosts["master"].size }"
 
       # only all-in-one environments have node service on master in
       #   primary region
@@ -261,7 +263,7 @@ module CucuShift
             end
 
             host_line = host_base_line.dup
-            master_host_lines << host_line
+            master_host_lines << host_line.dup
 
             host_line << " " << master_nodes_labels_str
             node_host_lines << host_line
