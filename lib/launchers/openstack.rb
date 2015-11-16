@@ -134,7 +134,7 @@ module CucuShift
       @os_flavor = get_obj_ref(flavor_name, 'flavors')
     end
 
-    def create_instance(instance_name, image_name = nil,
+    def create_instance_api_call(instance_name, image_name = nil,
                         flavor_name = nil, key = nil, **create_opts)
       image_name ||= opts[:image]
       flavor_name ||= opts[:flavor]
@@ -148,25 +148,41 @@ module CucuShift
       res = self.rest_run(url, "POST", params, self.os_token)
       begin
         logger.info("Create Instance: #{instance_name}")
-        result = JSON.load(res)
-        server_id = result["server"]["id"]
+        return JSON.load(res)
       rescue => e
         logger.error("Can not create #{instance_name} instance:  #{e.message}")
         logger.error(result.to_a.flatten(1).join("\n")) rescue nil
         raise e
       end
-      params = {}
-      url = self.os_ApiUrl + '/' + 'servers/' + server_id
-      result_flag = true
-      1.upto(120)  do
-        res = self.rest_run(url, "GET", params, self.os_token)
-        result = JSON.load(res)
-        if result["server"]["status"] == "ERROR"
-          logger.error("The status of instance is ERROR")
-          self.create_instance(instance_name, image_name, flavor_name, key)
+    end
+
+    def create_instance(instance_name, image_name = nil,
+                        flavor_name = nil, key = nil, **create_opts)
+      params = nil
+      server_id = nil
+      url = nil
+
+      attempts = 120
+      attempts.times do |attempt|
+        logger.info("launch attempt #{attempt}..")
+
+        # if creation attempt was performed, get instance status
+        if url && params
+          res = self.rest_run(url, "GET", params, self.os_token)
+          result = JSON.load(res)
+        end
+
+        # on first iteration and on instance launch failure we retry
+        if !result || result["server"]["status"] == "ERROR"
+          logger.info("** attempting to create an instance..")
+          res = create_instance_api_call(instance_name, image_name,
+                                            flavor_name, key, **create_opts)
+          server_id = res["server"]["id"]
+          params = {}
+          url = self.os_ApiUrl + '/' + 'servers/' + server_id
+          sleep 15
         elsif result["server"]["status"] == "ACTIVE"
           address_key = result["server"]["addresses"].keys[0]
-          result_flag = false
           if result["server"]["addresses"][address_key].length == 2
             logger.info("Get the Private IP: #{result["server"]["addresses"][address_key][0]["addr"]}")
             logger.info("Get the Pulic IP:   #{result["server"]["addresses"][address_key][1]["addr"]}")
@@ -176,14 +192,13 @@ module CucuShift
             ]
           else
             self.assign_ip(instance_name)
-            next
           end
         else
           logger.info("Wait 10 seconds to get the IP of #{instance_name}")
           sleep 10
         end
       end
-      self.create_instance(instance_name, image_name, flavor_name, key) if result_flag
+      raise "could not create instance properly after #{attempts} attempts"
     end
 
     def delete_instance(instance_name)
