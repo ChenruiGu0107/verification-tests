@@ -67,6 +67,7 @@ Feature: create app on web console related
     When I perform the :create_app_from_template web console action with:
       | project_name  | <%= cb.proj_name %>    |
       | template_name | ruby-helloworld-sample |
+      | namespace     | <%= cb.proj_name %>    |
       | param_one     | :null  |
       | param_two     | :null  |
       | param_three   | :null  |
@@ -117,3 +118,28 @@ Feature: create app on web console related
     Then the step should succeed
     Given I wait for the "python-sample-another" service to become ready
     And I wait for a server to become available via the "python-sample-another" route
+  
+  # @author xxing@redhat.com
+  # @case_id 470453
+  Scenario: Create application from template with invalid parameters on web console
+    When I create a new project via web
+    Then the step should succeed
+    Given I use the "<%= project.name %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I perform the :create_app_from_template web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | ruby-helloworld-sample |
+      | namespace     | <%= project.name %>    |
+      | param_one     | :null  |
+      | param_two     | :null  |
+      | param_three   | :null  |
+      | param_four    | :null  |
+      | param_five    | :null  |
+      | label_key     | label1 |
+      | label_value   | /%^&   |
+    Then the step should fail
+    When I get the html of the web page
+    Then the output should contain:
+      | Please enter a valid value|
