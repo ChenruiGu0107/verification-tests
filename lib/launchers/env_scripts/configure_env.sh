@@ -234,11 +234,11 @@ function add_route_records()
 		else
 			REC_TYPE=A
 		fi
+		# routers will run on masters or nodes, point DNS at them
 		if [ "$key" == "$CONF_ROUTER_NODE_TYPE" ] ||
-                                      [ x"$multinode" == x"" ]; then
+				[ x"$multinode" == x"" ]; then
 			echo "*                    IN $REC_TYPE    ${value}" >>/var/named/dynamic/${CONF_APP_DOMAIN}.db
 		fi
-
 	done
 }
 
@@ -476,7 +476,7 @@ EOF
 #CONF_KERBEROS_ADMIN=value
 #CONF_KERBEROS_KEYTAB_URL=value
 #CONF_KERBEROS_BASE_DOCKER_IMAGE=value
-CONF_ROUTER_NODE_TYPE=master
+#CONF_ROUTER_NODE_TYPE=value
 interface="${CONF_INTERFACE:-eth0}"
 nameservers="$(awk '/nameserver/ { printf "%s; ", $2 }' /etc/resolv.conf)"
 named_hostname=ns1.$CONF_HOST_DOMAIN

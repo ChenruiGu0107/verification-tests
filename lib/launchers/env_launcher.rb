@@ -98,7 +98,7 @@ module CucuShift
                           conf[:sercices, :test_kerberos, :admin_server],
                         kerberos_docker_base_image:
                           conf[:sercices, :test_kerberos, :docker_base_image],
-                        ldap_url: conf[:sercices, :test_ldap, :url])
+                        ldap_url: conf[:services, :test_ldap, :url])
       hosts = spec_to_hosts(hosts_spec, ssh_key: ssh_key, ssh_user: ssh_user)
       hostnames_str, ips_str = hosts_to_specstr(hosts)
       logger.info hosts.to_yaml
@@ -128,13 +128,77 @@ module CucuShift
                         "\\1=#{kerberos_docker_base_image}")
       conf_script.gsub!(/#(CONF_KERBEROS_KDC)=.*$/, "\\1=#{kerberos_kdc}")
 
+      router_dns_type = nil
       dns_subst = proc do
         conf_script.gsub!(/#CONF_HOST_DOMAIN=.*$/,
                           "CONF_HOST_DOMAIN=#{host_domain}")
         conf_script.gsub!(/#CONF_APP_DOMAIN=.*$/,
                           "CONF_APP_DOMAIN=#{app_domain}")
+        # relevant currently only for shared DNS config or router endpoints
+        conf_script.gsub!(/#CONF_ROUTER_NODE_TYPE=.*$/,
+                          "CONF_ROUTER_NODE_TYPE=#{router_dns_type}")
       end
 
+      case auth_type
+      when "HTPASSWD"
+        identity_providers = "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '#{crt_path}/htpasswd'}]"
+      when "LDAP"
+        identity_providers = %Q|[{"name": "LDAPauth", "login": "true", "challenge": "true", "kind": "LDAPPasswordIdentityProvider", "attributes": {"id": ["dn"], "email": ["mail"], "name": ["uid"], "preferredUsername": ["uid"]}, "bindDN": "", "bindPassword": "", "ca": "", "insecure":"true", "url": "#{ldap_url}"}]|
+      else
+        identity_providers = "[{'name': 'basicauthurl', 'login': 'true', 'challenge': 'true', 'kind': 'BasicAuthPasswordIdentityProvider', 'url': 'https://<serviceIP>:8443/validate', 'ca': '#{crt_path}master/ca.crt'}]"
+      end
+
+      ose3_vars = []
+      etcd_host_lines = []
+      master_host_lines = []
+      node_host_lines = []
+      lb_host_lines = []
+
+      ## lets sanity check auth type
+      if auth_type != "LDAP" && hosts["master"].size > 1
+        raise "multiple HA masters require LDAP auth"
+      end
+
+      ## Setup HA Master opt
+      # * if non-HA master => router selector should point at nodes, num_infra should be == number of nodes, DNS should point at nodes
+      # * if HA masters => router selector sohuld point at masters (region=infra), num_infra should be == number of masters, DNS should point at masters
+
+      # num infra needed only when creating a router by ansible
+      # https://bugzilla.redhat.com/show_bug.cgi?id=1274129
+      # I think it selects number of router replicas. Should be same as
+      #   masters or nodes number (depending where it is to be run
+
+      ## select load balancer node
+      if hosts["master"].size > 1
+        lb_node = hosts["node"].sample
+        # TODO: can we use one of masters for a load balancer?
+        raise "HA masters need a node for load balancer" unless lb_node
+      end
+
+      if hosts["master"].size > 1
+        master_nodes_labels_str = %Q*openshift_node_labels="{'region': 'infra', 'zone': 'default'}" openshift_scheduleable=True*
+        ose3_vars << "openshift_registry_selector='region=infra'"
+        ose3_vars << "openshift_router_selector='region=infra'"
+        ose3_vars << "num_infra=#{ hosts["master"].size }"
+        router_dns_type = "master"
+      elsif hosts.values.flatten.size > 1
+        master_nodes_labels_str = "openshift_scheduleable=False"
+        ose3_vars << "openshift_registry_selector='region=primary'"
+        ose3_vars << "openshift_router_selector='region=primary'"
+        ose3_vars << "num_infra=#{ hosts["node"].size }"
+        router_dns_type = "node"
+      else
+        # this is all-in-one
+        master_nodes_labels_str = %Q*openshift_node_labels="{'region': 'primary', 'zone': 'default'}"*
+        ose3_vars << "openshift_registry_selector='region=primary'"
+        ose3_vars << "openshift_router_selector='region=primary'"
+        ose3_vars << "num_infra=1"
+        router_dns_type = "master"
+      end
+
+      ## Setup HA Master opts End
+
+      ## DNS config
       case dns
       when nil, false, "", "none"
         # basically do nothing
@@ -182,52 +246,7 @@ module CucuShift
       end
 
       dns_subst.call # double substritution (if happens) should not hurt
-
-      case auth_type
-      when "HTPASSWD"
-        identity_providers = "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '#{crt_path}/htpasswd'}]"
-      when "LDAP"
-        identity_providers = %Q|[{'name": "LDAPauth", "login": "true", "challenge": "true", "kind": "LDAPPasswordIdentityProvider", "attributes": {"id": "dn", "email": "mail", "name": "uid", "preferredUsername": "uid"}, "bindDN": "", "bindPassword": "", "ca": "", "insecure":"true", "url": "#{ldap_url}"}]|
-      else
-        identity_providers = "[{'name': 'basicauthurl', 'login': 'true', 'challenge': 'true', 'kind': 'BasicAuthPasswordIdentityProvider', 'url': 'https://<serviceIP>:8443/validate', 'ca': '#{crt_path}master/ca.crt'}]"
-      end
-
-      ose3_vars = []
-      etcd_host_lines = []
-      master_host_lines = []
-      node_host_lines = []
-      lb_host_lines = []
-
-      ## lets sanity check auth type
-      if auth_type != "LDAP" && hosts["master"].size > 1
-        raise "multiple HA masters require LDAP auth"
-      end
-
-      ## select load balancer node
-      if hosts["master"].size > 1
-        lb_node = hosts["node"].sample
-        # TODO: can we use one of masters for a load balancer?
-        raise "HA masters need a node for load balancer" unless lb_node
-      end
-
-      # num infra needed only when creating a router by ansible
-      # https://bugzilla.redhat.com/show_bug.cgi?id=1274129
-      # I think it selects number of router replicas. Should be same as
-      #   masters number as shared DNS creates entries for all masters.
-      ose3_vars << "num_infra=#{ hosts["master"].size }"
-
-      # only all-in-one environments have node service on master in
-      #   primary region
-      if hosts.values.flatten.size > 1
-        # master_nodes_labels_str = "openshift_scheduleable=False"
-        master_nodes_labels_str = %Q*openshift_node_labels="{'region': 'infra', 'zone': 'default'}"*
-        ose3_vars << "openshift_registry_selector='region=infra'"
-        ose3_vars << "openshift_router_selector='region=infra'"
-      else
-        master_nodes_labels_str = %Q*openshift_node_labels="{'region': 'primary', 'zone': 'default'}"*
-        ose3_vars << "openshift_registry_selector='region=primary'"
-        ose3_vars << "openshift_router_selector='region=primary'"
-      end
+      ## DNS config End
 
       hosts.each do |role, role_hosts|
         role_hosts.each do |host|
@@ -284,8 +303,9 @@ module CucuShift
           end
 
           # select etcd nodes
-          if Integer(etcd_num) < etcd_host_lines.size
+          if Integer(etcd_num) > etcd_host_lines.size
             etcd_host_lines << host_base_line
+            # etcd_host_lines << host.hostname
           end
 
           # setup Load Balancer node(s); selected randomly before hosts loop

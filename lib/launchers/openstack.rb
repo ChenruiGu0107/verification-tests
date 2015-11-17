@@ -177,7 +177,7 @@ module CucuShift
           logger.info("** attempting to create an instance..")
           res = create_instance_api_call(instance_name, image_name,
                                             flavor_name, key, **create_opts)
-          server_id = res["server"]["id"]
+          server_id = res["server"]["id"] rescue next
           params = {}
           url = self.os_ApiUrl + '/' + 'servers/' + server_id
           sleep 15
