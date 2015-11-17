@@ -136,3 +136,32 @@ Feature: Check oc status cli
     When I run the :status client command
     Then the step should succeed
     And the output should contain "1 deployment new"
+
+  # @author cryan@redhat.com
+  # @case_id 476295
+  Scenario: Show Project.Status when listing the project
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    And I run the :new_app client command with:
+      | template | ruby-helloworld-sample |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | projects |
+    Then the step should succeed
+    And the output should match "<%= project.name %>\s+Active"
+    When I run the :status client command
+    Then the step should succeed
+    And the output should contain "In project <%= project.name %> on server"
+    When I run the :delete client command with:
+      | object_type | projects |
+      | object_name_or_id | <%= project.name %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | projects |
+    Then the step should succeed
+    And the output should match "<%= project.name %>\s+Terminating"
+    When I run the :new_app client command with:
+      | template | ruby-helloworld-sample |
+    Then the step should fail
