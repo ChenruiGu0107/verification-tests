@@ -79,3 +79,41 @@ Feature: create app on web console related
     Then the output should contain 2 times:
       | Cannot create object   |
       | Unrecognized kind Test |
+
+  # @author xxing@redhat.com
+  # @case_id 507527
+  Scenario: Create application from image on web console
+    Given I login via web console
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
+    Then the step should succeed
+    Given I wait for the :create_app_from_image web console action to succeed with:
+      | project_name | <%= project.name %> |
+      | image_name   | python              |
+      | image_tag    | 3.4                 |
+      | namespace    | <%= project.name %> |
+      | app_name     | python-sample       |
+      | source_url   | https://github.com/openshift/django-ex.git |
+      | git_ref      | :null               |
+      | context_dir  | :null               |
+      | label_key    | :null               |
+      | label_value  | :null               |
+    Given I wait for the "python-sample" service to become ready
+    And I wait for a server to become available via the "python-sample" route
+    When I create a new project via web
+    Then the step should succeed
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>   |
+      | image_name   | python                |
+      | image_tag    | 3.4                   |
+      | namespace    | <%= @projects[0].name %> |
+      | app_name     | python-sample-another |
+      | source_url   | https://github.com/openshift/django-ex.git |
+      | git_ref      | v1.0.1                |
+      | context_dir  | :null                 |
+      | label_key    | :null                 |
+      | label_value  | :null                 |
+    Then the step should succeed
+    Given I wait for the "python-sample-another" service to become ready
+    And I wait for a server to become available via the "python-sample-another" route
