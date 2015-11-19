@@ -655,3 +655,41 @@ Feature: deployment related features
       | Status:		Failed         |
       | Deployment #1:          |
       | Status:		Complete       |
+
+  # @author cryan@redhat.com
+  # @case_id 497366
+  Scenario: Roll back via CLI
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    Given I wait for the pod named "hooks-1-deploy" to die
+    When I run the :replace client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
+    Then the step should succeed
+    Given I wait for the pod named "hooks-2-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest ||
+    Then the step should succeed
+    And the output should contain "Started deployment #3"
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | cancel ||
+    Then the step should succeed
+    And the output should contain "cancelled deployment #3"
+    When I run the :rollback client command with:
+      | deployment_name | hooks |
+    Then the step should succeed
+    And the output should contain "rolled back to hooks-2"
+    Given I wait for the pod named "hooks-4-deploy" to die
+    When I run the :rollback client command with:
+      | deployment_name | hooks |
+      | to_version | 1 |
+    Then the step should succeed
+    And the output should contain "rolled back to hooks-1"
+    Given I wait for the pod named "hooks-5-deploy" to die
+    When I run the :rollback client command with:
+      | deployment_name | dc/hooks |
+    Then the step should succeed
+    And the output should contain "rolled back to hooks-4"
