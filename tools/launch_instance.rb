@@ -10,6 +10,7 @@ require 'commander'
 require 'uri'
 
 require 'common'
+require 'http'
 require 'launchers/env_launcher'
 require 'launchers/openstack'
 
@@ -31,7 +32,7 @@ module CucuShift
       default_command :launch
 
       global_option('-c', '--config KEY', 'default config options should be read from?')
-      global_option('-l', '--launched_instances_name_prefix', 'if instances are launched, use this prefix')
+      global_option('-l', '--launched_instances_name_prefix', 'if instances are launched, use this prefix; use string `{tag}` ti have it replaced with MMDDb where MM in month, DD is day and b is build number')
       global_option('-m', '--master_num', "number of nodes to launch")
       global_option('-n', '--node_num', "number of nodes to launch")
       global_option('-d', '--user_data', "file containing user instances' data")
@@ -70,6 +71,10 @@ module CucuShift
             else
               user_data_string = ""
             end
+
+            # a hack to put puddle tag into instance names
+            process_instance_name!(options.launched_instances_name_prefix,
+                                   ENV["PUDDLE_REPO"])
 
             # TODO: allow specifying pre-launched machines
             # TODO: allow choosing other launchers, not only openstack
@@ -110,6 +115,36 @@ module CucuShift
       end
 
       run!
+    end
+
+    # process instance name prefix to generate an identity tag
+    # e.g. "2015-11-10.2" => "11102"
+    # If "latest" build is used, then we try to find it on server.
+    def process_instance_name!(name_prefix, puddle_repo = nil)
+      puddle_re = '\d{4}-\d{2}-\d{2}\.\d+'
+      name_prefix.gsub!("{tag}") {
+        case puddle_repo
+        when nil
+          raise 'no pudde repo specified, cannot substitute ${tag}'
+        when /#{puddle_re}/
+          # $& is last match
+          $&.gsub(/[-.]/,'')[4..-1]
+        when %r{(?<=/)latest/}
+          # $` is string before last match
+          puddle_base = $`
+          res = Http.get(url: puddle_base)
+          raise "failed to get puddle base: #{puddle_base}" unless res[:success]
+          puddles = []
+          res[:response].scan(/href="(#{puddle_re})\/"/) { |m| puddles << m[0] }
+          raise "strange puddle base: #{puddle_base}" if puddles.empty?
+          puddles.map! { |p| p.gsub!(/[-.]/,'') }
+          latest = puddles.map(&:to_str).map(&:to_i).max
+          latest.to_s[4..-1]
+        else
+          raise "cannot find puddle base from url: #{puddle_repo}"
+        end
+      }
+      return name_prefix
     end
   end
 end
