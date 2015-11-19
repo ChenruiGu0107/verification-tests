@@ -73,8 +73,9 @@ module CucuShift
             end
 
             # a hack to put puddle tag into instance names
-            process_instance_name!(options.launched_instances_name_prefix,
-                                   ENV["PUDDLE_REPO"])
+            options.launched_instances_name_prefix =
+              process_instance_name(options.launched_instances_name_prefix,
+                                     ENV["PUDDLE_REPO"])
 
             # TODO: allow specifying pre-launched machines
             # TODO: allow choosing other launchers, not only openstack
@@ -120,9 +121,9 @@ module CucuShift
     # process instance name prefix to generate an identity tag
     # e.g. "2015-11-10.2" => "11102"
     # If "latest" build is used, then we try to find it on server.
-    def process_instance_name!(name_prefix, puddle_repo = nil)
+    def process_instance_name(name_prefix, puddle_repo = nil)
       puddle_re = '\d{4}-\d{2}-\d{2}\.\d+'
-      name_prefix.gsub!("{tag}") {
+      return name_prefix.gsub("{tag}") {
         case puddle_repo
         when nil
           raise 'no pudde repo specified, cannot substitute ${tag}'
@@ -144,7 +145,6 @@ module CucuShift
           raise "cannot find puddle base from url: #{puddle_repo}"
         end
       }
-      return name_prefix
     end
   end
 end
