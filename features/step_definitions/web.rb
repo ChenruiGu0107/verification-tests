@@ -9,6 +9,16 @@ When /^I perform the :(.*?) web( console)? action with:$/ do |action, console, t
   end
 end
 
+#run web action without parameters
+When /^I run the :(.+?) web( console)? action$/ do |action, console|
+  if console
+    cache_browser(user.webconsole_executor)
+    @result = user.webconsole_exec(action.to_sym)
+  else
+    browser.exec(action.to_sym)
+  end
+end
+
 When /^I access the "(.*?)" path in the web (?:console|browser)$/ do |url|
   @result = browser.handle_url(url)
 end
@@ -59,4 +69,10 @@ When /^I get the html of the web page$/ do
     instruction: "read the HTML of the currently opened web page",
     exitstatus: -1
   }
+end
+
+#useful for web common "click" action
+When /^I click the following "([^"]*)" element:$/ do |element_type, table|
+  selector = opts_array_to_hash(table.raw)
+  @result = browser.handle_element({type: element_type, selector: selector, op: click})
 end
