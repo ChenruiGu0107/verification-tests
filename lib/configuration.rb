@@ -33,8 +33,15 @@ module CucuShift
 
       raw_configs = []
       @opts[:files].each { |f| raw_configs << load_file(f) }
+
+      # merge any config files
       @raw_config = raw_configs.shift
       raw_configs.each { |c| Collections.deep_merge!(@raw_config, c) }
+
+      # merge config from environment if present
+      if ENV["CUCUSHIFT_CONFIG"] && !ENV["CUCUSHIFT_CONFIG"].empty?
+        Collections.deep_merge!(@raw_config, YAML.load(ENV["CUCUSHIFT_CONFIG"]))
+      end
 
       Collections.deep_map_hash!(@raw_config) { |k, v| [k.to_sym, v] }
 
