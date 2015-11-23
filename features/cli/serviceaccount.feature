@@ -57,3 +57,40 @@ Feature: ServiceAccount and Policy Managerment
       | resource | imagestreams/layers |
     Then the output should not match:
       | system:serviceaccount(?:s)?:<%= Regexp.escape(project.name) %> |
+
+  # @author xxia@redhat.com
+  # @case_id 497381
+  Scenario: Could grant view permission for the service account username to access to its own project
+    Given I have a project
+    When I create a new application with:
+      | docker image | <%= project_docker_repo %>openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | name         | myapp         |
+    Then the step should succeed
+    When I give project view role to the default service account
+    And I run the :get client command with:
+      | resource       | rolebinding  |
+      | resource_name  | view         |
+    Then the output should match:
+      | view.+default         |
+
+    Given I find a bearer token of the default service account
+    And I switch to the default service account
+    When I run the :get client command with:
+      | resource | buildconfig         |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | myapp   |
+    When I create a new application with:
+      | docker image | <%= project_docker_repo %>openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | name         | another-app         |
+      | n            | <%= project.name %> |
+    Then the step should fail
+    When I run the :delete client command with:
+      | object_type       | bc        |
+      | object_name_or_id | myapp     |
+      | n                 | <%= project.name %> |
+    Then the step should fail
+    Then the step should fail
+    When I give project admin role to the builder service account
+    Then the step should fail
