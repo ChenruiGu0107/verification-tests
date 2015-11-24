@@ -27,3 +27,20 @@ When /^I run oc create( as admin)? over ERB URL: #{HTTP_URL}$/ do |admin, url|
     @result = user.cli_exec(:create, {f: @result[:abs_path]})
   end
 end
+
+#@param file
+#@notes Given a remote (http/s) or local file, run the 'oc process'
+#command followed by the 'oc create' command to save space
+Given /^I process and create: (.+)$/ do |file|
+  begin
+    #Run the process command, then pass it in as stdin to 'oc create'
+    processed_result = user.cli_exec(:process, {f: file})
+    if processed_result[:success]
+      @result = user.cli_exec(:create, {f: "-", _stdin: processed_result[:stdout]})
+    else
+      raise "Unable to process the file."
+    end
+  rescue
+    raise "Cannot open file for processing and/or creating."
+  end
+end
