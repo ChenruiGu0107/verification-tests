@@ -1,0 +1,7 @@
+#---check project settings
+check_project_without_quota_settings:
+  url: /console/project/<project_name>/settings
+  elements:
+  #check quota
+  - selector:
+      text: There are no resource quotas set on this project.

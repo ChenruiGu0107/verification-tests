@@ -1,0 +1,11 @@
+#---check project overview page
+check_project_overview:
+  url: /console/project/<project_name>/overview
+  #check value in the select box 
+  elements:
+  - selector:
+      text: Get started with your project.
+  - selector:
+      class: dropdown-toggle
+    type: button
+    op: click

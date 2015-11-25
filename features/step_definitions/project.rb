@@ -30,7 +30,20 @@ When /^I create a new project(?: via (.*?))?$/ do |via|
     @projects << @result[:project]
     @result[:success] = @result[:project].wait_to_be_created(user)
     unless @result[:success]
-      logger.warn("Project #{@result[:project].name} not visible on server after delete")
+      logger.warn("Project #{@result[:project].name} not visible on server after create")
+    end
+  end
+end
+
+# create a new project with user options,either via web or cli
+When /^I create a project via (.+?) with:$/ do |via, table|
+  opts = opts_array_to_hash(table.raw)
+  @result = CucuShift::Project.create(by: user, name: rand_str(5, :dns), _via: (via.to_sym if via), **opts)
+  if @result[:success]
+    @projects << @result[:project]
+    @result[:success] = @result[:project].wait_to_be_created(user)
+    unless @result[:success]
+      logger.warn("Project #{@result[:project].name} not visible on server after create")
     end
   end
 end
