@@ -143,3 +143,25 @@ Feature: create app on web console related
     When I get the html of the web page
     Then the output should contain:
       | Please enter a valid value|
+
+  # @author xxing@redhat.com
+  # @case_id 507521
+  Scenario: Show help info and suggestions after creating app from web console
+    When I create a new project via web
+    Then the step should succeed
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>   |
+      | image_name   | nodejs                |
+      | image_tag    | 0.10                  |
+      | namespace    | openshift             |
+      | app_name     | nodejs-sample         |
+      | source_url   | https://github.com/openshift/nodejs-ex |
+      | git_ref      | :null                 |
+      | context_dir  | :null                 |
+      | label_key    | :null                 |
+      | label_value  | :null                 |
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should contain:
+      | Command line tools  |
+      | Making code changes |
