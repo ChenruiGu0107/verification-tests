@@ -74,5 +74,5 @@ end
 #useful for web common "click" action
 When /^I click the following "([^"]*)" element:$/ do |element_type, table|
   selector = opts_array_to_hash(table.raw)
-  @result = browser.handle_element({type: element_type, selector: selector, op: click})
+  @result = browser.handle_element({type: element_type, selector: selector, op: "click"})
 end
