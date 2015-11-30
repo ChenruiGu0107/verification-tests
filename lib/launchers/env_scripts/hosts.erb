@@ -14,10 +14,7 @@ openshift_additional_repos=[{'id': 'ose-devel', 'name': 'ose-devel', 'baseurl': 
 openshift_use_openshift_sdn=true
 os_sdn_network_plugin_name=<%=network_plugin%>
 osm_default_subdomain=<%=app_domain%>
-use_cluster_metrics=true
 openshift_master_identity_providers=<%=identity_providers%>
-osm_use_cockpit=true
-osm_cockpit_plugins=['cockpit-kubernetes']
 <%=ose3_vars.join("\n")%>
 
 # host group for masters
