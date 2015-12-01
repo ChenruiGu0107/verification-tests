@@ -45,3 +45,24 @@ Feature: route related features via cli
     And the output should contain:
       | DNS 952 subdomain |
     And the project is deleted
+
+  # @author cryan@redhat.com
+  # @case_id 483239
+  Scenario: Expose routes from services
+    Given I have a project
+    When I run the :new_app client command with:
+      | code | https://github.com/openshift/sti-perl |
+      | l | app=test-perl|
+      | context_dir | 5.20/test/sample-test-app/ |
+      | name | myapp |
+    Then the step should succeed
+    And the "myapp-1" build completed
+    When I run the :expose client command with:
+      | resource | svc |
+      | resource_name | myapp |
+    Then the step should succeed
+    And the output should contain "app=test-perl"
+    When I run the :get client command with:
+      | resource | route |
+    Then the step should succeed
+    And the output should contain "app=test-perl"

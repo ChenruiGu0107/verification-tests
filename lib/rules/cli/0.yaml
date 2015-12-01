@@ -221,6 +221,7 @@
   :cmd: oc new-app
   :options:
     :app_repo: <value>
+    :context_dir: --context-dir='<value>'
     :labels: --labels=<value>
     :l: -l <value>
     :name: --name=<value>
