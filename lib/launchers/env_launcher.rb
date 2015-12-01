@@ -91,6 +91,7 @@ module CucuShift
                         registry_ha:,
                         ansible_branch:,
                         ansible_url:,
+                        customized_ansible_conf:,
                         kerberos_kdc: conf[:sercices, :test_kerberos, :kdc],
                         kerberos_keytab_url:
                           conf[:sercices, :test_kerberos, :keytab_url],
@@ -153,6 +154,11 @@ module CucuShift
       master_host_lines = []
       node_host_lines = []
       lb_host_lines = []
+
+     if !customized_ansible_conf.empty?
+       ose3_vars << customized_ansible_conf
+     end
+
 
       ## lets sanity check auth type
       if auth_type != "LDAP" && hosts["master"].size > 1
@@ -419,6 +425,7 @@ module CucuShift
               :puddle_repo, :network_plugin,
               :etcd_num, :registry_ha,
               :ansible_branch, :ansible_url,
+              :customized_ansible_conf,
               :kerberos_docker_base_image,
               :kerberos_kdc, :kerberos_keytab_url,
               :kerberos_docker_base_image,
