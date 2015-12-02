@@ -215,3 +215,51 @@ Feature: build 'apps' with CLI
     # Should contain the new start build
     Then the output should match:
       | <%= Regexp.escape("ruby-sample-build-4") %>.+(?:Running)?(?:Pending)?|
+
+  # @author cryan@redhat.com
+  # @case_id 489295
+  @admin
+  Scenario: Check the default option value for command oadm prune builds
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | ruby-helloworld-sample|
+    Then the step should succeed
+
+    #Generate enough builds for the oadm command to clean
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+
+    When I run the :oadm_prune_builds client command with:
+      | h ||
+    Then the step should succeed
+    And the output should contain "removes older completed and failed builds"
+    #Wait for the builds to finish:
+    Given 60 seconds have passed
+    When I run the :oadm_prune_builds admin command with:
+      | keep_younger_than | 1m |
+    Then the step should succeed
