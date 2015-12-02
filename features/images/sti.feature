@@ -21,11 +21,11 @@ Feature: sti.feature
     When I run the :create client command with:
       | f | simple-openshift-sinatra-sti.json |
     Then the step should succeed
-    Given the "simple-openshift-sinatra-sti" build was created
-    Given the "simple-openshift-sinatra-sti" build completed
+    Given the "simple-openshift-sinatra-sti-1" build was created
+    Given the "simple-openshift-sinatra-sti-1" build completed
     When I run the :get client command with:
       | resource | pods |
-    Then the output should contain "ruby-example-1-build"
+    Then the output should contain "simple-openshift-sinatra-sti-1-build"
     When I run the :get client command with:
       | resource | svc |
-    Then the output should contain "ruby-example"
+    Then the output should contain "simple-openshift-sinatra"
