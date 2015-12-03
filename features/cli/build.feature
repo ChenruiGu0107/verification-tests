@@ -16,7 +16,7 @@ Feature: build 'apps' with CLI
       | Ref:\\s+beta2                                        |
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
-    Then the step should succeed  
+    Then the step should succeed
     When I run the :get client command with:
       | resource | builds |
     Then the output should contain:
@@ -229,9 +229,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
 
     #Generate enough builds for the oadm command to clean
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
+    Given the "ruby-sample-build-1" build was created
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
@@ -259,7 +257,37 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     And the output should contain "removes older completed and failed builds"
     #Wait for the builds to finish:
+    Given the "ruby-sample-build-1" build finished
+    And the "ruby-sample-build-2" build finished
+    And the "ruby-sample-build-3" build finished
+    And the "ruby-sample-build-4" build finished
+    And the "ruby-sample-build-5" build finished
+    And the "ruby-sample-build-6" build finished
+    And the "ruby-sample-build-7" build finished
+    And the "ruby-sample-build-8" build finished
+
+    # wait 60 sec so we can ceck the keep younger option
     Given 60 seconds have passed
     When I run the :oadm_prune_builds admin command with:
       | keep_younger_than | 1m |
     Then the step should succeed
+    And the output should match:
+      | Dry run |
+      # make sure we match only builds for current project
+      # some builds will succeed, some will fail so can't match exact numbers
+      | <%= project.name %>\\s*ruby-sample-build- |
+    # And evaluation of `result[:responce].split("\n").grep(/#{Regexp.escape(project.name)}/)` is stored in the :pruned clipboard
+
+    When I run the :oadm_prune_builds admin command
+    Then the step should succeed
+    And the output should not match:
+      | <%= project.name %>\\s*ruby-sample-build- |
+
+    # skip waiting for one hour as that's too much waste
+    # Given 3600 seconds have passed
+    # When I run the :oadm_prune_builds admin command
+    # Then the step should succeed
+    # And the output should match:
+    #   | <%= project.name %>\\s*ruby-sample-build- |
+    # # the output from prune after one hour is same as previous prune
+    # And the expression should be true> cb.pruned == result[:responce].split("\n").grep(/#{Regexp.escape(project.name)}/)
