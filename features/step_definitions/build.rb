@@ -49,3 +49,33 @@ Given /^the "([^"]*)" build becomes running$/ do |build_name|
     raise "build #{build_name} never started or failed fast"
   end
 end
+
+Then(/^I save pruned builds in the "([^"]*)" project into the :([^\s]*?) clipboard$/) do |project_name, cb_name|
+  project = self.project(project_name)
+  # lookbehind does not support quantifiers and jruby no support of \K
+  build_names = @result[:response].scan(%r%(?<=^#{Regexp.escape(project.name)})\s+[^\s]*$%)
+  builds = build_names.map { |bn|
+    CucuShift::Build.new(name: bn.strip, project: project)
+  }
+  cb[cb_name] = builds
+end
+
+Given /^I save project builds into the :([^\s]*?) clipboard$/ do |cb_name|
+  res = project.get_builds(by: user)
+  if res[:success]
+    cb[cb_name] = res[:builds]
+  else
+    raise "error getting project builds, see console log"
+  end
+end
+
+Then /^the project should contain no builds$/ do
+  res = project.get_builds(by: user)
+  if res[:success]
+    unless res[:builds].size == 0
+      raise "#{res[:builds].size} builds present in the #{project.name} project"
+    end
+  else
+    raise "error getting project builds, see console log"
+  end
+end

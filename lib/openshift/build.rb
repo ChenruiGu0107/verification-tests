@@ -61,6 +61,17 @@ module CucuShift
     end
     alias reload get
 
+    def exists?(user:)
+      res = get(user: user)
+
+      unless res[:success] || res[:response].include?("not found")
+        raise "error getting build from API"
+      end
+
+      res[:success] = ! res[:success]
+      return res
+    end
+
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if build status is what's expected
     def status?(user:, status:)
