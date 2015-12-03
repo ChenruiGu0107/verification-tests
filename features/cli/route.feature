@@ -45,3 +45,15 @@ Feature: route related features via cli
     And the output should contain:
       | DNS 952 subdomain |
     And the project is deleted
+
+  # @author cryan@redhat.com
+  # @case_id 470699
+  Scenario: Be unable to add an existed alias name for service
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json |
+    Then the step should fail
+    And the output should contain "routes "route" already exists"
