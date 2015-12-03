@@ -1,5 +1,5 @@
 #---check project overview page
-check_project_overview:
+check_project_overview_without_resource:
   url: /console/project/<project_name>/overview
   #check value in the select box 
   elements:
