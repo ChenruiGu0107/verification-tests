@@ -66,3 +66,10 @@ Feature: route related features via cli
       | resource | route |
     Then the step should succeed
     And the output should contain "app=test-perl"
+    When I run the :describe client command with:
+      | resource | route |
+      | name | myapp |
+    Then the step should succeed
+    And the output should match "Labels:\s+app=test-perl"
+    When I use the "myapp" service
+    Then the output should contain "OpenShift"
