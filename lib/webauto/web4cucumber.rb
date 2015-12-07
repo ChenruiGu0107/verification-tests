@@ -197,7 +197,10 @@ require 'watir-webdriver'
 
     def handle_element(element_rule, **user_opts)
       # wait for element
-      found, elements = wait_for_elements(element_rule)
+      found, elements = wait_for_elements(element_rule.merge(
+        # it's often useful to have paramaters inside selectors
+        selector: selector_param_setter(element_rule[:selector], user_opts)
+      ))
 
       res = {
         instruction: "handle #{element_rule}",
@@ -314,11 +317,39 @@ require 'watir-webdriver'
       return browser.html
     end
 
+    # @param element_list [Array] list of parametrized element type/selector
+    #   pairs where selectors may contain `<param>` strings
+    # @param params [Hash] params to replace within selectors
+    # @return [Array] list of processed element type/selector pairs
+    private def element_list_param_setter(element_list, params)
+      element_list.map do |el_type, selector|
+        [el_type, selector_param_setter(selector, params)]
+      end
+    end
+
+    # @param selector [Hash] element selector as accepted by watir and may
+    #   contain `<param>` strings
+    # @param params [Hash] params to replace within selector
+    # @return [Hash] processed element selector as accepted by watir
+    private def selector_param_setter(selector, params)
+      return selector if params.empty?
+      selector_res = {}
+      selector.each do |selector_type, query|
+        selector_res[selector_type] =
+          query.gsub(/<([a-z_]+)>/) { |m| params[$1.to_sym] || m }
+      end
+      return selector_res
+    end
+
     # this somehow convoluted method can be used to wait for multiple elements
     #   for a given timeout; that means there is one timeout to get all of the
     #   requested elements
+    # @param opts [Hash] with possible keys: :type, :selector, :list, :visible,
+    #   :timeout
     # @return [Array] of `[status, [[[elements], type, selector], ..] ]`
     def wait_for_elements(opts)
+      # expect either :list of [:type, :selector] pairs or
+      #   :type and :selector options to be provided
       elements = opts[:list] || [[ opts[:type], opts[:selector] ]]
       only_visible = opts.has_key?(:visible) ? opts[:visible] : true
       timeout = opts[:timeout] || ELEMENT_TIMEOUT # in seconds
@@ -326,7 +357,6 @@ require 'watir-webdriver'
       start = Time.now
       result = nil
       begin
-        sleep 1
         result = {:list => [], :success => true}
         break if elements.all? { |type, selector|
           e = only_visible ?
@@ -335,7 +365,7 @@ require 'watir-webdriver'
           result[:list] << [e, opts[:type], opts[:selector]] unless e.empty?
         }
         result[:success] = false
-      end until Time.now - start > timeout
+      end while Time.now - start < timeout && sleep(1)
 
       return result[:success], result[:list]
     end
