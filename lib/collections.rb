@@ -103,11 +103,16 @@ module CucuShift
         # we assume that things are normalized when Hash is passed in
         return opts
       when Array
-        raise 'only array of two-values arrays is supported' if opts[0].size > 2
+        if opts[0] && opts[0].size != 2
+          # we accept empty opts array or array of two element arrays
+          raise 'only array of two-values arrays is supported'
+        end
         res = array_mode ? [] : {}
         lastval = nil
         opts.each do |key, value|
-          case key.strip!
+          key.strip!
+
+          case key
           when ""
             if lastval
               # value modified in-place

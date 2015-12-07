@@ -1,0 +1,7 @@
+--- # check browse/builds page
+check_builds_list:
+  url: /console/project/<project_name>/browse/builds/<build_or_bc_name>
+  element:
+    selector:
+      text: Show annotations
+    type: a

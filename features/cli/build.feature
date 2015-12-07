@@ -16,7 +16,7 @@ Feature: build 'apps' with CLI
       | Ref:\\s+beta2                                        |
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
-    Then the step should succeed  
+    Then the step should succeed
     When I run the :get client command with:
       | resource | builds |
     Then the output should contain:

@@ -30,6 +30,11 @@ When /^I run the :([a-z_]*?)( background)? client command with:$/ do |yaml_key, 
   end
 end
 
+When /^I run the :([a-z_]*?)( background)? admin command$/ do |yaml_key, background|
+  step "I run the :#{yaml_key}#{background} admin command with:",
+    table("|dummy|:false|")
+end
+
 When /^I run the :([a-z_]*?)( background)? admin command with:$/ do |yaml_key, background, table|
   ensure_admin_tagged
 

@@ -61,15 +61,29 @@ module CucuShift
     end
     alias reload get
 
+    def exists?(user:)
+      res = get(user: user)
+
+      unless res[:success] || res[:response].include?("not found")
+        raise "error getting build from API"
+      end
+
+      res[:success] = ! res[:success]
+      return res
+    end
+
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if build status is what's expected
     def status?(user:, status:)
+
+      # see https://github.com/openshift/origin/blob/master/pkg/build/api/v1/types.go (look for `const` definition)
       statuses = {
         complete: "Complete",
         running: "Running",
         pending: "Pending",
         new: "New",
         failed: "Failed",
+        error: "Error",
         cancelled: "Cancelled"
       }
 
@@ -96,22 +110,34 @@ module CucuShift
     # @return [CucuShift::ResultHash] :success if build completes regardless of
     #   completion status
     def finished?(user:)
-      status(user: user, status: [:complete, :failed, :cancelled])
+      status?(user: user, status: [:complete, :failed, :cancelled, :error])
     end
 
     # @return [CucuShift::ResultHash] with :success depending on status
     def completed?(user:)
-      status(user: user, status: :complete)
+      status?(user: user, status: :complete)
     end
 
     # @return [CucuShift::ResultHash] with :success depending on status
     def failed?(user:)
-      status(user: user, status: :failed)
+      status?(user: user, status: :failed)
     end
 
     # @return [CucuShift::ResultHash] with :success depending on status
     def running?(user:)
-      status(user: user, status: :running)
+      status?(user: user, status: :running)
+    end
+
+    # @return [CucuShift::ResultHash] with :success true if we've eventually got
+    #   the build finished regardless of status, false if build never started or
+    #   still running; the result hash is from last executed get call
+    def wait_till_finished(user, seconds)
+      res = nil
+      wait_for(seconds) {
+        res = finished?(user: user)
+        res[:success]
+      }
+      return res
     end
 
     # @return [CucuShift::ResultHash] with :success true if we've eventually got
@@ -139,7 +165,7 @@ module CucuShift
       success = wait_for(seconds) {
         res = status?(user: user, status: status)
         # if build completed there's no chance to change status so exit early
-        break if [:complete, :failed, :cancelled].include?(res[:matched_status])
+        break if [:complete, :failed, :cancelled, :error].include?(res[:matched_status])
         res[:success]
       }
 

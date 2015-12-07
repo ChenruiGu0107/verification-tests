@@ -409,6 +409,15 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+:oadm_prune_builds:
+  :cmd: oadm prune builds
+  :options:
+    :confirm: --confirm=<value>
+    :keep_complete: --keep-complete=<value>
+    :keep_failed: --keep-failed=<value>
+    :keep_younger_than: --keep-younger-than=<value>
+    :orphans: --orphans=<value>
+    :orphans_noopt: --orphans
 :oadm_remove_cluster_role_from_user:
   :cmd: oadm policy remove-cluster-role-from-user <role_name> <user_name>
 :oadm_remove_cluster_role_from_group:
