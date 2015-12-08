@@ -44,3 +44,20 @@ Feature: oc import-image related feature
       | resource        | imagestreams      |
       | o               | yaml              |
     Then the output should contain "tag: <%= cb.tag_name %>"
+
+
+  # @author chaoyang@redhat.com
+  # @case_id 474368
+  Scenario: [origin_infrastructure_319]Do not create tags for ImageStream if image repository does not have tags
+    When I have a project
+    And I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/is_without_tags.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | imagestreams |
+    Then the output should contain "hello-world"
+    When I run the :get client command with:
+      | resource_name   | hello-world  |
+      | resource        | imagestreams     |
+      | o               | yaml             |
+    And the output should not contain "tags"
