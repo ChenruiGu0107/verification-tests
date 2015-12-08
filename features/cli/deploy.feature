@@ -40,7 +40,7 @@ Feature: deployment related features
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      | NAME\\s+TRIGGERS\\s+LATEST VERSION |
+      | NAME\\s+TRIGGERS\\s+LATEST |
       | hooks\\s+ImageChange\\s+2          |
     When I run the :rollback client command with:
       | deployment_name | hooks-1 |
@@ -152,7 +152,7 @@ Feature: deployment related features
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST VERSION |
+      |NAME\\s+TRIGGERS\\s+LATEST |
       | hooks\\s+0                        |
     When I run the :deploy client command with:
       | deployment_config | hooks |
@@ -167,7 +167,7 @@ Feature: deployment related features
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST VERSION |
+      |NAME\\s+TRIGGERS\\s+LATEST |
       | hooks\\s+1                        |
     # Make the edit action
     When I run the :get client command with:
@@ -204,7 +204,7 @@ Feature: deployment related features
       | resource      | deploymentConfig |
       | resource_name | hooks |
     Then the output should match:
-      | NAME\\s+TRIGGERS\\s+LATEST VERSION |
+      | NAME\\s+TRIGGERS\\s+LATEST |
       | hooks\\s+ImageChange\\s+2          |
     When I run the :rollback client command with:
       | deployment_name         | hooks-1 |
