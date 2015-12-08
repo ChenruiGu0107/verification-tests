@@ -4,8 +4,10 @@ Feature: scaling related scenarios
   Scenario: Scale replicas via replicationcontrollers and deploymentconfig
     Given I have a project
     And I create a new application with:
-      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
-      | name         | myapp                                                                   |
+      | image_stream | openshift/perl:5.20 |
+      | name         | myapp                  |
+      | code         | https://github.com/openshift/sti-perl |
+      | context_dir  | 5.20/test/sample-test-app/            |
     Then the step should succeed
     When I expose the "myapp" service
     Then the step should succeed

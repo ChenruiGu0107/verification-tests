@@ -32,12 +32,9 @@ Feature: build 'apps' with CLI
   # @case_id 489741
   Scenario: Create a build config based on the provided image and source code
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
-    Then the step should succeed
     When I run the :new_build client command with:
       | code  | https://github.com/openshift/ruby-hello-world |
-      | image | ruby                                          |
+      | image | openshift/ruby                                |
       | l     | app=rubytest                                  |
     Then the step should succeed
     When I run the :describe client command with:
@@ -56,9 +53,9 @@ Feature: build 'apps' with CLI
     Then the output should contain:
       | ruby-hello-world |
     When I run the :new_build client command with:
-      | app_repo |  openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world.git |
-      | strategy | docker                                                                       |
-      | name     | n1                                                                           |
+      | app_repo |  openshift/ruby:2.0~https://github.com/openshift/ruby-hello-world.git |
+      | strategy | docker                                                                |
+      | name     | n1                                                                    |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | bc               |
@@ -74,7 +71,6 @@ Feature: build 'apps' with CLI
     When I run the :get client command with:
       |resource| is |
     Then the output should contain:
-      | ruby-20-centos7  |
       | ruby-hello-world |
 
   # @author chunchen@redhat.com
@@ -132,8 +128,8 @@ Feature: build 'apps' with CLI
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
     When I run the :new_app client command with:
-      | image_stream | <%= @projects[0].name %>/ruby |
-      | image_stream | <%= @projects[1].name %>/ruby |
+      | image_stream | <%= @projects[0].name %>/ruby:2.2 |
+      | image_stream | <%= @projects[1].name %>/ruby:2.0 |
       | code         | https://github.com/openshift/ruby-hello-world |
       | l            | app=test |
     When I run the :get client command with:
@@ -146,12 +142,12 @@ Feature: build 'apps' with CLI
       | resource | buildConfig      |
       | name     | ruby-hello-world |
     Then the output should match:
-      | Image Reference:\\s+ImageStreamTag <%= Regexp.escape(@projects[0].name) %>/ruby:latest |
+      | Image Reference:\\s+ImageStreamTag <%= Regexp.escape(@projects[0].name) %>/ruby:2.2 |
     When I run the :describe client command with:
       | resource | buildConfig      |
       | name     | ruby-hello-world-1 |
     Then the output should match:
-      | Image Reference:\\s+ImageStreamTag <%= Regexp.escape(@projects[1].name) %>/ruby:latest |
+      | Image Reference:\\s+ImageStreamTag <%= Regexp.escape(@projects[1].name) %>/ruby:2.0 |
     Given the "ruby-hello-world-1" build completed
     Given the "ruby-hello-world-1-1" build completed
     Given I wait for the "ruby-hello-world" service to become ready
