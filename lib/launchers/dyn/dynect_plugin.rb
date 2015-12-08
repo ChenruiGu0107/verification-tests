@@ -235,7 +235,7 @@ module OpenShift
       dyn_put(path, publish_data, auth_token, retries)
     end
 
-    def handle_temp_redirect(resp, auth_token)
+    def handle_temp_redirect(resp, auth_token, max_retries=5)
       if resp.body =~ /^\/REST\//
         headers = { "Content-Type" => 'application/json', 'Auth-Token' => auth_token }
         url = URI.parse("#{@end_point}#{resp.body}")
@@ -248,7 +248,7 @@ module OpenShift
         sleep_time = 2
         success = false
         retries = 0
-        while !success && retries < 5
+        while !success && retries < max_retries
           retries += 1
           begin
             logheaders = headers.clone
@@ -264,6 +264,7 @@ module OpenShift
                 status = data['status']
                 if status == 'success'
                   success = true
+                  return resp, data
                 elsif status == 'incomplete'
                   sleep sleep_time
                   sleep_time *= 2
@@ -378,7 +379,7 @@ module OpenShift
                 end if data.kind_of?(Hash) and data['msgs']
                 logger.error "DYNECT Response: #{data}"
               end
-              raise_dns_exception(nil, resp, data)
+              raise_dns_exception(nil, resp, resp.body)
             end
           when Net::HTTPTemporaryRedirect
             handle_temp_redirect(resp, auth_token)
