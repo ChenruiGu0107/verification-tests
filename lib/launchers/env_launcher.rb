@@ -210,14 +210,14 @@ module CucuShift
         # basically do nothing
         host_domain ||= "cluster.local"
         raise "specify :app_domain and :host_domain" unless app_domain
-      when "embedded"
-        host_domain ||= "cluster.local"
-        app_domain ||= rand_str(5, :dns) + ".example.com"
-        conf_script.gsub!(
-          /#CONF_DNS_IP=.*$/,
-          "CONF_DNS_IP=#{hosts['master'][0].ip}"
-        )
-        conf_script.gsub!(/#USE_OPENSTACK_DNS=.*$/, "USE_OPENSTACK_DNS=true")
+      #when "embedded"
+      #  host_domain ||= "cluster.local"
+      #  app_domain ||= rand_str(5, :dns) + ".example.com"
+      #  conf_script.gsub!(
+      #    /#CONF_DNS_IP=.*$/,
+      #    "CONF_DNS_IP=#{hosts['master'][0].ip}"
+      #  )
+      #  conf_script.gsub!(/#USE_OPENSTACK_DNS=.*$/, "USE_OPENSTACK_DNS=true")
       when "embedded_skydns"
         host_domain ||= "cluster.local"
         app_domain = "router.cluster.local"
@@ -267,19 +267,19 @@ module CucuShift
           if rhel_base_repo
             check_res host.exec_admin("sh configure_env.sh configure_repos")
           end
-          if dns.start_with?("embedded")
+          if dns.start_with?("embedded_skydns")
             check_res host.exec_admin("sh configure_env.sh configure_hosts")
           end
 
           case role
           when "master"
             # TODO: assumption is only one master
-            if dns == "embedded"
-              check_res host.exec_admin('sh configure_env.sh configure_dns')
-            elsif dns
-              check_res \
-                host.exec_admin('sh configure_env.sh configure_dns_resolution')
-            end
+            #if dns == "embedded"
+            #  check_res host.exec_admin('sh configure_env.sh configure_dns')
+            #elsif dns
+            #  check_res \
+            #    host.exec_admin('sh configure_env.sh configure_dns_resolution')
+            #end
 
             if dns == "embedded_skydns"
               host_base_line = "#{host.hostname} openshift_hostname=master.#{host_domain} openshift_public_hostname=master.#{host_domain}"
@@ -302,10 +302,10 @@ module CucuShift
             host_line = %Q*#{host_base_line} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"*
             node_host_lines << host_line
 
-            if dns
-              check_res \
-                host.exec_admin('sh configure_env.sh configure_dns_resolution')
-            end
+            #if dns
+            #  check_res \
+            #    host.exec_admin('sh configure_env.sh configure_dns_resolution')
+            #end
           end
 
           # select etcd nodes
