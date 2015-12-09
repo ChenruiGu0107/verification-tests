@@ -199,3 +199,48 @@ Feature: creating 'apps' with CLI
       | value: pass1         |
       | name: MYSQL_DATABASE |
       | value: db1           |
+
+  # @author cryan@redhat.com
+  # @case_id 476353
+  Scenario: Easy delete resources of 'new-app' created
+    Given I have a project
+    Given a 5 characters random string of type :dns is stored into the :rand_label clipboard
+    When I run the :new_app client command with:
+      | code | https://github.com/openshift/sti-perl |
+      | l | app=<%= cb.rand_label %> |
+      | context_dir | 5.20/test/sample-test-app/ |
+    Then the step should succeed
+    And the "sti-perl-1" build completed
+    When I run the :get client command with:
+      | resource | all |
+      | l | app=<%= cb.rand_label %> |
+    Then the step should succeed
+    And the output should contain "app=<%= cb.rand_label %>"
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | l | app=<%= cb.rand_label %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | all |
+    Then the project should be empty
+    Given a 5 characters random string of type :dns is stored into the :rand_label2 clipboard
+    Given a 5 characters random string of type :dns is stored into the :rand_label3 clipboard
+    Given a 5 characters random string of type :dns is stored into the :rand_label4 clipboard
+    When I run the :new_app client command with:
+      | code | https://github.com/openshift/sti-perl |
+      | l | app2=<%= cb.rand_label2 %>,app3=<%= cb.rand_label3 %>,app4=<%= cb.rand_label4 %> |
+      | context_dir | 5.20/test/sample-test-app/ |
+    Then the step should succeed
+    And the "sti-perl-1" build completed
+    When I run the :get client command with:
+      | resource | all |
+      | l | app2=<%= cb.rand_label2 %> |
+    Then the step should succeed
+    And the output should contain "app2=<%= cb.rand_label2 %>"
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | l | app2=<%= cb.rand_label2 %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | all |
+    Then the project should be empty
