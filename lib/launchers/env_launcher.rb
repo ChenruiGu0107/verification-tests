@@ -201,6 +201,7 @@ module CucuShift
         ose3_vars << "num_infra=1"
         router_dns_type = "master"
       end
+      router_ips = hosts[router_dns_type].map{|h| h.ip}
 
       ## Setup HA Master opts End
 
@@ -244,6 +245,24 @@ module CucuShift
             dns_host.exec_admin('sh -x configure_env.sh configure_shared_dns')
         ensure
           dns_host.clean_up
+        end
+      when /^dyn$/
+        require 'launchers/dyn/dynect'
+        host_domain ||= "cluster.local"
+        dyn = CucuShift::Dynect.new()
+
+        begin
+          if app_domain
+            # validity of app zone up to the user that has set it
+            dyn.dyn_create_a_records("*.#{app_domain}", router_ips)
+            dyn.publish
+          else
+            rec = dyn.dyn_create_random_a_wildcard_records(router_ips)
+            dyn.publish
+            app_domain = rec.sub(/^\*\./, '')
+          end
+        ensure
+          dyn.close
         end
       else
         host_domain ||= "cluster.local"
