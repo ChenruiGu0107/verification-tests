@@ -27,7 +27,7 @@ module CucuShift
       end
     end
 
-    def dyn_get(path, auth_token, retries=@@dyn_retries)
+    def dyn_get(path, auth_token=@auth_token, retries=@@dyn_retries)
       headers = { "Content-Type" => 'application/json', 'Auth-Token' => auth_token }
       url = URI.parse("#{@end_point}/REST/#{path}")
       resp, data = nil, nil
@@ -80,15 +80,56 @@ module CucuShift
         record_data = { :rdata => { :address => target }, :ttl => "60" }
         dyn_post(path, record_data, auth_token, retries)
       }
+      return fqdn
     end
     alias dyn_create_a_record dyn_create_a_records
 
+    # @return [String] random `timed` FQDN
     def dyn_create_random_a_wildcard_records(target, auth_token=@auth_token, retries=@@dyn_retries)
-      tstamp = Time.now.strftime("%m%d")
-      rand_component = rand_str(3, :dns)
-      record = "*.#{tstamp}-#{rand_component}"
-      dyn_create_a_records(record, target, auth_token, retries)
+      record = "*.#{gen_timed_random_component}"
+      return dyn_create_a_records(record, target, auth_token, retries)
     end
     alias dyn_create_random_a_wildcard_record dyn_create_random_a_wildcard_records
+
+    def dyn_get_all_zone_records(auth_token=@auth_token, retries=@@dyn_retries)
+      resp, data = dyn_get("AllRecord/#{@zone}", auth_token, retries)
+      return data
+    end
+
+    def gen_timed_random_component
+      return Time.now.strftime("%m%d") << "-" << rand_str(3, :dns)
+    end
+
+    # @return [Time]
+    def time_from_tstamp(tstamp, now = nil)
+      now ||= Time.now
+      year = now.year
+      month = tstamp[0..1].to_i
+      day = tstamp[2..-1].to_i
+      time = Time.mktime(year, month, day)
+      if time > now
+        # seems like record from previous year
+        time = Time.mktime(year - 1, month, day)
+      end
+      return time
+    end
+
+    # @return Array of name, [Time], record_api_path
+    def get_timed_a_records(auth_token=@auth_token, retries=@@dyn_retries)
+      expr = %r%^/REST/ARecord/([^/]*)/((?:[^.][.])?([0-9]{4})-[^.]+[.]\1)/%
+      all = dyn_get_all_zone_records(auth_token, auth_token, retries)
+      now = Time.now
+      res = []
+      all.each { |rec|
+        m = rec.match expr
+        if m
+          name = m[2]
+          tstamp = time_from_tstamp(m[3], now)
+          record_api_path = rec.sub(%r%^/REST/%, "")
+          res << [name, tstamp, record_api_path]
+        end
+      }
+      return res
+    end
   end
 end
