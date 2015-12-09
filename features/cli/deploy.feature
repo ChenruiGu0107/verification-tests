@@ -519,7 +519,7 @@ Feature: deployment related features
       | deployment_config | hooks |
     Then the step should succeed
     And the output should match:
-      | hooks #1 deployment failed \\d+ seconds ago |
+      | hooks #1 deployment failed |
 
 
   # @author pruan@redhat.com
