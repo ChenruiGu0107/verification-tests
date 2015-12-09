@@ -93,7 +93,7 @@ module CucuShift
 
     def dyn_get_all_zone_records(auth_token=@auth_token, retries=@@dyn_retries)
       resp, data = dyn_get("AllRecord/#{@zone}", auth_token, retries)
-      return data
+      return data["data"]
     end
 
     def gen_timed_random_component
@@ -114,10 +114,10 @@ module CucuShift
       return time
     end
 
-    # @return Array of name, [Time], record_api_path
-    def get_timed_a_records(auth_token=@auth_token, retries=@@dyn_retries)
+    # @return [Array] of name, [Time], record_api_path
+    def dyn_get_timed_a_records(auth_token=@auth_token, retries=@@dyn_retries)
       expr = %r%^/REST/ARecord/([^/]*)/((?:[^.][.])?([0-9]{4})-[^.]+[.]\1)/%
-      all = dyn_get_all_zone_records(auth_token, auth_token, retries)
+      all = dyn_get_all_zone_records(auth_token, retries)
       now = Time.now
       res = []
       all.each { |rec|
@@ -130,6 +130,32 @@ module CucuShift
         end
       }
       return res
+    end
+
+    # @param time [Time] the time records should be older than
+    # @param records [Array] of name, [Time], record_api_path
+    # @return [Array] of name, [Time], record_api_path (of older records)
+    def records_older_than(time, records)
+      records.select { |r|
+        r[1] < time
+      }
+    end
+
+    # @param records [Array<String>] api records paths
+    def dyn_delete_records(records, auth_token=@auth_token, retries=@@dyn_retries)
+      records.each { |r|
+        path = r.sub(%r%^/REST/%, '')
+        dyn_delete(path, auth_token, retries)
+      }
+    end
+
+    # @param time [Time] the time records should be older than
+    # @return [Array<String>] records that have been removed
+    def delete_older_timed_records(time, auth_token=@auth_token, retries=@@dyn_retries)
+      records = dyn_get_timed_a_records(auth_token, retries)
+      older = records_older_than(time, records).map { |r| r[2] }
+      dyn_delete_records(older, auth_token, retries)
+      return older
     end
   end
 end
