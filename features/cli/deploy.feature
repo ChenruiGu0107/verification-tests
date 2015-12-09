@@ -693,3 +693,40 @@ Feature: deployment related features
       | deployment_name | dc/hooks |
     Then the step should succeed
     And the output should contain "rolled back to hooks-4"
+
+  # @author pruan@redhat.com
+  # @case_id 483190
+  Scenario: Make multiple deployment by oc deploy
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | deploymentConfig |
+      | resource_name | hooks       |
+    Then the output should match:
+      |NAME\\s+TRIGGERS\\s+LATEST |
+      |hooks\\s+ConfigChange\\s+1 |
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest ||
+    Then the step should fail
+    And the output should contain:
+      | error |
+      | in progress |
+    Given I wait for the pod named "hooks-1-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest ||
+    Then the step should succeed
+    # Given I wait for the pod named "hooks-2-deploy" to die
+    When I run the :get client command with:
+      | resource | deploymentConfig |
+      | resource_name | hooks       |
+    Then the step should succeed
+    And the output should match:
+      |NAME\\s+TRIGGERS\\s+LATEST |
+      |hooks\\s+ConfigChange\\s+2 |
+    # This deviate form the testplan a little in that we are not doing more than one deploy, which should be sufficient since we are checking two deployments already (while the testcase called for 5)
+
+
