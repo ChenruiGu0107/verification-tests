@@ -421,7 +421,7 @@ Feature: deployment related features
     And the output should contain:
       | hooks #2 deployment pending on update |
       | hooks #1 deployment running |
-    And I wait until the status of deployment "hooks" becomes :running
+    And I wait until the status of deployment "hooks" becomes :complete
     And I run the :describe client command with:
       | resource | dc |
       | name     | hooks |
@@ -429,7 +429,7 @@ Feature: deployment related features
     And the output should match:
       | Latest Version:\\s+2|
       | Deployment\\s+#2\\s+ |
-      | Status:\\s+Running |
+      | Status:\\s+Complete |
       | Deployment #1:   |
       | Status:\\s+Complete |
 
