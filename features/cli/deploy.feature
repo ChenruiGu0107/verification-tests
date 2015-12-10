@@ -474,8 +474,7 @@ Feature: deployment related features
       | cancel            | true                        |
     Then the step should succeed
     And the output should contain:
-      | cancelled deployment #1 |
-    And I wait for the pod named "test-stop-failed-deployment-1-deploy" to die
+      | Cancelled deployment #1 |
     When  I run the :describe client command with:
       | resource | dc |
       | name     | test-stop-failed-deployment  |
@@ -489,7 +488,7 @@ Feature: deployment related features
       | cancel            | true                        |
     Then the step should succeed
     And the output should contain:
-      | no active deployments to cancel |
+      | No deployments are in progress |
     And I run the :deploy client command with:
       | deployment_config | test-stop-failed-deployment |
     Then the step should succeed
