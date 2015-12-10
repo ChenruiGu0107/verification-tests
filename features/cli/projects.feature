@@ -162,7 +162,7 @@ Feature: projects related features via cli
     Then the step should succeed
     And the output should contain:
       | WARNING |
-      | it does not look like a Docker registry has been integrated |
+      | No Docker registry has been configured with the server |
     Given the "ruby-hello-world-1" build was created
     When I run the :status client command
     Then the step should succeed
@@ -170,7 +170,7 @@ Feature: projects related features via cli
       | can't push to image |
       | Warning |
       | administrator has not configured the integrated Docker registry |
-      
+
   # @author yapei@redhat.com
   # @case_id 476297
   Scenario: Could delete all resources when delete the project   
