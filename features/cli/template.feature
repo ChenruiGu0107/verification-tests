@@ -18,7 +18,7 @@ Feature: template related scnearios:
       | error: template with source code explicitly attached is not supported - you must either specify the template and source code separately or attach an image to the source code using the '[image]~[code]' form |
     And I create a new application with:
       | template | ruby-helloworld-sample |
-      | code     | git://github.com/openshift/ruby-hello-world.git |
+      | code     | git://github.com/openshift/nodejs-ex |
     Then the step should succeed
 
   # @author pruan@redhat.com
