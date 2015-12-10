@@ -40,7 +40,12 @@ Feature: admin build related features
     When I run the :oadm_prune_builds client command with:
       | h ||
     Then the step should succeed
-    And the output should contain "removes older completed and failed builds"
+    And the output should contain:
+      | removes older completed and failed builds |
+      | --keep-younger-than=1h                    |
+      | --keep-failed=1                           |
+      | --keep-complete=5                         |
+      | --orphans=false                           |
     #Wait for the builds to finish:
     Given the "ruby-sample-build-1" build finished
     And the "ruby-sample-build-2" build finished
@@ -50,6 +55,12 @@ Feature: admin build related features
     And the "ruby-sample-build-6" build finished
     And the "ruby-sample-build-7" build finished
     And the "ruby-sample-build-8" build finished
+
+    # check default keep-younger option is more than 1 minute
+    When I run the :oadm_prune_builds admin command
+    Then the step should succeed
+    And the output should not match:
+      | <%= project.name %>\\s*ruby-sample-build- |
 
     # wait 60 sec so we can check the keep younger option
     Given 60 seconds have passed
@@ -63,20 +74,23 @@ Feature: admin build related features
       | <%= project.name %>\\s*ruby-sample-build- |
     And I save pruned builds in the "<%= project.name %>" project into the :pruned1 clipboard
 
-    When I run the :oadm_prune_builds admin command
-    Then the step should succeed
-    And the output should not match:
-      | <%= project.name %>\\s*ruby-sample-build- |
+    When I save project builds into the :builds_all clipboard
+    # get the builds non-selected for prunning
+    And evaluation of `cb.builds_all - cb.pruned1` is stored in the :builds clipboard
+    # non-selected completed builds are <= 5
+    Then the expression should be true> cb.builds.select{|b| b.status?(user: user, status: :complete)[:success]}.size <= 5
+    # non-selected failed builds are <= 1
+    And the expression should be true> cb.builds.select{|b| b.status?(user: user, status: [:failed, :error, :cancelled])[:success]}.size <= 1
 
-    Given I log the message> keep calm and get a coffee, waiting one hour to check default --keep-younger-than option
-    And 3600 seconds have passed
-    When I run the :oadm_prune_builds admin command
-    Then the step should succeed
-    And the output should match:
-      | <%= project.name %>\\s*ruby-sample-build- |
-    When I save pruned builds in the "<%= project.name %>" project into the :pruned2 clipboard
+    # Given I log the message> keep calm and get a coffee, waiting one hour to check default --keep-younger-than option
+    # And 3600 seconds have passed
+    # When I run the :oadm_prune_builds admin command
+    # Then the step should succeed
+    # And the output should match:
+    #   | <%= project.name %>\\s*ruby-sample-build- |
+    # When I save pruned builds in the "<%= project.name %>" project into the :pruned2 clipboard
     # the output from prune after one hour is same as previous prune
-    Then the expression should be true> cb.pruned1 == cb.pruned2
+    # Then the expression should be true> cb.pruned1.to_set == cb.pruned2.to_set
 
   # @author akostadi@redhat.com
   # @case_id 481682
@@ -157,7 +171,7 @@ Feature: admin build related features
 
 
     When I save pruned builds in the "<%= project.name %>" project into the :pruned2 clipboard
-    Then the expression should be true> cb.pruned1 == cb.pruned2
+    Then the expression should be true> cb.pruned1.to_set == cb.pruned2.to_set
 
     When I save project builds into the :builds clipboard
     # no pruned builds exist anymore
@@ -199,5 +213,5 @@ Feature: admin build related features
       | <%= project.name %>\\s*ruby-sample-build- |
 
     When I save pruned builds in the "<%= project.name %>" project into the :pruned2 clipboard
-    Then the expression should be true> cb.pruned1 == cb.pruned2
+    Then the expression should be true> cb.pruned1.to_set == cb.pruned2.to_set
     And the project should contain no builds
