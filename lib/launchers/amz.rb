@@ -4,12 +4,13 @@ require 'aws-sdk'
 
 require 'common'
 require 'host'
+require 'launchers/cloud_helper'
 
 module CucuShift
 
   class Amz_EC2
     include Common::Helper
-    # include Common::CloudHelper
+    include Common::CloudHelper
 
     def initialize(conf)
       awscred = nil
