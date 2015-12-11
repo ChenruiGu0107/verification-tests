@@ -3,20 +3,18 @@ Feature: create app on web console related
   # @author xxing@redhat.com
   # @case_id 497608
   Scenario: create app from template with custom build on web console
-    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    When I perform the :new_project web console action with:
-      | project_name | <%= cb.proj_name %> |
+    When I create a project via web with:
       | display_name | :null               |
       | description  ||
     Then the step should succeed
-    Given I use the "<%= cb.proj_name %>" project
+    Given I use the "<%= project.name %>" project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
     Then the step should succeed
     When I perform the :create_app_from_template web console action with:
-      | project_name  | <%= cb.proj_name %>    |
+      | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
-      | namespace     | <%= cb.proj_name %>    |
+      | namespace     | <%= project.name %>    |
       | param_one     | :null  |
       | param_two     | :null  |
       | param_three   | :null  |
@@ -26,7 +24,7 @@ Feature: create app on web console related
       | label_value   | test   |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
-    When I access the "/console/project/<%= cb.proj_name %>/browse/builds/ruby-sample-build" path in the web console
+    When I access the "/console/project/<%= project.name %>/browse/builds/ruby-sample-build" path in the web console
     Then the step should succeed
     And I get the html of the web page
     Then the output should contain "ruby-sample-build"
@@ -52,22 +50,20 @@ Feature: create app on web console related
   # @author xxing@redhat.com
   # @case_id 497529
   Scenario: Create app from template containing invalid type on web console
-    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    When I perform the :new_project web console action with:
-      | project_name | <%= cb.proj_name %> |
+    When I create a project via web with:
       | display_name | :null               |
       | description  ||
     Then the step should succeed
-    Given I use the "<%= cb.proj_name %>" project
+    Given I use the "<%= project.name %>" project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
     Given I replace resource "template" named "ruby-helloworld-sample" saving edit to "tempsti.json":
       | Service | Test |
     When I perform the :create_app_from_template web console action with:
-      | project_name  | <%= cb.proj_name %>    |
+      | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
-      | namespace     | <%= cb.proj_name %>    |
+      | namespace     | <%= project.name %>    |
       | param_one     | :null  |
       | param_two     | :null  |
       | param_three   | :null  |

@@ -32,6 +32,7 @@ When /^I create a new project(?: via (.*?))?$/ do |via|
     unless @result[:success]
       logger.warn("Project #{@result[:project].name} not visible on server after create")
     end
+    cache_browser(user.webconsole_executor) if via == "web"
   end
 end
 
@@ -45,6 +46,7 @@ When /^I create a project via (.+?) with:$/ do |via, table|
     unless @result[:success]
       logger.warn("Project #{@result[:project].name} not visible on server after create")
     end
+    cache_browser(user.webconsole_executor) if via == "web"
   end
 end
 

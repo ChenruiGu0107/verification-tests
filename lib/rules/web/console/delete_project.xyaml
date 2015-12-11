@@ -1,0 +1,26 @@
+--- # delete project related
+delete_project:
+  action: check_project_list
+  elements:
+  - selector:
+      xpath: //div[descendant::a[contains(@href,'<project_name>')]]//i
+    op: click
+  - selector:
+      text: Delete this project
+    type: button
+    op: click
+  - selector:
+      xpath: //strong[substring(text(), string-length(text()) - string-length("marked for deletion.") + 1)="marked for deletion."]
+cancel_delete_project:
+  action: check_project_list
+  elements:
+  - selector:
+      xpath: //div[descendant::a[contains(@href,'<project_name>')]]//i
+    op: click
+  - selector:
+      text: Cancel
+    type: button
+    op: click
+  - selector:
+      xpath: //div/div[1]/h2[@class="project"]/a
+    type: a
