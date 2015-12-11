@@ -18,9 +18,9 @@ Feature: rolling deployment related scenarios
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            | true  |
-    And the pod named "hooks-2-deploy" becomes ready
+    And the pod named "hooks-2-deploy" status becomes :running
+    #ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
-    Then the step should succeed
     And the output should contain:
       | keep 7 pods available, don't exceed 10 pods |
     And I wait for the pod named "hooks-2-deploy" to die
@@ -32,7 +32,6 @@ Feature: rolling deployment related scenarios
       | latest            | true  |
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
-    Then the step should succeed
     And the output should contain:
       | keep 5 pods available|
     And I wait for the pod named "hooks-3-deploy" to die
@@ -46,7 +45,6 @@ Feature: rolling deployment related scenarios
     Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
     # And I run the :logs client command with:
     #   | pod_name | hooks-4-deploy |
-    Then the step should succeed
     And the output should contain:
       | keep 2 pods available |
 
@@ -91,7 +89,6 @@ Feature: rolling deployment related scenarios
       | latest            | true  |
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
-    Then the step should succeed
     And the output should contain:
       | keep 7 pods available, don't exceed 10 pods |
     And I wait for the pod named "hooks-2-deploy" to die
@@ -103,7 +100,6 @@ Feature: rolling deployment related scenarios
       | latest            | true  |
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
-    Then the step should succeed
     And the output should contain:
       | keep 7 pods available, don't exceed 13 pods |
     And I wait for the pod named "hooks-3-deploy" to die
@@ -115,7 +111,6 @@ Feature: rolling deployment related scenarios
       | latest            | true  |
     And the pod named "hooks-4-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
-    Then the step should succeed
     And the output should contain:
       | keep 7 pods available, don't exceed 16 pods |
 

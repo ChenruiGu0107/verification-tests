@@ -228,6 +228,7 @@ Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |po
     end
   }
   res_cache ||= res
+  logger.info(res_cache[:stdout])
   res_cache[:success] = success
   @result  = res_cache
 end
