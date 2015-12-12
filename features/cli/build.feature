@@ -195,7 +195,7 @@ Feature: build 'apps' with CLI
       | Build logs for ruby-sample-build-2 |
     # "cancelled" comes quickly after "failed" status, wait
     # "failed" has the same meaning
-    And the "ruby-sample-build-2" build failed
+    Given the "ruby-sample-build-2" build was cancelled
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
@@ -205,7 +205,7 @@ Feature: build 'apps' with CLI
       | dump_logs  | true                |
     Then the output should contain:
       | Build logs for ruby-sample-build-3 |
-    And the "ruby-sample-build-3" build failed
+    Given the "ruby-sample-build-3" build was cancelled
     When I run the :get client command with:
       | resource | build |
     # Should contain the new start build
