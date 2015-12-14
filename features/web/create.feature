@@ -151,3 +151,76 @@ Feature: create app on web console related
     Then the output should contain:
       | Command line tools  |
       | Making code changes |
+
+  # @author wsun@redhat.com
+  # @case_id 489286
+  Scenario: Create the app with invalid name
+    Given I login via web console
+    Given I have a project
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | nodejs                                     |
+      | image_tag    | 0.10                                       |
+      | namespace    | openshift                                  |
+      | app_name     | nodejs-sample                              |
+      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    Then the step should succeed
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | nodejs                                     |
+      | image_tag    | 0.10                                       |
+      | namespace    | openshift                                  |
+      | app_name     | AA                                         |
+      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    Then the step should fail
+    When I get the html of the web page
+    Then the output should contain:
+      | Please enter a valid name. |
+      | A valid name is applied to all generated resources. It is an alphanumeric (a-z, and 0-9) string with a maximum length of 24 characters, where the first character is a letter (a-z), and the '-' character is allowed anywhere except the first or last character. |
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | nodejs                                     |
+      | image_tag    | 0.10                                       |
+      | namespace    | openshift                                  |
+      | app_name     | -test                                      |
+      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    Then the step should fail
+    When I get the html of the web page
+    Then the output should contain:
+      | Please enter a valid name. |
+      | A valid name is applied to all generated resources. It is an alphanumeric (a-z, and 0-9) string with a maximum length of 24 characters, where the first character is a letter (a-z), and the '-' character is allowed anywhere except the first or last character. |
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | nodejs                                     |
+      | image_tag    | 0.10                                       |
+      | namespace    | openshift                                  |
+      | app_name     | test-                                      |
+      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    Then the step should fail
+    When I get the html of the web page
+    Then the output should contain:
+      | Please enter a valid name. |
+      | A valid name is applied to all generated resources. It is an alphanumeric (a-z, and 0-9) string with a maximum length of 24 characters, where the first character is a letter (a-z), and the '-' character is allowed anywhere except the first or last character. |
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | nodejs                                     |
+      | image_tag    | 0.10                                       |
+      | namespace    | openshift                                  |
+      | app_name     | 123456789                                  |
+      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    Then the step should fail
+    When I get the html of the web page
+    Then the output should contain:
+      | Please enter a valid name. |
+      | A valid name is applied to all generated resources. It is an alphanumeric (a-z, and 0-9) string with a maximum length of 24 characters, where the first character is a letter (a-z), and the '-' character is allowed anywhere except the first or last character. |
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | nodejs                                     |
+      | image_tag    | 0.10                                       |
+      | namespace    | openshift                                  |
+      | app_name     | nodejs-sample                              |
+      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    Then the step should fail
+    When I get the html of the web page
+    Then the output should contain:
+      | This name is already in use within the project. Please choose a different name. |
