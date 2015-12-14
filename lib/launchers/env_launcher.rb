@@ -83,7 +83,7 @@ module CucuShift
                         app_domain: nil, host_domain: nil,
                         rhel_base_repo: nil,
                         deployment_type:,
-                        crt_path:,
+                        crt_path: '/etc/origin',
                         image_pre:,
                         puddle_repo:,
                         network_plugin:,
@@ -103,6 +103,34 @@ module CucuShift
       hosts = spec_to_hosts(hosts_spec, ssh_key: ssh_key, ssh_user: ssh_user)
       hostnames_str, ips_str = hosts_to_specstr(hosts)
       logger.info hosts.to_yaml
+
+      ose3_vars = []
+      etcd_host_lines = []
+      master_host_lines = []
+      node_host_lines = []
+      lb_host_lines = []
+
+      if deployment_type.include? ':'
+        openshift_pkg_version=deployment_type.split(':')[0]
+        deployment_type=deployment_type.split(':')[1]
+      end
+
+      # default cert dir is created by ansible installer:
+      # 3.0.z: /etc/openshift
+      # >=3.1: /etc/origin
+      # When user did not specify openshift package verson, the latest openshift rpm 
+      # would be installed.
+      if !openshift_pkg_version.empty?
+        if openshift_pkg_version.start_with? '3.0'
+          crt_path='/etc/openshift'
+        end
+        ose3_vars << "openshift_pkg_version=-#{openshift_pkg_version}"
+      end
+
+      if !customized_ansible_conf.empty?
+        ose3_vars << customized_ansible_conf
+      end
+
 
       conf_script_dir = File.join(File.dirname(__FILE__), 'env_scripts')
       conf_script_file = File.join(conf_script_dir, 'configure_env.sh')
@@ -155,10 +183,9 @@ module CucuShift
       node_host_lines = []
       lb_host_lines = []
 
-      if deployment_type.include? ':'
-          openshift_pkg_version=deployment_type.split(':')[0]
-          deployment_type=deployment_type.split(':')[1]
-          ose3_vars << "openshift_pkg_version=-#{openshift_pkg_version}"
+
+      if !openshift_pkg_version.empty?
+        ose3_vars << "openshift_pkg_version=-#{openshift_pkg_version}"
       end
       if !customized_ansible_conf.empty?
         ose3_vars << customized_ansible_conf
@@ -440,7 +467,7 @@ module CucuShift
       # that means to remove extra `\` chars
       ENV['IMAGE_PRE'] = ENV['IMAGE_PRE'].gsub(/\\\${/,'${') if ENV['IMAGE_PRE']
 
-      keys = [:crt_path, :deployment_type,
+      keys = [:deployment_type,
               :hosts_spec, :auth_type,
               :ssh_key, :ssh_user,
               :app_domain, :host_domain,
