@@ -8,12 +8,26 @@ Feature: custombuild.feature
      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
    Then the step should succeed
    And I create a new application with:
-      | template | ruby-helloworld-sample |
+     | template | ruby-helloworld-sample |
    Then the step should succeed
    And the "ruby-sample-build-1" build was created
    And the "ruby-sample-build-1" build completed
    And all pods in the project are ready
-   And I expose the "frontend" service
-   And I wait for a server to become available via the route
-   And I wait for a server to become available via the "route" route
-   Then the output should contain "<output>"
+   When I run the :get client command with:
+     | resource      | service  |
+     | resource_name | frontend |
+     | o             | json     |  
+   Then the step should succeed
+   And the output is parsed as JSON
+   And evaluation of `@result[:parsed]['spec']['clusterIP']` is stored in the :service_ip clipboard
+   When I run the :get client command with:
+     | resource | pods  |
+     | o        | json  |
+   Then the step should succeed
+   And the output is parsed as JSON
+   Given evaluation of `@result[:parsed]['items'][1]['metadata']['name']` is stored in the :pod_name clipboard
+   When I run the :exec client command with:
+      | pod | <%= cb.pod_name %> |
+      | exec_command | curl |
+      | exec_command_arg | <%= cb.service_ip%>:5432 |
+   Then the output should contain "Hello from OpenShift v3"   
