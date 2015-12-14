@@ -131,7 +131,6 @@ module CucuShift
         ose3_vars << customized_ansible_conf
       end
 
-
       conf_script_dir = File.join(File.dirname(__FILE__), 'env_scripts')
       conf_script_file = File.join(conf_script_dir, 'configure_env.sh')
 
@@ -176,22 +175,6 @@ module CucuShift
       else
         identity_providers = "[{'name': 'basicauthurl', 'login': 'true', 'challenge': 'true', 'kind': 'BasicAuthPasswordIdentityProvider', 'url': 'https://<serviceIP>:8443/validate', 'ca': '#{crt_path}master/ca.crt'}]"
       end
-
-      ose3_vars = []
-      etcd_host_lines = []
-      master_host_lines = []
-      node_host_lines = []
-      lb_host_lines = []
-
-
-      if !openshift_pkg_version.empty?
-        ose3_vars << "openshift_pkg_version=-#{openshift_pkg_version}"
-      end
-      if !customized_ansible_conf.empty?
-        ose3_vars << customized_ansible_conf
-      end
-
-
 
       ## lets sanity check auth type
       if auth_type != "LDAP" && hosts["master"].size > 1
