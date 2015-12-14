@@ -113,6 +113,8 @@ module CucuShift
       if deployment_type.include? ':'
         openshift_pkg_version=deployment_type.split(':')[0]
         deployment_type=deployment_type.split(':')[1]
+      else
+        openshift_pkg_version=""
       end
 
       # default cert dir is created by ansible installer:
