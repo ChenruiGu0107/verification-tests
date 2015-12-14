@@ -83,7 +83,7 @@ module CucuShift
                         app_domain: nil, host_domain: nil,
                         rhel_base_repo: nil,
                         deployment_type:,
-                        crt_path: '/etc/origin',
+                        crt_path: nil,
                         image_pre:,
                         puddle_repo:,
                         network_plugin:,
@@ -110,23 +110,29 @@ module CucuShift
       node_host_lines = []
       lb_host_lines = []
 
-      if deployment_type.include? ':'
-        openshift_pkg_version=deployment_type.split(':')[0]
-        deployment_type=deployment_type.split(':')[1]
+      dt1, dt2 = deployment_type.split(':', 2)
+      case
+      when dt2 && dt1 =~ /^[0-9.]*$/
+        openshift_pkg_version = dt1
+        deployment_type = dt2
+      when !dt2
+        # all is fine, non-versioned
       else
-        openshift_pkg_version=""
+        raise "invalid deployment type string: #{deployment_type}"
       end
 
       # default cert dir is created by ansible installer:
       # 3.0.z: /etc/openshift
       # >=3.1: /etc/origin
-      # When user did not specify openshift package verson, the latest openshift rpm 
-      # would be installed.
+      # When user did not specify openshift package verson, the latest
+      # OpenShift RPM would be installed.
       if !openshift_pkg_version.empty?
-        if openshift_pkg_version.start_with? '3.0'
-          crt_path='/etc/openshift'
-        end
         ose3_vars << "openshift_pkg_version=-#{openshift_pkg_version}"
+      end
+
+      if crt_path.nil? || crt_path.empty?
+        crt_path = openshift_pkg_version.start_with?('3.0') ?
+                                             '/etc/openshift' : '/etc/origin'
       end
 
       if !customized_ansible_conf.empty?
@@ -452,7 +458,7 @@ module CucuShift
       # that means to remove extra `\` chars
       ENV['IMAGE_PRE'] = ENV['IMAGE_PRE'].gsub(/\\\${/,'${') if ENV['IMAGE_PRE']
 
-      keys = [:deployment_type,
+      keys = [:crt_path, :deployment_type,
               :hosts_spec, :auth_type,
               :ssh_key, :ssh_user,
               :app_domain, :host_domain,
