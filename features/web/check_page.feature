@@ -46,3 +46,24 @@ Feature: check page info related
     When I download a file from "https://<%= env.opts[:hosts].slice(/.*.com/) %>:8443/console/config.js"
     Then the step should succeed
     And the output should match "oauth_authorize_uri:\s+"https?:\/\/.+""
+
+  # @author wsun@redhat.com
+  # case_id 479002
+  Scenario: Check Events page
+    Given I login via web console
+    Given I have a project
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | nodejs                                     |
+      | image_tag    | 0.10                                       |
+      | namespace    | openshift                                  |
+      | app_name     | nodejs-sample                              |
+      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should contain:
+      | Command line tools  |
+      | Making code changes |
+    When I perform the :check_events_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
