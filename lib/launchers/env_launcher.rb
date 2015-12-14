@@ -155,9 +155,15 @@ module CucuShift
       node_host_lines = []
       lb_host_lines = []
 
-     if !customized_ansible_conf.empty?
-       ose3_vars << customized_ansible_conf
-     end
+      if deployment_type.include? ':'
+          openshift_pkg_version=deployment_type.split(':')[0]
+          deployment_type=deployment_type.split(':')[1]
+          ose3_vars << "openshift_pkg_version=-#{openshift_pkg_version}"
+      end
+      if !customized_ansible_conf.empty?
+        ose3_vars << customized_ansible_conf
+      end
+
 
 
       ## lets sanity check auth type
@@ -439,7 +445,7 @@ module CucuShift
               :ssh_key, :ssh_user,
               :app_domain, :host_domain,
               :rhel_base_repo,
-              :dns, :deployment_type,
+              :dns,
               :image_pre,
               :puddle_repo, :network_plugin,
               :etcd_num, :registry_ha,
