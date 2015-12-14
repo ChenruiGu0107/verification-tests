@@ -13,6 +13,7 @@ Feature: custombuild.feature
    And the "ruby-sample-build-1" build was created
    And the "ruby-sample-build-1" build completed
    And all pods in the project are ready
-   When I use the "ruby-sample-build" service
-   Then I wait for a server to become available via the "ruby-sample-build" route
+   And I expose the "frontend" service
+   And I wait for a server to become available via the route
+   And I wait for a server to become available via the "route" route
    Then the output should contain "<output>"
