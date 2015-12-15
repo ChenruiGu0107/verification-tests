@@ -15,8 +15,7 @@ Feature: new-app with --search option
     And I run the :create client command with:
       |f| https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-ephemeral-template.json|
     Then the step should succeed
-    When I run the :new_app client command with:
-      ||
+    When I run the :new_app client command
     Then the output should contain:
       | $ oc new-app -S php |
       | $ oc new-app -S --template=ruby |
