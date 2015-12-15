@@ -209,7 +209,6 @@ Given /^I replace resource "([^"]+)" named "([^"]+)"(?: saving edit to "([^"]+)"
     | f | #{filename} |
     })
 end
-
 # wrapper around  oc logs, keep executing the command until we have an non-empty response
 # There are few occassion that the 'oc logs' cmd returned empty response
 #   this step should address those situations
@@ -222,13 +221,12 @@ Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |po
     res = user.cli_exec(:logs, **opts)
     if res[:response].include? 'not found'
       # the deploy pod has disappeared which mean we are done waiting.
-      break
+      true
     else #
       res_cache = res
+      false
     end
   }
-  res_cache ||= res
-  logger.info(res_cache[:stdout])
   res_cache[:success] = success
   @result  = res_cache
 end
