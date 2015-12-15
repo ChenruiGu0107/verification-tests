@@ -30,6 +30,16 @@ Given /^the pod(?: named "(.+)")? becomes ready$/ do |name|
   end
 end
 
+Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
+  status_timeout = 15 * 60
+  @result = pod(name).wait_till_status(status, user, status_timeout)
+
+  unless @result[:success]
+    logger.error(@result[:response])
+    raise "#{pod.name} pod did not become #{status}"
+  end
+end
+
 # for a rc that has multiple pods, oc describe currently doesn't support json/yaml output format, so do 'oc get pod' to get the status of each pod 
 Given /^all pods in the project are ready$/ do
   pods = project.pods(by:user)

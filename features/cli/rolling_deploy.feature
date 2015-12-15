@@ -6,7 +6,7 @@ Feature: rolling deployment related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
     And I wait until replicationController "hooks-1" is ready
-    And all pods in the project are ready
+    #And all pods in the project are ready
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | hooks-1                |
@@ -20,10 +20,9 @@ Feature: rolling deployment related scenarios
       | latest            | true  |
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
-    Then the step should succeed
     And the output should contain:
       | keep 7 pods available, don't exceed 10 pods |
-    And I wait for the pod named "hooks-2-deploy" to die
+    # And I wait for the pod named "hooks-2-deploy" to die
     And I replace resource "dc" named "hooks":
       | maxUnavailable: 25% | maxUnavailable: 50% |
     Then the step should succeed
@@ -32,10 +31,9 @@ Feature: rolling deployment related scenarios
       | latest            | true  |
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
-    Then the step should succeed
     And the output should contain:
       | keep 5 pods available|
-    And I wait for the pod named "hooks-3-deploy" to die
+    # And I wait for the pod named "hooks-3-deploy" to die
     And I replace resource "dc" named "hooks":
       | maxUnavailable: 50% | maxUnavailable: 80% |
     Then the step should succeed
@@ -46,7 +44,6 @@ Feature: rolling deployment related scenarios
     Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
     # And I run the :logs client command with:
     #   | pod_name | hooks-4-deploy |
-    Then the step should succeed
     And the output should contain:
       | keep 2 pods available |
 
@@ -77,7 +74,6 @@ Feature: rolling deployment related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
     And I wait until replicationController "hooks-1" is ready
-    And all pods in the project are ready
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | hooks-1                |
@@ -91,10 +87,8 @@ Feature: rolling deployment related scenarios
       | latest            | true  |
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
-    Then the step should succeed
     And the output should contain:
       | keep 7 pods available, don't exceed 10 pods |
-    And I wait for the pod named "hooks-2-deploy" to die
     And I replace resource "dc" named "hooks":
       | maxSurge: 0 | maxSurge: 30% |
     Then the step should succeed
@@ -103,10 +97,8 @@ Feature: rolling deployment related scenarios
       | latest            | true  |
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
-    Then the step should succeed
     And the output should contain:
       | keep 7 pods available, don't exceed 13 pods |
-    And I wait for the pod named "hooks-3-deploy" to die
     And I replace resource "dc" named "hooks":
       | maxSurge: 30% | maxSurge: 60% |
     Then the step should succeed
@@ -115,7 +107,6 @@ Feature: rolling deployment related scenarios
       | latest            | true  |
     And the pod named "hooks-4-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
-    Then the step should succeed
     And the output should contain:
       | keep 7 pods available, don't exceed 16 pods |
 
