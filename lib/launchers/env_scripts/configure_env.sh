@@ -434,7 +434,7 @@ function configure_auth()
     git clone https://github.com/xiama/basic-authentication-provider-example.git
     rm -rf secrets
     mkdir -p secrets
-    \cp basic-authentication-provider-example/examples/* secrets/
+    cp basic-authentication-provider-example/examples/* secrets/
     pushd secrets
     oadm ca create-server-cert --signer-cert=$CONF_CRT_PATH/master/ca.crt --signer-key=$CONF_CRT_PATH/master/ca.key  --signer-serial=$CONF_CRT_PATH/master/ca.serial.txt --cert=cert.crt --key=key.key --hostnames=$(oc get service -n basicauthurl|grep basicauthurl|awk '{print $4}')
     if [ x"$CONF_AUTH_TYPE" == x"KERBEROS" ]; then
@@ -451,7 +451,7 @@ EOF
     else
         sed -i -e "s/example.com/$CONF_KERBEROS_KDC/" -e 's/dc=example/dc=my-domain/g' ldap.conf
     fi
-    \cp $CONF_CRT_PATH/master/ca.crt .
+    cp $CONF_CRT_PATH/master/ca.crt .
     oc secrets new httpd-auth  conf=ldap.conf key=key.key cert=cert.crt ca=ca.crt
     oc secrets add serviceaccount/default secrets/httpd-auth --for=mount
     oc volume  dc/basic-authentication-provider-example --add --type=secret --secret-name=httpd-auth --mount-path=/etc/secret-volume

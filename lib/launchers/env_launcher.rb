@@ -83,7 +83,7 @@ module CucuShift
                         app_domain: nil, host_domain: nil,
                         rhel_base_repo: nil,
                         deployment_type:,
-                        crt_path:,
+                        crt_path: nil,
                         image_pre:,
                         puddle_repo:,
                         network_plugin:,
@@ -103,6 +103,41 @@ module CucuShift
       hosts = spec_to_hosts(hosts_spec, ssh_key: ssh_key, ssh_user: ssh_user)
       hostnames_str, ips_str = hosts_to_specstr(hosts)
       logger.info hosts.to_yaml
+
+      ose3_vars = []
+      etcd_host_lines = []
+      master_host_lines = []
+      node_host_lines = []
+      lb_host_lines = []
+
+      dt1, dt2 = deployment_type.split(':', 2)
+      case
+      when dt2 && dt1 =~ /^[0-9.]*$/
+        openshift_pkg_version = dt1
+        deployment_type = dt2
+      when !dt2
+        # all is fine, non-versioned
+      else
+        raise "invalid deployment type string: #{deployment_type}"
+      end
+
+      # default cert dir is created by ansible installer:
+      # 3.0.z: /etc/openshift
+      # >=3.1: /etc/origin
+      # When user did not specify openshift package verson, the latest
+      # OpenShift RPM would be installed.
+      if !openshift_pkg_version.empty?
+        ose3_vars << "openshift_pkg_version=-#{openshift_pkg_version}"
+      end
+
+      if crt_path.nil? || crt_path.empty?
+        crt_path = openshift_pkg_version.start_with?('3.0') ?
+                                             '/etc/openshift' : '/etc/origin'
+      end
+
+      if !customized_ansible_conf.empty?
+        ose3_vars << customized_ansible_conf
+      end
 
       conf_script_dir = File.join(File.dirname(__FILE__), 'env_scripts')
       conf_script_file = File.join(conf_script_dir, 'configure_env.sh')
@@ -148,17 +183,6 @@ module CucuShift
       else
         identity_providers = "[{'name': 'basicauthurl', 'login': 'true', 'challenge': 'true', 'kind': 'BasicAuthPasswordIdentityProvider', 'url': 'https://<serviceIP>:8443/validate', 'ca': '#{crt_path}master/ca.crt'}]"
       end
-
-      ose3_vars = []
-      etcd_host_lines = []
-      master_host_lines = []
-      node_host_lines = []
-      lb_host_lines = []
-
-     if !customized_ansible_conf.empty?
-       ose3_vars << customized_ansible_conf
-     end
-
 
       ## lets sanity check auth type
       if auth_type != "LDAP" && hosts["master"].size > 1
@@ -439,7 +463,7 @@ module CucuShift
               :ssh_key, :ssh_user,
               :app_domain, :host_domain,
               :rhel_base_repo,
-              :dns, :deployment_type,
+              :dns,
               :image_pre,
               :puddle_repo, :network_plugin,
               :etcd_num, :registry_ha,
