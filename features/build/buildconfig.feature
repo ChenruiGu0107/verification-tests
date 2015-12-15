@@ -17,9 +17,11 @@ Feature: buildconfig.feature
     And the output should contain "spec.output.to.kind: invalid value 'ImageStreamTag123'"
     When I replace resource "bc" named "php-sample-build":
       | Git | Git123 |
-    Then the step should fail
-    And the output should contain "spec.source.type: required value"
+    Then the step should succeed
+    And the output should contain "replaced"
+    And the output should not contain "Git123"
     When I replace resource "bc" named "php-sample-build":
       | Source | Source123 |
-    Then the step should fail
-    And the output should contain "spec.strategy.type: invalid value 'Source123'"
+    Then the step should succeed
+    And the output should contain "replaced"
+    And the output should not contain "Source123"
