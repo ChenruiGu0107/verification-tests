@@ -43,6 +43,6 @@ Feature: check page info related
   # @author cryan@redhat.com
   # case_id 467928
   Scenario: Check the login url in config.js
-    When I download a file from "https://<%= env.opts[:hosts].slice(/.*.com/) %>:8443/console/config.js"
+    When I download a file from "<%= env.api_endpoint_url %>/console/config.js"
     Then the step should succeed
     And the output should match "oauth_authorize_uri:\s+"https?:\/\/.+""
