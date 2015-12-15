@@ -398,8 +398,6 @@ module CucuShift
           'sh configure_env.sh configure_auth'
         )
       end
-      puts "jialiu", opts[:modify_IS_for_testing]
-      puts "jialiu", opts[:openstack_service_name]
       if modify_IS_for_testing
         if openstack_service_name == "openstack_bj"
           check_res hosts['master'][0].exec_admin(
@@ -475,8 +473,6 @@ module CucuShift
 
       opts[:registry_ha] = false unless to_bool(opts[:registry_ha])
       opts[:modify_IS_for_testing] = to_bool(opts[:modify_IS_for_testing])
-      puts "jialiu", opts[:modify_IS_for_testing]
-      puts "jialiu", opts[:openstack_service_name]
     end
 
     #def launch(**opts)
