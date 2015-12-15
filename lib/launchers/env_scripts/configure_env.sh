@@ -460,6 +460,11 @@ EOF
     systemctl restart openshift-master
     popd
 }
+function modify_IS_for_testing()
+{
+    wget http://git.app.eng.bos.redhat.com/git/openshift-misc.git/plain/v3-recreate-IS-for-testing.sh
+    sh v3-recreate-IS-for-testing.sh "$1"
+}
 
 #CONF_HOST_LIST=vaule
 #CONF_IP_LIST=value
@@ -524,6 +529,9 @@ case $1 in
 		configure_repos
 		yum update -y
 		;;
+        modify_IS_for_testing)
+                modify_IS_for_testing "$2"
+                ;;
 	*)
 		echo "Invalid Action: $1"
 esac

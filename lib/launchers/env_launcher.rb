@@ -92,6 +92,8 @@ module CucuShift
                         ansible_branch:,
                         ansible_url:,
                         customized_ansible_conf:,
+                        modify_IS_for_testing: false,
+                        openstack_service_name:,
                         kerberos_kdc: conf[:sercices, :test_kerberos, :kdc],
                         kerberos_keytab_url:
                           conf[:sercices, :test_kerberos, :keytab_url],
@@ -396,6 +398,17 @@ module CucuShift
           'sh configure_env.sh configure_auth'
         )
       end
+      if modify_IS_for_testing
+        if openstack_service_name == "openstack_bj"
+          check_res hosts['master'][0].exec_admin(
+            'sh configure_env.sh modify_IS_for_testing virt-openshift-05.lab.eng.nay.redhat.com:5000'
+          )
+        else
+          check_res hosts['master'][0].exec_admin(
+            'sh configure_env.sh modify_IS_for_testing rcm-img-docker01.build.eng.bos.redhat.com:5001'
+          )
+        end
+      end
     ensure
       # Host clean_up
       if defined?(hosts) && hosts.kind_of?(Hash)
@@ -445,6 +458,8 @@ module CucuShift
               :etcd_num, :registry_ha,
               :ansible_branch, :ansible_url,
               :customized_ansible_conf,
+              :modify_IS_for_testing,
+              :openstack_service_name,
               :kerberos_docker_base_image,
               :kerberos_kdc, :kerberos_keytab_url,
               :kerberos_docker_base_image,
