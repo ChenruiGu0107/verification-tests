@@ -68,18 +68,35 @@ optional_classes:
     opts: {}
 services:
   AWS:
-    # the actual key-pair name is under the private repo and will be over-written
-    key_pair: "secret_key_pair"
-    instance_type: "m3.medium"
-    min_count: 1
-    max_count: 1
-    #instance_type: "c4.large"
-    zone: "us-east-1d"
-    region: "us-east-1"
-    qe_ready: "qe-ready"
-    fedora: "devenv-fedora_*"
-    centos7: "devenv-centos7_*"
-    rhel7: "devenv-rhel7_*"
-    rhel7next: "devenv-rhel7next_*"
-    devenv_wildcard: "devenv-*"
-    stable_ami: "devenv-stage-*"
+    create_opts:
+      # for all options see http://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Resource.html#create_instances-instance_method
+      # the actual key-pair name is under the private repo and will be over-written
+      key_name: "secret_key_pair"
+      #instance_type: "c4.large"
+      instance_type: "m3.medium"
+      #image_id: my_image_id
+      #subnet_id: my_subnet_id
+      #placement:
+      #  availability_zone: "us-east-1d"
+      min_count: 1
+      max_count: 1
+      #security_groups: ["String"]
+      #security_group_ids: ["String"]
+      #block_device_mappings:
+      #- device_name: "/dev/sda1"
+      #  ebs:
+      #    volume_size: 30
+
+    config_opts:
+      region: "us-east-1"
+
+    tag_ready: "qe-ready"
+    ami_types:
+      fedora: "devenv-fedora_*"
+      centos7: "devenv-centos7_*"
+      rhel7: "devenv-rhel7_*"
+      rhel7next: "devenv-rhel7next_*"
+      devenv_wildcard: "devenv-*"
+      stable_ami: "devenv-stage-*"
+    hosts_type: SSHAccessibleHost
+    #ssh_private_key: relative/path
