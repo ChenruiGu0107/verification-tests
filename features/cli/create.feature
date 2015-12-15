@@ -244,3 +244,34 @@ Feature: creating 'apps' with CLI
     When I run the :get client command with:
       | resource | all |
     Then the project should be empty
+
+  # @author yadu@redhat.com
+  # @case_id 510959
+  Scenario: Debugging a Service
+    Given I have a project
+    When I run the :create client command with:
+       |f| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :get client command with:
+       | resource | pod |
+    Then the step should succeed
+    And the output should contain:
+       | Running |
+    When I run the :get client command with:
+       | resource | service |
+    Then the step should succeed
+    And the output should contain:
+       | test-service |
+       | name=test-pods |
+    When I run the :get client command with:
+       | resource | endpoints |
+    And the output should contain:
+       | test-service |
+    Given I wait for the "test-service" service to become ready
+    When I execute on the pod:
+       |curl|
+       |-k|
+       |<%= service.url %>|
+    Then the step should succeed
+    And the output should contain "Hello OpenShift!"
