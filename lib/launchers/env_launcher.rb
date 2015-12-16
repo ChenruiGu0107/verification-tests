@@ -91,8 +91,8 @@ module CucuShift
                         registry_ha:,
                         ansible_branch:,
                         ansible_url:,
-                        customized_ansible_conf:,
-                        modify_IS_for_testing:,
+                        customized_ansible_conf: "",
+                        modify_IS_for_testing: "",
                         kerberos_kdc: conf[:sercices, :test_kerberos, :kdc],
                         kerberos_keytab_url:
                           conf[:sercices, :test_kerberos, :keytab_url],
