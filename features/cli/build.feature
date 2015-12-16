@@ -119,17 +119,12 @@ Feature: build 'apps' with CLI
   # @case_id 491409
   Scenario: Create an application with multiple images and same repo
     Given I create a new project
-    And I create a new project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
-    Then the step should succeed
-    Given I use the "<%= @projects[0].name %>" project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
     When I run the :new_app client command with:
-      | image_stream | <%= @projects[0].name %>/ruby:2.2 |
-      | image_stream | <%= @projects[1].name %>/ruby:2.0 |
+      | image_stream | openshift/ruby |
+      | image_stream | <%= project.name %>/ruby:2.0 |
       | code         | https://github.com/openshift/ruby-hello-world |
       | l            | app=test |
     When I run the :get client command with:
@@ -142,26 +137,26 @@ Feature: build 'apps' with CLI
       | resource | buildConfig      |
       | name     | ruby-hello-world |
     Then the output should match:
-      | Image Reference:\\s+ImageStreamTag <%= Regexp.escape(@projects[0].name) %>/ruby:2.2 |
+      | ImageStreamTag openshift/ruby:latest |
     When I run the :describe client command with:
       | resource | buildConfig      |
       | name     | ruby-hello-world-1 |
     Then the output should match:
-      | Image Reference:\\s+ImageStreamTag <%= Regexp.escape(@projects[1].name) %>/ruby:2.0 |
+      | ImageStreamTag <%= Regexp.escape(project.name) %>/ruby:2.0 |
     Given the "ruby-hello-world-1" build completed
     Given the "ruby-hello-world-1-1" build completed
     Given I wait for the "ruby-hello-world" service to become ready
     When I execute on the pod:
-      | bash                       |
-      | -c                         |
-      | curl -k <%= service.url %> |
+      | curl                       |
+      | -k                         |
+      | <%= service.url %>         |
     Then the step should succeed
     And the output should contain "Demo App"
     Given I wait for the "ruby-hello-world-1" service to become ready
     When I execute on the pod:
-      | bash                       |
-      | -c                         |
-      | curl -k <%= service.url %> |
+      | curl                       |
+      | -k                         |
+      | <%= service.url %>         |
     Then the step should succeed
     And the output should contain "Demo App"
 
