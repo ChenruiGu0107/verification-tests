@@ -118,15 +118,15 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
     When I execute on the pod:
-      | bash                       |
-      | -c                         |
-      | curl -k <%= service.url %> |
+      | curl              |
+      | -k                |
+      |<%= service.url %> |
     Then the step should succeed
     And the output should contain "Demo App"
     Given I wait for the "database" service to become ready
     When I execute on the pod:
-      | bash                                                           |
-      | -c                                                             |
+      | bash |
+      | -c   |
       | mysql -h <%= service.ip %> -P5434 -uadmin -padmin -e 'show databases;'|
     Then the step should succeed
     And the output should contain "xxingtest"

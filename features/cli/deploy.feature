@@ -327,7 +327,7 @@ Feature: deployment related features
       | resource | pod |
     Then the output should match:
       | READY\\s+STATUS |
-      | 1/1\\s+Running  |
+      | (Running)?(Pending)?  |
     When I run the :get client command with:
       | resource      | deploymentConfig |
       | resource_name | hooks |
@@ -340,7 +340,7 @@ Feature: deployment related features
       | deployment_config | hooks |
       | enable_triggers   ||
     Then the output should contain:
-      | enabled image triggers |
+      | Enabled image triggers |
 
   # @author pruan@redhat.com
   # @case_id 483192
