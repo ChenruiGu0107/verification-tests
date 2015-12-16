@@ -60,16 +60,14 @@ Feature: Check oc status cli
       |f|application-template-stibuild.json|
     And the step should succeed
     And I save the output to file> processed-stibuild.json
-
     When I run the :create client command with:
       |f|processed-stibuild.json|
     Then the step should succeed
     And I run the :status client command
     Then the step should succeed
     And the output should match:
-      |n\s+project\s+<%= Regexp.escape(project.name) %>|
-      |service/database\s+-\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\d+\s+->\s+3306|
-      |service/frontend\s+-\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\d+\s+->\s+8080|
+      |svc\/database\\s+-\\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\\d+\\s+->\\s+3306|
+      |svc\/frontend\\s+-\\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\\d+\\s+->\\s+8080|
       |not built yet\|1 build pending\|1 build new|
       |deployment|
 
