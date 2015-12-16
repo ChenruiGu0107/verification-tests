@@ -111,6 +111,7 @@ module CucuShift
       lb_host_lines = []
 
       dt1, dt2 = deployment_type.split(':', 2)
+      openshift_pkg_version = ''
       case
       when dt2 && dt1 =~ /^[0-9.]*$/
         openshift_pkg_version = dt1
