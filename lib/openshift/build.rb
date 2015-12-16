@@ -7,6 +7,8 @@ module CucuShift
     include Common::UserObjectHelper
     extend  Common::BaseHelper
 
+    TERMINAL_STATUSES = [:complete, :failed, :cancelled, :error]
+
     attr_reader :props, :name, :project
 
     # @param name [String] name of the build
@@ -110,7 +112,7 @@ module CucuShift
     # @return [CucuShift::ResultHash] :success if build completes regardless of
     #   completion status
     def finished?(user:)
-      status?(user: user, status: [:complete, :failed, :cancelled, :error])
+      status?(user: user, status: TERMINAL_STATUSES)
     end
 
     # @return [CucuShift::ResultHash] with :success depending on status
@@ -164,12 +166,30 @@ module CucuShift
       res = nil
       success = wait_for(seconds) {
         res = status?(user: user, status: status)
-        # if build completed there's no chance to change status so exit early
-        break if [:complete, :failed, :cancelled, :error].include?(res[:matched_status])
+        # if build finished there's little chance to change status so exit early
+        if !res[:success] && !status_can_change?(res[:matched_status], status)
+          break
+        end
         res[:success]
       }
 
       return res
+    end
+
+    # @param from_status [Symbol] the status we currently see
+    # @param to_status [Array, Symbol] the status(es) we check whether current
+    #   status can change to
+    # @return [Boolean] true if it is possible to transition between the
+    #   specified statuses (same -> same is not a transition)
+    def status_can_change?(from_status, to_status)
+      if TERMINAL_STATUSES.include?(from_status)
+        if from_status == :failed &&
+            [ to_status ].flatten.include?(:cancelled)
+          return true
+        end
+        return false
+      end
+      return true
     end
 
     def wait_to_appear(user, seconds)
