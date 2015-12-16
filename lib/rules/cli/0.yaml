@@ -215,7 +215,7 @@
   :expected:
     - !ruby/regexp '/Logged ".+" out on/'
 :logs:
-  :cmd: oc logs <pod_name>
+  :cmd: oc logs <resource_name>
   :options:
     :c: -c <value>
     :f: -f

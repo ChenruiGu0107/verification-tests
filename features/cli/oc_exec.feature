@@ -43,7 +43,7 @@ Feature: containers related features
       | NAME           |
       | hello-openshift|
     When I run the :logs client command with:
-      | pod_name | hello-openshift |
+      | resource_name | hello-openshift |
     Then the output should contain:
       | Started, serving at 8080 |
 
