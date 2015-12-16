@@ -88,6 +88,8 @@
   :cmd: oc config view
   :options:
     :output: --output=<value>
+    :flatten: --flatten
+    :minify: --minify
   :expected:
     - "apiVersion: v"
     - "kind: Config"

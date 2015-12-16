@@ -208,7 +208,9 @@ Feature: config related scenarios
     And I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json|
     Then the step should succeed
-    When I run the :config_view client command
+    When I run the :config_view client command with:
+      |flatten||
+      |minify||
     And the output is parsed as YAML
     And I save the output to file> user1.kubeconfig
     And I switch to the second user
