@@ -89,7 +89,6 @@ module CucuShift
                         network_plugin:,
                         etcd_num:,
                         registry_ha:,
-                        ansible_branch:,
                         ansible_url:,
                         customized_ansible_conf:,
                         kerberos_kdc: conf[:sercices, :test_kerberos, :kdc],
@@ -373,7 +372,7 @@ module CucuShift
       # finally run download repo and run ansible (this is in workdir)
       # we need git and ansible available pre-installed
       check_res Host.localhost.exec(
-        "git clone #{ansible_url} -b #{ansible_branch}"
+        "git clone #{ansible_url}"
       )
       res = nil
       ENV["ANSIBLE_FORCE_COLOR"] = "true"
@@ -467,7 +466,7 @@ module CucuShift
               :image_pre,
               :puddle_repo, :network_plugin,
               :etcd_num, :registry_ha,
-              :ansible_branch, :ansible_url,
+              :ansible_url,
               :customized_ansible_conf,
               :kerberos_docker_base_image,
               :kerberos_kdc, :kerberos_keytab_url,
