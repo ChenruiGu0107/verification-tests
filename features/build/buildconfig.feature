@@ -25,3 +25,21 @@ Feature: buildconfig.feature
     Then the step should succeed
     And the output should contain "replaced"
     And the output should not contain "Source123"
+
+    # @author wzheng@redhat.com
+    # @case_id 508799
+    Scenario: Build go failed if pending time exceeds completionDeadlineSeconds limitation
+      Given I have a project
+      When I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sourcebuildconfig.json |
+      Then the step should succeed
+      When I run the :describe client command with:
+        | resource | buildconfig  |
+        | name     | source-build |
+      Then the step should succeed
+      And the output should contain "Fail Build After:	5s"
+      When I run the :start_build client command with:
+        | buildconfig | source-build |
+      Then the step should succeed
+      And the "source-build-1" build was created
+      And the "source-build-1" build failed
