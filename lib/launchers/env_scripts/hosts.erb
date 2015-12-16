@@ -12,7 +12,6 @@ oreg_url=<%=image_pre%>
 # Pre-release additional repo
 openshift_additional_repos=[{'id': 'ose-devel', 'name': 'ose-devel', 'baseurl': '<%=puddle_repo%>', 'enabled': 1, 'gpgcheck': 0}]
 openshift_use_openshift_sdn=true
-os_sdn_network_plugin_name=<%=network_plugin%>
 osm_default_subdomain=<%=app_domain%>
 openshift_master_identity_providers=<%=identity_providers%>
 <%=ose3_vars.join("\n")%>
