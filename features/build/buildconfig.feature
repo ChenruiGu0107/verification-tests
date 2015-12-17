@@ -26,20 +26,52 @@ Feature: buildconfig.feature
     And the output should contain "replaced"
     And the output should not contain "Source123"
 
-    # @author wzheng@redhat.com
-    # @case_id 508799
-    Scenario: Build go failed if pending time exceeds completionDeadlineSeconds limitation
-      Given I have a project
-      When I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sourcebuildconfig.json |
-      Then the step should succeed
-      When I run the :describe client command with:
-        | resource | buildconfig  |
-        | name     | source-build |
-      Then the step should succeed
-      And the output should contain "Fail Build After:	5s"
-      When I run the :start_build client command with:
-        | buildconfig | source-build |
-      Then the step should succeed
-      And the "source-build-1" build was created
-      And the "source-build-1" build failed
+  # @author wzheng@redhat.com
+  # @case_id 508799
+  Scenario: Build go failed if pending time exceeds completionDeadlineSeconds limitation
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sourcebuildconfig.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | buildconfig  |
+      | name     | source-build |
+    Then the step should succeed
+    And the output should contain "Fail Build After:	5s"
+    When I run the :start_build client command with:
+      | buildconfig | source-build |
+    Then the step should succeed
+    And the "source-build-1" build was created
+    And the "source-build-1" build failed
+
+  # @author wzheng@redhat.com
+  # @case_id 470423
+  Scenario: Start build from buildConfig/build
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby:2.2 |
+      | app_repo     | https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-2" build completed
+    When I run the :start_build client command with:
+      | from_build | ruby-hello-world-2 |
+    Then the step should succeed
+    And the "ruby-hello-world-3" build was created
+    And the "ruby-hello-world-3" build completed
+
+  # @author wzheng@redhat.com
+  # @case_id 470420
+  Scenario: Start build from invalid/blank buildConfig/build
+    Given I have a project
+    When I run the :start_build client command with:
+      | buildconfig | invalid | 
+    Then the step should fail
+    And the output should contain "buildconfig "invalid" not found"
+    When I run the :start_build client command with:
+      | from_build| invalid |
+    Then the step should fail
+    And the output should contain "build "invalid" not found"
