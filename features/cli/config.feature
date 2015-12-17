@@ -202,6 +202,7 @@ Feature: config related scenarios
       | current-context: context-label2 |
 
   # @author yanpzhan@redhat.com
+  # @note expected to only work with token auth user kubeconfig
   # @case_id 477174
   Scenario: Kubeconfig file can be round-trip used
     Given I have a project
