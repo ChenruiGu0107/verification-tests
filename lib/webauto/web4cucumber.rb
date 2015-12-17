@@ -196,6 +196,9 @@ require 'watir-webdriver'
     alias handle_url goto_url
 
     def handle_element(element_rule, **user_opts)
+      unless element_rule.kind_of? Hash
+        raise "Element rules should be a Hash but is: #{element_rule.inspect}"
+      end
       # wait for element
       found, elements = wait_for_elements(element_rule.merge(
         # it's often useful to have paramaters inside selectors
@@ -230,6 +233,10 @@ require 'watir-webdriver'
     # @param user_opts [Hash] the options user provided for the operation, e.g.
     #   { :username => "my_username", :password => "my_password" }
     def handle_operation(element, op_spec, **user_opts)
+      unless op_spec.kind_of? String
+        raise "Op specification not a String: #{op_spec.inspect}"
+      end
+
       op, space, val = op_spec.partition(" ")
       val.gsub!(/<([a-z_]+?)>/) { |match|
         user_opts[match[1..-2].to_sym] || match
