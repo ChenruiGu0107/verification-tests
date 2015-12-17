@@ -460,6 +460,37 @@ EOF
     systemctl restart openshift-master
     popd
 }
+function modify_IS_for_testing()
+{
+  if [ $# -lt 1 ]; then
+    echo "Usage: $0 [registry-server]"
+    exit 1
+  fi
+
+  local registry_server="${1}"
+  local cmd="oc delete is --all -n openshift"
+  echo "Command: $cmd"
+  eval "$cmd"
+  cmd="oc delete images --all"
+  echo "Command: $cmd"
+  eval "$cmd"
+
+  local file1="/usr/share/openshift/examples/xpaas-streams/jboss-image-streams.json"
+  local file2="/usr/share/openshift/examples/xpaas-streams/jboss-image-streams.json"
+  cp "${file1}" "${file1}.bak"
+  for line_num in $(grep -n 'name' ${file1} | grep -v 'latest' | grep -v '[0-9]",' | grep -v 'jboss-image-streams' | awk -F':' '{print $1}'); do
+    sed -i "${line_num}s|\(.*\)|\1,\"annotations\": { \"openshift.io/image.insecureRepository\": \"true\"}|g" ${file1}
+  done
+  cp "${file2}" "${file2}.bak"
+  for line_num in $(grep -n 'name' ${file2} | grep -v 'latest' | grep -v '[0-9]",' | grep -v 'jboss-image-streams' | awk -F':' '{print $1}'); do
+    sed -i "${line_num}s|\(.*\)|\1\"annotations\": { \"openshift.io/image.insecureRepository\": \"true\"},|g" ${file2}
+  done
+
+  for file in ${file1} ${file2}; do 
+    sed -i "s/registry.access.redhat.com/${registry_server}/g" ${file}
+    oc create -f ${file} -n openshift
+  done
+}
 
 #CONF_HOST_LIST=vaule
 #CONF_IP_LIST=value
@@ -524,6 +555,9 @@ case $1 in
 		configure_repos
 		yum update -y
 		;;
+        modify_IS_for_testing)
+                modify_IS_for_testing "$2"
+                ;;
 	*)
 		echo "Invalid Action: $1"
 esac

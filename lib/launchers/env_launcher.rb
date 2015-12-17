@@ -89,7 +89,8 @@ module CucuShift
                         etcd_num:,
                         registry_ha:,
                         ansible_url:,
-                        customized_ansible_conf:,
+                        customized_ansible_conf: "",
+                        modify_IS_for_testing: "",
                         kerberos_kdc: conf[:sercices, :test_kerberos, :kdc],
                         kerberos_keytab_url:
                           conf[:sercices, :test_kerberos, :keytab_url],
@@ -419,6 +420,11 @@ module CucuShift
           'sh configure_env.sh configure_auth'
         )
       end
+      if !modify_IS_for_testing.empty?
+          check_res hosts['master'][0].exec_admin(
+            "sh configure_env.sh modify_IS_for_testing #{modify_IS_for_testing}"
+          )
+      end
     ensure
       # Host clean_up
       if defined?(hosts) && hosts.kind_of?(Hash)
@@ -468,6 +474,7 @@ module CucuShift
               :etcd_num, :registry_ha,
               :ansible_url,
               :customized_ansible_conf,
+              :modify_IS_for_testing,
               :kerberos_docker_base_image,
               :kerberos_kdc, :kerberos_keytab_url,
               :kerberos_docker_base_image,
