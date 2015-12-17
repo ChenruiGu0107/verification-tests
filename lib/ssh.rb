@@ -129,6 +129,7 @@ module CucuShift
       begin
         exec_raw(command, **opts, result: res)
       rescue => e
+        # @last_accessed = 0
         res[:success] = false
         res[:error] = e
         res[:response] = exception_to_string(e)

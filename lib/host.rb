@@ -37,6 +37,26 @@ module CucuShift
       properties[key]
     end
 
+    # override for hosts that can be accessed (ssh, remote desctop, etc.)
+    def accessible?
+      return {
+        success: false,
+        instruction: "access host noop",
+        error: nil,
+        response: ""
+      }
+    end
+
+    # @param timeout [Integer, String] seconds
+    def wait_to_become_accessible(timeout)
+      res
+      wait_for(Integer(timeout)) {
+        res = accessible?
+        res[:success]
+      }
+      return res
+    end
+
     def workdir(**opts)
       unless @workdir_exists
         @workdir_exists = mkdir(@workdir, :raw => true)
@@ -409,6 +429,10 @@ module CucuShift
       @workdir = File.absolute_path(@workdir, basepath).freeze
     end
 
+    def accessible?
+      true
+    end
+
     def file_exist?(file, opts={})
       # intentionally use @workdir to avoid creating dir unnecessarily
       file = File.absolute_path(file, @workdir) unless opts[:raw]
@@ -470,6 +494,21 @@ module CucuShift
     # @return [boolean] if there is currently an active connection to the host
     private def connected?(verify: false)
       @ssh && @ssh.active?(verify: verify)
+    end
+
+    def accessible?
+      res = {
+        success: false,
+        instruction: "ssh #{opts[:user]}@#{host}",
+        error: nil,
+        response: ""
+      }
+      res[:success] = !!ssh # getting ssh means connection is checked
+    rescue
+      res[:error] = e
+      res[:response] = exception_to_string(e)
+    ensure
+      return res
     end
 
     # processes ssh specific opts from the initialization options

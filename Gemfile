@@ -11,7 +11,7 @@ gem 'cucumber', '>=2.1.0'
 # gem 'rspec', '~>2.14.1'
 # gem 'rspec-expectations', '~>2.14.0'
 # gem 'aws-sdk-v1'
-# gem 'aws-sdk', '~> 2'
+gem 'aws-sdk', '~> 2'
 # gem 'timers'
 ## Logging
 gem 'term-ansicolor'
