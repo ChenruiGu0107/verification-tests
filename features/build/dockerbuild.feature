@@ -51,13 +51,13 @@ Feature: dockerbuild.feature
   Scenario: Docker build with invalid context dir
     Given I have a project
      When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/wzheng1/v3-testfiles/master/build/ruby20rhel7-invalidcontext-docker.json |
-    Then the step should succeed
-    When I run the :new_app client command with:
-      | template | ruby-helloworld-sample |
-    Then the step should succeed
-    And the "ruby20-sample-build-1" build was created
-    And the "ruby20-sample-build-1" build failed
-    When I run the :logs client command with:
-      | resource_name| bc/ruby20-sample-build |
-    Then the output should contain "/invalid/Dockerfile: no such file or directory"
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-invalidcontext-docker.json |
+     Then the step should succeed
+     When I run the :new_app client command with:
+       | template | ruby-helloworld-sample |
+     Then the step should succeed
+     And the "ruby20-sample-build-1" build was created
+     And the "ruby20-sample-build-1" build failed
+     When I run the :logs client command with:
+       | resource_name| bc/ruby20-sample-build |
+     Then the output should contain "/invalid/Dockerfile: no such file or directory"
