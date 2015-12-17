@@ -9,15 +9,17 @@ Feature: Configuration of environment variables check
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
     When I execute on the pod:
-      | bash                       |
-      | -c                         |
-      | curl -s <%= service.url %> ; env \| grep ENV ; env \| grep DISABLE_ASSET_COMPILATION|
+      | curl | -s | <%= service.url %> |
     Then the step should succeed
     And the output should contain:
-      | Welcome to an OpenShift v3 Demo App|
-      | RACK_ENV=production                |
-      | RAILS_ENV=production               |
-      | DISABLE_ASSET_COMPILATION=ture     |
+      | Welcome to an OpenShift v3 Demo App |
+    When I execute on the pod:
+      | env |
+    Then the step should succeed
+    And the output should contain:
+      | RACK_ENV=production            |
+      | RAILS_ENV=production           |
+      | DISABLE_ASSET_COMPILATION=true |
 
   # @author xiuwang@redhat.com
   # @case_id 499491
@@ -28,11 +30,13 @@ Feature: Configuration of environment variables check
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
     When I execute on the pod:
-      | bash                       |
-      | -c                         |
-      | curl -s <%= service.url %> ; env \| grep ENABLE_CPAN_TEST ; env \| grep CPAN_MIRROR|
+      | curl | -s | <%= service.url %> |
     Then the step should succeed
     And the output should contain:
-      | Everything is ok    |
+      | Everything is OK |
+    When I execute on the pod:
+      | env |
+    Then the step should succeed
+    And the output should contain:
       | ENABLE_CPAN_TEST=on |
       | CPAN_MIRROR=        |
