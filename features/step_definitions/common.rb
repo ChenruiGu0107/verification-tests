@@ -213,7 +213,7 @@ end
 # There are few occassion that the 'oc logs' cmd returned empty response
 #   this step should address those situations
 Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |pod_name|
-  opts = {pod_name: pod_name}
+  opts = {resource_name: pod_name}
   res_cache = {}
   res = {}
   seconds = 15 * 60   # just put a timeout so we don't hang there indefintely
