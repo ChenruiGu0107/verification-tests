@@ -10,23 +10,17 @@ Feature: Postgresql images test
     And a pod becomes ready with labels:
       |name=database|
      When I execute on the pod:
-      | bash                |
-      | -c                  |
-      | env \| grep POSTGRE |
+      | env |
     Then the output should contain:
       | POSTGRESQL_SHARED_BUFFERS=64MB |
       | POSTGRESQL_MAX_CONNECTIONS=42  |
     When I execute on the pod:
-      | bash                           |
-      | -c                             |
-      | psql -c 'show shared_buffers;' |
+      | psql | -c |show shared_buffers; |
     Then the output should contain:
       | shared_buffers |
       | 64MB           |
     And I execute on the pod:
-      | bash                            |
-      | -c                              |
-      | psql -c 'show max_connections;' |
+      | psql | -c |show max_connections; |
     Then the output should contain:
       | max_connections |
       | 42              |
@@ -42,23 +36,17 @@ Feature: Postgresql images test
     And a pod becomes ready with labels:
       |name=database|
      When I execute on the pod:
-      | bash                |
-      | -c                  |
-      | env \| grep POSTGRE |
+      | env  |
     Then the output should contain:
       | POSTGRESQL_SHARED_BUFFERS=64MB |
       | POSTGRESQL_MAX_CONNECTIONS=42  |
     When I execute on the pod:
-      | bash                           |
-      | -c                             |
-      | psql -c 'show shared_buffers;' |
+      | psql | -c |show shared_buffers;|
     Then the output should contain:
       | shared_buffers |
       | 64MB           |
     And I execute on the pod:
-      | bash                            |
-      | -c                              |
-      | psql -c 'show max_connections;' |
+      | psql | -c |show max_connections; |
     Then the output should contain:
       | max_connections |
       | 42              |
