@@ -79,7 +79,7 @@ module CucuShift
     #
     def ansible_install(hosts_spec:, auth_type:,
                         ssh_key:, ssh_user:,
-                        dns: nil,
+                        dns: nil, set_hostnames: false,
                         app_domain: nil, host_domain: nil,
                         rhel_base_repo: nil,
                         deployment_type:,
@@ -328,7 +328,10 @@ module CucuShift
             if dns == "embedded_skydns"
               host_base_line = "#{host.hostname} openshift_hostname=master.#{host_domain} openshift_public_hostname=master.#{host_domain}"
             else
-              host_base_line = "#{host.hostname} openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+              host_base_line = "#{host.hostname}"
+              if set_hostnames
+                host_base_line << " openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+              end
             end
 
             host_line = host_base_line.dup
@@ -341,7 +344,10 @@ module CucuShift
               node_index = node_host_lines.size + 1
               host_base_line = "#{host.hostname} openshift_hostname=minion#{node_index}.#{host_domain} openshift_public_hostname=minion#{node_index}.#{host_domain}"
             else
-              host_base_line = "#{host.hostname} openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+              host_base_line = "#{host.hostname}"
+              if set_hostnames
+                host_base_line << " openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+              end
             end
             host_line = %Q*#{host_base_line} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"*
             node_host_lines << host_line

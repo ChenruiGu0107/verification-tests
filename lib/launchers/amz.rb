@@ -293,7 +293,6 @@ module CucuShift
     #
     def launch_instances(image: nil,
                          tag_name: nil,
-                         username: nil,
                          create_opts: nil,
                          max_retries: 1)
       # default to use rhel if no filter is specified

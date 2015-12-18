@@ -36,6 +36,7 @@ module CucuShift
       global_option('-m', '--master_num', "number of nodes to launch")
       global_option('-n', '--node_num', "number of nodes to launch")
       global_option('-d', '--user_data', "file containing user instances' data")
+      global_option('-s', '--service_name', 'service name to lookup in config')
 
       command :launch do |c|
         c.syntax = 'env_launcher_cli.rb launcher -c [ENV|<conf keyword>]'
@@ -50,6 +51,7 @@ module CucuShift
             options.master_num ||= Integer(ENV['MASTER_NUM']) rescue 1
             options.node_num ||= ENV['NODE_NUM'].to_i
             options.launched_instances_name_prefix ||= ENV['INSTANCE_NAME_PREFIX']
+            options.cloud_service ||= ENV['CLOUD_SERVICE_NAME'].to_sym
 
             ## process user data
             if ENV['INSTANCES_USER_DATA'] && !ENV['INSTANCES_USER_DATA'].empty?
@@ -80,23 +82,10 @@ module CucuShift
             # TODO: allow specifying pre-launched machines
             # TODO: allow choosing other launchers, not only openstack
 
-            ## launch OpenStack instances
-            ostack = CucuShift::OpenStack.new()
-            hostnames = []
-            if options.master_num > 1
-              options.master_num.times { |i|
-                hostnames << options.launched_instances_name_prefix +
-                  "_master_#{i+1}"
-              }
-            else
-              hostnames << options.launched_instances_name_prefix + "_master"
-            end
-            options.node_num.times { |i|
-              hostnames << options.launched_instances_name_prefix +
-                            "_node_#{i+1}"
-            }
-            hosts = ostack.launch_instances(names: hostnames,
-                                            user_data: user_data_string)
+            ## launch Cloud instances
+            hosts = launch_instances(options, names: hostnames,
+                                              user_data: user_data_string,
+                                              service_name: service_name)
 
             ## run ansible setup
             hosts_spec = { "master"=>hosts.values[0..options.master_num - 1],
@@ -116,6 +105,39 @@ module CucuShift
       end
 
       run!
+    end
+
+    def launch_instances(options, names:,
+                         user_data: nil,
+                         service_name:)
+      hostnames = []
+      if options.master_num > 1
+        options.master_num.times { |i|
+          hostnames << options.launched_instances_name_prefix +
+            "_master_#{i+1}"
+        }
+      else
+        hostnames << options.launched_instances_name_prefix + "_master"
+      end
+      options.node_num.times { |i|
+        hostnames << options.launched_instances_name_prefix +
+          "_node_#{i+1}"
+      }
+
+      case config[:services, options.cloud_service, :cloud_type]
+      when "aws"
+        raise "TODO csrvc" unless options.cloud_service == "AWS"
+        amz = Amz_EC2.initialize
+        amz.launch_instances(tag_name: names, image: todo_image)
+      when "openstack"
+        ostack = CucuShift::OpenStack.new(
+          service_name: options.cloud_service
+        )
+        return ostack.launch_instances(names: names,
+                                        user_data: user_data_string)
+      else
+        raise "unknown service type: #{config[:services, options.cloud_service, :cloud_type]}"
+      end
     end
 
     # process instance name prefix to generate an identity tag

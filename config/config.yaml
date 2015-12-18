@@ -99,4 +99,5 @@ services:
       devenv_wildcard: "devenv-*"
       stable_ami: "devenv-stage-*"
     hosts_type: SSHAccessibleHost
+    cloud_type: aws
     #ssh_private_key: relative/path
