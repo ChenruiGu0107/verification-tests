@@ -1,7 +1,7 @@
 Feature: hotdeploy.feature
 
   # @author: wzheng@redhat.com
-  # @case_id: 508723,508727,508729,508731,508733,508735
+  # @case_id: 508723,508727,508729,508731,508733
   Scenario Outline: Hot deploy test
     Given I have a project
     When I run the :new_app client command with:
@@ -29,4 +29,3 @@ Feature: hotdeploy.feature
       | https://github.com/openshift-qe/django-ex.git        | openshift/python:3.3 | APP_CONFIG=gunicorn.conf.py | django-ex  | 's/Welcome/hotdeploy_test/g' | /opt/app-root/src/welcome/templates/welcome/index.html |
       | https://github.com/openshift-qe/django-ex.git        | openshift/python:3.4 | APP_CONFIG=gunicorn.conf.py | django-ex  | 's/Welcome/hotdeploy_test/g' | /opt/app-root/src/welcome/templates/welcome/index.html |
       | https://github.com/openshift-qe/sinatra-hot-deploy.git | openshift/ruby:2.0 | RACK_ENV=development       | sinatra-hot-deploy | 's/legen/hotdeploy_test/g' | config.ru |
-      | https://github.com/openshift-qe/sinatra-hot-deploy-ruby22.git | openshift/ruby:2.2 | RACK_ENV=development | sinatra-hot-deploy-ruby22 | 's/Hello/hotdeploy_test/g' | app.rb |
