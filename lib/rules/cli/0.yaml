@@ -189,6 +189,7 @@
     :o: -o <value>
     :l: -l <value>
     :w: --watch=<value>
+    :template: --template=<value>
 :help:
   :cmd: oc <help_word>
   :options:
@@ -285,6 +286,11 @@
     :type: --type=<value>
     :quiet: --quiet=<value>
 
+:patch:
+  :cmd: oc patch <resource>
+  :options:
+    :resource_name: <value>
+    :p: -p <value>
 :port_forward:
   :cmd: oc port-forward
   :options:
