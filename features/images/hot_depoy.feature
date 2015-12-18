@@ -1,7 +1,7 @@
 Feature: hotdeploy.feature
 
   # @author: wzheng@redhat.com
-  # @case_id: 508723,508727,508729,508731,508733
+  # @case_id: 508723,508727,508729,508731,508733,508725
   Scenario Outline: Hot deploy test
     Given I have a project
     When I run the :new_app client command with:
