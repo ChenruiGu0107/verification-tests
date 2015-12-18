@@ -513,10 +513,22 @@ function modify_IS_for_testing()
 #CONF_KERBEROS_KEYTAB_URL=value
 #CONF_KERBEROS_BASE_DOCKER_IMAGE=value
 #CONF_ROUTER_NODE_TYPE=value
+#CONF_OSE_REPO=value
 interface="${CONF_INTERFACE:-eth0}"
 nameservers="$(awk '/nameserver/ { printf "%s; ", $2 }' /etc/resolv.conf)"
 named_hostname=ns1.$CONF_HOST_DOMAIN
 
+function update_playbook_rpms()
+{
+	cat <<EOF >/etc/yum.repos.d/ose-devel.repo
+[ose-devel]
+name=ose-devel
+baseurl=${CONF_OSE_REPO}
+enabled=1
+gpgcheck=0
+EOF
+	rpm -q atomic-openshift-utils && yum update openshift-ansible* -y || yum install atomic-openshift-utils -y
+}
 
 case $1 in
 	wait_cloud_init)
@@ -560,9 +572,12 @@ case $1 in
 		configure_repos
 		yum update -y
 		;;
-        modify_IS_for_testing)
-                modify_IS_for_testing "$2"
-                ;;
+	modify_IS_for_testing)
+		modify_IS_for_testing "$2"
+		;;
+    update_playbook_rpms)
+		update_playbook_rpms
+		;;
 	*)
 		echo "Invalid Action: $1"
 esac
