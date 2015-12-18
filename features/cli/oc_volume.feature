@@ -49,10 +49,12 @@ Feature: oc_volume.feature
     Given a pod becomes ready with labels:
       | deployment=mydc-2 |
     When I execute on the pod:
-      | bash                |
-      | -c                  |
-      | cat /etc/secret-volume-dir/username /etc/secret-volume-dir/password |
+      | cat | /etc/secret-volume-dir/username |
     Then the step should succeed
     And the output by order should contain:
       | user-1 |
+    When I execute on the pod:
+      | cat | /etc/secret-volume-dir/password |
+    Then the step should succeed
+    And the output by order should contain:
       | pass-1 |
