@@ -8,6 +8,9 @@ module CucuShift
     extend  Common::BaseHelper
     # extend  Common::UserObjectClassHelper
 
+    # statuses that indicate pod running or completed successfully
+    SUCCESS_STATUSES = [:running, :succeeded, :missing]
+
     attr_reader :props, :name, :project
 
     # @param name [String] name of pod
@@ -151,23 +154,27 @@ module CucuShift
     end
 
     # @param labels [String, Array<String,String>] labels to filter on, read
+    # @param count [Integer] minimum number of pods to wait for
     #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
-    def self.wait_for_labeled(*labels, user:, project:, seconds:)
+    def self.wait_for_labeled(*labels, count: 1, user:, project:, seconds:)
       wait_for_matching(user: user, project: project, seconds: seconds,
-                        get_opts: {l: selector_to_label_arr(*labels)}) {true}
+                        get_opts: {l: selector_to_label_arr(*labels)},
+                        count: count) { true }
     end
 
+    # @param count [Integer] minimum number of pods to wait for
     # @yield block that selects pods by returning true; see [#get_matching]
     # @return [CucuShift::ResultHash] with :matching key being array of matched
     #   pods;
-    def self.wait_for_matching(user:, project:, seconds:, get_opts: {})
+    def self.wait_for_matching(count: 1, user:, project:, seconds:,
+                                                                  get_opts: {})
       res = nil
 
       wait_for(seconds) {
         res = get_matching(user: user, project: project, get_opts: get_opts) { |p, p_hash|
           yield p, p_hash
         }
-        ! res[:matching].empty?
+        res[:matching].size >= count
       }
 
       return res

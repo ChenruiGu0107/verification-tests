@@ -47,7 +47,7 @@ Given /^all pods in the project are ready$/ do
   pods[:parsed]['items'].each do | pod |
     pod_name = pod['metadata']['name']
     logger.info("POD: #{pod_name}, STATUS: #{pod['status']['conditions']}")
-    res = pod(pod_name).wait_till_status([:running, :succeeded, :missing], user)
+    res = pod(pod_name).wait_till_status(Pod::SUCCESS_STATUSES , user)
 
     unless res[:success]
       raise "pod #{self.pod.name} did not reach expected status"
@@ -55,6 +55,31 @@ Given /^all pods in the project are ready$/ do
   end
 end
 
+Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
+  labels = table.raw.flatten # dimentions irrelevant
+  pod_timeout = 10 * 60
+  ready_timeout = 15 * 60
+  num = Integer(count)
+
+  @result = CucuShift::Pod.wait_for_labeled(*labels, count: num,
+                       user: user, project: project, seconds: pod_timeout)
+
+  if !@result[:success] || @result[:matching] < num
+    logger.error("Wanted #{num} but only got #{@result[:matching].size} pods labeled: #{labels.join(",")}")
+    raise "See log, waiting for labeled pods futile: #{labels.join(',')}"
+  end
+
+  cache_pods(*@result[:matching])
+
+  # keep last waiting @result as the @result for knowing how pod failed
+  @result[:matching].each do |pod|
+    @result = pod.wait_till_status(Pod::SUCCESS_STATUSES , user)
+
+    unless @result[:success]
+      raise "pod #{pod.name} did not reach expected status"
+    end
+  end
+end
 
 # useful for waiting the deployment pod to die and complete
 Given /^I wait for the pod(?: named "(.+)")? to die$/ do |name|
