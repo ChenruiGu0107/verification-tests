@@ -1,0 +1,26 @@
+# --check settings page
+check_settings_page:
+  url: /console/project/<project_name>/settings
+  elements:
+  - selector: 
+      text: General information
+  - selector:
+      text: Quota
+  - selector:
+      text: Resource limits
+check_used_value:
+  elements:
+  - selector:
+      xpath: //tr[descendant::td[contains(text()[2],'<resource_type>')]]//span[contains(text(),'<used_value>')]
+check_max_value:
+  elements:
+  - selector:
+      xpath: //tr[descendant::td[contains(text()[2],'<resource_type>')]]//span[contains(text(),'<max_value>')]
+check_min_limit_value:
+  elements:
+  - selector:
+      xpath: //tr[descendant::td[contains(text(),'<resource_type>')]]//td[contains(text(),'<min_limit>')]
+check_max_limit_value:
+  elements:
+  - selector:
+      xpath: //tr[descendant::td[contains(text(),'<resource_type>')]]//td[contains(text(),'<max_limit>')]
