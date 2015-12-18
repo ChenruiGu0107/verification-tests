@@ -36,7 +36,7 @@ Feature:Create apps using new_app cmd feature
       | name     | ruby-sample-build |
     Then the output should match:
       | URL:\\s+https://github.com/openshift/ruby-hello-world.git|
-      | Image Reference:\\s+ImageStreamTag openshift/ruby:2.0|
+      | From Image:\\s+ImageStreamTag openshift/ruby:2.0|
     Given the pod named "ruby-sample-build-1-build" becomes ready
     When I run the :get client command with:
       | resource | builds |
