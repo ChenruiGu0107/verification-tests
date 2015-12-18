@@ -130,6 +130,8 @@
 :env:
   :cmd: oc env
   :options:
+    :all: --all=<value>
+    :list: --list=<value>
     :resource: <value>
     :keyval: <value>
 :exec:
