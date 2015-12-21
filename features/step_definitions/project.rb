@@ -80,6 +80,20 @@ When /^admin creates a project$/ do
                             description: "OpenShift v3 rocks" )
 end
 
+When /^admin creates a project with:$/ do |table|
+  ensure_admin_tagged
+
+  opts = opts_array_to_hash(table.raw)
+
+  # first make sure we clean-up this project at the end
+  _project = project # we need variable for the teardown proc
+  teardown_add { @result = _project.delete(by: :admin) }
+
+  # create with raw command to avoid safety project without admin user check in
+  #   Project#create method
+  @result = admin.cli_exec( :oadm_new_project, **opts)
+end
+
 When /^admin deletes the #{QUOTED} project$/ do |project_name|
   p = project(project_name)
   @result = p.delete(by: :admin)
