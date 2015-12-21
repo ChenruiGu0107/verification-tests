@@ -126,9 +126,9 @@ module CucuShift
 
       case config[:services, options.cloud_service, :cloud_type]
       when "aws"
-        raise "TODO csrvc" unless options.cloud_service == "AWS"
+        raise "TODO service choice" unless options.cloud_service == "AWS"
         amz = Amz_EC2.initialize
-        amz.launch_instances(tag_name: names, image: todo_image)
+        amz.launch_instances(tag_name: names, image: :raw)
       when "openstack"
         ostack = CucuShift::OpenStack.new(
           service_name: options.cloud_service

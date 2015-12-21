@@ -190,6 +190,10 @@ module CucuShift
         raise "multiple HA masters require LDAP auth"
       end
 
+      if set_hostnames
+        ose3_vars << "openshift_set_hostname=true"
+      end
+
       ## Setup HA Master opt
       # * if non-HA master => router selector should point at nodes, num_infra should be == number of nodes, DNS should point at nodes
       # * if HA masters => router selector sohuld point at masters (region=infra), num_infra should be == number of masters, DNS should point at masters
@@ -483,7 +487,7 @@ module CucuShift
               :ssh_key, :ssh_user,
               :app_domain, :host_domain,
               :rhel_base_repo,
-              :dns,
+              :dns, :set_hostnames,
               :use_rpm_playbook,
               :image_pre,
               :puddle_repo,

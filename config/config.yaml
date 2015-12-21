@@ -98,6 +98,7 @@ services:
       rhel7next: "devenv-rhel7next_*"
       devenv_wildcard: "devenv-*"
       stable_ami: "devenv-stage-*"
+      raw: "ami-01743f64"
     hosts_type: SSHAccessibleHost
     cloud_type: aws
     #ssh_private_key: relative/path

@@ -299,6 +299,10 @@ module CucuShift
       instance_opt = config[:create_opts] ? config[:create_opts].dup : {}
       instance_opt.merge!(create_opts) if create_opts
 
+      if image.kind_of? Symbol
+        image = config[:ami_types][image]
+      end
+
       case image
       when Aws::EC2::Image
         instance_opt[:image_id] = image.id
