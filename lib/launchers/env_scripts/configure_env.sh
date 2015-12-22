@@ -477,8 +477,17 @@ function modify_IS_for_testing()
   echo "Command: $cmd"
   eval "$cmd"
 
-  file1="/usr/share/openshift/examples/xpaas-streams/jboss-image-streams.json"
-  file2="/usr/share/openshift/examples/image-streams/image-streams-rhel7.json"
+  if [ -d "/usr/share/openshift/examples/" ]; then
+     IS_json_base="/usr/share/openshift/examples/"
+  elif [ -d "/etc/origin/examples/" ]; then
+     IS_json_base="/etc/origin/examples/"
+  else
+     echo "No valid Image Stream json file dir found!"
+     exit 1
+  fi
+
+  file1="${IS_json_base}/xpaas-streams/jboss-image-streams.json"
+  file2="${IS_json_base}/image-streams/image-streams-rhel7.json"
 
   [ ! -f "${file1}.bak" ] && cp "${file1}" "${file1}.bak"
   [ ! -f "${file2}.bak" ] && cp "${file2}" "${file2}.bak"
