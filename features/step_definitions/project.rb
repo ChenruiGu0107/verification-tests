@@ -84,11 +84,12 @@ When /^admin creates a project with:$/ do |table|
   ensure_admin_tagged
 
   opts = opts_array_process(table.raw)
-  project_name = opts.find { |o| o[0] == :name }
+  project_name = opts.find { |o| o[0] == :project_name }
   if project_name
     project_name = project_name[1]
   else
-    opts << [:name, rand_str(5, :dns)]
+    project_name = rand_str(5, :dns)
+    opts << [:project_name, project_name]
   end
   
   # first make sure we clean-up this project at the end
