@@ -64,8 +64,8 @@ Feature: oc related features
   # @case_id 487931
   Scenario: Check the help page for oc export
     When I run the :help client command with:
-      | help_word | --help |
       | command | export |
+      | help_word | --help |
     Then the output should contain:
       | Export resources so they can be used elsewhere |
       | The export command makes it easy to take existing objects and convert them to configuration files |
@@ -76,12 +76,12 @@ Feature: oc related features
   # @case_id 483189
   Scenario: Check the help page for oc deploy
     When I run the :help client command with:
-      | help_word | --help |
       | command   | deploy |
+      | help_word | --help |
     Then the output should contain:
       | View, start, cancel, or retry a deployment |
       | This command allows you to control a deployment config. |
-      | oc deploy DEPLOYMENTCONFIG [options]                    |
+      | oc deploy DEPLOYMENTCONFIG [--latest\|--retry\|--cancel\|--enable-triggers] [options] |
       | --cancel=false: Cancel the in-progress deployment.      |
       | --enable-triggers=false: Enables all image triggers for the deployment config. |
       | --latest=false: Start a new deployment now.                                    |
@@ -91,8 +91,8 @@ Feature: oc related features
   # @case_id 492274
   Scenario: Check help doc of command 'oc tag'
     When I run the :help client command with:
-      | help_word | -h  |
       | command   | tag |
+      | help_word | -h  |
     Then the output should contain:
       | Tag existing images into image streams                                         |
       | The tag command allows you to take an existing tag or image from an image      |
@@ -119,17 +119,15 @@ Feature: oc related features
     Then the output should contain:
       | annotate     Update the annotations on a resource |
     When I run the :help client command with:
-      | help_word | --help |
       | command | annotate |
+      | help_word | --help |
     Then the output should contain:
       | Update the annotations on one or more resources |
-      | oc annotate [--overwrite] RESOURCE NAME KEY_1=VAL_1 ... KEY_N=VAL_N [--resource-version=version] [options] |
+      | oc annotate [--overwrite] (-f FILENAME \| TYPE NAME) KEY_1=VAL_1 ... KEY_N=VAL_N [--resource-version=version] [options] |
       | --all=false: select all resources in the namespace of the specified resource types |
-      | --no-headers=false: When using the default output, don't print headers. |
-      | --output-version='': Output the formatted object with the given version (default api-version). |
+      | -f, --filename=[]: Filename, directory, or URL to a file identifying the resource to update the annotation |
       | --overwrite=false: If true, allow annotations to be overwritten, otherwise reject annotation updates that overwrite existing annotations. |
       | --resource-version='': If non-empty, the annotation update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource. |
-      | -t, --template='': Template string or path to template file to use when -o=template or -o=templatefile.  The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview] |
 
   # @author: yanpzhan@redhat.com
   # @case_id: 499893
@@ -139,11 +137,11 @@ Feature: oc related features
     Then the output should contain:
       | run          Run a particular image on the cluster. |
     When I run the :help client command with:
-      | help_word | --help |
       |  command  | run    |
+      | help_word | --help |
     Then the output should contain:
       |Create and run a particular image, possibly replicated                                                 |
-      |oc run NAME --image=image [--port=port] [--replicas=replicas] [--dry-run=bool] [--overrides=inline-json] [options]|
+      |oc run NAME --image=image [--env="key=value"] [--port=port] [--replicas=replicas] [--dry-run=bool] [--overrides=inline-json] [options] |
       |--attach=false: If true, wait for the Pod to start running, and then attach to the Pod as if 'kubectl attach ...' were called.  Default false, unless '-i/--interactive' is set, in which case the default is true. |
       |--dry-run=false: If true, only print the object that would be sent, without sending it.                |
       |--generator='': The name of the API generator to use.  Default is 'run/v1' if --restart=Always, otherwise the default is 'run-pod/v1'.|
@@ -157,6 +155,6 @@ Feature: oc related features
       |-r, --replicas=1: Number of replicas to create for this container. Default is 1.|
       |--restart='Always': The restart policy for this Pod.  Legal values [Always, OnFailure, Never].|
       |-i, --stdin=false: Keep stdin open on the container(s) in the pod, even if nothing is attached.|
-      |-t, --template='': Template string or path to template file to use when -o=template or -o=templatefile.  The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview]|
+      |-t, --template='': Template string or path to template file to use when -o=go-template, -o=go-template-file. |
       |--tty=false: Allocated a TTY for each container in the pod.|
 
