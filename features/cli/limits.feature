@@ -21,9 +21,9 @@ Feature: limit range related scenarios:
 
     Examples:
       | path | expr1 | expr2 |
-      | tc508038 | Container\\s+cpu\\s+\-\\s+\\-\\s+200m | Container\\s+memory\\s+\-\\s+\\-\\s+1Gi |
-      | tc508039 | Container\\s+cpu\\s+200m\\s+\\-\\s+\- | Container\\s+memory\\s+1Gi\\s+\\-\\s+\- |
-      | tc508040 | Container\\s+cpu\\s+\-\\s+200m\\s+200m | Container\\s+memory\\s+\-\\s+1Gi\\s+1Gi |
+      | tc508038 | Container\\s+cpu\\s+\-\\s+\-\\s+200m\\s+200m\\s+\- | Container\\s+memory\\s+\-\\s+\-\\s+1Gi\\s+1Gi\\s+\- |
+      | tc508039 | Container\\s+cpu\\s+200m\\s+\-\\s+200m\\s+\-\\s+\- | Container\\s+memory\\s+1Gi\\s+\-\\s+1Gi\\s+\-\\s+\- |
+      | tc508040 | Container\\s+cpu\\s+\-\\s+200m\\s+200m\\s+200m\\s+\-  | Container\\s+memory\\s+\-\\s+1Gi\\s+1Gi\\s+1Gi\\s+\- |
 
   # @author pruan@redhat.com
   # @case_id 508041, 508045
