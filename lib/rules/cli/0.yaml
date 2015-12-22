@@ -193,7 +193,7 @@
     :w: --watch=<value>
     :template: --template=<value>
 :help:
-  :cmd: oc 
+  :cmd: oc
   :options:
     :command: <value>
     :help_word: <value>
@@ -425,6 +425,8 @@
     :node_selector: --node-selector=<value>
 :oadm_prune_builds:
   :cmd: oadm prune builds
+:oadm_prune_deployments:
+  :cmd: oadm prune deployments
   :options:
     :confirm: --confirm=<value>
     :keep_complete: --keep-complete=<value>

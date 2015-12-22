@@ -728,4 +728,90 @@ Feature: deployment related features
       |hooks\\s+ConfigChange\\s+2 |
     # This deviate form the testplan a little in that we are not doing more than one deploy, which should be sufficient since we are checking two deployments already (while the testcase called for 5)
 
-
+  # @author cryan@redhat.com
+  # @case_id 489296
+  @admin
+  Scenario: Check the default option value for command oadm prune deployments
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | ruby-helloworld-sample|
+    Then the step should succeed
+    Given I wait for the pod named "database-1-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | n | <%= project.name %> |
+      | latest ||
+    Then the step should succeed
+    Given I wait for the pod named "database-2-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | n | <%= project.name %> |
+      | latest ||
+    Then the step should succeed
+    Given I wait for the pod named "database-3-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | n | <%= project.name %> |
+      | latest ||
+    Then the step should succeed
+    Given I wait for the pod named "database-4-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | n | <%= project.name %> |
+      | latest ||
+    Then the step should succeed
+    Given I wait for the pod named "database-5-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | n | <%= project.name %> |
+      | latest ||
+    Then the step should succeed
+    Given I wait for the pod named "database-6-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | n | <%= project.name %> |
+      | latest ||
+    Then the step should succeed
+    Given I wait for the pod named "database-7-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | n | <%= project.name %> |
+      | latest ||
+    Then the step should succeed
+    Given I wait for the pod named "database-8-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | n | <%= project.name %> |
+      | latest ||
+    Then the step should succeed
+    Given I wait for the pod named "database-9-deploy" to die
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | n | <%= project.name %> |
+      | cancel ||
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | rc |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain 9 times:
+      | name=database |
+    When I run the :oadm_prune_deployments client command with:
+      |h||
+    Then the step should succeed
+    And the output should contain "Remove older completed and failed deployments"
+    Given 60 seconds have passed
+    When I run the :oadm_prune_deployments admin command with:
+      | keep_younger_than | 1m |
+    Then the step should succeed
+    And the output should match:
+      |NAMESPACE\\s+NAME|
+      |<%= project.name %>\\s+database-\\d+|
+    When I run the :oadm_prune_deployments admin command with:
+      | confirm | false |
+    Then the step should succeed
+    And the output should not match:
+      |<%= project.name %>\\s+database-\\d+|
