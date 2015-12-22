@@ -29,7 +29,7 @@ Feature: check page info related
     And I get the "text" attribute of the "a" web element:
       | href | project/<%= project.name %> |
     Then the output should contain "Test"
-    When I perform the :check_project_overview web console action with:
+    When I perform the :check_project_overview_without_resource web console action with:
       | project_name | <%= project.name %> |
     And I get the "text" attribute of the "element" web element:
       | xpath | //div/ul/li[1]/a[@tabindex="0"] |

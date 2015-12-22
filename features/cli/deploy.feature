@@ -533,7 +533,7 @@ Feature: deployment related features
       | cancel            ||
     Then the step should succeed
     And the output should match:
-      | cancelled deployment #1 |
+      | [Cc]ancelled deployment #1 |
     And I wait until the status of deployment "hooks" becomes :failed
     And I run the :deploy client command with:
       | deployment_config | hooks |

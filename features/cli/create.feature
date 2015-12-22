@@ -139,9 +139,9 @@ Feature: creating 'apps' with CLI
       | name         | myapp          |
       | n            | noproject      |
     Then the step should fail
-    Then the output should contain "Error: User "<%=@user.name%>" cannot create imagestreams in project "noproject""
-    Then the output should contain "Error: User "<%=@user.name%>" cannot create buildconfigs in project "noproject""
-    Then the output should contain "Error: User "<%=@user.name%>" cannot create services in project "noproject""
+    Then the output should contain "User "<%=@user.name%>" cannot create imagestreams in project "noproject""
+    Then the output should contain "User "<%=@user.name%>" cannot create buildconfigs in project "noproject""
+    Then the output should contain "User "<%=@user.name%>" cannot create services in project "noproject""
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
       | n | noproject |

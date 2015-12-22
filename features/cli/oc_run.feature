@@ -8,7 +8,7 @@ Feature: oc run related scenarios
       | test_do_not_use | -u |
     Then the step should fail
     Then the output should contain:
-      | oc run NAME --image=image [--port=port] [--replicas=replicas] [--dry-run=bool] [--overrides=inline-json] [options] |
+      | oc run NAME --image=image [--env="key=value"] [--port=port] [--replicas=replicas] [--dry-run=bool] [--overrides=inline-json] [options] |
       | Error: unknown shorthand flag: 'u' in -u |
     And I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg | run |
@@ -22,13 +22,13 @@ Feature: oc run related scenarios
       | image |                    |
     Then the step should fail
     And the output should contain:
-      | error: Parameter: image is required |
+      | Parameter: image is required |
     # oc run with less options
     And I run the :run client command with:
       | name | newtest |
     Then the step should fail
     And the output should contain:
-      | error: Parameter: image is required |
+      | Parameter: image is required |
     And I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg | run |
       | test_do_not_use | --image=test  |
