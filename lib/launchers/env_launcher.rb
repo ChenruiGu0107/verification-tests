@@ -164,7 +164,7 @@ module CucuShift
       conf_script.gsub!(/#(CONF_KERBEROS_BASE_DOCKER_IMAGE)=.*$/,
                         "\\1=#{kerberos_docker_base_image}")
       conf_script.gsub!(/#(CONF_KERBEROS_KDC)=.*$/, "\\1=#{kerberos_kdc}")
-      conf_script.gsub!(/#(CONF_OSE_REPO)=.*$/, "\\1='#{puddle_repo}'")
+      conf_script.gsub!(/#(CONF_PUDDLE_REPO)=.*$/, "\\1='#{puddle_repo}'")
       router_dns_type = nil
       dns_subst = proc do
         conf_script.gsub!(/#CONF_HOST_DOMAIN=.*$/,

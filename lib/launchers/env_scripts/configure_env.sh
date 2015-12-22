@@ -513,7 +513,7 @@ function modify_IS_for_testing()
 #CONF_KERBEROS_KEYTAB_URL=value
 #CONF_KERBEROS_BASE_DOCKER_IMAGE=value
 #CONF_ROUTER_NODE_TYPE=value
-#CONF_OSE_REPO=value
+#CONF_PUDDLE_REPO=value
 interface="${CONF_INTERFACE:-eth0}"
 nameservers="$(awk '/nameserver/ { printf "%s; ", $2 }' /etc/resolv.conf)"
 named_hostname=ns1.$CONF_HOST_DOMAIN
