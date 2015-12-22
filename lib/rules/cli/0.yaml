@@ -193,9 +193,10 @@
     :w: --watch=<value>
     :template: --template=<value>
 :help:
-  :cmd: oc <help_word>
+  :cmd: oc 
   :options:
     :command: <value>
+    :help_word: <value>
 :import_image:
   :cmd: oc import-image
   :options:
