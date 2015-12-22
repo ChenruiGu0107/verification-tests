@@ -29,7 +29,7 @@ Feature: template related scnearios:
       | template | I_do_no_exist |
     Then the step should fail
     And the output should contain:
-      |  error: no image or template matched "I_do_no_exist"|
+      |  error: no match for "I_do_no_exist"|
     And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
     # activate/install the template to the project
     And I run the :create client command with:
