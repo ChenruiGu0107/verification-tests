@@ -89,7 +89,7 @@ module CucuShift
                         etcd_num:,
                         registry_ha:,
                         ansible_url:,
-                        use_released_playbook:,
+                        use_rpm_playbook:,
                         customized_ansible_conf: "",
                         modify_IS_for_testing: "",
                         kerberos_kdc: conf[:sercices, :test_kerberos, :kdc],
@@ -384,7 +384,7 @@ module CucuShift
         File.write("hosts", hosts_str)
         # want to see output in real-time so Host#exec does not work
         # TODO: use new LocalHost exec functionality
-        if use_released_playbook
+        if use_rpm_playbook
           Host.localhost.exec('cat > configure_env.sh', stdin: conf_script)
           Host.localhost.exec_admin("sh configure_env.sh update_playbook_rpms")
           playbook_file = "/usr/share/ansible/openshift-ansible/playbooks/byo/config.yml"
@@ -478,7 +478,7 @@ module CucuShift
               :app_domain, :host_domain,
               :rhel_base_repo,
               :dns,
-              :use_released_playbook,
+              :use_rpm_playbook,
               :image_pre,
               :puddle_repo,
               :etcd_num, :registry_ha,
@@ -497,7 +497,7 @@ module CucuShift
       end
 
       opts[:registry_ha] = false unless to_bool(opts[:registry_ha])
-      opts[:use_released_playbook] = false unless to_bool(opts[:use_released_playbook])
+      opts[:use_rpm_playbook] = false unless to_bool(opts[:use_rpm_playbook])
     end 
 
     #def launch(**opts)
