@@ -83,10 +83,16 @@ end
 When /^admin creates a project with:$/ do |table|
   ensure_admin_tagged
 
-  opts = opts_array_to_hash(table.raw)
-
+  opts = opts_array_process(table.raw)
+  project_name = opts.find { |o| o[0] == :name }
+  if project_name
+    project_name = project_name[1]
+  else
+    opts << [:name, rand_str(5, :dns)]
+  end
+  
   # first make sure we clean-up this project at the end
-  _project = project # we need variable for the teardown proc
+  _project = project(project_name) # we need variable for the teardown proc
   teardown_add { @result = _project.delete(by: :admin) }
 
   # create with raw command to avoid safety project without admin user check in
