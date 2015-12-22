@@ -421,6 +421,7 @@
     :display_name: --display-name=<value>
     :description: --description=<value>
     :admin: --admin=<value>
+    :node_selector: --node-selector=<value>
 :oadm_prune_builds:
   :cmd: oadm prune builds
   :options:

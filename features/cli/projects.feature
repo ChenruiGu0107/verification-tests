@@ -249,6 +249,33 @@ Feature: projects related features via cli
       | In project <%= cb.prj_name %> on server |
       | You have no services, deployment configs, or build configs |
 
+  # @author cryan@redhat.com
+  # @case_id 481697
+  @admin
+  Scenario: User can get node selector from a project
+    Given  an 8 character random string of type :dns is stored into the :oadmproj1 clipboard
+    Given  an 8 character random string of type :dns is stored into the :oadmproj2 clipboard
+    When admin creates a project with:
+      | project_name | <%= cb.oadmproj1 %> |
+      | admin | <%= user.name %> |
+    Then the step should succeed
+    When admin creates a project with:
+      | project_name | <%= cb.oadmproj2 %> |
+      | node_selector | env=qa |
+      | description | testnodeselector |
+      | admin | <%= user.name %> |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | project |
+      | name | <%= cb.oadmproj1 %> |
+    Then the step should succeed
+    And the output should match "Node Selector:\s+<none>"
+    When I run the :describe client command with:
+      | resource | project |
+      | name | <%= cb.oadmproj2 %> |
+    Then the step should succeed
+    And the output should match "Node Selector:\s+env=qa"
+
   # @author wyue@redhat.com
   # @case_id 481695
   @admin
@@ -295,4 +322,3 @@ Feature: projects related features via cli
       | name | hello-openshift |
     Then the output should contain:
       | <%= env.nodes.first.name %> |
-
