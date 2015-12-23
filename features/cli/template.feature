@@ -29,7 +29,8 @@ Feature: template related scnearios:
       | template | I_do_no_exist |
     Then the step should fail
     And the output should contain:
-      |  error: no match for "I_do_no_exist"|
+      | error                   |
+      | matched "I_do_no_exist" |
     And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
     # activate/install the template to the project
     And I run the :create client command with:
@@ -53,3 +54,73 @@ Feature: template related scnearios:
     And the output should contain:
       | Error: unable to get type info from the object "*runtime.Unknown": no kind is registered for the type runtime.Unknown |
 
+    # @author akostadi@redhat.com
+    # @case_id 476351
+  Scenario Outline: Easy delete resources from template created
+    Given I have a project
+    And I process and create:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json|
+      |l|<labels>|
+    And the step succeeded
+
+    When I get project services with labels:
+      | <labels> |
+    Then the step should succeed
+    And the output should contain:
+      | database                               |
+      | frontend                               |
+
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1293973
+    # Given 3 pods become ready with labels:
+    #  | <labels> |
+    # When I get project pods with labels:
+    #  | <labels> |
+    # Then the step should succeed
+    # And the output should contain:
+    #   |frontend-1|
+    #   |database-1|
+
+    When I get project deploymentconfig with labels:
+      | <labels> |
+    Then the step should succeed
+    And the output should contain:
+      | database     |
+      | frontend     |
+      | ConfigChange |
+      | ImageChange  |
+
+    When I get project buildConfigs with labels:
+      | <labels> |
+    Then the step should succeed
+    And the output should contain:
+      | ruby-sample-build |
+      | Source            |
+
+    When I get project builds with labels:
+      | <labels> |
+    Then the step should succeed
+    And the output should contain:
+      | ruby-sample-build-1 |
+      | Source              |
+
+    When I get project imagestream with labels:
+      | <labels> |
+    Then the step should succeed
+    And the output should contain:
+      | origin-ruby-sample |
+      | ruby-20            |
+
+    When I get project route with labels:
+      | <labels> |
+    Then the step should succeed
+    And the output should contain:
+      | route-edge |
+
+    When I delete all resources by labels:
+      | <labels> |
+    Then the project should be empty
+
+    Examples:
+      | labels                                                  |
+      | redhat=rocks                                            |
+      | label1=value1,label2=value2,label3=value3,label4=value4 |

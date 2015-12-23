@@ -31,16 +31,16 @@ end
 #@param file
 #@notes Given a remote (http/s) or local file, run the 'oc process'
 #command followed by the 'oc create' command to save space
-Given /^I process and create: (.+)$/ do |file|
-  begin
-    #Run the process command, then pass it in as stdin to 'oc create'
-    processed_result = user.cli_exec(:process, {f: file})
-    if processed_result[:success]
-      @result = user.cli_exec(:create, {f: "-", _stdin: processed_result[:stdout]})
-    else
-      raise "Unable to process the file."
-    end
-  rescue
-    raise "Cannot open file for processing and/or creating."
+When /^I process and create #{QUOTED}$/ do |file|
+ step 'I process and create:', table([["f", file]])
+end
+
+# process file/url with parameters, then feed into :create
+When /^I process and create:$/ do |table|
+  # run the process command, then pass it in as stdin to 'oc create'
+  process_opts = opts_array_process(table.raw)
+  @result = user.cli_exec(:process, process_opts)
+  if @result[:success]
+    @result = user.cli_exec(:create, {f: "-", _stdin: @result[:stdout]})
   end
 end
