@@ -43,3 +43,26 @@ Feature: oc_expose.feature
       | exec_command_arg | <%= cb.pod_ip%>:80 |
     Then the step should succeed
     And the output should contain "Everything is fine."
+
+  # @author akostadi@redhat.com
+  # @case_id 483241
+  Scenario: Expose services from deploymentconfig
+    Given I have a project
+    When I run the :new_app client command with:
+      | app repo    | <%= product_docker_repo %>openshift3/perl-516-rhel7 |
+      | code        | https://github.com/openshift/sti-perl    |
+      | l           | app=test-perl                            |
+      | context dir | 5.16/test/sample-test-app/               |
+      | name        | myapp                                    |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | deploymentconfig |
+      | resource name | myapp            |
+      | target port   | 8080             |
+      | generator     | service/v1       |
+      | name          | myservice        |
+    Given I wait for the "myservice" service to become ready
+    When I execute on the pod:
+      | curl | -k | <%= service.url %> |
+    Then the step should succeed
+    And the output should contain "Everything is fine."
