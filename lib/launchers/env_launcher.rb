@@ -89,6 +89,7 @@ module CucuShift
                         etcd_num:,
                         registry_ha:,
                         ansible_url:,
+                        use_rpm_playbook:,
                         customized_ansible_conf: "",
                         modify_IS_for_testing: "",
                         kerberos_kdc: conf[:sercices, :test_kerberos, :kdc],
@@ -163,7 +164,7 @@ module CucuShift
       conf_script.gsub!(/#(CONF_KERBEROS_BASE_DOCKER_IMAGE)=.*$/,
                         "\\1=#{kerberos_docker_base_image}")
       conf_script.gsub!(/#(CONF_KERBEROS_KDC)=.*$/, "\\1=#{kerberos_kdc}")
-
+      conf_script.gsub!(/#(CONF_PUDDLE_REPO)=.*$/, "\\1='#{puddle_repo}'")
       router_dns_type = nil
       dns_subst = proc do
         conf_script.gsub!(/#CONF_HOST_DOMAIN=.*$/,
@@ -376,15 +377,23 @@ module CucuShift
         "git clone #{ansible_url}"
       )
       res = nil
+
       ENV["ANSIBLE_FORCE_COLOR"] = "true"
       Dir.chdir(Host.localhost.workdir) {
         logger.info("hosts file:\n" + hosts_str)
         File.write("hosts", hosts_str)
         # want to see output in real-time so Host#exec does not work
         # TODO: use new LocalHost exec functionality
+        if use_rpm_playbook
+          Host.localhost.exec('cat > configure_env.sh', stdin: conf_script)
+          Host.localhost.exec_admin("sh configure_env.sh update_playbook_rpms")
+          playbook_file = "/usr/share/ansible/openshift-ansible/playbooks/byo/config.yml"
+        else
+          playbook_file = "openshift-ansible/playbooks/byo/config.yml"
+        end
         ssh_key_param = expand_private_path(ssh_key)
         File.chmod(0600, ssh_key_param)
-        ansible_cmd = "ansible-playbook -i hosts -v --private-key #{Host.localhost.shell_escape(ssh_key_param)} -vvvv openshift-ansible/playbooks/byo/config.yml"
+        ansible_cmd = "ansible-playbook -i hosts -v --private-key #{Host.localhost.shell_escape(ssh_key_param)} -vvvv #{playbook_file}"
         logger.info("Running: #{ansible_cmd}")
         res = system(ansible_cmd)
       }
@@ -469,6 +478,7 @@ module CucuShift
               :app_domain, :host_domain,
               :rhel_base_repo,
               :dns,
+              :use_rpm_playbook,
               :image_pre,
               :puddle_repo,
               :etcd_num, :registry_ha,
@@ -487,7 +497,8 @@ module CucuShift
       end
 
       opts[:registry_ha] = false unless to_bool(opts[:registry_ha])
-    end
+      opts[:use_rpm_playbook] = false unless to_bool(opts[:use_rpm_playbook])
+    end 
 
     #def launch(**opts)
     #  # set OPENSTACK_SERVICE_NAME
