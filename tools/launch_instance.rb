@@ -53,6 +53,23 @@ module CucuShift
             options.launched_instances_name_prefix ||= ENV['INSTANCE_NAME_PREFIX']
             options.cloud_service ||= ENV['CLOUD_SERVICE_NAME'].to_sym
 
+            # a hack to put puddle tag into instance names
+            options.launched_instances_name_prefix =
+              process_instance_name(options.launched_instances_name_prefix,
+                                     ENV["PUDDLE_REPO"])
+
+            # TODO: allow specifying pre-launched machines
+
+            ## set ansible launch options from environment
+            launch_opts = {
+              hosts_spec: hosts_spec,
+              ssh_key: expand_private_path(ostack.opts[:key_file]),
+              # TODO: allow custom ssh username
+              ssh_user: 'root',
+              set_hostnames: !! config[:services, options.cloud_service, :fix_hostnames]
+            }
+            el.launcher_env_options(launch_opts)
+
             ## process user data
             if ENV['INSTANCES_USER_DATA'] && !ENV['INSTANCES_USER_DATA'].empty?
               options.user_data ||= ENV['INSTANCES_USER_DATA']
@@ -60,43 +77,45 @@ module CucuShift
             if options.user_data
               case options.user_data
               when URI.regexp
-                user_data_string = Base64.encode64(
-                  "#include\n#{options.user_data}"
-                )
+                url = URI.parse options.user_data
+                if url.scheme == "file"
+                  # to specify relative path, do like "file://p1/p2/p3"
+                  # to specify absolure path, do like "file:///p1/p2/p3"
+                  path = url.host ? File.join(url.host, url.path) : url.path
+                  user_data_string =
+                    File.read( expand_private_path(path, public_safe: true) )
+                elsif url.scheme =~ /http/
+                  res = Http.get(url: options.user_data)
+                  unless res[:success]
+                    raise "failed to get url: #{options.user_data}"
+                  end
+                  user_data_string = res[:response]
+                else
+                  raise "dunno how to handle scheme: #{url.scheme}"
+                end
+
+                if URI.path.end_with? ".erb"
+                  # TODO process ERB
+                end
               else
-                user_data_string = Base64.encode64(
-                  File.read(
-                    expand_private_path(options.user_data, public_safe: true)
-                  )
-                )
+                # raw user data
+                user_data_string = options.user_data
               end
+
+              # TODO: gzip data?
+              user_data_string = Base64.encode64 user_data_string
             else
               user_data_string = ""
             end
 
-            # a hack to put puddle tag into instance names
-            options.launched_instances_name_prefix =
-              process_instance_name(options.launched_instances_name_prefix,
-                                     ENV["PUDDLE_REPO"])
-
-            # TODO: allow specifying pre-launched machines
-            # TODO: allow choosing other launchers, not only openstack
 
             ## launch Cloud instances
             hosts = launch_instances(options, names: hostnames,
-                                              user_data: user_data_string,
-                                              service_name: service_name)
+                                              user_data: user_data_string)
 
             ## run ansible setup
             hosts_spec = { "master"=>hosts.values[0..options.master_num - 1],
                            "node"=>hosts.values[options.master_num..-1] }
-            # TODO: allow custom ssh username
-            launch_opts = {
-              hosts_spec: hosts_spec,
-              ssh_key: expand_private_path(ostack.opts[:key_file]),
-              ssh_user: 'root'
-            }
-            el.launcher_env_options(launch_opts)
             el.ansible_install(**launch_opts)
           else
             raise "config keyword '#{options.config}' not implemented"
@@ -107,9 +126,9 @@ module CucuShift
       run!
     end
 
+    # @return [Array<Host>] the launched and ssh acessible hosts
     def launch_instances(options, names:,
-                         user_data: nil,
-                         service_name:)
+                         user_data: nil)
       hostnames = []
       if options.master_num > 1
         options.master_num.times { |i|

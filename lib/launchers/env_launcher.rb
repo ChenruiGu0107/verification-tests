@@ -508,7 +508,7 @@ module CucuShift
 
       opts[:registry_ha] = false unless to_bool(opts[:registry_ha])
       opts[:use_rpm_playbook] = false unless to_bool(opts[:use_rpm_playbook])
-    end 
+    end
 
     #def launch(**opts)
     #  # set OPENSTACK_SERVICE_NAME
