@@ -575,7 +575,7 @@ case $1 in
 	modify_IS_for_testing)
 		modify_IS_for_testing "$2"
 		;;
-    update_playbook_rpms)
+	update_playbook_rpms)
 		update_playbook_rpms
 		;;
 	*)
