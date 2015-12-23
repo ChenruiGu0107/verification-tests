@@ -7,6 +7,12 @@ Then /^the step should( not)? (succeed|fail)$/ do |negative, outcome|
   end
 end
 
+Given /^the step (succeeded|failed)$/ do |outcome|
+  if (outcome == "succeeded") != @result[:success]
+    raise "the step #{@result[:success] ? "succeeded" : "failed"}"
+  end
+end
+
 # @note This step checks whether or not a step successfully timed out
 Then /^the step should have timed out$/ do
   raise "The step did not timeout" unless @result[:timeout]

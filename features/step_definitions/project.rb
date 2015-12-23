@@ -145,6 +145,11 @@ When /^I get project ([-a-zA-Z_]+)$/ do |resource|
   @result = user.cli_exec(:get, resource: resource, n: project.name)
 end
 
+When /^I get project ([-a-zA-Z_]+) with labels:$/ do |resource, table|
+  labels = table.raw.flatten
+  @result = user.cli_exec(:get, resource: resource, n: project.name, l: labels)
+end
+
 When /^I get project ([-a-zA-Z_]+) as (YAML|JSON)$/ do |resource, format|
   @result = user.cli_exec(:get, resource: resource, n: project.name, o: format.downcase)
   step "the output is parsed as #{format}"
