@@ -150,8 +150,6 @@ Feature: oc exports related scenarios
     And I run the :get client command with:
       | resource | svc |
     Then the step should succeed
-    And the output should match:
-      | NAME\\s+CLUSTER_IP\\s+EXTERNAL_IP\\s+PORT\\(S\\)\\s+SELECTOR\\s+AGE |
     And the output should not contain:
       | template |
     And I run the :export client command with:

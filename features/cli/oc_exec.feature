@@ -45,8 +45,9 @@ Feature: containers related features
     When I run the :logs client command with:
       | resource_name | hello-openshift |
     Then the output should contain:
-      | Started, serving at 8080 |
-
+      | serving on 8081 |
+      | serving on 8888 |
+  
   # @author xxing@redhat.com
   # @case_id 497482
   Scenario: Add env variables to postgresql-92-centos7 image

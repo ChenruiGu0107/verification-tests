@@ -20,7 +20,7 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | retry             ||
-    Then the output should contain "retried #1"
+    Then the output should contain "etried #1"
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :deploy client command with:
       | deployment_config | hooks |
@@ -84,7 +84,7 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | database |
       | cancel            ||
-    Then the output should contain "no active deployments to cancel"
+    Then the output should contain "No deployments are in progress"
     When I run the :deploy client command with:
       | deployment_config | database |
     Then the output should contain "database #1 deployed"
@@ -560,13 +560,13 @@ Feature: deployment related features
       | cancel            ||
     Then the step should succeed
     And the output should match:
-      | cancelled deployment #1 |
+      | ancelled deployment #1 |
     And I wait until the status of deployment "hooks" becomes :failed
     And I run the :deploy client command with:
       | deployment_config | hooks |
       | retry | |
     Then the output should match:
-      | retried #1 |
+      | etried #1 |
     And I run the :describe client command with:
       | resource | dc |
       | name | hook |
@@ -676,7 +676,7 @@ Feature: deployment related features
       | deployment_config | hooks |
       | cancel ||
     Then the step should succeed
-    And the output should contain "cancelled deployment #3"
+    And the output should contain "ancelled deployment #3"
     When I run the :rollback client command with:
       | deployment_name | hooks |
     Then the step should succeed
