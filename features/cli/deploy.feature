@@ -539,7 +539,7 @@ Feature: deployment related features
       | deployment_config | hooks |
       | retry | |
     Then the output should match:
-      | retried #1 |
+      | etried #1 |
     And I run the :describe client command with:
       | resource | dc |
       | name | hook |

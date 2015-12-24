@@ -7,8 +7,8 @@ Feature: oc related features
     Then the output should contain:
       | types        An introduction to concepts and types |
     When I run the :help client command with:
-      | help_word | --help |
       | command | types |
+      | help_word | --help |
     Then the output should contain:
       | Concepts: |
       | * Containers: |
