@@ -30,7 +30,7 @@ Feature: template related scnearios:
     Then the step should fail
     And the output should contain:
       | error                   |
-      | matched "I_do_no_exist" |
+      | I_do_no_exist |
     And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
     # activate/install the template to the project
     And I run the :create client command with:
