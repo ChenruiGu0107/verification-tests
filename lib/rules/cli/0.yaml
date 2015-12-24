@@ -41,6 +41,16 @@
     :resourceversion: --resource-version=<value>
     :t: -t <value>
     :template: --template=<value>
+:attach:
+  :cmd: oc attach
+  :options:
+    :pod: <value>
+    :c: -c <value>
+    :i: -i
+    :t: -t
+    :container: --container=<value>
+    :stdin: --stdin=<value>
+    :tty: --tty=<value>
 :build_logs:
   :cmd: oc build-logs <build_name>
   :options:
@@ -382,6 +392,8 @@
     :list_webhooks: --list-webhooks=<value>
 :status:
   :cmd: oc status
+  :options:
+    :v: -v
 :tag:
   :cmd: oc tag
 :types:
