@@ -275,3 +275,84 @@ Feature: creating 'apps' with CLI
        |<%= service.url %>|
     Then the step should succeed
     And the output should contain "Hello OpenShift!"
+
+  # @author chunchen@redhat.com
+  # @case_id 482263
+  Scenario: Create an application from images
+    Given I have a project
+    When I create a new application with:
+      | image_stream | openshift/python|
+      | image_stream | openshift/mysql |
+      | code         | git://github.com/openshift/sti-python |
+      | context_dir  | 3.4/test/standalone-test-app |
+      | group        | openshift/python+openshift/mysql |
+      | env        | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=ccytest|
+    Then the step should succeed
+    And the "sti-python-1" build completed
+    And a pod becomes ready with labels:
+      | deployment=sti-python-1      |
+      | deploymentconfig=sti-python  |
+    And I wait for the "sti-python" service to become ready
+    When I run the :exec client command with:
+      | pod     | <%= pod.name %> |
+      | c     | mysql |
+      |oc_opts_end ||
+      | exec_command | /opt/rh/rh-mysql56/root/usr/bin/mysql |
+      | exec_command_arg |-h<%= service.ip %>|
+      | exec_command_arg |-utest|
+      | exec_command_arg |-ptest|
+      | exec_command_arg |-estatus|
+    Then the step should succeed
+    And the output should match "Uptime:\s+(\d+\s+min\s+)?\d+\s+sec"
+    Given I wait for the "sti-python" service to become ready
+    When I execute on the pod:
+      | curl | -s | <%= service.url %> |
+    Then the step should succeed
+    When I create a new application with:
+      | image_stream | openshift/python |
+      | code         | git://github.com/openshift/sti-python |
+      | context_dir  | 3.4/test/standalone-test-app |
+      | name         | sti-python1 |
+    Then the step should succeed
+    And the "sti-python1-1" build completed
+    When I create a new application with:
+      | docker_image | openshift/python-34-centos7 |
+      | code         | git://github.com/openshift/sti-python |
+      | context_dir  | 3.4/test/standalone-test-app |
+      | name         | sti-python2 |
+    Then the step should succeed
+    And the "sti-python2-1" build completed
+    Given I wait for the "sti-python2" service to become ready
+    When I execute on the pod:
+      | curl | -s | <%= service.url %> |
+    Then the step should succeed
+    Given the project is deleted
+    And I have a project
+    When I create a new application with:
+      | docker_image | openshift/python-34-centos7  |
+      | docker_image | openshift/mysql-55-centos7 |
+      | code         | git://github.com/openshift/sti-python |
+      | context_dir  | 3.4/test/standalone-test-app |
+      | group        | openshift/python-34-centos7+openshift/mysql-55-centos7  |
+      | env | MYSQL_ROOT_PASSWORD=test|
+    Then the step should succeed
+    And the "sti-python-1" build completed
+    And a pod becomes ready with labels:
+      | deployment=sti-python-1      |
+      | deploymentconfig=sti-python  |
+    And I wait for the "sti-python" service to become ready
+    When I run the :exec client command with:
+      | pod     | <%= pod.name %> |
+      | c     | mysql-55-centos7 |
+      |oc_opts_end ||
+      | exec_command | /opt/rh/mysql55/root/usr/bin/mysql |
+      | exec_command_arg |-h<%= service.ip %>|
+      | exec_command_arg |-uroot|
+      | exec_command_arg |-ptest|
+      | exec_command_arg |-estatus|
+    Then the step should succeed
+    And the output should match "Uptime:\s+(\d+\s+min\s+)?\d+\s+sec"
+    Given I wait for the "sti-python" service to become ready
+    When I execute on the pod:
+      | curl | -s | <%= service.url %> |
+    Then the step should succeed
