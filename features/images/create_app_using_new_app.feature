@@ -12,7 +12,7 @@ Feature:Create apps using new_app cmd feature
 
     Given I wait for the "openshift-quickstarts" service to become ready
     When I execute on the pod:
-      | curl | -s | <%= service.url %> |
+      | curl | -s | <%= service.url %>/websocket-chat/ |
     Then the step should succeed
     And the output should contain "WebSocket connection opened"
 
