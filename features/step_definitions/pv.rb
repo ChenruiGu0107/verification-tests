@@ -30,7 +30,7 @@ When /^admin creates a PV from "([^"]*)" where:$/ do |location, table|
   end
 
   logger.info("Creating PV:\n#{pv_hash.to_yaml}")
-  @result = CucuShift::PV.create(by: admin, spec: pv_hash)
+  @result = CucuShift::PersistentVolume.create(by: admin, spec: pv_hash)
 
   if @result[:success]
     @pvs << @result[:pv]
