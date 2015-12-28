@@ -254,6 +254,7 @@
     :app_repo: <value>
     :code: --code=<value>
     :docker_image: --docker-image=<value>
+    :e: -e <value>
     :image: --image=<value>
     :l: -l <value>
     :name: --name=<value>
