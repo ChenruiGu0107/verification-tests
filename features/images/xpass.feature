@@ -45,8 +45,19 @@ Feature: xpass.feature
       | eap64-mongodb-s2i    | 2     |
       | eap64-mysql-s2i      | 2     |
       | eap64-postgresql-s2i | 2     |
-  Scenario: 
-
+  # @author haowang@redhat.com
+  # @case_id 515426
+  Scenario: Create amq application from template in web console - amq62-ssl
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/amq-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | amq62-ssl | 
+      | param    | AMQ_TRUSTSTORE_PASSWORD=password,AMQ_KEYSTORE_PASSWORD=password |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | application=broker |
 
 
 
