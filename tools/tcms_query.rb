@@ -222,6 +222,7 @@ def report_auto_testcases(options)
                            script['ruby'].strip[0..40], auto_by] #testcase['is_automated']]
           end
         else
+          raise "bad case #{testcase['case_id']}" unless script.kind_of?(Hash)
           table.rows << [testcase['case_id'], testcase['summary'].strip[0..20],
                          script['ruby'].strip[0..40], auto_by] #testcase['is_automated']]
 
