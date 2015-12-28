@@ -51,3 +51,62 @@ Feature: resouces related scenarios
       | l          |       |
     Then the step should succeed
     Then the output should match "ruby-sample-build-1-build\s+1/1\s+Running\s+0"
+
+  # @author xxia@redhat.com
+  # @case_id 512023
+  Scenario: oc replace with miscellaneous options
+    Given I have a project
+    And I run the :run client command with:
+      | name         | mydc                      |
+      | image        | openshift/hello-openshift |
+      | -l           | label=mydc                |
+    Then the step should succeed
+
+    Given I wait until the status of deployment "mydc" becomes :running
+    And I run the :get client command with:
+      | resource      | dc                 |
+      | resource_name | mydc               |
+      | output        | yaml               |
+    Then the step should succeed
+    When I save the output to file>dc.yaml
+    And I run the :replace client command with:
+      | f     | dc.yaml |
+      | force |         |
+    Then the step should succeed
+    And the output should contain:
+      | "mydc" deleted  |
+      | "mydc" replaced |
+
+    Given a pod becomes ready with labels:
+      | label=mydc |
+    And evaluation of `pod.name` is stored in the :pod_name clipboard
+    When I run the :replace client command with:
+      | f       | dc.yaml |
+      | force   |         |
+      | cascade |         |
+    Then the step should succeed
+    When I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear
+    And I run the :get client command with:
+      | resource | pod     |
+      | l        | dc=mydc |
+    Then the step should succeed
+    And the output should not contain "<%= cb.pod_name %>"
+
+    When I run the :run client command with:
+      | name         | mypod                     |
+      | image        | openshift/hello-openshift |
+      | generator    | run-pod/v1                |
+    Then the step should succeed
+    Given the pod named "mypod" becomes ready 
+    And I run the :get client command with:
+      | resource      | pod                |
+      | resource_name | mypod              |
+      | output        | yaml               |
+    Then the step should succeed
+    When I save the output to file>pod.yaml
+    And I run the :replace client command with:
+      | f            | pod.yaml |
+      | force        |          |
+      | grace-period | 100      |
+    # Currently, there is a bug https://bugzilla.redhat.com/show_bug.cgi?id=1285702 that makes the step *fail*
+    Then the step should succeed

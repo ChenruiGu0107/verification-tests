@@ -101,3 +101,51 @@ Feature: oc patch related scenarios
       | p             | {"metadata":{"labels":{"template":"temp1"}} |
     Then the step should fail
     And the output should contain "not found"
+
+  # @author xxia@redhat.com
+  # @case_id 507671
+  Scenario: oc patch to update resource fields using YAML format
+    Given I have a project
+    And I create a new application with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    Given I wait until the status of deployment "database" becomes :running
+    And evaluation of `"spec:\n  replicas: 2"` is stored in the :patch_yaml clipboard
+    When I run the :patch client command with:
+      | resource      | dc                   |
+      | resource_name | database             |
+      # Not work well to simply use | p             | spec:\n  replicas: 2 |
+      | p             | <%= cb.patch_yaml %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc                 |
+      | resource_name | database           |
+      | template      | {{.spec.replicas}} |
+    Then the step should succeed
+    And the output should contain "2"
+
+    Given evaluation of `"spec:\n  output:\n    to:\n      name: origin-ruby-sample:tag1"` is stored in the :patch_yaml clipboard
+    When I run the :patch client command with:
+      | resource      | bc                   |
+      | resource_name | ruby-sample-build    |
+      | p             | <%= cb.patch_yaml %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | bc                 |
+      | resource_name | ruby-sample-build  |
+      | template      | {{.spec.output.to.name}} |
+    Then the step should succeed
+    And the output should contain "origin-ruby-sample:tag1"
+
+    Given evaluation of `"spec:\n  dockerImageRepository: xxia/origin-ruby-sample"` is stored in the :patch_yaml clipboard
+    When I run the :patch client command with:
+      | resource      | is                   |
+      | resource_name | origin-ruby-sample   |
+      | p             | <%= cb.patch_yaml %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is                 |
+      | resource_name | origin-ruby-sample |
+      | template      | {{.spec.dockerImageRepository}} |
+    Then the step should succeed
+    And the output should contain "xxia/origin-ruby-sample"

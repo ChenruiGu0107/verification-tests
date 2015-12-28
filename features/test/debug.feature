@@ -18,12 +18,12 @@ Feature: Debug and Explore Stuff
 
     Examples: second test case
       |fff|ddd|
-      |aaa|bbb|
+      |aaa|b\nbb|
 
   @pry_table_step
   Scenario: I want to pry in a step with table
     When I pry in a step with table
       | h1 | h2 |
       |va1|va2|
-      |vb1|vb2|
-      |vc1|vc2|
+      |vb1|vb \| 2|
+      |vc1|v\nc2|

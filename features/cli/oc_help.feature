@@ -2,13 +2,11 @@ Feature: oc related features
   # @author pruan@redhat.com
   # @case_id 497509
   Scenario: Check OpenShift Concepts and Types via oc types
-    When I run the :help client command with:
-      | help_word | -h | 
+    When I run the :help client command
     Then the output should contain:
       | types        An introduction to concepts and types |
-    When I run the :help client command with:
-      | command | types |
-      | help_word | --help |
+    When I run the :types client command with:
+      | help | true |
     Then the output should contain:
       | Concepts: |
       | * Containers: |
@@ -63,9 +61,8 @@ Feature: oc related features
   # @author pruan@redhat.com
   # @case_id 487931
   Scenario: Check the help page for oc export
-    When I run the :help client command with:
-      | command | export |
-      | help_word | --help |
+    When I run the :export client command with:
+      | help | true |
     Then the output should contain:
       | Export resources so they can be used elsewhere |
       | The export command makes it easy to take existing objects and convert them to configuration files |
@@ -75,9 +72,9 @@ Feature: oc related features
   # @author pruan@redhat.com
   # @case_id 483189
   Scenario: Check the help page for oc deploy
-    When I run the :help client command with:
-      | command   | deploy |
-      | help_word | --help |
+    When I run the :deploy client command with:
+      | help              | true   |
+      | deployment_config | :false |
     Then the output should contain:
       | View, start, cancel, or retry a deployment |
       | This command allows you to control a deployment config. |
@@ -90,9 +87,8 @@ Feature: oc related features
   # @author pruan@redhat.com
   # @case_id 492274
   Scenario: Check help doc of command 'oc tag'
-    When I run the :help client command with:
-      | command   | tag |
-      | help_word | -h  |
+    When I run the :tag client command with:
+      | h | true |
     Then the output should contain:
       | Tag existing images into image streams                                         |
       | The tag command allows you to take an existing tag or image from an image      |
@@ -100,9 +96,8 @@ Feature: oc related features
       | tag in 1 or more other image streams. It is similar to the 'docker tag'        |
       | command, but it operates on image streams instead.                             |
       | oc tag [--source=SOURCETYPE] SOURCE DEST [DEST ...] [options]                  |
-    When I run the :help client command with:
-      | help_word | help  |
-      | command   | tag   |
+    When I run the :tag client command with:
+      | help | true  |
     Then the output should contain:
       | Tag existing images into image streams                                         |
       | The tag command allows you to take an existing tag or image from an image      |
@@ -110,17 +105,15 @@ Feature: oc related features
       | tag in 1 or more other image streams. It is similar to the 'docker tag'        |
       | command, but it operates on image streams instead.                             |
       | oc tag [--source=SOURCETYPE] SOURCE DEST [DEST ...] [options]                  |
-  
+
   # @author wsun@redhat.com
   # @case_id 499948
   Scenario: Check the help page for oc annotate
-    When I run the :help client command with:
-      | help_word | -h |
+    When I run the :help client command
     Then the output should contain:
       | annotate     Update the annotations on a resource |
-    When I run the :help client command with:
-      | command | annotate |
-      | help_word | --help |
+    When I run the :annotate client command with:
+      | help | true |
     Then the output should contain:
       | Update the annotations on one or more resources |
       | oc annotate [--overwrite] (-f FILENAME \| TYPE NAME) KEY_1=VAL_1 ... KEY_N=VAL_N [--resource-version=version] [options] |
@@ -132,13 +125,12 @@ Feature: oc related features
   # @author: yanpzhan@redhat.com
   # @case_id: 499893
   Scenario: Check help info for oc run
-    When I run the :help client command with:
-      | help_word | -h |
+    When I run the :help client command
     Then the output should contain:
       | run          Run a particular image on the cluster. |
-    When I run the :help client command with:
-      |  command  | run    |
-      | help_word | --help |
+    When I run the :run client command with:
+      | help | true   |
+      | name | :false |
     Then the output should contain:
       |Create and run a particular image, possibly replicated                                                 |
       |oc run NAME --image=image [--env="key=value"] [--port=port] [--replicas=replicas] [--dry-run=bool] [--overrides=inline-json] [options] |
@@ -158,3 +150,53 @@ Feature: oc related features
       |-t, --template='': Template string or path to template file to use when -o=go-template, -o=go-template-file. |
       |--tty=false: Allocated a TTY for each container in the pod.|
 
+
+  # @author xxia@redhat.com
+  # @case_id 510553
+  Scenario: Use oc explain to see detailed documentation of resources
+    When I run the :explain client command with:
+      | help | true  |
+    Then the output should contain:
+      | Documentation of resources |
+      | Possible resource types    |
+    When I run the :explain client command with:
+      | resource  | po |
+    Then the step should succeed
+    And the output should contain:
+      | DESCRIPTION |
+      | Pod is a collection of containers |
+      | FIELDS      |
+      | apiVersion  |
+    When I run the :explain client command with:
+      | resource  | pods.spec.containers |
+    Then the step should succeed
+    And the output should contain:
+      | RESOURCE: containers |
+      | DESCRIPTION |
+      | List of containers belonging to the pod |
+      | FIELDS      |
+      | securityContext  |
+    When I run the :explain client command with:
+      | resource  | svc |
+    Then the step should succeed
+    When I run the :explain client command with:
+      | resource  | pvc |
+    Then the step should succeed
+    When I run the :explain client command with:
+      | resource  | rc.spec.selector |
+    Then the step should succeed
+
+    When I run the :explain client command with:
+      | resource  | dc |
+    Then the step should fail
+    When I run the :explain client command with:
+      | resource  | bc |
+    Then the step should fail
+    When I run the :explain client command with:
+      | resource  | no-this |
+    Then the step should fail
+    When I run the :explain client command with:
+      | resource  | rc,no |
+    Then the step should fail
+    And the output should match:
+      | error.*rc,no |
