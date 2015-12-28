@@ -158,3 +158,54 @@ Feature: oc related features
       |-t, --template='': Template string or path to template file to use when -o=go-template, -o=go-template-file. |
       |--tty=false: Allocated a TTY for each container in the pod.|
 
+
+  # @author xxia@redhat.com
+  # @case_id 510553
+  Scenario: Use oc explain to see detailed documentation of resources
+    When I run the :help client command with:
+      | command   | explain |
+      | help_word | --help  |
+    Then the output should contain:
+      | Documentation of resources |
+      | Possible resource types    |
+    When I run the :explain client command with:
+      | resource  | po |
+    Then the step should succeed
+    And the output should contain:
+      | DESCRIPTION |
+      | Pod is a collection of containers |
+      | FIELDS      |
+      | apiVersion  |
+    When I run the :explain client command with:
+      | resource  | pods.spec.containers |
+    Then the step should succeed
+    And the output should contain:
+      | RESOURCE: containers |
+      | DESCRIPTION |
+      | List of containers belonging to the pod |
+      | FIELDS      |
+      | securityContext  |
+    When I run the :explain client command with:
+      | resource  | svc |
+    Then the step should succeed
+    When I run the :explain client command with:
+      | resource  | pvc |
+    Then the step should succeed
+    When I run the :explain client command with:
+      | resource  | rc.spec.selector |
+    Then the step should succeed
+
+    When I run the :explain client command with:
+      | resource  | dc |
+    Then the step should fail
+    When I run the :explain client command with:
+      | resource  | bc |
+    Then the step should fail
+    When I run the :explain client command with:
+      | resource  | no-this |
+    Then the step should fail
+    When I run the :explain client command with:
+      | resource  | rc,no |
+    Then the step should fail
+    And the output should match:
+      | error.*rc,no |

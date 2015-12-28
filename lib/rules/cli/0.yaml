@@ -156,6 +156,10 @@
   :cmd: <command>
   :options:
     :opt: <value>
+:explain:
+  :cmd: oc explain
+  :options:
+    :resource: <value>
 :export:
   :cmd: oc export
   :options:
@@ -321,6 +325,8 @@
     :f: -f <value>
     :force: --force
     :output: --output=<value>
+    :cascade: --cascade
+    :grace-period: --grace-period=<value>
 :rollback:
   :cmd: oc rollback <deployment_name>
   :options:
