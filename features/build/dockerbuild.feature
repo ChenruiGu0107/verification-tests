@@ -26,7 +26,7 @@ Feature: dockerbuild.feature
     And the "ruby22-sample-build-1" build failed
     When I run the :logs client command with:
       | resource_name | bc/ruby22-sample-build |
-    Then the output should contain "Build error: Invalid git source url: 123"
+    Then the output should contain "Invalid git source url: 123"
 
   # @author wzheng@redhat.com
   # @case_id 438849
