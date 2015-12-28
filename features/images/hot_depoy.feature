@@ -4,7 +4,7 @@ Feature: hotdeploy.feature
   # @case_id: 508723,508727,508729,508731,508733,508725
   Scenario Outline: Hot deploy test
     Given I have a project
-    When I run the :new_app client command with:
+    When I create a new application with:
       | app_repo     | <app_repo>     |
       | image_stream | <image_stream> |
       | env          | <env>          |
@@ -32,7 +32,7 @@ Feature: hotdeploy.feature
     # @case_id:508735
     Scenario: Enable hot deploy for sinatra app - ruby-22-rhel7 which is created from imagestream via oc new-app
     Given I have a project
-    When I run the :new_app client command with:
+    When I create a new application with:
       | app_repo |https://github.com/openshift-qe/sinatra-hot-deploy-ruby22.git |
       | image_stream | openshift/ruby:2.2 |
       | env | RACK_ENV=development |
@@ -51,7 +51,7 @@ Feature: hotdeploy.feature
   # @case_id:508721,508719
   Scenario Outline: Enable hot deploy for perl which is created from imagestream via oc new-app
    Given I have a project
-   When I run the :new_app client command with:
+   When I create a new application with:
       | app_repo     | <app_repo>     |
       | image_stream | <image_stream> |
       | env          | <env>          |
