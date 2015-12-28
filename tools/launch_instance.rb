@@ -6,9 +6,11 @@ Utility to launch OpenShift v3 instances
 """
 
 require 'base64'
+require 'cgi'
 require 'commander'
 require 'uri'
 
+require 'collections'
 require 'common'
 require 'http'
 require 'launchers/env_launcher'
@@ -94,8 +96,17 @@ module CucuShift
                   raise "dunno how to handle scheme: #{url.scheme}"
                 end
 
-                if URI.path.end_with? ".erb"
-                  # TODO process ERB
+                if url.path.end_with? ".erb"
+                  url_options = CGI::parse url.query
+                  url_options = Collections.map_hash(url_options) { |k, v|
+                    # all single value URL params would be de-arrayified
+                    k, ( v.size == 1 ? v.first : v )
+                  }
+                  erb = ERB.new(user_data_string)
+                  # options from url take precenece before lauch options
+                  erb_binding = BaseHelper.binding_from_hash(**launch_opts,
+                                                             **url_options)
+                  user_data_string = erb.result(erb_binding)
                 end
               else
                 # raw user data
