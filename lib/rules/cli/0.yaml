@@ -198,10 +198,9 @@
     :w: --watch=<value>
     :template: --template=<value>
 :help:
-  :cmd: oc
+  :cmd: oc help
   :options:
-    :command: <value>
-    :help_word: <value>
+    # use global `h` and `help` options if needed
 :import_image:
   :cmd: oc import-image
   :options:
@@ -382,6 +381,8 @@
     :list_webhooks: --list-webhooks=<value>
 :status:
   :cmd: oc status
+:tag:
+  :cmd: oc tag
 :types:
   :cmd: oc types
 :version:

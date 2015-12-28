@@ -221,19 +221,19 @@ module CucuShift
       cmd_used_options = [] # to control ignorant multiple values
       options.each { |key, values|
         [values].flatten.each { |value|
-          # false might be valid option so we don't ignore option on it
-          next if value == ":false" || value == :false || value.nil?
+          # `false' might be valid option so we take it literal by default
+          skip = ( value == ":false" || value == :false || value.nil? )
 
           case
           when option_rules[key]
-            parameters << " " << option_rules[key].gsub('<value>') {normalize(value)}
+            parameters << " " << option_rules[key].gsub('<value>') {normalize(value)} unless skip
           when global_option_rules[key]
-            global_parameters << " " << global_option_rules[key].gsub('<value>') {normalize(value)}
+            global_parameters << " " << global_option_rules[key].gsub('<value>') {normalize(value)} unless skip
           when cmd.include?("<#{key}>")
             if cmd_used_options.include? key
               raise "option '#{key}' allowed only once in #{cmd_key} command"
             else
-              cmd.gsub!("<#{key}>") {normalize(value)}
+              cmd.gsub!("<#{key}>") {skip ? "" : normalize(value)}
               cmd_used_options << key
             end
           else

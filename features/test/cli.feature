@@ -38,24 +38,24 @@ Feature: Testing CLI Scenarios
       | demo |
 
   Scenario: noescape, literal and false rules executor features
-    When I run the :help client command with:
-      | help word | help create |
+    When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
+      | arg | help create |
       # we fail because "help create" is treated as a single option
     Then the step should fail
-    When I run the :help client command with:
-      | help word | noescape: help create |
+    When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
+      | arg | noescape: help create |
       # here noescape prevents that
     Then the step should succeed
-    When I run the :help client command with:
-      | help word | literal: :false |
+    When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
+      | arg | literal: :false |
     Then the step should fail
     And the output should contain:
       |unknown command ":false"|
     And the output should not contain:
       |:literal|
-    When I run the :help client command with:
-      | help word | help |
-      | fake option to be skipped | :false |
+    When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
+      | arg             | help   |
+      | test do not use | :false |
     Then the step should succeed
     And the output should match:
       |Developer .*? Client|
