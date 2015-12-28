@@ -48,3 +48,21 @@ Feature:Create apps using new_app cmd feature
       | curl | -s | <%= service.url %> |
     Then the step should succeed
     And the output should contain "Hello from OpenShift v3"
+ 
+  # @author haowang@redhat.com
+  # @case_id 508976
+  Scenario: create resource from imagestream via oc new-app openshift/nodejs-010-rhel7
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | nodejs |
+      | code         | https://github.com/openshift/nodejs-ex.git |
+    Then the step should succeed
+    And the "nodejs-ex-1" build was created
+    And the "nodejs-ex-1" build completed
+    And a pod becomes ready with labels:
+      |app=nodejs-ex|
+    When I expose the "nodejs-ex" service
+    Then I wait for a server to become available via the "nodejs-ex" route
+    And  the output should contain "Welcome to your Node.js application on OpenShift"
+
+
