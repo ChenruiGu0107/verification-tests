@@ -5,25 +5,29 @@ Feature: build 'apps' with CLI
   Scenario: Create a build config from a remote repository using branch
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo | https://github.com/openshift/ruby-hello-world#beta2 |
-      | l        | app=test |
+      | code    | https://github.com/openshift/ruby-hello-world#beta2 |
+      | e       | key1=value1,key2=value2,key3=value3 |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | bc |
-      | name     | ruby-hello-world |
+    When I run the :get client command with:
+      | resource          | buildConfig |
+      | resource_name     | ruby-hello-world |
+      | o                 | yaml        |
     Then the output should match:
-      | URL:\\s+https://github.com/openshift/ruby-hello-world|
-      | Ref:\\s+beta2                                        |
-    When I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
-    Then the step should succeed
+      | uri:\\s+https://github.com/openshift/ruby-hello-world|
+      | ref:\\s+beta2                                        |
+      | name: key1                                           |
+      | value: value1                                        |
+      | name: key2                                           |
+      | value: value2                                        |
+      | name: key3                                           |
+      | value: value3                                        |
     When I run the :get client command with:
       | resource | builds |
     Then the output should contain:
       | NAME                |
       | ruby-hello-world-1  |
     When I run the :get client command with:
-      |resource| is |
+      |resource| imageStream |
     Then the output should contain:
       | ruby-20-centos7  |
       | ruby-hello-world |
