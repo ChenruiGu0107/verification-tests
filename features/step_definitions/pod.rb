@@ -73,7 +73,7 @@ Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
 
   # keep last waiting @result as the @result for knowing how pod failed
   @result[:matching].each do |pod|
-    @result = pod.wait_till_status(Pod::SUCCESS_STATUSES , user)
+    @result = pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES , user)
 
     unless @result[:success]
       raise "pod #{pod.name} did not reach expected status"
