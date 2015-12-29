@@ -6,6 +6,12 @@
 #   clean-up steps in reverse order so that environment for resource clean-up
 #   is same as on creation.
 # Embedded table delimiter is '!' if '|' not used
+# Gherkin more recent than 3.1.2 does support escaping new lines by `\n`.
+#   Also these two escapes are supported: `\|` amd `\\`. This means two things.
+#   First it is now possible to escape `|` in tables. And second is that
+#   clean-up steps with `\n` will most likely fail if written inside a table.
+#   When needing `\n` in clean-up steps, I believe that specifying steps within
+#   a multi-line string (instead of inside table rows) should work.
 Then /^I register clean\-up steps:$/ do |table|
   if table.respond_to? :lines
     # multi-line string
@@ -60,4 +66,25 @@ Then /^I register clean\-up steps:$/ do |table|
   end
 
   teardown_add *step_list
+end
+
+# repeat steps specified in a multi-line string until they pass (that means
+#   until they execute without raising an error)
+Given /^I wait(?: up to ([0-9]+) seconds)? for the steps to pass:$/ do |seconds, steps_string|
+  seconds = Integer(seconds) rescue 60
+  repetitions = 0
+  error = nil
+  success = wait_for(seconds) {
+    repetitions += 1
+    logger.info("Beginning step repetition: #{repetitions}")
+    begin
+      steps steps_string
+      true
+    rescue => e
+      error = e
+      false
+    end
+  }
+
+  raise error unless success
 end
