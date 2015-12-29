@@ -159,7 +159,11 @@ def report_auto_testcases_by_author(options)
   total_cases = res.count
   res.each do | testcase|
     # we only care about script field that's not empty (meaning it's automated)
-    if not testcase['script'].nil?
+    if testcase['script'] && !testcase['script'].empty?
+      if testcase['is_automated'] == 0
+        puts "has script but not marked automated: #{testcase['case_id']}"
+      end
+
       if (testcase['script'].include? script_pattern and testcase['case_status'] == 'CONFIRMED')
         auto_case_total += 1
         auto_by = testcase['notes'].match(regex)[2] if testcase['notes'].match(regex)
@@ -176,6 +180,10 @@ def report_auto_testcases_by_author(options)
             table.rows << [testcase['case_id'], testcase['summary'].strip[0..20], auto_by]
           end
         end
+      end
+    else
+      if testcase['is_automated'] != 0
+        puts "has no script but marked automated: #{testcase['case_id']}"
       end
     end
   end
