@@ -1,4 +1,41 @@
 ## Put here steps that are mostly cli specific, e.g new-app
+When /^I run the :(.*?) client command$/ do |yaml_key|
+  yaml_key.sub!(/^:/,'')
+  @result = user.cli_exec(yaml_key.to_sym, {})
+end
+
+When /^I run the :([a-z_]*?)( background)? client command with:$/ do |yaml_key, background, table|
+  if background
+    @result = user.cli_exec(
+      yaml_key.to_sym,
+      opts_array_process(table.raw) << [ :_background, true ]
+    )
+    @bg_rulesresults << @result
+    @bg_processes << @result[:process_object]
+  else
+    @result = user.cli_exec(yaml_key.to_sym, opts_array_process(table.raw))
+  end
+end
+
+When /^I run the :([a-z_]*?)( background)? admin command$/ do |yaml_key, background|
+  step "I run the :#{yaml_key}#{background} admin command with:",
+    table("|dummy|:false|")
+end
+
+When /^I run the :([a-z_]*?)( background)? admin command with:$/ do |yaml_key, background, table|
+  ensure_admin_tagged
+
+  if background
+    @result = env.admin_cli_executor.exec(
+      yaml_key.to_sym,
+      opts_array_process(table.raw) << [ :_background, true ]
+    )
+    @bg_rulesresults << @result
+    @bg_processes << @result[:process_object]
+  else
+    @result = env.admin_cli_executor.exec(yaml_key.to_sym, opts_array_process(table.raw))
+  end
+end
 
 # there is no such thing as app in OpenShift but there is a command new-app
 #   in the cli that logically represents an app - creating/deploying different
@@ -43,4 +80,32 @@ When /^I process and create:$/ do |table|
   if @result[:success]
     @result = user.cli_exec(:create, {f: "-", _stdin: @result[:stdout]})
   end
+end
+
+# this step basically wraps around the steps we use for simulating 'oc edit <resource_name'  which includes the following steps:
+# #   1.  When I run the :get client command with:
+#       | resource      | dc |
+#       | resource_name | hooks |
+#       | o             | yaml |
+#     And I save the output to file>hooks.yaml
+#     And I replace lines in "hooks.yaml":
+#       | 200 | 10 |
+#       | latestVersion: 1 | latestVersion: 2 |
+#     When I run the :replace client command with:
+#       | f      | hooks.yaml |
+#  So the output file name will be hard-coded to 'tmp_out.yaml', we still need to
+#  supply the resouce_name and the lines we are replacing
+Given /^I replace resource "([^"]+)" named "([^"]+)"(?: saving edit to "([^"]+)")?:$/ do |resource, resource_name, filename,table |
+  filename = "edit_resource.yaml" if filename.nil?
+  step %Q/I run the :get client command with:/, table(%{
+    | resource | #{resource} |
+    | resource_name |  #{resource_name} |
+    | o | yaml |
+    })
+  step %Q/the step should succeed/
+  step %Q/I save the output to file>#{filename}/
+  step %Q/I replace lines in "#{filename}":/, table
+  step %Q/I run the :replace client command with:/, table(%{
+    | f | #{filename} |
+    })
 end

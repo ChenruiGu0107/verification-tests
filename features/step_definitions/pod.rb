@@ -108,3 +108,25 @@ When /^I execute on the(?: "(.+?)")? pod:$/ do |pod_name, raw_args|
 
   @result = pod(pod_name).exec(*args, as: user)
 end
+
+# wrapper around  oc logs, keep executing the command until we have an non-empty response
+# There are few occassion that the 'oc logs' cmd returned empty response
+#   this step should address those situations
+Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |pod_name|
+  opts = {resource_name: pod_name}
+  res_cache = {}
+  res = {}
+  seconds = 15 * 60   # just put a timeout so we don't hang there indefintely
+  success = wait_for(seconds) {
+    res = user.cli_exec(:logs, **opts)
+    if res[:response].include? 'not found'
+      # the deploy pod has disappeared which mean we are done waiting.
+      true
+    else #
+      res_cache = res
+      false
+    end
+  }
+  res_cache[:success] = success
+  @result  = res_cache
+end

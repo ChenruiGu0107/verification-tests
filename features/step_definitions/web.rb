@@ -76,3 +76,16 @@ When /^I click the following "([^"]*)" element:$/ do |element_type, table|
   selector = opts_array_to_hash(table.raw)
   @result = browser.handle_element({type: element_type, selector: selector, op: "click"})
 end
+
+# repeat doing web action until success,useful for waiting resource to become visible and available on web
+Given /^I wait(?: (\d+) seconds)? for the :(.+?) web console action to succeed with:$/ do |time, web_action, table|
+  time = time ? time.to_i : 15 * 60
+  success = wait_for(time) {
+    step "I perform the :#{web_action} web console action with:",table
+    break true if @result[:success]
+  }
+  @result[:success] = success
+  unless @result[:success]
+    raise "can not wait the :#{web_action} web action to succeed"
+  end
+end
