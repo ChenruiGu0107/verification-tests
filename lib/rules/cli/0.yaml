@@ -3,6 +3,7 @@
   # these are options as seen by `oc options`
   :api_version: --api-version=<value>
   :ca: --certificate-authority=<value>
+  :cluster: --cluster=<value>
   :config: --config=<value>
   :context: --context=<value>
   :h: -h
@@ -18,6 +19,7 @@
   :server: --server=<value>
   :stderrthreshold: --stderrthreshold=<value>
   :token: --token=<value>
+  :v: --v=<value>
 :add_role_to_user:
   :cmd: oc policy add-role-to-user <role> <user_name>
 :add_role_to_group:
@@ -64,7 +66,7 @@
 :config:
   :cmd: oc config
   :options:
-    :subcommand: <subcommand>
+    :subcommand: <value>
 :config_set:
   :cmd: oc config set <prop_name> <prop_value>
 :config_set_cluster:
