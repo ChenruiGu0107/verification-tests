@@ -50,11 +50,6 @@ Feature: Configuration of environment variables check
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
     When I execute on the pod:
-      | curl | -s | <%= service.url %> |
-    Then the step should succeed
-    And the output should contain: 
-      | Hello World |
-    When I execute on the pod:
       | env |
     Then the step should succeed
     And the output should contain:
