@@ -5,6 +5,7 @@ Feature: Debug and Explore Stuff
   Scenario: I want to pry
     Given I pry
 
+  @admin_pry @admin
   Scenario: I want to pry again
     Given I pry
 

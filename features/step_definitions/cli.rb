@@ -19,21 +19,22 @@ end
 
 When /^I run the :([a-z_]*?)( background)? admin command$/ do |yaml_key, background|
   step "I run the :#{yaml_key}#{background} admin command with:",
-    table("|dummy|:false|")
+    table([["dummy"]])
 end
 
 When /^I run the :([a-z_]*?)( background)? admin command with:$/ do |yaml_key, background, table|
   ensure_admin_tagged
+  opts = table.raw == [["dummy"]] ? [] : opts_array_process(table.raw)
 
   if background
     @result = env.admin_cli_executor.exec(
       yaml_key.to_sym,
-      opts_array_process(table.raw) << [ :_background, true ]
+      opts << [ :_background, true ]
     )
     @bg_rulesresults << @result
     @bg_processes << @result[:process_object]
   else
-    @result = env.admin_cli_executor.exec(yaml_key.to_sym, opts_array_process(table.raw))
+    @result = env.admin_cli_executor.exec(yaml_key.to_sym, opts)
   end
 end
 
