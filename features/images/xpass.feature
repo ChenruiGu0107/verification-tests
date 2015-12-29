@@ -18,7 +18,7 @@ Feature: xpass.feature
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/amq-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
-      | template | amq62-basic | 
+      | template | amq62-basic |
     Then the step should succeed
     And a pod becomes ready with labels:
       | application=broker |
@@ -30,7 +30,7 @@ Feature: xpass.feature
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
-      | template |  <template> | 
+      | template |  <template> |
     Then the step should succeed
     And the "eap-app-1" build was created
     And the "eap-app-1" build completed
@@ -40,7 +40,7 @@ Feature: xpass.feature
     Examples: OS Type
       | template             | podno |
       | eap64-amq-s2i        | 2     |
-      | eap64-basic-s2i      | 1     | 
+      | eap64-basic-s2i      | 1     |
       | eap64-https-s2i      | 1     |
       | eap64-mongodb-s2i    | 2     |
       | eap64-mysql-s2i      | 2     |
@@ -53,11 +53,24 @@ Feature: xpass.feature
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/amq-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
-      | template | amq62-ssl | 
+      | template | amq62-ssl |
       | param    | AMQ_TRUSTSTORE_PASSWORD=password,AMQ_KEYSTORE_PASSWORD=password |
     Then the step should succeed
     And a pod becomes ready with labels:
       | application=broker |
 
-
-
+  # @author haowang@redhat.com
+  # @case_id 508993
+  Scenario: create resource from imagestream via oc new-app-jboss-eap6-openshift
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo    | jboss-eap64-openshift~https://github.com/jboss-developer/jboss-eap-quickstarts#6.4.x |
+      | context_dir | kitchensink |
+    Then the step should succeed
+    And the "jboss-eap-quickstarts-1" build was created
+    And the "jboss-eap-quickstarts-1" build completed
+    And a pod becomes ready with labels:
+      |app=jboss-eap-quickstarts|
+    When I expose the "jboss-eap-quickstarts" service
+    Then I wait for a server to become available via the "jboss-eap-quickstarts" route
+    And  the output should contain "JBoss"
