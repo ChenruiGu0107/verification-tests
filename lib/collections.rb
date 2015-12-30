@@ -87,7 +87,7 @@ module CucuShift
       }
     end
 
-    # Method to covert Cucumber `Table.raw` into a hash
+    # Method to covert Cucumber `Table#raw` into a hash
     # @param [Hash|Array] opts normalized Hash or raw array of String options
     # @param [Boolean] sym_mode if true, all keys are converted to Symbols
     # @param [Boolean] array_mode output is a two-dimentional array, not a Hash
@@ -143,6 +143,29 @@ module CucuShift
     end
     def opts_array_process(opts, sym_mode: true, array_mode: true)
       opts_array_to_hash(opts, sym_mode: sym_mode, array_mode: array_mode)
+    end
+
+    # helper method to get variables hash from a Cucumber Table#raw
+    # @param opts [Hash, Array<String>] array of strings like `VAR=VALUE` pairs
+    #   or a Hash; if Hash, no processing is done
+    # @return [Hash<String, String>] a hash suitable to set env variables
+    def to_env_hash(opts)
+      opts = [ opts ] if opts.kind_of?(String)
+
+      case opts
+      when Hash
+        return opts
+      when Array
+        res = {}
+        opts.each do |str|
+          var, val = str.split('=', 2)
+          raise "wrong variable assignment: #{str.inspect}" unless val
+          res[var] = val
+        end
+        return res
+      else
+        raise "unknown environment format: #{opts.inspect}"
+      end
     end
   end
 

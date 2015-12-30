@@ -157,6 +157,8 @@ module CucuShift
     #       http://net-ssh.github.io/ssh/v1/chapter-5.html
     # TODO: allow setting environment variables via channel.env
     def exec_raw(command, opts={})
+      raise "setting env variables not implemented yet" if opts[:env]
+
       res = opts[:result] || {}
       res[:command] = command
       instruction = 'Remote cmd: `' + command + '` @ssh://' +

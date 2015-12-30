@@ -25,7 +25,12 @@ module CucuShift
       self.opts = opts.dup
       @status = :pending
 
-      logger.info("Shell Commands:\n" + result[:command])
+      log_text = "Shell Commands:\n"
+      if opts[:env]
+        log_text << opts[:env].inject("") { |r,e| r << e.join('=') << "\n" }
+      end
+      log_text << result[:command]
+      logger.info(log_text)
 
       spawn
     end

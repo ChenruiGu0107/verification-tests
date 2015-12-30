@@ -79,6 +79,12 @@ module CucuShift
           cmd_options << [ k, v ]
         end
       end
+
+      if exec_options[:env]
+        # env is likely incorrect format if derived from a Cucumber table
+        exec_options[:env] = Collections.to_env_hash exec_options[:env]
+      end
+
       return [ cmd_options, exec_options ]
     end
 
