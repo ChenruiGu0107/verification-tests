@@ -12,7 +12,18 @@ check_one_image_stream:
   url: /console/project/<project_name>/browse/images/<image_name>
   elements:
   - selector:
-      xpath: //table/tbody[descendant::td[contains(text(),'<image_name>')]]
+      xpath: //span[contains(text(),'<image_name>')]
+  # check image annotations
+  - selector:
+      text: Show annotations
+    op: click
+    type: a
+  - selector:
+      xpath: //td[contains(text(),"openshift.io/image")]
+  - selector:
+      text: Hide annotations
+    op: click
+    type: a
 check_deleted_image_stream:
   url: /console/project/<project_name>/browse/images/<image_name>
   elements:
