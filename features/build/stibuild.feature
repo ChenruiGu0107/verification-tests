@@ -11,4 +11,43 @@ Feature: stibuild.feature
     And the "python-sample-build-1" build was created
     And the "python-sample-build-1" build completed
 
+  # @author wzheng@redhat.com
+  # @case_id 479021
+  Scenario: Add ENV to STIStrategy buildConfig when do sti build
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-env-sti.json |
+    Then the step should succeed
+    And the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    Given I wait for the "frontend" service to become ready
+    When I run the :env client command with:
+      | resource | pods |
+      | list     | true |
+      | all      | true |
+    Then the step should succeed
+    And the output should contain:
+      | {"name":"DISABLE_ASSET_COMPILATION","value":"true"}]}} |
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | o | json |
+    And I save the output to file>bc.json
+    And I replace lines in "bc.json":
+      | true | 1 |
+    When I run the :replace client command with:
+      | f | bc.json |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    And the "ruby-sample-build-2" build was created
+    And the "ruby-sample-build-2" build completed
+    Given I wait for the "frontend" service to become ready
+    When I run the :env client command with:
+      | resource | pods |
+      | list     | true |
+      | all      | true |
+    Then the step should succeed
+    And the output should contain:
+      | {"name":"DISABLE_ASSET_COMPILATION","value":"1"}]}} |
 
