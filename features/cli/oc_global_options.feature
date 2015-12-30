@@ -77,13 +77,11 @@ Feature: oc global options (oc options) related scenarios
     Then the step should succeed
 
     Given I wait until the status of deployment "mydc" becomes :running
-    And evaluation of `""` is stored in the :empty_value clipboard
     When I run the :get client command with:
-      | resource  | dc                     |
-    # Simply using | context |  |, or | context | "" | does not work
-      | context   | <%= cb.empty_value %>  |
-      | user      | <%= cb.empty_value %>  |
-      | cluster   | <%= cb.empty_value %>  |
+      | resource  | dc |
+      | context   |    |
+      | user      |    |
+      | cluster   |    |
     Then the step should succeed
     And the output should contain:
       | mydc |
