@@ -1,7 +1,67 @@
 --- # check browse/builds page
-check_builds_list:
-  url: /console/project/<project_name>/browse/builds/<build_or_bc_name>
+check_buildconfig_list_page:
+  url: /console/project/<project_name>/browse/builds
   element:
     selector:
+      xpath: //table[descendant::th[text()="Name"]]
+check_one_buildconfig_page:
+  url: /console/project/<project_name>/browse/builds/<bc_name>
+  element:
+    selector:
+      text: Summary
+    type: a
+check_one_buildconfig_page_with_check_config:
+  action: check_one_buildconfig_page
+  elements:
+  - selector:
+      text: Configuration
+    type: a
+    op: click
+  - selector:
       text: Show annotations
     type: a
+    op: click
+  - selector:
+      xpath: //td[contains(text(),"openshift.io/")]
+  - selector:
+      text: Hide annotations
+    op: click
+    type: a
+  - selector:
+      xpath: //a[contains(text(),"github.com")]
+  # Generic webhook URL
+  - selector:
+      xpath: //dl/div[1]//span//a[text()="Show URL"]
+    op: click
+  - selector:
+      xpath: //span[contains(text(),"generic")]
+  # GitHub webhook URL
+  - selector:
+      xpath: //dl/div[2]//span//a[text()="Show URL"]
+    op: click
+  - selector:
+      xpath: //span[contains(text(),"github")]
+  # Learn more
+  - selector:
+      xpath: //a[contains(@href,"webhook-triggers") and descendant::span[contains(text(),"Learn more")]]
+  - selector:
+      xpath: //a[contains(@href,"starting-a-build") and descendant::span[contains(text(),"Learn more")]]
+check_one_buildconfig_page_with_build_op:
+  action: check_one_buildconfig_page_with_check_config
+  elements:
+  - selector:
+      text: Start Build
+      class: btn-default
+    type: button
+    op: click
+  - selector:
+      text: Start Build
+      class: btn-default
+      disabled: disabled
+    type: button
+check_one_build_inside_bc_page:
+  # <bc_and_build_name> contains two "/",e.g. bc/build/ 
+  url: /console/project/<project_name>/browse/builds/<bc_and_build_name>
+  elements:
+  - selector:
+      text: Show annotations

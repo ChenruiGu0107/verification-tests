@@ -58,15 +58,15 @@ create_app_from_image_change_dc_config_trigger:
 create_app_from_image_add_dc_env_vars:
   elements:
   - selector:
-      xpath: //span/osc-form-section[2]/div[2]/div[2]/div[3]/osc-key-values/div/div[1]/form/div[1]/input[@name="key"]
+      xpath: //span//osc-form-section[2]//osc-key-values[descendant::input[@name="key"]]
     op: send_keys <env_key>
     type: input
   - selector:
-      xpath: //span/osc-form-section[2]/div[2]/div[2]/div[3]/osc-key-values/div/div[1]/form/div[2]/input[@name="value"]
+      xpath: //span//osc-form-section[2]//osc-key-values[descendant::input[@name="value"]]
     op: send_keys <env_value>
     type: input
   - selector:
-      xpath: //span/osc-form-section[2]/div[2]/div[2]/div[3]/osc-key-values/div/div[1]/form/button[text()="Add"]
+      xpath: //span//osc-form-section[2]//osc-key-values[descendant::button[text()="Add"]]
     op: click
     type: button
 create_app_from_image_change_bc_webhook_trigger:
@@ -98,15 +98,15 @@ create_app_from_image_change_scaling_setting:
 create_app_from_image_add_labels:
   elements:
   - selector:
-      xpath: //label-editor/osc-form-section/div[2]/div[2]/osc-key-values/div/div[1]/form/div[1]/input[@name="key"]
+      xpath: //label-editor[descendant::input[@name="key"]]
     op: send_keys <label_key>
     type: input
   - selector:
-      xpath: //label-editor/osc-form-section/div[2]/div[2]/osc-key-values/div/div[1]/form/div[2]/input[@name="value"]
+      xpath: //label-editor[descendant::input[@name="value"]]
     op: send_keys <label_value>
     type: input
   - selector:
-      xpath: //label-editor/osc-form-section/div[2]/div[2]/osc-key-values/div/div[1]/form/button[text()="Add"]
+      xpath: //label-editor[descendant::button[text()="Add"]]
     op: click
     type: button
 create_app_from_image_submit:
