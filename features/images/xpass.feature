@@ -58,7 +58,6 @@ Feature: xpass.feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | application=broker |
-
   # @author haowang@redhat.com
   # @case_id 508993
   Scenario: create resource from imagestream via oc new-app-jboss-eap6-openshift
@@ -73,4 +72,42 @@ Feature: xpass.feature
       |app=jboss-eap-quickstarts|
     When I expose the "jboss-eap-quickstarts" service
     Then I wait for a server to become available via the "jboss-eap-quickstarts" route
+    And  the output should contain "JBoss"
+
+  # @author haowang@redhat.com
+  # @case_id 469046
+  Scenario: Clustering app of Jboss EAP can work well
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | eap64-basic-s2i |
+    Then the step should succeed
+    And the "eap-app-1" build was created
+    And the "eap-app-1" build completed
+    And 1 pods become ready with labels:
+      |application=eap-app|
+    And I use the "eap-app" service
+    Then I wait for a server to become available via the "eap-app" route
+    And  the output should contain "JBoss"
+    When I get project replicationcontroller as JSON
+    And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :rc_name clipboard
+    Then I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | <%= cb.rc_name %>      |
+      | replicas | 2                      |
+    Then the step should succeed
+    And 2 pods become ready with labels:
+      |application=eap-app|
+    And I use the "eap-app" service
+    Then I wait for a server to become available via the "eap-app" route
+    And  the output should contain "JBoss"
+    Then I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | <%= cb.rc_name %>      |
+      | replicas | 1                      |
+    And 1 pods become ready with labels:
+      |application=eap-app|
+    Then I wait for a server to become available via the "eap-app" route
     And  the output should contain "JBoss"
