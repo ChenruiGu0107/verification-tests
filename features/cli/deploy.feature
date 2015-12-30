@@ -815,3 +815,78 @@ Feature: deployment related features
     Then the step should succeed
     And the output should not match:
       |<%= project.name %>\\s+database-\\d+|
+
+  # @author yinzhou@redhat.com
+  # @case_id 497540
+  Scenario: A/B Deployment
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image   | openshift/deployment-example |
+      | name         | ab-example-a |
+      | l            | ab-example=true |
+      | SUBTITLE     | shardA |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | deploymentconfig |
+      | resource_name | ab-example-a |
+      | name          | ab-example   |
+      | selector      | ab-example=true |
+    Then the step should succeed
+    When I expose the "ab-example" service
+    Then I wait for a server to become available via the "ab-example" route
+    And the output should contain "shardA"
+    When I run the :new_app client command with:
+      | docker_image   | openshift/deployment-example |
+      | name         | ab-example-b |
+      | l            | ab-example=true |
+      | SUBTITLE     | shardB |
+    Then the step should succeed
+    Then I run the :scale client command with:
+      | resource | deploymentconfig |
+      | name     | ab-example-a     |
+      | replicas | 0                |
+    When I use the "ab-example" service
+    Then I wait for a server to become available via the "ab-example" route
+    And the output should contain "shardB"
+    Then I run the :scale client command with:
+      | resource | deploymentconfig |
+      | name     | ab-example-b     |
+      | replicas | 0                |
+    Then I run the :scale client command with:
+      | resource | deploymentconfig |
+      | name     | ab-example-a     |
+      | replicas | 1                |
+    When I use the "ab-example" service
+    Then I wait for a server to become available via the "ab-example" route
+    And the output should contain "shardA"
+
+  # @author yinzhou@redhat.com
+  # @case_id 497543
+  Scenario: Blue-Green Deployment
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image   | openshift/deployment-example:v1 |
+      | name         | bluegreen-example-old |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | docker_image   | openshift/deployment-example:v2 |
+      | name         | bluegreen-example-new |
+    Then the step should succeed
+    #When I expose the "bluegreen-example-old" service
+    When I run the :expose client command with:
+      | resource | svc |
+      | resource_name | bluegreen-example-old |
+      | name     | bluegreen-example |
+    Then the step should succeed
+    #And I wait for a server to become available via the route
+    When I use the "bluegreen-example-old" service
+    And I wait for a server to become available via the "bluegreen-example" route
+    And the output should contain "v1"
+    And I replace resource "route" named "bluegreen-example":
+      | name: bluegreen-example-old | name: bluegreen-example-new |
+    Then the step should succeed
+    When I use the "bluegreen-example-new" service
+    And I wait for a server to become available via the "bluegreen-example" route
+    And the output should contain "v2"
+
+

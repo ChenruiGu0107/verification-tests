@@ -197,6 +197,7 @@
     :route_name: --name=<value>
     :route_type: --type=<value>
     :name: --name=<value>
+    :selector: --selector=<value>
     :output: --output=<value>
     :o: -o <value>
 :get:
@@ -263,6 +264,7 @@
     :context_dir: --context-dir=<value>
     :code: --code=<value>
     :search: --search=<value>
+    :SUBTITLE: SUBTITLE=<value>
 :new_build:
   :cmd: oc new-build
   :options:

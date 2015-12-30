@@ -19,7 +19,7 @@ Given /^I wait(?: up to ([0-9]+) seconds)? for a server to become available via 
   end
 end
 
-When /^I open web server via the (?: "(.+?)")? route$/ do |route_name|
+When /^I open web server via the(?: "(.+?)")? route$/ do |route_name|
   @result = CucuShift::Http.get(url: "http://" + route(route_name).dns(by: user))
 end
 
