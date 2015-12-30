@@ -824,7 +824,7 @@ Feature: deployment related features
       | docker_image   | openshift/deployment-example |
       | name         | ab-example-a |
       | l            | ab-example=true |
-      | SUBTITLE     | shardA |
+      | env          | SUBTITLE=shardA |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | deploymentconfig |
@@ -839,12 +839,13 @@ Feature: deployment related features
       | docker_image   | openshift/deployment-example |
       | name         | ab-example-b |
       | l            | ab-example=true |
-      | SUBTITLE     | shardB |
+      | env          | SUBTITLE=shardB |
     Then the step should succeed
     Then I run the :scale client command with:
       | resource | deploymentconfig |
       | name     | ab-example-a     |
       | replicas | 0                |
+    Given I wait until number of replicas match "0" for replicationController "ab-example-a-1"
     When I use the "ab-example" service
     Then I wait for a server to become available via the "ab-example" route
     And the output should contain "shardB"
@@ -856,6 +857,7 @@ Feature: deployment related features
       | resource | deploymentconfig |
       | name     | ab-example-a     |
       | replicas | 1                |
+    Given I wait until number of replicas match "0" for replicationController "ab-example-b-1"
     When I use the "ab-example" service
     Then I wait for a server to become available via the "ab-example" route
     And the output should contain "shardA"

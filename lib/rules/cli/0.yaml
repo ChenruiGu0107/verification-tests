@@ -264,7 +264,6 @@
     :context_dir: --context-dir=<value>
     :code: --code=<value>
     :search: --search=<value>
-    :SUBTITLE: SUBTITLE=<value>
 :new_build:
   :cmd: oc new-build
   :options:
