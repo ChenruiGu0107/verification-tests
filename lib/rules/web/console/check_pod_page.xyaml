@@ -1,0 +1,31 @@
+#----check pod page-----
+get_pod_page:
+  url: /console/project/<project_name>/browse/pods/<pod_name>
+check_log_tab:
+  elements:
+  - selector:
+      xpath: //tab-heading[text()='Logs']
+    op: click
+  - selector:
+      xpath: //span[contains(text(),'<pod_status>')]
+check_log_context:
+  elements:
+  - selector:
+      xpath: //tbody[@id='logContent']//td[contains(text(),'<log_context>')]
+    timeout: 180
+open_in_new_window:
+  elements:
+  - selector:
+      text: Open full view of log
+    type: a
+    op: click
+open_full_view_log:
+  action: open_in_new_window
+  action: check_log_context
+select_a_container:
+  elements:
+  - selector:
+      xpath: //select[@id='selectLogContainer']//option[contains(text(),'<container_name>')]
+    op: click
+
+
