@@ -97,7 +97,7 @@ Feature: resouces related scenarios
       | image        | openshift/hello-openshift |
       | generator    | run-pod/v1                |
     Then the step should succeed
-    Given the pod named "mypod" becomes ready 
+    Given the pod named "mypod" becomes ready
     And I run the :get client command with:
       | resource      | pod                |
       | resource_name | mypod              |
@@ -110,7 +110,6 @@ Feature: resouces related scenarios
       | grace-period | 100      |
     # Currently, there is a bug https://bugzilla.redhat.com/show_bug.cgi?id=1285702 that makes the step *fail*
     Then the step should succeed
-
 
   # @author xxia@redhat.com
   # @case_id 510404
@@ -170,7 +169,6 @@ Feature: resouces related scenarios
       | cascade           | false   |
     Then the step should succeed
 
-
   # @author xxia@redhat.com
   # @case_id 470421
   Scenario: Return description of resources with cli describe
@@ -225,3 +223,93 @@ Feature: resouces related scenarios
       | Tags:                                |
       | Name:\\s+frontend                    |
       | Template:                            |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 500003
+  @admin
+  Scenario: Cluster admin can get resources in all namespaces
+
+    Given I switch to the first user
+    Given a 5 characters random string of type :dns is stored into the :proj1 clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.proj1 %> |
+    Then the step should succeed
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    Then the step should succeed
+
+    Given I switch to the second user
+    Given a 5 characters random string of type :dns is stored into the :proj2 clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.proj2 %> |
+    Then the step should succeed
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    Then the step should succeed
+
+
+    When I run the :get admin command with:
+      | resource         | build |
+      | all_namespace    | true |
+    Then the output should contain:
+      | <%= cb.proj1 %> |
+      | <%= cb.proj2 %> |
+
+    When I run the :get admin command with:
+      | resource         | pod |
+      | all_namespace    | true |
+    Then the output should contain:
+      | <%= cb.proj1 %> |
+      | <%= cb.proj2 %> |
+
+    When I run the :get admin command with:
+      | resource         | service |
+      | all_namespace    | true |
+    Then the output should contain:
+      | <%= cb.proj1 %> |
+      | <%= cb.proj2 %> |
+
+    When I run the :get admin command with:
+      | resource         | bc |
+      | all_namespace    | true |
+    Then the output should contain:
+      | <%= cb.proj1 %> |
+      | <%= cb.proj2 %> |
+
+    When I run the :get admin command with:
+      | resource         | rc |
+      | all_namespace    | true |
+    Then the output should contain:
+      | <%= cb.proj1 %> |
+      | <%= cb.proj2 %> |
+
+    When I run the :get admin command with:
+      | resource         | template |
+      | all_namespace    | true |
+    Then the output should contain:
+      | openshift       |
+
+    When I run the :get admin command with:
+      | resource         | is |
+      | all_namespace    | true |
+    Then the output should contain:
+      | <%= cb.proj1 %> |
+      | <%= cb.proj2 %> |
+
+    When I run the :get admin command with:
+      | resource         | route |
+      | all_namespace    | true |
+    Then the output should contain:
+      | <%= cb.proj1 %> |
+      | <%= cb.proj2 %> |
+
+    When I run the :get admin command with:
+      | resource         | dc |
+      | all_namespace    | true |
+    Then the output should contain:
+      | <%= cb.proj1 %> |
+      | <%= cb.proj2 %> |
+
+    When I run the :get admin command with:
+      | resource         | all |
+      | all_namespace    | true |
+    Then the output should contain 15 times:
+      | default |

@@ -213,6 +213,7 @@
     :l: -l <value>
     :w: --watch=<value>
     :template: --template=<value>
+    :all_namespace: --all-namespaces=<value>
 :help:
   :cmd: oc help
   :options:
