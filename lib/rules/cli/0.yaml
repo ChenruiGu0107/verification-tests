@@ -420,6 +420,7 @@
     :name: --name=<value>
     :type: --type=<value>
     :secret-name: --secret-name=<value>
+    :source: --source=<value>
     :mount-path: --mount-path=<value>
     :all: --all=<value>
     :selector: --selector='<value>'

@@ -60,3 +60,29 @@ Feature: oc import-image related feature
       | resource        | imagestreams     |
       | o               | yaml             |
     And the output should not contain "tags"
+
+  # @author xxia@redhat.com
+  # @case_id 488869
+  Scenario: Import new images to image stream
+    Given I have a project
+    When I run the :create client command with:
+      | f        | -   |
+      | _stdin   | {"kind":"ImageStream","apiVersion":"v1","metadata":{"name":"my-imagestream"}} |
+    Then the step should succeed
+
+    # Creating a pod is a helper step. Without this, cucumber runs the ':create' step so fast that the imagestream is not yet ready to be referenced in ':patch' step and ':patch' will fail
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+    Given the pod named "hello-openshift" becomes ready
+    When I run the :patch client command with:
+      | resource      | is                      |
+      | resource_name | my-imagestream          |
+      | p             | {"spec":{"dockerImageRepository":"aosqe/hello-openshift"}} |
+    Then the step should succeed
+    When I run the :import_image client command with:
+      | image_name         | my-imagestream           |
+    Then the step should succeed
+    And the output should match:
+      | The import completed successfully           |
+      | latest.+aosqe/hello-openshift@sha256:       |
