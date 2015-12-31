@@ -65,3 +65,19 @@ Feature: stibuild.feature
     When I run the :logs client command with:
       | resource_name | python-sample-build-1-build |
     And the output should contain "no such file or directory"
+
+  # @author wzheng@redhat.com
+  # @case_id 497874
+  Scenario: Build invoked once buildconfig is created when there is no imagechangetrigger in buildconfig
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/stibuild-configchange.json |
+    Then the step should succeed
+    And the "php-sample-build-1" build was created
+    And the "php-sample-build-1" build completed
+    Given I wait for the "frontend" service to become ready
+     When I execute on the pod:
+      | curl | -s | <%= service.url %> |
+    Then the step should succeed
+    And the output should contain:
+      | Hello World!|
