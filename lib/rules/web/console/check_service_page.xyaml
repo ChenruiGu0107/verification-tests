@@ -1,0 +1,26 @@
+#----check service page-----
+check_service_list_page:
+  url: console/project/<project_name>/browse/services
+  elements:
+  - selector:
+      text: <service_name>
+    type: a 
+check_one_service_page:
+  url: console/project/<project_name>/browse/services/<service_name>
+  elements:
+  - selector:
+      text: <service_name>
+  - selector:
+      xpath: //span[contains(text(),'<selectors>')]
+  - selector:
+      text: <type>
+  - selector:
+      text: <routes>
+    type: a
+  - selector:
+      text: <target_port>
+check_deleted_service:
+  url: /console/project/<project_name>/browse/services/<service_name>
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<warning>')]
