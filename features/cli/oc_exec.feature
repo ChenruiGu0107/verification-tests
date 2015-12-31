@@ -110,3 +110,25 @@ Feature: containers related features
     And the output should contain:
       | error: pod hello-openshift is not running and cannot execute commands; current phase is Pending |
 
+
+  # @author chaoyang@redhat.com
+  # @case_id 472858
+  Scenario: Executing command in inexistent containers
+    When I have a project
+    And I run the :create client command with:
+      | filename |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should succeed
+    And the pod named "hello-openshift" becomes ready
+    When I execute on the "hello-openshift_notexist" pod:
+       |date|
+    Then the step should fail
+    Then the output should contain:
+      | Error from server: pods "hello-openshift_notexist" not found |
+    When I run the :exec client command with:
+      | pod   | hello-openshift  |
+      | c | hello-openshift-notexist |
+      | exec_command | date |
+    Then the step should fail
+    Then the output should contain:
+      |Error from server: container hello-openshift-notexist is not valid for pod hello-openshift|
+
