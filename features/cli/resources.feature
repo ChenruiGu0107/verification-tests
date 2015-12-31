@@ -110,3 +110,118 @@ Feature: resouces related scenarios
       | grace-period | 100      |
     # Currently, there is a bug https://bugzilla.redhat.com/show_bug.cgi?id=1285702 that makes the step *fail*
     Then the step should succeed
+
+
+  # @author xxia@redhat.com
+  # @case_id 510404
+  Scenario: Delete resources with cascade selectors
+    Given I have a project
+    And I run the :run client command with:
+      | name      | test              |
+      | image     | <%= project_docker_repo %>openshift/hello-openshift |
+      | generator | run-controller/v1 |
+      | -l        | run=test          |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | run=test |
+    When I run the :delete client command with:
+      | object_type       | rc    |
+      | object_name_or_id | test  |
+      | cascade           | true  |
+    Then the step should succeed
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
+
+    When I run the :run client command with:
+      | name      | test              |
+      | image     | <%= project_docker_repo %>openshift/hello-openshift |
+      | generator | run-controller/v1 |
+      | -l        | run=test          |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | rc    |
+      | object_name_or_id | test  |
+      | cascade           | false |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=test |
+
+    When I run the :run client command with:
+      | name      | test-a            |
+      | image     | <%= project_docker_repo %>openshift/hello-openshift |
+      | generator | run-controller/v1 |
+      | -l        | label=same        |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name      | test-b            |
+      | image     | <%= project_docker_repo %>openshift/hello-openshift |
+      | generator | run-controller/v1 |
+      | -l        | label=same,label2=test-b |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | rc      |
+      | object_name_or_id | test-a  |
+      | object_name_or_id | test-b  |
+    Then the step should fail
+    And the output should contain "overlapping controllers"
+    When I run the :delete client command with:
+      | object_type       | rc      |
+      | object_name_or_id | test-a  |
+      | object_name_or_id | test-b  |
+      | cascade           | false   |
+    Then the step should succeed
+
+
+  # @author xxia@redhat.com
+  # @case_id 470421
+  Scenario: Return description of resources with cli describe
+    Given I have a project
+    And I create a new application with:
+      | file     | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    And I wait until the status of deployment "database" becomes :running
+    When I run the :describe client command with:
+      | resource     | svc           |
+      | name         | database      |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+database            |
+      | Selector:\\s+name=database   |
+    When I run the :export client command with:
+      | resource     | svc           |
+      | name         | database      |
+      | o            | yaml          |
+    Then the step should succeed
+    Given I save the output to file>svc.yaml
+    When I run the :describe client command with:
+      | resource     | :false        |
+      | name         | :false        |
+      | f            | svc.yaml      |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+database            |
+    When I run the :describe client command with:
+      | resource     | svc           |
+      | name         | :false        |
+      | l            | app           |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+database            |
+    When I run the :describe client command with:
+      | resource     | svc           |
+      | name         | databa        |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+database            |
+    # The following steps shorten the multiple steps of the TCMS case
+    When I run the :describe client command with:
+      | resource     | :false        |
+      | name         | rc/database-1                     |
+      | name         | is/origin-ruby-sample             |
+      | name         | dc/frontend                       |
+    Then the step should succeed
+    And the output should match:
+      | Name:\\s+database-1                  |
+      | Pods Status:                         |
+      | Name:\\s+origin-ruby-sample          |
+      | Tags:                                |
+      | Name:\\s+frontend                    |
+      | Template:                            |
