@@ -80,16 +80,9 @@ Feature: oc_expose.feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | deploymentconfig=myapp  |
-    When I run the :get client command with:
-        | resource      | pods     |
-        | o             | json     |
-        | l             | deploymentconfig=myapp |
-    Then the step should succeed
-    And the output is parsed as JSON
-    Given evaluation of `@result[:parsed]["items"][0]["metadata"]["name"]` is stored in the :pod_name clipboard
     When I run the :expose client command with:
       | resource      | pod                |
-      | resource name | <%= cb.pod_name %> | 
+      | resource name | <%= pod.name %> | 
       | target port   | 8080               |
       | generator     | service/v1         |
       | name          | myservice          |
