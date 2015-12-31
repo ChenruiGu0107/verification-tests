@@ -106,17 +106,17 @@ Feature: rolling deployment related scenarios
       | keep 7 pods available, don't exceed 16 pods |
 
   # @author pruan@redhat.com
-  # @case_id 503865
+  # @case_id 503865,483171
   Scenario: Rolling-update pods with default value for maxSurge/maxUnavailable
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
-    And I wait until replicationController "hooks-1" is ready
-    And all pods in the project are ready
+    And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | hooks-1                |
       | replicas | 10                     |
+    And all pods in the project are ready
     And I run the :get client command with:
       | resource | dc |
       | resource_name | hooks |
@@ -124,7 +124,6 @@ Feature: rolling deployment related scenarios
     Then the output should contain:
       | maxSurge: 25% |
       | maxUnavailable: 25%  |
-    And I wait for the pod named "hooks-1-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            | true  |
@@ -133,7 +132,6 @@ Feature: rolling deployment related scenarios
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
     And the output should contain:
       | keep 7 pods available, don't exceed 13 pods |
-    And I wait for the pod named "hooks-2-deploy" to die
     And I replace resource "dc" named "hooks":
       | maxUnavailable: 25% | maxUnavailable: 2 |
       | maxSurge: 25% | maxSurge: 5             |
