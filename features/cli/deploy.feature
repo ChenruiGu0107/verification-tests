@@ -930,3 +930,26 @@ Feature: deployment related features
     When I use the "bluegreen-example-new" service
     And I wait for a server to become available via the "bluegreen-example" route
     And the output should contain "v2"
+
+  # @author pruan@redhat.com
+  # @case_id 483191
+  Scenario: Manually start deployment by oc deploy
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+    Then the output should match:
+      | hooks\\s+ConfigChange\\s+1 |
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest ||
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+    Then the output should match:
+      | hooks\\s+ConfigChange\\s+2 |
