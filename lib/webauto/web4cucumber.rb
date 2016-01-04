@@ -128,6 +128,8 @@ require 'watir-webdriver'
           res_join result, *spec.map { |el| handle_element(el, **user_opts) }
         when :action
           res_join result, handle_action(spec, **user_opts)
+        when :scripts
+          res_join result, *spec.map { |st| handle_script(st, **user_opts) }
         else
           raise "unknown rule '#{rule}'"
         end
@@ -138,6 +140,33 @@ require 'watir-webdriver'
       result[:response] << $/ << "web action '#{action}' "
       result[:response] << (result[:success] ? "completed" : "failed")
       return result
+    end
+
+    def handle_script(script, **user_opts)
+      unless script.kind_of? Hash
+        raise "The script should be a Hash."
+      end
+
+      unless script.has_key?(:command) && script.has_key?(:expect_result)
+        raise "Script lack of command or expect_result"
+      end
+      # sleep to make sure the ajax done, still no idea how much time should be 
+      sleep 1
+      output = execute_script(script[:command])
+
+      if script[:expect_result].kind_of? String
+        success = output == script[:expect_result]
+      else
+        success = (output && script[:expect_result]) ||!(output || script[:expect_result])
+      end
+
+      res = {
+        instruction: "run JS:\n#{script[:command]}\n\nexpected result: #{script[:expect_result].inspect}",
+        success: success,
+        response: output.inspect,
+        exitstatus: -1
+      }
+      return res
     end
 
     def handle_action(action_body, **user_opts)
@@ -465,6 +494,13 @@ require 'watir-webdriver'
           raise "duplicate key '#{key}' in rules: #{sources}"
         }
       }
+    end
+
+    def execute_script(script)
+      unless script.include?("return")
+        raise "The script not contain the keyword return"
+      end
+      browser.execute_script(script)
     end
 
     class SimpleLogger

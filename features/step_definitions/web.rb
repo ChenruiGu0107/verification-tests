@@ -89,3 +89,5 @@ Given /^I wait(?: (\d+) seconds)? for the :(.+?) web console action to succeed w
     raise "can not wait the :#{web_action} web action to succeed"
   end
 end
+
+

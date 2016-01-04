@@ -17,3 +17,8 @@ login:
   elements:
     - selector:
         text: Welcome to OpenShift.
+  scripts:
+    - command: return window.localStorage['LocalStorageUserStore.token']
+      expect_result: true
+    - command: return window.localStorage['LocalStorageUserStore.user']
+      expect_result: true
