@@ -816,6 +816,46 @@ Feature: deployment related features
     And the output should not match:
       |<%= project.name %>\\s+database-\\d+|
 
+  # @author xiaocwan@redhat.com
+  # @case_id 510221
+  Scenario: View the logs of the latest deployment
+    # check deploy log when deploying
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    When I run the :logs client command with:
+      | resource_name | dc/hooks |
+    Then the step should succeed
+    # when deploy is completed running, check log
+    When I run the :get client command with:
+      | resource | pods |
+    Given a pod becomes ready with labels:
+      | deployment=hooks-1 |
+      | deploymentconfig=hooks |
+      | name=mysql |
+    Then the output should not contain:
+      | hooks-1-deploy   |
+      | hooks-1-prehook  |
+      | hooks-1-posthook |
+    When I run the :logs client command with:
+      | resource_name | dc/hooks |
+    Then the step should succeed
+    # cancel, retry and check log
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            |       |
+    And I run the :deploy client command with:
+      | deployment_config | hooks |
+      | cancel            |       |
+    And I run the :logs client command with:
+      | resource_name | dc/hooks |
+    Then the step should fail
+    # check for non-existent dc
+    When I run the :logs client command with:
+      | resource_name | dc/nonexistent |
+    Then the step should fail
+
   # @author yinzhou@redhat.com
   # @case_id 497540
   Scenario: A/B Deployment
@@ -890,5 +930,3 @@ Feature: deployment related features
     When I use the "bluegreen-example-new" service
     And I wait for a server to become available via the "bluegreen-example" route
     And the output should contain "v2"
-
-

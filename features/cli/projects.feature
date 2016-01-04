@@ -322,3 +322,33 @@ Feature: projects related features via cli
       | name | hello-openshift |
     Then the output should contain:
       | <%= env.nodes.first.name %> |
+
+
+
+  # @author xiaocwan@redhat.com
+  # @case_id 476298
+  Scenario: [origin_platformexp_387][origin_runtime_664] User should be notified if the set project does not exist anymore
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.proj_name %> |
+    Then the step should succeed
+
+    When I run the :oadm_add_role_to_user client command with:
+      | role_name | admin             |
+      | user_name | <%= user(1, switch: false).name %>  |
+    Then the step should succeed
+
+    Given I switch to the second user
+    When I use the "<%= cb.proj_name %>" project
+    Then the step should succeed
+
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    Then the step should succeed
+
+    When I delete the project
+    Then the step should succeed
+
+    Given I switch to the first user
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should fail
