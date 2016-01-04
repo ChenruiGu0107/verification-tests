@@ -366,6 +366,8 @@
     :port: --port <value>
     :replicas: --replicas <value>
     :generator: --generator=<value>
+    :limits: --limits=<value>
+    :requests: --requests=<value>
     :dry_run: --dry-run
     :-l: --labels=<value>
     :-t: --template=<value>

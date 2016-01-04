@@ -313,3 +313,66 @@ Feature: resouces related scenarios
       | all_namespace    | true |
     Then the output should contain 15 times:
       | default |
+
+  # @author yinzhou@redhat.com
+  # @case_id 509396
+  Scenario: Run container via cli with correct format specifying cpu/memory request/limit
+    Given I have a project
+    When I run the :run client command with:
+      | name         | openshift                 |
+      | image        | openshift/hello-openshift |
+      | replicas     | 2                         |
+      | limits       | cpu=1,memory=1Gi          |
+      | requests     | cpu=100m                  |
+    Then the step should succeed
+    And I wait for the pod named "openshift-1-deploy" to die
+    And all pods in the project are ready
+    And I run the :get client command with:
+      | resource | pod |
+      | output | yaml |
+    Then the output should contain:
+      | limits: |
+      | cpu: "1" |
+      | memory: 1Gi |
+      | requests: |
+      | cpu: 100m |
+      | memory: 1Gi |
+    And I create a new project
+    When I run the :run client command with:
+      | name         | openshift                 |
+      | image        | openshift/hello-openshift |
+      | replicas     | 2                         |
+      | limits       | cpu=0.2                   |
+      | requests     | cpu=100m,memory=512Mi     |
+    Then the step should succeed
+    And I wait for the pod named "openshift-1-deploy" to die
+    And all pods in the project are ready
+    And I run the :get client command with:
+      | resource | pod |
+      | output | yaml |
+    Then the output should contain:
+      | limits: |
+      | cpu: 200m |
+      | requests: |
+      | cpu: 100m |
+      | memory: 512Mi |
+    And I create a new project
+    When I run the :run client command with:
+      | name         | openshift                 |
+      | image        | openshift/hello-openshift |
+      | replicas     | 2                         |
+      | limits       | cpu=2,memory=300Mi        |
+      | requests     | cpu=100m,memory=128Mi     |
+    Then the step should succeed
+    And I wait for the pod named "openshift-1-deploy" to die
+    And all pods in the project are ready
+    And I run the :get client command with:
+      | resource | pod |
+      | output | yaml |
+    Then the output should contain:
+      | limits: |
+      | cpu: "2" |
+      | memory: 300Mi |
+      | requests: |
+      | cpu: 100m |
+      | memory: 128Mi |
