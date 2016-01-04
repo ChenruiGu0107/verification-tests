@@ -24,7 +24,7 @@ Feature:Create apps using new_app cmd feature
 
   # @author xiuwang@redhat.com
   # @case_id 476349
-  Scenario: Application with ruby-20-rhel7 base images lifecycle 
+  Scenario: Application with ruby-20-rhel7 base images lifecycle
     Given I have a project
 
     When I run the :new_app client command with:
@@ -48,7 +48,7 @@ Feature:Create apps using new_app cmd feature
       | curl | -s | <%= service.url %> |
     Then the step should succeed
     And the output should contain "Hello from OpenShift v3"
- 
+
   # @author haowang@redhat.com
   # @case_id 508976
   Scenario: create resource from imagestream via oc new-app openshift/nodejs-010-rhel7
@@ -65,4 +65,32 @@ Feature:Create apps using new_app cmd feature
     Then I wait for a server to become available via the "nodejs-ex" route
     And  the output should contain "Welcome to your Node.js application on OpenShift"
 
-
+  # @author haowang@redhat.com
+  # @case_id 491259
+  Scenario: Create applications with multiple repos
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/xiuwang/ruby-hello-world.git   |
+      | app_repo | https://github.com/openshift/ruby-hello-world.git |
+      | l        | app=test |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1-1" build was created
+    When I run the :describe client command with:
+      | resource | bc    |
+      | name     | ruby-hello-world |
+    Then the output should contain "https://github.com/xiuwang/ruby-hello-world.git"
+    When I run the :describe client command with:
+      | resource | bc    |
+      | name     | ruby-hello-world-1 |
+    Then the output should contain "https://github.com/openshift/ruby-hello-world.git"
+    When I create a new project
+    Then I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world.git |
+      | app_repo | https://github.com/openshift/ruby-hello-world.git |
+      | l        | app=test |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc |
+    Then the output should contain "ruby-hello-world"
+    And the output should not contain "ruby-hello-world-1"
