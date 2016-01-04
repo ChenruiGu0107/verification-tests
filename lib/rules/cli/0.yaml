@@ -115,6 +115,7 @@
 :delete:
   :cmd: oc delete
   :options:
+    :cascade: --cascade=<value>
     :f: -f <value>
     :l: -l <value>
     :all: --all
@@ -130,9 +131,11 @@
     :latest: --latest
     :retry: --retry
 :describe:
-  :cmd: oc describe <resource> <name>
+  :cmd: oc describe <resource>
   :options:
+    :name: <value>
     :l: -l <value>
+    :f: -f <value>
     :selector: --selector=<value>
 :edit:
   :cmd: oc edit
@@ -417,6 +420,7 @@
     :name: --name=<value>
     :type: --type=<value>
     :secret-name: --secret-name=<value>
+    :source: --source=<value>
     :mount-path: --mount-path=<value>
     :all: --all=<value>
     :selector: --selector='<value>'
