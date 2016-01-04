@@ -24,3 +24,31 @@ Feature: general_db.feature
     Then the step should succeed
     When I use the "jws-http-service" service
     Then I wait for a server to become available via the "jws-http-route" route
+  # @author haowang@redhat.com
+  # @case_id 473389
+  Scenario: Add env variables to mongodb-24-rhel7 image
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mongodb-24-rhel7-env-test.json"
+    And I replace lines in "mongodb-24-rhel7-env-test.json":
+      | registry.access.redhat.com/openshift3/mongodb-24-rhel7 | <%= product_docker_repo %>openshift3/mongodb-24-rhel7|
+    When I run the :create client command with:
+      | f | mongodb-24-rhel7-env-test.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=database|
+    When I execute on the pod:
+      | bash               |
+      | -c                 |
+      | env \| grep MONGO  |
+    Then the output should contain:
+      | MONGODB_NOPREALLOC=false |
+      | MONGODB_QUIET=false      |
+      | MONGODB_SMALLFILES=false |
+    When I execute on the pod:
+      | bash               |
+      | -c                 |
+      | scl enable mongodb24 "cat /etc/mongod.conf" |
+    Then the output should contain:
+      | noprealloc = false |
+      | smallfiles = false |
+      | quiet = false      |
