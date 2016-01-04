@@ -251,9 +251,12 @@ require 'watir-webdriver'
 
       begin
         case op
-        when "click", "clear"
+        when "click"
           raise "cannot #{op} with a value" unless val.empty?
           element.send(op.to_sym)
+        when "clear"
+          raise "cannot #{op} with a value" unless val.empty?
+          element.to_subtype.clear
         when "set", "select_value", "append"
           if element.kind_of?(Watir::Input)
             raise "maybe you meant to use `send_keys` op"
