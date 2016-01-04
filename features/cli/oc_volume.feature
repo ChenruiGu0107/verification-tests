@@ -59,7 +59,6 @@ Feature: oc_volume.feature
     And the output by order should contain:
       | pass-1 |
 
-
   # @author xxia@redhat.com
   # @case_id 491428
   Scenario: Add gitRepo volume to pod, dc and rc
@@ -98,3 +97,89 @@ Feature: oc_volume.feature
       |     revision: 99c6de7216384f84369ad3f7572003a417206e8f     |
     And the output should contain 4 times:
       |   name: git                                                |
+
+  # @author xxia@redhat.com
+  # @case_id 491432
+  Scenario: Add volume to all available resources in the namespace
+    Given I have a project
+    When I run the :run client command with:
+      | name         | myrc1                 |
+      | image | <%= project_docker_repo %>openshift/hello-openshift |
+      | generator    | run-controller/v1     |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name         | myrc2                 |
+      | image | <%= project_docker_repo %>openshift/hello-openshift |
+      | generator    | run-controller/v1     |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name         | myrc3                 |
+      | image | <%= project_docker_repo %>openshift/hello-openshift |
+      | generator    | run-controller/v1     |
+      | -l           | label=myrc3           |
+    Then the step should succeed
+    When I run the :secrets client command with:
+      | action | new             |
+      | name   | my-secret       |
+      | source | /etc/hosts      |
+    Then the step should succeed
+
+    Given a pod becomes ready with labels:
+      | label=myrc3   |
+    When I run the :get client command with:
+      | resource      | rc                |
+      | resource_name | myrc3             |
+      | template      | {{.status.observedGeneration}}   |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :version clipboard
+
+    When I run the :volume client command with:
+      | resource      | rc                |
+      | all           | true              |
+      | action        | --add             |
+      | name          | secret            |
+      | type          | secret            |
+      | secret-name   | my-secret         |
+      | mount-path    | /etc              |
+    Then the step should succeed
+    And the output should contain:
+      | replicationcontrollers/myrc1      |
+      | replicationcontrollers/myrc2      |
+      | replicationcontrollers/myrc3      |
+    And evaluation of `@result[:response]` is stored in the :output clipboard
+
+    When I run the :volume client command with:
+      | resource      | rc                |
+      | all           | true              |
+      | action        | --list            |
+    Then the step should succeed
+    And the output should match 3 times:
+      | replicationcontrollers/myrc[123]      |
+      |   secret/my-secret as secret      |
+      |     mounted at /etc               |
+
+    # Need wait to ensure the resource is updated. Otherwise the next '--remove' step would fail
+    # when tested in auto, with error like 'the object has been modified; please apply your changes to the latest version and try again'
+    # Note: must check .status.observedGeneration, rather than .metadata.generation and/or .metadata.resourceVersion
+    Given I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | rc                |
+      | resource_name | myrc3             |
+      | template      | {{.status.observedGeneration}}   |
+    Then the step should succeed
+    And the output should not contain "<%= cb.version %>"
+    """
+    When I run the :volume client command with:
+      | resource      | rc                |
+      | all           | true              |
+      | action        | --remove          |
+      | confirm       | true              |
+    Then the step should succeed
+    When I run the :volume client command with:
+      | resource      | rc                |
+      | all           | true              |
+      | action        | --list            |
+    Then the step should succeed
+    # Using equality may be more reliable to discover future possible bug than just using "The output should (not) contain"
+    And the output should equal "<%= cb.output %>"
