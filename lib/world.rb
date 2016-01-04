@@ -40,6 +40,7 @@ module CucuShift
       @pvs = []
       @rcs = []
       @dcs = []
+      @image_streams = []
 
       # procs and lambdas to call on clean-up
       @teardown = []
@@ -263,8 +264,9 @@ module CucuShift
       end
     end
 
-    # @return rc (ReplicationController) by name from scenario cache; with no params given,
-    #   returns last requested build; otherwise creates a [rc] object
+    # @return rc (ReplicationController) by name from scenario cache;
+    #   with no params given, returns last requested rc;
+    #   otherwise creates a [ReplicationController] object
     # @note you need the project already created
     def rc(name = nil, project = nil)
       project ||= self.project(generate: false)
@@ -290,8 +292,9 @@ module CucuShift
       end
     end
 
-    # @return dc (DeploymentConfig) by name from scenario cache; with no params given,
-    #   returns last requested build; otherwise creates a [dc] object
+    # @return dc (DeploymentConfig) by name from scenario cache;
+    #   with no params given, returns last requested dc;
+    #   otherwise creates a [DeploymentConfig] object
     # @note you need the project already created
     def dc(name = nil, project = nil)
       project ||= self.project(generate: false)
@@ -314,6 +317,33 @@ module CucuShift
         raise "what dc are you talking about?"
       else
         return @dc.last
+      end
+    end
+
+    # @return [ImageStream] is by name from scenario cache; with no params given,
+    #   returns last requested is; otherwise creates an [ImageStream] object
+    # @note you need the project already created
+    def image_stream(name = nil, project = nil)
+      project ||= self.project(generate: false)
+
+      if name
+        is = @image_streams.find {|s| s.name == name && s.project == project}
+        if is && @image_streams.last == b
+          return is
+        elsif is
+          @image_streams << @image_streams.delete(is)
+          return is
+        else
+          # create new CucuShift::Build object with specified name
+          @image_streams << ImageStream.new(name: name, project: project)
+          return @image_streams.last
+        end
+      elsif @image_streams.empty?
+        # we do not create a random is like with projects because that
+        #   would rarely make sense
+        raise "what is are you talking about?"
+      else
+        return @image_streams.last
       end
     end
 
