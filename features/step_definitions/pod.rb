@@ -47,7 +47,7 @@ Given /^all pods in the project are ready$/ do
   pods[:parsed]['items'].each do | pod |
     pod_name = pod['metadata']['name']
     logger.info("POD: #{pod_name}, STATUS: #{pod['status']['conditions']}")
-    res = pod(pod_name).wait_till_status(Pod::SUCCESS_STATUSES , user)
+    res = pod(pod_name).wait_till_status(CucuShift::Pod::SUCCESS_STATUSES , user)
 
     unless res[:success]
       raise "pod #{self.pod.name} did not reach expected status"
