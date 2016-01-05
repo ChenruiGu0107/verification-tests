@@ -2,7 +2,7 @@ Feature: Persistent Volume Claim binding policies
 
   # @author jhou@redhat.com
   # @case_id 510615
-  @admin
+  @admin @destructive
   Scenario: Given there are one PV and multiple PVCs, only one PVC can bound the PV.
     # Preparations
     Given I have a project
@@ -20,7 +20,4 @@ Feature: Persistent Volume Claim binding policies
       | resource | pvc |
     Then the output should contain:
       | Pending |
-    When I run the :get client command with:
-      | resource | pvc |
-    Then the output should contain:
-      | Bound |
+      | Bound   |
