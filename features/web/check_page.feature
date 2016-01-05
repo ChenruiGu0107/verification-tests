@@ -67,3 +67,21 @@ Feature: check page info related
     When I perform the :check_events_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+  # @author yapei@redhat.com
+  # case_id 457796
+  Scenario: Check home page to list user projects
+    Given I login via web console
+    When I get the html of the web page
+    Then the output should contain:
+      | Welcome to OpenShift                                              |
+      | OpenShift helps you quickly develop, host, and scale applications |
+      | Create a project for your application                             |
+    Given an 8 character random string of type :dns is stored into the :prj_name clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.prj_name %> |
+    Then the step should succeed
+    When I run the :check_project_list web console action
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should contain:
+      | <%= cb.prj_name %> |
