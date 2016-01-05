@@ -1,0 +1,30 @@
+check_deploymentconfigs_info:
+  url: /console/project/<project_name>/browse/deployments/<dc_name>
+  element:
+    selector: 
+      text: Show annotations
+    type: a
+wait_latest_deployments_to_status:
+  url: /console/project/<project_name>/browse/deployments/<dc_name>
+  element:
+    selector:
+      xpath: //tbody[1]//span[contains(text(),'<status_name>')]
+    timeout: 600
+manually_deploy:
+  elements:
+  - selector:
+      text: Deploy
+    type: button
+    op: click
+  - selector:
+      xpath: //strong[contains(text(),'has started')]
+cancel_deployments:
+  url: /console/project/<project_name>/browse/deployments/<dc_name>/<dc_name>-<dc_number>
+  elements:
+  - selector:
+      text: Cancel
+    type: button
+    op: click
+  - selector:
+      xpath: //strong[contains(text(),'Cancelling deployment')]
+    timeout: 60
