@@ -10,6 +10,8 @@ module CucuShift
   autoload :EnvironmentLauncher, "launchers/environment_launcher"
   autoload :LocalProcess, "local_process.rb"
 
+  autoload :ImageStream, "openshift/image_stream"
+
   HOME = File.expand_path(__FILE__ + "/../..")
   PRIVATE_DIR = ENV['CUCUSHIFT_PRIVATE_DIR'] || File.expand_path(HOME + "/private")
   HOSTNAME = Socket.gethostname.freeze
