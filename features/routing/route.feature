@@ -5,15 +5,29 @@ Feature: Testing route
   Scenario: Be able to add more alias for service
     Given I have a project
     When I run the :create client command with:
-      | f  |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/nginx-pod.json |
+      | f  |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/dc.json |
     Then the step should succeed
     When I run the :create client command with:
-      | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
-    When I run the :create client command with:
-      | f  | https://raw.githubusercontent.com/zhouying7780/v3-testfiles/master/routing/negative/route_with_no_host.json| 
+      | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json |
     Then the step should succeed
-    When I expose the "hello-nginx" service
+    When I expose the "header-test-insecure" service
     Then the step should succeed
     And I wait for a server to become available via the route
-    And I wait for a server to become available via the "route" route
-
+    When I run the :get client command with:
+      | resource      | route |
+      | resource_name | header-test-insecure |
+      | o             | yaml |
+    And I save the output to file>header-test-insecure.yaml
+    And I replace lines in "header-test-insecure.yaml":
+      | name: header-test-insecure | name: header-test-insecure-dup |
+      | host: header-test-insecure | host: header-test-insecure-dup |
+    When I run the :create client command with:
+      |f | header-test-insecure.yaml |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | route                                           |
+      | resource_name | header-test-insecure-dup                        |
+      | p             | {"spec":{"to":{"name":"header-test-insecure"}}} |
+    And I wait for a server to become available via the "header-test-insecure-dup" route 
+ 
+    
