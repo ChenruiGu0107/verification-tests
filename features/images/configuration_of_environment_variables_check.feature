@@ -1,13 +1,21 @@
 Feature: Configuration of environment variables check
 
   # @author xiuwang@redhat.com
-  # @case_id 499488
-  Scenario: Check environment variables of ruby-20-rhel7 image
+  # @case_id 499488 499490
+  Scenario Outline: Check environment variables of ruby-20 image
     Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-<os>.json |
+      | n | <%= project.name %> |
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-env-sti.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499490/ruby20<os>-env-sti.json |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
+    When I run the :describe client command with:
+      | resource | build |
+      | name | ruby-sample-build-1 |
+    Then the step should succeed
+    And the output should contain "<image>"
     When I execute on the pod:
       | curl | -s | <%= service.url %> |
     Then the step should succeed
@@ -20,6 +28,10 @@ Feature: Configuration of environment variables check
       | RACK_ENV=production            |
       | RAILS_ENV=production           |
       | DISABLE_ASSET_COMPILATION=true |
+    Examples:
+      | os | image |
+      | rhel7   | registry.access.redhat.com/openshift3/ruby-20-rhel7:latest |
+      | centos7 | docker.io/openshift/ruby-20-centos7 |
 
   # @author xiuwang@redhat.com
   # @case_id 499491
