@@ -60,6 +60,7 @@ Feature: check image streams page
     When I perform the :check_one_image_stream web console action with:
       | project_name | <%= project.name %> |
       | image_name   |  nodejs |
+    Then the step should succeed
     And I click the following "a" element:
       | text | Show annotations |
     When I get the html of the web page
