@@ -403,6 +403,11 @@
   :cmd: oc status
   :options:
     :v: -v
+:stop:
+  :cmd: oc stop <resource>
+  :options:
+    :f: --filename=<value>
+    :name: <value>
 :tag:
   :cmd: oc tag
 :types:
