@@ -69,7 +69,7 @@ Feature: services related feature on web console
       | n | <%= project.name %> |
     Then the step should succeed
     When I perform the :check_deleted_service web console action with: 
-      | project_name | <%= project.name %> |
-      | service_name | hello-service       |
-      | warning      | The service details could not be loaded |
+      | project_name    | <%= project.name %> |
+      | service_name    | hello-service       |
+      | service_warning | The service details could not be loaded |
     Then the step should succeed
