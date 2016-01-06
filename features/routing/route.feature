@@ -28,6 +28,4 @@ Feature: Testing route
       | resource      | route                                           |
       | resource_name | header-test-insecure-dup                        |
       | p             | {"spec":{"to":{"name":"header-test-insecure"}}} |
-    And I wait for a server to become available via the "header-test-insecure-dup" route 
- 
-    
+    Then I wait for a server to become available via the "header-test-insecure-dup" route
