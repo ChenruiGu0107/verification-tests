@@ -7,7 +7,7 @@ Feature: buildlogic.feature
     Given I have a project
     Then I use the "<%= project.name %>" project
     And I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/wanghaoran1988/v3-testfiles/master/build/quota_pods.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/quota_pods.yaml |
       | n | <%= project.name %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
