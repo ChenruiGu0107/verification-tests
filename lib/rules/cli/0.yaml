@@ -145,7 +145,7 @@
 :env:
   :cmd: oc env
   :options:
-    :env_name: <value> 
+    :env_name: <value>
     :all: --all=<value>
     :list: --list=<value>
     :resource: <value>
@@ -224,6 +224,13 @@
   :cmd: oc import-image
   :options:
     :image_name: <value>
+:label:
+  :cmd: oc label <resource>
+  :options:
+    :all: --all=<value>
+    :key_val: <value>
+    :name: <value>
+    :overwrite: --overwrite=<value>
 :login:
   :cmd: oc login
   :options:
