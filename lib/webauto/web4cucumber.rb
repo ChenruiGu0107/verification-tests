@@ -163,7 +163,7 @@ require 'watir-webdriver'
       res = {
         instruction: "run JS:\n#{script[:command]}\n\nexpected result: #{script[:expect_result].inspect}",
         success: success,
-        response: output.inspect,
+        response: output,
         exitstatus: -1
       }
       return res
