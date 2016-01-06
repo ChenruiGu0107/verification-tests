@@ -121,3 +121,24 @@ Feature: quickstarts.feature
       | json |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499621/python-27-rhel7.json |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499622/python-27-centos7-stibuild.json |
+
+  # @author wzheng@redhat.com
+  # @case_id 508716
+  Scenario: Cakephp-ex quickstart hot deploy test - php-55-rhel7
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift/cakephp-ex/6578f1815463db2cafcab3860ca8b8dda822e434/openshift/templates/cakephp.json"
+    Given I replace lines in "cakephp.json":
+      | 5.6 | 5.5 |
+    When I run the :new_app client command with:
+      | file | cakephp.json |
+    Then the step should succeed
+    When I use the "cakephp-example" service
+    Then I wait for a server to become available via the "cakephp-example" route
+    Then the output should contain "Welcome to OpenShift"
+    Given I wait for the "cakephp-example" service to become ready
+    When I execute on the pod:
+      | sed | -i | s/Welcome/hotdeploy_test/g | /opt/app-root/src/app/View/Layouts/default.ctp |
+    Then the step should succeed
+    When I use the "cakephp-example" service
+    Then I wait for a server to become available via the "cakephp-example" route
+    Then the output should contain "hotdeploy_test"
