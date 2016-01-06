@@ -315,7 +315,7 @@ Feature: resouces related scenarios
       | default |
 
   # @author yinzhou@redhat.com
-  # @case_id 509396
+  # @case_id 508036
   Scenario: Run container via cli with correct format specifying cpu/memory request/limit
     Given I have a project
     When I run the :run client command with:
