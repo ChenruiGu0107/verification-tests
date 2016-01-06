@@ -22,3 +22,24 @@ login:
       expect_result: true
     - command: return window.localStorage['LocalStorageUserStore.user']
       expect_result: true
+
+
+request_token_with_password:
+  url: <url>
+  elements:
+    - selector:
+        id: inputUsername
+      op: send_keys <username>
+      type: input
+    - selector:
+        id: inputPassword
+      op: send_keys <password>
+      type: input
+    - selector:
+        text: Log In
+      op: click
+      type: button
+  elements:
+    - selector:
+        text: Your API token is
+

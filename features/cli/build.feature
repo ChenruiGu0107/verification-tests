@@ -210,3 +210,45 @@ Feature: build 'apps' with CLI
     # Should contain the new start build
     Then the output should match:
       | <%= Regexp.escape("ruby-sample-build-4") %>.+(?:Running)?(?:Pending)?|
+
+
+  # @author xiaocwan@redhat.com
+  # @case_id 482200
+Scenario: Cancel a build in openshift 
+    Given I have a project    
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    Then the step should succeed
+    When I get project buildConfigs
+    Then the output should contain:
+      | NAME              |
+      | ruby-sample-build |
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build|
+    Then the step should succeed
+    And the "ruby-sample-build-1" build was created
+
+    Given the "ruby-sample-build-1" build becomes running
+    Then the step should succeed
+   
+    When I run the :cancel_build client command with:
+      | build_name | ruby-sample-build-1 |
+    Then the "ruby-sample-build-1" build was cancelled
+    When I get project pods
+    Then the output should not contain:
+      |  ruby-sample-build-3-build  |
+    
+    When I get project builds
+    Then the output should contain:
+      |  ruby-sample-build-2  |
+    When I get project pods
+    Then the output should contain:
+      |  ruby-sample-build-2-build  |
+
+    When I run the :cancel_build client command with:
+      | build_name | non-exist |
+    Then the step should fail
+
+    When the "ruby-sample-build-2" build completed
+    And I run the :cancel_build client command with:
+      | build_name | ruby-sample-build-2 |
+    Then the "ruby-sample-build-2" build completed
