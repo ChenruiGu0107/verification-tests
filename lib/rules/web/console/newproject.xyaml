@@ -3,25 +3,26 @@ new_project:
   # non-optional action
   action: new_project_navigate
   # conditional action with both - `if` and `unless` condition
-  action:
-    ref: new_project_fake_action
-    if_element:
-      selector:
-        id: fake_id
-      type: a
-    unless_element:
-      selector:
-        id: name
-      type: input
+  # examples start with two "#".
+  ##action:
+    ##ref: new_project_fake_action
+    ##if_element:
+      ##selector:
+        ##id: fake_id
+      ##type: a
+    ##unless_element:
+      ##selector:
+        ##id: name
+      ##type: input
   action:
     ref: new_project_form
   element:
     selector:
       text: "Choose from web frameworks, databases, and other components."
-  element:
-    selector:
-      id: fake_id
-    optional: true
+  ##element:
+    ##selector:
+      ##id: fake_id
+    ##optional: true
 new_project_navigate:
   # url unconditionally directs browser at URL (relative or absolute)
   url: /console/createProject
@@ -45,8 +46,8 @@ new_project_form:
       class: btn-primary
     op: click
     type: button
-new_project_fake_action:
-  element:
-    selector:
-      id: another_fake_id
-    op: click
+##new_project_fake_action:
+  ##element:
+    ##selector:
+      ##id: another_fake_id
+    ##op: click
