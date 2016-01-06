@@ -1,0 +1,50 @@
+--- # check deleted resources related
+check_deleted_resources:
+  action: check_deleted_pod
+  action: check_deleted_service
+  action: check_deleted_buildconfig
+  action: check_deleted_rc
+  action: check_deleted_deploymentconfig
+  action: check_deleted_build
+  action: check_deleted_route
+  action: check_deleted_imagestream
+check_deleted_pod:
+  url: /console/project/<project_name>/browse/pods/<pod_name>
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<pod_warning>')]
+check_deleted_service:
+  url: /console/project/<project_name>/browse/services/<service_name>
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<service_warning>')]
+check_deleted_buildconfig:
+  url: /console/project/<project_name>/browse/builds/<build_name>/<buildconfig_name>
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<bc_warning>')]
+check_deleted_deploymentconfig:
+  url: /console/project/<project_name>/browse/deployments/<deployment_name>
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<dc_warning>')]
+check_deleted_rc:
+  url: /console/project/<project_name>/browse/deployments/<deployment_name>/<rc_name>
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<rc_warning>')]
+check_deleted_build:
+  url: /console/project/<project_name>/browse/builds/<build_name>
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<build_warning>')]
+check_deleted_route:
+  url: /console/project/<project_name>/browse/routes/<route_name>
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<route_warning>')]
+check_deleted_imagestream:
+  url: console/project/<project_name>/browse/images/<image_name>
+  elements:
+  - selector:
+      xpath: //strong[contains(text(),'<image_warning>')]

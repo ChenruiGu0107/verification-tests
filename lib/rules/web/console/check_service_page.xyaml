@@ -19,8 +19,3 @@ check_one_service_page:
     type: a
   - selector:
       text: <target_port>
-check_deleted_service:
-  url: /console/project/<project_name>/browse/services/<service_name>
-  elements:
-  - selector:
-      xpath: //strong[contains(text(),'<warning>')]
