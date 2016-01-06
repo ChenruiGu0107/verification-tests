@@ -40,7 +40,7 @@ Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
   end
 end
 
-# for a rc that has multiple pods, oc describe currently doesn't support json/yaml output format, so do 'oc get pod' to get the status of each pod 
+# for a rc that has multiple pods, oc describe currently doesn't support json/yaml output format, so do 'oc get pod' to get the status of each pod
 Given /^all pods in the project are ready$/ do
   pods = project.pods(by:user)
   logger.info("Number of pods: #{pods[:parsed]['items'].count}")
@@ -82,11 +82,12 @@ Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
 end
 
 # useful for waiting the deployment pod to die and complete
-Given /^I wait for the pod(?: named "(.+)")? to die$/ do |name|
+# @param the 'regardless...' parameter will check the mere existence of a pod
+# irrespective of whether or not it exists at the current moment.
+Given /^I wait for the pod(?: named "(.+)")? to die( regardless of current status)?$/ do |name, current_status|
   ready_timeout = 15 * 60
-  # Should wait the pod running first
-  @result = pod(name).wait_till_ready(user, ready_timeout)
-  if @result[:success]
+  @result = pod(name).wait_till_not_ready(user, ready_timeout) unless current_status
+  if current_status || @result[:success]
     @result = pod(name).wait_till_not_ready(user, ready_timeout)
   end
   unless @result[:success]
