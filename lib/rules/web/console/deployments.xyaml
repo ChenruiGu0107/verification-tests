@@ -1,14 +1,18 @@
 check_deploymentconfigs_info:
   action: goto_one_dc_page
   element:
-    selector: 
+    selector:
       text: Show annotations
     type: a
+check_latest_deployment_version:
+  element:
+    selector:
+      xpath: //table[descendant::th[.='Deployment']]//tbody[1]//a[contains(text(),'<latest_deployment_version>')]
 wait_latest_deployments_to_status:
   action: goto_one_dc_page
   element:
     selector:
-      xpath: //tbody[1]//span[contains(text(),'<status_name>')]
+      xpath: (//td[@data-title="Deployment"]/following-sibling::td[@data-title="Status"])[1][contains(.,'<status_name>')]
     timeout: 600
 manually_deploy:
   elements:
@@ -78,6 +82,58 @@ cancel_edit_replicas_on_rc_page:
       xpath: //a[@title='Cancel']
     type: a
     op: click
+click_specific_no_of_deploy:
+  element:
+    selector:
+      xpath: //table[descendant::th[.='Deployment']]//a[contains(text(),'<deploy_number>')]
+    op: click
+    timeout: 60
+rollback_all_components:
+  action: click_rollback_button
+  action: change_scale_settings
+  action: change_strategy
+  action: change_triggers
+  action: click_rollback_button_in_settings
+rollback_one_component:
+  action: click_rollback_button
+  action: change_triggers
+  action: click_rollback_button_in_settings
+rollback_two_components:
+  action: click_rollback_button
+  action: change_scale_settings
+  action: change_strategy
+  action: click_rollback_button_in_settings
+rollback_none_components:
+  action: click_rollback_button
+  action: click_rollback_button_in_settings
+click_rollback_button:
+  element:
+    selector:
+      text: Roll Back
+    type: button
+    op: click
+change_scale_settings:
+  element:
+    selector:
+      xpath: //input[@ng-model='changeScaleSettings']
+    op: click
+change_strategy:
+  element:
+    selector:
+      xpath: //input[@ng-model='changeStrategy']
+    op: click
+change_triggers:
+  element:
+    selector:
+      xpath: //input[@ng-model='changeTriggers']
+    op: click
+click_rollback_button_in_settings:
+  elements:
+  - selector:
+      xpath: //div[@ng-show='rollBackCollapsed']//button
+    op: click
+  - selector:
+      xpath: //strong[contains(text(),'is rolling back')]
 goto_deployments_page:
   url: /console/project/<project_name>/browse/deployments
 goto_one_dc_page:
