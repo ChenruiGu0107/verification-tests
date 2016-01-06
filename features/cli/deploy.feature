@@ -980,3 +980,26 @@ Feature: deployment related features
       | emptyDir: {} |
       | name: dataem |
 
+      | hooks\\s+ConfigChange\\s+2 |
+
+    # @author pruan@redhat.com
+    # @case_id 483177, 483178
+    Scenario Outline: Failure handler of pre-post deployment hook
+      Given I have a project
+      When I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/<file_name>|
+      Then the step should succeed
+      When the pod named "<pod_name>" is present
+      # wait a while for make sure we are looping the posthook
+      And 30 seconds have passed
+      When I run the :get client command with:
+        | resource | pod  |
+        | resource_name | <pod_name> |
+        | o        | json |
+      And the output is parsed as JSON
+      # catch restartCount that's greater than one to indicate post-hook
+      Then the expression should be true> @result[:parsed]['status']['containerStatuses'][0]['restartCount'] > 1
+      Examples:
+        | file_name | pod_name |
+        | pre.json  | hooks-1-prehook |
+        | post.json  | hooks-1-posthook |
