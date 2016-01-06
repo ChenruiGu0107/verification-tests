@@ -953,3 +953,30 @@ Feature: deployment related features
       | resource_name | hooks |
     Then the output should match:
       | hooks\\s+ConfigChange\\s+2 |
+
+  # @author yinzhou@redhat.com
+  # @case_id 483179,510608
+  Scenario: Pre and post deployment hooks
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
+    Then the step should succeed
+    When the pod named "hooks-1-prehook" becomes ready
+    And I run the :get client command with:
+      | resource | pod |
+      | resource_name | hooks-1-prehook    |
+      | output        | yaml        |
+    And the output should contain:
+      | mountPath: /opt1empt |
+      | emptyDir: {} |
+      | name: dataem |
+    When the pod named "hooks-1-posthook" becomes ready
+    And I run the :get client command with:
+      | resource | pod |
+      | resource_name | hooks-1-posthook    |
+      | output        | yaml        |
+    And the output should contain:
+      | mountPath: /opt1empt |
+      | emptyDir: {} |
+      | name: dataem |
+
