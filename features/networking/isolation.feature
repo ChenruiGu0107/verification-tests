@@ -1,66 +1,56 @@
 Feature: networking isolation related scenarios
-  # @author bmeng@redhat.com                                                                                                                                      
+  # @author bmeng@redhat.com
   # @case_id 497542
   @smoke
   @admin
   Scenario: The pods in default namespace can communicate with all the other pods
-    Given I create a project via client with:
-        | name | u1p1 |
+    Given I have a project
+    And evaluation of `project.name` is stored in the :u1p1 clipboard
     When I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json | 
-        | n | u1p1 |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+      | n | <%= cb.u1p1 %> |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
-    When I run the :get client command with:
-        | resource | pod |
-        | o | yaml |
-        | n | u1p1 |
-    Then the step should succeed
-    And the output is parsed as YAML
-    Given evaluation of `@result[:parsed]['items'][0]['status']['podIP']` is stored in the :pod1_ip clipboard
-    Given I create a project via client with:
-        | name | u1p2 |
+    Then evaluation of `pod.ip` is stored in the :pod1_ip clipboard
+
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :u1p2 clipboard
     When I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json | 
-        | n | u1p2 |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+      | n | <%= cb.u1p2 %> |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
-    When I run the :get client command with:
-        | resource | pod |
-        | o | yaml |
-        | n | u1p2 |
-    Then the step should succeed
-    And the output is parsed as YAML
-    Given evaluation of `@result[:parsed]['items'][0]['status']['podIP']` is stored in the :pod2_ip clipboard
+    Then evaluation of `pod.ip` is stored in the :pod2_ip clipboard
+
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    When I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    And evaluation of `rand_str(5, :dns)` is stored in the :default_name clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" URL replacing paths:
+      # | ["spec"]["containers"][0]["name"] | <%= cb.default_name %> |
+      | ["metadata"]["name"]              | <%= cb.default_name %> |
     Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
-    When I run the :get client command with:
-        | resource | pod |
-        | resource_name | hello-pod | 
-        | o | yaml |
-        | n | default |
-    Then the step should succeed
-    And the output is parsed as YAML
-    Given evaluation of `@result[:parsed]['status']['podIP']` is stored in the :default_ip clipboard
-    When I execute on the "hello-pod" pod:
-        | /usr/bin/curl | <%= cb.pod1_ip %>:8080 |
+    And I register clean-up steps:
+    """
+    I run the :delete admin command with:
+      | object_type | pod |
+      | object_name_or_id | <%= cb.default_name %> |
+    the step should succeed
+    """
+    Given the pod named "<%= cb.default_name %>" becomes ready
+    Given evaluation of `pod.ip` is stored in the :default_ip clipboard
+
+    When I execute on the "<%= cb.default_name %>" pod:
+      | /usr/bin/curl | <%= cb.pod1_ip %>:8080 |
     Then the output should contain "Hello OpenShift!"
-    When I execute on the "hello-pod" pod:
-        | /usr/bin/curl | <%= cb.pod2_ip %>:8080 |
+    When I execute on the "<%= cb.default_name %>" pod:
+      | /usr/bin/curl | <%= cb.pod2_ip %>:8080 |
     Then the output should contain "Hello OpenShift!"
     Given I switch to the first user
-    And I use the "u1p1" project
+    And I use the "<%= cb.u1p1 %>" project
     When I execute on the "hello-pod" pod:
-        | /usr/bin/curl | <%= cb.default_ip %>:8080 |
+      | /usr/bin/curl | <%= cb.default_ip %>:8080 |
     Then the output should contain "Hello OpenShift!"
-    Given I use the "u1p2" project
+    Given I use the "<%= cb.u1p2 %>" project
     When I execute on the "hello-pod" pod:
-        | /usr/bin/curl | <%= cb.default_ip %>:8080 |
+      | /usr/bin/curl | <%= cb.default_ip %>:8080 |
     Then the output should contain "Hello OpenShift!"
-    Given I run the :delete admin command with:
-        | object_type | pod |
-        | object_name_or_id | hello-pod |
