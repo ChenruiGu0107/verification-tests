@@ -13,6 +13,18 @@ create_app_from_image_change_bc_configchange:
   action: create_app_from_image_show_advanced_param
   action: create_app_from_image_change_bc_config_trigger
   action: create_app_from_image_submit
+create_app_from_image_with_label_options:
+  action: create_app_from_image_base_action
+  action: create_app_from_image_show_advanced_param
+  action: create_app_from_image_add_labels
+  action: create_app_from_image_submit
+create_app_from_image_with_env_options:
+  action: create_app_from_image_base_action
+  action: create_app_from_image_show_advanced_param
+  action: create_app_from_image_add_bc_env_vars
+  action: create_app_from_image_add_dc_env_vars
+  action: create_app_from_image_submit
+
 create_app_from_image_base_action:
   action: create_app_from_image_navigate
   action: create_app_from_image_default_options
@@ -58,15 +70,29 @@ create_app_from_image_change_dc_config_trigger:
 create_app_from_image_add_dc_env_vars:
   elements:
   - selector:
-      xpath: //span//osc-form-section[2]//osc-key-values[descendant::input[@name="key"]]
-    op: send_keys <env_key>
+      xpath: //span/osc-form-section[3]//div[@ng-show='editable']//input[@name="key"]      
+    op: send_keys <dc_env_key>
     type: input
   - selector:
-      xpath: //span//osc-form-section[2]//osc-key-values[descendant::input[@name="value"]]
-    op: send_keys <env_value>
+      xpath: //span/osc-form-section[3]//div[@ng-show='editable']//input[@name="value"]
+    op: send_keys <dc_env_value>
     type: input
   - selector:
-      xpath: //span//osc-form-section[2]//osc-key-values[descendant::button[text()="Add"]]
+      xpath: //span/osc-form-section[3]//div[@ng-show='editable']//button[text()="Add"]
+    op: click
+    type: button
+create_app_from_image_add_bc_env_vars:
+  elements:
+  - selector:
+      xpath: //span/osc-form-section[2]//div[@ng-show='editable']//input[@name="key"]      
+    op: send_keys <bc_env_key>
+    type: input
+  - selector:
+      xpath: //span/osc-form-section[2]//div[@ng-show='editable']//input[@name="value"]
+    op: send_keys <bc_env_value>
+    type: input
+  - selector:
+      xpath: //span/osc-form-section[2]//div[@ng-show='editable']//button[text()="Add"]
     op: click
     type: button
 create_app_from_image_change_bc_webhook_trigger:
@@ -98,15 +124,15 @@ create_app_from_image_change_scaling_setting:
 create_app_from_image_add_labels:
   elements:
   - selector:
-      xpath: //label-editor[descendant::input[@name="key"]]
+      xpath: //label-editor//div[@ng-show='expand']//input[@name="key"]
     op: send_keys <label_key>
     type: input
   - selector:
-      xpath: //label-editor[descendant::input[@name="value"]]
+      xpath: //label-editor//div[@ng-show='expand']//input[@name="value"]      
     op: send_keys <label_value>
     type: input
   - selector:
-      xpath: //label-editor[descendant::button[text()="Add"]]
+      xpath: //label-editor//div[@ng-show='expand']//button[text()="Add"]
     op: click
     type: button
 create_app_from_image_submit:

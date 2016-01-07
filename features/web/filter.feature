@@ -187,3 +187,208 @@ Feature: filter on create page
     When I get the html of the web page
     Then the output should not contain:
       | NodeJS |
+
+
+  # @author yanpzhan@redhat.com
+  # @case_id 470358
+  Scenario: Filter resources by labels under Browse page
+    Given I login via web console
+    Given I have a project
+    Given I use the "<%= project.name %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I perform the :create_app_from_template web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | ruby-helloworld-sample |
+      | namespace     | <%= project.name %>    |
+      | param_one     | :null  |
+      | param_two     | :null  |
+      | param_three   | :null  |
+      | param_four    | :null  |
+      | param_five    | :null  |
+      | label_key     | label1 |
+      | label_value   | test1  |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build was created
+    When I perform the :create_app_from_image_with_label_options web console action with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | nodejs                                     |
+      | image_tag    | 0.10                                       |
+      | namespace    | openshift                                  |
+      | app_name     | nodejs-sample                              |
+      | source_url   | https://github.com/openshift/nodejs-ex.git |
+      | label_key    | label2                                     |
+      | label_value  | test2                                      |
+    Then the step should succeed
+    Given the "nodejs-sample-1" build was created
+   
+    #Filter on Browse->Builds page 
+    When I access the "/console/project/<%= project.name%>/browse/builds" path in the web console
+    Then the step should succeed
+
+    When I perform the :filter_resources web console action with:
+      | label_key     | label1 |
+      | label_value   | test1  |
+      | filter_action | in ... |
+    Then the step should succeed
+
+    When I get the html of the web page
+    Then the output should contain:
+      | ruby-sample-build |
+    And the output should not contain:
+      | nodejs-sample |
+
+    #Filter on Browse->Deployments page 
+    When I access the "/console/project/<%= project.name%>/browse/deployments" path in the web console
+    Then the step should succeed
+
+    When I perform the :filter_resources web console action with:
+      | label_key     | label1 |
+      | label_value   | test1  |
+      | filter_action | in ... |
+    Then the step should succeed
+
+    When I get the html of the web page
+    Then the output should contain:
+      | database |
+      | frontend |
+    And the output should not contain:
+      | nodejs-sample |
+
+    #Filter on Browse->Image Streams page 
+    When I access the "/console/project/<%= project.name%>/browse/images" path in the web console
+    Then the step should succeed
+
+    When I perform the :filter_resources web console action with:
+      | label_key     | label1 |
+      | label_value   | test1  |
+      | filter_action | in ... |
+    Then the step should succeed
+
+    When I get the html of the web page
+    Then the output should contain:
+      | origin-ruby-sample |
+      | ruby-22-centos7    |
+    And the output should not contain:
+      | nodejs-sample |
+
+    #Filter on Browse->Pods page 
+    When I access the "/console/project/<%= project.name%>/browse/pods" path in the web console
+    Then the step should succeed
+
+    When I perform the :filter_resources web console action with:
+      | label_key     | openshift.io/build.name |
+      | label_value   | nodejs-sample-1 |
+      | filter_action | in ... |
+    Then the step should succeed
+
+    When I get the html of the web page
+    Then the output should contain:
+      | nodejs-sample-1-build |
+    And the output should not contain:
+      | ruby-sample-build-1-build |
+
+    #Filter on Browse->Routes page 
+    When I access the "/console/project/<%= project.name%>/browse/routes" path in the web console
+    Then the step should succeed
+
+    When I perform the :filter_resources web console action with:
+      | label_key     | label1 |
+      | label_value   | test1  |
+      | filter_action | in ... |
+    Then the step should succeed
+
+    When I get the html of the web page
+    Then the output should contain:
+      | route-edge |
+    And the output should not contain:
+      | nodejs-sample |
+
+    #Filter on Browse->Services page 
+    When I access the "/console/project/<%= project.name%>/browse/services" path in the web console
+    Then the step should succeed
+
+    When I perform the :filter_resources web console action with:
+      | label_key     | label1 |
+      | label_value   | test1  |
+      | filter_action | in ... |
+    Then the step should succeed
+
+    When I get the html of the web page
+    Then the output should contain:
+      | database |
+      | frontend |
+    And the output should not contain:
+      | nodejs-sample |
+
+    #Filter with non-existing label
+    When I perform the :filter_resources_with_non_existing_label web console action with:
+      | label_key     | nolabel |
+      | press_enter   | :enter  |
+      | label_value   | novalue |
+      | filter_action | in ...  |
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should contain:
+      | The active filters are hiding all |
+
+    #Clear one filter
+    When I perform the :clear_one_filter web console action with:
+      | filter_name | nolabel in (novalue) |
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should contain:
+      | database |
+      | frontend |
+    And the output should not contain:
+      | The active filters are hiding all |
+    
+    When I perform the :filter_resources_with_non_existing_label web console action with:
+      | label_key     | i*s#$$% |
+      | press_enter   | :enter  |
+      | label_value   | 1223$@@ |
+      | filter_action | in ...  |
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should contain:
+      | The active filters are hiding all |
+
+    #Clear all filters
+    When I run the :clear_all_filters web console action
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should contain:
+      | database      |
+      | frontend      |
+      | nodejs-sample |
+
+     #Filter with other operator actions 
+    When I perform the :filter_resources web console action with:
+      | label_key     | label1 |
+      | label_value   | test1  |
+      | filter_action | not in ... |
+    Then the step should succeed
+
+    When I get the html of the web page
+    Then the output should contain:
+      | nodejs-sample |
+    And the output should not contain:
+      | database |
+      | frontend |
+
+    When I run the :clear_all_filters web console action
+    Then the step should succeed
+
+    When I perform the :filter_resources_with_exists_option web console action with:
+      | label_key     | label1 |
+      | filter_action | exists |
+    Then the step should succeed
+
+    When I get the html of the web page
+    Then the output should contain:
+      | database |
+      | frontend |
+    And the output should not contain:
+      | nodejs-sample |
+
