@@ -75,8 +75,16 @@ module CucuShift
       scenario_tags.include? '@admin'
     end
 
+    def tagged_destructive?
+      scenario_tags.include? '@destructive'
+    end
+
     def ensure_admin_tagged
       raise 'tag scenario @admin as you use admin access' unless tagged_admin?
+    end
+
+    def ensure_destructive_tagged
+      raise 'tag scenario @admin and @destructive as you use admin access and failure to restore can have adverse effects to following scenarios' unless tagged_admin? && tagged_destructive?
     end
 
     # @note call like `user(0)` or simply `user` for current user

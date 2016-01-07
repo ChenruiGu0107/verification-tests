@@ -30,3 +30,34 @@ Given /^the following scc policy is created: (.+)$/ do |policy|
     raise "unable to set scc policy #{path}, see log"
   end
 end
+
+# setup tier_down to restore scc after scenario end;
+Given /^scc policy #{QUOTED} is restored after scenario$/ do |policy|
+  ensure_admin_tagged
+
+  @result = admin.cli_exec(:get, resource: 'scc', resource_name: policy, o: 'yaml')
+  if @result[:success]
+    orig_policy = @result[:response]
+    logger.info "SCC restore tear_down registered:\n#{orig_policy}"
+  else
+    raise "could not get scc: #{policy}"
+  end
+
+  _admin = admin
+  teardown_add {
+    admin.cli_exec(
+      :delete,
+      object_type: :scc,
+      object_name_or_id: policy
+    )
+    # we don't check result here, we don't care if it existed or not
+    # we care if it will be created successfully below
+
+    @result = _admin.cli_exec(
+      :create,
+      f: "-",
+      _stdin: orig_policy
+    )
+    raise "cannot restore #{policy}" unless @result[:success]
+  }
+end
