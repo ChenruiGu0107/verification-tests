@@ -1,4 +1,5 @@
-Given /^service account "(.+?)" is granted the following scc policy: (.+?)$/ do |account, policy|
+# creates a SCC policy and registers clean-up to remove it after scenario
+Given /^the following scc policy is created: (.+)$/ do |policy|
   ensure_admin_tagged
 
   if policy.include? '://'
@@ -10,10 +11,7 @@ Given /^service account "(.+?)" is granted the following scc policy: (.+?)$/ do 
 
   raise "no policy template found: #{path}" unless File.exist?(path)
 
-  ## replace #ACCOUNT# in policy template with actual account name
-  step %Q{I replace lines in "#{path}":}, table("|#ACCOUNT#|#{account}|")
-
-  ## figure out account name for clean-up
+  ## figure out policy name for clean-up
   policy_name = YAML.load_file(path)["metadata"]["name"]
   raise "no policy name in template" unless policy_name
 
@@ -29,6 +27,6 @@ Given /^service account "(.+?)" is granted the following scc policy: (.+?)$/ do 
       raise "cannot remove policy #{policy_name}" unless @result[:success]
     }
   else
-    raise "unable to set scc policy #{path} for service account #{account}, see log"
+    raise "unable to set scc policy #{path}, see log"
   end
 end
