@@ -1,6 +1,9 @@
 # store here steps that create test services within OpenShift test env
 
 Given /^I have a NFS service in the(?: "([^ ]+?)")? project$/ do |project_name|
+  # at the moment I believe only one such PV we can have without interference
+  #ensure_destructive_tagged
+
   project(project_name)
   unless project.exists?(user: user)
     raise "project #{project_name} does not exist"
