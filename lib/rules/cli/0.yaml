@@ -72,7 +72,6 @@
 :config_set_cluster:
   :cmd: oc config set-cluster <name>
   :options:
-    :api_version: --api-version=<value>
     :cert: --certificate-authority=<value>
     :embed: --embed-certs=<value>
     :insecure: --insecure-skip-tls-verify=<value>
