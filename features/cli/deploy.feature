@@ -990,15 +990,16 @@ Feature: deployment related features
         | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/<file_name>|
       Then the step should succeed
       When the pod named "<pod_name>" is present
+      And I wait for the steps to pass:
       # wait a while for make sure we are looping the posthook
-      And 30 seconds have passed
-      When I run the :get client command with:
-        | resource | pod  |
-        | resource_name | <pod_name> |
-        | o        | json |
-      And the output is parsed as JSON
-      # catch restartCount that's greater than one to indicate post-hook
-      Then the expression should be true> @result[:parsed]['status']['containerStatuses'][0]['restartCount'] > 1
+      """
+        When I run the :get client command with:
+          | resource | pod  |
+          | resource_name | <pod_name> |
+          |  o        | json |
+        And the output is parsed as JSON
+        Then the expression should be true> @result[:parsed]['status']['containerStatuses'][0]['restartCount'] > 1
+      """
       Examples:
         | file_name | pod_name |
         | pre.json  | hooks-1-prehook |

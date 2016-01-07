@@ -115,7 +115,7 @@ module CucuShift
       res = nil
       success = wait_for(seconds) {
         res = get(user:user)
-        break if res[:success]
+        res[:success]
       }
       return res
     end
