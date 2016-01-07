@@ -37,8 +37,20 @@ module CucuShift
         end
       end
 
+      command :create_a do |c|
+        c.syntax = 'dyn.rb create_a [options]'
+        c.description = 'create A record depending on opts'
+        c.option('--ips LIST', "comma separated target IPs")
+        # c.option('--domain', "the target domain if random not appropriate")
+        c.action do |args, options|
+          ips = options.ips.split(",")
+          say dyn.dyn_create_random_a_wildcard_records(ips)
+          dyn.publish
+        end
+      end
+
       command :delete_older_records do |c|
-        c.syntax = 'dyn.rb delete_older_records -w NUM --doit'
+        c.syntax = 'dyn.rb delete_older_records [options]'
         c.description = 'delete records older than some time'
         c.option('-w', '--weeks NUM', "number of weeks older records to delete")
         c.option('--doit', 'actually perform the operation; dry run otherwise')
