@@ -103,3 +103,44 @@ Feature: Return description with cli
       Then the output should contain:
       | unknown command "des" for "oc" |
 
+
+  # @author yadu@redhat.com
+  # @case_id 510223
+  Scenario: Disable v1beta3 in REST API
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :describe client command with:
+      | resource | svc               |
+      | name     | test-service      |
+      | api_version | v1beta3        |
+    Then the step should fail
+    Then the output should contain:
+      |  does not support API version 'v1beta3' |
+    When I run the :describe client command with:
+      | resource | svc               |
+      | name     | test-service      |
+      | api_version | v1             |
+    Then the step should succeed
+    Then the output should contain:
+      | test-service |
+      | name=test-pods |
+    When I run the :get client command with:
+      | resource       | svc               |
+      | resource_name  | test-service      |
+      | api_version | v1beta3        |
+      | o           | json           |
+    Then the step should fail
+    Then the output should contain:
+      | does not support API version 'v1beta3' |
+    When I run the :get client command with:
+      | resource       | svc               |
+      | resource_name  | test-service      |
+      | api_version | v1             |
+      | o           | json           |
+    Then the step should succeed
+    Then the output should contain:
+      | "kind": "Service"  |
+      | "apiVersion": "v1" |
