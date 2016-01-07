@@ -47,7 +47,8 @@ Feature: Testing route
       | object_type | route |
       | object_name_or_id | header-test-insecure |
     Then I wait for the resource "route" named "header-test-insecure" to disappear
-    Given 20 seconds have passed
+    Then I wait up to 20 seconds for the steps to pass:
+    """
     When I open web server via the "header-test-insecure" route
     Then the step should fail
-
+    """
