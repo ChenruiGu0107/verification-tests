@@ -6,11 +6,13 @@ delete_project:
       xpath: //div[descendant::a[contains(@href,'<project_name>')]]//i
     op: click
   - selector:
-      text: Delete this project
+      text: Delete
     type: button
     op: click
   - selector:
-      xpath: //strong[substring(text(), string-length(text()) - string-length("marked for deletion.") + 1)="marked for deletion."]
+      xpath: //h2//span[contains(@data-original-title,'This project has been marked for deletion')]
+      #xpath: //strong[substring(text(), string-length(text()) - string-length("marked for deletion.") + 1)="marked for deletion."]
+    optional: true
 cancel_delete_project:
   action: check_project_list
   elements:

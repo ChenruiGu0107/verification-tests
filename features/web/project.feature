@@ -106,6 +106,8 @@ Feature: projects related features via web
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+    When I run the :check_project_list web console action 
+    Then the step should fail
     When I perform the :new_project web console action with:
       | project_name | <%= project.name %> |
       | display_name | :null               |
@@ -117,6 +119,8 @@ Feature: projects related features via web
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+    When I run the :check_project_list web console action
+    Then the step should fail
     Given I create a new project
     When I run the :add_role_to_user client command with:
       | role      | edit            |
