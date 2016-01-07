@@ -980,8 +980,6 @@ Feature: deployment related features
       | emptyDir: {} |
       | name: dataem |
 
-      | hooks\\s+ConfigChange\\s+2 |
-
     # @author pruan@redhat.com
     # @case_id 483177, 483178
     Scenario Outline: Failure handler of pre-post deployment hook
