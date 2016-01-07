@@ -1,18 +1,9 @@
+require 'openshift/project_resource'
+
 module CucuShift
   # represents OpenShift v3 Service concept
-  class Service
-    include Common::Helper
-    include Common::UserObjectHelper
-
-    attr_reader :props, :name, :project
-
-    # @param name [String] service name
-    # @param project [CucuShift::Project] the project where service was created
-    def initialize(name:, project:, props: {})
-      @name = name
-      @project = project
-      @props = props
-    end
+  class Service < ProjectResource
+    RESOURCE = "services"
 
     # @return [CucuShift::ResultHash] with :success true if we've eventually
     #   got the pod in ready status; the result hash is from last executed get
@@ -24,30 +15,6 @@ module CucuShift
         res[:success]
       }
 
-      return res
-    end
-
-    def get(user:)
-      res = cli_exec(as: user, key: :get, n: project.name,
-                resource_name: name,
-                resource: "service",
-                output: "yaml")
-
-      if res[:success]
-        res[:parsed] = YAML.load(res[:response])
-        update_from_api_object(res[:parsed])
-      end
-
-      return res
-    end
-    alias reload get
-
-    def get_checked(user:)
-      res = get(user: user)
-      unless res[:success]
-        logger.error(res[:response])
-        raise "could not get service"
-      end
       return res
     end
 
@@ -89,20 +56,6 @@ module CucuShift
       get_checked(user: user) if !props[:ip]
 
       return props[:ip]
-    end
-
-    ############### deal with comparison ###############
-    def env
-      project.env
-    end
-
-    def ==(s)
-      s.kind_of?(self.class) && name == s.name && project == s.project
-    end
-    alias eql? ==
-
-    def hash
-      :service.hash ^ name.hash ^ project.hash
     end
   end
 end

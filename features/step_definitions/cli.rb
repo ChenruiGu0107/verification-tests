@@ -48,6 +48,31 @@ Given /^I create a new application with:$/ do |table|
 end
 
 # instead of writing multiple steps, this step does this in one go:
+# 1. download file from JSON/YAML URL
+# 2. replace any path with given value from table
+# 3. runs `oc create` command over the resulting file
+When /^I run oc create( as admin)? over #{QUOTED} URL replacing paths:$/ do |admin, url, table|
+  step %Q|I download a file from "#{url}"|
+
+  # replace paths from table
+  resource_hash = YAML.load(@result[:response])
+  table.raw.each do |path, value|
+    eval "resource_hash#{path} = value"
+    # e.g. resource["spec"]["nfs"]["server"] = 10.10.10.10
+    #      resource["spec"]["containers"][0]["name"] = "xyz"
+  end
+  resource = resource_hash.to_json
+  logger.info resource
+
+  if admin
+    ensure_admin_tagged
+    @result = self.admin.cli_exec(:create, {f: "-", _stdin: resource})
+  else
+    @result = user.cli_exec(:create, {f: "-", _stdin: resource})
+  end
+end
+
+# instead of writing multiple steps, this step does this in one go:
 # 1. download file from URL
 # 2. load it as an ERB file with the cucumber scenario variables binding
 # 3. runs `oc create` command over the resulting file

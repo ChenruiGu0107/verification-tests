@@ -32,6 +32,15 @@ module CucuShift
     end
     alias exists? visible?
 
+    def get_checked(user:)
+      res = get(user: user)
+      unless res[:success]
+        logger.error(res[:response])
+        raise "could not get self.class::RESOURCE"
+      end
+      return res
+    end
+
     def get(user:)
       get_opts = {
         as: user, key: :get,

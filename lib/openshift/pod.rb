@@ -1,32 +1,14 @@
-require 'common'
+require 'openshift/project_resource'
 
 module CucuShift
   # represents an OpenShift pod
-  class Pod
-    include Common::Helper
-    include Common::UserObjectHelper
+  class Pod < ProjectResource
     extend  Common::BaseHelper
     # extend  Common::UserObjectClassHelper
 
     # statuses that indicate pod running or completed successfully
     SUCCESS_STATUSES = [:running, :succeeded, :missing]
-
-    attr_reader :props, :name, :project
-
-    # @param name [String] name of pod
-    # @param project [CucuShift::Project] the project pod belongs to
-    # @param props [Hash] additional properties of the pod
-    def initialize(name:, project:, props: {})
-      @name = name
-      @project = project
-      @props = props
-    end
-
-    # creates new pod from an OpenShift API Pod object
-    def self.from_api_object(project, pod_hash)
-      self.new(project: project, name: pod_hash["metadata"]["name"]).
-                                update_from_api_object(pod_hash)
-    end
+    RESOURCE = "pods"
 
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that ca nchange at any time like status and spec
@@ -48,25 +30,12 @@ module CucuShift
       # ???
 
       # s = pod_hash["spec"] # this is runtime, lets not cache
-      # s = pod_hash["status"] # this is runtime, lets not cache
+
+      s = pod_hash["status"]
+      props[:ip] = s["podIP"]
 
       return self # mainly to help ::from_api_object
     end
-
-    def get(user:)
-      res = cli_exec(as: user, key: :get, n: project.name,
-                resource_name: name,
-                resource: "pod",
-                output: "yaml")
-
-      if res[:success]
-        res[:parsed] = YAML.load(res[:response])
-        update_from_api_object(res[:parsed])
-      end
-
-      return res
-    end
-    alias reload get
 
     # @return [CucuShift::ResultHash] with :success depending on status=True
     #   with type=Ready
@@ -83,6 +52,13 @@ module CucuShift
       end
 
       return res
+    end
+
+    # @note call without parameters only when props are loaded
+    def ip(user: nil)
+      get_checked(user: user) if !props[:ip]
+
+      return props[:ip]
     end
 
     # @return [CucuShift::ResultHash] with :success true if we've eventually
@@ -224,19 +200,6 @@ module CucuShift
                oc_opts_end: true,
                exec_command: command,
                exec_command_arg: args)
-    end
-
-    def env
-      project.env
-    end
-
-    def ==(p)
-      p.kind_of?(self.class) && name == p.name && project == p.project
-    end
-    alias eql? ==
-
-    def hash
-      :pod.hash ^ name.hash ^ project.hash
     end
   end
 end
