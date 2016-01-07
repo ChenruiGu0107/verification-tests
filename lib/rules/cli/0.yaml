@@ -282,6 +282,7 @@
     :app_repo: <value>
     :code: --code=<value>
     :docker_image: --docker-image=<value>
+    :D : -D <value>
     :e: -e <value>
     :image: --image=<value>
     :l: -l <value>
@@ -290,6 +291,7 @@
     :strategy: --strategy=<value>
     :template: --template=<value>
     :to_docker: --to-docker=<value>
+    :to : --to=<value>
 :new_dockercfg:
   :cmd: oc secrets new-dockercfg <secret_name>
   :options:
