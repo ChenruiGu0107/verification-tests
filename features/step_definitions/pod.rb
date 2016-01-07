@@ -30,6 +30,16 @@ Given /^the pod(?: named "(.+)")? becomes ready$/ do |name|
   end
 end
 
+Given /^the pod(?: named "(.+)")? is present$/ do |name|
+  present_timeout = 5 * 60
+  @result = pod(name).wait_till_present(user, present_timeout)
+
+  unless @result[:success]
+    logger.error(@result[:response])
+    raise "#{pod.name} pod was never present"
+  end
+end
+
 Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
   status_timeout = 15 * 60
   @result = pod(name).wait_till_status(status, user, status_timeout)
