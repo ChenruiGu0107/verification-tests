@@ -348,7 +348,7 @@ require 'watir-webdriver'
     end
 
     def get_visible_elements(type, selector)
-      return get_elements(type, selector).select { |e| e.visible? }
+      return get_elements(type, selector).select { |e| e.present? }
     end
 
     # return HTML code of current page
