@@ -13,6 +13,16 @@ check_log_context:
   - selector:
       xpath: //tbody[@id='logContent']//td[contains(text(),'<log_context>')]
     timeout: 180
+check_pod_list_page:
+  url: /console/project/<project_name>/browse/pods
+  element:
+    selector:
+      xpath: //table[descendant::th[text()="Name"]]
+check_pod_list_with_no_pod:
+  action: check_pod_list_page
+  element:
+    selector:
+      xpath: //em[contains(text(),'No pods to show')]
 open_in_new_window:
   elements:
   - selector:

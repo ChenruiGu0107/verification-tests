@@ -65,3 +65,42 @@ check_one_build_inside_bc_page:
   elements:
   - selector:
       text: Show annotations
+cancel_build_from_pending_status:
+  action: check_one_build_inside_bc_page
+  elements:
+  #- selector:
+  #    xpath: //span[@ng-switch-when='New']
+  #  optional: true
+  - selector:
+      xpath: //span[@ng-switch-when='Pending']
+  - selector:
+      text: Cancel
+      class: btn-default
+    op: click
+    type: button
+  - selector:
+      text: Rebuild
+      class: btn-default
+    type: button
+cancel_build_from_running_status:
+  action: check_one_build_inside_bc_page
+  elements:
+  - selector:
+      xpath: //span[@ng-switch-when='Running']
+  - selector:
+      text: Cancel
+      class: btn-default
+    op: click
+    type: button
+  - selector:
+      text: Rebuild
+      class: btn-default
+    type: button
+start_build_base_on_buildconfig:
+  action: check_one_buildconfig_page
+  element:
+    selector:
+      text: Start Build
+      class: btn-default
+    type: button
+    op: click
