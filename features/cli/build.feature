@@ -214,8 +214,8 @@ Feature: build 'apps' with CLI
 
   # @author xiaocwan@redhat.com
   # @case_id 482200
-Scenario: Cancel a build in openshift 
-    Given I have a project    
+  Scenario: Cancel a build in openshift
+    Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
     Then the step should succeed
     When I get project buildConfigs
@@ -229,14 +229,12 @@ Scenario: Cancel a build in openshift
 
     Given the "ruby-sample-build-1" build becomes running
     Then the step should succeed
-   
     When I run the :cancel_build client command with:
       | build_name | ruby-sample-build-1 |
     Then the "ruby-sample-build-1" build was cancelled
     When I get project pods
     Then the output should not contain:
       |  ruby-sample-build-3-build  |
-    
     When I get project builds
     Then the output should contain:
       |  ruby-sample-build-2  |
