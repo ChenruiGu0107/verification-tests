@@ -115,6 +115,12 @@ Then /^(the|all)? outputs?( by order)? should( not)? (contain|match) "(.+)"(?: (
     table([[pattern]])
 end
 
+Then /^the output should equal #{QUOTED}$/ do |value|
+  unless value == @result[:response]
+    raise "output does not equal epected value, see log"
+  end
+end
+
 Given /^([0-9]+?) seconds have passed$/ do |num|
   sleep(num.to_i)
 end
