@@ -37,3 +37,31 @@ Feature: buildlogic.feature
     Then the step should succeed
     And the "myapp-1" build was created
     And the "myapp-1" build completed
+
+    # @author xiazhao@redhat.com
+    # @case_id 501096
+    Scenario: Result image will be tried to push after multi-build
+    Given I have a project
+    When I run the :new_app client command with:
+      | file |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/php-55-rhel7-stibuild.json |
+    Then the step should succeed
+    # The 1st build should be triggered automatically
+    And the "php-sample-build-1" build was created
+    # Trigger the 2nd build in order for doing multi-builds
+    When I run the :start_build client command with:
+      | buildconfig | php-sample-build |
+    Then the step should succeed
+    And the "php-sample-build-2" build was created
+    # Wait for the first 2 builds finished
+    And the "php-sample-build-1" build finished
+    And the "php-sample-build-2" build finished
+    # Trigger the 3rd build, it should succeed
+    When I run the :start_build client command with:
+      | buildconfig | php-sample-build |
+    Then the step should succeed
+    And the "php-sample-build-3" build was created
+    And the "php-sample-build-3" build completed
+    When I run the :build_logs client command with:
+      | build_name  | php-sample-build-3 |
+    Then the output should match "Successfully pushed"
+
