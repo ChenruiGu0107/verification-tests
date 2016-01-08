@@ -150,9 +150,10 @@ def report_auto_testcases_by_author(options)
   tcms = options.tcms
   table = Text::Table.new
   table.head = ['case_id', 'summary', 'author']
-  regex = /(automated by)\s(\w+)?/
+  regex = /(automated by)\s(\w+)?/i
   script_pattern = "\"ruby\""
   cases = []
+  unknown_cases = []   # array to story 'unknown' testcase ids
   authors = {}
   auto_case_total = 0
   res = tcms.filter_cases()
@@ -168,6 +169,9 @@ def report_auto_testcases_by_author(options)
         auto_case_total += 1
         auto_by = testcase['notes'].match(regex)[2] if testcase['notes'].match(regex)
         auto_by = "unknown" if auto_by.nil?
+        if auto_by == 'unknown'
+          unknown_cases << testcase['case_id']
+        end
         if authors.keys().include? auto_by
           authors[auto_by] += 1
         else
@@ -187,6 +191,7 @@ def report_auto_testcases_by_author(options)
       end
     end
   end
+  print "Cases with Unknown authors #{unknown_cases}\n"
   print table
   table_sum = Text::Table.new
   table_sum.head = ['author', 'testcases']
