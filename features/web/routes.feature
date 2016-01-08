@@ -44,3 +44,31 @@ Feature: Routes related features on web console
       | route_name   | nodejs-sample       |
       | service_url | <%= cb.patch_yaml %>|
     Then the step should succeed    
+
+  # @author yanpzhan@redhat.com
+  # @case_id 511915
+  Scenario: Create unsecured route on web console
+    When I create a new project via web
+    Then the step should succeed
+
+    Given I use the "<%= project.name %>" project 
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_nothing.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    When I perform the :open_create_route_page_from_overview_page web console action with:
+      | project_name | <%= project.name%> |
+      | service_name | hello-nginx        |
+    Then the step should succeed
+     
+    When I perform the :create_unsecured_route_from_service_or_overview_page web console action with:
+      | route_name | hello-nginx |
+    Then the step should succeed
+
+    When I perform the :check_routes_page web console action with:
+      | project_name | <%= project.name %> |
+      | route_name   | hello-nginx         |
+    Then the step should succeed 
