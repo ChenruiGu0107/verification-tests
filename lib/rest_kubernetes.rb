@@ -26,6 +26,11 @@ module CucuShift
         alias populate populate_common
       end
 
+      def self.access_heapster(base_opts, opts)
+        populate("/proxy/namespaces/<project_name>/services/https:heapster:/validate", base_opts, opts)
+        return perform(**base_opts, method: "GET")
+      end
+
     end
   end
 end
