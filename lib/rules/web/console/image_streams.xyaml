@@ -1,6 +1,6 @@
 #---check image stream
 check_empty_image_streams_page:
-  url: /console/project/<project_name>/browse/images
+  action: goto_image_streams_page
   elements:
   - selector: 
       xpath: //tbody[@class='ng-scope']//em[contains(text(), 'No image streams to show')]
@@ -9,7 +9,7 @@ check_image_streams:
   - selector:
       xpath: //a[ancestor::table and contains(text(), '<is_name>')] 
 check_one_image_stream:
-  url: /console/project/<project_name>/browse/images/<image_name>
+  action: goto_one_image_stream_page
   elements:
   - selector:
       xpath: //span[contains(text(),'<image_name>')]
@@ -25,9 +25,13 @@ check_one_image_stream:
     op: click
     type: a
 check_deleted_image_stream:
-  url: /console/project/<project_name>/browse/images/<image_name>
+  action: goto_one_image_stream_page
   elements:
   - selector:
       xpath: //alerts//strong[contains(text(),'The image stream details could not be loaded')]
   - selector:
       xpath: //alerts//span[contains(text(),'imageStream "<image_name>" not found')]
+goto_image_streams_page:
+  url: /console/project/<project_name>/browse/images
+goto_one_image_stream_page:
+  url: /console/project/<project_name>/browse/images/<image_name>
