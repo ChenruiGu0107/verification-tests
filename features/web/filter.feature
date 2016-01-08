@@ -192,16 +192,12 @@ Feature: filter on create page
   # @author yanpzhan@redhat.com
   # @case_id 470358
   Scenario: Filter resources by labels under Browse page
-    Given I login via web console
-    Given I have a project
-    Given I use the "<%= project.name %>" project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    When I create a new project via web 
     Then the step should succeed
     When I perform the :create_app_from_template web console action with:
       | project_name  | <%= project.name %>    |
-      | template_name | ruby-helloworld-sample |
-      | namespace     | <%= project.name %>    |
+      | template_name | nodejs-example |
+      | namespace     | openshift      |
       | param_one     | :null  |
       | param_two     | :null  |
       | param_three   | :null  |
@@ -210,7 +206,7 @@ Feature: filter on create page
       | label_key     | label1 |
       | label_value   | test1  |
     Then the step should succeed
-    Given the "ruby-sample-build-1" build was created
+    Given the "nodejs-example-1" build was created
     When I perform the :create_app_from_image_with_label_options web console action with:
       | project_name | <%= project.name %>                        |
       | image_name   | nodejs                                     |
@@ -235,7 +231,7 @@ Feature: filter on create page
 
     When I get the html of the web page
     Then the output should contain:
-      | ruby-sample-build |
+      | nodejs-example |
     And the output should not contain:
       | nodejs-sample |
 
@@ -251,8 +247,7 @@ Feature: filter on create page
 
     When I get the html of the web page
     Then the output should contain:
-      | database |
-      | frontend |
+      | nodejs-example |
     And the output should not contain:
       | nodejs-sample |
 
@@ -268,8 +263,7 @@ Feature: filter on create page
 
     When I get the html of the web page
     Then the output should contain:
-      | origin-ruby-sample |
-      | ruby-22-centos7    |
+      | nodejs-example |
     And the output should not contain:
       | nodejs-sample |
 
@@ -287,7 +281,7 @@ Feature: filter on create page
     Then the output should contain:
       | nodejs-sample-1-build |
     And the output should not contain:
-      | ruby-sample-build-1-build |
+      | nodejs-example-1-build |
 
     #Filter on Browse->Routes page 
     When I access the "/console/project/<%= project.name%>/browse/routes" path in the web console
@@ -301,7 +295,7 @@ Feature: filter on create page
 
     When I get the html of the web page
     Then the output should contain:
-      | route-edge |
+      | nodejs-example |
     And the output should not contain:
       | nodejs-sample |
 
@@ -317,8 +311,7 @@ Feature: filter on create page
 
     When I get the html of the web page
     Then the output should contain:
-      | database |
-      | frontend |
+      | nodejs-example |
     And the output should not contain:
       | nodejs-sample |
 
@@ -339,8 +332,7 @@ Feature: filter on create page
     Then the step should succeed
     When I get the html of the web page
     Then the output should contain:
-      | database |
-      | frontend |
+      | nodejs-example |
     And the output should not contain:
       | The active filters are hiding all |
     
@@ -359,9 +351,8 @@ Feature: filter on create page
     Then the step should succeed
     When I get the html of the web page
     Then the output should contain:
-      | database      |
-      | frontend      |
-      | nodejs-sample |
+      | nodejs-example |
+      | nodejs-sample  |
 
      #Filter with other operator actions 
     When I perform the :filter_resources web console action with:
@@ -374,8 +365,7 @@ Feature: filter on create page
     Then the output should contain:
       | nodejs-sample |
     And the output should not contain:
-      | database |
-      | frontend |
+      | nodejs-example |
 
     When I run the :clear_all_filters web console action
     Then the step should succeed
@@ -387,8 +377,7 @@ Feature: filter on create page
 
     When I get the html of the web page
     Then the output should contain:
-      | database |
-      | frontend |
+      | nodejs-example |
     And the output should not contain:
       | nodejs-sample |
 
