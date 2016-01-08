@@ -75,3 +75,33 @@ Feature: buildconfig.feature
       | from_build| invalid |
     Then the step should fail
     And the output should contain "build "invalid" not found"
+
+  # @author xiazhao@redhat.com
+  # @case_id 482207
+  Scenario: Do incremental builds for sti-build in openshift
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/SourceBuildConfig_Incremental_Build.json |
+    Then the step should succeed
+    # Test incremental build firstly
+    When I run the :start_build client command with:
+      | buildconfig | source-build |
+    Then the step should succeed
+    And the "source-build-1" build was created
+    And the "source-build-1" build completed
+    When I run the :build_logs client command with:
+      | build_name      | source-build-1 |
+    Then the output should match "Saving build artifacts from image"
+    # Test clean build secondly
+    When I replace resource "bc" named "source-build":
+      | true | false |
+    Then the step should succeed
+    And the output should contain "replaced"
+    When I run the :start_build client command with:
+      | buildconfig | source-build |
+    Then the step should succeed
+    And the "source-build-2" build was created
+    And the "source-build-2" build completed
+    When I run the :build_logs client command with:
+      | build_name      | source-build-2 |
+    Then the output should match "Clean build will be performed"
