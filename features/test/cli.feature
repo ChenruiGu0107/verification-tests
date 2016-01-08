@@ -99,3 +99,15 @@ Feature: Testing CLI Scenarios
       | opt     | noescape: # |
     Then the output should not contain:
       | 6030 |
+
+  Scenario: try terminating background process
+    When I run the :cucushift_test_do_not_use background client command with:
+      | command  | echo        |
+      | opt      | foobarbaby  |
+      | opt      | noescape: ; |
+      | opt      | sleep       |
+      | opt      | 6030        |
+      | opt      | noescape: # |
+    Given 3 seconds have passed
+    And I terminate last background process
+    Then the output should contain "foobarbaby"
