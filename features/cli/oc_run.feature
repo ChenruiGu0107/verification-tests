@@ -35,3 +35,71 @@ Feature: oc run related scenarios
     Then the step should fail
     And the output should contain:
       | error: NAME is required for run |
+
+  # @author xxia@redhat.com
+  # @case_id 499994
+  Scenario: Create container with oc run command
+    Given I have a project
+    When I run the :run client command with:
+      | name         | mysql                 |
+      | image        | mysql                 |
+      | dry_run      | true                  |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc                 |
+      | resource_name | mysql              |
+    Then the step should fail
+    When I run the :run client command with:
+      | name         | webapp                |
+      | image        | training/webapp       |
+      | -l           | test=one              |
+    Then the step should succeed
+    And I wait until replicationController "webapp-1" is ready
+
+    When I run the :run client command with:
+      | name         | webapp2               |
+      | image        | training/webapp       |
+      | replicas     | 2                     |
+      | -l           | label=webapp2         |
+    Then the step should succeed
+    And I wait until replicationController "webapp2-1" is ready
+
+    When I run the :run client command with:
+      | name         | webapp3               |
+      | image        | training/webapp       |
+      | overrides    | {"apiVersion":"v1","spec":{"replicas":"2"}} |
+    Then the step should fail
+    And the output should contain:
+      | cannot unmarshal  |
+    When I run the :run client command with:
+      | name         | webapp3               |
+      | image        | training/webapp       |
+      | overrides    | {"apiVersion":"v1","spec":{"replicas":2}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc                 |
+      | resource_name | webapp3            |
+      | output        | yaml               |
+    Then the step should succeed
+    And the output should contain:
+      | replicas: 2       |
+
+    When I run the :run client command with:
+      | name         | webapp4               |
+      | image        | training/webapp       |
+      | attach       | true                  |
+      | restart      | Never                 |
+      | _timeout     | 10                    |
+    Then the step should have timed out
+    And the output should match:
+      | [Ww]aiting for pod .*webapp4 to be running       |
+    When I run the :run client command with:
+      | name         | webapp5               |
+      | image        | training/webapp       |
+      | -i           | true                  |
+      | tty          | true                  |
+      | restart      | Never                 |
+      | _timeout     | 10                    |
+    Then the step should have timed out
+    And the output should match:
+      | [Ww]aiting for pod .*webapp5 to be running       |
