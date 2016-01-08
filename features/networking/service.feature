@@ -6,13 +6,8 @@ Feature: Service related networking scenarios
     When I run the :create client command with:
        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service.json |
     Then the step should succeed
-    When I run the :get client command with:
-       | resource      | service  |
-       | resource_name | external-http |
-       | o             | yaml     |  
-    Then the step should succeed
-    And the output is parsed as YAML                                                                                                                                  
-    Given evaluation of `@result[:parsed]['spec']['clusterIP']` is stored in the :service_ip clipboard
+    Given I use the "external-http" service
+    And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
     When I run the :get client command with:
        | resource      | endpoints  |
        | resource_name | external-http |
@@ -36,13 +31,8 @@ Feature: Service related networking scenarios
         | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
     Given all pods in the project are ready
-    When I run the :get client command with:
-       | resource      | service  |
-       | resource_name | test-service |
-       | o             | yaml     |  
-    Then the step should succeed
-    And the output is parsed as YAML                                                                                                                                  
-    And evaluation of `@result[:parsed]['spec']['clusterIP']` is stored in the :service1_ip clipboard
+    Given I use the "test-service" service
+    And evaluation of `service.ip(user: user)` is stored in the :service1_ip clipboard
 
     ## Create pod in project2
     Given I have a project
@@ -57,13 +47,8 @@ Feature: Service related networking scenarios
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_service.json" URL replacing paths:
         | ["items"][1]["subsets"][0]["ip"] | <%= cb.service1_ip %> |
     Then the step should succeed
-    When I run the :get client command with:
-        | resource  | service |
-        | resource_name | selector-less-service |
-        | o | yaml |
-    Then the step should succeed
-    And the output is parsed as YAML                                                                                                                                  
-    Then evaluation of `@result[:parsed]['spec']['clusterIP']` is stored in the :service2_ip clipboard
+    Given I use the "selector-less-service" service
+    And evaluation of `service.ip(user: user)` is stored in the :service2_ip clipboard
 
     ## Access the above service from the pod in project2
     When I execute on the "hello-pod" pod:
