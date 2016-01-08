@@ -23,6 +23,9 @@ When /^admin creates a PV from "([^"]*)" where:$/ do |location, table|
 
   name = rand_str(5, :dns952) # use random name to avoid interference
   pv_hash["metadata"]["name"] = name
+  if pv_hash["kind"] != 'PersistentVolume'
+    raise "why do you give me #{pv_hash["kind"]}"
+  end
 
   table.raw.each do |path, value|
     eval "pv_hash#{path} = value" unless path == ''

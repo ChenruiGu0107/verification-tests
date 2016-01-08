@@ -12,8 +12,10 @@ Feature: Persistent Volume Claim binding policies
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo-2.json |
-    And admin creates a PV from "https://github.com/openshift-qe/v3-testfiles/raw/master/persistent-volumes/nfs/nfs-default.json" where:
-      ||
+    And I have a NFS service in the project
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce                    |
 
     # The output should contain 1 Pending PVC and 1 Bound PVC
     When I run the :get client command with:
@@ -21,3 +23,8 @@ Feature: Persistent Volume Claim binding policies
     Then the output should contain:
       | Pending |
       | Bound   |
+
+    # TODO: test if after removing Bound pvc, the other one will get Bound
+    # When I run the :delete client command with:
+    #  | object_type       | pvc  |
+    #  | object_name_or_id | nfsc |
