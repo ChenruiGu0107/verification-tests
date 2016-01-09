@@ -261,7 +261,7 @@ module CucuShift
         Process.kill(:KILL, -@pid) rescue nil
         sleep 1
         unless finished?
-          raise("could not clean-up process #{result[:command]}")
+          raise("could not clean-up #{@pid} process: #{result[:command]}")
         end
       end
     ensure
@@ -270,6 +270,10 @@ module CucuShift
       #   possible). Otherwise they will raise and process output wont be
       #   captured.
       close_io
+    end
+
+    def to_s
+      result[:instruction]
     end
   end
 end

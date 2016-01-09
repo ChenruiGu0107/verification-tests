@@ -135,3 +135,12 @@ Given /^I replace resource "([^"]+)" named "([^"]+)"(?: saving edit to "([^"]+)"
     | f | #{filename} |
     })
 end
+
+Given /^I terminate last background process$/ do
+  if @bg_processes.last.finished?
+    raise "last process already finished: #{@bg_processes.last}"
+  end
+
+  @bg_processes.last.kill_tree
+  @result = @bg_processes.last.result
+end

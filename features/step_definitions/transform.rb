@@ -16,7 +16,7 @@ Transform /.*/ do |arg|
         eval $1
       }
     rescue => e
-      Kernel::puts "Expand ERROR: " + e.message + "\nwith argument: " + str.to_s + "\n" + e.backtrace.join("\n")
+      Kernel::puts "Expand ERROR with argument: " + str.to_s + "\n" + e.inspect + "\n" + e.backtrace.join("\n")
       x = str
     end
     x
