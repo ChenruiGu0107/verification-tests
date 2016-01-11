@@ -132,3 +132,40 @@ Feature: containers related features
     Then the output should contain:
       |Error from server: container hello-openshift-notexist is not valid for pod hello-openshift|
 
+
+  # @author xiacwan@redhat.com
+  # @case_id 472857
+  Scenario: [origin_infra_311] Executing a command in container
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"
+    And I replace lines in "hello-pod.json":
+      | "openshift/hello-openshift" | <%= project_docker_repo %>"aosqe/hello-openshift"|
+    Then the step should succeed
+    When I run the :create client command with:
+      | f       | hello-pod.json |
+    Then the step should succeed
+    Given the pod named "hello-openshift" becomes ready
+    When I run the :exec client command with:
+      | pod          | hello-openshift |
+      | c                | hello-openshift |
+      | i            |       |
+      | t            |       |
+      | oc_opts_end  |       |
+      | exec_command | sh    |
+      | exec_command_arg | -il    |
+    Then the step should succeed
+    When I execute on the pod:
+      | sh                     |
+      | -c                     |
+      | env \| grep KUBERNETES |
+    Then the output should contain:
+      | KUBERNETES_PORT |
+
+
+
+    
+    
+    
+
+
+
