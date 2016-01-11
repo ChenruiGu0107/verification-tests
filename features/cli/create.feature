@@ -116,12 +116,8 @@ Feature: creating 'apps' with CLI
       |template|ruby-helloworld-sample|
       |param   |MYSQL_USER=admin,MYSQL_PASSWORD=admin,MYSQL_DATABASE=xxingtest|
     Then the step should succeed
-    Given I wait for the "frontend" service to become ready
-    When I execute on the pod:
-      | curl              |
-      | -k                |
-      |<%= service.url %> |
-    Then the step should succeed
+    When I expose the "frontend" service
+    Then I wait for a server to become available via the "frontend" route
     And the output should contain "Demo App"
     Given I wait for the "database" service to become ready
     When I execute on the pod:
