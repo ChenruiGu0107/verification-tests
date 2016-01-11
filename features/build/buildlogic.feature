@@ -65,3 +65,18 @@ Feature: buildlogic.feature
       | build_name  | php-sample-build-3 |
     Then the output should match "Successfully pushed"
 
+    # @author gpei@redhat.com
+    # @case_id 515255
+    Scenario: Create build without output
+    Given I have a project
+    Then I use the "<%= project.name %>" project
+    And I run the :new_build client command with:
+      | app_repo  | openshift/ruby:2.0~https://github.com/openshift/ruby-hello-world.git |
+      | no-output | true                                                                 |
+      | name      | myapp                                                                |
+    Then the step should succeed
+    And the "myapp-1" build was created
+    And the "myapp-1" build completed
+    When I run the :build_logs client command with:
+      | build_name | myapp-1 |
+    Then the output should contain "Build does not have an Output defined, no output image was pushed to a registry"
