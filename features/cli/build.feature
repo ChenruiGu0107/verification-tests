@@ -71,7 +71,7 @@ Feature: build 'apps' with CLI
       | resource | builds |
     Then the output should contain:
       | NAME                |
-      | n1-1-build |
+      | n1-1 |
     When I run the :get client command with:
       |resource| is |
     Then the output should contain:
