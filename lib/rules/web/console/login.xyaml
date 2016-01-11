@@ -1,6 +1,12 @@
 ---
 login:
   url: /console
+  scripts:
+  - command: return document.getElementsByName.length > 0
+    expect_result: true
+  cookies:
+  - name: csrf
+    expect_result: true
   elements:
     - selector:
         id: inputUsername
