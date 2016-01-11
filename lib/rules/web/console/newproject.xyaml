@@ -18,7 +18,8 @@ new_project:
     ref: new_project_form
   element:
     selector:
-      text: "Choose from web frameworks, databases, and other components."
+      text: Select Image or Template
+    timeout: 60
   ##element:
     ##selector:
       ##id: fake_id

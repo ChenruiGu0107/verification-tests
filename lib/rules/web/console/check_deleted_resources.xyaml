@@ -9,12 +9,12 @@ check_deleted_resources:
   action: check_deleted_route
   action: check_deleted_imagestream
 check_deleted_pod:
-  url: /console/project/<project_name>/browse/pods/<pod_name>
+  action: goto_one_pod_page
   elements:
   - selector:
       xpath: //strong[contains(text(),'<pod_warning>')]
 check_deleted_service:
-  url: /console/project/<project_name>/browse/services/<service_name>
+  action: goto_one_service_page
   elements:
   - selector:
       xpath: //strong[contains(text(),'<service_warning>')]
@@ -39,12 +39,12 @@ check_deleted_build:
   - selector:
       xpath: //strong[contains(text(),'<build_warning>')]
 check_deleted_route:
-  url: /console/project/<project_name>/browse/routes/<route_name>
+  action: goto_one_route_page
   elements:
   - selector:
       xpath: //strong[contains(text(),'<route_warning>')]
 check_deleted_imagestream:
-  url: console/project/<project_name>/browse/images/<image_name>
+  action: goto_one_image_stream_page
   elements:
   - selector:
       xpath: //strong[contains(text(),'<image_warning>')]
