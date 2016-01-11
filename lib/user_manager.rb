@@ -1,9 +1,11 @@
 require 'set'
 
+require 'common'
 require 'openshift/user'
 
 module CucuShift
   class UserManager
+    include Common::Helper
     attr_reader :env, :opts
 
     def initialize(env, **opts)
@@ -23,6 +25,14 @@ module CucuShift
     end
 
     def clean_up
+      # warn user if any users are skipped in scenario (and avoid confusion)
+      users_used.reject!.with_index { |u, i|
+        if u.nil?
+          logger.error "user #{i} not used but users with higher index used, please avoid that"
+          true
+        end
+      }
+
       users_used.each(&:clean_up)
       users_used.clear
     end

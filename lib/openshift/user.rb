@@ -1,4 +1,6 @@
 require 'yaml'
+
+require 'common'
 require_relative 'token'
 require_relative 'project'
 

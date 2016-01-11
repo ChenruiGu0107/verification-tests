@@ -6,7 +6,7 @@ Given /^the following scc policy is created: (.+)$/ do |policy|
     step %Q{I download a file from "#{policy}"}
     path = @result[:abs_path]
   else
-    path = policy
+    path = localhost.absolutize policy
   end
 
   raise "no policy template found: #{path}" unless File.exist?(path)
