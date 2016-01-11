@@ -2,7 +2,7 @@
 login:
   url: /console
   scripts:
-  - command: return document.getElementsByName.length > 0
+  - command: return document.getElementsByName("csrf").length > 0
     expect_result: true
   cookies:
   - name: csrf
