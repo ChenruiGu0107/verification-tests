@@ -75,9 +75,7 @@ Feature: stibuild.feature
     Then the step should succeed
     And the "php-sample-build-1" build was created
     And the "php-sample-build-1" build completed
-    Given I wait for the "frontend" service to become ready
-     When I execute on the pod:
-      | curl | -s | <%= service.url %> |
-    Then the step should succeed
+    When I expose the "frontend" service
+    Then I wait for a server to become available via the "frontend" route
     And the output should contain:
       | Hello World!|
