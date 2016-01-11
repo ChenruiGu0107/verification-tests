@@ -62,39 +62,36 @@ Feature: deployment related features
   # @case_id: 489262
   Scenario: Can't stop a deployment in Complete status
     Given I have a project
-    When I run the :process client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-    Then the step should succeed
-    Given I save the output to file>app-stibuild.json
-    When I run the :create client command with:
-      | f | app-stibuild.json |
+    When I run the :new_app client command with:
+      | docker_image   | openshift/deployment-example |
     Then the step should succeed
     # Wait till the deploy complete
-    Given I wait for the pod named "database-1-deploy" to die
+    And the pod named "deployment-example-1-deploy" becomes ready    
+    Given I wait for the pod named "deployment-example-1-deploy" to die
     When I run the :deploy client command with:
-      | deployment_config | database |
-    Then the output should contain "database #1 deployed"
+      | deployment_config | deployment-example |
+    Then the output should contain "deployment-example #1 deployed"
     When  I run the :describe client command with:
       | resource | dc |
-      | name     | database |
+      | name     | deployment-example |
     Then the output should match:
       | Deployment\\s+#1.*latest |
       | Status:\\s+Complete       |
       | Pods Status:\\s+1 Running |
     When I run the :deploy client command with:
-      | deployment_config | database |
+      | deployment_config | deployment-example |
       | cancel            ||
     Then the output should contain "No deployments are in progress"
     When I run the :deploy client command with:
-      | deployment_config | database |
-    Then the output should contain "database #1 deployed"
+      | deployment_config | deployment-example |
+    Then the output should contain "deployment-example #1 deployed"
     When I run the :describe client command with:
       | resource | dc |
-      | name     | database |
+      | name     | deployment-example |
     Then the output should match:
       | Status:\\s+Complete |
     When I run the :deploy client command with:
-      | deployment_config | database |
+      | deployment_config | deployment-example |
       | retry             ||
     Then the output should contain:
       | error: #1 is Complete; only failed deployments can be retried |
@@ -102,9 +99,7 @@ Feature: deployment related features
     When I run the :get client command with:
       | resource | pod |
     Then the output should not contain:
-      | database-1-deploy   |
-      | database-1-prehook  |
-      | database-1-posthook |
+      | deployment-example-1-deploy   |
 
   # @author xxing@redhat.com
   # @case_id 454714
@@ -159,6 +154,7 @@ Feature: deployment related features
       | latest            ||
     Then the output should contain "Started deployment #1"
     # Wait the deployment till complete
+    And the pod named "hooks-1-deploy" becomes ready
     Given I wait for the pod named "hooks-1-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | hooks |
@@ -259,6 +255,7 @@ Feature: deployment related features
       | change_strategy         | <change_strategy> |
     Then the output should contain:
       | #3 rolled back to hooks-1 |
+    And the pod named "hooks-3-deploy" becomes ready
     Given I wait for the pod named "hooks-3-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | hooks |
@@ -318,6 +315,7 @@ Feature: deployment related features
       | #3 rolled back to hooks-1                                      |
       | Warning: the following images triggers were disabled           |
       | You can re-enable them with: oc deploy hooks --enable-triggers |
+    And the pod named "hooks-3-deploy" becomes ready
     Given I wait for the pod named "hooks-3-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | hooks |

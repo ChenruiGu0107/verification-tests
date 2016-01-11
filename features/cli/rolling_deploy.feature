@@ -49,18 +49,17 @@ Feature: rolling deployment related scenarios
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
-    And I wait until replicationController "hooks-1" is ready
-    And all pods in the project are ready
+    And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | hooks-1                |
       | replicas | 10                     |
-    And I wait for the pod named "hooks-1-deploy" to die
+    And all pods in the project are ready
     And I replace resource "dc" named "hooks":
       | maxSurge: 25% | maxSurge: -10 |
     Then the step should fail
     And the output should contain:
-      | emplate.strategy.rollingParams.maxSurge: invalid value '-10', Details: must be non-negative |
+      | invalid value '-10', Details: must be non-negative |
 
   # @author pruan@redhat.com
   # @case_id 503867
@@ -68,12 +67,12 @@ Feature: rolling deployment related scenarios
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
-    And I wait until replicationController "hooks-1" is ready
+    And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | hooks-1                |
       | replicas | 10                     |
-    And I wait for the pod named "hooks-1-deploy" to die
+    And all pods in the project are ready
     And I replace resource "dc" named "hooks":
       | maxSurge: 25% | maxSurge: 0 |
     Then the step should succeed
