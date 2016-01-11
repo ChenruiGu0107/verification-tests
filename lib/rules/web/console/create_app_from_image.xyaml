@@ -32,7 +32,7 @@ create_app_from_image_default_options:
 create_app_from_image_show_advanced_param:
   element:
     selector:
-      text: Show advanced routing, build, and deployment options
+      xpath: //a[contains(@class,'reveal-contents-link')] 
     op: click
     type: a
 create_app_from_image_set_git_options:

@@ -8,7 +8,7 @@ delete_resources_in_the_project:
   action: delete_resources_route
   action: delete_resources_imagestream
 delete_resources_pod:
-  url: /console/project/<project_name>/browse/pods/<pod_name>
+  action: goto_one_pod_page
   elements:
   - selector:
       xpath: //div[@class='tile']/h1/div/a
@@ -23,7 +23,7 @@ delete_resources_pod:
     type: button
     op: click
 delete_resources_service:
-  url: /console/project/<project_name>/browse/services/<service_name>
+  action: goto_one_service_page
   elements:
   - selector:
       xpath: //div[@class='tile']/h1/div/a
@@ -98,7 +98,7 @@ delete_resources_buildconfig:
     type: button
     op: click
 delete_resources_route:
-  url: /console/project/<project_name>/browse/routes/<route_name>
+  action: goto_one_route_page
   elements:
   - selector:
       xpath: //div[@class='tile']/h1/div/a
@@ -113,7 +113,7 @@ delete_resources_route:
     type: button
     op: click
 delete_resources_imagestream:
-  url: console/project/<project_name>/browse/images/<image_name>
+  action: goto_one_image_stream_page
   elements:
   - selector:
       xpath: //div[@class='pull-right dropdown']/a
