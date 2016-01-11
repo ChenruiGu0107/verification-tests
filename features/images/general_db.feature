@@ -25,14 +25,11 @@ Feature: general_db.feature
     When I use the "jws-http-service" service
     Then I wait for a server to become available via the "jws-http-route" route
   # @author haowang@redhat.com
-  # @case_id 473389
-  Scenario: Add env variables to mongodb-24-rhel7 image
+  # @case_id 473389 508066
+  Scenario Outline: Add env variables to mongodb image
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mongodb-24-rhel7-env-test.json"
-    And I replace lines in "mongodb-24-rhel7-env-test.json":
-      | registry.access.redhat.com/openshift3/mongodb-24-rhel7 | <%= product_docker_repo %>openshift3/mongodb-24-rhel7|
-    When I run the :create client command with:
-      | f | mongodb-24-rhel7-env-test.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/<template>" URL replacing paths:
+      | ["spec"]["template"]["spec"]["containers"][0]["image"] | <%= product_docker_repo %><image>|
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=database|
@@ -45,10 +42,105 @@ Feature: general_db.feature
       | MONGODB_QUIET=false      |
       | MONGODB_SMALLFILES=false |
     When I execute on the pod:
-      | bash               |
-      | -c                 |
-      | scl enable mongodb24 "cat /etc/mongod.conf" |
+      | bash       |
+      | -c         |
+      | <command>  |
     Then the output should contain:
       | noprealloc = false |
       | smallfiles = false |
       | quiet = false      |
+    Examples:
+      | template                            | command                                         | image             |
+      | mongodb-24-rhel7-env-test.json      | scl enable mongodb24 "cat /etc/mongod.conf"     | openshift3/mongodb-24-rhel7  |
+      | mongodb-26-rhel7-env-test.json      | scl enable rh-mongodb26 "cat /etc/mongod.conf"  | rhscl/mongodb-26-rhel7  |
+
+  # @author haowang@redhat.com
+  # @case_id 511971
+  Scenario: Create mongodb resources via installed ephemeral template on web console
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | mongodb-ephemeral            |
+      | param    | MONGODB_ADMIN_PASSWORD=admin |
+    And a pod becomes ready with labels:
+      | name=mongodb|
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mongodb26 | mongo admin -u admin -padmin  --eval 'printjson(db.serverStatus())' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | "ok" : 1 |
+
+  # @author haowang@redhat.com
+  # @case_id 508094
+  Scenario: Verify mongodb can be connect after change admin and user password or re-deployment for ephemeral storage - mongodb-26-rhel7
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-ephemeral-template.json"
+    And I replace lines in "mongodb-ephemeral-template.json":
+      | latest | 2.6 |
+    When I run the :new_app client command with:
+      | file | mongodb-ephemeral-template.json  |
+      | param    | MONGODB_ADMIN_PASSWORD=admin |
+    And a pod becomes ready with labels:
+      | name=mongodb          |
+      | deployment=mongodb-1  |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mongodb26 | mongo admin -u admin -padmin  --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 2.6 |
+    When I run the :env client command with:
+      | resource | dc/mongodb |
+      | e        | MONGODB_ADMIN_PASSWORD=newadmin |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=mongodb          |
+      | deployment=mongodb-2  |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mongodb26 | mongo admin -u admin -pnewadmin  --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 2.6 |
+  # @author haowang@redhat.com
+  # @case_id 500991
+  Scenario: Verify cluster mongodb can be connect after change admin and user password or redeployment for ephemeral storage - mongodb-24-rhel7
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift/mongodb/master/2.4/examples/replica/mongodb-clustered.json"
+    And I replace lines in "mongodb-clustered.json":
+      | openshift/mongodb-24-centos7 | <%= product_docker_repo %>openshift3/mongodb-24-rhel7 |
+    When I run the :new_app client command with:
+      | file     | mongodb-clustered.json  |
+      | param    | MONGODB_ADMIN_PASSWORD=admin |
+    And 3 pods become ready with labels:
+      | name=mongodb-replica  |
+      | deployment=mongodb-1  |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | mongodb24 | mongo admin -u admin -padmin  --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 2.4 |
+    When I run the :env client command with:
+      | resource | dc/mongodb |
+      | e        | MONGODB_ADMIN_PASSWORD=newadmin |
+    Then the step should succeed
+    And 3 pods become ready with labels:
+      | name=mongodb-replica  |
+      | deployment=mongodb-2  |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | mongodb24 | mongo admin -u admin -pnewadmin  --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 2.4 |
