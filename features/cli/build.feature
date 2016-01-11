@@ -250,3 +250,83 @@ Feature: build 'apps' with CLI
     And I run the :cancel_build client command with:
       | build_name | ruby-sample-build-2 |
     Then the "ruby-sample-build-2" build completed
+
+
+  # @author xiuwang@redhat.com
+  # @case_id 491258
+  Scenario: Create applications with multiple groups
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
+    Given the "ruby" image stream was created
+    Given the "mysql" image stream was created
+    Given the "postgresql" image stream was created
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby |
+      | image_stream | <%= project.name %>/ruby:2.2 |
+      | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
+      | image_stream | openshift/mysql |
+      | image_stream | <%= project.name %>/mysql:5.5 |
+      | docker_image | <%= product_docker_repo %>rhscl/mysql-56-rhel7 |
+      | image_stream | openshift/postgresql |
+      | image_stream | <%= project.name %>/postgresql:9.2 |
+      | docker_image | <%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
+      | group        | openshift/ruby+openshift/mysql+openshift/postgresql |
+      | group        | <%= project.name %>/ruby:2.2+<%= project.name %>/mysql:5.5+<%= project.name %>/postgresql:9.2 |
+      | group        | <%= product_docker_repo %>rhscl/ruby-22-rhel7+<%= product_docker_repo %>rhscl/mysql-56-rhel7+<%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | env            | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test,MYSQL_ROOT_PASSWORD=test |
+      | l            | app=testapps    | 
+    Then the step should succeed
+    When I run the :get client command with:
+      |resource| buildConfig |
+    Then the output should match:
+      | NAME\\s+TYPE                 |
+      | <%= Regexp.escape("ruby-hello-world") %>\\s+Source   |
+      | <%= Regexp.escape("ruby-hello-world-1") %>\\s+Source |
+      | <%= Regexp.escape("ruby-hello-world-2") %>\\s+Source |
+    When I run the :describe client command with:
+      | resource | buildConfig      |
+      | name     | ruby-hello-world |
+    Then the output should match:
+      | ImageStreamTag ruby-22-rhel7:latest |
+    When I run the :describe client command with:
+      | resource | buildConfig        |
+      | name     | ruby-hello-world-1 |
+    Then the output should match:
+      | ImageStreamTag openshift/ruby:latest |
+    When I run the :describe client command with:
+      | resource | buildConfig        |
+      | name     | ruby-hello-world-2 |
+    Then the output should match:
+      | ImageStreamTag <%= Regexp.escape(project.name) %>/ruby:2.2 |
+    Given the "ruby-hello-world-1" build completed
+    Given the "ruby-hello-world-1-1" build completed
+    Given the "ruby-hello-world-2-1" build completed
+    Given I wait for the "mysql-56-rhel7" service to become ready
+    When I run the :exec client command with:
+      | pod          | <%= pod.name %>  |
+      | c            | ruby-hello-world |
+      | oc_opts_end  ||
+      | exec_command | curl  |
+      | exec_command | -s    |
+      | exec_command | <%= service.ip %>:8080 |
+    And the output should contain "Demo App"
+    Given I wait for the "postgresql" service to become ready
+    When I run the :exec client command with:
+      | pod          | <%= pod.name %>    |
+      | c            | ruby-hello-world-1 |
+      | oc_opts_end  ||
+      | exec_command | curl  |
+      | exec_command | -s    |
+      | exec_command | <%= service.ip %>:8080 |
+    And the output should contain "Demo App"
+    Given I wait for the "ruby-hello-world-2" service to become ready
+    When I run the :exec client command with:
+      | pod          | <%= pod.name %>    |
+      | c            | ruby-hello-world-2 |
+      | oc_opts_end  ||
+      | exec_command | curl  |
+      | exec_command | -s    |
+      | exec_command | <%= service.ip %>:8080 |
+    And the output should contain "Demo App"
