@@ -476,6 +476,18 @@
     :description: --description=<value>
     :admin: --admin=<value>
     :node_selector: --node-selector=<value>
+:oadm_policy_add_scc_to_user:
+  :cmd: oadm policy add-scc-to-user <scc> <user_name>
+  :options:
+    :serviceaccount: --serviceaccount=<value>
+:oadm_policy_remove_scc_from_user:
+  :cmd: oadm policy remove-scc-from-user <scc> <user_name>
+  :options:
+    :serviceaccount: --serviceaccount=<value>
+:oadm_policy_add_scc_to_group:
+  :cmd: oadm policy add-scc-to-group <scc> <group_name>
+:oadm_policy_remove_scc_from_group:
+  :cmd: oadm policy remove-scc-from-group <scc> <group_name>
 :oadm_prune_builds:
   :cmd: oadm prune builds
 :oadm_prune_deployments:
