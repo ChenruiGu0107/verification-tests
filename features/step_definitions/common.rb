@@ -125,7 +125,7 @@ Given /^([0-9]+?) seconds have passed$/ do |num|
   sleep(num.to_i)
 end
 
-Given /^evaluation of `(.+?)` is stored in the(?: :(.*?))? clipboard$/ do |what, clipboard_name|
+Given /^evaluation of `(.+?)` is stored in the#{OPT_SYM} clipboard$/ do |what, clipboard_name|
   clipboard_name = 'tmp' unless clipboard_name
   cb[clipboard_name] = eval(what)
 end
