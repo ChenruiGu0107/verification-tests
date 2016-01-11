@@ -260,7 +260,7 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | hooks |
     Then the output should contain:
-      | hooks #3 |
+      | hooks #3 deployed |
     When I run the :get client command with:
       | resource | pod |
     Then the output should match:
@@ -320,7 +320,7 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | hooks |
     Then the output should contain:
-      | hooks #3 |
+      | hooks #3 deployed |
     When I run the :get client command with:
       | resource | pod |
     Then the output should match:
