@@ -1,4 +1,10 @@
---- # delete project related
+#---check "/console" project list page
+check_project_list:
+  action: goto_projects_page
+  elements:
+  - selector:
+      xpath: //div/div[1]/h2[@class="project"]/a
+    type: a
 delete_project:
   action: check_project_list
   elements:
@@ -26,3 +32,5 @@ cancel_delete_project:
   - selector:
       xpath: //div/div[1]/h2[@class="project"]/a
     type: a
+goto_projects_page:
+  url: /console

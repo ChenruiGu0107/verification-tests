@@ -1,7 +1,0 @@
-#---check "/console" project list page
-check_project_list:
-  url: /console
-  elements:
-  - selector:
-      xpath: //div/div[1]/h2[@class="project"]/a
-    type: a

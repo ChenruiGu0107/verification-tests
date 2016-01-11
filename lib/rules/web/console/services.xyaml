@@ -1,12 +1,12 @@
 #----check service page-----
 check_service_list_page:
-  url: console/project/<project_name>/browse/services
+  action: goto_services_page
   elements:
   - selector:
       text: <service_name>
     type: a 
 check_one_service_page:
-  url: console/project/<project_name>/browse/services/<service_name>
+  action: goto_one_service_page
   elements:
   - selector:
       text: <service_name>
@@ -19,3 +19,7 @@ check_one_service_page:
     type: a
   - selector:
       text: <target_port>
+goto_services_page:
+  url: console/project/<project_name>/browse/services
+goto_one_service_page:
+  url: console/project/<project_name>/browse/services/<service_name>

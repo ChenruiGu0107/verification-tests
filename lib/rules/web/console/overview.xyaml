@@ -1,6 +1,6 @@
 #---check project overview page
 check_project_overview_without_resource:
-  url: /console/project/<project_name>/overview
+  action: goto_overview_page
   #check value in the select box 
   elements:
   - selector:
@@ -9,3 +9,6 @@ check_project_overview_without_resource:
       class: dropdown-toggle
     type: button
     op: click
+goto_overview_page:
+  url: /console/project/<project_name>/overview
+

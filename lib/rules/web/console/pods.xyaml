@@ -1,6 +1,4 @@
 #----check pod page-----
-get_pod_page:
-  url: /console/project/<project_name>/browse/pods/<pod_name>
 check_log_tab:
   elements:
   - selector:
@@ -14,7 +12,7 @@ check_log_context:
       xpath: //tbody[@id='logContent']//td[contains(text(),'<log_context>')]
     timeout: 180
 check_pod_list_page:
-  url: /console/project/<project_name>/browse/pods
+  action: goto_pods_page
   element:
     selector:
       xpath: //table[descendant::th[text()="Name"]]
@@ -23,6 +21,10 @@ check_pod_list_with_no_pod:
   element:
     selector:
       xpath: //em[contains(text(),'No pods to show')]
+goto_one_pod_page:
+  url: /console/project/<project_name>/browse/pods/<pod_name>
+goto_pods_page:
+  url: /console/project/<project_name>/browse/pods
 open_in_new_window:
   elements:
   - selector:
@@ -37,5 +39,3 @@ select_a_container:
   - selector:
       xpath: //select[@id='selectLogContainer']//option[contains(text(),'<container_name>')]
     op: click
-
-

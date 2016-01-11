@@ -1,11 +1,11 @@
 --- # check browse/builds page
 check_buildconfig_list_page:
-  url: /console/project/<project_name>/browse/builds
+  action: goto_builds_page
   element:
     selector:
       xpath: //table[descendant::th[text()="Name"]]
 check_one_buildconfig_page:
-  url: /console/project/<project_name>/browse/builds/<bc_name>
+  action: goto_one_buildconfig_page
   element:
     selector:
       text: Summary
@@ -61,7 +61,7 @@ check_one_buildconfig_page_with_build_op:
     type: button
 check_one_build_inside_bc_page:
   # <bc_and_build_name> contains two "/",e.g. bc/build/ 
-  url: /console/project/<project_name>/browse/builds/<bc_and_build_name>
+  action: goto_one_build_page
   elements:
   - selector:
       text: Show annotations
@@ -96,6 +96,12 @@ cancel_build_from_running_status:
       text: Rebuild
       class: btn-default
     type: button
+goto_builds_page:
+  url: /console/project/<project_name>/browse/builds
+goto_one_buildconfig_page:
+  url: /console/project/<project_name>/browse/builds/<bc_name>
+goto_one_build_page:
+  url: /console/project/<project_name>/browse/builds/<bc_and_build_name>
 start_build_base_on_buildconfig:
   action: check_one_buildconfig_page
   element:

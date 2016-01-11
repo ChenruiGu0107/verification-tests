@@ -1,6 +1,6 @@
 --- # check browse/events page
 check_events_page:
-  url: /console/project/<project_name>/browse/events
+  action: goto_events_page
   element:
     selector:
       text: Events
@@ -14,3 +14,6 @@ check_events_page:
       xpath: //table/thead/tr/th[5]      
     selector:
       text: Pod
+goto_events_page:
+  url: /console/project/<project_name>/browse/events
+

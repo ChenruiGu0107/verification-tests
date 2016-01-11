@@ -1,12 +1,12 @@
 #-----check routes page-----
 check_empty_routes_page:
-  url: /console/project/<project_name>/browse/routes
+  action: goto_routes_page
   elements:
   - selector:
       xpath: //tbody[@class='ng-scope']//em[contains(text(), 'No routes to show')]
 
 check_route_name:
-  url: /console/project/<project_name>/browse/routes
+  action: goto_routes_page
   elements:
   - selector:
       xpath: //tr//td[@data-title='Name']/a[contains(text(), '<route_name>')]
@@ -14,7 +14,7 @@ check_route_name:
   - selector:
       xpath: //h1[contains(text(),'<route_name>')]
 check_route_to:
-  url: /console/project/<project_name>/browse/routes
+  action: goto_routes_page
   elements:
   - selector:
       xpath: //tr//td[@data-title='Routes To']//a[contains(text(), '<route_name>')]
@@ -26,7 +26,7 @@ check_routes_page:
   action: check_route_to
 
 check_a_route_detail_page:
-  url: /console/project/<project_name>/browse/routes/<route_name>
+  action: goto_one_route_page
   elements:
   - selector:
       xpath: //h1[contains(text(),'<route_name>')]
@@ -54,13 +54,13 @@ check_a_route_detail_page:
   - selector:
       xpath: //h1[contains(text(),'<service_name>')]
 access_route_hostname_from_table:
-  url: /console/project/<project_name>/browse/routes
+  action: goto_routes_page
   elements:
   - selector: 
       xpath: //td[@data-title='Hostname']//a[contains(text(),'<service_url>')]
     op: click
 access_route_hostname_from_detail_page:
-  url: /console/project/<project_name>/browse/routes/<route_name>
+  action: goto_routes_page
   elements:
   - selector:
       xpath: //span//a[contains(text(),'<service_url>')]
@@ -68,3 +68,7 @@ access_route_hostname_from_detail_page:
 access_route_hostname:
   action: access_route_hostname_from_table
   action: access_route_hostname_from_detail_page
+goto_routes_page:
+  url: /console/project/<project_name>/browse/routes
+goto_one_route_page:
+  url: /console/project/<project_name>/browse/routes/<route_name>

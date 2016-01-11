@@ -16,7 +16,7 @@ Feature: Pod related features on web console
     Given the pod named "testpod" becomes ready
 
     #Go to the pod page
-    When I perform the :get_pod_page web console action with: 
+    When I perform the :goto_one_pod_page web console action with: 
       | project_name | <%= project.name %> |
       | pod_name     | testpod             |
     Then the step should succeed
@@ -40,7 +40,7 @@ Feature: Pod related features on web console
     Then the step should succeed
     Given the pod named "doublecontainers" becomes ready
 
-    When I perform the :get_pod_page web console action with:
+    When I perform the :goto_one_pod_page web console action with:
       | project_name | <%= project.name %> |
       | pod_name     | doublecontainers    |
     Then the step should succeed
