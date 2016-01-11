@@ -16,13 +16,16 @@ Feature: buildlogic.feature
     When I run the :get client command with:
       | resource | build |
     Then the output should contain:
-      | New (CannotCreateBuildPod) |
+      |  (CannotCreateBuildPod) |
     When I run the :delete admin command with:
       | object_type       | resourcequota       |
       | object_name_or_id | quota               |
       | n                 | <%= project.name %> |
     Then the step should succeed
-    And the "ruby-sample-build-1" build becomes running
+    When I run the :get client command with:
+      | resource | build |
+    Then the output should not contain:
+      |  (CannotCreateBuildPod) |
 
     # @author haowang@redhat.com
     # @case_id 515254
