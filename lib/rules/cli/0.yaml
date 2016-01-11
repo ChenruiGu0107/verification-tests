@@ -292,6 +292,7 @@
     :template: --template=<value>
     :to_docker: --to-docker=<value>
     :to : --to=<value>
+    :no-output: --no-output=<value>
 :new_dockercfg:
   :cmd: oc secrets new-dockercfg <secret_name>
   :options:
