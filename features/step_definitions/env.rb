@@ -17,10 +17,9 @@ Given /^I store default router subdomain in the#{OPT_SYM} clipboard$/ do |cb_nam
   end
 
   ## create a dummy service
-  dummy_service_get = CucuShift::Http.get(url: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json")
+  dummy_service_get = CucuShift::Http.get(url: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/service_with_selector.json")
   raise "cannot download service" unless dummy_service_get[:success]
   dummy_service = YAML.load(dummy_service_get[:response])
-  dummy_service["items"][1]["subsets"][0]["addresses"][0]["ip"] = "192.168.0.1"
 
   dummy_service_c = _user.cli_exec(:create,
                                    f: '-',
@@ -31,12 +30,12 @@ Given /^I store default router subdomain in the#{OPT_SYM} clipboard$/ do |cb_nam
   ## create a dummy route
   route_c = _user.cli_exec(:expose, n: _project.name,
                            resource: "service",
-                           resource_name: 'selector-less-service')
+                           resource_name: 'selector-service')
   raise "cannot create route" unless route_c[:success]
 
   cb[cb_name] = route(
-    "selector-less-service",
-    service('selector-less-service', _project)
+    "selector-service",
+    service('selector-service', _project)
   ).dns(
     by: _user
   ).split('.',2)[1]
