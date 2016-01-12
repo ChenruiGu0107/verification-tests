@@ -173,7 +173,7 @@ Feature: projects related features via cli
 
   # @author yapei@redhat.com
   # @case_id 476297
-  Scenario: Could delete all resources when delete the project   
+  Scenario: Could delete all resources when delete the project
     Given a 5 characters random string of type :dns is stored into the :prj_name clipboard
     When I run the :new_project client command with:
       | project_name | <%= cb.prj_name %> |
@@ -191,7 +191,7 @@ Feature: projects related features via cli
     Then the output should contain:
       | mysql-55-centos7 |
       | ruby-hello-world |
-    
+
     When I run the :get client command with:
       | resource | buildconfigs |
       | n        | <%= cb.prj_name %> |
@@ -242,7 +242,7 @@ Feature: projects related features via cli
 
     ### create a project with same name, no context for this new one
     Given I run the :new_project client command with:
-      | project_name | <%= cb.prj_name %> | 
+      | project_name | <%= cb.prj_name %> |
     And the step should succeed
     Then I run the :status client command
     And the output should contain:
@@ -352,3 +352,14 @@ Feature: projects related features via cli
     When I run the :get client command with:
       | resource | pods |
     Then the step should fail
+
+
+  # @author pruan@redhat.com
+  # @case_id 515693
+  Scenario: Give user suggestion about new-app on new-project
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.proj_name %> |
+    Then the step should succeed
+    And the output should contain:
+      | You can add applications to this project with the 'new-app' command. |
