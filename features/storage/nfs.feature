@@ -24,11 +24,14 @@ Feature: NFS Persistent Volume
           | resource | pod/nfs |
         Then the output should not contain:
           | Running |
+        Given 60 seconds have passed
         When I run the :describe client command with:
           | resource | pod |
           | name     | nfs |
-        Then the output should not contain:
-          | Running |
+        Then the output should contain:
+          | Unable to mount volumes for pod |
+          | Mount failed: exit status       |
+          | Mounting arguments              |
 
         Given I run the :delete client command with:
           | object_type       | pod |
