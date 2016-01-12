@@ -100,7 +100,7 @@ module CucuShift
                   url_options = CGI::parse url.query
                   url_options = Collections.map_hash(url_options) { |k, v|
                     # all single value URL params would be de-arrayified
-                    k, ( v.size == 1 ? v.first : v )
+                    [ k, v.size == 1 ? v.first : v ]
                   }
                   erb = ERB.new(user_data_string)
                   # options from url take precenece before lauch options
@@ -157,8 +157,10 @@ module CucuShift
       case config[:services, options.cloud_service, :cloud_type]
       when "aws"
         raise "TODO service choice" unless options.cloud_service == "AWS"
+        ec2_image = ENV['CLOUD_IMAGE_NAME'] || ""
+        ec2_image = ec2_image.empty? ? :raw : ec2_image
         amz = Amz_EC2.initialize
-        amz.launch_instances(tag_name: names, image: :raw)
+        amz.launch_instances(tag_name: names, image: ec2_image)
       when "openstack"
         ostack = CucuShift::OpenStack.new(
           service_name: options.cloud_service

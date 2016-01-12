@@ -2,6 +2,10 @@ require 'socket'
 require 'erb'
 require 'yaml'
 
+# for file and params parsing
+require 'uri'
+require 'cgi'
+
 require 'common'
 require 'host'
 
@@ -76,6 +80,10 @@ module CucuShift
     #   env hosts
     # @param deployment_type [String] ???
     # @param image_pre [String] image pattern (see configure_env.sh)
+    # @param pre_ansible [String] path + optional url query string, e.g.
+    #   my/path?key1=val1&key2=val2 ; the params will be used as variables in the
+    #   evaluated script
+    # @param post_ansible [String] see #pre_ansible
     #
     def ansible_install(hosts_spec:, auth_type:,
                         ssh_key:, ssh_user:,
@@ -88,6 +96,7 @@ module CucuShift
                         puddle_repo:,
                         etcd_num:,
                         registry_ha:,
+                        pre_ansible: nil, post_ansible: nil,
                         ansible_url:,
                         use_rpm_playbook:,
                         customized_ansible_conf: "",
@@ -379,15 +388,31 @@ module CucuShift
         end
       end
 
+      ## load ansible inventory template with current binding
       hosts_str = ERB.new(File.read(hosts_erb)).result binding
 
-      # finally run download repo and run ansible (this is in workdir)
-      # we need git and ansible available pre-installed
+      ## download ansible repo to workdir (need git pre-installed)
       check_res Host.localhost.exec(
         "git clone #{ansible_url}"
       )
       res = nil
 
+      ## run pre-ansible hook (need ansible pre-installed)
+      #  that basically means:
+      #  * setup all needed repos
+      #  * install git, ansible, docker, etc.
+      #  * setup docker for any necessary repo auth
+      #  * pull some images
+      if pre_ansible && !pre_ansible.empy?
+        prea_url = URI.parse pre_ansible
+        prea_path = expand_private_path(prea_url.path, public_safe: true)
+        prea_query = prea_url.query
+        prea_params = prea_query ? CGI::parse(prea_query) : {}
+        prea_binding = BaseHelper.binding_from_hash(binding, prea_params)
+        eval(File.read(prea_path), prea_binding, "prea_path")
+      end
+
+      ## finally run ansible
       ENV["ANSIBLE_FORCE_COLOR"] = "true"
       Dir.chdir(Host.localhost.workdir) {
         logger.info("hosts file:\n" + hosts_str)
@@ -417,10 +442,13 @@ module CucuShift
       # check_res hosts['master'][0].exec_admin(
       #   "sh configure_env.sh replace_template_domain"
       # )
+
+      ## create a router and a registry
       check_res hosts['master'][0].exec_admin(
         "sh configure_env.sh create_router_registry"
       )
 
+      ## configure HA registry if requested
       if registry_ha
         check_res hosts['master'][0].exec_admin(
           'sh configure_env.sh configure_nfs_service'
@@ -429,21 +457,30 @@ module CucuShift
           'sh configure_env.sh configure_registry_to_ha'
         )
       end
+
+      ## setup SkyDNS for proper resolution (not supported)
       if dns == "embedded_skydns"
         check_res hosts['master'][0].exec_admin(
           "sh configure_env.sh add_skydns_hosts"
         )
       end
+
+      ## setup Kerberos auth if requested
       if auth_type == "KERBEROS"
         check_res hosts['master'][0].exec_admin(
           'sh configure_env.sh configure_auth'
         )
       end
+
+      ## setup testing image streams if requested
       if !modify_IS_for_testing.empty?
           check_res hosts['master'][0].exec_admin(
             "sh configure_env.sh modify_IS_for_testing #{modify_IS_for_testing}"
           )
       end
+
+      ## execute post-ansible hook
+      # TODO
     ensure
       # Host clean_up
       if defined?(hosts) && hosts.kind_of?(Hash)
@@ -492,6 +529,7 @@ module CucuShift
               :image_pre,
               :puddle_repo,
               :etcd_num, :registry_ha,
+              :pre_ansible,
               :ansible_url,
               :customized_ansible_conf,
               :modify_IS_for_testing,

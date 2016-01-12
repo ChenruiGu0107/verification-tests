@@ -49,7 +49,12 @@ module CucuShift
 
       @os_url = ENV['OPENSTACK_URL'] || opts[:url]
 
-      opts[:image] = ENV.fetch('OPENSTACK_IMAGE_NAME') { opts[:image] }
+      if ENV['OPENSTACK_IMAGE_NAME'] && !ENV['OPENSTACK_IMAGE_NAME'].empty?
+        opts[:image] = ENV['OPENSTACK_IMAGE_NAME']
+      elsif ENV['CLOUD_IMAGE_NAME'] && !ENV['CLOUD_IMAGE_NAME'].empty?
+        opts[:image] = ENV['CLOUD_IMAGE_NAME']
+      end
+      raise if opts[:image].nil? || opts[:image].empty?
       opts[:flavor] = ENV.fetch('OPENSTACK_FLAVOR_NAME') { opts[:flavor] }
       opts[:key] = ENV.fetch('OPENSTACK_KEY_NAME') { opts[:key] }
 
