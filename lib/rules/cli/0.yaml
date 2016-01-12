@@ -150,6 +150,7 @@
     :resource: <value>
     :keyval: <value>
     :e: -e <value>
+    :o: -o <value>
 :exec:
   # reorder global_options and options to allow specifying exec command
   :cmd: oc exec <pod> <global_options> <options>
