@@ -157,7 +157,7 @@ require 'watir-webdriver'
       if cookie[:expect_result].kind_of? String
         success = output == cookie[:expect_result]
       else
-        success = (output && cookie[:expect_result]) ||!(output || cookie[:expect_result]) 
+        success = ! output == ! cookie[:expect_result]
       end
       res = {
         instruction: "get cookie:\n#{cookie[:name]}\n\nexpected result: #{cookie[:expect_result].inspect}",
@@ -183,7 +183,7 @@ require 'watir-webdriver'
       if script[:expect_result].kind_of? String
         success = output == script[:expect_result]
       else
-        success = (output && script[:expect_result]) ||!(output || script[:expect_result])
+        success = ! output == ! script[:expect_result]
       end
 
       res = {
