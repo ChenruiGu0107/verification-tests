@@ -12,11 +12,12 @@ Transform /.*/ do |arg|
       #   this is disabled for v3 as it is complicated and has little/no use
       # x = str.gsub(/<(\w+)-([\w\_]+)(.*)??\>/, "<%=@\\1[:\\2]\\3%>")
       # substitute inline expressions
-      x = x.gsub(/<%=(.+?)%>/) { |c|
+      x = x.gsub(/<%=(.+?)%>/m) { |c|
         eval $1
       }
     rescue => e
-      Kernel::puts "Expand ERROR with argument: " + str.to_s + "\n" + e.inspect + "\n" + e.backtrace.join("\n")
+      Kernel::puts "Expand ERROR with argument: " + str.to_s + "\n" +
+                                                    exception_to_string(e)
       x = str
     end
     x
