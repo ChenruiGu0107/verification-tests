@@ -28,3 +28,6 @@ Feature: Debug and Explore Stuff
       |va1|va2|
       |vb1|vb \| 2|
       |vc1|v\nc2|
+      |vc4|\s\t\\n\\s|
+      |gag| <%= "a\na\\na" %> |
+      |gor| <%= raise %> |
