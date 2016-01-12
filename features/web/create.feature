@@ -224,3 +224,38 @@ Feature: create app on web console related
     When I get the html of the web page
     Then the output should contain:
       | This name is already in use within the project. Please choose a different name. |
+
+
+  # @author yanpzhan@redhat.com
+  # @case_id 498145
+  Scenario: Create app from template leaving empty parameters to be generated
+    When I create a new project via web
+    Then the step should succeed
+    Given I use the "<%= project.name %>" project
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+
+    When I perform the :create_app_from_template web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | ruby-helloworld-sample |
+      | namespace     | <%= project.name %>    |
+      | param_one     | :null  |
+      | param_two     | :null  |
+      | param_three   | :null  |
+      | param_four    | :null  |
+      | param_five    | :null  |
+      | label_key     | :null  |
+      | label_value   | :null  |
+    Then the step should succeed
+
+    When I run the :env client command with:
+      | resource | dc/frontend |
+      | list     | true        |
+    Then the step should succeed
+    And the output should contain:
+      |ADMIN_USERNAME=|
+      |ADMIN_PASSWORD=|
+      |MYSQL_USER=    |
+      |MYSQL_PASSWORD=|
