@@ -1000,3 +1000,27 @@ Feature: deployment related features
         | file_name | pod_name |
         | pre.json  | hooks-1-prehook |
         | post.json  | hooks-1-posthook |
+
+  # @author yinzhou@redhat.com
+  # @case_id 510606
+  Scenario: deployment hook volume inheritance that volume name was null
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc510606/hooks-null-volume.json |
+    Then the step should fail
+    And the output should contain "must not be empty"
+  
+
+  # @author yinzhou@redhat.com
+  # @case_id 510607
+  Scenario: deployment hook volume inheritance -- that volume names which are not found
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc510607/hooks-unexist-volume.json |
+    Then the step should succeed
+    Given the pod named "hooks-1-prehook" becomes ready
+    When I run the :get client command with:
+      | resource | pods |
+    Then the output should contain:
+      | NAME           |
+      | hooks-1-prehook|
