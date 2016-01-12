@@ -27,3 +27,42 @@ Feature: oc_login.feature
       | server   | <%= env.api_endpoint_url %> |
       | token | <%= @result[:response].split(">")[1].split("<")[0] %>   |
     Then the step should succeed
+
+
+  # @author xiaocwan@redhat.com
+  # @case_id 510552
+  Scenario: Logout of the active session by clearing saved tokens
+    Given I log the message> this scenario can pass only when user accounts have a known password
+    When I switch to the first user
+    When I run the :login client command with:
+      | server   | https://<%= env.master_hosts[0].hostname %>:8443/ |
+      | u | <%= user.name %>     |
+      | p | <%= user.password %> |
+      | config   | dummy.kubeconfig |
+      | insecure | true |
+    Then the step should succeed
+    When I run the :config client command with:
+      | subcommand | view |
+      | config   | dummy.kubeconfig |
+    Then the step should succeed
+    And the output should contain "token"
+    And evaluation of `@result[:response].split("token: ")[1].strip()` is stored in the :token clipboard
+    When I run the :get client command with:
+      | resource | project |
+      | token    | <%= cb.token %>  |
+      | config   | dummy.kubeconfig |
+    Then the step should succeed
+
+    When I run the :logout client command with:
+      | config   | dummy.kubeconfig |
+    Then the step should succeed
+    When I run the :config client command with:
+      | subcommand | view |
+      | config   | dummy.kubeconfig |
+    Then the step should succeed
+    And the output should not contain "token"
+    When I run the :get client command with:
+      | resource | project |
+      | token    | <%= cb.token %>  |
+      | config   | dummy.kubeconfig |
+    Then the step should not succeed

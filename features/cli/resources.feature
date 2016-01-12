@@ -311,8 +311,9 @@ Feature: resouces related scenarios
     When I run the :get admin command with:
       | resource         | all |
       | all_namespace    | true |
-    Then the output should contain 15 times:
-      | default |
+    Then the output should contain:
+      | <%= cb.proj1 %> |
+      | <%= cb.proj2 %> |
 
   # @author yinzhou@redhat.com
   # @case_id 508036
