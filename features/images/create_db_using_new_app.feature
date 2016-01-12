@@ -7,28 +7,15 @@ Feature:Create db using new_app cmd feature
      | image_stream | <image_stream_name> |
      | env          | MYSQL_USER=user,MYSQL_PASSWORD=pass,MYSQL_DATABASE=db |
    Then the step should succeed
-   Given I wait for the pod named "mysql-1-deploy" to die
-    When I run the :deploy client command with:
-      | deployment_config | mysql |
-    Then the output should contain "mysql #1 deployed"   
-   Given a pod becomes ready with labels:
-     | deployment=mysql-1  |
-   When I run the :get client command with:
-      | resource | pods |
-    Then the output should contain:
-      | NAME            |
-      | <%= pod.name %> |
-    When I run the :describe client command with:
-      | resource | pod             |
-      | name     | <%= pod.name %> |
-    Then the output should match:
-      | Status:\\s+Running                        |
-      | Ready\\s+True                             |
-   When I execute on the pod:
+   Given I wait for the "mysql" service to become ready
+   And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
      | bash           |
      | -c             |
      | mysql -h $MYSQL_SERVICE_HOST -uuser -ppass -e "show databases" |
-   Then the step should succeed
+    Then the step should succeed
+    """
    And the output should contain "db"
 
    When I execute on the pod:
@@ -65,28 +52,15 @@ Feature:Create db using new_app cmd feature
      | image_stream | <image_stream_name> |
      | env          | MONGODB_USER=user,MONGODB_PASSWORD=pass,MONGODB_DATABASE=db,MONGODB_ADMIN_PASSWORD=pass |
    Then the step should succeed
-   Given I wait for the pod named "mongodb-1-deploy" to die
-   When I run the :deploy client command with:
-     | deployment_config | mongodb |
-   Then the output should contain "mongodb #1 deployed"
-   Given a pod becomes ready with labels:
-     | deployment=mongodb-1  |
-   When I run the :get client command with:
-     | resource | pods |
-   Then the output should contain:
-     | NAME            |
-     | <%= pod.name %> |
-   When I run the :describe client command with:
-     | resource | pod             |
-     | name     | <%= pod.name %> |
-   Then the output should match:
-     | Status:\\s+Running         |
-     | Ready\\s+True              |
-   When I execute on the pod:
+   Given I wait for the "mongodb" service to become ready
+   And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
      | bash           |
      | -c             |
      | mongo db -uuser -ppass --eval "db.db.insert({'name':'openshift'})" |
-   Then the step should succeed
+    Then the step should succeed
+    """
    When I execute on the pod:
      | bash           |
      | -c             |

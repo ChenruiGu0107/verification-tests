@@ -14,39 +14,20 @@ Feature: Add env variables to image feature
    And I run the :new_app client command with:
      | template | mysql-ephemeral |
    Then the step should succeed   
-
-   Given I wait for the pod named "mysql-1-deploy" to die
-   When I run the :deploy client command with:
-     | deployment_config | mysql |
-   Then the output should contain "mysql #1 deployed"
-   Given a pod becomes ready with labels:
-     | deployment=mysql-1  |
-   When I run the :get client command with:
-     | resource | pods |
-   Then the output should contain:
-     | NAME            |
-     | <%= pod.name %> |
-   When I run the :describe client command with:
-     | resource | pod             |
-     | name     | <%= pod.name %> |
-   Then the output should match:
-     | Status:\\s+Running                        |
-     | Ready\\s+True                             |
+   
+   Given I wait for the "mysql" service to become ready
+   And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash           |
+      | -c             |
+      | mysql -h $MYSQL_SERVICE_HOST -u$MYSQL_USER -p$MYSQL_PASSWORD -e "show databases" |
+    Then the step should succeed
+    """
+   And the output should contain "sampledb"
    When I execute on the pod:
      | bash           |
-     | -c             |
-     | env \| grep MYSQL |
-   Then the step should succeed
-   And the output should contain:
-     | MYSQL_LOWER_CASE_TABLE_NAMES=1 |
-     | MYSQL_FT_MIN_WORD_LEN=5        |
-     | MYSQL_MAX_CONNECTIONS=100      |
-     | MYSQL_AIO=1                    |
-     | MYSQL_FT_MAX_WORD_LEN=15       |
-
-
-   When I execute on the pod:
-     | bash           |
+     | -l             |
      | -c             |
      | mysql -h $MYSQL_SERVICE_HOST -u$MYSQL_USER -p$MYSQL_PASSWORD   -e "SHOW VARIABLES LIKE 'lower_case_table_names';" |
    Then the step should succeed
@@ -55,6 +36,7 @@ Feature: Add env variables to image feature
      | 1                      |
    When I execute on the pod:
      | bash           |
+     | -l             |
      | -c             |
      | mysql -h $MYSQL_SERVICE_HOST -u$MYSQL_USER -p$MYSQL_PASSWORD   -e "SHOW VARIABLES LIKE 'max_connections';" |
    Then the step should succeed
@@ -63,6 +45,7 @@ Feature: Add env variables to image feature
      | 100             |
    When I execute on the pod:
      | bash           |
+     | -l             |
      | -c             |
      | mysql -h $MYSQL_SERVICE_HOST -u$MYSQL_USER -p$MYSQL_PASSWORD   -e "SHOW VARIABLES LIKE 'ft_min_word_len';" |
    Then the step should succeed
@@ -71,6 +54,7 @@ Feature: Add env variables to image feature
      | 5               |
    When I execute on the pod:
      | bash           |
+     | -l             |
      | -c             |
      | mysql -h $MYSQL_SERVICE_HOST -u$MYSQL_USER -p$MYSQL_PASSWORD   -e "SHOW VARIABLES LIKE 'ft_max_word_len';" |
    Then the step should succeed
@@ -79,6 +63,7 @@ Feature: Add env variables to image feature
      | 15              |
    When I execute on the pod:
      | bash           |
+     | -l             |
      | -c             |
      | mysql -h $MYSQL_SERVICE_HOST -u$MYSQL_USER -p$MYSQL_PASSWORD   -e "SHOW VARIABLES LIKE 'innodb_use_native_aio';" |
    Then the step should succeed
