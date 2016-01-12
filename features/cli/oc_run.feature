@@ -110,7 +110,8 @@ Feature: oc run related scenarios
     Given I have a project
     When I run the :run client command with:
       | name         | myrun                 |
-      | image        | yapei/hello-openshift |
+      | image        | aosqe/hello-openshift |
+      #yapei/hello-openshift
     Then the step should succeed
     When I run the :get client command with:
       | resource | dc |
@@ -132,7 +133,7 @@ Feature: oc run related scenarios
     # Create a standalone rc
     When I run the :run client command with:
       | name         | myrun-rc              |
-      | image        | yapei/hello-openshift |
+      | image        | aosqe/hello-openshift |
       | generator    | run-controller/v1 |
     Then the step should succeed
     When I run the :get client command with:
@@ -153,7 +154,7 @@ Feature: oc run related scenarios
     # Create a standalone pod
     When I run the :run client command with:
       | name         | myrun-pod             |
-      | image        | yapei/hello-openshift |
+      | image        | aosqe/hello-openshift |
       | generator    | run-pod/v1 |
     Then the step should succeed
     When I run the :get client command with:
