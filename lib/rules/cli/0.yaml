@@ -345,6 +345,8 @@
   :cmd: oc project
   :options:
     :project_name: <value>
+:remove_group:
+  :cmd: oc policy remove-group <group_name>
 :remove_role_from_user:
   :cmd: oc policy remove-role-from-user <role> <user_name>
 :remove_role_from_group:
