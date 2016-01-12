@@ -6,7 +6,8 @@ Feature: creating 'apps' with CLI
   Scenario: Create an application with overriding app name
     Given I have a project
     And I create a new application with:
-      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:latest |
+      | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp                |
       # | namespace    | <%= project.name %>  |
     Then the step should succeed
@@ -29,35 +30,37 @@ Feature: creating 'apps' with CLI
     # https://bugzilla.redhat.com/show_bug.cgi?id=1247680
     Given I have a project
     When I create a new application with:
-      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby~https://github.com/openshift/ruby-hello-world |
       | name         | <%= rand_str(25, :dns952) %> |
     Then the step should fail
     And the project is deleted
 
     Given I have a project
     When I create a new application with:
-      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | docker image | <%= product_docker_repo %>rhscl/perl-520-rhel7~https://github.com/openshift/sti-perl |
+      | context dir  | 5.16/test/sample-test-app/            |
       | name         | 4igit-first |
     Then the step should fail
     And the project is deleted
 
     Given I have a project
     When I create a new application with:
-      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | docker image | <%= product_docker_repo %>rhscl/ruby-22-rhel7~https://github.com/openshift/ruby-hello-world |
       | name         | with#char |
     Then the step should fail
     And the project is deleted
 
     Given I have a project
     When I create a new application with:
-      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/perl:5.16~https://github.com/openshift/sti-perl |
+      | context dir  | 5.16/test/sample-test-app/            |
       | name         | with^char |
     Then the step should fail
     And the project is deleted
 
     Given I have a project
     When I create a new application with:
-      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby~https://github.com/openshift/ruby-hello-world |
       | name         | with@char |
     Then the step should fail
     And the project is deleted
@@ -65,29 +68,29 @@ Feature: creating 'apps' with CLI
     ## create app with labels
     And I have a project
     When I create a new application with:
-      | docker image | openshift/mysql-55-centos7                              |
+      | image_stream | openshift/mysql:latest                                  |
       | code         | https://github.com/openshift/ruby-hello-world           |
       | l            | app=hi                                                  |
-      | env          | MYSQL_USER=root,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
+      | env          | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Then the step should succeed
 
     # check MySQL pod
     Given a pod becomes ready with labels:
-      | deployment=mysql-55-centos7-1 |
+      | deployment=mysql-1 |
     When I execute on the pod:
       | bash                                                  |
       | -c                                                    |
-      | mysql -h $HOSTNAME -uroot -ptest -e 'show databases;' |
+      | mysql -h $HOSTNAME -utest -ptest -e 'show databases;' |
     Then the step should succeed
     And the output should contain "test"
 
     # access mysql through the service
-    Given I use the "mysql-55-centos7" service
+    Given I use the "mysql" service
     And I reload the service
     When I execute on the pod:
       | bash                                                           |
       | -c                                                             |
-      | mysql -h <%= service.ip %> -uroot -ptest -e 'show databases;'  |
+      | mysql -h <%= service.ip %> -utest -ptest -e 'show databases;'  |
     Then the step should succeed
     And the output should contain "test"
 
