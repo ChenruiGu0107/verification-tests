@@ -103,3 +103,72 @@ Feature: oc run related scenarios
     Then the step should have timed out
     And the output should match:
       | [Ww]aiting for pod .*webapp5 to be running       |
+
+  # @author pruan@redhat.com
+  # @case_id 510405
+  Scenario: oc run can create dc, standalone rc, standalone pod
+    Given I have a project
+    When I run the :run client command with:
+      | name         | myrun                 |
+      | image        | yapei/hello-openshift |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | dc |
+    Then the step should succeed
+    And the output should contain:
+      | myrun |
+    When I run the :get client command with:
+      | resource | rc |
+    Then the step should succeed
+    And the output should contain:
+      | myrun-1 |
+    And the output should contain:
+      | myrun |
+    When I run the :get client command with:
+      | resource | pod |
+    Then the step should succeed
+    And the output should contain:
+      | myrun-1-deploy|
+    # Create a standalone rc
+    When I run the :run client command with:
+      | name         | myrun-rc              |
+      | image        | yapei/hello-openshift |
+      | generator    | run-controller/v1 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | dc |
+    Then the step should succeed
+    And the output should not contain:
+      | myrun-rc |
+    When I run the :get client command with:
+      | resource | rc |
+    Then the step should succeed
+    And the output should contain:
+      | myrun-rc |
+    When I run the :get client command with:
+      | resource | pod |
+    Then the step should succeed
+    And the output should contain:
+      | myrun-rc-|
+    # Create a standalone pod
+    When I run the :run client command with:
+      | name         | myrun-pod             |
+      | image        | yapei/hello-openshift |
+      | generator    | run-pod/v1 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | dc |
+    Then the step should succeed
+    And the output should not contain:
+      | myrun-pod |
+    When I run the :get client command with:
+      | resource | rc |
+    Then the step should succeed
+    And the output should not contain:
+      | myrun-pod |
+    When I run the :get client command with:
+      | resource | pod |
+    Then the step should succeed
+    And the output should contain:
+      | myrun-pod |
+
