@@ -195,6 +195,7 @@
   :cmd: oc expose <resource> <resource_name>
   :options:
     :generator: --generator=<value>
+    :external_ip: --external-ip=<value>
     :route_port: --port=<value>
     :route_protocol: --protocol=<value>
     :target_port: --target-port=<value>
