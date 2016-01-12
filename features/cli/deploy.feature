@@ -1001,6 +1001,7 @@ Feature: deployment related features
         | pre.json  | hooks-1-prehook |
         | post.json  | hooks-1-posthook |
 
+
   # @author yinzhou@redhat.com
   # @case_id 510606
   Scenario: deployment hook volume inheritance that volume name was null
@@ -1024,3 +1025,29 @@ Feature: deployment related features
     Then the output should contain:
       | NAME           |
       | hooks-1-prehook|
+
+
+   # @author yadu@redhat.com
+   # @case_id 497544
+   Scenario: Recreate deployment strategy
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/deployment/recreate-example.yaml |
+    Then the step should succeed
+    And I wait until the status of deployment "recreate-example" becomes :complete
+    When I use the "recreate-example" service
+    And I wait for a server to become available via the "recreate-example" route
+    Then the output should contain:
+      | v1 |
+    When I run the :tag client command with:
+      | source | recreate-example:v2     |
+      | dest   | recreate-example:latest |
+    Then the step should succeed
+    And I wait until the status of deployment "recreate-example" becomes :complete
+    When I use the "recreate-example" service
+    And I wait for a server to become available via the "recreate-example" route
+    Then the output should contain:
+      | v2 |
+
+
+

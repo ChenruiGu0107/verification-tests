@@ -86,38 +86,3 @@ Feature: route related features via cli
     Then the step should fail
     And the output should contain "routes "route" already exists"
 
-  # @author yadu@redhat.com
-  # @case_id 497886
-  Scenario: Service endpoint can be work well if the mapping pod ip is updated
-    Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
-    Then the step should succeed
-    And all pods in the project are ready
-    When I run the :get client command with:
-      | resource | endpoints |
-    And the output should contain:
-      | test-service |
-      | :8080        |
-    When I get project replicationcontroller as JSON
-    And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :rc_name clipboard
-    Then I run the :scale client command with:
-      | resource | replicationcontrollers |
-      | name     | <%= cb.rc_name %>      |
-      | replicas | 0                      |
-    When I run the :get client command with:
-      | resource | endpoints |
-    And the output should contain:
-      | test-service |
-      | none         |
-    Then I run the :scale client command with:
-      | resource | replicationcontrollers |
-      | name     | <%= cb.rc_name %>      |
-      | replicas | 1                      |
-    And I wait until number of replicas match "1" for replicationController "<%= cb.rc_name %>"
-    And all pods in the project are ready
-    When I run the :get client command with:
-      | resource | endpoints |
-    And the output should contain:
-      | test-service |
-      | :8080        |

@@ -88,7 +88,9 @@ Feature: oc related features
   # @case_id 492274
   Scenario: Check help doc of command 'oc tag'
     When I run the :tag client command with:
-      | h | true |
+      | source | :false |
+      | dest   | :false |
+      | h      | true   |
     Then the output should contain:
       | Tag existing images into image streams                                         |
       | The tag command allows you to take an existing tag or image from an image      |
@@ -97,7 +99,9 @@ Feature: oc related features
       | command, but it operates on image streams instead.                             |
       | oc tag [--source=SOURCETYPE] SOURCE DEST [DEST ...] [options]                  |
     When I run the :tag client command with:
-      | help | true  |
+      | source | :false |
+      | dest   | :false |
+      | help   | true   |
     Then the output should contain:
       | Tag existing images into image streams                                         |
       | The tag command allows you to take an existing tag or image from an image      |
