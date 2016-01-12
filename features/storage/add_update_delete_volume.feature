@@ -3,7 +3,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   # @author jialiu@redhat.com
   # @case_id 491430
   @admin @destructive
-  Scenario: Add/Remove persistentVolumeClaim to dc and rc
+  Scenario: Add/Remove persistentVolumeClaim to dc and rc and '--overwrite' option
     # Preparations
     Given I have a project
     And I have a NFS service in the project
