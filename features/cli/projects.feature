@@ -353,7 +353,6 @@ Feature: projects related features via cli
       | resource | pods |
     Then the step should fail
 
-
   # @author pruan@redhat.com
   # @case_id 515693
   Scenario: Give user suggestion about new-app on new-project
@@ -363,3 +362,34 @@ Feature: projects related features via cli
     Then the step should succeed
     And the output should contain:
       | You can add applications to this project with the 'new-app' command. |
+
+  # @author cryan@redhat.com
+  # @case_id 487699
+  Scenario: Could remove user and group from the current project
+    Given I have a project
+    When I run the :oadm_add_role_to_user client command with:
+      | role_name | admin |
+      | user_name | <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    When I run the :oadm_add_role_to_group client command with:
+      | role_name | admin |
+      | group_name | system:serviceaccounts:<%= user(1, switch: false).name %> |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | policybinding |
+      | name | :default |
+    Then the step should succeed
+    And the output should match:
+      | Users:\\s+<%= user.name %>, <%= user(1, switch: false).name %> |
+      | Groups:\\s+system:serviceaccounts:<%= user(1, switch: false).name %> |
+    When I run the :remove_group client command with:
+      | group_name | system:serviceaccounts:<%= user(1, switch: false).name %> |
+    Then the step should succeed
+    And the output should contain "Removing admin from groups"
+    When I run the :describe client command with:
+      | resource | policybinding |
+      | name | :default |
+    Then the step should succeed
+    And the output should match:
+      | Users:\\s+<%= user.name %>, <%= user(1, switch: false).name %> |
+    And the output should not contain "system:serviceaccounts:<%= user(1, switch: false).name %>"
