@@ -19,7 +19,7 @@ Feature: template related scnearios:
     And I create a new application with:
       | template | ruby-helloworld-sample |
       | code     | git://github.com/openshift/nodejs-ex |
-    Then the step shouldtrue
+    Then the step should succeed
   # @author pruan@redhat.com
   # @case_id 483164
   Scenario: create app from non-existing/invalid template via CLI
