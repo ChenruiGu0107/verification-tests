@@ -62,7 +62,7 @@ Feature: change the policy of user/service account
     ##cluster admin create a project and add another user as admin
     When admin creates a project
     Then the step should succeed
-    When I run the :add_role_to_user admin command with:
+    When I run the :policy_add_role_to_user admin command with:
       | role            |   admin               |
       | user name       |   <%= user.name %>    |
       | n               |   <%= project.name %> |

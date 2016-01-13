@@ -15,7 +15,7 @@ Feature: project permissions
     Then the step should succeed
 
     ## add a user as admin of the project
-    When I run the :add_role_to_user admin command with:
+    When I run the :policy_add_role_to_user admin command with:
       | role            |   admin               |
       | user name       |   <%= user.name %>    |
       | n               |   <%= project.name %> |
