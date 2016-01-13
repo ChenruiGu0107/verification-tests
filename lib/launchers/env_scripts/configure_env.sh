@@ -532,7 +532,7 @@ function update_playbook_rpms()
 	cat <<EOF >/etc/yum.repos.d/ose-devel.repo
 [ose-devel]
 name=ose-devel
-baseurl=${CONF_OSE_REPO}
+baseurl=${CONF_PUDDLE_REPO}
 enabled=1
 gpgcheck=0
 EOF
