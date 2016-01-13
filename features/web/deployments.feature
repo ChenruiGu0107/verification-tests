@@ -61,3 +61,61 @@ Feature: Check deployments function
       | dc_name      | <%= cb.app_name %>  |
       | status_name  | Cancelled           |
     Then the step should succeed
+
+  # @author: wsun@redhat.com
+  # case_id: 515434
+  Scenario: Scale the application by changing replicas in deployment config 
+    Given I login via web console
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    Given I wait for the pod named "hooks-1-deploy" to die
+    When I perform the :edit_replicas_on_deployment_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+      | replicas     | 2                   |
+    Then the step should succeed
+    And I wait until number of replicas match "2" for replicationController "hooks-1"
+    When I perform the :edit_replicas_on_deployment_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+      | replicas     | -2                  |
+    When I get the html of the web page
+    Then the output should match:
+      | Replicas can't be negative. |
+    When I run the :cancel_edit_replicas_on_deployment_page web console action
+    Then the step should succeed
+    When I perform the :edit_replicas_on_rc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+      | dc_number    | 1                   |
+      | replicas     | 1                   | 
+    And I wait until number of replicas match "1" for replicationController "hooks-1"
+    Then the step should succeed
+    When I perform the :edit_replicas_on_rc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+      | dc_number    | 1                   |
+      | replicas     | -1                  |
+    When I get the html of the web page
+    Then the output should match:
+      | Replicas can't be negative. |
+    When I run the :cancel_edit_replicas_on_rc_page web console action
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest ||
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :running
+    When  I run the :deploy client command with:
+      | deployment_config | hooks |
+      | cancel            ||
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :failed
+    When I perform the :edit_replicas_on_rc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+      | dc_number    | 2                   |
+      | replicas     | 2                   |
+    Then the step should fail
