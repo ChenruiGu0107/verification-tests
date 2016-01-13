@@ -450,6 +450,7 @@
     :all: --all=<value>
     :selector: --selector='<value>'
     :overwrite: --overwrite
+    :path: --path=<value>
 :whoami:
   :cmd: oc whoami
   :options:
