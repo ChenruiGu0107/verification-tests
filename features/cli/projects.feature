@@ -304,7 +304,7 @@ Feature: projects related features via cli
       | <%= env.nodes[0].labels.first.join("=") %> |
 
     ##grant admin to user
-    When I run the :add_role_to_user admin command with:
+    When I run the :policy_add_role_to_user admin command with:
       | role            |   admin               |
       | user name       |   <%= user.name %>    |
       | n               |   <%= cb.proj_name %> |
@@ -382,7 +382,7 @@ Feature: projects related features via cli
     And the output should match:
       | Users:\\s+<%= user.name %>, <%= user(1, switch: false).name %> |
       | Groups:\\s+system:serviceaccounts:<%= user(1, switch: false).name %> |
-    When I run the :remove_group client command with:
+    When I run the :policy_remove_group client command with:
       | group_name | system:serviceaccounts:<%= user(1, switch: false).name %> |
     Then the step should succeed
     And the output should contain "Removing admin from groups"

@@ -9,7 +9,7 @@ When /^I give project (.+?) role to the(?: (.+?))? (user|service account)$/ do |
   end
 
   user.cli_exec(
-    :add_role_to_user,
+    :policy_add_role_to_user,
     role: role_name,
     user_name: user_name,
     n: project.name
@@ -27,7 +27,7 @@ When /^I remove project (.+?) role from the(?: (.+))? (user|service account)$/ d
   end
 
   user.cli_exec(
-    :remove_role_from_user,
+    :policy_remove_role_from_user,
     role: role_name,
     user_name: user_name,
     n: project.name

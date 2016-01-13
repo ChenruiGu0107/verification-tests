@@ -122,7 +122,7 @@ Feature: projects related features via web
     When I run the :check_project_list web console action
     Then the step should fail
     Given I create a new project
-    When I run the :add_role_to_user client command with:
+    When I run the :policy_add_role_to_user client command with:
       | role      | edit            |
       | user_name | <%= user(0, switch: false).name %> |
     Then the step should succeed
@@ -133,7 +133,7 @@ Feature: projects related features via web
     Then the output should contain:
       | User "<%= user(0).name %>" cannot delete projects in project "<%= project.name %>" |
     Given I switch to the second user
-    When I run the :add_role_to_user client command with:
+    When I run the :policy_add_role_to_user client command with:
       | role      | view                |
       | user_name | <%= user(0, switch: false).name %> |
     Given I switch to the first user
