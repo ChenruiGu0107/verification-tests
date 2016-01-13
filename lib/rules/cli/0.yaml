@@ -453,7 +453,7 @@
     :mount-path: --mount-path=<value>
     :claim-name: --claim-name=<value>
     :all: --all=<value>
-    :selector: --selector='<value>'
+    :selector: --selector=<value>
     :overwrite: --overwrite
 :whoami:
   :cmd: oc whoami

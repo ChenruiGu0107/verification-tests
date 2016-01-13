@@ -236,3 +236,61 @@ Feature: oc_volume.feature
     Then the step should succeed
     # Using equality may be more reliable to discover future possible bug than just using "The output should (not) contain"
     And the output should equal "<%= cb.output %>"
+
+
+  # @author gpei@redhat.com
+  # @case_id 491435
+  Scenario: New volume can not have a same mount point that already exists in a container
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I run the :volume client command with:
+      | resource      | dc                |
+      | resource_name | database          |
+      | name          | v1                |
+      | action        | --add             |
+      | mount-path    | /opt              |
+    Then the step should succeed
+    When I run the :volume client command with:
+      | resource      | dc                |
+      | resource_name | database          |
+      | name          | v2                |
+      | action        | --add             |
+      | mount-path    | /opt              |
+    Then the step should fail
+    And the output should contain "volume mount '/opt' already exists"
+
+  # @author gpei@redhat.com
+  # @case_id 491435
+  Scenario: Select resources with '--selector' option
+    Given I have a project
+    When I run the :new_app client command with:
+     | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    And I run the :run client command with:
+      | name         | testpod                   |
+      | image        | openshift/hello-openshift |
+      | generator    | run-pod/v1                |
+    Given the pod named "testpod" becomes ready
+
+    Given I run the :label client command with:
+      | resource     | pods                      |
+      | name         | testpod                   |
+      | key_val      | volume=nfs              |
+    Given I run the :label client command with:
+      | resource     | dc                        |
+      | name         | ruby-hello-world          |
+      | key_val      | volume=emptydir         |
+
+    When I run the :volume client command with:
+      | resource      | pods                     |
+      | action        | --list                   |
+      | selector      | volume=nfs             |
+    Then the output should contain "pods/testpod"
+    When I run the :volume client command with:
+      | resource      | dc                       |
+      | action        | --list                   |
+      | selector      | volume=emptydir        |
+    Then the output should contain "ruby-hello-world"
+
