@@ -80,28 +80,20 @@ Feature: buildconfig.feature
   # @case_id 482207
   Scenario: Do incremental builds for sti-build in openshift
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/SourceBuildConfig_Incremental_Build.json |
+    And I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/case482207/build/application-template-stibuild_incremental_true.json"
     Then the step should succeed
-    # Test incremental build firstly
-    When I run the :start_build client command with:
-      | buildconfig | source-build |
-    Then the step should succeed
-    And the "source-build-1" build was created
-    And the "source-build-1" build completed
+    And the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+  # Test clean build firstly
     When I run the :build_logs client command with:
-      | build_name      | source-build-1 |
-    Then the output should match "Saving build artifacts from image"
-    # Test clean build secondly
-    When I replace resource "bc" named "source-build":
-      | true | false |
-    Then the step should succeed
-    And the output should contain "replaced"
-    When I run the :start_build client command with:
-      | buildconfig | source-build |
-    Then the step should succeed
-    And the "source-build-2" build was created
-    And the "source-build-2" build completed
-    When I run the :build_logs client command with:
-      | build_name      | source-build-2 |
+      | build_name      | ruby-sample-build-1 |
     Then the output should match "Clean build will be performed"
+  # Test incremental build secondly
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    And the "ruby-sample-build-2" build was created
+    And the "ruby-sample-build-2" build completed
+    When I run the :build_logs client command with:
+      | build_name      | ruby-sample-build-2 |
+    Then the output should match "Saving build artifacts from image"
