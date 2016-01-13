@@ -130,6 +130,8 @@ require 'watir-webdriver'
           res_join result, handle_action(spec, **user_opts)
         when :scripts
           res_join result, *spec.map { |st| handle_script(st, **user_opts) }
+        when :cookies
+          res_join result, *spec.map {|ck| handle_cookie(ck,**user_opts) }
         else
           raise "unknown rule '#{rule}'"
         end
@@ -140,6 +142,30 @@ require 'watir-webdriver'
       result[:response] << $/ << "web action '#{action}' "
       result[:response] << (result[:success] ? "completed" : "failed")
       return result
+    end
+    
+    def handle_cookie(cookie,**user_opts)
+      unless cookie.kind_of? Hash
+        raise "The script should be a Hash"
+      end
+
+      unless cookie.has_key?(:name) && cookie.has_key?(:expect_result)
+        raise "Cookie lack of name or expect_result"
+      end
+      
+      output = browser.cookies[cookie[:name]]
+      if cookie[:expect_result].kind_of? String
+        success = output == cookie[:expect_result]
+      else
+        success = ! output == ! cookie[:expect_result]
+      end
+      res = {
+        instruction: "get cookie:\n#{cookie[:name]}\n\nexpected result: #{cookie[:expect_result].inspect}",
+        success: success,
+        response: output.to_s,
+        exitstatus: -1
+      }
+      return res
     end
 
     def handle_script(script, **user_opts)
@@ -157,13 +183,13 @@ require 'watir-webdriver'
       if script[:expect_result].kind_of? String
         success = output == script[:expect_result]
       else
-        success = (output && script[:expect_result]) ||!(output || script[:expect_result])
+        success = ! output == ! script[:expect_result]
       end
 
       res = {
         instruction: "run JS:\n#{script[:command]}\n\nexpected result: #{script[:expect_result].inspect}",
         success: success,
-        response: output,
+        response: output.to_s,
         exitstatus: -1
       }
       return res
