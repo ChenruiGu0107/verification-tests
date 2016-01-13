@@ -1,6 +1,6 @@
 *.swp
 *.swo
-/private/
+/private*/
 /Gemfile.lock
 /tools/Gemfile.lock
 .idea/
