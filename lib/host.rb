@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'shellwords'
 require 'socket'
 
@@ -81,7 +82,7 @@ module CucuShift
 
     # @return pwd of raw commands executed on the host
     private def pwd
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @ param [String] path the path to convert to an absolute path
@@ -109,7 +110,7 @@ module CucuShift
 
     # escape characters for use as command arguments
     def shell_escape(str)
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def exec(commands, opts={})
@@ -121,17 +122,17 @@ module CucuShift
     end
 
     def exec_as(user, commands, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @note exec without any preparations like chdir
     def exec_raw(*commands, **opts)
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @note execute process in the background and inserts clean-up hooks
     def exec_background_as(user, commands, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def exec_background(commands, opts={})
@@ -153,34 +154,34 @@ module CucuShift
     end
 
     def exec_interactive_as(user, spec, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def copy_to(local_file, remote_file, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def copy_from(remote_file, local_file, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @return false if dir exists and raise if cannot be created
     def mkdir(remote_dir, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def touch(file, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @return false on unsuccessful deletion
     def delete(file, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @return file name of first file found
     def wait_for_files(*files, **opts)
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def get_local_ip
@@ -196,11 +197,11 @@ module CucuShift
     end
 
     def get_local_hostname_platform
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def get_local_ip_platform
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @return ip based on [#hostname] string
@@ -414,7 +415,24 @@ module CucuShift
     end
   end
 
+  # some pure-ruby method implementations
+  module LocalHost
+    def copy_to(local, remote, **opts)
+      FileUtils.cp_r absolutize(local, raw: opts[:raw]),
+                     absolutize(remote, raw: opts[:raw])
+      # exec "cp", "-r", local, absolutize(remote, raw: opts[:raw])
+    end
+
+    def copy_from(remote, local, **opts)
+      # exec "cp", "-r", remote, absolutize(local, raw: opts[:raw])
+      FileUtils.cp_r absolutize(remote, raw: opts[:raw]),
+                     absolutize(local, raw: opts[:raw])
+    end
+  end
+
   class LocalLinuxLikeHost < LinuxLikeHost
+    include LocalHost
+
     def initialize(hostname, opts={})
       hostname ||= self.hostname
       super
@@ -478,7 +496,7 @@ module CucuShift
       exec_as(user, *commands, background: true, **opts)
     end
 
-    # TODO: implement delete, mkdir, touch in ruby
+    # TODO: implement delete, mkdir, touch in ruby in the LocalHost module
 
     def clean_up
       chdir(HOME)
@@ -538,11 +556,13 @@ module CucuShift
     end
 
     def copy_to(local, remote, **opts)
-      ssh.scp_to(local, absolutize(remote, raw: opts[:raw]))
+      ssh.scp_to Host.localhost.absolutize(local, raw: opts[:raw]),
+                 absolutize(remote, raw: opts[:raw])
     end
 
     def copy_from(remote, local, **opts)
-      ssh.scp_from(remote, absolutize(local, raw: opts[:raw]))
+      ssh.scp_from absolutize(remote, raw: opts[:raw]),
+                   Host.localhost.absolutize(local, raw: opts[:raw])
     end
 
     private def close
