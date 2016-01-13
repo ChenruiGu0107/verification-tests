@@ -42,6 +42,7 @@
 :attach:
   :cmd: oc attach
   :options:
+    :cmd_name: <value>
     :pod: <value>
     :c: -c <value>
     :i: -i
