@@ -92,6 +92,8 @@ Feature: create app on web console related
       | namespace    | <%= project.name %> |
       | app_name     | python-sample       |
       | source_url   | https://github.com/openshift/django-ex.git |
+    Given the "python-sample-1" build was created
+    Given the "python-sample-1" build completed
     Given I wait for the "python-sample" service to become ready
     And I wait for a server to become available via the "python-sample" route
     When I create a new project via web
@@ -106,6 +108,8 @@ Feature: create app on web console related
       | git_ref      | v1.0.1                |
       | context_dir  | :null                 |
     Then the step should succeed
+    Given the "python-sample-another-1" build was created
+    Given the "python-sample-another-1" build completed
     Given I wait for the "python-sample-another" service to become ready
     And I wait for a server to become available via the "python-sample-another" route
   
