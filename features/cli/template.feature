@@ -12,7 +12,7 @@ Feature: template related scnearios:
     Then the output should contain:
       | ruby-helloworld-sample   This example shows how to create a simple ruby application in openshift origi...   5 (4 generated)   8 |
     And I create a new application with:
-      | template | ruby-helloworld-sample~git@github.com/openshift/ruby-hello-world.git |
+      | template | ruby-helloworld-sample~git@github.com:openshift/ruby-hello-world.git |
     And the step should fail
     And the output should contain:
       | error: template with source code explicitly attached is not supported - you must either specify the template and source code separately or attach an image to the source code using the '[image]~[code]' form |
