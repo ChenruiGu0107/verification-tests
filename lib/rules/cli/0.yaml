@@ -429,7 +429,7 @@
     :f: --filename=<value>
     :name: <value>
 :tag:
-  :cmd: oc tag
+  :cmd: oc tag <source> <dest>
 :types:
   :cmd: oc types
 :version:
