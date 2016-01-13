@@ -19,8 +19,7 @@ Feature: template related scnearios:
     And I create a new application with:
       | template | ruby-helloworld-sample |
       | code     | git://github.com/openshift/nodejs-ex |
-    Then the step should succeed
-
+    Then the step shouldtrue
   # @author pruan@redhat.com
   # @case_id 483164
   Scenario: create app from non-existing/invalid template via CLI
@@ -124,3 +123,63 @@ Feature: template related scnearios:
       | labels                                                  |
       | redhat=rocks                                            |
       | label1=value1,label2=value2,label3=value3,label4=value4 |
+
+
+    # @author xiuwang@redhat.com
+    # @case_id 474042
+  Scenario: Override/set/get values for multiple parameters
+    Given I have a project
+    When I run the :process client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
+      |para|true|
+    And the step succeeded
+    And the output should match:
+      |ADMIN_USERNAME\\s+administrator username\\s+expression\\s+<%= Regexp.escape("admin[A-Z0-9]{3}") %>|
+      |ADMIN_PASSWORD\\s+administrator password\\s+expression\\s+<%= Regexp.escape("[a-zA-Z0-9]{8}") %> |
+      |MYSQL_USER\\s+database username\\s+expression\\s+<%= Regexp.escape("user[A-Z0-9]{3}") %>|
+      |MYSQL_PASSWORD\\s+database password\\s+expression\\s+<%= Regexp.escape("[a-zA-Z0-9]{8}") %>|
+      |MYSQL_DATABASE\\s+database name\\s+\\s+root|
+
+    When I run the :process client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
+      |v|ADMIN_USERNAME=foo,ADMIN_PASSWORD=bar,MYSQL_USER=test,MYSQL_PASSWORD=cat,MYSQL_DATABASE=mine|
+    And the step succeeded
+    And the output should match:
+      |"name": "ADMIN_USERNAME",\\s+"value": "foo" |
+      |"name": "ADMIN_PASSWORD",\\s+"value": "bar" |
+      |"name": "MYSQL_USER",\\s+"value": "test"    |
+      |"name": "MYSQL_PASSWORD",\\s+"value": "cat" |
+      |"name": "MYSQL_DATABASE",\\s+"value": "mine"|
+
+    When I run the :process client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
+      |v|ADMIN_USERNAME=foo,ADMIN_PASSWORD=bar,MYSQL_USER=test,MYSQL_PASSWORD=cat,MYSQL_DATABASE=mine|
+      |para|true|
+    And the step failed
+    And the output should contain:
+      |The --parameters flag does not process the template, can't be used with --value|
+
+    When I run the :process client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
+      |v|NONEXIST=abcd|
+    And the step succeeded
+    And the output should contain:
+      |unknown parameter name "NONEXIST"|
+
+    And I process and create:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
+      |v|ADMIN_USERNAME=foo,ADMIN_PASSWORD=bar,MYSQL_USER=test,MYSQL_PASSWORD=cat,MYSQL_DATABASE=mine|
+    And the step succeeded
+    Given the "ruby22-sample-build-1" build completed
+    Given I wait for the "frontend" service to become ready
+    When I run the :env client command with:
+      | resource | pod/<%= pod.name %> |
+      | list  | true |
+    Then the step should succeed
+    And the output should contain:
+      |ADMIN_USERNAME=foo |
+      |ADMIN_PASSWORD=bar |
+      |MYSQL_USER=test    |
+      |MYSQL_PASSWORD=cat |
+      |MYSQL_DATABASE=mine|
+
