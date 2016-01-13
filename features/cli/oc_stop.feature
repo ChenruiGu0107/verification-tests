@@ -35,7 +35,11 @@ Feature: oc_stop.feature
     Then the step should succeed
     And the output should not contain:
       | database-1 |
+    Given I wait for the pod named "database-1-deploy" to die regardless of current status 
+    And I wait up to 120 seconds for the steps to pass:
+    """
     When I get project pods
     Then the step should succeed
     And the output should not contain:
       | database-1 |
+   """
