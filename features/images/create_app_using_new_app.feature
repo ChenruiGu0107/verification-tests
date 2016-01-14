@@ -11,9 +11,12 @@ Feature:Create apps using new_app cmd feature
     Then the step should succeed
 
     Given I wait for the "openshift-quickstarts" service to become ready
+    And I wait up to 900 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl | -s | <%= service.url %>/websocket-chat/ |
     Then the step should succeed
+    """
     And the output should contain "WebSocket connection opened"
 
     Examples:
@@ -37,16 +40,11 @@ Feature:Create apps using new_app cmd feature
     Then the output should match:
       | URL:\\s+https://github.com/openshift/ruby-hello-world.git|
       | From Image:\\s+ImageStreamTag openshift/ruby:2.0|
-    Given the pod named "ruby-sample-build-1-build" becomes ready
-    When I run the :get client command with:
-      | resource | builds |
-    Then the output should contain:
-      | NAME                |
-      | ruby-sample-build-1 |
+    And the "ruby-sample-build-1" build was created
+        And the "ruby-sample-build-1" build completed
     Given I wait for the "frontend" service to become ready
-    When I execute on the pod:
-      | curl | -s | <%= service.url %> |
-    Then the step should succeed
+    When I expose the "frontend" service
+    Then I wait for a server to become available via the "frontend" route
     And the output should contain "Hello from OpenShift v3"
 
   # @author haowang@redhat.com
