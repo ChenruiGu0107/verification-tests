@@ -355,3 +355,30 @@ Feature: creating 'apps' with CLI
     When I execute on the pod:
       | curl | -s | <%= service.url %> |
     Then the step should succeed
+
+  # @author pruan@redhat.com
+  # @case_id 476350
+  Scenario: Create resources with labels --Negetive test
+    Given I have a project
+    And I run the :new_app client command with:
+      | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
+      | labels | name#@=ruby-hello-world |
+    Then the step should fail
+    And the output should contain:
+      | metadata.labels: invalid value 'name#@' |
+    And I run the :new_app client command with:
+      | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
+      | labels | name=@#@ |
+    Then the step should fail
+    And the output should contain:
+      | metadata.labels: invalid value '@#@' |
+    And I run the :new_app client command with:
+      | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
+      | labels | name=value1,name=value2,name=deadbeef010203 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | all |
+      | l | name=deadbeef010203 |
+    Then the step should succeed
+    And the output should contain:
+      | name=deadbeef010203 |
