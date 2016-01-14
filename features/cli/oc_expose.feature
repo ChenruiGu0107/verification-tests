@@ -24,25 +24,14 @@ Feature: oc_expose.feature
     Then the output should contain "myservice"
     And the output should contain "80/TCP"
     And the output should contain "app=test-perl"
-    When I run the :get client command with:
-      | resource | service |
-      | o | yaml |
+    Given I wait for the "myservice" service to become ready
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -s | <%= service.url %> |
     Then the step should succeed
-    And the output is parsed as YAML
-    Given evaluation of `@result[:parsed]['items'][1]['spec']['clusterIP']` is stored in the :pod_ip clipboard
-    When I run the :get client command with:
-      | resource | pods |
-      | l | app=test-perl |
-      | o | yaml |
-    Then the step should succeed
-    And the output is parsed as YAML
-    Given evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :pod_name clipboard
-    When I run the :exec client command with:
-      | pod | <%= cb.pod_name %> |
-      | exec_command | curl |
-      | exec_command_arg | <%= cb.pod_ip%>:80 |
-    Then the step should succeed
-    And the output should contain "Everything is fine."
+    """
+    And the output should contain "Everything is OK"
 
   # @author akostadi@redhat.com
   # @case_id 483241

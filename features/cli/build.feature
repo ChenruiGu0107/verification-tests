@@ -131,12 +131,15 @@ Feature: build 'apps' with CLI
       | image_stream | <%= project.name %>/ruby:2.0 |
       | code         | https://github.com/openshift/ruby-hello-world |
       | l            | app=test |
+    And I wait up to 120 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       |resource| buildConfig |
     Then the output should match:
       | NAME\\s+TYPE                 |
       | <%= Regexp.escape("ruby-hello-world") %>\\s+Source   |
       | <%= Regexp.escape("ruby-hello-world-1") %>\\s+Source |
+    """
     When I run the :describe client command with:
       | resource | buildConfig      |
       | name     | ruby-hello-world |
@@ -150,18 +153,24 @@ Feature: build 'apps' with CLI
     Given the "ruby-hello-world-1" build completed
     Given the "ruby-hello-world-1-1" build completed
     Given I wait for the "ruby-hello-world" service to become ready
+    And I wait up to 120 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl                       |
       | -k                         |
       | <%= service.url %>         |
     Then the step should succeed
+    """
     And the output should contain "Demo App"
     Given I wait for the "ruby-hello-world-1" service to become ready
+    And I wait up to 120 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl                       |
       | -k                         |
       | <%= service.url %>         |
     Then the step should succeed
+    """
     And the output should contain "Demo App"
 
   # @author xxing@redhat.com
