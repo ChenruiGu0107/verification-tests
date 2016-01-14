@@ -339,3 +339,17 @@ Feature: build 'apps' with CLI
       | exec_command | -s    |
       | exec_command | <%= service.ip %>:8080 |
     And the output should contain "Demo App"
+
+  # @author cryan@redhat.com
+  # @case_id 479022
+  Scenario: Add ENV with CustomStrategy when do custom build
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc479022/application-template-custombuild.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completed
+    When I run the :env client command with:
+      | resource | pod |
+      | env_name | ruby-sample-build-1-build |
+      | list | true |
+    Then the output should contain "http_proxy=http://squid.example.com:3128"
