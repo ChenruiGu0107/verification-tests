@@ -66,7 +66,7 @@ Feature: deployment related features
       | docker_image   | openshift/deployment-example |
     Then the step should succeed
     # Wait till the deploy complete
-    And the pod named "deployment-example-1-deploy" becomes ready    
+    And the pod named "deployment-example-1-deploy" becomes ready
     Given I wait for the pod named "deployment-example-1-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | deployment-example |
@@ -1010,7 +1010,7 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc510606/hooks-null-volume.json |
     Then the step should fail
     And the output should contain "must not be empty"
-  
+
 
   # @author yinzhou@redhat.com
   # @case_id 510607
@@ -1049,5 +1049,20 @@ Feature: deployment related features
     Then the output should contain:
       | v2 |
 
-
-
+    # @author yadu@redhat.com
+    # @case_id 515920
+    Scenario: Start new deployment when no latest deployment exist
+      Given I have a project
+      And I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      Then the step should succeed
+      And I wait until the status of deployment "hooks" becomes :complete
+      And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
+        | replicas: 1 | replicas: 3 |
+      Then the step should succeed
+      And I wait until the status of deployment "hooks" becomes :complete
+      And I run the :get client command with:
+        | resource | rc |
+        | o | json |
+      And the output is parsed as JSON
+      Then the expression should be true> @result[:parsed]['items'][0]['status']['replicas'] == 3
