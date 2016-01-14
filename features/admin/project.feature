@@ -125,3 +125,50 @@ Feature: project permissions
       | <%= project.name %> |
     And the output should contain:
       | default |
+
+  # @author pruan@redhat.com
+  # @case_id 481692
+  @admin
+  Scenario: oadm new-project should fail when invalid node selector is given
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    When I run the :oadm_new_project admin command with:
+      | node_selector | env:qa |
+      | project_name  | <%= @clipboard[:proj_name] %> |
+    Then the step should fail
+    And the output should contain:
+      | nodeSelector: invalid value 'env:qa', Details: must be a valid label selector |
+    When I run the :oadm_new_project admin command with:
+      | node_selector | env,qa |
+      | project_name  | <%= @clipboard[:proj_name] %> |
+    Then the step should fail
+    And the output should contain:
+      | nodeSelector: invalid value 'env,qa', Details: must be a valid label selector |
+    When I run the :oadm_new_project admin command with:
+      | node_selector | env [qa] |
+      | project_name  | <%= @clipboard[:proj_name] %> |
+    Then the step should fail
+    And the output should contain:
+      | nodeSelector: invalid value 'env [qa]', Details: must be a valid label selector |
+    When I run the :oadm_new_project admin command with:
+      | node_selector | env, |
+      | project_name  | <%= @clipboard[:proj_name] %> |
+    Then the step should fail
+    And the output should contain:
+      | nodeSelector: invalid value 'env,', Details: must be a valid label selector |
+
+  # @author pruan@redhat.com
+  # @case_id 481693
+  @admin
+  Scenario: Pod creation should fail when pod's node selector conflicts with project node selector
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    Given I register clean-up steps:
+      | admin deletes the "<%= @clipboard[:proj_name] %>" project |
+      | the step should succeed                         |
+    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/node-selector.json" URL replacing paths:
+      | ["metadata"]["name"] | <%= @clipboard[:proj_name] %>|
+    Then the step should succeed
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/selector-east.json
+
+    Then the step should fail
+    Then the output should contain:
+      | pods "east" already exists |

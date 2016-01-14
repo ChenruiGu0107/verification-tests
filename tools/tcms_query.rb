@@ -195,7 +195,7 @@ def report_auto_testcases_by_author(options)
   print table
   table_sum = Text::Table.new
   table_sum.head = ['author', 'testcases']
-  authors.each do |a, c|
+  authors.sort.to_h.each do |a, c|
     table_sum.rows << [a, c]
   end
   print table_sum
