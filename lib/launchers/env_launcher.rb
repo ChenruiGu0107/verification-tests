@@ -6,6 +6,7 @@ require 'yaml'
 require 'uri'
 require 'cgi'
 
+require 'collections'
 require 'common'
 require 'host'
 
@@ -25,7 +26,7 @@ module CucuShift
 
 
     # @param hosts [Hash<String,Array<Host>>] the hosts hash
-    # @return [Array<String>] specification like:
+    # @return [Array<String>] of size 2 like:
     #   `["master:host1,...,node:hostX", "master:ip1,...,node:ipX"]`
     private def hosts_to_specstr(hosts)
       hosts_str = []
@@ -41,7 +42,8 @@ module CucuShift
 
     # @param spec [String, Hash<String,Array>] the specification.
     #   If [String], then it looks like: `master:hostname1,node:hostname2,...`;
-    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`
+    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`;
+    #   hostN might be a [String] hostname or [CucuShift::Host] (so we do nothing)
     private def spec_to_hosts(spec, ssh_key:, ssh_user:)
       hosts={}
 
@@ -58,7 +60,8 @@ module CucuShift
       host_opts = {user: ssh_user, ssh_private_key: ssh_key}
       spec.each do |role, hostnames|
         hosts[role] = hostnames.map do |hostname|
-          SSHAccessibleHost.new(hostname, host_opts)
+          hostname.kind_of?(Host) ? hostname :
+            SSHAccessibleHost.new(hostname, host_opts)
         end
       end
 
@@ -67,7 +70,8 @@ module CucuShift
 
     # @param hosts_spec [String, Hash<String,Array>] the specification.
     #   If [String], then it looks like: `master:hostname1,node:hostname2,...`;
-    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`
+    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`;
+    #   hostN might be a [String] hostname or [CucuShift::Host]
     # @param auth_type [String] LDAP, HTTPASSWD, KERBEROS
     # @param ssh_user [String] the username to use for ssh to env hosts
     # @param dns [String] the dns server to use; can be keyword or an IP
@@ -111,7 +115,7 @@ module CucuShift
                         ldap_url: conf[:services, :test_ldap, :url])
       hosts = spec_to_hosts(hosts_spec, ssh_key: ssh_key, ssh_user: ssh_user)
       hostnames_str, ips_str = hosts_to_specstr(hosts)
-      logger.info hosts.to_yaml
+      logger.info hostnames_str
 
       ose3_vars = []
       etcd_host_lines = []
@@ -397,17 +401,22 @@ module CucuShift
       )
       res = nil
 
+      ## ssh-key param for ansible
+      ssh_key_path = expand_private_path(ssh_key)
+      File.chmod(0600, ssh_key_path)
+
       ## run pre-ansible hook (need ansible pre-installed)
       #  that basically means:
       #  * setup all needed repos
       #  * install git, ansible, docker, etc.
       #  * setup docker for any necessary repo auth
       #  * pull some images
-      if pre_ansible && !pre_ansible.empy?
+      if pre_ansible && !pre_ansible.empty?
         prea_url = URI.parse pre_ansible
         prea_path = expand_private_path(prea_url.path, public_safe: true)
         prea_query = prea_url.query
         prea_params = prea_query ? CGI::parse(prea_query) : {}
+        Collections.map_hash!(prea_params) { |k, v| [k, v.last] }
         prea_binding = Common::BaseHelper.binding_from_hash(binding, prea_params)
         eval(File.read(prea_path), prea_binding, prea_path)
       end
@@ -426,9 +435,7 @@ module CucuShift
         else
           playbook_file = "openshift-ansible/playbooks/byo/config.yml"
         end
-        ssh_key_param = expand_private_path(ssh_key)
-        File.chmod(0600, ssh_key_param)
-        ansible_cmd = "ansible-playbook -i hosts -v --private-key #{Host.localhost.shell_escape(ssh_key_param)} -vvvv #{playbook_file}"
+        ansible_cmd = "ansible-playbook -i hosts --private-key #{Host.localhost.shell_escape(ssh_key_path)} -vvvv #{playbook_file}"
         logger.info("Running: #{ansible_cmd}")
         res = system(ansible_cmd)
       }

@@ -13,6 +13,7 @@ require 'uri'
 require 'collections'
 require 'common'
 require 'http'
+require 'launchers/amz'
 require 'launchers/env_launcher'
 require 'launchers/openstack'
 
@@ -64,11 +65,11 @@ module CucuShift
 
             ## set ansible launch options from environment
             launch_opts = {
-              hosts_spec: hosts_spec,
-              ssh_key: expand_private_path(ostack.opts[:key_file]),
-              # TODO: allow custom ssh username
-              ssh_user: 'root',
-              set_hostnames: !! config[:services, options.cloud_service, :fix_hostnames]
+              # hosts_spec will be ready only after actual instance launch
+              # TODO: allow custom ssh username and key (hosts_opts actually)
+              ssh_key: expand_private_path(conf[:services, options.cloud_service, :key_file] || conf[:services, options.cloud_service, :hosts_opts, :ssh_private_key]),
+              ssh_user: conf[:services, options.cloud_service, :hosts_opts, :user] || 'root',
+              set_hostnames: !! conf[:services, options.cloud_service, :fix_hostnames]
             }
             el.launcher_env_options(launch_opts)
 
@@ -121,12 +122,12 @@ module CucuShift
 
 
             ## launch Cloud instances
-            hosts = launch_instances(options, names: hostnames,
-                                              user_data: user_data_string)
+            hosts = launch_instances(options, user_data: user_data_string)
 
             ## run ansible setup
-            hosts_spec = { "master"=>hosts.values[0..options.master_num - 1],
-                           "node"=>hosts.values[options.master_num..-1] }
+            hosts_spec = { "master"=>hosts.map(&:last)[0..options.master_num - 1],
+                           "node"=>hosts.map(&:last)[options.master_num..-1] }
+            launch_opts[:hosts_spec] = hosts_spec
             el.ansible_install(**launch_opts)
           else
             raise "config keyword '#{options.config}' not implemented"
@@ -138,37 +139,38 @@ module CucuShift
     end
 
     # @return [Array<Host>] the launched and ssh acessible hosts
-    def launch_instances(options, names:,
+    def launch_instances(options,
                          user_data: nil)
-      hostnames = []
+      host_names = []
       if options.master_num > 1
         options.master_num.times { |i|
-          hostnames << options.launched_instances_name_prefix +
+          host_names << options.launched_instances_name_prefix +
             "_master_#{i+1}"
         }
       else
-        hostnames << options.launched_instances_name_prefix + "_master"
+        host_names << options.launched_instances_name_prefix + "_master"
       end
       options.node_num.times { |i|
-        hostnames << options.launched_instances_name_prefix +
+        host_names << options.launched_instances_name_prefix +
           "_node_#{i+1}"
       }
 
-      case config[:services, options.cloud_service, :cloud_type]
+      case conf[:services, options.cloud_service, :cloud_type]
       when "aws"
-        raise "TODO service choice" unless options.cloud_service == "AWS"
+        raise "TODO service choice" unless options.cloud_service == :AWS
         ec2_image = ENV['CLOUD_IMAGE_NAME'] || ""
         ec2_image = ec2_image.empty? ? :raw : ec2_image
-        amz = Amz_EC2.initialize
-        amz.launch_instances(tag_name: names, image: ec2_image)
+        amz = Amz_EC2.new
+        amz.launch_instances(tag_name: host_names, image: ec2_image,
+                             create_opts: {user_data: user_data})
       when "openstack"
         ostack = CucuShift::OpenStack.new(
           service_name: options.cloud_service
         )
-        return ostack.launch_instances(names: names,
-                                        user_data: user_data_string)
+        return ostack.launch_instances(names: host_names,
+                                        user_data: user_data)
       else
-        raise "unknown service type: #{config[:services, options.cloud_service, :cloud_type]}"
+        raise "unknown service type: #{conf[:services, options.cloud_service, :cloud_type]}"
       end
     end
 

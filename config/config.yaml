@@ -101,4 +101,6 @@ services:
       raw: "ami-01743f64"
     hosts_type: SSHAccessibleHost
     cloud_type: aws
-    #ssh_private_key: relative/path
+    # hosts_opts:
+      # ssh_private_key: relative/path
+      # user: the_username

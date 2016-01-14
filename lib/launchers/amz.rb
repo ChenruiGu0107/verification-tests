@@ -250,22 +250,24 @@ module CucuShift
     # returns ssh connection
     def block_until_accessible(instance, host_opts={})
       logger.info "Waiting for instance to become accessible..."
+      host_opts = config[:hosts_opts].merge host_opts
       if instance.public_dns_name == ''
         logger.info("Reloading instance...")
         instance.reload
       end
 
       hostname = instance.public_dns_name
-      host = CucuShift.const_get(host_type).new(hostname, host_opts)
+      host = CucuShift.const_get(config[:hosts_type]).new(hostname, host_opts)
       logger.info("hostname: #{hostname}")
       logger.info("Trying to connect host #{hostname}..")
       res = host.wait_to_become_accessible(600)
 
       unless res[:success]
         terminate_instance(instance)
+        logger.error res[:response]
         # raise error with a cause (ever heard of that ruby dude?)
         raise res[:error] rescue
-          raise ScriptError, "SSH availability timed out for #{hostname}"
+              raise ScriptError, "SSH availability timed out for #{hostname}"
       end
       logger.info "Instance (#{hostname}) is accessible"
       return host
@@ -286,7 +288,8 @@ module CucuShift
     # @param [String] image the AMI id or filter type (e.g. rhel7, stage, etc.)
     # @param [Array, String] tag_name the tag name(s) for EC2 instance(s);
     #   is Array, it overrides min/max count with the number of elements
-    # @param [Hash] other EC2 create_opts
+    # @param [Hash] create_opts for EC2, see
+    #   http://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Resource.html#create_instances-instance_method
     # @param [Integer] max_retries max retries to try (TODO)
     #
     # @return [Array] of [amz_instance, CucuShift::Host] pairs
@@ -313,6 +316,7 @@ module CucuShift
         end
       when /^ami-.+/
         instance_opt[:image_id] = image
+        # image = @ec2.images[image]
       else
         logger.info("Using image filter #{image}...")
         image = self.get_latest_ami(image)
@@ -331,9 +335,10 @@ module CucuShift
         instance_opt[:min_count] = instance_opt[:max_count] = tag_name.size
       end
 
-      logger.info("Launching EC2 instance from #{image.name} with tags #{tag_name}...")
+      logger.info("Launching EC2 instance from #{image.kind_of?(Aws::EC2::Image) ? image.name : image.inspect} with tags #{tag_name}...")
       instances = @ec2.create_instances(instance_opt)
 
+      res = []
       instances.each_with_index do | instance, i |
         tag = tag_name[i] || tag.last
         inst = instance.wait_until_running
@@ -348,7 +353,9 @@ module CucuShift
         })
         # make sure we can ssh into the instance
         host = block_until_accessible(instance)
+        res << [tag, host]
       end
+      return res
     end
   end
 end

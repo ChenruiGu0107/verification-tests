@@ -15,7 +15,11 @@ module CucuShift
     # @param hostname [String] that test machine can access the machine with
     # @param opts [Hash] any other options relevant to implementation
     def initialize(hostname, opts={})
-      @hostname = hostname.dup.freeze
+      if hostname.kind_of? String
+        @hostname = hostname.dup.freeze
+      else
+        raise "Hostname must be a string, not #{hostname.inspect}"
+      end
       @properties = opts.dup
       @workdir = opts[:workdir] ? opts[:workdir].dup.freeze : "/tmp/workdir/" + EXECUTOR_NAME
     end
@@ -50,7 +54,7 @@ module CucuShift
 
     # @param timeout [Integer, String] seconds
     def wait_to_become_accessible(timeout)
-      res
+      res = nil
       wait_for(Integer(timeout)) {
         res = accessible?
         res[:success]
@@ -272,6 +276,10 @@ module CucuShift
       #ret_code, msg = ssh.exec('while sleep 1; do [ -f broker_setup/DONE ] && break; [ -f broker_setup/FAIL ] && exit 1; done')
       #return ret_code == 0
     end
+
+    def to_s
+      return self[:user] + '@' + hostname
+    end
   end
 
   class LinuxLikeHost < Host
@@ -453,7 +461,12 @@ module CucuShift
     end
 
     def accessible?
-      true
+      return {
+        success: true,
+        instruction: "access localhost",
+        error: nil,
+        response: ""
+      }
     end
 
     def file_exist?(file, opts={})
@@ -522,12 +535,12 @@ module CucuShift
     def accessible?
       res = {
         success: false,
-        instruction: "ssh #{opts[:user]}@#{host}",
         error: nil,
         response: ""
       }
+      res[:instruction] = "ssh #{self.inspect}"
       res[:success] = !!ssh # getting ssh means connection is checked
-    rescue
+    rescue => e
       res[:error] = e
       res[:response] = exception_to_string(e)
     ensure
@@ -547,6 +560,24 @@ module CucuShift
       ssh_opts.merge! opts
 
       return ssh_opts
+    end
+
+    # @return [String] host line suitable for use in ansible inventory
+    def ansible_host_str(opts={})
+      sshopts = ssh_opts(opts)
+      str = hostname.dup
+      if sshopts[:user]
+        str << ' ansible_user=' << sshopts[:user]
+      end
+      if sshopts[:private_key]
+        str << ' ansible_ssh_private_key_file="' <<
+          expand_private_path(sshopts[:private_key]) << '"'
+      end
+      if sshopts[:password]
+        pswd = sshopts[:password].gsub('"','\\"')
+        str << ' ansible_ssh_pass="' << pswd << '"'
+      end
+      return str
     end
 
     private def ssh(opts={})

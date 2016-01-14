@@ -189,7 +189,7 @@ module CucuShift
       end
 
       # @return [Binding] a binding with local variables set from a hash
-      def self.binding_from_hash(b = nil, **vars)
+      def self.binding_from_hash(b = nil, vars)
         b ||= self.clean_binding
         vars.each do |k, v|
           b.local_variable_set k.to_sym, v
