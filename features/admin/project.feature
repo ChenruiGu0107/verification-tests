@@ -166,6 +166,7 @@ Feature: project permissions
       | the step should succeed                         |
     When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/node-selector.json" URL replacing paths:
       | ["metadata"]["name"] | <%= @clipboard[:proj_name] %>|
+      | ["metadata"]["labels"]["name"] | <%= @clipboard[:proj_name] %>|
     Then the step should succeed
     When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/selector-east.json
 
