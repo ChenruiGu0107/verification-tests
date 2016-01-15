@@ -408,8 +408,8 @@ module CucuShift
         prea_path = expand_private_path(prea_url.path, public_safe: true)
         prea_query = prea_url.query
         prea_params = prea_query ? CGI::parse(prea_query) : {}
-        prea_binding = BaseHelper.binding_from_hash(binding, prea_params)
-        eval(File.read(prea_path), prea_binding, "prea_path")
+        prea_binding = Common::BaseHelper.binding_from_hash(binding, prea_params)
+        eval(File.read(prea_path), prea_binding, prea_path)
       end
 
       ## finally run ansible

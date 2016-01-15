@@ -113,47 +113,52 @@ module CucuShift
       raise "#{__method__} method not implemented"
     end
 
-    def exec(commands, opts={})
-      exec_as(nil, commands, opts)
+    # @param commands [Array<String>] the commands to be executed
+    # @param opts [Hash] host executor options, e.g. :chdir, :single,
+    #   :background, etc.
+    def exec(*commands, **opts)
+      exec_as(nil, *commands, **opts)
     end
 
-    def exec_admin(commands, opts={})
-      exec_as(:admin, commands, opts)
+    # @see #exec with the only difference we run as host admin user
+    def exec_admin(*commands, **opts)
+      exec_as(:admin, *commands, **opts)
     end
 
-    def exec_as(user, commands, opts={})
+    # @see #exec with the only difference we run as anothr user
+    def exec_as(user, *commands, **opts)
       raise "#{__method__} method not implemented"
     end
 
-    # @note exec without any preparations like chdir
+    # @exec exec without any preparations like chdir
     def exec_raw(*commands, **opts)
       raise "#{__method__} method not implemented"
     end
 
     # @note execute process in the background and inserts clean-up hooks
-    def exec_background_as(user, commands, opts={})
+    def exec_background_as(user, *commands, **opts)
       raise "#{__method__} method not implemented"
     end
 
-    def exec_background(commands, opts={})
-      exec_background_as(nil, commands, opts)
+    def exec_background(*commands, **opts)
+      exec_background_as(nil, *commands, **opts)
     end
 
-    def exec_background_admin(commands, opts={})
-      exec_background_as(:admin, commands, opts)
+    def exec_background_admin(*commands, **opts)
+      exec_background_as(:admin, *commands, **opts)
     end
 
     # @param spec - interaction specification
     # @param opts [Hash] additional options
-    def exec_interactive(spec, opts={})
-      exec_interactive_as(nil, spec, opts={})
+    def exec_interactive(spec, **opts)
+      exec_interactive_as(nil, spec, **opts)
     end
 
-    def exec_interactive_admin(spec, opts={})
-      exec_interactive_as(:admin, spec, opts={})
+    def exec_interactive_admin(spec, **opts)
+      exec_interactive_as(:admin, spec, **opts)
     end
 
-    def exec_interactive_as(user, spec, opts={})
+    def exec_interactive_as(user, spec, **opts)
       raise "#{__method__} method not implemented"
     end
 
@@ -485,14 +490,14 @@ module CucuShift
       case user
       when nil, self[:user]
         # perform blind exec in workdir
-        return exec_raw(commands, chdir: workdir, **opts)
+        return exec_raw(*commands, chdir: workdir, **opts)
       else
         super
       end
     end
 
     # @note execute process in the background and inserts clean-up hooks
-    def exec_background_as(user, commands, opts)
+    def exec_background_as(user, *commands, **opts)
       exec_as(user, *commands, background: true, **opts)
     end
 
