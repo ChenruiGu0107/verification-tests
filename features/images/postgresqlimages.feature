@@ -50,14 +50,18 @@ Feature: Postgresql images test
     Then the output should contain:
       | POSTGRESQL_SHARED_BUFFERS=64MB |
       | POSTGRESQL_MAX_CONNECTIONS=42  |
+    And I wait for the steps to pass:
+    """
     When I execute on the pod:
       | bash |
       | -c |
       |psql -c 'show shared_buffers;'|
-      Then the step should succeed
+     Then the step should succeed
+    """
     Then the output should contain:
       | shared_buffers |
       | 64MB           |
+
     And I execute on the pod:
       | bash | 
       | -c | 
