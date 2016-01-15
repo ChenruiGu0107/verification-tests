@@ -377,3 +377,63 @@ Feature: resouces related scenarios
       | requests: |
       | cpu: 100m |
       | memory: 128Mi |
+
+  # @author xxia@redhat.com
+  # @case_id 512121
+  Scenario: Get/watch resources with oc get
+    Given I have a project
+    And I create a new application with:
+      | file     | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    And I wait until the status of deployment "database" becomes :running
+    When I run the :get client command with:
+      | resource        | dc         |
+      | no_headers      | true       |
+    Then the step should succeed
+    And the output should match:
+      | database\\s+ConfigChange     |
+    And the output should not contain "NAME"
+
+    Given a pod becomes ready with labels:
+      | deployment=database-1        |
+    When I run the :get client command with:
+      | resource        | pod                        |
+      | L               | app,deployment,no-this,APP |
+    Then the step should succeed
+    And the output should match "<%= "database-1-.+ruby-sample-build\\s+database-1\\s+<none>\\s+<none>" %>"
+
+    When I run the :patch client command with:
+      | resource      | bc                      |
+      | resource_name | ruby-sample-build       |
+      | p             | {"spec":{"source":{"git":{"uri":"invalid"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig   | ruby-sample-build       |
+    Then the step should succeed
+
+    Given the "ruby-sample-build-1" build completed
+    And   the "ruby-sample-build-2" build failed
+    When I run the :get client command with:
+      | resource        | pod     |
+      | a               | false   |
+    Then the step should succeed
+    And the output should not match "<%= "ruby-sample-build-[12]-build" %>"
+    When I run the :get client command with:
+      | resource        | pod     |
+      | a               | true    |
+    Then the step should succeed
+    And the output should match "<%= "ruby-sample-build-[12]-build" %>"
+
+    When I run the :get background client command with:
+      | resource      | dc                 |
+      | resource_name | database           |
+      | w             | true               |
+    Then the step should succeed
+
+    When I run the :label client command with:
+      | resource      | dc                 |
+      | name          | database           |
+      | key_val       | newlab=helloworld  |
+    Then the step should succeed
+    When I terminate last background process
+    Then the output should match 2 times:
+      | database\\s+ConfigChange     |

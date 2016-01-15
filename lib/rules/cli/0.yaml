@@ -206,11 +206,13 @@
 :get:
   :cmd: oc get <resource>
   :options:
+    :a: --show-all=<value>
     :resource_name: <value>
     :output: --output=<value>
     :no_headers: --no-headers=<value>
     :o: -o <value>
     :l: -l <value>
+    :L: -L <value>
     :w: --watch=<value>
     :template: --template=<value>
     :all_namespace: --all-namespaces=<value>
