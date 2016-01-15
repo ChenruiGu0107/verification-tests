@@ -382,3 +382,19 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     And the output should contain:
       | name=deadbeef010203 |
+
+  # @author xiacwan@redhat.com
+  # @case_id 510225
+  Scenario: [platformmanagement_public_523]Use the old version v1beta3 file to create resource 
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-with-v1beta3.json |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    When I run the :get client command with:
+      | resource | pod |
+      | resource_name | hello-pod |
+      |  o  | yaml |
+    Then the output should contain:
+      |  apiVersion: v1  |
