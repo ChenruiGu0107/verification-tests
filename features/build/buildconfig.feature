@@ -80,7 +80,7 @@ Feature: buildconfig.feature
   # @case_id 482207
   Scenario: Do incremental builds for sti-build in openshift
     Given I have a project
-    And I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/case482207/build/application-template-stibuild_incremental_true.json"
+    And I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/application-template-stibuild_incremental_true.json"
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
