@@ -171,5 +171,6 @@ Feature: project permissions
     When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/selector-east.json
 
     Then the step should fail
+    # TODO: will need to update the expected output if this bug https://bugzilla.redhat.com/show_bug.cgi?id=1298729 is fixed
     Then the output should contain:
       | pods "east" already exists |

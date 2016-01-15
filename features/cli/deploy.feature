@@ -66,7 +66,7 @@ Feature: deployment related features
       | docker_image   | openshift/deployment-example |
     Then the step should succeed
     # Wait till the deploy complete
-    And the pod named "deployment-example-1-deploy" becomes ready    
+    And the pod named "deployment-example-1-deploy" becomes ready
     Given I wait for the pod named "deployment-example-1-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | deployment-example |
@@ -1010,7 +1010,7 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc510606/hooks-null-volume.json |
     Then the step should fail
     And the output should contain "must not be empty"
-  
+
 
   # @author yinzhou@redhat.com
   # @case_id 510607
@@ -1049,5 +1049,50 @@ Feature: deployment related features
     Then the output should contain:
       | v2 |
 
+    # @author pruan@redhat.com
+    # @case_id 515920
+    Scenario: start deployment when the latest deployment is completed
+      Given I have a project
+      And I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      Then the step should succeed
+      And I wait until the status of deployment "hooks" becomes :complete
+      And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
+        | replicas: 1 | replicas: 3 |
+      Then the step should succeed
+      And I wait until the status of deployment "hooks" becomes :complete
+      And I run the :get client command with:
+        | resource | rc |
+        | o | json |
+      And the output is parsed as JSON
+      Then the expression should be true> @result[:parsed]['items'][0]['status']['replicas'] == 3
 
-
+    # @author pruan@redhat.com
+    # @case_id 515921
+    Scenario: Manual scale dc will update the deploymentconfig's replicas
+      Given I have a project
+      And I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      Then the step should succeed
+      When I run the :scale client command with:
+        | resource | dc    |
+        | name     | hooks |
+        | replicas | 10    |
+      Then the step should succeed
+      When I run the :get client command with:
+        | resource      | dc    |
+        | resource_name | hooks |
+        | o             | json  |
+      And the output is parsed as JSON
+      Then the expression should be true> @result[:parsed]['spec']['replicas'] == 10
+      When I run the :deploy client command with:
+        | deployment_config | hooks |
+        | latest            ||
+      And I wait until number of replicas match "10" for replicationController "hooks-1"
+#      And 10 pods become ready with labels:
+#        |name=mysql|
+      Then I run the :scale client command with:
+        | resource | dc    |
+        | name     | hooks |
+        | replicas | 5     |
+      And I wait until number of replicas match "5" for replicationController "hooks-1"
