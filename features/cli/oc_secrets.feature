@@ -58,7 +58,7 @@ Feature: oc_secrets.feature
     Given I have a project
     # 1.1 Create a secret with a non-existing namespace 
     When I run the :create client command with:
-      | filename  | https://raw.githubusercontent.com/qwang1/v3-testfiles/qwangtest/secrets/tc483167/mysecret.json |
+      | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483168/second-secret.json |
       | namespace | non483167 |
     Then the step should fail
     And the output should contain "cannot create secrets in project"
