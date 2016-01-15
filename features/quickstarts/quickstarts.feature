@@ -104,6 +104,7 @@ Feature: quickstarts.feature
       | buildconfig | python-sample-build |
     Then the step should succeed
     And the "python-sample-build-1" build was created
+    And the "python-sample-build-1" build completed
     When I run the :get client command with:
       | resource | builds |
     Then the step should succeed
@@ -114,12 +115,17 @@ Feature: quickstarts.feature
     And the output should contain:
       | database |
       | frontend |
-    When I use the "route-edge" service
-    Then I wait for a server to become available via the "route-edge" route
+    Given I wait for the "frontend" service to become ready
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -s | <%= service.url %> |
+    Then the step should succeed
+    """
     Then the output should contain "OpenShift"
     Examples:
       | json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499621/python-27-rhel7.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/python-27-rhel7-stibuild.json |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499622/python-27-centos7-stibuild.json |
 
   # @author wzheng@redhat.com
