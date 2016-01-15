@@ -86,3 +86,29 @@ Feature: oc import-image related feature
     And the output should match:
       | The import completed successfully           |
       | latest.+aosqe/hello-openshift@sha256:       |
+
+  # @author wsun@redhat.com
+  # @case_id 510524
+  Scenario: Import image when pointing to non-existing docker image
+    Given I have a project
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/wsun1/v3-testfiles/master/image-streams/tc510524.json |
+    Then the step should succeed
+    When I run the :import_image client command with:
+      | image_name | tc510524 |
+    Then the step should fail
+    And the output should match:
+      | the repository "aosqe/non-existen-image" was not found, tag "latest" has not been set on repository "aosqe/non-existen-image" | 
+
+  # @author wsun@redhat.com
+  # @case_id 510529
+  Scenario: Import Image without tags and spec.DockerImageRepository set
+    Given I have a project
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/wsun1/v3-testfiles/master/image-streams/tc510529.json |
+    Then the step should succeed
+    When I run the :import_image client command with:
+      | image_name | tc510529 |
+    Then the step should fail
+    And the output should match:
+      | error: image stream has not defined anything to import |
