@@ -26,14 +26,11 @@ Feature: Postgresql images test
       | shared_buffers |
       | 64MB           |
     #And the output should contain "64MB"
-    And I wait for the steps to pass:
-    """
     And I execute on the pod:
       | bash |
       | -c |
       |psql -c 'show max_connections;'|
     Then the step should succeed
-    """
     Then the outputs should contain:
       | max_connections |
       | 42              |
@@ -64,14 +61,12 @@ Feature: Postgresql images test
     Then the output should contain:
       | shared_buffers |
       | 64MB           |
-    And I wait for the steps to pass:
-    """
+
     And I execute on the pod:
       | bash | 
       | -c | 
       |psql -c 'show max_connections;'|
      Then the step should succeed
-    """
     Then the output should contain:
       | max_connections |
       | 42              |
