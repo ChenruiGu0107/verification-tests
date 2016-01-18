@@ -30,7 +30,7 @@ Feature: Configuration of environment variables check
       | DISABLE_ASSET_COMPILATION=true |
     Examples:
       | os | image |
-      | rhel7   | <%= product_docker_repo %>/openshift3/ruby-20-rhel7:latest |
+      | rhel7   | <%= product_docker_repo %>openshift3/ruby-20-rhel7:latest |
       | centos7 | docker.io/openshift/ruby-20-centos7 |
 
   # @author xiuwang@redhat.com
