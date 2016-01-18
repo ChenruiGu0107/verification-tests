@@ -97,7 +97,7 @@ module CucuShift
                         deployment_type:,
                         crt_path: nil,
                         image_pre:,
-                        puddle_repo:,
+                        puddle_repo: nil,
                         etcd_num:,
                         registry_ha:,
                         pre_ansible: nil, post_ansible: nil,
@@ -177,7 +177,6 @@ module CucuShift
       conf_script.gsub!(/#(CONF_KERBEROS_BASE_DOCKER_IMAGE)=.*$/,
                         "\\1=#{kerberos_docker_base_image}")
       conf_script.gsub!(/#(CONF_KERBEROS_KDC)=.*$/, "\\1=#{kerberos_kdc}")
-      conf_script.gsub!(/#(CONF_PUDDLE_REPO)=.*$/, "\\1='#{puddle_repo}'")
       router_dns_type = nil
       dns_subst = proc do
         conf_script.gsub!(/#CONF_HOST_DOMAIN=.*$/,
@@ -205,6 +204,11 @@ module CucuShift
 
       if set_hostnames
         ose3_vars << "openshift_set_hostname=true"
+      end
+
+      if puddle_repo
+        conf_script.gsub!(/#(CONF_PUDDLE_REPO)=.*$/, "\\1='#{puddle_repo}'")
+        ose3_vars << "openshift_additional_repos=[{'id': 'ose-devel', 'name': 'ose-devel', 'baseurl': '#{puddle_repo}', 'enabled': 1, 'gpgcheck': 0}]"
       end
 
       ## Setup HA Master opt
