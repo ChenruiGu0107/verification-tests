@@ -29,7 +29,7 @@ Feature: Downward API
   Scenario: downward api pod name and pod namespace as env variables
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/tc482265/downward-example.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/tc483203/downward-example.yaml |
     Then the step should succeed
     Given the pod named "dapi-test-pod" becomes ready
     When I run the :logs client command with:
