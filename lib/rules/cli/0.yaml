@@ -350,7 +350,7 @@
     :template: <value>
     :v: --value=<value>
     :l: -l <value>
-    :para: --parameters=<value>
+    :parameters: --parameters=<value>
 :project:
   :cmd: oc project
   :options:

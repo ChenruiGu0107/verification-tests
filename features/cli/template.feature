@@ -125,13 +125,13 @@ Feature: template related scnearios:
       | label1=value1,label2=value2,label3=value3,label4=value4 |
 
 
-    # @author xiuwang@redhat.com
-    # @case_id 474042
+  # @author xiuwang@redhat.com
+  # @case_id 474042
   Scenario: Override/set/get values for multiple parameters
     Given I have a project
     When I run the :process client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
-      |para|true|
+      |parameters|true|
     And the step succeeded
     And the output should match:
       |ADMIN_USERNAME\\s+administrator username\\s+expression\\s+<%= Regexp.escape("admin[A-Z0-9]{3}") %>|
