@@ -1096,3 +1096,17 @@ Feature: deployment related features
         | name     | hooks |
         | replicas | 5     |
       And I wait until number of replicas match "5" for replicationController "hooks-1"
+
+    # @author pruan@redhat.com
+    # @case_id 510686
+    Scenario: Inline deployer hook logs
+      Given I have a project
+      And I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      Given I collect the deployment log for pod "hooks-1-deploy" until it disappears
+      Then the output should contain:
+        | Created lifecycle pod <%= project.name %>/hooks-1-prehook for deployment <%= project.name %>/hooks-1 |
+        | Finished reading logs for hook pod <%= project.name %>/hooks-1-prehook |
+        | Created lifecycle pod <%= project.name %>/hooks-1-posthook for deployment <%= project.name %>/hooks-1 |
+        | Finished reading logs for hook pod <%= project.name %>/hooks-1-posthook |
+
