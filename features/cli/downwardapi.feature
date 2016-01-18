@@ -20,9 +20,21 @@ Feature: Downward API
       | Status:\\s+Running |
       | Ready\\s+True      |
     When I run the :exec client command with:
-      | pod          | downwardapi-env | 
+      | pod          | downwardapi-env |
       | exec_command | env             |
     Then the output should contain "MYSQL_POD_IP=1"
-    
 
-    
+  # @author cryan@redhat.com
+  # @case_id 483203
+  Scenario: downward api pod name and pod namespace as env variables
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/tc482265/downward-example.yaml |
+    Then the step should succeed
+    Given the pod named "dapi-test-pod" becomes ready
+    When I run the :logs client command with:
+      | resource_name | dapi-test-pod |
+    Then the step should succeed
+    And the output should contain:
+      | POD_NAME=dapi-test-pod |
+      | POD_NAMESPACE |
