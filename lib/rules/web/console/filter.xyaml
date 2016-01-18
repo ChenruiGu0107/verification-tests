@@ -1,4 +1,4 @@
-#--------filter resources ----------
+#--------filter function ----------
 filter_resources:
   elements:
   - selector:

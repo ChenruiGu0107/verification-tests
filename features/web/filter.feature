@@ -220,9 +220,9 @@ Feature: filter on create page
     Given the "nodejs-sample-1" build was created
    
     #Filter on Browse->Builds page 
-    When I access the "/console/project/<%= project.name%>/browse/builds" path in the web console
+    When I perform the :goto_builds_page web console action with:
+      | project_name | <%= project.name%> |
     Then the step should succeed
-
     When I perform the :filter_resources web console action with:
       | label_key     | label1 |
       | label_value   | test1  |
@@ -236,7 +236,8 @@ Feature: filter on create page
       | nodejs-sample |
 
     #Filter on Browse->Deployments page 
-    When I access the "/console/project/<%= project.name%>/browse/deployments" path in the web console
+    When I perform the :goto_deployments_page web console action with:
+      | project_name | <%= project.name%> |
     Then the step should succeed
 
     When I perform the :filter_resources web console action with:
@@ -252,7 +253,8 @@ Feature: filter on create page
       | nodejs-sample |
 
     #Filter on Browse->Image Streams page 
-    When I access the "/console/project/<%= project.name%>/browse/images" path in the web console
+    When I perform the :goto_image_streams_page web console action with:
+      | project_name | <%= project.name%> |
     Then the step should succeed
 
     When I perform the :filter_resources web console action with:
@@ -268,7 +270,8 @@ Feature: filter on create page
       | nodejs-sample |
 
     #Filter on Browse->Pods page 
-    When I access the "/console/project/<%= project.name%>/browse/pods" path in the web console
+    When I perform the :goto_pods_page web console action with:
+      | project_name | <%= project.name%> |
     Then the step should succeed
 
     When I perform the :filter_resources web console action with:
@@ -284,7 +287,8 @@ Feature: filter on create page
       | nodejs-example-1-build |
 
     #Filter on Browse->Routes page 
-    When I access the "/console/project/<%= project.name%>/browse/routes" path in the web console
+    When I perform the :goto_routes_page web console action with:
+      | project_name | <%= project.name%> |
     Then the step should succeed
 
     When I perform the :filter_resources web console action with:
@@ -300,7 +304,8 @@ Feature: filter on create page
       | nodejs-sample |
 
     #Filter on Browse->Services page 
-    When I access the "/console/project/<%= project.name%>/browse/services" path in the web console
+    When I perform the :goto_services_page web console action with:
+      | project_name | <%= project.name%> |
     Then the step should succeed
 
     When I perform the :filter_resources web console action with:
