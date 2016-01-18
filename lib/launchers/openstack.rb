@@ -17,7 +17,8 @@ module CucuShift
   class OpenStack
     include Common::Helper
 
-    attr_reader :os_user, :os_passwd, :os_tenant_id, :os_url, :opts
+    attr_reader :os_tenant_id, :os_tenant_name
+    attr_reader :os_user, :os_passwd, :os_url, :opts
     attr_accessor :os_token, :os_ApiUrl, :os_image, :os_flavor
 
     def initialize(**options)
@@ -41,6 +42,11 @@ module CucuShift
         @os_passwd = STDIN.noecho(&:gets).chomp
       end
       @os_tenant_id = ENV['OPENSTACK_TENANT_ID'] || opts[:tenant_id]
+      @os_tenant_name = ENV['OPENSTACK_TENANT_NAME'] || opts[:tenant_name]
+      if @os_tenant_id && @os_tenant_name
+        raise "please provide only one of tenant name and tenant id, now we have both: #{@os_tenant_id} #{@os_tenant_name}"
+      end
+
       @os_url = ENV['OPENSTACK_URL'] || opts[:url]
 
       opts[:image] = ENV.fetch('OPENSTACK_IMAGE_NAME') { opts[:image] }
@@ -83,11 +89,18 @@ module CucuShift
     def get_token()
       # TODO: get token via token
       #   http://docs.openstack.org/developer/keystone/api_curl_examples.html
-      params = {:auth => {"tenantId" => self.os_tenant_id, :passwordCredentials => { "username" => self.os_user, "password" => self.os_passwd }}}
+      auth_opts = {:passwordCredentials => { "username" => self.os_user, "password" => self.os_passwd }}
+      if @os_tenant_id
+        auth_opts[:tenantId] = self.os_tenant_id
+      else
+        auth_opts[:tenantName] = self.os_tenant_name
+      end
+      params = {:auth => auth_opts}
       res = self.rest_run(self.os_url, "POST", params)
       begin
         result = JSON.load(res)
         @os_token = result['access']['token']['id']
+        logger.info "logged in to tenant: #{result['access']['token']["tenant"].to_json}" if result['access']['token']["tenant"]
         for server in result['access']['serviceCatalog']
           if server['name'] == "nova" and server['type'] == "compute"
             @os_ApiUrl = server['endpoints'][0]['publicURL']
@@ -101,6 +114,10 @@ module CucuShift
       rescue => e
         logger.error("OpenStack Error: #{e.inspect}")
         raise e
+      end
+      unless @os_ApiUrl
+        logger.error res
+        raise "API did not return API URL, did you use proper tenant?"
       end
       return @os_token
     end
@@ -151,9 +168,16 @@ module CucuShift
         return JSON.load(res)
       rescue => e
         logger.error("Can not create #{instance_name} instance:  #{e.message}")
-        logger.error(result.to_a.flatten(1).join("\n")) rescue nil
+        logger.error(res.to_a.flatten(1).join("\n")) rescue nil
         raise e
       end
+    end
+
+    # doesn't really work if you didn't use tenant when authenticating
+    def list_tenants
+      url = self.os_ApiUrl + '/' + 'tenants'
+      res = self.rest_run(url, "GET", {}, self.os_token)
+      return JSON.load(res)
     end
 
     def create_instance(instance_name, image_name = nil,
