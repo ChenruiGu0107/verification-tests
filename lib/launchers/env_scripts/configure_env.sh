@@ -539,6 +539,14 @@ EOF
 	rpm -q atomic-openshift-utils && yum update openshift-ansible* -y || yum install atomic-openshift-utils -y
 }
 
+function garbage_clean_up()
+{
+        cat << EOF > /etc/cron.hourly
+oadm prune builds --keep-complete=5 --keep-failed=1 --keep-younger-than=1h0m0s --orphans=true --confirm=true
+oadm prune deployments --keep-complete=5 --keep-failed=1 --keep-younger-than=1h0m0s --orphans=true --confirm=true
+EOF
+}
+
 case $1 in
 	wait_cloud_init)
 		wait_cloud_init
@@ -587,6 +595,9 @@ case $1 in
 	update_playbook_rpms)
 		update_playbook_rpms
 		;;
+        garbage_clean_up)
+                garbage_clean_up
+                ;;
 	*)
 		echo "Invalid Action: $1"
 esac
