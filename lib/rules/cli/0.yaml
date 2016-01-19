@@ -500,6 +500,8 @@
   :cmd: oadm policy remove-scc-from-group <scc> <group_name>
 :oadm_prune_builds:
   :cmd: oadm prune builds
+  :options:
+    :keep_younger_than: --keep-younger-than=<value>
 :oadm_prune_deployments:
   :cmd: oadm prune deployments
   :options:

@@ -48,4 +48,4 @@ request_token_with_password:
   elements:
     - selector:
         text: Your API token is
-
+      timeout: 30
