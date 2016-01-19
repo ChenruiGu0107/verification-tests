@@ -1103,7 +1103,9 @@ Feature: deployment related features
       Given I have a project
       And I run the :create client command with:
         | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
-      Given I collect the deployment log for pod "hooks-1-deploy" until it disappears
+      And I run the :logs client command with:
+        | f | true |
+        | resource_name | dc/hooks |
       Then the output should contain:
         | Created lifecycle pod <%= project.name %>/hooks-1-prehook for deployment <%= project.name %>/hooks-1 |
         | Finished reading logs for hook pod <%= project.name %>/hooks-1-prehook |
