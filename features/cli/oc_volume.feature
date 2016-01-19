@@ -119,8 +119,10 @@ Feature: oc_volume.feature
     And I run the :run client command with:
       | name      | mydc              |
       | image     | <%= project_docker_repo %>openshift/hello-openshift |
+      | -l        | label=mydc        |
     Then the step should succeed
-    Given I wait until the status of deployment "mydc" becomes :running
+    Given a pod becomes ready with labels:
+      | label=mydc   |
     When I run the :volume client command with:
       | resource      | dc                     |
       | resource_name | mydc                   |
