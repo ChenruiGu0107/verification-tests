@@ -2,7 +2,7 @@
 check_log_tab:
   elements:
   - selector:
-      xpath: //tab-heading[text()='Logs']
+      xpath: //uib-tab-heading[text()='Logs']
     op: click
   - selector:
       xpath: //span[contains(text(),'<pod_status>')]

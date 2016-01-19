@@ -60,7 +60,7 @@ access_route_hostname_from_table:
       xpath: //td[@data-title='Hostname']//a[contains(text(),'<service_url>')]
     op: click
 access_route_hostname_from_detail_page:
-  action: goto_routes_page
+  action: goto_one_route_page
   elements:
   - selector:
       xpath: //span//a[contains(text(),'<service_url>')]
