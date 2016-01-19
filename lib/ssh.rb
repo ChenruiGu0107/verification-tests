@@ -31,7 +31,7 @@ module CucuShift
       raise "ssh host is mandatory" unless host && !host.empty?
 
       @user = opts[:user] # can be nil for default username
-      conn_opts = {}
+      conn_opts = {keepalive: true}
       if opts[:private_key]
         logger.debug("SSH Authenticating with publickey method")
         private_key = expand_private_path(opts[:private_key])
@@ -53,7 +53,7 @@ module CucuShift
         e.remember_host!
         retry
       end
-      @last_accessed = Time.now
+      @last_accessed = monotonic_seconds
     end
 
     def close
@@ -69,17 +69,18 @@ module CucuShift
     end
 
     # make sure connection was recently enough actually usable;
-    #   otherwise perform a simple connection test
+    #   otherwise perform a simple connection test;
+    #   this is useful with keepalive: true when the host reboots
     private def active_verified?
       case
       when @last_accessed.nil?
         raise "ssh session initialization issue, we should never be here"
-      when Time.now - @last_accessed < 120 # 2 minutes
+      when monotonic_seconds - @last_accessed < 120 # 2 minutes
         return true
       else
         res = exec("echo", timeout: 30)
         if res[:success]
-          @last_accessed = Time.now
+          @last_accessed = monotonic_seconds
           return true
         else
           return false
@@ -94,7 +95,7 @@ module CucuShift
       # session to show up as closed. If that assumption proves wrong, we may
       # need to find another way to update @last_accessed, perhaps only inside
       # methods that really prove session is actually alive.
-      @last_accessed = Time.now
+      @last_accessed = monotonic_seconds
       return @session
     end
 
@@ -202,11 +203,12 @@ module CucuShift
       # launch a processing thread unless such is already running
       loop_thread!
       # wait channel to finish; nil or 0 means no timeout (wait forever)
-      wait_since = Time.now
+      wait_since = monotonic_seconds
       while opts[:timeout].nil? ||
             opts[:timeout] == 0 ||
-            Time.now - wait_since < opts[:timeout]
+            monotonic_seconds - wait_since < opts[:timeout]
         break unless channel.active?
+        # break unless active_verified? # useless with keepalive
         sleep 1
       end
       if channel.active?
