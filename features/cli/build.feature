@@ -353,3 +353,22 @@ Feature: build 'apps' with CLI
       | env_name | ruby-sample-build-1-build |
       | list | true |
     Then the output should contain "http_proxy=http://squid.example.com:3128"
+
+  # @author cryan@redhat.com
+  # @case_id 498212
+  Scenario: Order builds according to creation timestamps
+    Given I have a project
+    And I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    And I run the :start_build client command with:
+      | buildconfig |  ruby-sample-build |
+    And I run the :start_build client command with:
+      | buildconfig |  ruby-sample-build |
+    And I run the :start_build client command with:
+      | buildconfig |  ruby-sample-build |
+    And I run the :get client command with:
+      | resource | builds |
+    Then the output by order should match:
+      | ruby-sample-build-1 |
+      | ruby-sample-build-2 |
+      | ruby-sample-build-3 |
