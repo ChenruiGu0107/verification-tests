@@ -404,8 +404,8 @@ EOF
 EOF
 	oc create -f pv.json
 	oc create -f pvc.json
-	oc scale --replicas=2 rc/docker-registry-1
 	oc volume dc/docker-registry --add --overwrite -t persistentVolumeClaim --claim-name=registry-claim --name=registry-storage
+	oc scale --replicas=2 dc/docker-registry
 	
 }
 
