@@ -59,7 +59,8 @@ require 'watir-webdriver'
       client = Selenium::WebDriver::Remote::Http::Default.new
       client.timeout = 180
 
-      unless ENV.has_key? "DEBUG_WEB"
+      if ENV["DEBUG_WEB"].nil? ||
+           ["off", "0", "false"].include?(ENV["DEBUG_WEB"].downcase)
         @headless = Headless.new
         @headless.start
       end

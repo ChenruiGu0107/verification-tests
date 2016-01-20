@@ -47,8 +47,8 @@ module CucuShift
                                         username: user.name,
                                         password: user.password)
         unless res[:success]
-          logger.error res[:response]
-          raise "login via web console failed: #{res[:instruction]}"
+          logger.error "login to web console failed:\n" + res[:response]
+          return res
         end
       end
 
