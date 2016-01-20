@@ -20,9 +20,6 @@ login:
         text: Log In
       op: click
       type: button
-  elements:
-    - selector:
-        text: Welcome to OpenShift.
   scripts:
     - command: return window.localStorage['LocalStorageUserStore.token']
       expect_result: true
