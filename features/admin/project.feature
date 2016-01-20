@@ -168,7 +168,9 @@ Feature: project permissions
       | ["metadata"]["name"] | <%= @clipboard[:proj_name] %>|
       | ["metadata"]["labels"]["name"] | <%= @clipboard[:proj_name] %>|
     Then the step should succeed
-    When I run oc create as admin over ERB URL against namespace "<%= @clipboard[:proj_name] %>": https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/selector-east.json
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/selector-east.json |
+      | n | <%= @clipboard[:proj_name] %> |
     Then the step should fail
     Then the output should contain:
       | pods "east" is forbidden: pod node label selector conflicts with its project node label selector |

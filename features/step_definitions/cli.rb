@@ -76,7 +76,7 @@ end
 # 1. download file from URL
 # 2. load it as an ERB file with the cucumber scenario variables binding
 # 3. runs `oc create` command over the resulting file
-When /^I run oc create( as admin)? over ERB URL( against namespace "(.+)")?: #{HTTP_URL}$/ do |admin, has_namespace, namespace, url|
+When /^I run oc create( as admin)? over ERB URL: #{HTTP_URL}$/ do |admin, url|
   step %Q|I download a file from "#{url}"|
 
   # overwrite with ERB loaded content
@@ -84,11 +84,7 @@ When /^I run oc create( as admin)? over ERB URL( against namespace "(.+)")?: #{H
   File.write(@result[:abs_path], loaded)
   if admin
     ensure_admin_tagged
-    if has_namespace
-      @result = self.admin.cli_exec(:create, {f: @result[:abs_path], n: namespace})
-    else
-      @result = self.admin.cli_exec(:create, {f: @result[:abs_path]})
-    end
+    @result = self.admin.cli_exec(:create, {f: @result[:abs_path]})
   else
     @result = user.cli_exec(:create, {f: @result[:abs_path]})
   end
