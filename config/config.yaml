@@ -12,7 +12,7 @@ global:
   # base docker registry prefixes for quickstarts;
   #   (one is for the upstream community supported *projects* and the other one
   #   is for the Red Hat enterprise supported *products*);
-  #   product one can be overriden by PRODUCT_DOCKER_REPO_PREFIX
+  #   product one can be overriden by PRODUCT_DOCKER_REPO
   #   here "openshift" means "docker.io/openshift" as docker.io is the default
   #   repo; see examples in features/quickstarts/quickstarts.feature
   project_docker_repo: ""
