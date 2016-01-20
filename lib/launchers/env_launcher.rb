@@ -267,7 +267,7 @@ module CucuShift
           check_res \
             dns_host.exec_admin('cat > configure_env.sh', stdin: conf_script)
           check_res \
-            dns_host.exec_admin('sh -x configure_env.sh configure_shared_dns')
+            dns_host.exec_admin('sh configure_env.sh configure_shared_dns')
         ensure
           dns_host.clean_up
         end
