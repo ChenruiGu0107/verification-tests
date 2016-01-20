@@ -118,7 +118,11 @@ module CucuShift
           ],
         })
       # take the last devenv ami
-      devenv_amis.to_a.sort_by {|ami| ami.name.split("_")[-1].to_i}.last
+      img = devenv_amis.to_a.sort_by {|ami| ami.name.split("_")[-1].to_i}.last
+      unless img
+        raise "could not find specified image: #{filter_val}"
+      end
+      return img
     end
 
     # TODO: convert to v2 AWS API
