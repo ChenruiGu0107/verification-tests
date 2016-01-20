@@ -82,7 +82,6 @@ When /^I run oc create( as admin)? over ERB URL: #{HTTP_URL}$/ do |admin, url|
   # overwrite with ERB loaded content
   loaded = ERB.new(File.read(@result[:abs_path])).result binding
   File.write(@result[:abs_path], loaded)
-
   if admin
     ensure_admin_tagged
     @result = self.admin.cli_exec(:create, {f: @result[:abs_path]})
