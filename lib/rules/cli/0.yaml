@@ -419,6 +419,7 @@
     :buildconfig: <value>
     :follow: --follow=<value>
     :from_build: --from-build=<value>
+    :from_file: --from-file=<value>
     :from_webhook: --from-webhook=<value>
     :git_post: --git-post-receive=<value>
     :git_repository: --git-repository=<value>

@@ -75,3 +75,23 @@ Feature: dockerbuild.feature
      When I run the :logs client command with:
        | resource_name | ruby-sample-build-1-build |
      And the output should contain " setenv: invalid argument"
+
+  # @author cryan@redhat.com
+  # @case_id 512262
+  Scenario: oc start-build with a file passed,sti build type
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/nodejs-ex |
+    Then the step should succeed
+    Given the "nodejs-ex-1" build completed
+    Given I download a file from "https://raw.githubusercontent.com/openshift/nodejs-ex/master/package.json"
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-ex |
+      | from_file | package.json |
+    Then the step should succeed
+    Given the "nodejs-ex-2" build completed
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-ex |
+      | from_file | nonexist.json |
+    Then the step should fail
+    And the output should contain "no such file"
