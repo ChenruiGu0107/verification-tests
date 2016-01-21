@@ -1112,3 +1112,22 @@ Feature: deployment related features
         | Created lifecycle pod <%= project.name %>/hooks-1-posthook for deployment <%= project.name %>/hooks-1 |
         | Finished reading logs for hook pod <%= project.name %>/hooks-1-posthook |
 
+    # @author yinzhou@redhat.com
+    # @case_id 433309
+    Scenario: Trigger info is retained for deployment caused by image changes
+      Given I have a project
+      When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+      Then the step should succeed
+      Given the "ruby-sample-build-1" build was created
+      And the "ruby-sample-build-1" build completed
+      Given I wait until the status of deployment "frontend" becomes :running
+      And I wait until the status of deployment "frontend" becomes :complete
+      When I run the :get client command with:
+        | resource      | dc |
+        | resource_name | frontend |
+        | o             | yaml |
+      Then the output by order should match:
+        | causes:         |
+        | - imageTrigger: |
+        | from: |
+        | type: ImageChange |
