@@ -335,7 +335,8 @@ function configure_nfs_service()
 	mkdir -p /var/export/regvol
 	chown nfsnobody:nfsnobody /var/export/regvol
 	chmod 700 /var/export/regvol
-	echo "/var/export/regvol *(rw,sync,all_squash)" >> /etc/exports
+        # add no_wdelay as workaround for BZ#1277356
+	echo "/var/export/regvol *(rw,sync,all_squash,no_wdelay)" >> /etc/exports
 	systemctl enable rpcbind nfs-server
 	systemctl restart rpcbind nfs-server nfs-lock 
 	systemctl restart nfs-idmap
