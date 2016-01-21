@@ -118,4 +118,19 @@ Feature: oc_secrets.feature
     And the output should not contain "second-secret"
 
 
-
+  # @author xiacwan@redhat.com
+  # @case_id 484330
+  @admin
+  Scenario: [origin_platformexp_391] Operation should fail when lost argument for bundle secret
+    When I run the :secrets admin command with:
+      | action | new        |
+      | source | /etc/hosts |
+    Then the step should not succeed
+    And the output should contain:
+      |  error: |
+    When I run the :secrets admin command with:
+      | action | new        |
+      | name   | test       |
+    Then the step should not succeed
+    And the output should contain:
+      |  error: | 
