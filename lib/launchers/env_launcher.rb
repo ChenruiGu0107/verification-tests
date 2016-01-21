@@ -409,6 +409,10 @@ module CucuShift
       ssh_key_path = expand_private_path(ssh_key)
       File.chmod(0600, ssh_key_path)
 
+      # ansible goodies
+      ENV["ANSIBLE_CALLBACK_WHITELIST"] = 'profile_tasks'
+      ENV["ANSIBLE_FORCE_COLOR"] = "true"
+
       ## run pre-ansible hook (need ansible pre-installed)
       #  that basically means:
       #  * setup all needed repos
@@ -426,7 +430,6 @@ module CucuShift
       end
 
       ## finally run ansible
-      ENV["ANSIBLE_FORCE_COLOR"] = "true"
       Dir.chdir(Host.localhost.workdir) {
         logger.info("hosts file:\n" + hosts_str)
         File.write("hosts", hosts_str)
