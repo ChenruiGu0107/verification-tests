@@ -28,3 +28,41 @@ Feature: secrets related scenarios
     Then the step should succeed
     And the output should contain:
       |kubernetes.io/dockercfg|
+      
+  # @author xiacwan@redhat.com
+  # @case_id 484337
+  @admin
+  Scenario: [origin_platformexp_403] The number of created secrets can not exceed the limitation
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml"
+    And I replace lines in "myquota.yaml":
+      | name: myquota                | <%= "name: "+project.name %> |
+      | cpu: "30"                    | cpu: "20"                    |
+      | memory: 16Gi                 | memory: 1Gi                  |
+      | persistentvolumeclaims: "20" | persistentvolumeclaims: "10" |
+      | pods: "20"                   | pods: "10"                   |
+      | replicationcontrollers: "30" | replicationcontrollers: "20" |
+      | secrets: "15"                | secrets: "1"                |
+      | services: "10"               | services: "5"                |
+
+    When I run the :create admin command with:
+      | f        | myquota.yaml        |
+      | n        | <%= project.name %> |
+    Then the step should succeed   
+    And I wait for the steps to pass:
+    """
+    When I run the :describe admin command with:
+      | resource      | quota |
+      | name          | <%= project.name %>  |
+      | n             | <%= project.name %> |
+    Then the output should match:
+      | secrets.*1 |
+    """
+    When I run the :secrets admin command with:
+      | action | new                                                    |
+      | name   | <%= "secret2"+project.name %>                          |
+      | source | myquota.yaml |
+      | n        | <%= project.name %> |
+    Then the step should not succeed
+    And the output should contain:
+      |  limit |
