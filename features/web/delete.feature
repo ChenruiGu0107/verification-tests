@@ -50,3 +50,41 @@ Feature: Delete the resources via web console
       | image_warning    | The image stream details could not be loaded. |
       | rc_name          | nodejs-sample-1       |
       | rc_warning       | The deployment details could not be loaded. |
+
+  # @author wsun@redhat.com
+  # @case_id 512253
+  Scenario: The viewer can not delete app resources on web console
+    Given I have a project
+    When I create a new application with:
+      | image_stream | openshift/nodejs|
+      | code         | https://github.com/openshift/nodejs-ex.git |
+      | namespace    | <%= project.name %>                        |
+      | name         | nodejs-sample                |
+    Then the step should succeed
+    When I expose the "nodejs-sample" service
+    Then the step should succeed
+    Given I wait for the "nodejs-sample" service to become ready
+    When I run the :oadm_add_role_to_user client command with:
+      | role name |   view    |
+      | user_name | <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    Given I switch to the second user 
+    When I perform the :delete_resources_in_the_project web console action with:
+      | project_name     | <%= project.name %>   |
+      | pod_name         | nodejs-sample-1-build |
+      | pod_warning      | The pod details could not be deleted. |
+      | service_name     | nodejs-sample         |
+      | service_warning  | The service details could not be deleted. |
+      | build_name       | nodejs-sample         |
+      | build_warning    | The build configuration details could not be deleted. |
+      | deployment_name  | nodejs-sample         |
+      | dc_warning       | The deployment configuration details could not be deleted. |
+      | buildconfig_name | nodejs-sample-1       |
+      | bc_warning       | The build configuration details could not be deleted. |
+      | route_name       | nodejs-sample         |
+      | route_warning    | The route details could not be deleted. |
+      | image_name       | nodejs-sample         |
+      | image_warning    | The image stream details could not be deleted. |
+      | rc_name          | nodejs-sample-1       |
+      | rc_warning       | The deployment details could not be deleted. |
+    Then the step should succeed
