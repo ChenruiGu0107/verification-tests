@@ -1120,8 +1120,7 @@ Feature: deployment related features
       Then the step should succeed
       Given the "ruby-sample-build-1" build was created
       And the "ruby-sample-build-1" build completed
-      Given I wait until the status of deployment "frontend" becomes :running
-      And I wait until the status of deployment "frontend" becomes :complete
+      Given I wait until the status of deployment "frontend" becomes :complete
       When I run the :get client command with:
         | resource      | dc |
         | resource_name | frontend |
