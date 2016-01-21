@@ -372,3 +372,30 @@ Feature: build 'apps' with CLI
       | ruby-sample-build-1 |
       | ruby-sample-build-2 |
       | ruby-sample-build-3 |
+
+  # @author pruan@redhat.com
+  # @case_id 512096
+  Scenario: Start build with option --wait
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc512096/test-build-cancle.json |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-build |
+      | wait        | true         |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-build |
+      | wait        | true         |
+      | commit      | deadbeef     |
+    Then the step should fail
+    And I run the :start_build background client command with:
+      | buildconfig | sample-build |
+      | wait        | true         |
+    And I run the :cancel_build client command with:
+      | build_name | sample-build-3 |
+    And the output should match:
+      | Build sample-build-3 was cancelled |
+
+
+

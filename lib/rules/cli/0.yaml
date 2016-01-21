@@ -423,6 +423,8 @@
     :git_post: --git-post-receive=<value>
     :git_repository: --git-repository=<value>
     :list_webhooks: --list-webhooks=<value>
+    :wait: --wait=<value>
+    :commit: --commit=<value>
 :status:
   :cmd: oc status
   :options:
