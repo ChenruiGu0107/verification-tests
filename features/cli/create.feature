@@ -77,12 +77,15 @@ Feature: creating 'apps' with CLI
     # check MySQL pod
     Given a pod becomes ready with labels:
       | deployment=mysql-1 |
+    And I wait for the steps to pass:
+    """
     When I execute on the pod:
       | bash                                                  |
       | -c                                                    |
       | mysql -h $HOSTNAME -utest -ptest -e 'show databases;' |
     Then the step should succeed
     And the output should contain "test"
+    """
 
     # access mysql through the service
     Given I use the "mysql" service
