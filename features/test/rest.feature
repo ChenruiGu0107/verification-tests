@@ -24,8 +24,6 @@ Feature: Testing REST Scenarios
     Given I run the :delete client command with:
       | object_type | project |
       | object_name_or_id | demo |
-    # looks like time needs to pass for the project to be really gone
-    And 5 seconds have passed
     And I perform the :list_projects rest request
     Then the step should succeed
     And the output should not contain:
