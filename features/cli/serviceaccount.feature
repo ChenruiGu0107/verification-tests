@@ -91,6 +91,5 @@ Feature: ServiceAccount and Policy Managerment
       | object_name_or_id | myapp     |
       | n                 | <%= project.name %> |
     Then the step should fail
-    Then the step should fail
     When I give project admin role to the builder service account
     Then the step should fail
