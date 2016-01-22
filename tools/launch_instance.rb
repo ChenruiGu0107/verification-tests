@@ -35,7 +35,7 @@ module CucuShift
       default_command :launch
 
       global_option('-c', '--config KEY', 'default config options should be read from?')
-      global_option('-l', '--launched_instances_name_prefix', 'if instances are launched, use this prefix; use string `{tag}` ti have it replaced with MMDDb where MM in month, DD is day and b is build number')
+      global_option('-l', '--launched_instances_name_prefix PREFIX', 'if instances are launched, use this prefix; use string `{tag}` ti have it replaced with MMDDb where MM in month, DD is day and b is build number')
       global_option('-m', '--master_num', "number of nodes to launch")
       global_option('-n', '--node_num', "number of nodes to launch")
       global_option('-d', '--user_data', "file containing user instances' data")
