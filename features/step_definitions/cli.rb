@@ -129,7 +129,7 @@ Given /^I replace resource "([^"]+)" named "([^"]+)"(?: saving edit to "([^"]+)"
     })
   step %Q/the step should succeed/
   step %Q/I save the output to file>#{filename}/
-  step %Q/I replace lines in "#{filename}":/, table
+  step %Q/I replace content in "#{filename}":/, table
   step %Q/I run the :replace client command with:/, table(%{
     | f | #{filename} |
     })
