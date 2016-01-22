@@ -392,6 +392,7 @@ Feature: build 'apps' with CLI
     And I run the :start_build background client command with:
       | buildconfig | sample-build |
       | wait        | true         |
+    Given the pod named "sample-build-3-build" is present
     And I run the :cancel_build client command with:
       | build_name | sample-build-3 |
     And the output should match:
