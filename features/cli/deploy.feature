@@ -1001,7 +1001,6 @@ Feature: deployment related features
         | pre.json  | hooks-1-prehook |
         | post.json  | hooks-1-posthook |
 
-
   # @author yinzhou@redhat.com
   # @case_id 510606
   Scenario: deployment hook volume inheritance that volume name was null

@@ -378,6 +378,46 @@ Feature: resouces related scenarios
       | cpu: 100m |
       | memory: 128Mi |
 
+  # @author cryan@redhat.com
+  # @case_id 474047
+  # @bug_id 1294063
+  Scenario: Update resources from file
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Given the pod named "hello-openshift" becomes ready
+    When I replace resource "pod" named "hello-openshift":
+      | labels:\n    name: hello-openshift | labels:\n    name: tc474047-mod1 |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod |
+      | name | hello-openshift |
+    Then the step should succeed
+    And the output should contain "tc474047-mod1"
+    When I replace resource "pod" named "hello-openshift":
+      | labels:\n    name: tc474047-mod1 | labels:\n    name: tc474047-mod2 |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod |
+      | name | hello-openshift |
+    Then the step should succeed
+    And the output should contain "tc474047-mod2"
+    When I run the :get client command with:
+      | resource | pods |
+      | resource_name | hello-openshift |
+      | o | json |
+    Then the step should succeed
+    Given I save the output to file> a.json
+    When I run the :replace client command with:
+      | force ||
+      | f | a.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod |
+      | name | hello-openshift |
+    Then the step should succeed
+    And the output should contain "tc474047-mod2"
+
   # @author xxia@redhat.com
   # @case_id 512121
   Scenario: Get/watch resources with oc get
