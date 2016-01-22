@@ -63,7 +63,7 @@ Feature: deployment related features
   Scenario: Can't stop a deployment in Complete status
     Given I have a project
     When I run the :new_app client command with:
-      | docker_image   | openshift/deployment-example |
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
     Then the step should succeed
     # Wait till the deploy complete
     And the pod named "deployment-example-1-deploy" becomes ready
@@ -859,7 +859,7 @@ Feature: deployment related features
   Scenario: A/B Deployment
     Given I have a project
     When I run the :new_app client command with:
-      | docker_image   | openshift/deployment-example |
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
       | name         | ab-example-a |
       | l            | ab-example=true |
       | env          | SUBTITLE=shardA |
@@ -874,7 +874,7 @@ Feature: deployment related features
     Then I wait for a server to become available via the "ab-example" route
     And the output should contain "shardA"
     When I run the :new_app client command with:
-      | docker_image   | openshift/deployment-example |
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
       | name         | ab-example-b |
       | l            | ab-example=true |
       | env          | SUBTITLE=shardB |
@@ -905,11 +905,11 @@ Feature: deployment related features
   Scenario: Blue-Green Deployment
     Given I have a project
     When I run the :new_app client command with:
-      | docker_image   | openshift/deployment-example:v1 |
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example:v1 |
       | name         | bluegreen-example-old |
     Then the step should succeed
     When I run the :new_app client command with:
-      | docker_image   | openshift/deployment-example:v2 |
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example:v2 |
       | name         | bluegreen-example-new |
     Then the step should succeed
     #When I expose the "bluegreen-example-old" service
@@ -1130,3 +1130,25 @@ Feature: deployment related features
         | - imageTrigger: |
         | from: |
         | type: ImageChange |
+
+    # @author yinzhou@redhat.com
+    # @case_id 433308
+    Scenario: Trigger info is retained for deployment caused by config changes
+      Given I have a project
+      When I run the :new_app client command with:
+        | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+      Then the step should succeed
+      And I wait until the status of deployment "deployment-example" becomes :complete
+      And I replace resource "dc" named "deployment-example":
+        | terminationGracePeriodSeconds: 30 | terminationGracePeriodSeconds: 36 |
+      Then the step should succeed
+      And I wait until the status of deployment "deployment-example" becomes :complete
+      When I run the :get client command with:
+        | resource      | dc |
+        | resource_name | deployment-example |
+        | o             | yaml |
+      Then the output by order should match:
+        | terminationGracePeriodSeconds: 36 |
+        | causes:         |
+        | - type: ConfigChange |
+
