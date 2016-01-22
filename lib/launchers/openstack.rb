@@ -156,14 +156,14 @@ module CucuShift
       @os_flavor = get_obj_ref(flavor_name, 'flavors')
     end
 
-    def create_instance_api_call(instance_name, image_name = nil,
-                        flavor_name = nil, key = nil, **create_opts)
-      image_name ||= opts[:image]
+    def create_instance_api_call(instance_name, image: nil,
+                        flavor_name: nil, key: nil, **create_opts)
+      image ||= opts[:image]
       flavor_name ||= opts[:flavor]
       key ||= opts[:key]
 
       self.delete_instance(instance_name)
-      self.get_image_ref(image_name)
+      self.get_image_ref(image)
       self.get_flavor_ref(flavor_name)
       params = {:server => {:name => instance_name, :key_name => key ,:imageRef => self.os_image, :flavorRef => self.os_flavor}.merge(create_opts)}
       url = self.os_ApiUrl + '/' + 'servers'
@@ -185,8 +185,7 @@ module CucuShift
       return JSON.load(res)
     end
 
-    def create_instance(instance_name, image_name = nil,
-                        flavor_name = nil, key = nil, **create_opts)
+    def create_instance(instance_name, **create_opts)
       params = nil
       server_id = nil
       url = nil
@@ -204,8 +203,7 @@ module CucuShift
         # on first iteration and on instance launch failure we retry
         if !result || result["server"]["status"] == "ERROR"
           logger.info("** attempting to create an instance..")
-          res = create_instance_api_call(instance_name, image_name,
-                                            flavor_name, key, **create_opts)
+          res = create_instance_api_call(instance_name, **create_opts)
           server_id = res["server"]["id"] rescue next
           params = {}
           url = self.os_ApiUrl + '/' + 'servers/' + server_id
@@ -275,6 +273,7 @@ module CucuShift
     # @param os_opts [Hash] options to pass to [OpenStack::new]
     # @param names [Array<String>] array of names to give to new machines
     # @return [Hash] a hash of name => hostname pairs
+    # TODO: make this return a [Hash] of name => CucuShift::Host pairs
     def launch_instances(names:, use_hostnames: true, **create_opts)
       res = {}
       names.each { |name|

@@ -100,25 +100,44 @@ module CucuShift
       end
     end
 
-    def get_latest_ami(filter_val=config[:ami_types][:devenv_wildcard])
-      devenv_amis = @ec2.images({
-        filters: [
-            {
-              name: "name",
-              values: [filter_val],
-            },
-            {
-              name: "state",
-              values: ["available"],
-            },
-            {
-              name: "tag-value",
-              values: [config[:tag_ready]],
-            },
-          ],
-        })
-      # take the last devenv ami
-      img = devenv_amis.to_a.sort_by {|ami| ami.name.split("_")[-1].to_i}.last
+    def filter_available_amis(*filters)
+      filters << {
+        name: "state",
+        values: ["available"]
+      }
+      return @ec2.images({ filters: filters })
+    end
+
+    def filter_qe_ready_amis(*filters)
+      filters << {
+        name: "tag-value",
+        values: [config[:tag_ready]]
+      }
+      return filter_available_amis(*filters)
+    end
+
+    def get_latest_ami(filter_val = nil)
+      v3_types = [:fedora, :centos7, :rhel7, :rhel7next]
+      case filter_val
+      when nil
+        # latest devenv regardless of OS
+        filter_val = v3_types.map { |t| filter_val=config[:ami_types][t] }
+      when Array
+        # do nothing
+      when String
+        filter_val = filter_val.split(",")
+      else
+        raise "dunno what this filter is: #{filter_val.inspect}"
+      end
+
+      amis = filter_qe_ready_amis({name: "name", values: filter_val}).to_a
+      if amis.empty?
+        logger.warn("no qe-ready AMIs found, trying non-ready with names: #{filter_val}")
+        amis = filter_available_amis({name: "name", values: filter_val})
+      end
+
+      # take latest ami by date
+      img = amis.sort_by {|ami| ami.creation_date}.last
       unless img
         raise "could not find specified image: #{filter_val}"
       end
@@ -142,10 +161,16 @@ module CucuShift
     #   end
     # end
 
-    # Returns latest devenv-stage-* AMI
+    # Returns latest devenv_* AMI
     # @return [String] ami-id
-    def get_latest_stable_ami
-      return get_latest_ami(config[:ami_types][:stable_ami])
+    def get_latest_v2_ami
+      return get_latest_ami(config[:ami_types][:devenv_v2])
+    end
+
+    # Returns latest devenv-stage_* AMI
+    # @return [String] ami-id
+    def get_latest_stable_v2_ami
+      return get_latest_ami(config[:ami_types][:devenv_stable_v2])
     end
 
     # @param [String] ec2_tag the EC2 'Name' tag value
@@ -315,7 +340,7 @@ module CucuShift
         instance_opt[:image_id] = image.id
       when nil
         unless instance_opt[:image_id]
-          image = get_latest_stable_ami
+          image = get_latest_ami
           instance_opt[:image_id] = image.id
         end
       when /^ami-.+/
@@ -357,7 +382,7 @@ module CucuShift
         })
         # make sure we can ssh into the instance
         host = block_until_accessible(instance)
-        res << [tag, host]
+        res << [inst, host]
       end
       return res
     end
