@@ -1130,3 +1130,25 @@ Feature: deployment related features
         | - imageTrigger: |
         | from: |
         | type: ImageChange |
+
+    # @author yinzhou@redhat.com
+    # @case_id 433308
+    Scenario: Trigger info is retained for deployment caused by config changes
+      Given I have a project
+      When I run the :new_app client command with:
+        | docker_image   | openshift/deployment-example |
+      Then the step should succeed
+      And I wait until the status of deployment "deployment-example" becomes :complete
+      And I replace resource "dc" named "deployment-example":
+        | terminationGracePeriodSeconds: 30 | terminationGracePeriodSeconds: 36 |
+      Then the step should succeed
+      And I wait until the status of deployment "deployment-example" becomes :complete
+      When I run the :get client command with:
+        | resource      | dc |
+        | resource_name | deployment-example |
+        | o             | yaml |
+      Then the output by order should match:
+        | terminationGracePeriodSeconds: 36 |
+        | causes:         |
+        | - type: ConfigChange |
+
