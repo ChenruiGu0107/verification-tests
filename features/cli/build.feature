@@ -353,3 +353,50 @@ Feature: build 'apps' with CLI
       | env_name | ruby-sample-build-1-build |
       | list | true |
     Then the output should contain "http_proxy=http://squid.example.com:3128"
+
+  # @author cryan@redhat.com
+  # @case_id 498212
+  Scenario: Order builds according to creation timestamps
+    Given I have a project
+    And I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    And I run the :start_build client command with:
+      | buildconfig |  ruby-sample-build |
+    And I run the :start_build client command with:
+      | buildconfig |  ruby-sample-build |
+    And I run the :start_build client command with:
+      | buildconfig |  ruby-sample-build |
+    And I run the :get client command with:
+      | resource | builds |
+    Then the output by order should match:
+      | ruby-sample-build-1 |
+      | ruby-sample-build-2 |
+      | ruby-sample-build-3 |
+
+  # @author pruan@redhat.com
+  # @case_id 512096
+  Scenario: Start build with option --wait
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc512096/test-build-cancle.json |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-build |
+      | wait        | true         |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | sample-build |
+      | wait        | true         |
+      | commit      | deadbeef     |
+    Then the step should fail
+    And I run the :start_build background client command with:
+      | buildconfig | sample-build |
+      | wait        | true         |
+    Given the pod named "sample-build-3-build" is present
+    And I run the :cancel_build client command with:
+      | build_name | sample-build-3 |
+    And the output should match:
+      | Build sample-build-3 was cancelled |
+
+
+
