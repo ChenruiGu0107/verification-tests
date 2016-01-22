@@ -263,3 +263,21 @@ Feature: create app on web console related
       |ADMIN_PASSWORD=|
       |MYSQL_USER=    |
       |MYSQL_PASSWORD=|
+
+  # @author wsun@redhat.com
+  # @case_id 489294
+  Scenario: Could edit Routing on create from source page
+    When I create a new project via web
+    Then the step should succeed
+    When I perform the :create_app_without_route_action web console action with:
+      | namespace    | openshift |
+      | project_name | <%= project.name %> |
+      | image_name   | python              |
+      | image_tag    | 3.4                 |
+      | app_name     | python-sample       |
+      | source_url   | https://github.com/openshift/django-ex.git |
+    Then the step should succeed
+    When I perform the :check_empty_routes_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+ 

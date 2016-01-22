@@ -28,6 +28,12 @@ create_app_from_image_with_env_options:
 create_app_from_image_base_action:
   action: create_app_from_image_navigate
   action: create_app_from_image_default_options
+
+create_app_without_route_action:
+  action: create_app_from_image_base_action
+  action: create_app_from_image_show_advanced_param
+  action: create_app_without_route
+  action: create_app_from_image_submit
 # all sub single action  
 create_app_from_image_navigate:
   url: /console/project/<project_name>/create/fromimage?imageName=<image_name>&imageTag=<image_tag>&namespace=<namespace>
@@ -148,3 +154,8 @@ create_app_from_image_submit:
   element:
     selector:
       text: Manage your app
+create_app_without_route:
+  elements:
+  - selector:
+      text: Create a route to the application
+    op: click
