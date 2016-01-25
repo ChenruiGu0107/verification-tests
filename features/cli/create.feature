@@ -401,3 +401,56 @@ Feature: creating 'apps' with CLI
       |  o  | yaml |
     Then the output should contain:
       |  apiVersion: v1  |
+
+  # @author yinzhou@redhat.com
+  # @case_id 510547
+  Scenario: Progress with invalid supplemental groups should not be run when using RunAsAny as the RunAsGroupStrategy
+    Given I have a project
+    When I run the :create client command with:
+      | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_supplementalGroups.json |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pod             |
+      | name     | hello-openshift |
+    Then the output should match:
+      | System error: Uids and gids must be in range 0-2147483647 |
+    """
+
+  # @author yinzhou@redhat.com
+  # @case_id 510545
+  Scenario: Process with special supplemental groups can be run when using RunAsAny as the RunAsGroupStrategy
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_supplementalGroups.json"
+    And I replace lines in "pod_with_special_supplementalGroups.json":
+      |4294967296|0|
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | pod_with_special_supplementalGroups.json |
+    Then the step should succeed
+    When the pod named "hello-openshift" becomes ready
+    When I run the :get client command with:
+      | resource | pod             |
+      | resource_name | hello-openshift |
+      | output       | yaml        |
+    Then the output by order should match:
+      | securityContext:|
+      | supplementalGroups: |
+      | - 0 |
+
+  # @author yinzhou@redhat.com
+  # @case_id 510544
+  Scenario: Process with special FSGroup id can be ran when using RunAsAny as the RunAsGroupStrategy
+    Given I have a project
+    When I run the :create client command with:
+      | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_fsGroup.json |
+    Then the step should succeed
+    When the pod named "hello-openshift" becomes ready
+    When I run the :get client command with:
+      | resource | pod             |
+      | resource_name | hello-openshift |
+      | output       | yaml        |
+    Then the output by order should match:
+      | securityContext:|
+      | fsGroup: 0 |
