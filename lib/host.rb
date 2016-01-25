@@ -568,6 +568,8 @@ module CucuShift
       str = hostname.dup
       if sshopts[:user]
         str << ' ansible_user=' << sshopts[:user]
+        # stay compatible with ansible 1.9
+        str << ' ansible_ssh_user=' << sshopts[:user]
       end
       if sshopts[:private_key]
         str << ' ansible_ssh_private_key_file="' <<
