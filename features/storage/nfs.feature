@@ -3,6 +3,7 @@ Feature: NFS Persistent Volume
     # @author lxia@redhat.com
     # @case_id 510432
     @admin
+    @destructive
     Scenario: NFS volume failed to mount returns more verbose message
         # Preparations
         Given I have a project
@@ -46,6 +47,7 @@ Feature: NFS Persistent Volume
     # @author lxia@redhat.com
     # @case_id 508049
     @admin
+    @destructive
     Scenario: NFS volume plugin with RWO access mode and Recycle policy
         # Preparations
         Given I have a project
