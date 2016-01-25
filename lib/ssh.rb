@@ -35,6 +35,8 @@ module CucuShift
       if opts[:private_key]
         logger.debug("SSH Authenticating with publickey method")
         private_key = expand_private_path(opts[:private_key])
+        # this is not needed for ruby but help ansible and standalone ssh
+        File.chmod(0600, private_key) rescue nil
         conn_opts[:keys] = [private_key]
         conn_opts[:auth_methods] = ["publickey"]
       elsif opts[:password]
