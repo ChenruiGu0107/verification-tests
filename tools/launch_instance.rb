@@ -36,7 +36,7 @@ module CucuShift
 
       global_option('-c', '--config KEY', 'command specific; for OSE launcher selects config source, for ec2_instance it selects custom setup script')
       global_option('-l', '--launched_instances_name_prefix PREFIX', 'prefix instance names; use string `{tag}` to have it replaced with MMDDb where MM in month, DD is day and b is build number; tag works only with PUDDLE_REPO')
-      global_option('-d', '--user_data', "file containing user instances' data")
+      global_option('-d', '--user_data SPEC', "file containing user instances' data")
       global_option('-s', '--service_name', 'service name to lookup in config')
       global_option('-i', '--image_name IMAGE', 'image to launch instance with')
 
