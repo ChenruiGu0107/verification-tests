@@ -173,3 +173,65 @@ Feature: oc run related scenarios
     And the output should contain:
       | myrun-pod |
 
+
+  # @author yadu@redhat.com
+  # @case_id 510408
+  Scenario: oc run has different default creation types when using different 'restart' option
+    Given I have a project
+    When I run the :run client command with:
+      | name  | test-a                |
+      | image | aosqe/hello-openshift |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | dc |
+    Then the step should succeed
+    And the output should contain:
+      | test-a |
+    When I run the :run client command with:
+      | name    | test-b                |
+      | image   | aosqe/hello-openshift |
+      | restart | OnFailure             |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | pod |
+    Then the step should succeed
+    And the output should contain:
+      | test-b |
+    When I run the :run client command with:
+      | name    | test-c                |
+      | image   | aosqe/hello-openshift |
+      | restart | Never                 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | pod |
+    Then the step should succeed
+    And the output should contain:
+      | test-c |
+  # Negative test
+    When I run the :run client command with:
+      | name    | test-f                |
+      | image   | aosqe/hello-openshift |
+      | restart | Invalid               |
+    Then the step should fail
+    And the output should contain:
+      | invalid restart policy |
+    When I run the :run client command with:
+      | name     | test-n                |
+      | image    | aosqe/hello-openshift |
+      | restart  | Never                 |
+      | replicas | 2                     |
+    Then the step should fail
+    And the output should contain:
+      | error |
+    When I run the :run client command with:
+      | name     | test-m                |
+      | image    | aosqe/hello-openshift |
+      | restart  | Never                 |
+      | replicas | 1                     |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | pod |
+    Then the step should succeed
+    And the output should contain:
+      | test-m | 
+
