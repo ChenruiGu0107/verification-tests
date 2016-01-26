@@ -117,10 +117,16 @@ module CucuShift
         failed: "Failed",
         unknown: "Unknown"
       }
+
       res = get(user: user)
       status = status.respond_to?(:map) ?
           status.map{ |s| statuses[s] } :
-          [ statuses[status] ]
+          [ statuses[status.to_sym] ]
+
+      #Check if the user-provided status actually exists
+      if status.any?{|s| s.nil?}
+        raise "The provided status is not a pre-existing state. Please check again."
+      end
 
       if res[:success]
         res[:success] =
