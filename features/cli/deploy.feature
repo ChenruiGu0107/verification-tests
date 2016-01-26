@@ -1001,6 +1001,21 @@ Feature: deployment related features
         | pre.json  | hooks-1-prehook |
         | post.json  | hooks-1-posthook |
 
+  # @author cryan@redhat.com
+  # @case_id 515805
+  Scenario: Could edit the deployer pod during deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc515805/tc515805.json |
+    Then the step should succeed
+    Given the pod named "database-1-deploy" becomes ready
+    When I replace resource "pod" named "database-1-deploy":
+      | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 55 |
+    Then the step should succeed
+    Given the pod named "database-1-deploy" status becomes :failed
+    When I get project pods
+    Then the output should contain "DeadlineExceeded"
+
   # @author yinzhou@redhat.com
   # @case_id 510606
   Scenario: deployment hook volume inheritance that volume name was null
@@ -1150,4 +1165,3 @@ Feature: deployment related features
         | terminationGracePeriodSeconds: 36 |
         | causes:         |
         | - type: ConfigChange |
-
