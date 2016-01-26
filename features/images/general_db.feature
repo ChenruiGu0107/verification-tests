@@ -109,12 +109,12 @@ Feature: general_db.feature
     And the output should contain:
       | 2.6 |
   # @author haowang@redhat.com
-  # @case_id 500991
-  Scenario: Verify cluster mongodb can be connect after change admin and user password or redeployment for ephemeral storage - mongodb-24-rhel7
+  # @case_id 500991 508085
+  Scenario Outline: Verify cluster mongodb can be connect after change admin and user password or redeployment for ephemeral storage - mongodb-24-rhel7 mongodb-26-rhel7
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/mongodb/master/2.4/examples/replica/mongodb-clustered.json"
     And I replace lines in "mongodb-clustered.json":
-      | openshift/mongodb-24-centos7 | <%= product_docker_repo %>openshift3/mongodb-24-rhel7 |
+      | openshift/mongodb-24-centos7 | <%= product_docker_repo %><image> |
     When I run the :new_app client command with:
       | file     | mongodb-clustered.json  |
       | param    | MONGODB_ADMIN_PASSWORD=admin |
@@ -124,11 +124,11 @@ Feature: general_db.feature
     And I wait up to 120 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | scl | enable | mongodb24 | mongo admin -u admin -padmin  --eval 'db.version()' |
+      | scl | enable | <sclname> | mongo admin -u admin -padmin  --eval 'db.version()' |
     Then the step should succeed
     """
     And the output should contain:
-      | 2.4 |
+      | <output> |
     When I run the :env client command with:
       | resource | dc/mongodb |
       | e        | MONGODB_ADMIN_PASSWORD=newadmin |
@@ -139,8 +139,12 @@ Feature: general_db.feature
     And I wait up to 120 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | scl | enable | mongodb24 | mongo admin -u admin -pnewadmin  --eval 'db.version()' |
+      | scl | enable | <sclname> | mongo admin -u admin -pnewadmin  --eval 'db.version()' |
     Then the step should succeed
     """
     And the output should contain:
-      | 2.4 |
+      | <output> |
+    Examples:
+      | image                       | sclname      | output |
+      | openshift3/mongodb-24-rhel7 | mongodb24    | 2.4    |
+      | rhscl/mongodb-26-rhel7      | rh-mongodb26 | 2.6    |
