@@ -5,6 +5,12 @@ check_project_list:
   - selector:
       xpath: //div/div[1]/h2[@class="project"]/a
     type: a
+check_specific_project:
+  action: goto_projects_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,'<project_name>')]
+    type: a
 delete_project:
   action: check_project_list
   elements:
