@@ -341,6 +341,42 @@ Feature: build 'apps' with CLI
     And the output should contain "Demo App"
 
   # @author cryan@redhat.com
+  # @case_id 474049
+  Scenario: Stream logs back automatically after start build
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    When I get project buildconfigs
+    Then the step should succeed
+    And the output should contain "ruby22-sample-build"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | follow | true |
+      | _timeout | 90 |
+    And the output should contain:
+      | Installing application source |
+      | Building your Ruby application from source |
+    When I run the :start_build client command with:
+      | from_build | ruby22-sample-build-1 |
+      | follow | true |
+      | _timeout | 90 |
+    And the output should contain:
+      | Installing application source |
+      | Building your Ruby application from source |
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec":{"source":{"git":{"uri":"https://nondomain.com"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | follow | true |
+      | wait | true |
+      | _timeout | 90 |
+    Then the output should contain "unable to access 'https://nondomain.com/"
+
+  # @author cryan@redhat.com
   # @case_id 479022
   Scenario: Add ENV with CustomStrategy when do custom build
     Given I have a project
@@ -397,6 +433,3 @@ Feature: build 'apps' with CLI
       | build_name | sample-build-3 |
     And the output should match:
       | Build sample-build-3 was cancelled |
-
-
-
