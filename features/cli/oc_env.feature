@@ -154,3 +154,63 @@ Feature: oc_env.feature
     And the output should contain:
       | "name": "test2"      |
       | "value": "abcchange" |
+
+  # @author yapei@redhat.com
+  # @case_id 479288
+  Scenario: Remove environment variables for resources
+    Given I have a project
+    And I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    And the step succeeded
+    # set environment variables
+    When I run the :env client command with:
+      | resource | dc/frontend |
+      | e        | test=1234   |
+    Then the step succeeded
+    # list environment variables
+    When I run the :env client command with:
+      | resource | dc/frontend |
+      | list     | true        |
+    Then the step should succeed
+    And the output should contain:
+      | test=1234 |
+    # remove environment variables
+    When I run the :env client command with:
+      | resource | dc/frontend |
+      | env_name | test-       |
+    Then the step succeeded
+    # list environment variables
+    When I run the :env client command with:
+      | resource | dc/frontend |
+      | list     | true        |
+    Then the step should succeed
+    And the output should not contain:
+      | test=1234 |
+    # set multiple enviroment variables
+    When I run the :env client command with:
+      | resource | dc/frontend |
+      | e        | key1=value1,key2=value2,key3=value3 |
+    Then the step should succeed
+    # list environment variables
+    When I run the :env client command with:
+      | resource | dc/frontend |
+      | list     | true        |
+    Then the step should succeed
+    And the output should contain:
+      | key1=value1 |
+      | key2=value2 |
+      | key3=value3 |
+    # remove multiple environment variables
+    When I run the :env client command with:
+      | resource | dc/frontend |
+      | env_name | key1- |
+      | env_name | key2- |
+    Then the step should succeed
+    # list environment variables
+    When I run the :env client command with:
+      | resource | dc/frontend |
+      | list     | true        |
+    Then the step should succeed
+    And the output should not contain:
+      | key1=value1 |
+      | key2=value2 |
+
