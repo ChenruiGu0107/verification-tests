@@ -280,4 +280,53 @@ Feature: create app on web console related
     When I perform the :check_empty_routes_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
- 
+
+  # @author yapei@redhat.com
+  # @case_id 511644
+  Scenario: Setting env vars for buildconfig on web can be available in assemble phase of STI build
+    When I create a new project via web
+    Then the step should succeed
+    When I perform the :create_app_from_image_with_env_options web console action with:
+      | namespace    | openshift |
+      | project_name | <%= project.name %> |
+      | image_name   | nodejs    |
+      | image_tag    | 0.10      |
+      | app_name     | nd        |
+      | source_url   | https://github.com/yapei/nodejs-ex |
+      | bc_env_key   | BCvalue |
+      | bc_env_value | bcone   |
+      | dc_env_key   | DCvalue |
+      | dc_env_value | dcone   |
+    Then the step should succeed
+    When I perform the :wait_latest_build_to_status web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | nd       |
+      | build_status | complete |
+    Then the step should succeed
+    When I perform the :check_build_log_tab web console action with:
+      | project_name      | <%= project.name %> |
+      | bc_and_build_name | nd/nd-1  |
+      | build_status_name | Complete |
+    Then the step should succeed
+    When I perform the :check_build_log_content web console action with:
+      | build_log_context | BCvalue=bcone |
+    Then the step should succeed
+    Given I use the "<%= project.name %>" project
+    And I run the :get client command with:
+      | resource      | bc   |
+      | resource_name | nd   |
+      | o             | yaml |
+    Then the step succeeded
+    And the output by order should contain:
+      | env |
+      | name: BCvalue |
+      | value: bcone  |
+    When I run the :get client command with:
+      | resource      | dc   |
+      | resource_name | nd   |
+      | o             | yaml |
+    Then the step succeeded
+    And the output by order should contain:
+      | env |
+      | name: DCvalue |
+      | value: dcone  |
