@@ -6,7 +6,7 @@ end
 # user full or short service account name, e.g.:
 # system:serviceaccount:project_name:acc_name
 # acc_name
-Given /^I switch to the ([a-z:]+) service account$/ do |who|
+Given /^I switch to the (.+) service account$/ do |who|
   @user = service_account(who)
 end
 
