@@ -174,6 +174,10 @@ module CucuShift
     end
     alias_method :filter_cases_by_id, :get_cases2
 
+    def filter_cases_by_tag(tags_ids)
+      return self.call('TestCase.filter', {'tag__in'=>tags_ids})
+    end
+
     # @param [Integer]
     # @return [TestCase]
     def get_blessed_case(case_id)

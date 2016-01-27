@@ -254,6 +254,60 @@ def report_auto_testcases(options)
   return cases
 end
 
+# reads in a query file which is a yaml file containning parameters that a user wants to query on
+
+def report_query_result(options)
+  tcms = options.tcms
+  table = Text::Table.new
+  table.head = ['case_id', 'summary', 'ruby script', 'auto_by']
+  
+  query_file = options.query
+  params = YAML.load_file(query_file)
+  
+  params_hash = params['filters'].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+
+  # translate tag names into ids
+  if params_hash[:tag__in]
+    unless params_hash[:tag__in].kind_of? Array
+      tag_names = [params_hash[:tag__in]]
+    else
+      tag_names = params_hash[:tag__in]
+    end
+    
+    tag_ids = tag_names.map { |n| tcms.get_tag_id(n).to_s}
+    params_hash[:tag__in] = tag_ids
+  end
+  res = tcms.filter_cases(params_hash)
+  script_pattern = "\"ruby\""
+  regex = /(automated)? by\s(\w+)?/
+  cases = []
+  res.each do | testcase |
+    if not testcase['script'].nil?
+      if (testcase['script'].include? script_pattern and testcase['case_status'] == 'CONFIRMED')
+        begin
+          script = JSON.parse(testcase['script'])
+        rescue Exception => e
+          print "Error parsing testcase #{testcase["case_id"]} entry in TCMS, please check for formatting" + "\n" + e.message
+        end
+
+        auto_by = testcase['notes'].match(regex)[2] if testcase['notes'].match(regex)
+        table.rows << [testcase['case_id'], testcase['summary'].strip[0..20],
+                           script['ruby'].strip[0..40], auto_by]
+      else
+        table.rows << [testcase['case_id'], testcase['summary'].strip[0..70], testcase['script'], auto_by]
+      end
+    else
+      # not automated
+      table.rows << [testcase['case_id'], testcase['summary'].strip[0..70], testcase['script'], ' ']
+    end
+  end
+  puts table
+  table.rows.each do |row|
+    cases.push(row[0])
+  end
+  print "A total of #{res.count} cases matched the filter #{params_hash}"
+end
+
 def update_notes(options)
   if options.cases.nil?
     puts "You need to specify at least one testcase id"
@@ -356,6 +410,9 @@ if __FILE__ == $0
     opts.on('-p', '--plan_id [testplan_id]', Integer, "The id of the test plan, default (v3:14587 v2:4962) plan id will be used if none is given") do |id|
       options.plan = id
     end
+    opts.on('-q', '--query [query_option]', String, "query TCMS server with the following query file") do |query|
+      options.query = query
+    end
   end.parse!
   tcms = CucuShift::TCMS.new(options.to_h)
 
@@ -363,6 +420,8 @@ if __FILE__ == $0
   cases = []
   if options.get_auto
     cases = report_auto_testcases(options)
+  elsif options.query
+    report_query_result(options)
   elsif options.ping
     puts tcms.version.to_s
     exit 0
