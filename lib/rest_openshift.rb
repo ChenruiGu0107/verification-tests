@@ -107,6 +107,24 @@ module CucuShift
           # res[:props][:uid] = res[:parsed]["metadata"]["uid"]
         }
       end
+
+      def self.rollback_deploy(base_opts, opts)
+        base_opts[:payload] = {}
+        base_opts[:payload][:spec] = {}
+        base_opts[:payload][:spec][:from] = {name: opts[:deploy_name]}
+        base_opts[:payload][:spec][:includeTriggers] = to_bool(opts[:includeTriggers])
+        base_opts[:payload][:spec][:includeTemplate] = to_bool(opts[:includeTemplate])
+        base_opts[:payload][:spec][:includeReplicationMeta] = to_bool(opts[:includeReplicationMeta])
+        base_opts[:payload][:spec][:includeStrategy] = to_bool(opts[:includeStrategy])
+
+        project_name = opts[:project_name]
+
+        populate("/namespaces/<project_name>/deploymentconfigrollbacks", base_opts, opts)
+        return Http.request(**base_opts, method: "POST")
+     end
+
+
+
     end
   end
 end
