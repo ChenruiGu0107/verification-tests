@@ -67,3 +67,29 @@
           |  system:admin  |
           |  system:authenticated  |
 
+    #@author bmeng@redhat.com
+    #@case_id 495027
+    @admin
+    Scenario: Add/drop capabilities for container when SC matches the SCC
+      Given I have a project
+      And evaluation of `project.name` is stored in the :project_name clipboard
+      When I run the :create client command with:
+          |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_kill.json|
+      Then the step should fail
+      And the output should contain "forbidden: unable to validate against any security context constraint"
+      And the output should contain "invalid value 'KILL', Details: capability may not be added"
+      Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_capabilities.yaml"
+      And I replace lines in "scc_capabilities.yaml":
+          |system:serviceaccounts:default|system:serviceaccounts:<%= cb.project_name %>|
+      Given the following scc policy is created: scc_capabilities.yaml
+      When I run the :get admin command with:
+          |resource|scc|
+          |resource_name|scc-cap|
+      Then the output should contain "[KILL]"
+      When I run the :create client command with:
+          |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_kill.json|
+      Then the step should succeed
+      When I run the :create client command with:
+          |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_chown.json|
+      Then the step should fail
+      And the output should contain "invalid value 'CHOWN'"
