@@ -1165,3 +1165,18 @@ Feature: deployment related features
         | terminationGracePeriodSeconds: 36 |
         | causes:         |
         | - type: ConfigChange |
+
+    # @author yinzhou@redhat.com
+    # @case_id 515919
+    Scenario: Start new deployment when deployment running
+      Given I have a project
+      When I run the :new_app client command with:
+        | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+      Then the step should succeed
+      Given I wait until the status of deployment "deployment-example" becomes :running
+      And I replace resource "dc" named "deployment-example":
+        | latestVersion: 1 | latestVersion: 2 |
+      Then the step should succeed
+      When I run the :deploy client command with:
+        | deployment_config | deployment-example |
+      Then the output should contain "The deployment was cancelled as a newer deployment was found running"
