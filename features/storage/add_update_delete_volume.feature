@@ -427,3 +427,67 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | ls | /opt2/sbin |
     Then the step should fail
 
+  # @author chaoyang@redhat.com
+  # @case_id 499636
+  @admin @destructive
+  Scenario: Create a claim when adding volumes to dc/rc
+    Given I have a project
+    Given I have a NFS service in the project
+
+    # Creating PV 
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
+    | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    Then the step should succeed
+
+    # new-app
+    When I run the :new_app client command with:
+    |image_stream | openshift/postgresql |
+    |env          | POSTGRESQL_USER=tester |
+    |env          | POSTGRESQL_PASSWORD=xxx|
+    |env          | POSTGRESQL_DATABASE=testdb|
+    |name         | mydb                 |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+    | app=mydb |
+
+
+    When I run the :volume client command with:
+    |resource| dc |
+    |resource_name | mydb |
+    |action|--add |
+    |type|persistentVolumeClaim|
+    |claim-mode | ReadWriteMany |
+    |claim-name | nfsc-<%= project.name %> |
+    |claim-size | 5 |
+    |name       | mydb |
+    |mount-path | /opt111 |
+    Then the step should succeed
+
+    When I run the :volume client command with:
+    |resource | dc |
+    |resource_name | mydb |
+    |action | --list |
+    Then the step should succeed
+    Then the output should contain:
+    |nfsc-<%= project.name %>|
+    |mounted at /opt111      |
+
+    #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
+    And I wait for the pod to die
+    And a pod becomes ready with labels:
+    | app=mydb |
+
+    When I run the :get client command with:
+    |resource | pvc |
+    |o      | json |
+    Then the step should succeed
+    Then the output should contain:
+    |Bound|
+
+    #Verify the pod has mounted the nfs
+    When I execute on the pod:
+    | grep | opt111 | /proc/mounts |
+    Then the step should succeed
+    Then the output should contain:
+    |opt111|
+
