@@ -76,3 +76,79 @@ Feature: limit range related scenarios:
     And the output should contain:
       | invalid value '200m', Details: min value 400m is greater than default request value 200m |
       |  invalid value '1Gi', Details: min value 2Gi is greater than default request value 1Gi   |
+
+  # @author gpei@redhat.com
+  # @case_id 508042
+  @admin
+  Scenario: Limit range does not allow defaultRequest > default
+    Given I have a project
+    Given the first user is cluster-admin
+    Then the step should succeed
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508042/limit.yaml
+    Then the step should fail
+    And the output should contain:
+      | invalid value '400m', Details: default request value 400m is greater than default limit value 200m |
+      | invalid value '2Gi', Details: default request value 2Gi is greater than default limit value 1Gi    |
+
+  # @author gpei@redhat.com
+  # @case_id 508043
+  @admin
+  Scenario: Limit range does not allow defaultRequest > max
+    Given I have a project
+    Given the first user is cluster-admin
+    Then the step should succeed
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508043/limit.yaml
+    Then the step should fail
+    And the output should contain:
+      | invalid value '400m', Details: default request value 400m is greater than max value 200m  |
+      | invalid value '2Gi', Details: default request value 2Gi is greater than max value 1Gi     |
+
+  # @author gpei@redhat.com
+  # @case_id 508044
+  @admin
+  Scenario: Limit range does not allow maxLimitRequestRatio > Limit/Request
+    Given I have a project
+    Given the first user is cluster-admin
+    Then the step should succeed
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508044/limit.yaml
+    Then the step should succeed
+    And I run the :describe client command with:
+      |resource | namespace            |
+      | name    | <%= project.name %>  |
+    Then the output should match:
+      | Container\\s+cpu\\s+\-\\s+\-\\s+\-\\s+\-\\s+4    |
+      | Container\\s+memory\\s+\-\\s+\-\\s+\-\\s+\-\\s+4 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508044/pod.yaml |
+    Then the step should fail
+    And the output should contain:
+      | cpu max limit to request ratio per Container is 4, but provided ratio is 15.000000              |
+
+  # @author gpei@redhat.com
+  # @case_id 508048
+  @admin
+  Scenario: Limit range with all values set with proper values
+    Given I have a project
+    Given the first user is cluster-admin
+    Then the step should succeed
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508048/limit.yaml
+    Then the step should succeed
+    And I run the :describe client command with:
+      |resource | namespace            |
+      | name    | <%= project.name %>  |
+    Then the output should match:
+      | Pod\\s+cpu\\s+20m\\s+960m\\s+\-\\s+\-\\s+\-                |
+      | Pod\\s+memory\\s+10Mi\\s+1Gi\\s+\-\\s+\-\\s+\-             |
+      | Container\\s+cpu\\s+10m\\s+480m\\s+180m\\s+240m\\s+4       |
+      | Container\\s+memory\\s+5Mi\\s+512Mi\\s+128Mi\\s+256Mi\\s+4 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508048/pod.yaml |
+    Then the step should succeed
+    Given the pod named "mypod" becomes ready
+    When I run the :get client command with:
+      | resource      | pod    |
+      | resource_name | mypod  |
+      | o             | yaml   |
+    Then the output should match:
+      | \\s+limits:\n\\s+cpu: 300m\n\\s+memory: 300Mi\n   |
+      | \\s+requests:\n\\s+cpu: 100m\n\\s+memory: 100Mi\n |
