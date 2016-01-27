@@ -139,3 +139,6 @@ Feature: NFS Persistent Volume
         """
         Then the PV becomes :released
         """
+        When I execute on the pod:
+          | ls | /mnt/data/myfile |
+        Then the step should succeed
