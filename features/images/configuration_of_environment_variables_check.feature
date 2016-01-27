@@ -75,3 +75,16 @@ Feature: Configuration of environment variables check
       | OPCACHE_MEMORY_CONSUMPTION=16M |
       | PHPRC=/opt/rh/php55/root/etc/ |
       | PHP_INI_SCAN_DIR=/opt/rh/php55/root/etc/ |
+
+  # @author cryan@redhat.com
+  # @case_id 493677
+  Scenario: Substitute environment variables into a container's command
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/container/commandtest.json |
+    Then the step should succeed
+    Given the pod named "expansion-pod" status becomes :succeeded
+    When I run the :logs client command with:
+      | resource_name | expansion-pod |
+    Then the step should succeed
+    And the output should contain "http"
