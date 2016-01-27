@@ -143,3 +143,56 @@ Feature: rolling deployment related scenarios
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
     And the output should contain:
       | keep 8 pods available, don't exceed 15 pods |
+
+    
+  # @author xiaocwan@redhat.com
+  # @case_id 454716
+  Scenario: [origin_runtime_509]Rollback to one component of previous deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+    Then the output should match:
+      |NAME\\s+TRIGGERS\\s+LATEST |
+      | hooks                     |
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |     
+      | o             |  json |
+    Then the output should contain:
+      | "type": "Recreate"     |
+      | "type": "ConfigChange" |
+      | "replicas": 1 |
+
+    When I run the :replace client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+    Then the output should match:
+      |NAME\\s+TRIGGERS\\s+LATEST |
+      | hooks                     |
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |     
+      | o             |  json |
+    Then the output should contain:
+      | "type": "Rolling"     |
+      | "type": "ImageChange" |
+      | "replicas": 2 |
+
+    When I perform the :rollback_deploy rest request with:
+        | project_name            | <%= project.name %> |
+        | deploy_name             | hooks-1 |
+        | includeTriggers         | false |
+        | includeTemplate         | true  |
+        | includeReplicationMeta  | false |
+        | includeStrategy         | false |
+    Then the step should succeed
+    And the output should contain:
+        | hooks-1 |
