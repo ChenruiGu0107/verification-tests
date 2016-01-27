@@ -77,7 +77,7 @@ Feature: build related feature on web console
       | bc_name       | ruby-sample |
     Then the step should succeed
     # Wait build to become running
-    Given the "ruby-sample-2" build becomes running
+    Given the "ruby-sample-2" build becomes :running
     When I perform the :cancel_build_from_running_status web console action with:
       | project_name           | <%= project.name %> |
       | bc_and_build_name      | ruby-sample/ruby-sample-2 |

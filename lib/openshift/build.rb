@@ -162,6 +162,10 @@ module CucuShift
       wait_till_status(:running, user, seconds)
     end
 
+    def wait_till_pending(user, seconds)
+      wait_till_status(:pending, user, seconds)
+    end
+
     def wait_till_status(status, user, seconds)
       res = nil
       success = wait_for(seconds) {

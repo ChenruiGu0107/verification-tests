@@ -42,11 +42,12 @@ Given /^the "([^"]*)" build was cancelled$/ do |build_name|
   end
 end
 
-Given /^the "([^"]*)" build becomes running$/ do |build_name|
-  @result = build(build_name).wait_till_running(user, 30)
+Given /^the "([^"]*)" build becomes #{SYM}$/ do |build_name, status|
+  wait_time_out = 10 * 60
+  @result = build(build_name).wait_till_status(status.to_sym, user, wait_time_out)
 
   unless @result[:success]
-    raise "build #{build_name} never started or failed fast"
+    raise "build #{build_name} never became #{status}"
   end
 end
 

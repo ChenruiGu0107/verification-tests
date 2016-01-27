@@ -83,7 +83,7 @@ Feature: Check oc status cli
     #   |buildconfig|ruby-sample-build|
     #Then the step should succeed
     Given the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build becomes running
+    And the "ruby-sample-build-1" build becomes :running
     When I run the :status client command
     Then the step should succeed
     And the output should contain:

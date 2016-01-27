@@ -433,3 +433,31 @@ Feature: build 'apps' with CLI
       | build_name | sample-build-3 |
     And the output should match:
       | Build sample-build-3 was cancelled |
+
+  # @author pruan@redhat.com
+  # @case_id 517369, 517370, 517367, 517368
+  Scenario Outline: when delete the bc,the builds pending or running should be deleted
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc<number>/test-buildconfig.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build becomes <build_status>
+    Then I run the :delete client command with:
+      | object_type | buildConfig |
+      | object_name_or_id | ruby-sample-build |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | buildConfig |
+    Then the output should not contain:
+      | ruby-sample-build |
+    And I run the :get client command with:
+      | resource | build |
+    Then the output should not contain:
+      | ruby-sample-build |
+
+    Examples:
+      | number | build_status |
+      | 517369 | :pending     |
+      | 517370 | :running     |
+      | 517367 | :complete    |
+      | 517368 | :failed      |
