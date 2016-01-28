@@ -398,6 +398,7 @@
     :overrides: --overrides=<value>
     :restart: --restart=<value>
     :tty: --tty=<value>
+    :env: --env=<value>
 
 :scale:
   :cmd: oc scale <resource> <name>
