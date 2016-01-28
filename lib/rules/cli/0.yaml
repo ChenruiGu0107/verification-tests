@@ -464,6 +464,8 @@
     :source: --source=<value>
     :mount-path: --mount-path=<value>
     :claim-name: --claim-name=<value>
+    :claim-mode: --claim-mode=<value>
+    :claim-size: --claim-size=<value>
     :all: --all=<value>
     :selector: --selector=<value>
     :overwrite: --overwrite
