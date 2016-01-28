@@ -142,3 +142,57 @@ Feature: change the policy of user/service account
       | resource | project |
     Then the output should match:
       | <%= project.name %>.*Active |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 470308
+  @admin
+  Scenario: [origin_platformexp_386][origin_platformexp_279]Both global policy bindings and project policy bindings work  
+    Given I register clean-up steps:
+      | I run the :policy_remove_role_from_user admin command with: |
+      |! role      ! view !          |
+      |! user name !  <%= user(1,switch: false).name %>! |
+    And I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/policy.json"
+    And I replace lines in "policy.json":
+      | wsuntest | <%= project.name %> |
+    Then the step should succeed
+    And I run the :create admin command with:
+      | f        | policy.json         |
+    Then the step should succeed
+    And the output should contain:
+      | policybinding |
+
+    When I switch to the first user
+    And I run the :create client command with:
+      | f        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/deleteservices.json |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | role |
+    When I run the :policy_add_role_to_user admin command with:
+      | role      |   view                               |
+      | user name |   <%= user(1,switch: false).name %>  |
+    Then the step should succeed
+
+    When I run the :policy_add_role_to_user client command with:
+      | role            |   deleteservices                  |
+      | user name       | <%= user(1,switch: false).name %> |
+      | role_namespace  | <%= project.name %>               |
+    Then the step should succeed
+
+    When I switch to the second user
+    And I run the :get client command with:
+    | resource          | service |
+    | n                 | default |
+    Then the step should succeed
+    When I run the :policy_who_can admin command with:
+      | verb                   | delete   |
+      | resource               | services |
+      | n           | <%= project.name %> |
+    Then the output should contain:
+      | <%= user(1,switch: false).name %> |
+
+
+
+
+
