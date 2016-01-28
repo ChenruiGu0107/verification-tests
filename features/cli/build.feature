@@ -344,8 +344,11 @@ Feature: build 'apps' with CLI
   # @case_id 474049
   Scenario: Stream logs back automatically after start build
     Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
+    Given I replace lines in "ruby22rhel7-template-sti.json":
+      | registry.access.redhat.com/ | <%= product_docker_repo %> |
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | file | ruby22rhel7-template-sti.json |
     Then the step should succeed
     When I get project buildconfigs
     Then the step should succeed
