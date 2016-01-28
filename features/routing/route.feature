@@ -87,7 +87,7 @@ Feature: Testing route
       | _<%= cb.reencrypt_route %>.pem |
     When I execute on the pod:
       | ls                  |
-      | /var/lib/containers/router/certs |
+      | /var/lib/containers/router/cacerts |
     Then the step should succeed
     And the output should contain:
       | _<%= cb.reencrypt_route %>.pem |
