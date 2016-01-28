@@ -235,3 +235,82 @@ Feature: oc run related scenarios
     And the output should contain:
       | test-m | 
 
+
+  # @author yadu@redhat.com
+  # @case_id 510407
+  Scenario: oc run can set various fields in the pod container
+    Given I have a project
+    When I run the :run client command with:
+      | name      | myrun-pod             |
+      | image     | aosqe/hello-openshift |
+      | generator | run-pod/v1            |
+      | env       | MYENV1=v1,MYENV2=v2   |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | pod        |
+      | resource_name | myrun-pod  |
+      | o             | json       |
+    Then the step should succeed
+    And the output should contain:
+      | "name": "MYENV1" |
+      | "value": "v1     |
+      | "name": "MYENV2" |
+      | "value": "v2"    |
+    When I run the :run client command with:
+      | name      | myrun-pod-2             |
+      | image     | aosqe/hello-openshift   |
+      | generator | run-pod/v1              |
+      | limits    | cpu=200m,memory=512Mi   |
+      | requests  | cpu=100m,memory=256Mi   |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | pod          |
+      | resource_name | myrun-pod-2  |
+      | o             | json         |
+    Then the step should succeed
+    And the output should contain:
+      |  "limits":          |
+      |  "cpu": "200m"      |
+      |  "memory": "512Mi"  |
+      |  "requests"         |
+      |  "cpu": "100m"      |
+      |  "memory": "256Mi"  |
+    When I run the :run client command with:
+      | name      | myrun-pod-3             |
+      | image     | aosqe/hello-openshift   |
+      | generator | run-pod/v1              |
+      | restart   | OnFailure               |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | pod          |
+      | resource_name | myrun-pod-3  |
+      | o             | json         |
+    Then the step should succeed
+    And the output should contain:
+      |  "restartPolicy": "OnFailure" |
+    When I run the :run client command with:
+      | name      | myrun-pod-4             |
+      | image     | aosqe/hello-openshift   |
+      | generator | run-pod/v1              |
+      | port      | 8888                    |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | pod          |
+      | resource_name | myrun-pod-4  |
+      | o             | json         |
+    And the output should contain:
+      |  "containerPort": 8888  |
+    When I run the :run client command with:
+      | name      | test                    |
+      | image     | aosqe/hello-openshift   |
+      | replicas  | 2                       |
+      | overrides | {"apiVersion":"v1","spec":{"replicas":3}} |
+     Then the step should succeed
+     When I run the :get client command with:
+      | resource      | dc     |
+      | resource_name | test   |
+      | o             | json   |
+     Then the step should succeed
+     And the output should contain:
+      | "replicas": 3 |
+
