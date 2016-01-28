@@ -1,7 +1,7 @@
 ---
 filters:
   # please refer to https://tcms.engineering.redhat.com/xmlrpc/#testcase.filter for the complete options available 
-  plan: 14587
+  # plan: 14587
   #valid priority entries are 1, 2, 3
   priority: 1 
   ### tags is an arroy of tags to filter out

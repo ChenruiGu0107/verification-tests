@@ -22,6 +22,8 @@ require 'json'
 require 'io/console' # for reading password without echo
 require 'time'
 
+require 'collections'
+
 def print_report(options)
   status_lookup = {
     1 => 'IDLE',
@@ -260,20 +262,14 @@ def report_query_result(options)
   tcms = options.tcms
   table = Text::Table.new
   table.head = ['case_id', 'summary', 'ruby script', 'auto_by']
-  
+
   query_file = options.query
   params = YAML.load_file(query_file)
-  
-  params_hash = params['filters'].inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+  params_hash = CucuShift::Collections.hash_symkeys(params['filters'])
 
   # translate tag names into ids
   if params_hash[:tag__in]
-    unless params_hash[:tag__in].kind_of? Array
-      tag_names = [params_hash[:tag__in]]
-    else
-      tag_names = params_hash[:tag__in]
-    end
-    
+    tag_names = [params_hash[:tag__in]].flatten
     tag_ids = tag_names.map { |n| tcms.get_tag_id(n).to_s}
     params_hash[:tag__in] = tag_ids
   end
@@ -386,13 +382,13 @@ if __FILE__ == $0
     opts.on('-o', '--outcome [testcase run outcome]', String, "the output to filter by per status_lookup table") do |outcome|
       options.outcome = outcome
     end
-    opts.on('-e', '--exclude_auto', "exclude displaying those that have ruby scripts and marked as AUTO already") do
+    opts.on('-m', '--non_auto', "exclude displaying those that have ruby scripts and marked as AUTO already") do
       options.exclude_auto=true
     end
     opts.on('-i', '--testrun [testrun_id]', Integer, "The id of the test run") do |id|
       options.testrun_id = id
     end
-    opts.on('-f', '--filter <auto_by_author_email>', String, "The email of the automation writer") do |author|
+    opts.on('-e', '--email_filter <auto_by_author_email>', String, "The email of the automation writer") do |author|
       options.author = author
     end
     # this option is used mainly to update the Notes: field in TCMS
@@ -410,7 +406,7 @@ if __FILE__ == $0
     opts.on('-p', '--plan_id [testplan_id]', Integer, "The id of the test plan, default (v3:14587 v2:4962) plan id will be used if none is given") do |id|
       options.plan = id
     end
-    opts.on('-q', '--query [query_option]', String, "query TCMS server with the following query file") do |query|
+    opts.on('-f', '--filter [filter_yaml_file]', String, "query TCMS server with the following query file, see doc/examples/query_filter_example.yaml for an example") do |query|
       options.query = query
     end
   end.parse!
