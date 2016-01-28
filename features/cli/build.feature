@@ -391,6 +391,24 @@ Feature: build 'apps' with CLI
     Then the output should contain "http_proxy=http://squid.example.com:3128"
 
   # @author cryan@redhat.com
+  # @case_id 507557
+  Scenario: Add more ENV to DockerStrategy buildConfig when do docker build
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/cjryan/v3-testfiles/tc507557/templates/tc507557/application-template-dockerbuild-multivars.json"
+    Given I replace lines in "application-template-dockerbuild-multivars.json":
+      | registry.access.redhat.com/ | <%= product_docker_repo %> |
+    When I run the :new_app client command with:
+      | file | application-template-dockerbuild-multivars.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      |deployment=frontend-1|
+    Given evaluation of `@pods[0].name` is stored in the :frontendpod clipboard
+    When I execute on the "<%= cb.frontendpod %>" pod:
+      | env |
+    Then the step should succeed
+    And the output should contain "RACK_ENV=production"
+
+  # @author cryan@redhat.com
   # @case_id 498212
   Scenario: Order builds according to creation timestamps
     Given I have a project
