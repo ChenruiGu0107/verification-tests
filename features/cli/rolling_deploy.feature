@@ -186,6 +186,7 @@ Feature: rolling deployment related scenarios
       | "type": "ImageChange" |
       | "replicas": 2 |
 
+    ## post rest request for curl new json
     When I perform the :rollback_deploy rest request with:
         | project_name            | <%= project.name %> |
         | deploy_name             | hooks-1 |
@@ -195,4 +196,11 @@ Feature: rolling deployment related scenarios
         | includeStrategy         | false |
     Then the step should succeed
     And the output should contain:
-        | hooks-1 |
+        | 201 |
+   
+    When I save the output to file>rollback.json
+    And I run the :replace client command with:
+      | f | rollback.json |
+    Then the step should succeed
+    And the output should contain:
+      | replaced |
