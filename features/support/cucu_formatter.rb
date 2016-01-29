@@ -186,7 +186,7 @@ class CucuFormatter
     else
       step_name = "#{step_match.name}"
     end
-    return %Q[<div class="step_name #{css_class}">#{keyword}#{step_name} ==>@&nbsp #{gen_repo_link(file_colon_line)}</div>]
+    return %Q[<div class="step_name #{css_class}">#{keyword}#{step_name} ==>@&nbsp; #{gen_repo_link(file_colon_line)}</div>]
   end
 
   # TODO: change this to find out if file is part of HOME of PRIVATE_DIR and
@@ -295,7 +295,7 @@ class CucuFormatter
     else
       scenario_name = scenario_hash[:name]
     end
-    scenario_name = %Q[<div class="scenario_name scenario_name_#{status}">Scenario: #{scenario_name} ==>@&nbsp #{scenario_hash[:file_colon_line]}</div>]
+    scenario_name = %Q[<div class="scenario_name scenario_name_#{status}">Scenario: #{scenario_name} ==>@&nbsp; #{scenario_hash[:file_colon_line]}</div>]
     feature_name = %Q[<div class="feature_name feature_name_#{status}">Feature: #{feature_name}</div>]
     if build_url = ENV['BUILD_URL'] # yes, assignment
       build_url = "http://#{build_url}" unless build_url.slice(/[\w+]+:\/\//)

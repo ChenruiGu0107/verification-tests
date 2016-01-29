@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'shellwords'
 require 'socket'
 
@@ -14,7 +15,11 @@ module CucuShift
     # @param hostname [String] that test machine can access the machine with
     # @param opts [Hash] any other options relevant to implementation
     def initialize(hostname, opts={})
-      @hostname = hostname.dup.freeze
+      if hostname.kind_of? String
+        @hostname = hostname.dup.freeze
+      else
+        raise "Hostname must be a string, not #{hostname.inspect}"
+      end
       @properties = opts.dup
       @workdir = opts[:workdir] ? opts[:workdir].dup.freeze : "/tmp/workdir/" + EXECUTOR_NAME
     end
@@ -49,7 +54,7 @@ module CucuShift
 
     # @param timeout [Integer, String] seconds
     def wait_to_become_accessible(timeout)
-      res
+      res = nil
       wait_for(Integer(timeout)) {
         res = accessible?
         res[:success]
@@ -81,7 +86,7 @@ module CucuShift
 
     # @return pwd of raw commands executed on the host
     private def pwd
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @ param [String] path the path to convert to an absolute path
@@ -109,78 +114,83 @@ module CucuShift
 
     # escape characters for use as command arguments
     def shell_escape(str)
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
-    def exec(commands, opts={})
-      exec_as(nil, commands, opts)
+    # @param commands [Array<String>] the commands to be executed
+    # @param opts [Hash] host executor options, e.g. :chdir, :single,
+    #   :background, etc.
+    def exec(*commands, **opts)
+      exec_as(nil, *commands, **opts)
     end
 
-    def exec_admin(commands, opts={})
-      exec_as(:admin, commands, opts)
+    # @see #exec with the only difference we run as host admin user
+    def exec_admin(*commands, **opts)
+      exec_as(:admin, *commands, **opts)
     end
 
-    def exec_as(user, commands, opts={})
-      raise '#{__method__} method not implemented'
+    # @see #exec with the only difference we run as anothr user
+    def exec_as(user, *commands, **opts)
+      raise "#{__method__} method not implemented"
     end
 
-    # @note exec without any preparations like chdir
+    # @exec exec without any preparations like chdir
     def exec_raw(*commands, **opts)
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @note execute process in the background and inserts clean-up hooks
-    def exec_background_as(user, commands, opts={})
-      raise '#{__method__} method not implemented'
+    def exec_background_as(user, *commands, **opts)
+      raise "#{__method__} method not implemented"
     end
 
-    def exec_background(commands, opts={})
-      exec_background_as(nil, commands, opts)
+    def exec_background(*commands, **opts)
+      exec_background_as(nil, *commands, **opts)
     end
 
-    def exec_background_admin(commands, opts={})
-      exec_background_as(:admin, commands, opts)
+    def exec_background_admin(*commands, **opts)
+      exec_background_as(:admin, *commands, **opts)
     end
 
     # @param spec - interaction specification
     # @param opts [Hash] additional options
-    def exec_interactive(spec, opts={})
-      exec_interactive_as(nil, spec, opts={})
+    def exec_interactive(spec, **opts)
+      exec_interactive_as(nil, spec, **opts)
     end
 
-    def exec_interactive_admin(spec, opts={})
-      exec_interactive_as(:admin, spec, opts={})
+    def exec_interactive_admin(spec, **opts)
+      exec_interactive_as(:admin, spec, **opts)
     end
 
-    def exec_interactive_as(user, spec, opts={})
-      raise '#{__method__} method not implemented'
+    def exec_interactive_as(user, spec, **opts)
+      raise "#{__method__} method not implemented"
     end
 
     def copy_to(local_file, remote_file, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def copy_from(remote_file, local_file, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @return false if dir exists and raise if cannot be created
     def mkdir(remote_dir, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def touch(file, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @return false on unsuccessful deletion
     def delete(file, opts={})
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @return file name of first file found
     def wait_for_files(*files, **opts)
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def get_local_ip
@@ -196,11 +206,11 @@ module CucuShift
     end
 
     def get_local_hostname_platform
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     def get_local_ip_platform
-      raise '#{__method__} method not implemented'
+      raise "#{__method__} method not implemented"
     end
 
     # @return ip based on [#hostname] string
@@ -265,6 +275,10 @@ module CucuShift
       return file.include?("DONE")
       #ret_code, msg = ssh.exec('while sleep 1; do [ -f broker_setup/DONE ] && break; [ -f broker_setup/FAIL ] && exit 1; done')
       #return ret_code == 0
+    end
+
+    def to_s
+      return self[:user] + '@' + hostname
     end
   end
 
@@ -414,7 +428,24 @@ module CucuShift
     end
   end
 
+  # some pure-ruby method implementations
+  module LocalHost
+    def copy_to(local, remote, **opts)
+      FileUtils.cp_r absolutize(local, raw: opts[:raw]),
+                     absolutize(remote, raw: opts[:raw])
+      # exec "cp", "-r", local, absolutize(remote, raw: opts[:raw])
+    end
+
+    def copy_from(remote, local, **opts)
+      # exec "cp", "-r", remote, absolutize(local, raw: opts[:raw])
+      FileUtils.cp_r absolutize(remote, raw: opts[:raw]),
+                     absolutize(local, raw: opts[:raw])
+    end
+  end
+
   class LocalLinuxLikeHost < LinuxLikeHost
+    include LocalHost
+
     def initialize(hostname, opts={})
       hostname ||= self.hostname
       super
@@ -430,7 +461,12 @@ module CucuShift
     end
 
     def accessible?
-      true
+      return {
+        success: true,
+        instruction: "access localhost",
+        error: nil,
+        response: ""
+      }
     end
 
     def file_exist?(file, opts={})
@@ -467,18 +503,18 @@ module CucuShift
       case user
       when nil, self[:user]
         # perform blind exec in workdir
-        return exec_raw(commands, chdir: workdir, **opts)
+        return exec_raw(*commands, chdir: workdir, **opts)
       else
         super
       end
     end
 
     # @note execute process in the background and inserts clean-up hooks
-    def exec_background_as(user, commands, opts)
+    def exec_background_as(user, *commands, **opts)
       exec_as(user, *commands, background: true, **opts)
     end
 
-    # TODO: implement delete, mkdir, touch in ruby
+    # TODO: implement delete, mkdir, touch in ruby in the LocalHost module
 
     def clean_up
       chdir(HOME)
@@ -499,12 +535,12 @@ module CucuShift
     def accessible?
       res = {
         success: false,
-        instruction: "ssh #{opts[:user]}@#{host}",
         error: nil,
         response: ""
       }
+      res[:instruction] = "ssh #{self.inspect}"
       res[:success] = !!ssh # getting ssh means connection is checked
-    rescue
+    rescue => e
       res[:error] = e
       res[:response] = exception_to_string(e)
     ensure
@@ -526,6 +562,26 @@ module CucuShift
       return ssh_opts
     end
 
+    # @return [String] host line suitable for use in ansible inventory
+    def ansible_host_str(opts={})
+      sshopts = ssh_opts(opts)
+      str = hostname.dup
+      if sshopts[:user]
+        str << ' ansible_user=' << sshopts[:user]
+        # stay compatible with ansible 1.9
+        str << ' ansible_ssh_user=' << sshopts[:user]
+      end
+      if sshopts[:private_key]
+        str << ' ansible_ssh_private_key_file="' <<
+          expand_private_path(sshopts[:private_key]) << '"'
+      end
+      if sshopts[:password]
+        pswd = sshopts[:password].gsub('"','\\"')
+        str << ' ansible_ssh_pass="' << pswd << '"'
+      end
+      return str
+    end
+
     private def ssh(opts={})
       return @ssh if connected?(verify: true)
       return @ssh = SSH.new(hostname, ssh_opts(opts))
@@ -538,11 +594,13 @@ module CucuShift
     end
 
     def copy_to(local, remote, **opts)
-      ssh.scp_to(local, absolutize(remote, raw: opts[:raw]))
+      ssh.scp_to Host.localhost.absolutize(local, raw: opts[:raw]),
+                 absolutize(remote, raw: opts[:raw])
     end
 
     def copy_from(remote, local, **opts)
-      ssh.scp_from(remote, absolutize(local, raw: opts[:raw]))
+      ssh.scp_from absolutize(remote, raw: opts[:raw]),
+                   Host.localhost.absolutize(local, raw: opts[:raw])
     end
 
     private def close

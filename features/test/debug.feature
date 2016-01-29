@@ -17,6 +17,7 @@ Feature: Debug and Explore Stuff
       |hodi | brodi |
       |mura |    ura|
 
+    @pry_tbl
     Examples: second test case
       |fff|ddd|
       |aaa|b\nbb|

@@ -2,6 +2,11 @@ require 'socket'
 require 'erb'
 require 'yaml'
 
+# for file and params parsing
+require 'uri'
+require 'cgi'
+
+require 'collections'
 require 'common'
 require 'host'
 
@@ -21,7 +26,7 @@ module CucuShift
 
 
     # @param hosts [Hash<String,Array<Host>>] the hosts hash
-    # @return [Array<String>] specification like:
+    # @return [Array<String>] of size 2 like:
     #   `["master:host1,...,node:hostX", "master:ip1,...,node:ipX"]`
     private def hosts_to_specstr(hosts)
       hosts_str = []
@@ -37,7 +42,8 @@ module CucuShift
 
     # @param spec [String, Hash<String,Array>] the specification.
     #   If [String], then it looks like: `master:hostname1,node:hostname2,...`;
-    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`
+    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`;
+    #   hostN might be a [String] hostname or [CucuShift::Host] (so we do nothing)
     private def spec_to_hosts(spec, ssh_key:, ssh_user:)
       hosts={}
 
@@ -54,7 +60,8 @@ module CucuShift
       host_opts = {user: ssh_user, ssh_private_key: ssh_key}
       spec.each do |role, hostnames|
         hosts[role] = hostnames.map do |hostname|
-          SSHAccessibleHost.new(hostname, host_opts)
+          hostname.kind_of?(Host) ? hostname :
+            SSHAccessibleHost.new(hostname, host_opts)
         end
       end
 
@@ -63,7 +70,8 @@ module CucuShift
 
     # @param hosts_spec [String, Hash<String,Array>] the specification.
     #   If [String], then it looks like: `master:hostname1,node:hostname2,...`;
-    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`
+    #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`;
+    #   hostN might be a [String] hostname or [CucuShift::Host]
     # @param auth_type [String] LDAP, HTTPASSWD, KERBEROS
     # @param ssh_user [String] the username to use for ssh to env hosts
     # @param dns [String] the dns server to use; can be keyword or an IP
@@ -76,18 +84,23 @@ module CucuShift
     #   env hosts
     # @param deployment_type [String] ???
     # @param image_pre [String] image pattern (see configure_env.sh)
+    # @param pre_ansible [String] path + optional url query string, e.g.
+    #   my/path?key1=val1&key2=val2 ; the params will be used as variables in the
+    #   evaluated script
+    # @param post_ansible [String] see #pre_ansible
     #
     def ansible_install(hosts_spec:, auth_type:,
                         ssh_key:, ssh_user:,
-                        dns: nil,
+                        dns: nil, set_hostnames: false,
                         app_domain: nil, host_domain: nil,
                         rhel_base_repo: nil,
                         deployment_type:,
                         crt_path: nil,
                         image_pre:,
-                        puddle_repo:,
+                        puddle_repo: nil,
                         etcd_num:,
                         registry_ha:,
+                        pre_ansible: nil, post_ansible: nil,
                         ansible_url:,
                         use_rpm_playbook:,
                         customized_ansible_conf: "",
@@ -102,7 +115,7 @@ module CucuShift
                         ldap_url: conf[:services, :test_ldap, :url])
       hosts = spec_to_hosts(hosts_spec, ssh_key: ssh_key, ssh_user: ssh_user)
       hostnames_str, ips_str = hosts_to_specstr(hosts)
-      logger.info hosts.to_yaml
+      logger.info hostnames_str
 
       ose3_vars = []
       etcd_host_lines = []
@@ -164,7 +177,6 @@ module CucuShift
       conf_script.gsub!(/#(CONF_KERBEROS_BASE_DOCKER_IMAGE)=.*$/,
                         "\\1=#{kerberos_docker_base_image}")
       conf_script.gsub!(/#(CONF_KERBEROS_KDC)=.*$/, "\\1=#{kerberos_kdc}")
-      conf_script.gsub!(/#(CONF_PUDDLE_REPO)=.*$/, "\\1='#{puddle_repo}'")
       router_dns_type = nil
       dns_subst = proc do
         conf_script.gsub!(/#CONF_HOST_DOMAIN=.*$/,
@@ -188,6 +200,15 @@ module CucuShift
       ## lets sanity check auth type
       if auth_type != "LDAP" && hosts["master"].size > 1
         raise "multiple HA masters require LDAP auth"
+      end
+
+      if set_hostnames
+        ose3_vars << "openshift_set_hostname=true"
+      end
+
+      if puddle_repo
+        conf_script.gsub!(/#(CONF_PUDDLE_REPO)=.*$/, "\\1='#{puddle_repo}'")
+        ose3_vars << "openshift_additional_repos=[{'id': 'ose-devel', 'name': 'ose-devel', 'baseurl': '#{puddle_repo}', 'enabled': 1, 'gpgcheck': 0}]"
       end
 
       ## Setup HA Master opt
@@ -328,7 +349,10 @@ module CucuShift
             if dns == "embedded_skydns"
               host_base_line = "#{host.hostname} openshift_hostname=master.#{host_domain} openshift_public_hostname=master.#{host_domain}"
             else
-              host_base_line = "#{host.hostname} openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+              host_base_line = "#{host.hostname}"
+              if set_hostnames
+                host_base_line << " openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+              end
             end
 
             host_line = host_base_line.dup
@@ -341,7 +365,10 @@ module CucuShift
               node_index = node_host_lines.size + 1
               host_base_line = "#{host.hostname} openshift_hostname=minion#{node_index}.#{host_domain} openshift_public_hostname=minion#{node_index}.#{host_domain}"
             else
-              host_base_line = "#{host.hostname} openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+              host_base_line = "#{host.hostname}"
+              if set_hostnames
+                host_base_line << " openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+              end
             end
             host_line = %Q*#{host_base_line} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"*
             node_host_lines << host_line
@@ -370,16 +397,40 @@ module CucuShift
         end
       end
 
+      ## load ansible inventory template with current binding
       hosts_str = ERB.new(File.read(hosts_erb)).result binding
 
-      # finally run download repo and run ansible (this is in workdir)
-      # we need git and ansible available pre-installed
+      ## download ansible repo to workdir (need git pre-installed)
       check_res Host.localhost.exec(
         "git clone #{ansible_url}"
       )
       res = nil
 
+      ## ssh-key param for ansible
+      ssh_key_path = expand_private_path(ssh_key)
+      File.chmod(0600, ssh_key_path)
+
+      # ansible goodies
+      ENV["ANSIBLE_CALLBACK_WHITELIST"] = 'profile_tasks'
       ENV["ANSIBLE_FORCE_COLOR"] = "true"
+
+      ## run pre-ansible hook (need ansible pre-installed)
+      #  that basically means:
+      #  * setup all needed repos
+      #  * install git, ansible, docker, etc.
+      #  * setup docker for any necessary repo auth
+      #  * pull some images
+      if pre_ansible && !pre_ansible.empty?
+        prea_url = URI.parse pre_ansible
+        prea_path = expand_private_path(prea_url.path, public_safe: true)
+        prea_query = prea_url.query
+        prea_params = prea_query ? CGI::parse(prea_query) : {}
+        Collections.map_hash!(prea_params) { |k, v| [k, v.last] }
+        prea_binding = Common::BaseHelper.binding_from_hash(binding, prea_params)
+        eval(File.read(prea_path), prea_binding, prea_path)
+      end
+
+      ## finally run ansible
       Dir.chdir(Host.localhost.workdir) {
         logger.info("hosts file:\n" + hosts_str)
         File.write("hosts", hosts_str)
@@ -392,9 +443,7 @@ module CucuShift
         else
           playbook_file = "openshift-ansible/playbooks/byo/config.yml"
         end
-        ssh_key_param = expand_private_path(ssh_key)
-        File.chmod(0600, ssh_key_param)
-        ansible_cmd = "ansible-playbook -i hosts -v --private-key #{Host.localhost.shell_escape(ssh_key_param)} -vvvv #{playbook_file}"
+        ansible_cmd = "ansible-playbook -i hosts --private-key #{Host.localhost.shell_escape(ssh_key_path)} -vvvv #{playbook_file}"
         logger.info("Running: #{ansible_cmd}")
         res = system(ansible_cmd)
       }
@@ -408,10 +457,13 @@ module CucuShift
       # check_res hosts['master'][0].exec_admin(
       #   "sh configure_env.sh replace_template_domain"
       # )
+
+      ## create a router and a registry
       check_res hosts['master'][0].exec_admin(
         "sh configure_env.sh create_router_registry"
       )
 
+      ## configure HA registry if requested
       if registry_ha
         check_res hosts['master'][0].exec_admin(
           'sh configure_env.sh configure_nfs_service'
@@ -420,21 +472,30 @@ module CucuShift
           'sh configure_env.sh configure_registry_to_ha'
         )
       end
+
+      ## setup SkyDNS for proper resolution (not supported)
       if dns == "embedded_skydns"
         check_res hosts['master'][0].exec_admin(
           "sh configure_env.sh add_skydns_hosts"
         )
       end
+
+      ## setup Kerberos auth if requested
       if auth_type == "KERBEROS"
         check_res hosts['master'][0].exec_admin(
           'sh configure_env.sh configure_auth'
         )
       end
+
+      ## setup testing image streams if requested
       if !modify_IS_for_testing.empty?
           check_res hosts['master'][0].exec_admin(
             "sh configure_env.sh modify_IS_for_testing #{modify_IS_for_testing}"
           )
       end
+
+      ## execute post-ansible hook
+      # TODO
     ensure
       # Host clean_up
       if defined?(hosts) && hosts.kind_of?(Hash)
@@ -478,11 +539,12 @@ module CucuShift
               :ssh_key, :ssh_user,
               :app_domain, :host_domain,
               :rhel_base_repo,
-              :dns,
+              :dns, :set_hostnames,
               :use_rpm_playbook,
               :image_pre,
               :puddle_repo,
               :etcd_num, :registry_ha,
+              :pre_ansible,
               :ansible_url,
               :customized_ansible_conf,
               :modify_IS_for_testing,
@@ -499,7 +561,7 @@ module CucuShift
 
       opts[:registry_ha] = false unless to_bool(opts[:registry_ha])
       opts[:use_rpm_playbook] = false unless to_bool(opts[:use_rpm_playbook])
-    end 
+    end
 
     #def launch(**opts)
     #  # set OPENSTACK_SERVICE_NAME

@@ -2,6 +2,7 @@
 masters
 nodes
 etcd
+lb
 
 [OSEv3:vars]
 <%='openshift_master_embedded_dns=False' if dns.start_with?("embedded")%>
@@ -10,7 +11,6 @@ deployment_type=<%=deployment_type%>
 oreg_url=<%=image_pre%>
 
 # Pre-release additional repo
-openshift_additional_repos=[{'id': 'ose-devel', 'name': 'ose-devel', 'baseurl': '<%=puddle_repo%>', 'enabled': 1, 'gpgcheck': 0}]
 openshift_use_openshift_sdn=true
 osm_default_subdomain=<%=app_domain%>
 openshift_master_identity_providers=<%=identity_providers%>

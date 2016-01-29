@@ -96,7 +96,11 @@ services:
       centos7: "devenv-centos7_*"
       rhel7: "devenv-rhel7_*"
       rhel7next: "devenv-rhel7next_*"
-      devenv_wildcard: "devenv-*"
-      stable_ami: "devenv-stage-*"
+      devenv_v2: "devenv_*"
+      devenv_stable_v2: "devenv-stage_*"
+      raw: "ami-01743f64"
     hosts_type: SSHAccessibleHost
-    #ssh_private_key: relative/path
+    cloud_type: aws
+    # hosts_opts:
+      # ssh_private_key: relative/path
+      # user: the_username

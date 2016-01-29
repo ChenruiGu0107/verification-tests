@@ -100,25 +100,48 @@ module CucuShift
       end
     end
 
-    def get_latest_ami(filter_val=config[:ami_types][:devenv_wildcard])
-      devenv_amis = @ec2.images({
-        filters: [
-            {
-              name: "name",
-              values: [filter_val],
-            },
-            {
-              name: "state",
-              values: ["available"],
-            },
-            {
-              name: "tag-value",
-              values: [config[:tag_ready]],
-            },
-          ],
-        })
-      # take the last devenv ami
-      devenv_amis.to_a.sort_by {|ami| ami.name.split("_")[-1].to_i}.last
+    def filter_available_amis(*filters)
+      filters << {
+        name: "state",
+        values: ["available"]
+      }
+      return @ec2.images({ filters: filters })
+    end
+
+    def filter_qe_ready_amis(*filters)
+      filters << {
+        name: "tag-value",
+        values: [config[:tag_ready]]
+      }
+      return filter_available_amis(*filters)
+    end
+
+    def get_latest_ami(filter_val = nil)
+      v3_types = [:fedora, :centos7, :rhel7, :rhel7next]
+      case filter_val
+      when nil
+        # latest devenv regardless of OS
+        filter_val = v3_types.map { |t| filter_val=config[:ami_types][t] }
+      when Array
+        # do nothing
+      when String
+        filter_val = filter_val.split(",")
+      else
+        raise "dunno what this filter is: #{filter_val.inspect}"
+      end
+
+      amis = filter_qe_ready_amis({name: "name", values: filter_val}).to_a
+      if amis.empty?
+        logger.warn("no qe-ready AMIs found, trying non-ready with names: #{filter_val}")
+        amis = filter_available_amis({name: "name", values: filter_val})
+      end
+
+      # take latest ami by date
+      img = amis.sort_by {|ami| ami.creation_date}.last
+      unless img
+        raise "could not find specified image: #{filter_val}"
+      end
+      return img
     end
 
     # TODO: convert to v2 AWS API
@@ -138,10 +161,16 @@ module CucuShift
     #   end
     # end
 
-    # Returns latest devenv-stage-* AMI
+    # Returns latest devenv_* AMI
     # @return [String] ami-id
-    def get_latest_stable_ami
-      return get_latest_ami(config[:ami_types][:stable_ami])
+    def get_latest_v2_ami
+      return get_latest_ami(config[:ami_types][:devenv_v2])
+    end
+
+    # Returns latest devenv-stage_* AMI
+    # @return [String] ami-id
+    def get_latest_stable_v2_ami
+      return get_latest_ami(config[:ami_types][:devenv_stable_v2])
     end
 
     # @param [String] ec2_tag the EC2 'Name' tag value
@@ -250,22 +279,24 @@ module CucuShift
     # returns ssh connection
     def block_until_accessible(instance, host_opts={})
       logger.info "Waiting for instance to become accessible..."
+      host_opts = config[:hosts_opts].merge host_opts
       if instance.public_dns_name == ''
         logger.info("Reloading instance...")
         instance.reload
       end
 
       hostname = instance.public_dns_name
-      host = CucuShift.const_get(host_type).new(hostname, host_opts)
+      host = CucuShift.const_get(config[:hosts_type]).new(hostname, host_opts)
       logger.info("hostname: #{hostname}")
       logger.info("Trying to connect host #{hostname}..")
       res = host.wait_to_become_accessible(600)
 
       unless res[:success]
         terminate_instance(instance)
+        logger.error res[:response]
         # raise error with a cause (ever heard of that ruby dude?)
         raise res[:error] rescue
-          raise ScriptError, "SSH availability timed out for #{hostname}"
+              raise ScriptError, "SSH availability timed out for #{hostname}"
       end
       logger.info "Instance (#{hostname}) is accessible"
       return host
@@ -286,30 +317,35 @@ module CucuShift
     # @param [String] image the AMI id or filter type (e.g. rhel7, stage, etc.)
     # @param [Array, String] tag_name the tag name(s) for EC2 instance(s);
     #   is Array, it overrides min/max count with the number of elements
-    # @param [Hash] other EC2 create_opts
+    # @param [Hash] create_opts for EC2, see
+    #   http://docs.aws.amazon.com/sdkforruby/api/Aws/EC2/Resource.html#create_instances-instance_method
     # @param [Integer] max_retries max retries to try (TODO)
     #
     # @return [Array] of [amz_instance, CucuShift::Host] pairs
     #
     def launch_instances(image: nil,
                          tag_name: nil,
-                         username: nil,
                          create_opts: nil,
                          max_retries: 1)
       # default to use rhel if no filter is specified
       instance_opt = config[:create_opts] ? config[:create_opts].dup : {}
       instance_opt.merge!(create_opts) if create_opts
 
+      if image.kind_of? Symbol
+        image = config[:ami_types][image]
+      end
+
       case image
       when Aws::EC2::Image
         instance_opt[:image_id] = image.id
       when nil
         unless instance_opt[:image_id]
-          image = get_latest_stable_ami
+          image = get_latest_ami
           instance_opt[:image_id] = image.id
         end
       when /^ami-.+/
         instance_opt[:image_id] = image
+        # image = @ec2.images[image]
       else
         logger.info("Using image filter #{image}...")
         image = self.get_latest_ami(image)
@@ -328,9 +364,10 @@ module CucuShift
         instance_opt[:min_count] = instance_opt[:max_count] = tag_name.size
       end
 
-      logger.info("Launching EC2 instance from #{image.name} with tags #{tag_name}...")
+      logger.info("Launching EC2 instance from #{image.kind_of?(Aws::EC2::Image) ? image.name : image.inspect} with tags #{tag_name}...")
       instances = @ec2.create_instances(instance_opt)
 
+      res = []
       instances.each_with_index do | instance, i |
         tag = tag_name[i] || tag.last
         inst = instance.wait_until_running
@@ -345,7 +382,9 @@ module CucuShift
         })
         # make sure we can ssh into the instance
         host = block_until_accessible(instance)
+        res << [inst, host]
       end
+      return res
     end
   end
 end
