@@ -2,23 +2,23 @@
 set -x
 function  is_true()
 {
-	for arg
-	do
-		[[ x$arg =~ x(1|true) ]] || return 0
-	done
+    for arg
+    do
+        [[ x$arg =~ x(1|true) ]] || return 0
+    done
 
-	return 1
+    return 1
 }
 
 
 function is_false()
 {
-	for arg
-	do
-		[[ x$arg =~ x(0|false) ]] || return 0
-	done
+    for arg
+    do
+        [[ x$arg =~ x(0|false) ]] || return 0
+    done
 
-	return 1
+    return 1
 }
 
 function wait_cloud_init()
@@ -33,50 +33,50 @@ function wait_cloud_init()
 
 function yum_install_or_exit()
 {
-	echo "Openshift V3: yum install $*"
-	Count=0
-	while true
-	do
-		yum install -y $*
-		if [ $? -eq 0 ]; then
-			return
-		elif [ $Count -gt 3 ]; then
-			echo "Openshift V3: Command fail: yum install $*"
-			echo "Openshift V3: Please ensure relevant repos are configured"
-			exit 1
-		fi
-		let Count+=1
-	done
+    echo "Openshift V3: yum install $*"
+    Count=0
+    while true
+    do
+        yum install -y $*
+        if [ $? -eq 0 ]; then
+            return
+        elif [ $Count -gt 3 ]; then
+            echo "Openshift V3: Command fail: yum install $*"
+            echo "Openshift V3: Please ensure relevant repos are configured"
+            exit 1
+        fi
+        let Count+=1
+    done
 }
 
 function install_named_pkg()
 {
-	yum_install_or_exit bind 
+    yum_install_or_exit bind 
 }
 
 function configure_bind()
 {
-	rndc-confgen -a -r /dev/urandom
-	restorecon /etc/rndc.* /etc/named.*
-	chown root:named /etc/rndc.key
-	chmod 640 /etc/rndc.key
+    rndc-confgen -a -r /dev/urandom
+    restorecon /etc/rndc.* /etc/named.*
+    chown root:named /etc/rndc.key
+    chmod 640 /etc/rndc.key
 
-	# Set up DNS forwarding if so directed.
-	echo "forwarders { ${nameservers} } ;" > /var/named/forwarders.conf
-	restorecon /var/named/forwarders.conf
-	chmod 644 /var/named/forwarders.conf
+    # Set up DNS forwarding if so directed.
+    echo "forwarders { ${nameservers} } ;" > /var/named/forwarders.conf
+    restorecon /var/named/forwarders.conf
+    chmod 644 /var/named/forwarders.conf
 
-	# Install the configuration file for the OpenShift Enterprise domain
-	# name.
-	rm -rf /var/named/dynamic
-	mkdir -p /var/named/dynamic
+    # Install the configuration file for the OpenShift Enterprise domain
+    # name.
+    rm -rf /var/named/dynamic
+    mkdir -p /var/named/dynamic
 
-	chgrp named -R /var/named
-	chown named -R /var/named/dynamic
-	restorecon -rv /var/named
+    chgrp named -R /var/named
+    chown named -R /var/named/dynamic
+    restorecon -rv /var/named
 
-	# Replace named.conf.
-	cat <<EOF > /etc/named.conf
+    # Replace named.conf.
+    cat <<EOF > /etc/named.conf
 // named.conf
 //
 // Provided by Red Hat bind package to configure the ISC BIND named(8) DNS
@@ -87,8 +87,8 @@ function configure_bind()
 
 options {
   listen-on port 53 { any; };
-  directory 	"/var/named";
-  dump-file 	"/var/named/data/cache_dump.db";
+  directory     "/var/named";
+  dump-file     "/var/named/data/cache_dump.db";
   statistics-file "/var/named/data/named_stats.txt";
   memstatistics-file "/var/named/data/named_mem_stats.txt";
   allow-query     { any; };
@@ -121,68 +121,68 @@ include "/etc/named.rfc1912.zones";
 EOF
 
 
-	chown root:named /etc/named.conf
-	chcon system_u:object_r:named_conf_t:s0 -v /etc/named.conf
+    chown root:named /etc/named.conf
+    chcon system_u:object_r:named_conf_t:s0 -v /etc/named.conf
 
-	# actually set up the domain zone(s)
-	# bind_key is used if set, created if not. both domains use same key.
-	if ! $USE_OPENSTACK_DNS; then
-		configure_named_zone ${CONF_HOST_DOMAIN}
-		add_infra_records
-	fi
-	configure_named_zone ${CONF_APP_DOMAIN}
-	add_route_records
+    # actually set up the domain zone(s)
+    # bind_key is used if set, created if not. both domains use same key.
+    if ! $USE_OPENSTACK_DNS; then
+        configure_named_zone ${CONF_HOST_DOMAIN}
+        add_infra_records
+    fi
+    configure_named_zone ${CONF_APP_DOMAIN}
+    add_route_records
 
-	chkconfig named on
+    chkconfig named on
 
   # Start named so we can perform some updates immediately.
-	service named restart
+    service named restart
 }
 
 
 function configure_named_zone()
 {
-	zone="$1"
+    zone="$1"
 
-	if [ "x$bind_key" = x ]; then
-		# Generate a new secret key
-		zone_tolower="${zone,,}"
-		rm -f /var/named/K${zone_tolower}*
-		dnssec-keygen -a HMAC-SHA256 -b 256 -n USER -r /dev/urandom -K /var/named ${zone}
-		# $zone may have uppercase letters in it.  However the file that
-		# dnssec-keygen creates will have the zone in lowercase.
-		bind_key="$(grep Key: /var/named/K${zone_tolower}*.private | cut -d ' ' -f 2)"
-		rm -f /var/named/K${zone_tolower}*
-	fi
+    if [ "x$bind_key" = x ]; then
+        # Generate a new secret key
+        zone_tolower="${zone,,}"
+        rm -f /var/named/K${zone_tolower}*
+        dnssec-keygen -a HMAC-SHA256 -b 256 -n USER -r /dev/urandom -K /var/named ${zone}
+        # $zone may have uppercase letters in it.  However the file that
+        # dnssec-keygen creates will have the zone in lowercase.
+        bind_key="$(grep Key: /var/named/K${zone_tolower}*.private | cut -d ' ' -f 2)"
+        rm -f /var/named/K${zone_tolower}*
+    fi
 
-	# Install the key where BIND and oo-register-dns expect it.
-	cat <<EOF > /var/named/${zone}.key
+    # Install the key where BIND and oo-register-dns expect it.
+    cat <<EOF > /var/named/${zone}.key
 key ${zone} {
   algorithm "HMAC-SHA256";
   secret "${bind_key}";
 };
 EOF
 
-	# Create the initial BIND database.
-	cat <<EOF > /var/named/dynamic/${zone}.db
+    # Create the initial BIND database.
+    cat <<EOF > /var/named/dynamic/${zone}.db
 \$ORIGIN .
-\$TTL 1	; 1 seconds (for testing only)
-${zone}		IN SOA	ns1.$zone. hostmaster.$zone. (
+\$TTL 1    ; 1 seconds (for testing only)
+${zone}        IN SOA    ns1.$zone. hostmaster.$zone. (
   2011112904 ; serial
   60         ; refresh (1 minute)
   15         ; retry (15 seconds)
   1800       ; expire (30 minutes)
   10         ; minimum (10 seconds)
   )
-  IN NS	$named_hostname.
-  IN MX	10 mail.$zone.
+  IN NS    $named_hostname.
+  IN MX    10 mail.$zone.
 \$ORIGIN ${zone}.
 ns1                   IN A       ${CONF_DNS_IP}
 EOF
 
-	if ! grep ${zone} /etc/named.conf >/dev/null; then
-  		# Add a record for the zone to named conf
-		cat <<EOF >> /etc/named.conf
+    if ! grep ${zone} /etc/named.conf >/dev/null; then
+        # Add a record for the zone to named conf
+        cat <<EOF >> /etc/named.conf
 include "${zone}.key";
 zone "${zone}" IN {
   type master;
@@ -190,27 +190,27 @@ zone "${zone}" IN {
   allow-update { key ${zone} ; } ;
 };
 EOF
-	fi
-	sed -i "/lo -j ACCEPT/a -A INPUT -m state --state NEW -m udp -p udp --dport 53 -j ACCEPT" /etc/sysconfig/iptables
-	sed -i "/lo -j ACCEPT/a -A INPUT -m state --state NEW -m tcp -p tcp --dport 53 -j ACCEPT" /etc/sysconfig/iptables
+    fi
+    sed -i "/lo -j ACCEPT/a -A INPUT -m state --state NEW -m udp -p udp --dport 53 -j ACCEPT" /etc/sysconfig/iptables
+    sed -i "/lo -j ACCEPT/a -A INPUT -m state --state NEW -m tcp -p tcp --dport 53 -j ACCEPT" /etc/sysconfig/iptables
 }
 
 function configure_dns_resolution()
 {
-	sed -i -e "/search/ d; 1i# The named we install for our OpenShift PaaS must appear first.\\nsearch ${CONF_HOST_DOMAIN}.\\nnameserver ${CONF_DNS_IP}\\n" /etc/resolv.conf
+    sed -i -e "/search/ d; 1i# The named we install for our OpenShift PaaS must appear first.\\nsearch ${CONF_HOST_DOMAIN}.\\nnameserver ${CONF_DNS_IP}\\n" /etc/resolv.conf
 
-	cat <<EOF > /etc/dhcp/dhclient-$interface.conf
+    cat <<EOF > /etc/dhcp/dhclient-$interface.conf
 prepend domain-name-servers ${CONF_DNS_IP};
 prepend domain-search "${CONF_HOST_DOMAIN}";
 EOF
-	systemctl restart network.service
+    systemctl restart network.service
 }
 
 function add_infra_records()
 {
-	for host in ${CONF_HOST_LIST//,/ }; do
-		key=$(echo $host|awk -F":" '{print $1}')
-		value=$(echo $host|awk -F":" '{print $2}')
+    for host in ${CONF_HOST_LIST//,/ }; do
+        key=$(echo $host|awk -F":" '{print $1}')
+        value=$(echo $host|awk -F":" '{print $2}')
         if [[ "$value" == *[A-Za-z]* ]]; then
           REC_TYPE=CNAME
           value+=.
@@ -224,22 +224,22 @@ function add_infra_records()
 
 function add_route_records()
 {
-	multinode=${CONF_IP_LIST//[^,]}
-	for host in ${CONF_IP_LIST//,/ }; do
-		key=$(echo $host|awk -F":" '{print $1}')
-		value=$(echo $host|awk -F":" '{print $2}')
-		if [[ "$value" == *[A-Za-z]* ]]; then
-			REC_TYPE=CNAME
-			value+=.
-		else
-			REC_TYPE=A
-		fi
-		# routers will run on masters or nodes, point DNS at them
-		if [ "$key" == "$CONF_ROUTER_NODE_TYPE" ] ||
-				[ x"$multinode" == x"" ]; then
-			echo "*                    IN $REC_TYPE    ${value}" >>/var/named/dynamic/${CONF_APP_DOMAIN}.db
-		fi
-	done
+    multinode=${CONF_IP_LIST//[^,]}
+    for host in ${CONF_IP_LIST//,/ }; do
+        key=$(echo $host|awk -F":" '{print $1}')
+        value=$(echo $host|awk -F":" '{print $2}')
+        if [[ "$value" == *[A-Za-z]* ]]; then
+            REC_TYPE=CNAME
+            value+=.
+        else
+            REC_TYPE=A
+        fi
+        # routers will run on masters or nodes, point DNS at them
+        if [ "$key" == "$CONF_ROUTER_NODE_TYPE" ] ||
+                [ x"$multinode" == x"" ]; then
+            echo "*                    IN $REC_TYPE    ${value}" >>/var/named/dynamic/${CONF_APP_DOMAIN}.db
+        fi
+    done
 }
 
 function configure_repos()
@@ -274,99 +274,99 @@ function clean_repos()
 
 function create_router_registry()
 {
-	oadm registry --credentials=$CONF_CRT_PATH/master/openshift-registry.kubeconfig --images="$CONF_IMAGE_PRE"
-	#CA=$CONF_CRT_PATH/master
-	#oadm ca create-server-cert --signer-cert=$CA/ca.crt --signer-key=$CA/ca.key --signer-serial=$CA/ca.serial.txt  --hostnames="*.${CONF_APP_DOMAIN}" --cert=cloudapps.crt --key=cloudapps.key
-	#cat cloudapps.crt cloudapps.key $CA/ca.crt > cloudapps.router.pem
-	#oc get scc privileged -o yaml >privileged.yaml
-	#grep "system:serviceaccount:default:default" privileged.yaml || echo "- system:serviceaccount:default:default" >> privileged.yaml
-	#oc replace -f privileged.yaml 
-	#tmpStr=${CONF_HOST_LIST//[^,]}
-	#if [ x"$tmpStr" == x"" ]; then
-	#	nodeNum=1
-	#else
-	#	nodeNum=${#tmpStr}
-	#fi
-	#oadm router --default-cert=cloudapps.router.pem --credentials=$CONF_CRT_PATH/master/openshift-router.kubeconfig --images="$CONF_IMAGE_PRE" --replicas=$nodeNum --service-account=default
+    oadm registry --credentials=$CONF_CRT_PATH/master/openshift-registry.kubeconfig --images="$CONF_IMAGE_PRE"
+    #CA=$CONF_CRT_PATH/master
+    #oadm ca create-server-cert --signer-cert=$CA/ca.crt --signer-key=$CA/ca.key --signer-serial=$CA/ca.serial.txt  --hostnames="*.${CONF_APP_DOMAIN}" --cert=cloudapps.crt --key=cloudapps.key
+    #cat cloudapps.crt cloudapps.key $CA/ca.crt > cloudapps.router.pem
+    #oc get scc privileged -o yaml >privileged.yaml
+    #grep "system:serviceaccount:default:default" privileged.yaml || echo "- system:serviceaccount:default:default" >> privileged.yaml
+    #oc replace -f privileged.yaml 
+    #tmpStr=${CONF_HOST_LIST//[^,]}
+    #if [ x"$tmpStr" == x"" ]; then
+    #    nodeNum=1
+    #else
+    #    nodeNum=${#tmpStr}
+    #fi
+    #oadm router --default-cert=cloudapps.router.pem --credentials=$CONF_CRT_PATH/master/openshift-router.kubeconfig --images="$CONF_IMAGE_PRE" --replicas=$nodeNum --service-account=default
 }
 
 
 function configure_hosts()
 {
-	for host in ${CONF_HOST_LIST//,/ }; do
-		tmpKey=$(echo $host|awk -F":" '{print $1}')
-		tmpIp=$(echo $host|awk -F":" '{print $2}')
-      	grep $tmpip /etc/hosts || echo -e \"$tmpip\t$tmpkey.$DOMAIN_NAME\" >>/etc/hosts
-	done
+    for host in ${CONF_HOST_LIST//,/ }; do
+        tmpKey=$(echo $host|awk -F":" '{print $1}')
+        tmpIp=$(echo $host|awk -F":" '{print $2}')
+          grep $tmpip /etc/hosts || echo -e \"$tmpip\t$tmpkey.$DOMAIN_NAME\" >>/etc/hosts
+    done
 }
 
 function configure_shared_dns()
 {
-	if ! $USE_OPENSTACK_DNS; then
-		configure_named_zone ${CONF_HOST_DOMAIN}
-		add_infra_records
-	fi
-	configure_named_zone ${CONF_APP_DOMAIN}
-	add_route_records
-	service named restart
+    if ! $USE_OPENSTACK_DNS; then
+        configure_named_zone ${CONF_HOST_DOMAIN}
+        add_infra_records
+    fi
+    configure_named_zone ${CONF_APP_DOMAIN}
+    add_route_records
+    service named restart
 }
-	
+    
 function add_skydns_hosts()
 {
-	for host in ${CONF_HOST_LIST//,/ }; do
-		key=$(echo $host|awk -F":" '{print $1}')
-		value=$(echo $host|awk -F":" '{print $2}')	
-		curl  --cacert $CONF_CRT_PATH/master/ca.crt --cert $CONF_CRT_PATH/master/master.etcd-client.crt --key $CONF_CRT_PATH/master/master.etcd-client.key -XPUT https://master.cluster.local:4001/v2/keys/skydns/local/cluster/$key -d value="{\"Host\": \"$ip\"}"
-	done
+    for host in ${CONF_HOST_LIST//,/ }; do
+        key=$(echo $host|awk -F":" '{print $1}')
+        value=$(echo $host|awk -F":" '{print $2}')    
+        curl  --cacert $CONF_CRT_PATH/master/ca.crt --cert $CONF_CRT_PATH/master/master.etcd-client.crt --key $CONF_CRT_PATH/master/master.etcd-client.key -XPUT https://master.cluster.local:4001/v2/keys/skydns/local/cluster/$key -d value="{\"Host\": \"$ip\"}"
+    done
 }
 
 function replace_template_domain()
 {
-	for file in $(grep -rl "openshiftapps.com" /usr/share/openshift/examples/*); do 
-		sed -i "s/openshiftapps.com/$CONF_APP_DOMAIN/" $file
-		oc replace -n openshift -f $file
-	done
+    for file in $(grep -rl "openshiftapps.com" /usr/share/openshift/examples/*); do 
+        sed -i "s/openshiftapps.com/$CONF_APP_DOMAIN/" $file
+        oc replace -n openshift -f $file
+    done
 }
 
 
 function configure_nfs_service()
 {
-	yum_install_or_exit nfs-utils
-	mkdir -p /var/export/regvol
-	chown nfsnobody:nfsnobody /var/export/regvol
-	chmod 700 /var/export/regvol
+    yum_install_or_exit nfs-utils
+    mkdir -p /var/export/regvol
+    chown nfsnobody:nfsnobody /var/export/regvol
+    chmod 700 /var/export/regvol
         # add no_wdelay as workaround for BZ#1277356
-	echo "/var/export/regvol *(rw,sync,all_squash,no_wdelay)" >> /etc/exports
-	systemctl enable rpcbind nfs-server
-	systemctl restart rpcbind nfs-server nfs-lock 
-	systemctl restart nfs-idmap
+    echo "/var/export/regvol *(rw,sync,all_squash,no_wdelay)" >> /etc/exports
+    systemctl enable rpcbind nfs-server
+    systemctl restart rpcbind nfs-server nfs-lock 
+    systemctl restart nfs-idmap
 
 
-	iptables -N OS_NFS_ALLOW
-	rulenum=$(iptables -L INPUT --line-number|grep REJECT|head -n 1|awk '{print $1}')
-	iptables -I INPUT $rulenum -j OS_NFS_ALLOW
-	iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 111 -j ACCEPT
-	iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 2049 -j ACCEPT
-	iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 20048 -j ACCEPT
-	iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 50825 -j ACCEPT
-	iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 53248 -j ACCEPT
+    iptables -N OS_NFS_ALLOW
+    rulenum=$(iptables -L INPUT --line-number|grep REJECT|head -n 1|awk '{print $1}')
+    iptables -I INPUT $rulenum -j OS_NFS_ALLOW
+    iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 111 -j ACCEPT
+    iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 2049 -j ACCEPT
+    iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 20048 -j ACCEPT
+    iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 50825 -j ACCEPT
+    iptables -I OS_NFS_ALLOW -p tcp -m state --state NEW -m tcp --dport 53248 -j ACCEPT
 
-	# save rules and make sure iptables service is active and enabled
-	/usr/libexec/iptables/iptables.init save || exit 1
-	systemctl is-enabled iptables && systemctl is-active iptables || exit 1
+    # save rules and make sure iptables service is active and enabled
+    /usr/libexec/iptables/iptables.init save || exit 1
+    systemctl is-enabled iptables && systemctl is-active iptables || exit 1
 
-	sed -i 's/RPCMOUNTDOPTS=.*/RPCMOUNTDOPTS="-p 20048"/' /etc/sysconfig/nfs
-	sed -i 's/STATDARG=.*/STATDARG="-p 50825"/' /etc/sysconfig/nfs
-	echo "fs.nfs.nlm_tcpport=53248" >>/etc/sysctl.conf
-	echo "fs.nfs.nlm_udpport=53248" >>/etc/sysctl.conf
-	sysctl -p
-	systemctl restart nfs
-	setsebool -P virt_use_nfs=true
+    sed -i 's/RPCMOUNTDOPTS=.*/RPCMOUNTDOPTS="-p 20048"/' /etc/sysconfig/nfs
+    sed -i 's/STATDARG=.*/STATDARG="-p 50825"/' /etc/sysconfig/nfs
+    echo "fs.nfs.nlm_tcpport=53248" >>/etc/sysctl.conf
+    echo "fs.nfs.nlm_udpport=53248" >>/etc/sysctl.conf
+    sysctl -p
+    systemctl restart nfs
+    setsebool -P virt_use_nfs=true
 }
 
 function configure_registry_to_ha()
 {
-	cat >pv.json <<EOF
+    cat >pv.json <<EOF
 {
   "apiVersion": "v1",
   "kind": "PersistentVolume",
@@ -386,7 +386,7 @@ function configure_registry_to_ha()
 }
 EOF
 
-	cat >pvc.json<<EOF
+    cat >pvc.json<<EOF
 {
   "apiVersion": "v1",
   "kind": "PersistentVolumeClaim",
@@ -403,11 +403,11 @@ EOF
   }
 }
 EOF
-	oc create -f pv.json
-	oc create -f pvc.json
-	oc volume dc/docker-registry --add --overwrite -t persistentVolumeClaim --claim-name=registry-claim --name=registry-storage
-	oc scale --replicas=2 dc/docker-registry
-	
+    oc create -f pv.json
+    oc create -f pvc.json
+    oc volume dc/docker-registry --add --overwrite -t persistentVolumeClaim --claim-name=registry-claim --name=registry-storage
+    oc scale --replicas=2 dc/docker-registry
+    
 }
 
 function configure_ldap_source()
@@ -427,40 +427,7 @@ EOF
     docker build -t docker.io/basicauthurl basicauthurl/
 
 }
-function configure_auth()
-{
-    oc new-project basicauthurl
-    oc new-app --strategy=docker --labels=name=basicauthurl https://github.com/xiama/basic-authentication-provider-example.git
-    rm -rf basic-authentication-provider-example
-    git clone https://github.com/xiama/basic-authentication-provider-example.git
-    rm -rf secrets
-    mkdir -p secrets
-    cp basic-authentication-provider-example/examples/* secrets/
-    pushd secrets
-    oadm ca create-server-cert --signer-cert=$CONF_CRT_PATH/master/ca.crt --signer-key=$CONF_CRT_PATH/master/ca.key  --signer-serial=$CONF_CRT_PATH/master/ca.serial.txt --cert=cert.crt --key=key.key --hostnames=$(oc get service -n basicauthurl|grep basicauthurl|awk '{print $4}')
-    if [ x"$CONF_AUTH_TYPE" == x"KERBEROS" ]; then
-        cat >ldap.conf<<EOF
-AuthName openshift
-AuthType Kerberos
-KrbMethodNegotiate on
-KrbMethodK5Passwd on
-KrbServiceName Any
-KrbAuthRealms EXAMPLE.COM
-Krb5Keytab /etc/http.keytab
-KrbSaveCredentials off
-EOF
-    else
-        sed -i -e "s/example.com/$CONF_KERBEROS_KDC/" -e 's/dc=example/dc=my-domain/g' ldap.conf
-    fi
-    cp $CONF_CRT_PATH/master/ca.crt .
-    oc secrets new httpd-auth  conf=ldap.conf key=key.key cert=cert.crt ca=ca.crt
-    oc secrets add serviceaccount/default secrets/httpd-auth --for=mount
-    oc volume  dc/basic-authentication-provider-example --add --type=secret --secret-name=httpd-auth --mount-path=/etc/secret-volume
-    IP=$(oc get service -n basicauthurl |grep basicauthurl|awk '{print $4}')
-    sed -i "s/<serviceIP>/$IP/" $CONF_CRT_PATH/master/master-config.yaml
-    systemctl restart openshift-master
-    popd
-}
+
 
 function modify_IS_for_testing()
 {
@@ -507,6 +474,151 @@ function modify_IS_for_testing()
   done
 }
 
+function confiugre_kerberos()
+{
+    yum install httpd mod_ssl apr-util-openssl mod_auth_kerb  -y
+    oadm create-api-client-config --certificate-authority='/etc/origin/master/ca.crt' \
+        --client-dir='/etc/origin/master/authproxy' \
+        --signer-cert='/etc/origin/master/ca.crt' \
+        --signer-key='/etc/origin/master/ca.key' \
+        --signer-serial='/etc/origin/master/ca.serial.txt' \
+        --user='authproxy'
+    host_name=$(hostname)
+    pushd /etc/origin/master
+    \cp master.server.crt /etc/pki/tls/certs/localhost.crt
+    \cp master.server.key /etc/pki/tls/private/localhost.key
+    \cp ca.crt /etc/pki/CA/certs/ca.crt
+    cat authproxy/authproxy.crt \
+        authproxy/authproxy.key > \
+        /etc/pki/tls/certs/authproxy.pem
+    popd
+    cat  >/etc/httpd/conf.d/openshift.conf <<EOF
+#LoadModule auth_form_module modules/mod_auth_form.so
+#LoadModule session_module modules/mod_session.so
+#LoadModule request_module modules/mod_request.so
+
+# Nothing needs to be served over HTTP.  This virtual host simply redirects to
+# HTTPS.
+<VirtualHost *:80>
+  DocumentRoot /var/www/html
+  RewriteEngine              On
+  RewriteRule     ^(.*)$     https://%{HTTP_HOST}$1 [R,L]
+</VirtualHost>
+
+<VirtualHost *:443>
+  # This needs to match the certificates you generated.  See the CN and X509v3
+  # Subject Alternative Name in the output of:
+  # openssl x509 -text -in /etc/pki/tls/certs/localhost.crt
+  ServerName $host_name
+
+  DocumentRoot /var/www/html
+  SSLEngine on
+  SSLCertificateFile /etc/pki/tls/certs/localhost.crt
+  SSLCertificateKeyFile /etc/pki/tls/private/localhost.key
+  SSLCACertificateFile /etc/pki/CA/certs/ca.crt
+
+  SSLProxyEngine on
+  SSLProxyCACertificateFile /etc/pki/CA/certs/ca.crt
+  # It's critical to enforce client certificates on the Master.  Otherwise
+  # requests could spoof the X-Remote-User header by accessing the Master's
+  # /oauth/authorize endpoint directly.
+  SSLProxyMachineCertificateFile /etc/pki/tls/certs/authproxy.pem
+
+  # Send all requests to the console
+  RewriteEngine              On
+  RewriteRule     ^/console(.*)$     https://%{HTTP_HOST}:8443/console$1 [R,L]
+
+  # In order to using the challenging-proxy an X-Csrf-Token must be present.
+  RewriteCond %{REQUEST_URI} ^/challenging-proxy
+  RewriteCond %{HTTP:X-Csrf-Token} ^$ [NC]
+  RewriteRule ^.* - [F,L]
+
+  <Location /challenging-proxy/oauth/authorize>
+    # Insert your backend server name/ip here.
+    ProxyPass https://$host_name:8443/oauth/authorize
+  </Location>
+
+  <Location /login-proxy/oauth/authorize>
+    # Insert your backend server name/ip here.
+    ProxyPass https://$host_name:8443/oauth/authorize
+
+    # mod_auth_form providers are implemented by mod_authn_dbm, mod_authn_file,
+    # mod_authn_dbd, mod_authnz_ldap and mod_authn_socache.
+    AuthType Kerberos
+    AuthName openshift
+    ErrorDocument 401 /login.html
+  </Location>
+
+  <ProxyMatch /oauth/authorize>
+    AuthType Kerberos
+    KrbMethodNegotiate on
+    KrbMethodK5Passwd on
+    KrbServiceName Any
+    KrbAuthRealms EXAMPLE.COM
+    Krb5Keytab /etc/origin/http.keytab
+    KrbSaveCredentials off
+
+    AuthName openshift
+    Require valid-user
+    RequestHeader set X-Remote-User %{REMOTE_USER}s
+
+    # For ldap:
+    # AuthBasicProvider ldap
+    # AuthLDAPURL "ldap://ldap.example.com:389/ou=People,dc=my-domain,dc=com?uid?sub?(objectClass=*)"
+
+    # It's possible to remove the mod_auth_form usage and replace it with
+    # something like mod_auth_kerb, mod_auth_gsspai or even mod_auth_mellon.
+    # The former would be able to support both the login and challenge flows
+    # from the Master.  Mellon would likely only support the login flow.
+
+    # For Kerberos
+    # yum install mod_auth_gssapi
+    # AuthType GSSAPI
+    # GssapiCredStore keytab:/etc/httpd.keytab
+  </ProxyMatch>
+
+</VirtualHost>
+
+RequestHeader unset X-Remote-User
+EOF
+
+    pushd /var/www/html/
+    wget https://raw.githubusercontent.com/openshift/openshift-extras/master/misc/form_auth/login.html
+    wget https://raw.githubusercontent.com/openshift/openshift-extras/master/misc/form_auth/loggedout.html
+    chmod -Rf 0777 *
+    popd
+    wget $CONF_KERBEROS_KEYTAB_URL -O /etc/origin/http.keytab
+    chown apache:apache /etc/origin/http.keytab
+     cat > /etc/krb5.conf <<EOF
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ dns_lookup_realm = false
+ ticket_lifetime = 24h
+ renew_lifetime = 7d
+ forwardable = true
+ rdns = false
+# default_realm = EXAMPLE.COM
+ default_ccache_name = KEYRING:persistent:%{uid}
+
+[realms]
+ EXAMPLE.COM = {
+  kdc = $CONF_KERBEROS_KDC
+  admin_server = $CONF_KERBEROS_ADMIN
+ }
+
+[domain_realm]
+ .example.com = EXAMPLE.COM
+ example.com = EXAMPLE.COM
+EOF
+    systemctl restart httpd
+
+}
+
+
 #CONF_HOST_LIST=vaule
 #CONF_IP_LIST=value
 #CONF_HOST_DOMAIN=value
@@ -530,14 +642,14 @@ named_hostname=ns1.$CONF_HOST_DOMAIN
 
 function update_playbook_rpms()
 {
-	cat <<EOF >/etc/yum.repos.d/ose-devel.repo
+    cat <<EOF >/etc/yum.repos.d/ose-devel.repo
 [ose-devel]
 name=ose-devel
 baseurl=${CONF_PUDDLE_REPO}
 enabled=1
 gpgcheck=0
 EOF
-	rpm -q atomic-openshift-utils && yum update openshift-ansible* -y || yum install atomic-openshift-utils -y
+    rpm -q atomic-openshift-utils && yum update openshift-ansible* -y || yum install atomic-openshift-utils -y
 }
 
 function garbage_clean_up()
@@ -549,56 +661,58 @@ EOF
 }
 
 case $1 in
-	wait_cloud_init)
-		wait_cloud_init
-		;;
-	configure_dns)
-		#configure_repos
-		install_named_pkg
-		configure_bind
-		#clean_repos
-		;;
-	configure_dns_resolution)
-		configure_dns_resolution
-		;;
-	create_router_registry)
-		create_router_registry
-		;;
-	configure_hosts)
-		configure_hosts
-		;;
-	configure_shared_dns)
-		configure_shared_dns
-		;;
-	add_skydns_hosts)
-		add_skydns_hosts
-		;;
-	replace_template_domain)
-		replace_template_domain
-		;;
-	configure_nfs_service)
-		configure_nfs_service
-		;;
-	configure_registry_to_ha)
-		configure_registry_to_ha
-		;;
-	configure_auth)
-		configure_auth
-		;;
-	configure_repos)
-		clean_repos
-		configure_repos
-		yum update -y
-		;;
-	modify_IS_for_testing)
-		modify_IS_for_testing "$2"
-		;;
-	update_playbook_rpms)
-		update_playbook_rpms
-		;;
-        garbage_clean_up)
-                garbage_clean_up
-                ;;
-	*)
-		echo "Invalid Action: $1"
+    wait_cloud_init)
+        wait_cloud_init
+        ;;
+    configure_dns)
+        #configure_repos
+        install_named_pkg
+        configure_bind
+        #clean_repos
+        ;;
+    configure_dns_resolution)
+        configure_dns_resolution
+        ;;
+    create_router_registry)
+        create_router_registry
+        ;;
+    configure_hosts)
+        configure_hosts
+        ;;
+    configure_shared_dns)
+        configure_shared_dns
+        ;;
+    add_skydns_hosts)
+        add_skydns_hosts
+        ;;
+    replace_template_domain)
+        replace_template_domain
+        ;;
+    configure_nfs_service)
+        configure_nfs_service
+        ;;
+    configure_registry_to_ha)
+        configure_registry_to_ha
+        ;;
+    configure_repos)
+        clean_repos
+        configure_repos
+        yum update -y
+        ;;
+    modify_IS_for_testing)
+        modify_IS_for_testing "$2"
+        ;;
+    update_playbook_rpms)
+        update_playbook_rpms
+        ;;
+
+    garbage_clean_up)
+        garbage_clean_up
+        ;;
+
+    confiugre_kerberos)
+        confiugre_kerberos
+        ;;
+    *)
+        echo "Invalid Action: $1"
 esac

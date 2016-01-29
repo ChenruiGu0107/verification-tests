@@ -105,11 +105,11 @@ module CucuShift
                         use_rpm_playbook:,
                         customized_ansible_conf: "",
                         modify_IS_for_testing: "",
-                        kerberos_kdc: conf[:sercices, :test_kerberos, :kdc],
+                        kerberos_kdc: conf[:services, :test_kerberos, :kdc],
                         kerberos_keytab_url:
-                          conf[:sercices, :test_kerberos, :keytab_url],
+                          conf[:services, :test_kerberos, :keytab_url],
                         kerberos_admin_server:
-                          conf[:sercices, :test_kerberos, :admin_server],
+                          conf[:services, :test_kerberos, :admin_server],
                         kerberos_docker_base_image:
                           conf[:sercices, :test_kerberos, :docker_base_image],
                         ldap_url: conf[:services, :test_ldap, :url])
@@ -193,13 +193,15 @@ module CucuShift
         identity_providers = "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '#{crt_path}/htpasswd'}]"
       when "LDAP"
         identity_providers = %Q|[{"name": "LDAPauth", "login": "true", "challenge": "true", "kind": "LDAPPasswordIdentityProvider", "attributes": {"id": ["dn"], "email": ["mail"], "name": ["uid"], "preferredUsername": ["uid"]}, "bindDN": "", "bindPassword": "", "ca": "", "insecure":"true", "url": "#{ldap_url}"}]|
+      when "KERBEROS"
+        identity_providers = %Q|[{'name': 'requestheader', 'login': 'true', 'challenge': 'true', 'kind': 'RequestHeaderIdentityProvider', 'headers': ['X-Remote-User'], 'challengeURL': 'https://#{hosts['master'][0].hostname}/challenging-proxy/oauth/authorize?\${query}', 'loginURL': 'https://#{hosts['master'][0].hostname}/login-proxy/oauth/authorize?\${query}', 'clientCA': '/etc/origin/master/ca.crt'}]|
       else
         identity_providers = "[{'name': 'basicauthurl', 'login': 'true', 'challenge': 'true', 'kind': 'BasicAuthPasswordIdentityProvider', 'url': 'https://<serviceIP>:8443/validate', 'ca': '#{crt_path}master/ca.crt'}]"
       end
 
       ## lets sanity check auth type
-      if auth_type != "LDAP" && hosts["master"].size > 1
-        raise "multiple HA masters require LDAP auth"
+      if auth_type != "LDAP" && auth_type != "KERBEROS" && hosts["master"].size > 1
+        raise "multiple HA masters require LDAP or KERBEROS auth"
       end
 
       if set_hostnames
@@ -483,7 +485,7 @@ module CucuShift
       ## setup Kerberos auth if requested
       if auth_type == "KERBEROS"
         check_res hosts['master'][0].exec_admin(
-          'sh configure_env.sh configure_auth'
+          'sh configure_env.sh confiugre_kerberos'
         )
       end
 
