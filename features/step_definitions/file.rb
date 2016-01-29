@@ -114,3 +114,21 @@ Given /^I restore the file>(.+)$/ do |file|
     FileUtils.mv("./#{filename}.bak",file)
   end
 end
+
+# @param [String] path Path to the file
+# @param [Table] table Contents of the file
+# @note Creates a local file with the given content
+Given /^(?:a|the) "([^"]+)" file is (created|appended) with the following lines:$/ do |path, action, table|
+  mode = "w" if action =~ /created/
+  mode = "a" if action =~ /appended/
+  FileUtils::mkdir_p File.expand_path(File::dirname(path))
+  File.open(File.expand_path(path), mode) { |f|
+    if table.respond_to? :raw
+      table.raw.each do |row|
+        f.write("#{row[0]}\n")
+      end
+    else
+      f.write(table)
+    end
+  }
+end
