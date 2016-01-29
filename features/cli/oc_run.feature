@@ -314,3 +314,32 @@ Feature: oc run related scenarios
      And the output should contain:
       | "replicas": 3 |
 
+  # @author cryan@redhat.com
+  # @case_id 508037
+  Scenario: Run container via cli with invalid format specifying cpu/memory request/limit
+    Given I have a project
+    When I run the :run client command with:
+      | name | nginx |
+      | image | nginx |
+      | replicas | 1 |
+      | requests | cpu100m,memory=512Mi |
+    Then the step should fail
+    And the output should contain "Invalid argument syntax"
+    When I run the :run client command with:
+      | name | nginx |
+      | image | nginx |
+      | replicas | 2 |
+      | limits | cpu100m&memory=512Mi |
+    Then the step should fail
+    And the output should contain "invalid value"
+    When I run the :run client command with:
+      | name | nginx |
+      | image | nginx |
+      | replicas | 3 |
+      | requests | cpu= |
+    Then the step should fail
+    And the output should contain "quantities must match the regular expression"
+    When I run the :run client command with:
+      | name | nginx |
+      | image | nginx |
+    Then the step should succeed
