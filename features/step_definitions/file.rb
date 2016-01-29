@@ -121,7 +121,7 @@ end
 Given /^(?:a|the) "([^"]+)" file is (created|appended) with the following lines:$/ do |path, action, table|
   mode = "w" if action =~ /created/
   mode = "a" if action =~ /appended/
-  FileUtils::mkdir_p File.expand_path(File::dirname(path))
+  FileUtils::mkdir_p `Host.localhost.abs(path)+"/.."`
   File.open(File.expand_path(path), mode) { |f|
     if table.respond_to? :raw
       table.raw.each do |row|
