@@ -174,3 +174,15 @@ Feature: project permissions
     Then the step should fail
     Then the output should contain:
       | pods "east" is forbidden: pod node label selector conflicts with its project node label selector |
+
+  # @author chaoyang@redhat.com
+  # @case_id 481696
+  @admin
+  Scenario:Could not create a project with invalid node-selector
+    When I run the :create admin command with:
+      |filename| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/prj_with_invalid_node-selector.json |
+    Then the step should fail
+    And the output should contain:
+      |The project "jhou" is invalid |
+      |nodeSelector: invalid value 'env,qa', Details: must be a valid label selector |
+
