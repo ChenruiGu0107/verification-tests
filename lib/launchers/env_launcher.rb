@@ -364,7 +364,8 @@ module CucuShift
             ose3_vars << "openshift_master_cluster_public_hostname=#{host.hostname}"
             ose3_vars << "openshift_master_cluster_hostname=#{host.hostname}"
             ose3_vars << "openshift_master_cluster_method=native"
-            ose3_vars << "openshift_master_ha=true"
+            #no need this line according to 1278706
+            #ose3_vars << "openshift_master_ha=true"
           end
         end
       end
