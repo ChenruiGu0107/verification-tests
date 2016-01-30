@@ -264,7 +264,7 @@ Feature: oc_volume.feature
     And the output should contain "volume mount '/opt' already exists"
 
   # @author gpei@redhat.com
-  # @case_id 491435
+  # @case_id 491438
   Scenario: Select resources with '--selector' option
     Given I have a project
     When I run the :new_app client command with:
