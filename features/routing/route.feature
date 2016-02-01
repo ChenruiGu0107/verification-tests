@@ -168,3 +168,19 @@ Feature: Testing route
       | test-service |
       | :8080        |
 
+  # @author: zzhao@redhat.com
+  # @case_id: 516833
+  Scenario: Check the header forward format
+    Given I have a project
+    When I run the :create client command with:
+      | f  |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/dc.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json |
+    Then the step should succeed
+    When I expose the "header-test-insecure" service
+    Then the step should succeed
+    When I get project route as JSON
+    And evaluation of `@result[:parsed]['items'][0]['spec']['host']` is stored in the :header_test clipboard
+    When I wait for a server to become available via the route
+    Then the output should contain ";host=<%= cb.header_test %>;proto=http"
