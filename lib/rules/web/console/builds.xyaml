@@ -4,6 +4,19 @@ check_buildconfig_list_page:
   element:
     selector:
       xpath: //table[descendant::th[text()="Name"]]
+check_build_log_content:
+  element:
+    selector:
+      xpath: //log-viewer[@kind="builds/log"]//td[contains(.,'<build_log_context>')]
+    timeout: 300
+check_build_log_tab:
+  action: goto_one_build_page
+  elements:
+    - selector:
+        xpath: //div[@ng-if='build']//uib-tab-heading[text()='Logs']
+      op: click
+    - selector:
+        xpath: //div[@ng-if='build']//span[@ng-if='status']//span[contains(.,'<build_status_name>')]
 check_one_buildconfig_page:
   action: goto_one_buildconfig_page
   element:
@@ -110,3 +123,9 @@ start_build_base_on_buildconfig:
       class: btn-default
     type: button
     op: click
+wait_latest_build_to_status:
+  action: goto_one_buildconfig_page
+  element:
+    selector: 
+      xpath: //span[@class='latest-build-status']/span[contains(.,'<build_status>')]
+    timeout: 600
