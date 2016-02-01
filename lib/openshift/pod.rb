@@ -110,11 +110,14 @@ module CucuShift
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if pod status is what's expected
     def status?(user:, status:)
+      #The 'missing' status is used a a dummy value; when some pods become
+      #ready, they die (build/deploy), and we still want to count them as well.
       statuses = {
         pending: "Pending",
         running: "Running",
         succeeded: "Succeeded",
         failed: "Failed",
+        missing: "Dummy Value",
         unknown: "Unknown"
       }
 
