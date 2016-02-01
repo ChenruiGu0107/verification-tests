@@ -23,6 +23,9 @@ check_pod_list_with_no_pod:
       xpath: //em[contains(text(),'No pods to show')]
 goto_one_pod_page:
   url: /console/project/<project_name>/browse/pods/<pod_name>
+  elements:
+  - selector:
+      xpath: //div[@ng-if="pod"]
 goto_pods_page:
   url: /console/project/<project_name>/browse/pods
 open_in_new_window:
