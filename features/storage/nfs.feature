@@ -142,3 +142,54 @@ Feature: NFS Persistent Volume
         When I execute on the pod:
           | ls | /mnt/data/myfile |
         Then the step should succeed
+
+    # @author lxia@redhat.com
+    # @case_id 508051
+    @admin
+    @destructive
+    Scenario: NFS volume plugin with RWX access mode and Default policy
+        # Preparations
+        Given I have a project
+        And I have a NFS service in the project
+        When I execute on the pod:
+          | chmod | g+w | /mnt/data |
+        Then the step should succeed
+
+        # Creating PV and PVC
+        Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto-nfs-default-rwx.json" where:
+          | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+        When I run the :create client command with:
+          | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json |
+        Then the step should succeed
+
+        Given the PV becomes :bound
+
+        When I run the :create client command with:
+          | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
+        Then the step should succeed
+        Given the pod named "nfs" becomes ready
+        When I execute on the pod:
+          | id |
+        Then the step should succeed
+        When I execute on the pod:
+          | ls | -ld | /mnt/ |
+        Then the step should succeed
+        When I execute on the pod:
+          | touch | /mnt/myfile |
+        Then the step should succeed
+        And the output should not contain "Permission denied"
+
+        Given I run the :delete client command with:
+          | object_type       | pod |
+          | object_name_or_id | nfs |
+        And I run the :delete client command with:
+          | object_type       | pvc  |
+          | object_name_or_id | nfsc |
+        Then the step should succeed
+        Given I wait for the steps to pass:
+        """
+        Then the PV becomes :released
+        """
+        When I execute on the pod:
+          | ls | /mnt/data/myfile |
+        Then the step should succeed
