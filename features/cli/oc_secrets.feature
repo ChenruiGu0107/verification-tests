@@ -134,3 +134,50 @@ Feature: oc_secrets.feature
     Then the step should not succeed
     And the output should contain:
       |  error: | 
+
+  # @author xiacwan@redhat.com
+  # @case_id 484325
+  Scenario: [origin_platformexp_391] Project admin can process local directory or files and convert it to kubernetes secret
+    Given I have a project
+    When the "tmpfoo" file is created with the following lines:
+      | somecontent |
+    And  the "tmpbar" file is created with the following lines:
+      | somecontent |
+    Then the step should succeed
+    When I run the :secrets client command with:
+      | action | new                  |
+      | name   | <%= project.name %>1 |
+      | source | tmpfoo               |
+      | source | tmpbar               |
+      | n      | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret               |
+      | name     | <%= project.name %>1 |
+      | n        | <%= project.name %>  |
+    Then the step should succeed
+    And the output should contain:
+      | tmpfoo |
+      | tmpbar |
+
+    When the "tmpfoler1/tmpfile1" file is created with the following lines:
+      | somecontent |
+    And the "tmpfoler2/tmpfile2" file is created with the following lines:
+      | somecontent |
+    Then the step should succeed
+    When I run the :secrets client command with:
+      | action | new                  |
+      | name   | <%= project.name %>2 |
+      | source | tmpfoler1            |
+      | source | tmpfoler2            |
+      | n      | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret               |
+      | name     | <%= project.name %>2 |
+      | n        | <%= project.name %>  |
+    Then the step should succeed
+    And the output should contain:
+      | tmpfile1 |
+      | tmpfile2 |
+      
