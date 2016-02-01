@@ -1,95 +1,133 @@
-    Feature: SCC policy related scenarios
+Feature: SCC policy related scenarios
+  # @author xiacwan@redhat.com
+  # @case_id 511817
+  @admin
+  Scenario: Cluster-admin can add & remove user or group to from scc
+    Given a 5 characters random string of type :dns is stored into the :scc_name clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_privileged.yaml"
+    And I replace lines in "scc_privileged.yaml":
+      | scc-pri | <%= cb.scc_name %> |
+    And I switch to cluster admin pseudo user
+    Given the following scc policy is created: scc_privileged.yaml
+    Then the step should succeed
 
-      # @author xiacwan@redhat.com
-      # @case_id 511817
-      @admin
-      Scenario: Cluster-admin can add & remove user or group to from scc
+    When I run the :oadm_policy_add_scc_to_user admin command with:
+      | scc   | <%= cb.scc_name %>  |
+      | user_name  | <%= user(0, switch: false).name %>  |
+    And I run the :oadm_policy_add_scc_to_user admin command with:
+      | scc   | <%= cb.scc_name %>  |
+      | user_name  | <%= user(1, switch: false).name %>  |
+    And I run the :oadm_policy_add_scc_to_user admin command with:
+      | scc       | <%= cb.scc_name %>  |
+      | user_name |             |
+      | serviceaccount | system:serviceaccount:default:default |
+    And I run the :oadm_policy_add_scc_to_user admin command with:
+      | scc       | <%= cb.scc_name %>  |
+      | user_name | system:admin |
+    And I run the :oadm_policy_add_scc_to_group admin command with:
+      | scc       | <%= cb.scc_name %>  |
+      | group_name | system:authenticated |
+    When I run the :get admin command with:
+      | resource | scc |
+      | resource_name | <%= cb.scc_name %>  |
+      | o        | yaml |
+    Then the output should contain:
+      |  <%= user(0, switch: false).name %>     |
+      |  <%= user(1, switch: false).name %>     |
+      |  system:serviceaccount:default:default  |
+      |  system:admin  |
+      |  system:authenticated |
 
-        Given a 5 characters random string of type :dns is stored into the :scc_name clipboard
-        When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_privileged.yaml"
-        And I replace lines in "scc_privileged.yaml":
-          | scc-pri | <%= cb.scc_name %> |
-        And I switch to cluster admin pseudo user
-        Given the following scc policy is created: scc_privileged.yaml
-        Then the step should succeed
+    When I run the :oadm_policy_remove_scc_from_user admin command with:
+      | scc        | <%= cb.scc_name %>  |
+      | user_name  | <%= user(0, switch: false).name %>  |
+    And I run the :oadm_policy_remove_scc_from_user admin command with:
+      | scc        | <%= cb.scc_name %>  |
+      | user_name  | <%= user(1, switch: false).name %>  |
+    And I run the :oadm_policy_remove_scc_from_user admin command with:
+      | scc        | <%= cb.scc_name %>  |
+      | user_name  |             |
+      | serviceaccount | system:serviceaccount:default:default |
+    And I run the :oadm_policy_remove_scc_from_user admin command with:
+      | scc        | <%= cb.scc_name %>  |
+      | user_name  | system:admin |
+    And I run the :oadm_policy_remove_scc_from_group admin command with:
+      | scc        | <%= cb.scc_name %>  |
+      | group_name | system:authenticated |
+    When I run the :get admin command with:
+      | resource | scc |
+      | resource_name | <%= cb.scc_name %>  |
+      | o        | yaml |
+    Then the output should not contain:
+      |  <%= user(0, switch: false).name %>  |
+      |  <%= user(1, switch: false).name %>  |
+      |  system:serviceaccount:default:default  |
+      |  system:admin  |
+      |  system:authenticated  |
 
-        When I run the :oadm_policy_add_scc_to_user admin command with:
-          | scc   | <%= cb.scc_name %>  |
-          | user_name  | <%= user(0, switch: false).name %>  |
-        And I run the :oadm_policy_add_scc_to_user admin command with:
-          | scc   | <%= cb.scc_name %>  |
-          | user_name  | <%= user(1, switch: false).name %>  |
-        And I run the :oadm_policy_add_scc_to_user admin command with:
-          | scc       | <%= cb.scc_name %>  |
-          | user_name |             |
-          | serviceaccount | system:serviceaccount:default:default |
-        And I run the :oadm_policy_add_scc_to_user admin command with:
-          | scc       | <%= cb.scc_name %>  |
-          | user_name | system:admin |
-        And I run the :oadm_policy_add_scc_to_group admin command with:
-          | scc       | <%= cb.scc_name %>  |
-          | group_name | system:authenticated |
-        When I run the :get admin command with:
-          | resource | scc |
-          | resource_name | <%= cb.scc_name %>  |
-          | o        | yaml |
-        Then the output should contain:
-          |  <%= user(0, switch: false).name %>     |
-          |  <%= user(1, switch: false).name %>     |
-          |  system:serviceaccount:default:default  |
-          |  system:admin  |
-          |  system:authenticated |
+  #@author bmeng@redhat.com
+  #@case_id 495027
+  @admin
+  Scenario: Add/drop capabilities for container when SC matches the SCC
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project_name clipboard
+    When I run the :create client command with:
+        |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_kill.json|
+    Then the step should fail
+    And the output should contain "forbidden: unable to validate against any security context constraint"
+    And the output should contain "invalid value 'KILL', Details: capability may not be added"
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_capabilities.yaml"
+    And I replace lines in "scc_capabilities.yaml":
+        |system:serviceaccounts:default|system:serviceaccounts:<%= cb.project_name %>|
+    Given the following scc policy is created: scc_capabilities.yaml
+    When I run the :get admin command with:
+        |resource|scc|
+        |resource_name|scc-cap|
+    Then the output should contain "[KILL]"
+    When I run the :create client command with:
+        |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_kill.json|
+    Then the step should succeed
+    When I run the :create client command with:
+        |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_chown.json|
+    Then the step should fail
+    And the output should contain "invalid value 'CHOWN'"
 
-        When I run the :oadm_policy_remove_scc_from_user admin command with:
-          | scc        | <%= cb.scc_name %>  |
-          | user_name  | <%= user(0, switch: false).name %>  |
-        And I run the :oadm_policy_remove_scc_from_user admin command with:
-          | scc        | <%= cb.scc_name %>  |
-          | user_name  | <%= user(1, switch: false).name %>  |
-        And I run the :oadm_policy_remove_scc_from_user admin command with:
-          | scc        | <%= cb.scc_name %>  |
-          | user_name  |             |
-          | serviceaccount | system:serviceaccount:default:default |
-        And I run the :oadm_policy_remove_scc_from_user admin command with:
-          | scc        | <%= cb.scc_name %>  |
-          | user_name  | system:admin |
-        And I run the :oadm_policy_remove_scc_from_group admin command with:
-          | scc        | <%= cb.scc_name %>  |
-          | group_name | system:authenticated |
-        When I run the :get admin command with:
-          | resource | scc |
-          | resource_name | <%= cb.scc_name %>  |
-          | o        | yaml |
-        Then the output should not contain:
-          |  <%= user(0, switch: false).name %>  |
-          |  <%= user(1, switch: false).name %>  |
-          |  system:serviceaccount:default:default  |
-          |  system:admin  |
-          |  system:authenticated  |
 
-    #@author bmeng@redhat.com
-    #@case_id 495027
-    @admin
-    Scenario: Add/drop capabilities for container when SC matches the SCC
-      Given I have a project
-      And evaluation of `project.name` is stored in the :project_name clipboard
-      When I run the :create client command with:
-          |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_kill.json|
-      Then the step should fail
-      And the output should contain "forbidden: unable to validate against any security context constraint"
-      And the output should contain "invalid value 'KILL', Details: capability may not be added"
-      Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_capabilities.yaml"
-      And I replace lines in "scc_capabilities.yaml":
-          |system:serviceaccounts:default|system:serviceaccounts:<%= cb.project_name %>|
-      Given the following scc policy is created: scc_capabilities.yaml
-      When I run the :get admin command with:
-          |resource|scc|
-          |resource_name|scc-cap|
-      Then the output should contain "[KILL]"
-      When I run the :create client command with:
-          |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_kill.json|
-      Then the step should succeed
-      When I run the :create client command with:
-          |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_chown.json|
-      Then the step should fail
-      And the output should contain "invalid value 'CHOWN'"
+  #@author bmeng@redhat.com
+  #@case_id 495028
+  @admin
+  Scenario: Pod can be created when its SC matches the SELinuxContextStrategy policy in SCC
+    Given I have a project 
+    And evaluation of `project.name` is stored in the :project_name clipboard
+    
+    # Create pod which requests Selinux SecurityContext which does not match SCC SELinuxContext policy MustRunAs
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_selinux_mustrunas.yaml"
+    And I replace lines in "scc_selinux_mustrunas.yaml":
+      |system:serviceaccounts:default|system:serviceaccounts:<%= cb.project_name %>|
+    And the following scc policy is created: scc_selinux_mustrunas.yaml
+    When I run the :get admin command with:
+      |resource|scc|
+      |resource_name|scc-selinux-mustrunas|
+    Then the output should contain "MustRunAs"
+    When I run the :create client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_selinux.json|
+    Then the step should fail
+    And the output should contain "invalid value 'object_r'"
+    And the output should contain "invalid value 'system_u'"
+    And the output should contain "invalid value 's0:c9'"
+    When I run the :create client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_nothing.json|
+    Then the step should succeed
+
+    # Create pod which requests Selinux SecurityContext when the SCC SELinuxContext policy is RunAsAny
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_runasany.yaml"
+    And I replace lines in "scc_runasany.yaml":
+      |system:serviceaccounts:default|system:serviceaccounts:<%= cb.project_name %>|
+    And the following scc policy is created: scc_runasany.yaml
+    When I run the :get admin command with:
+      |resource|scc|
+      |resource_name|scc-runasany|
+    Then the output should contain "RunAsAny"
+    When I run the :create client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_selinux.json|
+    Then the step should succeed
