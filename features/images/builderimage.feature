@@ -17,7 +17,7 @@ Feature: builderimage.feature
     And  the output should contain "nodejs"
     And  the output should contain "postgresql"
 
-  # @case_id 497642
+  # @case_id 497642,517968
   # @author wzheng@redhat.com
   Scenario Outline: Make mysql image work with php image
     Given I have a project
