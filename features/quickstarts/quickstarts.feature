@@ -148,3 +148,18 @@ Feature: quickstarts.feature
     When I use the "cakephp-example" service
     Then I wait for a server to become available via the "cakephp-example" route
     Then the output should contain "hotdeploy_test"
+
+  # @author wzheng@redhat.com
+  # @case_id 517344
+  Scenario: Build with golang-ex repo
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/golang-ex/master/openshift/templates/beego.json |
+    Then the step should succeed
+    And the "beego-example-1" build was created
+    And the "beego-example-1" build completed
+    Then I wait for the "beego-example" service to become ready 
+    When I execute on the pod:
+      | curl | -s | <%= service.url %> |
+    Then the step should succeed
+    Then the output should contain "Welcome to chat - beego sample app: Web IM"
