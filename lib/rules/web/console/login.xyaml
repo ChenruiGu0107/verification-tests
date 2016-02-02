@@ -1,4 +1,11 @@
 ---
+access_overview_page_after_logout:
+  action: goto_overview_page
+  elements:
+  - selector:
+      id: inputUsername
+  - selector:
+      id: inputPassword
 login:
   url: /console
   elements:
