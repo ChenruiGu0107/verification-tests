@@ -117,6 +117,7 @@
     :all: --all
     #The following 'all' can be used with selectors, like the -l flag.
     :all_no_dash: all
+    :grace-period: --grace-period=<value>
     :object_name_or_id: <value>
     :object_type: <value>
 :deploy:
