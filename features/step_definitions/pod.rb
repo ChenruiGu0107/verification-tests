@@ -92,12 +92,13 @@ Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
 end
 
 # useful for waiting the deployment pod to die and complete
-# @param the 'regardless...' parameter will check the mere existence of a pod
-# irrespective of whether or not it exists at the current moment.
-Given /^I wait for the pod(?: named "(.+)")? to die( regardless of current status)?$/ do |name, current_status|
+# Called without the 'regardless...' parameter ir checks that pod reaches a
+#   ready status, then somehow dies. With the parameter it just makes sure
+#   pod os not there regardless of its current status.
+Given /^I wait for the pod(?: named "(.+)")? to die( regardless of current status)?$/ do |name, ignore_status|
   ready_timeout = 15 * 60
-  @result = pod(name).wait_till_not_ready(user, ready_timeout) unless current_status
-  if current_status || @result[:success]
+  @result = pod(name).wait_till_ready(user, ready_timeout) unless ignore_status
+  if ignore_status || @result[:success]
     @result = pod(name).wait_till_not_ready(user, ready_timeout)
   end
   unless @result[:success]
