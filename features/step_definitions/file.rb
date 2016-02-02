@@ -70,9 +70,9 @@ Given /^I replace (lines|content) in "(.+)":$/ do |mode, file, table|
           success = success | line.gsub!(pattern, repl_string)
         end
         filenew.puts line
-        unless success
-          raise "The substitution failed, please check your parameters."
-        end
+      end
+      unless success
+        raise "The substitution failed, please check your parameters."
       end
     elsif mode == "content"
       content = File.read(file)
