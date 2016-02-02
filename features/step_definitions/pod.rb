@@ -92,17 +92,38 @@ Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
 end
 
 # useful for waiting the deployment pod to die and complete
-# @param the 'regardless...' parameter will check the mere existence of a pod
-# irrespective of whether or not it exists at the current moment.
-Given /^I wait for the pod(?: named "(.+)")? to die( regardless of current status)?$/ do |name, current_status|
+# Called without the 'regardless...' parameter ir checks that pod reaches a
+#   ready status, then somehow dies. With the parameter it just makes sure
+#   pod os not there regardless of its current status.
+Given /^I wait for the pod(?: named "(.+)")? to die( regardless of current status)?$/ do |name, ignore_status|
   ready_timeout = 15 * 60
-  @result = pod(name).wait_till_not_ready(user, ready_timeout) unless current_status
-  if current_status || @result[:success]
+  @result = pod(name).wait_till_ready(user, ready_timeout) unless ignore_status
+  if ignore_status || @result[:success]
     @result = pod(name).wait_till_not_ready(user, ready_timeout)
   end
   unless @result[:success]
     logger.error(@result[:response])
     raise "#{pod.name} pod did not die"
+  end
+end
+
+Given /^all existing pods die with labels:$/ do |table|
+  labels = table.raw.flatten # dimentions irrelevant
+  timeout = 10 * 60
+  start_time = monotonic_seconds
+
+  @result = CucuShift::Pod.get_matching(user: user, project: project,
+                    get_opts: {l: selector_to_label_arr(*labels)})
+  raise "could not get pods" unless @result[:success]
+
+  current_pods = @result[:matching]
+
+  current_pods.each do |pod|
+    @result =
+      pod.wait_till_not_ready(user, timeout - monotonic_seconds + start_time)
+    unless @result[:success]
+      raise "pod #{pod.name} did not die within allowed time"
+    end
   end
 end
 
