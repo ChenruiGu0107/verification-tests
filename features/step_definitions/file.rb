@@ -62,17 +62,24 @@ Given /^I replace (lines|content) in "(.+)":$/ do |mode, file, table|
   # replace lines
   File.open("#{file}.test","w") do |filenew|
     if mode == "lines"
+      success = false
       File.foreach(file) do |line|
         # replace the old string with new string
+        # when gsub! (but not gsub) has nothign to replace, it returns 'nil'
         patterns.each do |pattern, repl_string|
-          line.gsub!(pattern, repl_string)
+          success = success | line.gsub!(pattern, repl_string)
         end
         filenew.puts line
+        unless success
+          raise "The substitution failed, please check your parameters."
+        end
       end
     elsif mode == "content"
       content = File.read(file)
       patterns.each do |pattern, repl_string|
-        content.gsub!(pattern, repl_string)
+        unless content.gsub!(pattern, repl_string)
+          raise "The substitution failed, please check your parameters."
+        end
       end
       filenew.write content
     end
