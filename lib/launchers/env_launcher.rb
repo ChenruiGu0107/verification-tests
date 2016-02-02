@@ -233,20 +233,17 @@ module CucuShift
         master_nodes_labels_str = %Q*openshift_node_labels="{'region': 'infra', 'zone': 'default'}" openshift_scheduleable=True*
         ose3_vars << "openshift_registry_selector='region=infra'"
         ose3_vars << "openshift_router_selector='region=infra'"
-        ose3_vars << "num_infra=#{ hosts["master"].size }"
         router_dns_type = "master"
       elsif hosts.values.flatten.size > 1
         master_nodes_labels_str = "openshift_scheduleable=False"
         ose3_vars << "openshift_registry_selector='region=primary'"
         ose3_vars << "openshift_router_selector='region=primary'"
-        ose3_vars << "num_infra=#{ hosts["node"].size }"
         router_dns_type = "node"
       else
         # this is all-in-one
         master_nodes_labels_str = %Q*openshift_node_labels="{'region': 'primary', 'zone': 'default'}"*
         ose3_vars << "openshift_registry_selector='region=primary'"
         ose3_vars << "openshift_router_selector='region=primary'"
-        ose3_vars << "num_infra=1"
         router_dns_type = "master"
       end
       router_ips = hosts[router_dns_type].map{|h| h.ip}
