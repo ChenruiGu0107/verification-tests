@@ -460,17 +460,21 @@ function modify_IS_for_testing()
   [ ! -f "${file1}.bak" ] && cp "${file1}" "${file1}.bak"
   [ ! -f "${file2}.bak" ] && cp "${file2}" "${file2}.bak"
 
-  for line_num in $(grep -n 'name' ${file1} | grep -v 'latest' | grep -v '[0-9]",' | grep -v 'jboss-image-streams' | awk -F':' '{print $1}'); do
-    sed -i "${line_num}s|\(.*\)|\1,\"annotations\": { \"openshift.io/image.insecureRepository\": \"true\"}|g" ${file1}
-  done
+  #for line_num in $(grep -n 'name' ${file1} | grep -v 'latest' | grep -v '[0-9]",' | grep -v 'jboss-image-streams' | awk -F':' '{print $1}'); do
+  #  sed -i "${line_num}s|\(.*\)|\1,\"annotations\": { \"openshift.io/image.insecureRepository\": \"true\"}|g" ${file1}
+  #done
 
-  for line_num in $(grep -n 'name' ${file2} | grep -v 'latest' | grep -v '[0-9]",' | grep -v 'jboss-image-streams' | awk -F':' '{print $1}'); do
-    sed -i "${line_num}s|\(.*\)|\1\"annotations\": { \"openshift.io/image.insecureRepository\": \"true\"},|g" ${file2}
-  done
-
+  #for line_num in $(grep -n 'name' ${file2} | grep -v 'latest' | grep -v '[0-9]",' | awk -F':' '{print $1}'); do
+  #for line_num in $(grep -n 'name' ${file2} | grep -v 'latest' | grep -v '"[0-9]' | awk -F':' '{print $1}'); do
+  #  sed -i "${line_num}s|\(.*\)|\1\"annotations\": { \"openshift.io/image.insecureRepository\": \"true\"},|g" ${file2}
+  #done
   for file in ${file1} ${file2}; do
     sed -i "s/registry.access.redhat.com/${registry_server}/g" ${file}
     oc create -f ${file} -n openshift
+  done
+
+  for i in ruby nodejs perl php python mysql postgresql mongodb jenkins jboss-amq-62 jboss-datagrid65-openshift jboss-decisionserver62-openshift jboss-eap64-openshift jboss-webserver30-tomcat7-openshift jboss-webserver30-tomcat8-openshift; do
+      oc patch is ${i} -p '{"metadata":{"annotations":{"openshift.io/image.insecureRepository":"true"}}}' -n openshift
   done
 }
 
