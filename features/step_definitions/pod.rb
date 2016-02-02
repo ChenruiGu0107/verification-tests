@@ -107,6 +107,26 @@ Given /^I wait for the pod(?: named "(.+)")? to die( regardless of current statu
   end
 end
 
+Given /^all existing pods die with labels:$/ do |table|
+  labels = table.raw.flatten # dimentions irrelevant
+  timeout = 10 * 60
+  start_time = monotonic_seconds
+
+  @result = CucuShift::Pod.get_matching(user: user, project: project,
+                    get_opts: {l: selector_to_label_arr(*labels)})
+  raise "could not get pods" unless @result[:success]
+
+  current_pods = @result[:matching]
+
+  current_pods.each do |pod|
+    @result =
+      pod.wait_till_not_ready(user, timeout - monotonic_seconds + start_time)
+    unless @result[:success]
+      raise "pod #{pod.name} did not die within allowed time"
+    end
+  end
+end
+
 # args can be a table where each cell is a command or an argument, or a
 #   multiline string where each line is a command or an argument
 When /^I execute on the(?: "(.+?)")? pod:$/ do |pod_name, raw_args|
