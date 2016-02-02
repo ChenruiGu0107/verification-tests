@@ -482,3 +482,46 @@ Feature: build 'apps' with CLI
       | 517370 | :running     |
       | 517367 | :complete    |
       | 517368 | :failed      |
+
+  # @author pruan@redhat.com
+  # @case_id 517366
+  Scenario: Recreate bc when previous bc is deleting pending
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc517366/test-buildconfig.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | buildConfig |
+    Then the output should contain:
+      | build-config.paused=true |
+    And I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should fail
+    And the output should match:
+      | Error from server: fatal error generating Build from BuildConfig: can't instantiate from BuildConfig <%= project.name %>/ruby-sample-build: BuildConfig is paused |
+    Then I run the :delete client command with:
+      | object_type | buildConfig |
+      | object_name_or_id | ruby-sample-build |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | buildConfig |
+    Then the output should not contain:
+      | ruby-sample-build |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
+    Then the step should succeed
+    And I run the :delete client command with:
+      | object_type | buildConfig |
+      | object_name_or_id | ruby-sample-build |
+      | cascade           | false             |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | buildConfig |
+    Then the output should not contain:
+      | ruby-sample-build |
+    And I run the :get client command with:
+      | resource | build |
+    Then the output should contain:
+      | ruby-sample-build |
+
+
