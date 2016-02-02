@@ -34,3 +34,19 @@ When /^I download a file from "(.+?)"$/ do |url|
     raise "Failed to download file from #{url} with HTTP status #{@result[:exitstatus]}"
   end
 end
+
+# this step simply delegates to the Http.request method;
+# all options are acepted in the form of a YAML or a JSON hash where each
+#   option correspond to an option of the said method.
+# Example usage:
+# When I perform the HTTP request:
+#   """
+#   :url: <%= env.api_endpoint_url %>/
+#   :method: :get
+#   :headers:
+#     :accept: text/html
+#   :max_redirects: 0
+#   """
+When /^I perform the HTTP request:$/ do |yaml_request|
+  @result = CucuShift::Http.request(YAML.load yaml_request)
+end
