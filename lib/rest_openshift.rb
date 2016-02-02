@@ -121,10 +121,7 @@ module CucuShift
 
         populate("/namespaces/<project_name>/deploymentconfigrollbacks", base_opts, opts)
         return Http.request(**base_opts, method: "POST")
-     end
-
-
-
+      end
     end
   end
 end
