@@ -1,0 +1,5 @@
+--- # check browse/builds page
+check_common_elements:
+  element:
+    selector:
+      xpath: //h1[contains(text(),'<what>')]

@@ -2,8 +2,7 @@ check_deploymentconfigs_info:
   action: goto_one_dc_page
   element:
     selector:
-      text: Show annotations
-    type: a
+      xpath: //div[@ng-if="deploymentConfig"]
 check_latest_deployment_version:
   element:
     selector:

@@ -12,3 +12,18 @@ Feature: console test
 
   Scenario: smart login web console
     Given I login via web console
+
+  Scenario: switch-to-window test
+    Given I have a project
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    Then the step should succeed
+    Given I login via web console
+    When I perform the :goto_routes_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I click the following "a" element:
+      | target | _blank |
+    Then the step should succeed
+    When I perform the :check_common_elements web console action in ":url=>qe\.rhcloud\.com" window with:
+      | what | 503 |
+    Then the step should succeed
