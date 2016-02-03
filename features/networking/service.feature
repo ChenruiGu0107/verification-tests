@@ -90,3 +90,32 @@ Feature: Service related networking scenarios
          | /usr/bin/curl | --connect-timeout | 4 | <%= cb.service2_ip %>:10086 |
     Then the step should fail
     And the output should not contain "Hello OpenShift!"
+   
+  # @author zzhao@redhat.com
+  # @case_id 517641
+  @admin
+  Scenario: Be able to access the service via the nodeport
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project1 clipboard
+    When I run the :create client command with:
+        | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/nodeport_service.json |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    When I get project node as JSON
+    And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :node1 clipboard
+    When I open web server via the "<%= cb.node1 %>:30000" url
+    Then the output should contain "Hello OpenShift!"
+
+    When I use the "<%= cb.project1 %>" project
+    And I run the :delete client command with:
+      | object_type | service |
+      | object_name_or_id | hello-pod |
+    Then I wait for the resource "service" named "hello-pod" to disappear
+    Then I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "<%= cb.node1 %>:30000" url
+    Then the step should fail
+    """
