@@ -111,8 +111,8 @@ Feature: ServiceAccount and Policy Managerment
       | group_name | system:serviceaccounts:<%= cb.project1 %> |
     Then the step should succeed
     Given I use the "<%= cb.project1 %>" project
-    Given I find a bearer token of the system:serviceaccounts:<%= cb.project1 %>:default service account
-    Given I switch to the system:serviceaccounts:<%= cb.project1 %>:default service account
+    Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:default service account
+    Given I switch to the system:serviceaccount:<%= cb.project1 %>:default service account
     Given I use the "<%= cb.project2 %>" project
     When I create a new application with:
       | image_stream | ruby         |
@@ -157,8 +157,8 @@ Feature: ServiceAccount and Policy Managerment
       | group_name | system:serviceaccounts:<%= cb.project1 %> |
     Then the step should succeed
     Given I use the "<%= cb.project1 %>" project
-    Given I find a bearer token of the system:serviceaccounts:<%= cb.project1 %>:default service account
-    Given I switch to the system:serviceaccounts:<%= cb.project1 %>:default service account
+    Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:default service account
+    Given I switch to the system:serviceaccount:<%= cb.project1 %>:default service account
     Given I use the "<%= cb.project2 %>" project
     When I run the :get client command with:
       | resource | service |
@@ -196,8 +196,8 @@ Feature: ServiceAccount and Policy Managerment
       | role | edit     |
       | group_name | system:serviceaccounts:<%= project.name %> |
     Then the step should succeed
-    Given I find a bearer token of the system:serviceaccounts:<%= project.name %>:test1 service account
-    Given I switch to the system:serviceaccounts:<%= project.name %>:test1 service account
+    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:test1 service account
+    Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
     When I create a new application with:
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
@@ -235,8 +235,8 @@ Feature: ServiceAccount and Policy Managerment
       | role | view     |
       | group_name | system:serviceaccounts:<%= project.name %> |
     Then the step should succeed
-    Given I find a bearer token of the system:serviceaccounts:<%= project.name %>:test1 service account
-    Given I switch to the system:serviceaccounts:<%= project.name %>:test1 service account
+    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:test1 service account
+    Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
     When I create a new application with:
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
