@@ -259,7 +259,7 @@ Feature: ServiceAccount and Policy Managerment
       | user_name |  %= user(0, switch: false).name %> |
     Then the step should fail
 
-  # @author  anli@redhat.com
+  # @author anli@redhat.com
   # @case_id 497377
    Scenario: Could grant edit permission for the service account username to access to other project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
@@ -269,24 +269,28 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     Given I use the "<%= cb.project1 %>" project
     And I create the serviceaccount "test1"
-    And I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
     When I run the :new_project client command with:
       | project_name | <%= cb.project2 %> |
+    Then the step should succeed
+    Given I use the "<%= cb.project2 %>" project
+    When I run the :policy_add_role_to_user client command with:
+      | role       | edit            |
+      | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
     Then the step should succeed
     When I create a new application with:
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
     Then the step should succeed
-    When I run the :policy_add_role_to_user client command with:
-      | role       | edit            |
-      | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
-    Then the step should succeed
-    And I switch to the system:serviceaccount:<%= cb.project1 %>:test1 service account
-    Given I use the "<%= cb.project2 %>" project
+    And I wait for the "myapp" service to become ready
+    And I wait for the pod named "myapp-1-deploy" to die
+    Given I use the "<%= cb.project1 %>" project
+    Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
+    Given I switch to the system:serviceaccount:<%= cb.project1 %>:test1 service account
     When I run the :get client command with:
       | resource | pod |
     Then the step should succeed
+    Given I use the "<%= cb.project2 %>" project
     When I download a file from "https://raw.githubusercontent.com/openshift/origin/e21d95cedad8f0ce06ff5d04ae9b978ce3d04d87/examples/sample-app/application-template-stibuild.json"
     And I run the :create client command with:
       |f|application-template-stibuild.json|
@@ -295,10 +299,11 @@ Feature: ServiceAccount and Policy Managerment
       | deployment_config | myapp |
       | latest            | true  |
     Then the step should succeed
+    And the pod named "myapp-2-deploy" becomes ready
     When I run the :start_build client command with:
       | buildconfig | myapp |
+      | wait | true |
     Then the step should succeed
-    And the pod named "myapp-2-deploy" becomes ready
     When I run the :policy_add_role_to_user client command with:
       | role  | edit     |
       | user_name |  <%= user(1, switch: false).name %> |
@@ -318,24 +323,28 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     Given I use the "<%= cb.project1 %>" project
     And I create the serviceaccount "test1"
-    And I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
     When I run the :new_project client command with:
       | project_name | <%= cb.project2 %> |
+    Then the step should succeed
+    Given I use the "<%= cb.project2 %>" project
+    When I run the :policy_add_role_to_user client command with:
+      | role      | view            |
+      | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
     Then the step should succeed
     When I create a new application with:
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
     Then the step should succeed
-    When I run the :policy_add_role_to_user client command with:
-      | role      | view            |
-      | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
-    Then the step should succeed
-    And I switch to the system:serviceaccount:<%= cb.project1 %>:test1 service account
-    Given I use the "<%= cb.project2 %>" project
+    And I wait for the "myapp" service to become ready
+    And I wait for the pod named "myapp-1-deploy" to die
+    Given I use the "<%= cb.project1 %>" project
+    Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
+    Given I switch to the system:serviceaccount:<%= cb.project1 %>:test1 service account
     When I run the :get client command with:
       | resource | pod |
     Then the step should succeed
+    Given I use the "<%= cb.project2 %>" project
     When I download a file from "https://raw.githubusercontent.com/openshift/origin/e21d95cedad8f0ce06ff5d04ae9b978ce3d04d87/examples/sample-app/application-template-stibuild.json"
     And I run the :create client command with:
       |f|application-template-stibuild.json|
@@ -360,11 +369,6 @@ Feature: ServiceAccount and Policy Managerment
   # @case_id 497380
    Scenario: Could grant edit permission for the service account username to access to its own project
     Given I have a project
-    When I create a new application with:
-      | image_stream | ruby         |
-      | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
-    Then the step should succeed
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_user client command with:
       | role | edit     |
@@ -378,8 +382,9 @@ Feature: ServiceAccount and Policy Managerment
     When I create a new application with:
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp2         |
+      | name         | myapp         |
     Then the step should succeed
+    And I wait for the "myapp" service to become ready
     When I replace resource "dc" named "myapp" saving edit to "tmp_out.yaml":
       | replicas: 1 | replicas: 2 |
     Then the step should succeed
