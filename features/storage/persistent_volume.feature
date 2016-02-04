@@ -28,3 +28,31 @@ Feature: Persistent Volume Claim binding policies
     # When I run the :delete client command with:
     #  | object_type       | pvc  |
     #  | object_name_or_id | nfsc |
+
+  # @author yinzhou@redhat.com
+  # @case_id 510610
+  @admin @destructive
+  Scenario: deployment hook volume inheritance -- with persistentvolumeclaim Volume
+    Given I have a project
+    And I have a NFS service in the project
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc.json |
+    When I run the :get client command with:
+      | resource | pvc |
+    Then the output should contain:
+      | Bound   |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/510610/hooks-with-nfsvolume.json |
+    Then the step should succeed
+    Given the pod named "hooks-1-prehook" becomes ready
+    When I run the :get client command with:
+      | resource      | pod |
+      | resource_name | hooks-1-prehook |
+      | o             | yaml |
+    Then the output by order should match:
+      | - mountPath: /opt1 |
+      | name: v1 |
+      | persistentVolumeClaim: |
+      | claimName: nfsc |
