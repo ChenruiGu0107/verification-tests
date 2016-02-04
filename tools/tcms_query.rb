@@ -73,10 +73,11 @@ def get_scenario_tags(tcms, line_number, file_contents)
   # we only add the tags if they are one or more of the following groups
   # https://mojo.redhat.com/docs/DOC-935729  (V2)
   # https://mojo.redhat.com/docs/DOC-1043047 (V3)
-  if tcms.default_opts[:plan] == 14587
-    valid_tags_to_be_added = ['@admin', '@destructive', '@vpn', '@smoke']
-  else  # V2 tags
+  if tcms.default_opts[:plan] == 4962
+    # V2 tags
     valid_tags_to_be_added = ['@devenv', '@destructive', '@aggressive', '@sequential']
+  else  # everything else is assumed to be v3 variants
+    valid_tags_to_be_added = ['@admin', '@destructive', '@vpn', '@smoke']
   end
   # goes back searching for Scenario line
   while line_number > 0
