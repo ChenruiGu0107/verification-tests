@@ -66,13 +66,18 @@ end
 # Once we find the indicator line we keep searching back looking for
 # @tagX lines skipping blank lines; we stop on any other line or line 0
 #########################################################################
-def get_scenario_tags(line_number, file_contents)
+def get_scenario_tags(tcms, line_number, file_contents)
   tags = []
   original_line_number = line_number
   scenario_regex = /^\s*Scenario(?: Outline)?:/
   # we only add the tags if they are one or more of the following groups
-  # https://mojo.redhat.com/docs/DOC-935729
-  valid_tags_to_be_added = ['@devenv', '@destructive', '@aggressive', '@sequential']
+  # https://mojo.redhat.com/docs/DOC-935729  (V2)
+  # https://mojo.redhat.com/docs/DOC-1043047 (V3)
+  if tcms.default_opts[:plan] == 14587
+    valid_tags_to_be_added = ['@admin', '@destructive', '@vpn', '@smoke']
+  else  # V2 tags
+    valid_tags_to_be_added = ['@devenv', '@destructive', '@aggressive', '@sequential']
+  end
   # goes back searching for Scenario line
   while line_number > 0
     line = file_contents[line_number]
@@ -352,7 +357,7 @@ def update_script(options)
   path = path[9..path.length]
   ruby_script = "#{path}:#{scenario_description}"
   tcms_script_field =  {"ruby"=>ruby_script}.to_json
-  tags = get_scenario_tags(line_number.to_i - 1, file_contents)
+  tags = get_scenario_tags(tcms, line_number.to_i - 1, file_contents)
   tcms.add_testcase_tags(options.cases, tags) unless tags == ""
 
   if options.notes
