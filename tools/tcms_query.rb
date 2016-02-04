@@ -66,13 +66,19 @@ end
 # Once we find the indicator line we keep searching back looking for
 # @tagX lines skipping blank lines; we stop on any other line or line 0
 #########################################################################
-def get_scenario_tags(line_number, file_contents)
+def get_scenario_tags(tcms, line_number, file_contents)
   tags = []
   original_line_number = line_number
   scenario_regex = /^\s*Scenario(?: Outline)?:/
   # we only add the tags if they are one or more of the following groups
-  # https://mojo.redhat.com/docs/DOC-935729
-  valid_tags_to_be_added = ['@devenv', '@destructive', '@aggressive', '@sequential']
+  # https://mojo.redhat.com/docs/DOC-935729  (V2)
+  # https://mojo.redhat.com/docs/DOC-1043047 (V3)
+  if tcms.default_opts[:plan] == 4962
+    # V2 tags
+    valid_tags_to_be_added = ['@devenv', '@destructive', '@aggressive', '@sequential']
+  else  # everything else is assumed to be v3 variants
+    valid_tags_to_be_added = ['@admin', '@destructive', '@vpn', '@smoke']
+  end
   # goes back searching for Scenario line
   while line_number > 0
     line = file_contents[line_number]
@@ -152,7 +158,8 @@ def report_auto_testcases_by_author(options)
   tcms = options.tcms
   table = Text::Table.new
   table.head = ['case_id', 'summary', 'author']
-  regex = /(automated by)\s(\w+)?/i
+  author_regex1 = /(automated by)\s(\w+)?/i
+  author_regex2= /(\w+)(?: is)? automat(\w+)/
   script_pattern = "\"ruby\""
   cases = []
   unknown_cases = []   # array to story 'unknown' testcase ids
@@ -169,7 +176,11 @@ def report_auto_testcases_by_author(options)
 
       if (testcase['script'].include? script_pattern and testcase['case_status'] == 'CONFIRMED')
         auto_case_total += 1
-        auto_by = testcase['notes'].match(regex)[2] if testcase['notes'].match(regex)
+        auto_by = testcase['notes'].match(author_regex1)[2] if testcase['notes'].match(author_regex1)
+        # try another regex format
+        if auto_by.nil?
+          auto_by = testcase['notes'].match(author_regex2)[1] if testcase['notes'].match(author_regex2)
+        end
         auto_by = "unknown" if auto_by.nil?
         if auto_by == 'unknown'
           unknown_cases << testcase['case_id']
@@ -352,7 +363,7 @@ def update_script(options)
   path = path[9..path.length]
   ruby_script = "#{path}:#{scenario_description}"
   tcms_script_field =  {"ruby"=>ruby_script}.to_json
-  tags = get_scenario_tags(line_number.to_i - 1, file_contents)
+  tags = get_scenario_tags(tcms, line_number.to_i - 1, file_contents)
   tcms.add_testcase_tags(options.cases, tags) unless tags == ""
 
   if options.notes
