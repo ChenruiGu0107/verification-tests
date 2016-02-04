@@ -210,7 +210,7 @@ module CucuShift
 
       if puddle_repo
         conf_script.gsub!(/#(CONF_PUDDLE_REPO)=.*$/, "\\1='#{puddle_repo}'")
-        ose3_vars << "openshift_additional_repos=[{'id': 'ose-devel', 'name': 'ose-devel', 'baseurl': '#{puddle_repo}', 'enabled': 1, 'gpgcheck': 0}]"
+        ose3_vars << "openshift_additional_repos=[{'id': 'aos', 'name': 'ose-devel', 'baseurl': '#{puddle_repo}', 'enabled': 1, 'gpgcheck': 0}]"
       end
 
       ## Setup HA Master opt
