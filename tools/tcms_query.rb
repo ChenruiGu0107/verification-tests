@@ -158,7 +158,8 @@ def report_auto_testcases_by_author(options)
   tcms = options.tcms
   table = Text::Table.new
   table.head = ['case_id', 'summary', 'author']
-  regex = /(automated by)\s(\w+)?/i
+  author_regex1 = /(automated by)\s(\w+)?/i
+  author_regex2= /(\w+)(?: is)? automat(\w+)/
   script_pattern = "\"ruby\""
   cases = []
   unknown_cases = []   # array to story 'unknown' testcase ids
@@ -175,7 +176,11 @@ def report_auto_testcases_by_author(options)
 
       if (testcase['script'].include? script_pattern and testcase['case_status'] == 'CONFIRMED')
         auto_case_total += 1
-        auto_by = testcase['notes'].match(regex)[2] if testcase['notes'].match(regex)
+        auto_by = testcase['notes'].match(author_regex1)[2] if testcase['notes'].match(author_regex1)
+        # try another regex format
+        if auto_by.nil?
+          auto_by = testcase['notes'].match(author_regex2)[1] if testcase['notes'].match(author_regex2)
+        end
         auto_by = "unknown" if auto_by.nil?
         if auto_by == 'unknown'
           unknown_cases << testcase['case_id']
