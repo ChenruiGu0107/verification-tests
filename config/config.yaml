@@ -52,7 +52,8 @@ environments:
     admin_cli: MasterKubeconfigLocalAdminCliExecutor
     api_port: 8443
   stage:
-    hosts: api.stg.openshift.com:etcd:master:node
+    hosts: api.stage.openshift.com:etcd:master:node
+    web_console_url: https://console.stage.openshift.com
     hosts_type: Host # we can't basically access that host so this should work
     type: StaticEnvironment
     user_manager: StaticUserManager

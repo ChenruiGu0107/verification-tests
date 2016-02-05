@@ -30,7 +30,7 @@ module CucuShift
 
       @executors[user.name] = Web4Cucumber.new(
         logger: logger,
-        base_url: env.api_endpoint_url,
+        base_url: env.web_console_url,
         rules: rulez
       )
 

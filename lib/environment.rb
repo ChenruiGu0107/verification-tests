@@ -95,6 +95,10 @@ module CucuShift
       opts[:api_url] || "#{api_proto}://#{api_hostname}#{api_port_str}"
     end
 
+    def web_console_url
+      opts[:web_console_url] || api_endpoint_url
+    end
+
     # get environment supported API paths
     def api_paths
       return @api_paths if @api_paths
