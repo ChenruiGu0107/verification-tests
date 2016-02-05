@@ -20,10 +20,10 @@ Feature: Logging and Metrics
     Then the step should succeed
     Given I register clean-up steps:
     """
-    When I run the :oadm_remove_cluster_role_from_user admin command with:
+    I run the :oadm_remove_cluster_role_from_user admin command with:
       | role_name            |   cluster-reader      |
       | user_name       |   system:serviceaccount:<%=project.name%>:heapster    |
-    Then the step should succeed
+    the step should succeed
     """
     When I run the :new_secret client command with:
       | secret_name | metrics-deployer |
@@ -79,10 +79,10 @@ Feature: Logging and Metrics
     Then the step should succeed
     Given I register clean-up steps:
     """
-    When I run the :oadm_remove_cluster_role_from_user admin command with:
+    I run the :oadm_remove_cluster_role_from_user admin command with:
       | role_name            |   cluster-reader      |
       | user_name       |   system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd |
-    Then the step should succeed
+    the step should succeed
     """
     When I run the :oadm_policy_add_scc_to_user admin command with:
       | scc       | privileged      |
@@ -90,34 +90,36 @@ Feature: Logging and Metrics
     Then the step should succeed
     Given I register clean-up steps:
     """
-    When I run the :oadm_policy_remove_scc_from_user admin command with:
+    I run the :oadm_policy_remove_scc_from_user admin command with:
       | scc       | privileged      |
       | user_name | system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd |
-    Then the step should succeed
+    the step should succeed
     """
     When I create a new application with:
       | template | logging-deployer-template|
       | param | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/,KIBANA_HOSTNAME=kibana.<%= cb.subdomain%>,PUBLIC_MASTER_URL=<%= env.api_endpoint_url %>,ES_INSTANCE_RAM=1024M,ES_CLUSTER_SIZE=1,IMAGE_VERSION=latest,MASTER_URL=<%= env.api_endpoint_url %> |
     Then the step should succeed
-    Given I register clean-up steps:
-    """
-    When I run the :delete admin command with:
-      | object_type |  oauthclients |
-      | object_name_or_id |   kibana-proxy |
-      | n |   openshift-infra |
-    Then the step should succeed
-    """
     Given I wait for the steps to pass:
-    """ 
+    """
     When I run the :get client command with:
       | resource  | templates |
     Then the output should contain "logging-support-template"
-    """ 
+    """
     And the first user is cluster-admin
     When I create a new application with:
       | template | logging-support-template |
       | n | <%= project.name %> |
     Then the step should succeed
+    Given I register clean-up steps:
+    """
+    I switch to cluster admin pseudo user
+    I use the "openshift-infra" project
+    I run the :delete admin command with:
+      | object_type |  oauthclients |
+      | object_name_or_id |   kibana-proxy |
+      | n |   openshift-infra |
+    I wait for the resource "oauthclient" named "kibana-proxy" to disappear
+    """
     When I run the :patch client command with:
       | resource      | imagestreams |
       | resource_name | logging-fluentd                      |
