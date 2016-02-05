@@ -2,7 +2,6 @@ module CucuShift
   # let you operate a git repo
   class Git
     include Common::Helper
-
     attr_reader :host, :user
 
     # @param [String] uri remote git uri; when nil, checking the `origin` remote
@@ -11,12 +10,20 @@ module CucuShift
     # @param [CucuShift::Host] host the host repo is to be located
     # @param [String] user the host os user to run git as; usage is discouraged
     def initialize(uri: nil, dir: nil, host: nil, user: nil)
-      @url = url
+      @uri = uri
       @dir = dir
       @host = host || Host.localhost
       @user = user
 
-      raise "need uri or dir" unless url || dir
+      raise "need uri or dir" unless uri || dir
+    end
+
+    # basically we check directory exists as there is no good way to know
+    #   whether what we expect is in there
+    def cloned?(force: false)
+      return @cloned if defined?(@cloned) && !force
+      @cloned = host.file_exist?(dir)
+      return @cloned
     end
 
     def dir
@@ -24,33 +31,32 @@ module CucuShift
     end
 
     def uri
-      @uri if @uri
+      return @uri if @uri
+      raise "need uri or dir but non are given" unless @dir
 
-      res = exec_as("git remote -v")
-      uri = res[:response].scan(/origin\s(.+)\s+\(fetch\)$/)[0][0]
-
-      unless @uri
-        logger(res[:response])
-        raise "cannot find out repo uri"
+      res = host.exec_as(user, "git -C #{host.shell_escape dir} remote -v")
+      if res[:success]
+        @uri = res[:response].scan(/origin\s(.+)\s+\(fetch\)$/)[0][0]
       end
 
-      return @uri = uri
+      unless @uri
+        logger.info(res[:response])
+        raise "cannot find out repo uri in git output"
+      end
+
+      return @uri
     end
 
     # execute commands in repo
     def exec(*cmd)
-      unless @cloned
-        # if dir exist, then we assume repo is cloned, otherwise clone it now
-        unless host.file_exist?(dir)
-          clone
-        end
-        @cloned = true
+      unless cloned?
+        raise "could not clone repo, see log" unless clone[:success]
       end
 
-      host.exec_as(user, "cd '#{dir}'", *cmd)
+      host.exec_as(user, "cd #{host.shell_escape dir}", *cmd)
 
       unless res[:success]
-        logger(res[:response])
+        logger.info(res[:response])
         raise "failed to execute command in git repo"
       end
 
@@ -59,7 +65,11 @@ module CucuShift
 
     # clone a git repo
     def clone
-      exec("git clone #{host.shell_escape url} #{host.shell_escape dir}")
+      clone_cmd = "git clone #{host.shell_escape @uri} #{host.shell_escape dir}"
+      res = host.exec_as(user, clone_cmd)
+      # don't want to reset cloned status after it is once set
+      @cloned = @cloned || res[:success]
+      return res
     end
 
     def status
@@ -98,6 +108,19 @@ module CucuShift
       end
       commit
       exec "git push#{force}#{branch_spec}"
+    end
+
+    # @param [Boolean], get the commit id from remote or local repo
+    def get_latest_commit_id(**opts)
+      if ! opts[:force_remote] && cloned?
+        # res = exec "git log --format=\"%H\" -n 1"
+        res = exec "git rev-parse HEAD"
+      else
+        res = host.exec_as(user, "git ls-remote #{host.shell_escape uri} HEAD")
+      end
+
+      raise "Can't get git commit id" unless res[:success]
+      return res[:response].split(' ')[0].strip()
     end
   end
 end

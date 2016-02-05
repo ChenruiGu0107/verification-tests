@@ -524,4 +524,36 @@ Feature: build 'apps' with CLI
     Then the output should contain:
       | ruby-sample-build |
 
-
+  # @author pruan@redhat.com
+  # @case_id 512260
+  Scenario: oc start-build with a directory passed,sti build type
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/nodejs-ex |
+    Then the step should succeed
+    And I git clone the repo "https://github.com/openshift/nodejs-ex"
+    And I run the :start_build client command with:
+      | buildconfig | nodejs-ex |
+      | from_dir    | nodejs-ex |
+    Given I wait for the steps to pass:
+      """
+      Given the pod named "nodejs-ex-2-build" is present
+      """
+    Given the pod named "nodejs-ex-2-build" status becomes :succeeded
+    Given the "tmp/test/testfile" file is created with the following lines:
+      """
+      This is a test!
+      """
+    And I run the :start_build client command with:
+      | buildconfig | nodejs-ex |
+      | from_dir    | tmp/test |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | build |
+    Given the pod named "nodejs-ex-3-build" status becomes :failed
+    And I run the :start_build client command with:
+      | buildconfig | nodejs-ex |
+      | from_dir    | tmp/deadbeef |
+    Then the step should fail
+    And the output should contain:
+      | deadbeef: no such file or directory |
