@@ -40,12 +40,36 @@ module CucuShift
       return @executors[user.name]
     end
 
+    def login(user)
+      if user.password?
+        return executor(user).run_action(:login,
+                                         username: user.name,
+                                         password: user.password)
+      else
+        # looks like we use token only user, lets try to hack our way in
+        # res = user.get_self
+        # if res[:success]
+          return executor(user).run_action(:login_token,
+                                           # user: res[:response].chomp,
+                                           token: user.get_bearer_token.token
+                                          )
+        # else
+        #  raise "error getting user API object: res[:response]"
+        # end
+      end
+    end
+
     def run_action(user, action, **opts)
+      login_actions = [ :login, :login_token ]
+
+      if action == :logout && !user.password?
+        raise "be careful to not logout while user defined only by token"
+      end
+
       # login automatically on first browser use unless `_nologin` option given
-      if !opts.delete(:_nologin) && executor(user).is_new? && action != :login
-        res = executor(user).run_action(:login,
-                                        username: user.name,
-                                        password: user.password)
+      if !opts.delete(:_nologin) && executor(user).is_new? &&
+                                    !login_actions.include?(action)
+        res = login(user)
         unless res[:success]
           logger.error "login to web console failed:\n" + res[:response]
           return res

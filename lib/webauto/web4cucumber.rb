@@ -179,10 +179,17 @@ require 'watir-webdriver'
       end
       # sleep to make sure the ajax done, still no idea how much time should be 
       sleep 1
-      output = execute_script(script[:command])
+
+      command = script[:command].gsub(/<([a-z_]+?)>/) { |match|
+        user_opts[match[1..-2].to_sym] || match
+      }
+      output = execute_script(command)
 
       if script[:expect_result].kind_of? String
-        success = output == script[:expect_result]
+        expect = script[:expect_result].gsub(/<([a-z_]+?)>/) { |match|
+          user_opts[match[1..-2].to_sym] || match
+        }
+        success = output == expect
       else
         success = ! output == ! script[:expect_result]
       end
