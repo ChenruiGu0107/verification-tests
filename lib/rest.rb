@@ -41,7 +41,7 @@ module CucuShift
         opts[:headers]["Accept"] = "<accept>"
         opts[:headers]["Content-Type"] = "<content_type>"
 
-        auth ||= user.rest_preferences[:auth] || Http.conf[:rest_default_auth] || :bearer_token
+        auth ||= user.rest_preferences[:auth] || conf[:rest_default_auth] || :bearer_token
         case auth
         when :bearer_token
           opts[:options][:oauth_token] = user.get_bearer_token.token

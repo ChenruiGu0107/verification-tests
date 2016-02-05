@@ -65,25 +65,28 @@ Feature: SCC policy related scenarios
       |  system:admin  |
       |  system:authenticated  |
 
+
   #@author bmeng@redhat.com
   #@case_id 495027
   @admin
   Scenario: Add/drop capabilities for container when SC matches the SCC
     Given I have a project
-    And evaluation of `project.name` is stored in the :project_name clipboard
+
+    # Create pod without SCC allowed
     When I run the :create client command with:
         |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_kill.json|
     Then the step should fail
     And the output should contain "forbidden: unable to validate against any security context constraint"
     And the output should contain "invalid value 'KILL', Details: capability may not be added"
+
+    # Create SCC to allow KILL
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_capabilities.yaml"
     And I replace lines in "scc_capabilities.yaml":
-        |system:serviceaccounts:default|system:serviceaccounts:<%= cb.project_name %>|
+        |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
+        |scc-cap|<%= rand_str(6, :dns) %>|
     Given the following scc policy is created: scc_capabilities.yaml
-    When I run the :get admin command with:
-        |resource|scc|
-        |resource_name|scc-cap|
-    Then the output should contain "[KILL]"
+
+    # Create pod which match the allowed capability or not
     When I run the :create client command with:
         |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_kill.json|
     Then the step should succeed
@@ -98,17 +101,14 @@ Feature: SCC policy related scenarios
   @admin
   Scenario: Pod can be created when its SC matches the SELinuxContextStrategy policy in SCC
     Given I have a project 
-    And evaluation of `project.name` is stored in the :project_name clipboard
     
     # Create pod which requests Selinux SecurityContext which does not match SCC SELinuxContext policy MustRunAs
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_selinux_mustrunas.yaml"
     And I replace lines in "scc_selinux_mustrunas.yaml":
-      |system:serviceaccounts:default|system:serviceaccounts:<%= cb.project_name %>|
-    And the following scc policy is created: scc_selinux_mustrunas.yaml
-    When I run the :get admin command with:
-      |resource|scc|
-      |resource_name|scc-selinux-mustrunas|
-    Then the output should contain "MustRunAs"
+      |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
+      |scc-selinux-mustrunas|<%= rand_str(6, :dns) %>|
+    And the following scc policy is created: scc_selinux_mustrunas.yaml    
+
     When I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_selinux.json|
     Then the step should fail
@@ -122,12 +122,59 @@ Feature: SCC policy related scenarios
     # Create pod which requests Selinux SecurityContext when the SCC SELinuxContext policy is RunAsAny
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_runasany.yaml"
     And I replace lines in "scc_runasany.yaml":
-      |system:serviceaccounts:default|system:serviceaccounts:<%= cb.project_name %>|
+      |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
+      |scc-runasany|<%= rand_str(6, :dns) %>|
     And the following scc policy is created: scc_runasany.yaml
-    When I run the :get admin command with:
-      |resource|scc|
-      |resource_name|scc-runasany|
-    Then the output should contain "RunAsAny"
     When I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_selinux.json|
+    Then the step should succeed
+
+  
+  #@author bmeng@redhat.com
+  #@case_id 495033
+  @admin
+  Scenario: The container with requests privileged in SC can be created only when the SCC allowed
+    # Create privileged pod with default SCC            
+    Given I have a project
+    When I run the :create client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_privileged.json|
+    Then the step should fail
+    And the output should contain "invalid value 'true'"
+    And the output should contain "Details: Privileged containers are not allowed"
+
+    # Create new scc to allow the privileged pod for specify project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_privileged.yaml"
+    And I replace lines in "scc_privileged.yaml":
+      |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
+      |scc-pri|<%= rand_str(6, :dns) %>|
+    And the following scc policy is created: scc_privileged.yaml
+
+    # Create privileged pod again with new SCC
+    When I run the :create client command with:
+     |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_privileged.json|
+    Then the step should succeed
+
+
+  #@auther bmeng@redhat.com
+  #@case_id 495031
+  @admin
+  Scenario: Limit the created container to access the hostdir via SCC
+    # Create pod which request hostdir mount permission with default SCC            
+    Given I have a project
+    When I run the :create client command with:
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_hostdir.json|
+    Then the step should fail
+    And the output should contain "unable to validate against any security context constraint"
+    And the output should contain "Details: Host Volumes are not allowed to be used"
+
+    # Create new scc to allow the hostdir for pod in specify project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_hostdir.yaml"
+    And I replace lines in "scc_hostdir.yaml":
+      |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
+      |scc-hostdir|<%= rand_str(6, :dns) %>|
+    And the following scc policy is created: scc_hostdir.yaml
+
+    # Create hostdir pod again with new SCC
+    When I run the :create client command with:
+     |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_hostdir.json|
     Then the step should succeed
