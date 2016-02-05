@@ -217,11 +217,6 @@ module CucuShift
       # * if non-HA master => router selector should point at nodes, num_infra should be == number of nodes, DNS should point at nodes
       # * if HA masters => router selector sohuld point at masters (region=infra), num_infra should be == number of masters, DNS should point at masters
 
-      # num infra needed only when creating a router by ansible
-      # https://bugzilla.redhat.com/show_bug.cgi?id=1274129
-      # I think it selects number of router replicas. Should be same as
-      #   masters or nodes number (depending where it is to be run
-
       ## select load balancer node
       if hosts["master"].size > 1
         lb_node = hosts["node"].sample
@@ -247,6 +242,13 @@ module CucuShift
         router_dns_type = "master"
       end
       router_ips = hosts[router_dns_type].map{|h| h.ip}
+      # num_infra is not supported now, and introduce openshift_infra_nodes
+      # https://bugzilla.redhat.com/show_bug.cgi?id=1303939
+      # if openshift_infra_nodes is not set, by default its value is the number
+      # of nodes with "region=infra" label
+      if hosts["master"].size = 1
+        ose3_vars << "openshift_infra_nodes=#{router_ips}"
+      end
 
       ## Setup HA Master opts End
 
