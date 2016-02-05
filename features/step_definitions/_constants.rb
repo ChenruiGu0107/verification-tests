@@ -1,5 +1,5 @@
 OPT_SYM = '(?: :(\S+))?'
 SYM = ':(\S+)'
-QUOTED = '"(.+)"'
+QUOTED = '"(.+?)"'
 HTTP_URL = '(https?:\/\/.+)'
 USER = 'the( \\S+)? user'

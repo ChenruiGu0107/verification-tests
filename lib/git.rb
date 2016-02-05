@@ -18,37 +18,42 @@ module CucuShift
       raise "need uri or dir" unless uri || dir
     end
 
+    # basically we check directory exists as there is no good way to know
+    #   whether what we expect is in there
+    def cloned?(force: false)
+      return @cloned if defined?(@cloned) && !force
+      @cloned = host.file_exist?(dir)
+      return @cloned
+    end
+
     def dir
-      @dir ||= File.basename(@uri).gsub(/\.git$/,"")
+      @dir ||= File.basename(uri).gsub(/\.git$/,"")
     end
 
     def uri
-      @uri if @uri
-      res = {}
-      if dir
-        res = host.exec_as(user, "cd #{dir}; git remote -v")
-      else
-        res = host.exec_as(user, "git remote -v")
+      return @uri if @uri
+      raise "need uri or dir but non are given" unless @dir
+
+      res = host.exec_as(user, "git -C #{host.shell_escape dir} remote -v")
+      if res[:success]
+        @uri = res[:response].scan(/origin\s(.+)\s+\(fetch\)$/)[0][0]
       end
-      @uri = res[:response].scan(/origin\s(.+)\s+\(fetch\)$/)[0][0] if res[:success]
 
       unless @uri
         logger.info(res[:response])
-        raise "cannot find out repo uri"
+        raise "cannot find out repo uri in git output"
       end
+
+      return @uri
     end
 
     # execute commands in repo
     def exec(*cmd)
-      unless @cloned
-        # if dir exist, then we assume repo is cloned, otherwise clone it now
-        unless host.file_exist?(dir)
-          clone
-        end
-        @cloned = true
+      unless cloned?
+        raise "could not clone repo, see log" unless clone[:success]
       end
 
-      host.exec_as(user, "cd '#{dir}'", *cmd)
+      host.exec_as(user, "cd #{host.shell_escape dir}", *cmd)
 
       unless res[:success]
         logger.info(res[:response])
@@ -61,7 +66,10 @@ module CucuShift
     # clone a git repo
     def clone
       clone_cmd = "git clone #{host.shell_escape @uri} #{host.shell_escape dir}"
-      host.exec(clone_cmd)
+      res = host.exec_as(user, clone_cmd)
+      # don't want to reset cloned status after it is once set
+      @cloned = @cloned || res[:success]
+      return res
     end
 
     def status
@@ -103,20 +111,16 @@ module CucuShift
     end
 
     # @param [Boolean], get the commit id from remote or local repo
-    def get_latest_commit_id(local: locally)
-      if local
-        # make sure we have a local copy
-        clone 
-        cmd = "cd #{dir}; git log --format=\"%H\" -n 1"
+    def get_latest_commit_id(**opts)
+      if ! opts[:force_remote] && cloned?
+        # res = exec "git log --format=\"%H\" -n 1"
+        res = exec "git rev-parse HEAD"
       else
-        self.uri
-        cmd = "git ls-remote #{@uri} HEAD"
+        res = host.exec_as(user, "git ls-remote #{host.shell_escape uri} HEAD")
       end
 
-      res = host.exec_as(user, cmd)
       raise "Can't get git commit id" unless res[:success]
       return res[:response].split(' ')[0].strip()
     end
-
   end
 end
