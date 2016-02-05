@@ -246,7 +246,7 @@ module CucuShift
       # https://bugzilla.redhat.com/show_bug.cgi?id=1303939
       # if openshift_infra_nodes is not set, by default its value is the number
       # of nodes with "region=infra" label
-      if hosts["master"].size = 1
+      if hosts["master"].size == 1
         ose3_vars << "openshift_infra_nodes=#{router_ips}"
       end
 
