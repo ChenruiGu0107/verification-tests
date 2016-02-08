@@ -132,7 +132,7 @@ Feature: quickstarts.feature
   # @case_id 508716
   Scenario: Cakephp-ex quickstart hot deploy test - php-55-rhel7
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift/cakephp-ex/6578f1815463db2cafcab3860ca8b8dda822e434/openshift/templates/cakephp.json"
+    And I download a file from "https://raw.githubusercontent.com/openshift/cakephp-ex/master/openshift/templates/cakephp.json"
     Given I replace lines in "cakephp.json":
       | 5.6 | 5.5 |
     When I run the :new_app client command with:
