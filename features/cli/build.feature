@@ -21,11 +21,14 @@ Feature: build 'apps' with CLI
       | value: value2                                        |
       | name: key3                                           |
       | value: value3                                        |
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | builds |
     Then the output should contain:
       | NAME                |
       | ruby-hello-world-1  |
+    """
     When I run the :get client command with:
       |resource| imageStream |
     Then the output should contain:
