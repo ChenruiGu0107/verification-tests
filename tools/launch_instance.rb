@@ -39,6 +39,7 @@ module CucuShift
       global_option('-d', '--user_data SPEC', "file containing user instances' data")
       global_option('-s', '--service_name', 'service name to lookup in config')
       global_option('-i', '--image_name IMAGE', 'image to launch instance with')
+      global_option('--it', '--instance_type TYPE', 'instance flavor to launch')
 
       command :launch do |c|
         c.syntax = 'env_launcher_cli.rb launch -c [ENV|<conf keyword>]'
@@ -55,6 +56,12 @@ module CucuShift
             options.master_num ||= Integer(ENV['MASTER_NUM']) rescue 1
             options.node_num ||= ENV['NODE_NUM'].to_i
             options.launched_instances_name_prefix ||= ENV['INSTANCE_NAME_PREFIX']
+            if ENV['CLOUD_INSTANCE_TYPE'] && !ENV['CLOUD_INSTANCE_TYPE'].empty?
+              options.instance_type ||= ENV['CLOUD_INSTANCE_TYPE']
+            end
+            if ENV['CLOUD_IMAGE_NAME'] && !ENV['CLOUD_IMAGE_NAME'].empty?
+              options.image_name ||= ENV['CLOUD_IMAGE_NAME']
+            end
             options.service_name ||= ENV['CLOUD_SERVICE_NAME']
             options.service_name = options.service_name.to_sym
 
@@ -187,17 +194,24 @@ module CucuShift
       case conf[:services, options.service_name, :cloud_type]
       when "aws"
         raise "TODO service choice" unless options.service_name == :AWS
-        ec2_image = options.image_name || ENV['CLOUD_IMAGE_NAME'] || ""
+        ec2_image = options.image_name || ""
         ec2_image = ec2_image.empty? ? :raw : ec2_image
         amz = Amz_EC2.new
+        create_opts = { user_data: user_data }
+        if options.instance_type && !options.instance_type.empty?
+          create_opts[:instance_type] = options.instance_type
+        end
         amz.launch_instances(tag_name: host_names, image: ec2_image,
-                             create_opts: {user_data: user_data})
+                             create_opts: create_opts)
       when "openstack"
         ostack = CucuShift::OpenStack.new(
           service_name: options.service_name
         )
         create_opts = {}
         create_opts[:image] = options.image_name if options.image_name
+        if options.instance_type && !options.instance_type.empty?
+          create_opts[:flavor] = options.instance_type
+        end
         return ostack.launch_instances(names: host_names,
                                         user_data: user_data,
                                           **create_opts)
@@ -239,6 +253,10 @@ module CucuShift
       image = options.image_name || ENV['CLOUD_IMAGE_NAME']
       image = nil if image && image.empty?
       instance_name = options.launched_instances_name_prefix
+      options.instance_type ||= ENV['CLOUD_INSTANCE_TYPE']
+      if options.instance_type && !options.instance_type.empty?
+        create_opts[:instance_type] = options.instance_type
+      end
       if instance_name.nil? || instance_name.empty?
         raise "you must specify instance name with -l"
       end
