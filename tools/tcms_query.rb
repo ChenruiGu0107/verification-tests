@@ -375,6 +375,26 @@ def update_script(options)
   end
 end
 
+# query tcms and extract all of the failed logs from a test run 
+def report_logs(options, status='FAILED')
+  tcms = options.tcms
+  cases = tcms.get_run_cases(options[:testrun_id])
+  filtered_cases = []
+  table = Text::Table.new
+  table.head = ['caserun_id', 'case_id', 'log_url']
+  cases.each do | tc |
+    if tc['case_run_status'] == status
+      filtered_cases << tc
+    end
+  end
+
+  filtered_cases.each do | tc |
+    log_url = tcms.get_latest_log_url(tc["case_run_id"])
+    table.rows << [tc["case_run_id"], tc["case_id"],log_url]
+  end
+  puts table
+end
+
 if __FILE__ == $0
   options = OpenStruct.new
 
@@ -420,6 +440,9 @@ if __FILE__ == $0
     opts.on('-f', '--filter [filter_yaml_file]', String, "query TCMS server with the following query file, see doc/examples/query_filter_example.yaml for an example") do |query|
       options.query = query
     end
+    opts.on('-l', '--log [FAILED|PASSED]', String, "get the passed/failed logs URL") do |log_type|
+      options.log_type = log_type
+    end
   end.parse!
   tcms = CucuShift::TCMS.new(options.to_h)
 
@@ -437,6 +460,8 @@ if __FILE__ == $0
     update_script(options) if options.script
   elsif options.by_author
     report_auto_testcases_by_author(options)
+  elsif options.log_type
+    report_logs(options, options.log_type)
   else
     cases = print_report(options)
   end

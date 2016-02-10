@@ -378,7 +378,16 @@ module CucuShift
       caserun = self.call('TestCaseRun.get', caserun_id.to_i)
       return caserun['case_run_status']
     end
+    # Get the URL of the latest log from a testcase run id
 
+    def get_caserun_logs(caserun_id)
+      self.call('TestCaseRun.get_logs', Integer(caserun_id))
+    end
+
+    def get_latest_log_url(caserun_id)
+      logs = self.get_caserun_logs(caserun_id)
+      return logs[-1]["url"]
+    end
     # @param [Array of Integer] integers which represetns caserun_id
     # @return [{TestCaseRun+TestCase}, ...]
     def get_caseruns(caserun_ids)
