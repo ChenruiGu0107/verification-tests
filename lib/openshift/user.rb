@@ -38,9 +38,7 @@ module CucuShift
         raise "somehow user has no name and no token defined"
       end
 
-      res = env.rest_request_executor.exec(user: self, auth: :bearer_token,
-                                           req: :get_user,
-                                           opts: {username: '~'})
+      res = get_self
 
       if res[:success] && res[:props] && res[:props][:name]
         @name = res[:props][:name]
@@ -48,6 +46,13 @@ module CucuShift
       else
         raise "could not obtain username with token #{cached_tokens[0]}: #{res[:response]}"
       end
+    end
+
+    def get_self
+      #env.rest_request_executor.exec(user: self, auth: :bearer_token,
+      #                                           req: :get_user,
+      #                                           opts: {username: '~'})
+      rest_request(:get_user, username: '~')
     end
 
     # @return true if we know user's password

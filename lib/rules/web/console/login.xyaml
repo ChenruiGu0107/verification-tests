@@ -6,6 +6,7 @@ access_overview_page_after_logout:
       id: inputUsername
   - selector:
       id: inputPassword
+
 login:
   url: /console
   elements:
@@ -28,12 +29,29 @@ login:
         text: Log In
       op: click
       type: button
+  action: verify_logged_in
+
+login_token:
+  #url: /console
+  #scripts:
+  #- command: return window.localStorage['LocalStorageUserStore.user'] = '<user>'
+  #  expect_result: <user>
+  #- command: return window.localStorage['LocalStorageUserStore.token'] = '<token>'
+  #  expect_result: <token>
+  #url: /console
+  url: /console/oauth#access_token=<token>&expires_in=86400&state=/&token_type=Bearer
+  action: verify_logged_in
+
+verify_logged_in:
+  elements:
+  - selector:
+      text: OpenShift Web Console
+    visible: false
   scripts:
     - command: return window.localStorage['LocalStorageUserStore.token']
       expect_result: true
     - command: return window.localStorage['LocalStorageUserStore.user']
       expect_result: true
-
 
 request_token_with_password:
   url: /oauth/token/request

@@ -24,8 +24,7 @@ When /^I access the "(.*?)" path in the web (?:console|browser)$/ do |url|
 end
 
 Given /^I login via web console$/ do
-  step "I perform the :login web console action with:",
-    table([["username", user.name], ["password", user.password]])
+  step "I run the :null web console action"
 
   unless @result[:success]
     logger.error(@result[:response])
