@@ -29,11 +29,7 @@ login:
         text: Log In
       op: click
       type: button
-  scripts:
-    - command: return window.localStorage['LocalStorageUserStore.token']
-      expect_result: true
-    - command: return window.localStorage['LocalStorageUserStore.user']
-      expect_result: true
+  action: verify_logged_in
 
 login_token:
   #url: /console
@@ -44,10 +40,18 @@ login_token:
   #  expect_result: <token>
   #url: /console
   url: /console/oauth#access_token=<token>&expires_in=86400&state=/&token_type=Bearer
+  action: verify_logged_in
+
+verify_logged_in:
   elements:
   - selector:
       text: OpenShift Web Console
     visible: false
+  scripts:
+    - command: return window.localStorage['LocalStorageUserStore.token']
+      expect_result: true
+    - command: return window.localStorage['LocalStorageUserStore.user']
+      expect_result: true
 
 request_token_with_password:
   url: /oauth/token/request
