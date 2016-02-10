@@ -9,3 +9,6 @@ Feature: console test
     Then the step should succeed
     When I create a new project via web
     Then the step should succeed
+
+  Scenario: smart login web console
+    Given I login via web console

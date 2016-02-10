@@ -80,7 +80,6 @@ Feature: create app on web console related
   # @author xxing@redhat.com
   # @case_id 507527
   Scenario: Create application from image on web console
-    Given I login via web console
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
