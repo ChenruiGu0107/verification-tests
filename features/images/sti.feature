@@ -9,23 +9,33 @@ Feature: sti.feature
       | code | https://github.com/openshift/simple-openshift-sinatra-sti.git |
       | strategy | source |
     Then the step should succeed
-    And the output should contain ""kind": "BuildConfig""
-    And the output should contain ""kind": "ImageStream""
     Given I save the output to file> simple-openshift-sinatra-sti.json
-    #The following step removes an error message that prevents the app
-    #creation, specifically: because no exposed ports were detected,
-    #Use 'oc expose dc "simple-openshift-sinatra-sti" --port=[port]'
-    #to create a service.
-    Given I replace lines in "simple-openshift-sinatra-sti.json":
-      |/^.*service will not.*$/||
     When I run the :create client command with:
       | f | simple-openshift-sinatra-sti.json |
     Then the step should succeed
-    Given the "simple-openshift-sinatra-sti-1" build was created
+    Given I get project builds
+    Then the output should contain "simple-openshift-sinatra-sti-1"
     Given the "simple-openshift-sinatra-sti-1" build completed
-    When I run the :get client command with:
-      | resource | pods |
+    Given I get project pods
     Then the output should contain "simple-openshift-sinatra-sti-1-build"
-    When I run the :get client command with:
-      | resource | svc |
+    Given I get project services
     Then the output should contain "simple-openshift-sinatra"
+    Given a pod becomes ready with labels:
+      |app=simple-openshift-sinatra-sti|
+    When I execute on the pod:
+      | /usr/bin/curl | <%= @pods[0].props[:ip] %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello, Sinatra!"
+    Given I get project routes
+    Then the output should not contain "sinatra"
+    When I expose the "simple-openshift-sinatra" service
+    Then the step should succeed
+    Given I wait for the "simple-openshift-sinatra" service to become ready
+    And I wait for a server to become available via the route
+    And the output should contain "Hello, Sinatra!"
+    When I run the :scale client command with:
+      | replicas | 3 |
+      | resource | dc |
+      | name | simple-openshift-sinatra-sti |
+    Then the step should succeed
+    Given I wait until number of replicas match "3" for replicationController "simple-openshift-sinatra-sti-1"
