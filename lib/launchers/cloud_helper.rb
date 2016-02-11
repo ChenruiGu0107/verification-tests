@@ -22,16 +22,6 @@ module CucuShift
         end
         return username
       end
-
-      # these are the steps needed to get the AWS image to work properly for Openshift
-      def start_openshift_service(ssh)
-        service_gen_cmd = "sudo -i generate_openshift_service"
-        restart_cmd = "sudo systemctl start openshift"
-        gen_res = ssh.exec(service_gen_cmd)
-        raise "Failed to generate Openshift service" unless gen_res[:success]
-        restart_res = ssh.exec(restart_cmd)
-        raise "Failed to restart openshift service" unless restart_res[:success]
-      end
     end
   end
 end
