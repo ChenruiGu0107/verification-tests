@@ -154,7 +154,7 @@ Feature: template related scnearios:
     When I run the :process client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
       |v|ADMIN_USERNAME=foo,ADMIN_PASSWORD=bar,MYSQL_USER=test,MYSQL_PASSWORD=cat,MYSQL_DATABASE=mine|
-      |para|true|
+      |parameters|true|
     And the step failed
     And the output should contain:
       |The --parameters flag does not process the template, can't be used with --value|
