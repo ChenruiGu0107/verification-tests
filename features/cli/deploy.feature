@@ -926,8 +926,11 @@ Feature: deployment related features
       | name: bluegreen-example-old | name: bluegreen-example-new |
     Then the step should succeed
     When I use the "bluegreen-example-new" service
+    And I wait for the steps to pass:
+    """
     And I wait for a server to become available via the "bluegreen-example" route
     And the output should contain "v2"
+    """
 
   # @author pruan@redhat.com
   # @case_id 483191
