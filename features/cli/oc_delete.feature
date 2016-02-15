@@ -70,3 +70,24 @@ Feature: oc_delete.feature
     Then the step should succeed
     And the output should not contain "Terminating"
     And the output should not contain "Running"
+
+  # @author cryan@redhat.com
+  # @case_id 509042
+  Scenario: Pod should be immediately deleted if TerminationGracePeriodSeconds is 0
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/graceful-delete/0.json |
+    Given the pod named "grace0" becomes ready
+    When I run the :get client command with:
+      | resource | pods |
+      | resource_name | grace0 |
+      | o | yaml |
+    Then the output should contain "terminationGracePeriodSeconds: 0"
+    When I run the :delete client command with:
+      | object_type | pod |
+      | l | name=graceful |
+    Then the step should succeed
+    When I get project pods
+    Then the step should succeed
+    And the output should not contain "Terminating"
+    And the output should not contain "Running"
