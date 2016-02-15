@@ -401,3 +401,23 @@ Feature: ServiceAccount and Policy Managerment
       | role  | edit     |
       | user_name |  %= user(0, switch: false).name %> |
     Then the step should fail
+
+  # @author xiaocwan@redhat.com
+  # @case_id 491400
+  Scenario:[origin_platformexp_407] Create pods without ImagePullSecrets will inherit the ImagePullSecrets from its service account.
+    Given I have a project
+    And I create the serviceaccount "myserviceaccount<%= project.name  %>"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/a8c3f83d3aedfe6930d1b9f56b1e6e8fa42dcd89/pods/hello-pod.json"
+    And I replace lines in "hello-pod.json":
+      | "serviceAccount": "" | "serviceAccount": "myserviceaccount<%= project.name  %>" |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f                    |  hello-pod.json                      |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource             |   pods                               |
+      | o                    |   yaml                               |
+    Then the step should succeed
+    And the output should match:
+      | imagePullSecrets:\\s+- name: myserviceaccount<%= project.name  %>-dockercfg     |
