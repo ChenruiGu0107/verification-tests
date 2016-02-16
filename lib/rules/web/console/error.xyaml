@@ -5,3 +5,21 @@ check_error_page:
       xpath: //h1[contains(.,'Error')]
   - selector:
       xpath: //div[contains(.,'<project_name> does not exist or you are not authorized to view it')]
+
+check_error_list_project_resources:               
+  url: /console/project/<project_name>/overview 
+  elements:
+    - selector:
+         xpath: //div[text()='Failed to list builds (403)']
+    - selector:
+         xpath: //div[text()='Failed to list pods (403)']
+    - selector:
+         xpath: //div[text()='Failed to list replicationcontrollers (403)']
+    - selector:
+         xpath: //div[text()='Failed to list routes (403)']
+    - selector:
+         xpath: //div[text()='Failed to list deploymentconfigs (403)']
+    - selector:
+         xpath: //div[text()='Failed to list imagestreams (403)']    
+    - selector:
+         xpath: //div[text()='Failed to list services (403)']      

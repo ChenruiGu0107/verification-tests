@@ -192,7 +192,38 @@ Feature: change the policy of user/service account
     Then the output should contain:
       | <%= user(1,switch: false).name %> |
 
+  # @author xiaocwan@redhat.com
+  # @case_id 470662
+  @admin
+  Scenario:[origin_platformexp_239] The page should have error notification popup when got error during archiving resources of project from server
+    Given admin creates a project
 
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/getlistwatch_projNamespace.json"
+    And I replace lines in "getlistwatch_projNamespace.json":
+      |   vsp          |       <%= project.name %>            |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f               | getlistwatch_projNamespace.json     |
+    Then the step should succeed
+    And the output should contain:
+      | created |
+    And I register clean-up steps:
+      | I run the :delete admin command with:                 |
+      | ! object_type       !        clusterrole            ! |
+      | ! object_name_or_id !   <%= project.name %>         ! |
+      | the step should succeed                               |    
 
+    Given a 5 characters random string of type : dns is stored into the :role_name clipboard
+    When I run the :oadm_add_cluster_role_to_user admin command with:
+      | role_name           |   <%= project.name %>           |
+      | user_name           |   <%=  user.name %>             |
+    Then the step should succeed
+    And I register clean-up steps:
+      | I run the :oadm_remove_cluster_role_from_user admin command with: |
+      | ! role_name     ! <%= project.name %>               ! |
+      | ! user_name     ! <%=  user.name %>                 ! |
+      | the step should succeed                               |
 
-
+    When I perform the :check_error_list_project_resources web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
