@@ -33,8 +33,7 @@ Feature: buildlogic.feature
     Given I have a project
     Then I use the "<%= project.name %>" project
     And I run the :new_build client command with:
-      # change to | FROM centos:7\nRUN yum install -y httpd | after gherkin3 gets version 3.1.3 or later
-      | D     | noescape: $'FROM centos:7\nRUN yum install -y httpd' |
+      | D     | FROM centos:7\nRUN yum install -y httpd              |
       | to    | myappis                                              |
       | name  | myapp                                                |
     Then the step should succeed
