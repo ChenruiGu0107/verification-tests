@@ -144,14 +144,46 @@ Feature: change the policy of user/service account
       | <%= project.name %>.*Active |
 
   # @author xiaocwan@redhat.com
+  # @case_id 470662
+  @admin
+  Scenario:[origin_platformexp_239] The page should have error notification popup when got error during archiving resources of project from server
+    Given admin creates a project
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/getlistwatch_projNamespace.json"
+    And I replace lines in "getlistwatch_projNamespace.json":
+      |   vsp          |       <%= project.name %>            |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f               | getlistwatch_projNamespace.json     |
+    Then the step should succeed
+    And the output should contain:
+      | created |
+    And I register clean-up steps:
+      | I run the :delete admin command with:                 |
+      | ! object_type       !        clusterrole            ! |
+      | ! object_name_or_id !   <%= project.name %>         ! |
+      | the step should succeed                               |
+
+    Given a 5 characters random string of type : dns is stored into the :role_name clipboard
+    When I run the :oadm_add_cluster_role_to_user admin command with:
+      | role_name           |   <%= project.name %>           |
+      | user_name           |   <%=  user.name %>             |
+    Then the step should succeed
+    And I register clean-up steps:
+      | I run the :oadm_remove_cluster_role_from_user admin command with: |
+      | ! role_name     ! <%= project.name %>               ! |
+      | ! user_name     ! <%=  user.name %>                 ! |
+      | the step should succeed                               |
+
+    When I perform the :check_error_list_project_resources web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+
+  # @author xiaocwan@redhat.com
   # @case_id 470308
   @admin
-  Scenario: [origin_platformexp_386][origin_platformexp_279]Both global policy bindings and project policy bindings work  
-    Given I register clean-up steps:
-      | I run the :policy_remove_role_from_user admin command with: |
-      |! role      ! view !          |
-      |! user name !  <%= user(1,switch: false).name %>! |
-    And I have a project
+  Scenario: [origin_platformexp_386][origin_platformexp_279]Both global policy bindings and project policy bindings work
+    Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/policy.json"
     And I replace lines in "policy.json":
       | wsuntest | <%= project.name %> |
@@ -173,6 +205,11 @@ Feature: change the policy of user/service account
       | role      |   view                               |
       | user name |   <%= user(1,switch: false).name %>  |
     Then the step should succeed
+    And I register clean-up steps:
+      | I run the :policy_remove_role_from_user admin command with: |
+      |! role      ! view !          |
+      |! user name !  <%= user(1,switch: false).name %>! |
+      | the step should succeed                          |
 
     When I run the :policy_add_role_to_user client command with:
       | role            |   deleteservices                  |
@@ -190,40 +227,166 @@ Feature: change the policy of user/service account
       | resource               | services |
       | n           | <%= project.name %> |
     Then the output should contain:
-      | <%= user(1,switch: false).name %> |
+      | <%= user(1).name %> |
 
   # @author xiaocwan@redhat.com
-  # @case_id 470662
+  # @case_id 470309
   @admin
-  Scenario:[origin_platformexp_239] The page should have error notification popup when got error during archiving resources of project from server
-    Given admin creates a project
-
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/getlistwatch_projNamespace.json"
-    And I replace lines in "getlistwatch_projNamespace.json":
-      |   vsp          |       <%= project.name %>            |
+  Scenario:[origin_platformexp_279]Project bindings only work against the intended project
+    Given a 5 characters random string of type :dns is stored into the :project_1 clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.project_1 %> |
     Then the step should succeed
-    When I run the :create admin command with:
-      | f               | getlistwatch_projNamespace.json     |
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/policy.json"
+    And I replace lines in "policy.json":
+      | wsuntest | <%= cb.project_1 %> |
+    Then the step should succeed
+    And I run the :create admin command with:
+      | f        | policy.json         |
+    Then the step should succeed
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/deleteservices.json"
+    And I replace lines in "deleteservices.json":
+      | deleteservices | <%= cb.project_1 %>     |
+      | "delete"   | "watch","list","get"        |
+      | "services" | "resourcegroup:exposedkube" |
+    And I run the :create client command with:
+      | f        | deleteservices.json |
+      | n        | <%= cb.project_1 %> |
     Then the step should succeed
     And the output should contain:
-      | created |
-    And I register clean-up steps:
-      | I run the :delete admin command with:                 |
-      | ! object_type       !        clusterrole            ! |
-      | ! object_name_or_id !   <%= project.name %>         ! |
-      | the step should succeed                               |    
+      | role |
 
-    Given a 5 characters random string of type : dns is stored into the :role_name clipboard
-    When I run the :oadm_add_cluster_role_to_user admin command with:
-      | role_name           |   <%= project.name %>           |
-      | user_name           |   <%=  user.name %>             |
+    When I run the :policy_add_role_to_user client command with:
+      | role            |   <%= cb.project_1 %>             |
+      | user name       | <%= user(1,switch: false).name %> |
+      | role_namespace  | <%= cb.project_1 %>               |
     Then the step should succeed
-    And I register clean-up steps:
-      | I run the :oadm_remove_cluster_role_from_user admin command with: |
-      | ! role_name     ! <%= project.name %>               ! |
-      | ! user_name     ! <%=  user.name %>                 ! |
-      | the step should succeed                               |
 
-    When I perform the :check_error_list_project_resources web console action with:
-      | project_name | <%= project.name%> |
+    Given a 5 characters random string of type :dns is stored into the :project_2 clipboard
+    When I run the :new_project admin command with:
+      | project_name | <%= cb.project_2 %> |
     Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role            |   <%= cb.project_2 %>                  |
+      | user name       | <%= user(2,switch: false).name %> |
+      | role_namespace  | <%= cb.project_2 %>               |
+    Then the step should fail
+
+  # @author xiaocwan@redhat.com
+  # @case_id 467926
+  Scenario:[origin_platformexp_214] User can view, add , modify and delete specific role to/from new added project via admin role user
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/projectviewservice.json"
+    And I replace lines in "projectviewservice.json":
+      | viewservices | deploy                      |
+      | "services"   | "resourcegroup:deployments" |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f            | projectviewservice.json     |
+    Then the step should succeed
+    And the output should contain:
+      | created      |
+    When I run the :describe client command with:
+      | namespace    | <%= project.name %>          |
+      | resource     | policy                       |
+      | name         | default                      |
+    Then the step should succeed
+    And the output should contain:
+      | resourcegroup:deployments                   |
+      | get                                         |
+      | list                                        |
+      | watch                                       |
+
+    When I delete matching lines from "projectviewservice.json":
+      | "get",       |
+    Then the step should succeed
+    When I run the :replace client command with:
+      | f            | projectviewservice.json      |
+    Then the step should succeed
+    And the output should contain:
+      | replaced     |
+    When I run the :describe client command with:
+      | namespace    | <%= project.name %>          |
+      | resource     | policy                       |
+      | name         | default                      |
+    Then the step should succeed
+    And the output should not contain:
+      | get          |
+
+    When I run the :delete client command with:
+      | object_type       | role                    |
+      | object_name_or_id | deploy                  |
+    Then the step should succeed
+    And the output should contain:
+      | deleted          |    
+    When I run the :describe client command with:
+      | namespace    | <%= project.name %>          |
+      | resource     | policy                       |
+      | name         | default                      |
+    Then the step should succeed
+    And the output should not contain:
+      | list          |
+      | watch         |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 490721
+  @admin
+  Scenario:[origin_platformexp_340]The builder service account only has get/update access to image streams in its own project
+    Given a 5 characters random string of type :dns is stored into the :proj1 clipboard
+    When I run the :new_project client command with:
+      | project_name  | <%= cb.proj1 %>      |
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    Then the step should succeed
+    When I run the :policy_who_can client command with:
+    | verb     |  get                        |
+    | resource |  imagestreams/layers        |
+    |  n       | <%= cb.proj1 %>             |
+    Then the step should succeed
+    And the output should contain:
+    | system:serviceaccount:<%= cb.proj1 %>  |
+    | system:serviceaccounts:<%= cb.proj1 %> |
+    When I run the :policy_who_can client command with:
+    | verb     |  update                     |
+    | resource |  imagestreams/layers        |
+    |  n       | <%= cb.proj1 %>             |
+    Then the step should succeed
+    And the output should contain:
+    | system:serviceaccount:<%= cb.proj1 %>  |
+
+    Given a 5 characters random string of type :dns is stored into the :proj2 clipboard
+    When I run the :new_project client command with:
+      | project_name  | <%= cb.proj2 %>      |
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    Then the step should succeed
+    When I run the :policy_who_can client command with:
+    | verb     |  get                        |
+    | resource |  imagestreams/layers        |
+    |  n       | <%= cb.proj2 %>             |
+    Then the step should succeed
+    And the output should not contain:
+    | system:serviceaccount:<%= cb.proj1 %>  |
+    | system:serviceaccounts:<%= cb.proj1 %> |
+    When I run the :policy_who_can client command with:
+    | verb     |  update                     |
+    | resource |  imagestreams/layers        |
+    |  n       | <%= cb.proj2 %>             |
+    Then the step should succeed
+    And the output should not contain:
+    | system:serviceaccount:<%= cb.proj1 %>  |
+
+    When I run the :oadm_policy_who_can admin command with:
+    | verb     |  get                        |
+    | resource |  imagestreams               |
+    | all_namespaces | false                 |
+    Then the step should succeed
+    And the output should contain:
+    | Namespace: default  |
+    When I run the :oadm_policy_who_can admin command with:
+    | verb     |  get                        |
+    | resource |  imagestreams               |
+    | all_namespaces | true                  |
+    Then the step should succeed
+    And the output should contain:
+    | Namespace: <all>  |
