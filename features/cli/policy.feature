@@ -162,7 +162,7 @@ Feature: change the policy of user/service account
       | I run the :delete admin command with:                 |
       | ! object_type       !        clusterrole            ! |
       | ! object_name_or_id !   <%= project.name %>         ! |
-      | the step should succeed                               |    
+      | the step should succeed                               |
 
     Given a 5 characters random string of type : dns is stored into the :role_name clipboard
     When I run the :oadm_add_cluster_role_to_user admin command with:
@@ -182,7 +182,7 @@ Feature: change the policy of user/service account
   # @author xiaocwan@redhat.com
   # @case_id 470308
   @admin
-  Scenario: [origin_platformexp_386][origin_platformexp_279]Both global policy bindings and project policy bindings work  
+  Scenario: [origin_platformexp_386][origin_platformexp_279]Both global policy bindings and project policy bindings work
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/policy.json"
     And I replace lines in "policy.json":
@@ -227,12 +227,12 @@ Feature: change the policy of user/service account
       | resource               | services |
       | n           | <%= project.name %> |
     Then the output should contain:
-      | <%= user(1,switch: false).name %> |
+      | <%= user(1).name %> |
 
   # @author xiaocwan@redhat.com
   # @case_id 470309
   @admin
-  Scenario:[origin_platformexp_279]Project bindings only work against the intended project  
+  Scenario:[origin_platformexp_279]Project bindings only work against the intended project
     Given a 5 characters random string of type :dns is stored into the :project_1 clipboard
     When I run the :new_project client command with:
       | project_name | <%= cb.project_1 %> |
@@ -246,7 +246,6 @@ Feature: change the policy of user/service account
       | f        | policy.json         |
     Then the step should succeed
 
-    When I switch to the first user
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/deleteservices.json"
     And I replace lines in "deleteservices.json":
       | deleteservices | <%= cb.project_1 %>     |
@@ -264,12 +263,6 @@ Feature: change the policy of user/service account
       | user name       | <%= user(1,switch: false).name %> |
       | role_namespace  | <%= cb.project_1 %>               |
     Then the step should succeed
-    And I register clean-up steps:
-      | I run the :policy_remove_role_from_user client command with: |
-      |! role         ! <%= cb.project_1 %> !               |
-      |! user name    !  <%= user(1,switch: false).name %>! |
-      |! role_namespace  ! <%= cb.project_1 %>         !    |
-      | the step should succeed |
 
     Given a 5 characters random string of type :dns is stored into the :project_2 clipboard
     When I run the :new_project admin command with:
@@ -280,8 +273,6 @@ Feature: change the policy of user/service account
       | user name       | <%= user(2,switch: false).name %> |
       | role_namespace  | <%= cb.project_2 %>               |
     Then the step should fail
-
-
 
   # @author xiaocwan@redhat.com
   # @case_id 467926
@@ -341,6 +332,7 @@ Feature: change the policy of user/service account
 
   # @author xiaocwan@redhat.com
   # @case_id 490721
+  @admin
   Scenario:[origin_platformexp_340]The builder service account only has get/update access to image streams in its own project
     Given a 5 characters random string of type :dns is stored into the :proj1 clipboard
     When I run the :new_project client command with:
