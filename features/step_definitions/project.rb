@@ -36,6 +36,17 @@ When /^I create a new project(?: via (.*?))?$/ do |via|
   end
 end
 
+# create x number of projects
+Given /^I create (\d+) new projects?$/ do |num|
+  (1..Integer(num)).each {
+    step 'I create a new project'
+    unless @result[:success]
+      logger.error(@result[:response])
+      raise "unable to create project, see log"
+    end
+  }
+end
+
 # create a new project with user options,either via web or cli
 When /^I create a project via (.+?) with:$/ do |via, table|
   opts = opts_array_to_hash(table.raw)

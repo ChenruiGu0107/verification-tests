@@ -295,6 +295,8 @@ Feature: creating 'apps' with CLI
       | deployment=sti-python-1      |
       | deploymentconfig=sti-python  |
     And I wait for the "sti-python" service to become ready
+    And I wait for the steps to pass:
+    """
     When I run the :exec client command with:
       | pod     | <%= pod.name %> |
       | c     | mysql |
@@ -306,6 +308,7 @@ Feature: creating 'apps' with CLI
       | exec_command_arg |-estatus|
     Then the step should succeed
     And the output should match "Uptime:\s+(\d+\s+min\s+)?\d+\s+sec"
+    """
     Given I wait for the "sti-python" service to become ready
     When I execute on the pod:
       | curl | -s | <%= service.url %> |
@@ -343,6 +346,8 @@ Feature: creating 'apps' with CLI
       | deployment=sti-python-1      |
       | deploymentconfig=sti-python  |
     And I wait for the "sti-python" service to become ready
+    And I wait for the steps to pass:
+    """
     When I run the :exec client command with:
       | pod     | <%= pod.name %> |
       | c     | mysql-55-centos7 |
@@ -354,6 +359,7 @@ Feature: creating 'apps' with CLI
       | exec_command_arg |-estatus|
     Then the step should succeed
     And the output should match "Uptime:\s+(\d+\s+min\s+)?\d+\s+sec"
+    """
     Given I wait for the "sti-python" service to become ready
     When I execute on the pod:
       | curl | -s | <%= service.url %> |
