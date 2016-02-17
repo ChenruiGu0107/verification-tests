@@ -19,6 +19,7 @@ When /^I run the :(.+?) web( console)? action$/ do |action, console|
   end
 end
 
+# @precondition a `browser` object
 When /^I access the "(.*?)" path in the web (?:console|browser)$/ do |url|
   @result = browser.handle_url(url)
 end
@@ -32,6 +33,7 @@ Given /^I login via web console$/ do
   end
 end
 
+# @precondition a `browser` object
 # get element html or attribute value
 # Provide element selector in the step table using key/value pairs, e.g.
 # And I get the "disabled" attribute of the "button" web element with:
@@ -61,6 +63,7 @@ When /^I get the (?:"([^"]*)" attribute|content) of the "([^"]*)" web element:$/
   end
 end
 
+# @precondition a `browser` object
 When /^I get the html of the web page$/ do
   @result = {
     response: browser.page_html,
@@ -70,7 +73,8 @@ When /^I get the html of the web page$/ do
   }
 end
 
-#useful for web common "click" action
+# @precondition a `browser` object
+# useful for web common "click" action
 When /^I click the following "([^"]*)" element:$/ do |element_type, table|
   selector = opts_array_to_hash(table.raw)
   @result = browser.handle_element({type: element_type, selector: selector, op: "click"})
@@ -89,4 +93,18 @@ Given /^I wait(?: (\d+) seconds)? for the :(.+?) web console action to succeed w
   end
 end
 
-
+# @precondition a `browser` object
+# @notes used for swithing browser window,e.g. do some action in pop-up window
+# @window_spec is something like,":url=>console\.html"(need escape here,part of url),":title=>some info"(part of title)
+When /^I perform the :(.*?) web( console)? action in "([^"]+)" window with:$/ do |action, console, window_spec, table|
+  window_selector = opts_array_to_hash([window_spec.split("=>")])
+  window_selector.each{ |key,value| window_selector[key] = Regexp.new(value) }
+  browser.browser.window(window_selector).use do
+    if console
+      cache_browser(user.webconsole_executor)
+      @result = user.webconsole_exec(action.to_sym, opts_array_to_hash(table.raw))
+    else
+      browser.exec(action.to_sym, opts_array_to_hash(table.raw))
+    end    
+  end
+end
