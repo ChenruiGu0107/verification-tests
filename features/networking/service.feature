@@ -95,7 +95,6 @@ Feature: Service related networking scenarios
   # @case_id 517641
   Scenario: Be able to access the service via the nodeport
     Given I have a project
-    And evaluation of `project.name` is stored in the :project1 clipboard
     And evaluation of `rand(30000..32767)` is stored in the :port clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/nodeport_service.json"
     And I replace lines in "nodeport_service.json":
