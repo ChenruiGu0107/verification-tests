@@ -102,14 +102,14 @@ When /^admin creates a project with:$/ do |table|
     project_name = rand_str(5, :dns)
     opts << [:project_name, project_name]
   end
-  
+
   # first make sure we clean-up this project at the end
   _project = project(project_name) # we need variable for the teardown proc
   teardown_add { @result = _project.delete(by: :admin) }
 
   # create with raw command to avoid safety project without admin user check in
   #   Project#create method
-  @result = admin.cli_exec( :oadm_new_project, **opts)
+  @result = admin.cli_exec( :oadm_new_project, opts)
 end
 
 When /^admin deletes the #{QUOTED} project$/ do |project_name|
