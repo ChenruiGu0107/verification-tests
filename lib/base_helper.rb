@@ -120,9 +120,10 @@ module CucuShift
       #   strictly enforced, use other timeout techniques to avoid freeze
       # @param seconds [Numeric] the max number of seconds to try operation to
       #   succeed
+      # @param interval [Numeric] the interval to wait between attempts
       # @yield block the block will be yielded until it returns true or timeout
       #   is reached
-      def wait_for(seconds)
+      def wait_for(seconds, interval: 1)
         if seconds > 60
           Kernel.puts("waiting for operation up to #{seconds} seconds..")
         end
@@ -131,7 +132,7 @@ module CucuShift
         success = false
         until monotonic_seconds - start > seconds
           success = yield and break
-          sleep 1
+          sleep interval
         end
 
         return success

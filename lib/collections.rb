@@ -64,13 +64,38 @@ module CucuShift
       map_hash!(hash) { |k, v| [k.to_sym, v] }
     end
 
-    # @param hash [Hash] object to be symbolized
+    # @param hash [Hash] the hash to be modified
     # @yield block to return new key/val pairs based on original values
     def deep_map_hash!(hash)
       map_hash!(hash) { |k, v|
         new_k, new_v = yield [k, v]
         [new_k, deep_map_hash!(new_v) { |nk, nv| yield [nk, nv] }]
       }
+    end
+
+    # @param hash [Hash] the hash to be mapped
+    # @yield block to return new key/val pairs based on original values
+    def deep_map_hash(hash)
+      map_hash(hash) { |k, v|
+        new_k, new_v = yield [k, v]
+        [new_k, deep_map_hash(new_v) { |nk, nv| yield [nk, nv] }]
+      }
+    end
+
+    # @return [Hash] a new hash identical to original one except all keys are
+    #  nstances of [String]
+    def deep_hash_strkeys(hash)
+      deep_map_hash(hash) do |k, v|
+        [k.to_s, v]
+      end
+    end
+
+    # @return [Hash] a new hash identical to original one except all keys are
+    #  nstances of [Symbol]
+    def deep_hash_symkeys(hash)
+      deep_map_hash(hash) do |k, v|
+        [k.to_sym, v]
+      end
     end
 
     # @param tgt_hash [Hash] target hash that we will be **altering**
