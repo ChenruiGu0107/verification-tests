@@ -846,6 +846,8 @@ Feature: deployment related features
     And I run the :deploy client command with:
       | deployment_config | hooks |
       | cancel            |       |
+    # this is to make sure the pod is gone beofre getting the log
+    Given I collect the deployment log for pod "hooks-1-deploy" until it disappears
     And I run the :logs client command with:
       | resource_name | dc/hooks |
     Then the step should fail
