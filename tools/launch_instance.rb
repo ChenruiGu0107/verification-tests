@@ -13,9 +13,7 @@ require 'uri'
 require 'collections'
 require 'common'
 require 'http'
-require 'launchers/amz'
 require 'launchers/env_launcher'
-require 'launchers/openstack'
 
 module CucuShift
   class EnvLauncherCli
@@ -76,14 +74,13 @@ module CucuShift
             launch_opts = host_opts(options)
             el.launcher_env_options(launch_opts)
 
-            user_data_string = user_data(options.user_data, erb_vars: launch_opts)
-
             ## launch Cloud instances
+            user_data_string = user_data(options.user_data, erb_vars: launch_opts)
             hosts = launch_instances(options, user_data: user_data_string)
 
             ## run ansible setup
-            hosts_spec = { "master"=>hosts.map(&:last)[0..options.master_num - 1],
-                           "node"=>hosts.map(&:last)[options.master_num..-1] }
+            hosts_spec = { "master"=>hosts[0..options.master_num - 1],
+                           "node"=>hosts[options.master_num..-1] }
             launch_opts[:hosts_spec] = hosts_spec
             el.ansible_install(**launch_opts)
           else
@@ -110,12 +107,15 @@ module CucuShift
       run!
     end
 
+    # TODO: remove
     def host_opts(options)
       {
         # hosts_spec will be ready only after actual instance launch
-        # TODO: allow custom ssh username and key (host_opts actually)
-        ssh_key: expand_private_path(conf[:services, options.service_name, :key_file] || conf[:services, options.service_name, :host_opts, :ssh_private_key]),
-        ssh_user: conf[:services, options.service_name, :host_opts, :user] || 'root',
+
+        # we no longer need to pass username and key as we build hosts_spec
+        #   only with [CucuShift::Host] values
+        # ssh_key: expand_private_path(conf[:services, options.service_name, :key_file] || conf[:services, options.service_name, :host_opts, :ssh_private_key]),
+        # ssh_user: conf[:services, options.service_name, :host_opts, :user] || 'root',
         set_hostnames: !! conf[:services, options.service_name, :fix_hostnames]
       }
     end
@@ -174,7 +174,7 @@ module CucuShift
       return user_data_string
     end
 
-    # @return [Array<Host>] the launched and ssh acessible hosts
+    # @return [Array<CucuShift::Host>] the launched and ssh acessible hosts
     def launch_instances(options,
                          user_data: nil)
       host_names = []
@@ -201,8 +201,8 @@ module CucuShift
         if options.instance_type && !options.instance_type.empty?
           create_opts[:instance_type] = options.instance_type
         end
-        amz.launch_instances(tag_name: host_names, image: ec2_image,
-                             create_opts: create_opts)
+        res = amz.launch_instances(tag_name: host_names, image: ec2_image,
+                                   create_opts: create_opts)
       when "openstack"
         ostack = CucuShift::OpenStack.new(
           service_name: options.service_name
@@ -212,12 +212,35 @@ module CucuShift
         if options.instance_type && !options.instance_type.empty?
           create_opts[:flavor_name] = options.instance_type
         end
-        return ostack.launch_instances(names: host_names,
-                                        user_data: user_data,
-                                          **create_opts)
+        res = ostack.launch_instances(names: host_names, user_data: user_data,
+                                                         **create_opts)
+      when "gce"
+        gce = CucuShift::GCE.new
+
+        boot_disk_opts = {}
+        if options.image_name && !options.image_name.empty?
+          boot_disk_opts[:initialize_params] = { img_snap_name: options.image_name }
+        end
+
+        instance_opts = {}
+        if options.instance_type && !options.instance_type.empty?
+          if options.instance_type.include? "/"
+            instance_opts[:machine_type] = options.instance_type
+          else
+            instance_opts[:machine_type_name] = options.instance_type
+          end
+        end
+        res = gce.create_instances(host_names, user_data: user_data, instance_opts: instance_opts, boot_disk_opts: boot_disk_opts )
       else
         raise "unknown service type: #{conf[:services, options.service_name, :cloud_type]}"
       end
+
+      # we get here Array of [something, Host] pairs, convert to Array<Host>
+      res.map!(&:last)
+      # wait for all hosts to become accessible
+      res.each {|h| h.wait_to_become_accessible(600)}
+      # return the hosts
+      return res
     end
 
     # process instance name prefix to generate an identity tag

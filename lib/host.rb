@@ -1,8 +1,8 @@
 require 'fileutils'
 require 'shellwords'
-require 'socket'
 
 require 'common'
+require 'net'
 require 'ssh'
 
 module CucuShift
@@ -22,6 +22,16 @@ module CucuShift
       end
       @properties = opts.dup
       @workdir = opts[:workdir] ? opts[:workdir].dup.freeze : "/tmp/workdir/" + EXECUTOR_NAME
+    end
+
+    # @param ip [String] string representation of IP address
+    # @param opts [Hash] host options, should contain :class to speciy
+    #   the Host sub-class to instantiate
+    # @return [Host] object of kind as specified by opts[:class] option
+    def self.from_ip(ip, opts)
+      clz = opts[:class] || raise("need to know class to instantiate Host")
+      hostname = Common::Net.reverse_lookup ip
+      return CucuShift.const_get(clz).new(hostname, **opts, ip: ip)
     end
 
     def self.localhost
@@ -215,19 +225,7 @@ module CucuShift
 
     # @return ip based on [#hostname] string
     def ip
-      return @ip if @ip
-
-      # TODO: should we support Socket::AF_INET6 ?
-      res = Socket.getaddrinfo(hostname, 0, Socket::AF_INET, Socket::SOCK_STREAM, nil, Socket::AI_CANONNAME)
-
-      if res.size < 1
-        raise "cannot resolve hostname: #{hostname}"
-      elsif res.size > 1
-        raise "ambiguous hostname, resolves to more than one IPs"
-      else
-        @ip = res[0][3]
-        return @ip
-      end
+      @ip ||= self[:ip] || Common::Net.dns_lookup(hostname)
     end
 
     def clean_up

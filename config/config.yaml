@@ -105,3 +105,56 @@ services:
     # host_opts:
       # ssh_private_key: relative/path
       # user: the_username
+  GCE:
+    # project: yourproject
+    zone: us-central1-a
+    network: default
+    scopes: &gce_client_scopes
+      - https://www.googleapis.com/auth/compute
+    # json_cred: path/to/serviceaccount/json/creds/unless/using/signet/below
+    host_opts:
+      # user: provisioned machine username
+      # ssh_private_key: private/key/path
+      class: SSHAccessibleHost
+    # https://cloud.google.com/compute/docs/reference/latest/instances/insert
+    instance_opts:
+      # machine_type: url
+      machine_type_name: n1-standard-1
+      disks:
+      - initialize_params:
+          # source_image: projects/centos-cloud/global/images/centos-7-v20160216
+          # source_snapshot: url
+          image_name: rhel-guest-72
+          # snapshot_name: xyz
+          # img_snap_name: xyz
+          disk_size_gb: 30
+        boot: true
+        auto_delete: true
+      # - source: url # when creating with existing disk
+      #   boot: true
+      #   auto_delete: true
+      network_interfaces:
+        - :network: global/networks/default
+          :access_configs: [{}]
+      # metadata:
+      #  items:
+      #  - key: sshKeys
+      #    # value: "root:ssh-rsa AAAAB3Nza... asd@dsa"
+      #    # from_file: path/to/file/with/gcloud/style/ssh/pub/keys
+      tags:
+        items:
+        - host-type-openshift-master
+        - host-type-openshift-node
+    signet_opts:
+      audience: https://accounts.google.com/o/oauth2/token
+      auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+      # client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/<serviceaccount email address>
+      # issuer: <serviceaccount email address>
+      scope: *gce_client_scopes
+      # signing_key: |
+      #  -----BEGIN RSA PRIVATE KEY-----
+      #  ...
+      #  -----END RSA PRIVATE KEY-----
+      token_credential_uri: https://accounts.google.com/o/oauth2/token
+    fix_hostnames: true
+    cloud_type: gce

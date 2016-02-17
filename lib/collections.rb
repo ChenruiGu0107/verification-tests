@@ -98,6 +98,22 @@ module CucuShift
       end
     end
 
+    # @param base_hash [Hash] it is base or lower prio hash
+    # @param override_hash [Hash] hash with values that override base_hash
+    #   values
+    # @return [Hash] the base_hash with new values and values overrides of the
+    #   override_hash
+    # @note this one does not merge Arrays
+    def deep_merge(base_hash, override_hash)
+      base_hash.merge(override_hash) { |key, oldval, newval|
+        if oldval.kind_of?(Hash) && newval.kind_of?(Hash)
+          deep_merge(oldval, newval)
+        else
+          newval
+        end
+      }
+    end
+
     # @param tgt_hash [Hash] target hash that we will be **altering**
     # @param src_hash [Hash] read from this source hash
     # @return the modified target hash

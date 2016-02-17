@@ -60,8 +60,13 @@ module CucuShift
       host_opts = {user: ssh_user, ssh_private_key: ssh_key}
       spec.each do |role, hostnames|
         hosts[role] = hostnames.map do |hostname|
-          hostname.kind_of?(Host) ? hostname :
+          if hostname.kind_of?(Host)
+            hostname
+          elsif !key || !ssh_user
+            raise "you need to pass in :ssh_key and ssh_user if hosts_spec contains String hostnames (not CucuShift::Host)"
+          else
             SSHAccessibleHost.new(hostname, host_opts)
+          end
         end
       end
 
@@ -71,9 +76,13 @@ module CucuShift
     # @param hosts_spec [String, Hash<String,Array>] the specification.
     #   If [String], then it looks like: `master:hostname1,node:hostname2,...`;
     #   If [Hash], then it's `role=>[host1, ..,hostN] pairs`;
-    #   hostN might be a [String] hostname or [CucuShift::Host]
+    #   hostN might be a [String] hostname or [CucuShift::Host];
+    #   if using a [String] hostN, then ssh_user and ssh_key opts are mandatory
     # @param auth_type [String] LDAP, HTTPASSWD, KERBEROS
-    # @param ssh_user [String] the username to use for ssh to env hosts
+    # @param ssh_user [String] the username to use for ssh to env hosts;
+    #   might be nil if receiving CucuShift::Host in spec
+    # @param ssh_key [String] the private ssh key path to use for ssh to hosts;
+    #   might be nil if receiving CucuShift::Host in spec
     # @param dns [String] the dns server to use; can be keyword or an IP
     #   address; see the dns case/when construct for available options
     # @param app_domain [String] domain used to generate route dns names;
@@ -90,7 +99,7 @@ module CucuShift
     # @param post_ansible [String] see #pre_ansible
     #
     def ansible_install(hosts_spec:, auth_type:,
-                        ssh_key:, ssh_user:,
+                        ssh_key: nil, ssh_user: nil,
                         dns: nil, set_hostnames: false,
                         app_domain: nil, host_domain: nil,
                         rhel_base_repo: nil,
@@ -348,9 +357,9 @@ module CucuShift
             #end
 
             if dns == "embedded_skydns"
-              host_base_line = "#{host.hostname} openshift_hostname=master.#{host_domain} openshift_public_hostname=master.#{host_domain}"
+              host_base_line = "#{host.ansible_host_str} openshift_hostname=master.#{host_domain} openshift_public_hostname=master.#{host_domain}"
             else
-              host_base_line = "#{host.hostname}"
+              host_base_line = "#{host.ansible_host_str}"
               if set_hostnames
                 host_base_line << " openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
               end
@@ -364,9 +373,9 @@ module CucuShift
           else
             if dns == "embedded_skydns"
               node_index = node_host_lines.size + 1
-              host_base_line = "#{host.hostname} openshift_hostname=minion#{node_index}.#{host_domain} openshift_public_hostname=minion#{node_index}.#{host_domain}"
+              host_base_line = "#{host.ansible_host_str} openshift_hostname=minion#{node_index}.#{host_domain} openshift_public_hostname=minion#{node_index}.#{host_domain}"
             else
-              host_base_line = "#{host.hostname}"
+              host_base_line = "#{host.ansible_host_str}"
               if set_hostnames
                 host_base_line << " openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
               end
@@ -408,8 +417,12 @@ module CucuShift
       res = nil
 
       ## ssh-key param for ansible
-      ssh_key_path = expand_private_path(ssh_key)
-      File.chmod(0600, ssh_key_path)
+      private_key_param = ""
+      if ssh_key
+        ssh_key_path = expand_private_path(ssh_key)
+        File.chmod(0600, ssh_key_path)
+        private_key_param = "--private-key #{Host.localhost.shell_escape(ssh_key_path)}"
+      end
 
       # ansible goodies
       ENV["ANSIBLE_CALLBACK_WHITELIST"] = 'profile_tasks'
@@ -444,7 +457,7 @@ module CucuShift
         else
           playbook_file = "openshift-ansible/playbooks/byo/config.yml"
         end
-        ansible_cmd = "ansible-playbook -i hosts --private-key #{Host.localhost.shell_escape(ssh_key_path)} -vvvv #{playbook_file}"
+        ansible_cmd = "ansible-playbook -i hosts #{private_key_param} -vvvv #{playbook_file}"
         logger.info("Running: #{ansible_cmd}")
         res = system(ansible_cmd)
       }
