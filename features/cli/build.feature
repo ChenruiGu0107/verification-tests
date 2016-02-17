@@ -569,9 +569,9 @@ Feature: build 'apps' with CLI
         | app_repo | https://github.com/openshift/sti-nodejs.git |
         | context_dir | 0.10/test/test-app/                      |
       Then the step should succeed
-      And I git clone the repo "https://github.com/openshift/sti-nodejs.git"
-      And I run the :start_build client command with:
+      Given I git clone the repo "https://github.com/openshift/sti-nodejs.git"
+      When I run the :start_build client command with:
         | buildconfig | sti-nodejs |
         | from_dir | sti-nodejs |
-      Given the "sti-nodejs-1" build completed
-      Given the "sti-nodejs-2" build completed
+      Then the "sti-nodejs-1" build completed
+      And the "sti-nodejs-2" build completed
