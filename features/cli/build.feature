@@ -119,7 +119,7 @@ Feature: build 'apps' with CLI
     Then the output should match "Successfully pushed .*<output_image>"
     Examples:
       | app_repo                                                            | context_dir                  | first_build_name   | second_build_name          | template_file | output_image | dockercfg_file |
-      | openshift/python-33-centos7~https://github.com/openshift/sti-python | 3.3/test/standalone-test-app | sti-python-1       | python-sample-build-sti-1  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476357/application-template-stibuild.json        | aosqe\/python\-sample\-sti                  | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %>       | 
+      | openshift/python-33-centos7~https://github.com/openshift/sti-python | 3.3/test/standalone-test-app | sti-python-1       | python-sample-build-sti-1  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476357/application-template-stibuild.json        | aosqe\/python\-sample\-sti                  | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %>       |
       | https://github.com/openshift/ruby-hello-world.git                   |                              | ruby-hello-world-1 | ruby-sample-build-1        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476356/application-template-dockerbuild.json     | aosqe\/ruby\-sample\-docker                 | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %>       |
 
   # @author xxing@redhat.com
@@ -288,7 +288,7 @@ Feature: build 'apps' with CLI
       | group        | <%= product_docker_repo %>rhscl/ruby-22-rhel7+<%= product_docker_repo %>rhscl/mysql-56-rhel7+<%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
       | code         | https://github.com/openshift/ruby-hello-world |
       | env            | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test,MYSQL_ROOT_PASSWORD=test |
-      | l            | app=testapps    | 
+      | l            | app=testapps    |
     Then the step should succeed
     When I run the :get client command with:
       |resource| buildConfig |
@@ -560,3 +560,18 @@ Feature: build 'apps' with CLI
     Then the step should fail
     And the output should contain:
       | deadbeef: no such file or directory |
+
+    # @author pruan@redhat.com
+    # @case_id 512259
+    Scenario: oc start-build with a directory passed ,using sti build type, with context-dir
+      Given I have a project
+      When I run the :new_app client command with:
+        | app_repo | https://github.com/openshift/sti-nodejs.git |
+        | context_dir | 0.10/test/test-app/                      |
+      Then the step should succeed
+      And I git clone the repo "https://github.com/openshift/sti-nodejs.git"
+      And I run the :start_build client command with:
+        | buildconfig | sti-nodejs |
+        | from_dir | sti-nodejs |
+      Given the "sti-nodejs-1" build completed
+      Given the "sti-nodejs-2" build completed
