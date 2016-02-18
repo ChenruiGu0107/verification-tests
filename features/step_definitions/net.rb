@@ -30,7 +30,9 @@ When /^I download a file from "(.+?)"$/ do |url|
   @result = CucuShift::Http.get(url: url)
   if @result[:success]
     file_name = File.basename(URI.parse(url).path)
-    File.write(file_name, @result[:response])
+    File.open(file_name, 'wb') { |f|
+      f.write(@result[:response])
+    }
     @result[:file_name] = file_name
     @result[:abs_path] = File.absolute_path(file_name)
   else

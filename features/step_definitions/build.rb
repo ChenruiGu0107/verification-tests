@@ -7,7 +7,7 @@ Given /^the "([^"]*)" build was created$/ do |build_name|
 end
 
 # success when build finish regardless of completion status
-Given /^the "([^"]*)" build finished$/ do |build_name|
+Given /^the "([^"]*)" build(?: is)? finished$/ do |build_name|
   @result = build(build_name).wait_till_finished(user, 60*15)
 
   unless @result[:success]
@@ -16,7 +16,7 @@ Given /^the "([^"]*)" build finished$/ do |build_name|
 end
 
 # success if build completed successfully
-Given /^the "([^"]*)" build completed$/ do |build_name|
+Given /^the "([^"]*)" build(?: is)? completed$/ do |build_name|
   @result = build(build_name).wait_till_completed(user, 60*15)
 
   unless @result[:success]
@@ -25,7 +25,7 @@ Given /^the "([^"]*)" build completed$/ do |build_name|
 end
 
 # success if build completed with a failure
-Given /^the "([^"]*)" build failed$/ do |build_name|
+Given /^the "([^"]*)" build(?: is)? failed$/ do |build_name|
   @result = build(build_name).wait_till_failed(user, 60*15)
 
   unless @result[:success]

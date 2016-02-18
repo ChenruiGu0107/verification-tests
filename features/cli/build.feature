@@ -561,17 +561,138 @@ Feature: build 'apps' with CLI
     And the output should contain:
       | deadbeef: no such file or directory |
 
-    # @author pruan@redhat.com
-    # @case_id 512259
-    Scenario: oc start-build with a directory passed ,using sti build type, with context-dir
-      Given I have a project
-      When I run the :new_app client command with:
-        | app_repo | https://github.com/openshift/sti-nodejs.git |
-        | context_dir | 0.10/test/test-app/                      |
-      Then the step should succeed
-      Given I git clone the repo "https://github.com/openshift/sti-nodejs.git"
-      When I run the :start_build client command with:
-        | buildconfig | sti-nodejs |
-        | from_dir | sti-nodejs |
-      Then the "sti-nodejs-1" build completed
-      And the "sti-nodejs-2" build completed
+  # @author pruan@redhat.com
+  # @case_id 512259
+  Scenario: oc start-build with a directory passed ,using sti build type, with context-dir
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/sti-nodejs.git |
+      | context_dir | 0.10/test/test-app/                      |
+    Then the step should succeed
+    Given I git clone the repo "https://github.com/openshift/sti-nodejs.git"
+    When I run the :start_build client command with:
+      | buildconfig | sti-nodejs |
+      | from_dir | sti-nodejs |
+    Then the "sti-nodejs-1" build completed
+    And the "sti-nodejs-2" build completed
+
+  # @author pruan@redhat.com
+  # @case_id 512261
+  Scenario: oc start-build with a file passed,Docker build type
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should succeed
+    Then the "ruby22-sample-build-1" build completed
+    Given a "Dockerfile" file is created with the following lines:
+    """
+    FROM openshift/ruby-22-centos7
+    USER default
+    EXPOSE 8080
+    ENV RACK_ENV production
+    ENV RAILS_ENV production
+    """
+    And I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | from_file | ./Dockerfile |
+    Then the step should succeed
+    Then the "ruby22-sample-build-2" build completed
+    # start build with non-existing file
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | from_file | ./non-existing-file-name |
+    Then the step should fail
+    And the output should contain "no such file or directory"
+
+  # @author pruan@redhat.com
+  # @case_id 512266
+  Scenario: oc start-build with a zip,tar,or tar.gz passed,using Docker build type
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build completed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.zip"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build  |
+      | from_dir  | - |
+      | _stdin      | <%= File.read "ruby-hello-world.zip" %> |
+    Then the step succeeded
+    Then the "ruby22-sample-build-2" build completed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.tar"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build  |
+      | from_dir  | - |
+      | _stdin      | <%= File.read "ruby-hello-world.tar" %> |
+    Then the step succeeded
+    Then the "ruby22-sample-build-3" build completed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.tar.gz"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build  |
+      | from_dir  | - |
+      | _stdin      | <%= File.read "ruby-hello-world.tar.gz" %> |
+    Then the step succeeded
+    Then the "ruby22-sample-build-4" build completed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/test.zip"
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build  |
+      | from_dir  | - |
+      | _stdin      | <%= File.read "test.zip" %> |
+    Then the step should succeed
+    And the "ruby22-sample-build-5" build failed
+
+  # @author pruan@redhat.com
+  # @case_id 512267
+  Scenario: oc start-build with a zip,tar,or tar.gz passed,using sti build type
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo |   https://github.com/openshift/nodejs-ex |
+    Then the step should succeed
+    Then the "nodejs-ex-1" build is completed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.zip"
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-ex  |
+      | from_dir  | - |
+      | _stdin      | <%= File.read "nodejs-ex.zip" %> |
+    Then the step succeeded
+    Then the "nodejs-ex-2" build is completed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.tar"
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-ex |
+      | from_dir  | - |
+      | _stdin      | <%= File.read "nodejs-ex.tar" %> |
+    Then the step succeeded
+    Then the "nodejs-ex-3" build is completed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.tar.gz"
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-ex  |
+      | from_dir  | - |
+      | _stdin      | <%= File.read "nodejs-ex.tar.gz" %> |
+    Then the step succeeded
+    Then the "nodejs-ex-4" build is completed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/test.zip"
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-ex   |
+      | from_dir  | - |
+      | _stdin      | <%= File.read "test.zip" %> |
+    Then the step should succeed
+    And the "nodejs-ex-5" build is failed
+
+  # @author pruan@redhat.com
+  # @case_id 512268
+  Scenario: oc start-build with a zip,tar,or tar.gz passed,using sti build type, with context-dir
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/sti-nodejs.git |
+      | context_dir | 0.10/test/test-app/ |
+    Then the step should succeed
+    And the "sti-nodejs-1" build completed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/sti-nodejs.zip"
+    When I run the :start_build client command with:
+      | buildconfig | sti-nodejs |
+      | from_dir  | - |
+      | _stdin      | <%= @result[:response] %> |
+      | _binmode ||
+    And the "sti-nodejs-2" build completed
