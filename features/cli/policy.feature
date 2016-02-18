@@ -390,3 +390,26 @@ Feature: change the policy of user/service account
     Then the step should succeed
     And the output should contain:
     | Namespace: <all>  |
+
+  # @author anli@redhat.com
+  # @case_id 470302
+  @admin
+  Scenario: Cluster admin could delegate the administration of a project to a project admin
+    Given a 5 characters random string of type :dns is stored into the :proj1 clipboard
+    When admin creates a project with:
+      | project_name | <%= cb.proj1 %> |
+      | admin | <%= user.name %> |
+    Then the step should succeed
+    Given I use the "<%= cb.proj1 %>" project
+    When I run the :policy_add_role_to_user client command with:
+      | role  | view     |
+      | user_name |  <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role  | edit     |
+      | user_name |  <%= user(2, switch: false).name %> |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role  | admin     |
+      | user_name |  <%= user(1, switch: false).name %> |
+    Then the step should succeed
