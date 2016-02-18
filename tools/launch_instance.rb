@@ -210,7 +210,7 @@ module CucuShift
         create_opts = {}
         create_opts[:image] = options.image_name if options.image_name
         if options.instance_type && !options.instance_type.empty?
-          create_opts[:flavor] = options.instance_type
+          create_opts[:flavor_name] = options.instance_type
         end
         return ostack.launch_instances(names: host_names,
                                         user_data: user_data,
