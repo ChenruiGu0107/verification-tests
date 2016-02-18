@@ -366,7 +366,7 @@ function configure_nfs_service()
 
 function configure_registry_to_ha()
 {
-    cat >pv.json <<EOF
+    cat >${CONF_CRT_PATH}/pv.json <<EOF
 {
   "apiVersion": "v1",
   "kind": "PersistentVolume",
@@ -386,7 +386,7 @@ function configure_registry_to_ha()
 }
 EOF
 
-    cat >pvc.json<<EOF
+    cat >${CONF_CRT_PATH}/pvc.json<<EOF
 {
   "apiVersion": "v1",
   "kind": "PersistentVolumeClaim",
@@ -403,8 +403,8 @@ EOF
   }
 }
 EOF
-    oc create -f pv.json
-    oc create -f pvc.json
+    oc create -f ${CONF_CRT_PATH}/pv.json
+    oc create -f ${CONF_CRT_PATH}/pvc.json
     oc volume dc/docker-registry --add --overwrite -t persistentVolumeClaim --claim-name=registry-claim --name=registry-storage
     oc scale --replicas=2 dc/docker-registry
     
