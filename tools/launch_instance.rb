@@ -113,9 +113,9 @@ module CucuShift
     def host_opts(options)
       {
         # hosts_spec will be ready only after actual instance launch
-        # TODO: allow custom ssh username and key (hosts_opts actually)
-        ssh_key: expand_private_path(conf[:services, options.service_name, :key_file] || conf[:services, options.service_name, :hosts_opts, :ssh_private_key]),
-        ssh_user: conf[:services, options.service_name, :hosts_opts, :user] || 'root',
+        # TODO: allow custom ssh username and key (host_opts actually)
+        ssh_key: expand_private_path(conf[:services, options.service_name, :key_file] || conf[:services, options.service_name, :host_opts, :ssh_private_key]),
+        ssh_user: conf[:services, options.service_name, :host_opts, :user] || 'root',
         set_hostnames: !! conf[:services, options.service_name, :fix_hostnames]
       }
     end
