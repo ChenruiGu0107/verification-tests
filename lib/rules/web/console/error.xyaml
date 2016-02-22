@@ -10,16 +10,16 @@ check_error_list_project_resources:
   url: /console/project/<project_name>/overview 
   elements:
     - selector:
-         xpath: //div[text()='Failed to list builds (403)']
+         xpath: //div[text()='Failed to list builds/v1 (403)']
     - selector:
-         xpath: //div[text()='Failed to list pods (403)']
+         xpath: //div[text()='Failed to list pods/v1 (403)']
     - selector:
-         xpath: //div[text()='Failed to list replicationcontrollers (403)']
+         xpath: //div[text()='Failed to list replicationcontrollers/v1 (403)']
     - selector:
-         xpath: //div[text()='Failed to list routes (403)']
+         xpath: //div[text()='Failed to list routes/v1 (403)']
     - selector:
-         xpath: //div[text()='Failed to list deploymentconfigs (403)']
+         xpath: //div[text()='Failed to list deploymentconfigs/v1 (403)']
     - selector:
-         xpath: //div[text()='Failed to list imagestreams (403)']    
+         xpath: //div[text()='Failed to list imagestreams/v1 (403)']    
     - selector:
-         xpath: //div[text()='Failed to list services (403)']      
+         xpath: //div[text()='Failed to list services/v1 (403)']      

@@ -74,8 +74,8 @@ Feature: create app on web console related
     Then the step should fail
     When I get the html of the web page
     Then the output should contain 2 times:
-      | Cannot create object   |
-      | Unrecognized kind Test |
+      | Cannot create |
+      | kind Test is not supported by this server |
 
   # @author xxing@redhat.com
   # @case_id 507527
@@ -249,8 +249,8 @@ Feature: create app on web console related
       | param_three   | :null  |
       | param_four    | :null  |
       | param_five    | :null  |
-      | label_key     | :null  |
-      | label_value   | :null  |
+      | label_key     | label1 |
+      | label_value   | test   |
     Then the step should succeed
 
     When I run the :env client command with:
