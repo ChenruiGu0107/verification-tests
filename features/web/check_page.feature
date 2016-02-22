@@ -38,7 +38,7 @@ Feature: check page info related
       | project_name | <%= project.name %> |      
     When I get the html of the web page
     Then the output should match:
-      | <dd.+Test |
+      | <div.+Test |
 
   # @author cryan@redhat.com
   # case_id 467928
