@@ -156,8 +156,8 @@ Feature: rolling deployment related scenarios
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
-      | hooks                     |
+      |NAME                   |
+      | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |     
@@ -175,8 +175,8 @@ Feature: rolling deployment related scenarios
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
-      | hooks                     |
+      |NAME                   |
+      | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |     
@@ -217,8 +217,8 @@ Feature: rolling deployment related scenarios
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
-      | hooks                     |
+      |NAME                   |
+      | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |     
@@ -236,8 +236,8 @@ Feature: rolling deployment related scenarios
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
-      | hooks                     |
+      |NAME                   |
+      | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |     
@@ -270,8 +270,8 @@ Feature: rolling deployment related scenarios
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
-      | hooks                     |
+      |NAME                   |
+      | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |     
@@ -292,8 +292,8 @@ Feature: rolling deployment related scenarios
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
-      | hooks                     |
+      |NAME                   |
+      | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |     
@@ -311,8 +311,8 @@ Feature: rolling deployment related scenarios
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
-      | hooks                     |
+      |NAME                   |
+      | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |     
@@ -345,8 +345,8 @@ Feature: rolling deployment related scenarios
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
-      | hooks                     |
+      |NAME                   |
+      | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |     
