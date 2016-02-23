@@ -85,6 +85,9 @@ module CucuShift
     #   might be nil if receiving CucuShift::Host in spec
     # @param dns [String] the dns server to use; can be keyword or an IP
     #   address; see the dns case/when construct for available options
+    # @param generate_hostnames [Symbol, String] see #generate_hostnames
+    # @param set_hostnames [Boolean] whether or not to set machine hostname and
+    #   add openshift_hostname to host lines
     # @param app_domain [String] domain used to generate route dns names;
     #   can be auto-sensed in certain setups, see dns code below
     # @param host_domain [String] domain used to access env hosts; not always
@@ -100,7 +103,7 @@ module CucuShift
     #
     def ansible_install(hosts_spec:, auth_type:,
                         ssh_key: nil, ssh_user: nil,
-                        dns: nil, set_hostnames: false,
+                        dns: nil, set_hostnames: false, generate_hostnames: :auto,
                         app_domain: nil, host_domain: nil,
                         rhel_base_repo: nil,
                         deployment_type:,
@@ -310,13 +313,16 @@ module CucuShift
         begin
           if app_domain
             # validity of app zone up to the user that has set it
-            dyn.dyn_create_a_records("*.#{app_domain}", router_ips)
-            dyn.publish
+            dyn.dyn_create_a_records("*.#{app_domain}.", router_ips)
           else
             rec = dyn.dyn_create_random_a_wildcard_records(router_ips)
-            dyn.publish
             app_domain = rec.sub(/^\*\./, '')
           end
+          generate_hostnames(hosts, generate_hostnames) do |name, ip|
+            dyn.dyn_create_a_records("#{name}.#{app_domain}.", ip)
+          end
+
+          dyn.publish
         ensure
           dyn.close
         end
@@ -411,8 +417,9 @@ module CucuShift
       hosts_str = ERB.new(File.read(hosts_erb)).result binding
 
       ## download ansible repo to workdir (need git pre-installed)
+      Host.localhost.delete("openshift-ansible", :r => true)
       check_res Host.localhost.exec(
-        "git clone #{ansible_url}"
+        "git clone #{ansible_url} openshift-ansible"
       )
       res = nil
 
@@ -575,6 +582,31 @@ module CucuShift
 
       opts[:registry_ha] = false unless to_bool(opts[:registry_ha])
       opts[:use_rpm_playbook] = false unless to_bool(opts[:use_rpm_playbook])
+    end
+
+    # generate hostnames for any hosts that lack a real hostname or when forced
+    # @param hosts_spec [Hash<String,Array<Host>>] this is
+    #   {master => [host1, host2, ...], node => [host_n1, host_n2, ...]
+    # @param mode [Symbol, String] :auto, false/nil, :force; when false we do not
+    #   generate any hostnames, when auto we generate for hosts missing a hostname,
+    #   and then forced we always generate a new hostname
+    # @yield a block that will actually register hostnames and return FQDN
+    # @yieldparam name [String] short desired hostname
+    # @yieldparam ip [String] IP of the Host
+    # @yieldreturn [String] FQDN of new hostname
+    # @return undefined
+    # @raise [StandardError] from yielded block
+    def generate_hostnames(hosts_spec, mode)
+      return unless mode
+      hosts_spec.each do |type, hosts|
+        hosts.each_with_index do |host, idx|
+          if mode.to_s == "force" || !host.has_hostname?
+            hostname = yield hosts.size > 1 ? "#{type}-#{idx+1}" : type, host.ip
+            logger.info "Updated hostname of #{host.hostname} to #{hostname}"
+            host.update_hostname(hostname)
+          end
+        end
+      end
     end
 
     #def launch(**opts)

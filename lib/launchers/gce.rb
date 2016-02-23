@@ -366,8 +366,9 @@ module CucuShift
       instance = instance_spec.kind_of?(Hash) ?
                  instance_from_hash(instance_spec) : instance_spec
       ip = instance_external_ip instance
-      # cannot use hostname obtained by reverse DNS lookup
-      # see https://bugzilla.redhat.com/show_bug.cgi?id=1310844
+      # Sometimes could not use hostname obtained by reverse DNS lookup
+      # I assume because hostname starts with digits, play safe and use IPs
+      # until issue is better understood.
       # return [instance, Host.from_ip(ip, host_opts)]
       return [instance, Host.from_hostname(ip, host_opts)]
     end

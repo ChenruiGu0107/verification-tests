@@ -80,7 +80,7 @@ module CucuShift
       when monotonic_seconds - @last_accessed < 120 # 2 minutes
         return true
       else
-        res = exec("echo", timeout: 30)
+        res = exec("echo", timeout: 30, liveness: true)
         if res[:success]
           @last_accessed = monotonic_seconds
           return true
@@ -216,7 +216,11 @@ module CucuShift
       if channel.active?
         # looks like we hit the timeout
         channel.close
-        logger.error("ssh channel timeout @#{@host}: #{command}")
+        if opts[:liveness]
+          logger.warn("liveness check failed, may retry @#{@host}: #{command}")
+        else
+          logger.error("ssh channel timeout @#{@host}: #{command}")
+        end
       end
       unless opts[:quiet]
         logger.print(stdout, false)

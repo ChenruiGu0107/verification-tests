@@ -127,6 +127,16 @@ module CucuShift
       roles.include? role
     end
 
+    def has_hostname?
+      # TODO: support IPv6
+      ! (hostname =~ /^[0-9.]+$/)
+    end
+
+    # discouraged, used for updating hosts that did not have a hostname initially
+    def update_hostname(hostname)
+      @hostname = hostname
+    end
+
     # escape characters for use as command arguments
     def shell_escape(str)
       raise "#{__method__} method not implemented"
