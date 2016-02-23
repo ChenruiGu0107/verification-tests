@@ -10,10 +10,7 @@ Feature: Check oc status cli
       | You have no services, deployment configs, or build configs |
 
     # Check standalone RC info is dispalyed in oc status output
-    And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/secret.json |
-    And evaluation of `"mysecret"` is stored in the :mysecret_name clipboard
-    And I run the :create client command with:
+    When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/standalone-rc.yaml |
     And evaluation of `"stdalonerc"` is stored in the :stdrc_name clipboard
     When I run the :status client command
@@ -24,7 +21,7 @@ Feature: Check oc status cli
     When I run the :status client command with:
       | v ||
     Then the output should match:
-      | rc/<%= cb.stdrc_name %> is attempting to mount a secret secret/<%= cb.mysecret_name %> disallowed by sa/default |
+      | rc/<%= cb.stdrc_name %> is attempting to mount a missing secret secret/<%= cb.mysecret_name %> |
 
     # Check DC,RC info when has missing/bad secret reference
     When I run the :create client command with:
@@ -36,7 +33,6 @@ Feature: Check oc status cli
     When I run the :status client command with:
       | v ||
     And the output should match:
-      | dc/frontend is attempting to mount a secret secret/<%= cb.missingscrt_name %> disallowed by sa/default |
       | dc/frontend is attempting to mount a missing secret secret/<%= cb.missingscrt_name %> |
 
     # Show RCs for services in oc status
