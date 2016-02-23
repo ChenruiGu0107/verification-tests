@@ -172,7 +172,8 @@ module CucuShift
 
       # override boot disk options before options normalization
       if boot_disk_opts && !boot_disk_opts.empty?
-        instance_opts[:disks] = merge_boot_disk_opts boot_disk_opts
+        instance_opts[:disks] = merge_boot_disk_opts instance_opts[:disks],
+                                                     boot_disk_opts
       end
 
       # normalize convenience options, like update some names to urls
@@ -183,7 +184,7 @@ module CucuShift
         instance_opts[:metadata] ||= {}
         instance_opts[:metadata][:items] ||= []
         instance_opts[:metadata][:items] <<
-                                   {key: "startup-script", value: user_data}
+                      {key: "user-data", value: user_data}
       end
 
       return instance_opts
@@ -275,7 +276,8 @@ module CucuShift
       return res
     end
 
-    private def merge_boot_disk_opts(override_opts)
+    # require that existing boot disk options are present
+    private def merge_boot_disk_opts(orig_opts, override_opts)
       if override_opts.has_key?(:boot) && !override_opts[:boot]
         raise "should not remove boot disk"
       end
@@ -283,8 +285,8 @@ module CucuShift
                      override_opts.has_key?(:initialize_params)
         raise "cannot have both :source and :initialize_params"
       end
-      return config(:disks).map do |disk|
-        if d[:boot] || d["boot"]
+      return orig_opts.map do |disk|
+        if disk[:boot] || disk["boot"]
           # this is the boot disk so we merge here
           boot_disk = deep_hash_symkeys(disk)
           boot_disk.merge(override_opts) { |key, oldval, newval|
@@ -364,7 +366,10 @@ module CucuShift
       instance = instance_spec.kind_of?(Hash) ?
                  instance_from_hash(instance_spec) : instance_spec
       ip = instance_external_ip instance
-      return [instance, Host.from_ip(ip, host_opts)]
+      # cannot use hostname obtained by reverse DNS lookup
+      # see https://bugzilla.redhat.com/show_bug.cgi?id=1310844
+      # return [instance, Host.from_ip(ip, host_opts)]
+      return [instance, Host.from_hostname(ip, host_opts)]
     end
 
     # @param cls [Class] target class to instantiate

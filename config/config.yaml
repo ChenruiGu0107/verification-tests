@@ -156,5 +156,5 @@ services:
       #  ...
       #  -----END RSA PRIVATE KEY-----
       token_credential_uri: https://accounts.google.com/o/oauth2/token
-    fix_hostnames: true
+    fix_hostnames: false
     cloud_type: gce

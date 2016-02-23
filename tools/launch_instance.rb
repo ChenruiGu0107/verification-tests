@@ -166,7 +166,6 @@ module CucuShift
         end
 
         # TODO: gzip data?
-        user_data_string = Base64.encode64 user_data_string
       else
         user_data_string = ""
       end
@@ -197,7 +196,7 @@ module CucuShift
         ec2_image = options.image_name || ""
         ec2_image = ec2_image.empty? ? :raw : ec2_image
         amz = Amz_EC2.new
-        create_opts = { user_data: user_data }
+        create_opts = { user_data: Base64.encode64(user_data) }
         if options.instance_type && !options.instance_type.empty?
           create_opts[:instance_type] = options.instance_type
         end
@@ -212,8 +211,9 @@ module CucuShift
         if options.instance_type && !options.instance_type.empty?
           create_opts[:flavor_name] = options.instance_type
         end
-        res = ostack.launch_instances(names: host_names, user_data: user_data,
-                                                         **create_opts)
+        res = ostack.launch_instances(names: host_names,
+                                      user_data: Base64.encode64(user_data),
+                                      **create_opts)
       when "gce"
         gce = CucuShift::GCE.new
 
@@ -236,7 +236,7 @@ module CucuShift
       end
 
       # we get here Array of [something, Host] pairs, convert to Array<Host>
-      res.map!(&:last)
+      res = res.map(&:last)
       # wait for all hosts to become accessible
       res.each {|h| h.wait_to_become_accessible(600)}
       # return the hosts

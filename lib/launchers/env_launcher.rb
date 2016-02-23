@@ -359,9 +359,9 @@ module CucuShift
             if dns == "embedded_skydns"
               host_base_line = "#{host.ansible_host_str} openshift_hostname=master.#{host_domain} openshift_public_hostname=master.#{host_domain}"
             else
-              host_base_line = "#{host.ansible_host_str}"
+              host_base_line = "#{host.ansible_host_str} openshift_public_hostname=#{host.hostname}"
               if set_hostnames
-                host_base_line << " openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+                host_base_line << " openshift_hostname=#{host.hostname}"
               end
             end
 
@@ -375,9 +375,9 @@ module CucuShift
               node_index = node_host_lines.size + 1
               host_base_line = "#{host.ansible_host_str} openshift_hostname=minion#{node_index}.#{host_domain} openshift_public_hostname=minion#{node_index}.#{host_domain}"
             else
-              host_base_line = "#{host.ansible_host_str}"
+              host_base_line = "#{host.ansible_host_str} openshift_public_hostname=#{host.hostname}"
               if set_hostnames
-                host_base_line << " openshift_hostname=#{host.hostname} openshift_public_hostname=#{host.hostname}"
+                host_base_line << " openshift_hostname=#{host.hostname}"
               end
             end
             host_line = %Q*#{host_base_line} openshift_node_labels="{'region': 'primary', 'zone': 'default'}"*

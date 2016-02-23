@@ -34,6 +34,11 @@ module CucuShift
       return CucuShift.const_get(clz).new(hostname, **opts, ip: ip)
     end
 
+    def self.from_hostname(hostname, opts)
+      clz = opts[:class] || raise("need to know class to instantiate Host")
+      return CucuShift.const_get(clz).new(hostname, opts)
+    end
+
     def self.localhost
       @localhost if @localhost
       @localhost ||= case RUBY_PLATFORM
