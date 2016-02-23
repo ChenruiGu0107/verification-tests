@@ -64,12 +64,53 @@ module CucuShift
       map_hash!(hash) { |k, v| [k.to_sym, v] }
     end
 
-    # @param hash [Hash] object to be symbolized
+    # @param hash [Hash] the hash to be modified
     # @yield block to return new key/val pairs based on original values
     def deep_map_hash!(hash)
       map_hash!(hash) { |k, v|
         new_k, new_v = yield [k, v]
         [new_k, deep_map_hash!(new_v) { |nk, nv| yield [nk, nv] }]
+      }
+    end
+
+    # @param hash [Hash] the hash to be mapped
+    # @yield block to return new key/val pairs based on original values
+    def deep_map_hash(hash)
+      map_hash(hash) { |k, v|
+        new_k, new_v = yield [k, v]
+        [new_k, deep_map_hash(new_v) { |nk, nv| yield [nk, nv] }]
+      }
+    end
+
+    # @return [Hash] a new hash identical to original one except all keys are
+    #  nstances of [String]
+    def deep_hash_strkeys(hash)
+      deep_map_hash(hash) do |k, v|
+        [k.to_s, v]
+      end
+    end
+
+    # @return [Hash] a new hash identical to original one except all keys are
+    #  nstances of [Symbol]
+    def deep_hash_symkeys(hash)
+      deep_map_hash(hash) do |k, v|
+        [k.to_sym, v]
+      end
+    end
+
+    # @param base_hash [Hash] it is base or lower prio hash
+    # @param override_hash [Hash] hash with values that override base_hash
+    #   values
+    # @return [Hash] the base_hash with new values and values overrides of the
+    #   override_hash
+    # @note this one does not merge Arrays
+    def deep_merge(base_hash, override_hash)
+      base_hash.merge(override_hash) { |key, oldval, newval|
+        if oldval.kind_of?(Hash) && newval.kind_of?(Hash)
+          deep_merge(oldval, newval)
+        else
+          newval
+        end
       }
     end
 

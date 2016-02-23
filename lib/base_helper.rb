@@ -77,6 +77,8 @@ module CucuShift
           result << array[rand(26)] # start with letter
           (length - 2).times { result << array[rand(array.length)] }
           result << array[rand(36)] # end with non-hyphen
+        when :num
+          "%0#{length}d" % rand(10 ** length)
         else # :nospace_sane
           for c in 'a'..'z' do array.push(c) end
           for c in 'A'..'Z' do array.push(c) end
@@ -118,9 +120,10 @@ module CucuShift
       #   strictly enforced, use other timeout techniques to avoid freeze
       # @param seconds [Numeric] the max number of seconds to try operation to
       #   succeed
+      # @param interval [Numeric] the interval to wait between attempts
       # @yield block the block will be yielded until it returns true or timeout
       #   is reached
-      def wait_for(seconds)
+      def wait_for(seconds, interval: 1)
         if seconds > 60
           Kernel.puts("waiting for operation up to #{seconds} seconds..")
         end
@@ -129,7 +132,7 @@ module CucuShift
         success = false
         until monotonic_seconds - start > seconds
           success = yield and break
-          sleep 1
+          sleep interval
         end
 
         return success

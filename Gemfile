@@ -12,6 +12,7 @@ gem 'cucumber', '>=2.3.0'
 # gem 'rspec-expectations', '~>2.14.0'
 # gem 'aws-sdk-v1'
 gem 'aws-sdk', '~> 2'
+gem 'google-api-client', '~>0.9.2'
 # gem 'timers'
 ## Logging
 gem 'term-ansicolor'

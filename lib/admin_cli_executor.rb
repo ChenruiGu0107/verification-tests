@@ -102,7 +102,10 @@ module CucuShift
 
       res = master_host.exec_as(:admin, "cat /root/.kube/config")
       if res[:success]
-        File.write(config, res[:stdout])
+        server = res[:stdout].scan(/^\s*server:\s.*#{Regexp.escape master_host.hostname}.*$/)[0]
+        raise "cannot find master in remote admin kubeconfig" unless server
+        # not sure, we may better use env.api_endpoint_url here
+        File.write(config, res[:stdout].gsub(/^\s*server:\s.*$/) {server} )
       else
         logger.error(res[:response])
         raise "error running command on master #{master.host.hostname} as admin, see log"

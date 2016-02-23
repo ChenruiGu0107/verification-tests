@@ -11,6 +11,7 @@ require 'io/console' # for reading password without echo
 require 'timeout' # to avoid freezes waiting for user input
 
 require 'common'
+require 'host'
 require 'net'
 
 module CucuShift
@@ -274,14 +275,14 @@ module CucuShift
     # @param names [Array<String>] array of names to give to new machines
     # @return [Hash] a hash of name => hostname pairs
     # TODO: make this return a [Hash] of name => CucuShift::Host pairs
-    def launch_instances(names:, use_hostnames: true, **create_opts)
+    def launch_instances(names:, **create_opts)
       res = {}
+      host_opts = create_opts[:host_opts] || {}
+      host_opts = opts[:host_opts].merge(host_opts) # merge with global opts
       names.each { |name|
-        _, res[name] = create_instance(name, **create_opts)
-        res[name] = Common::Net.reverse_lookup(res[name]) if use_hostnames
-        sleep 10 # why?
+        _, ip = create_instance(name, **create_opts)
+        res[name] = Host.from_ip(ip, host_opts)
       }
-      sleep 60 # why?
       return res
     end
   end

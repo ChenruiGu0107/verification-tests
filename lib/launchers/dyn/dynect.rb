@@ -72,7 +72,7 @@ module CucuShift
     end
 
     def dyn_create_a_records(record, target, auth_token=@auth_token, retries=@@dyn_retries)
-      fqdn = "#{record}.#{@domain_suffix}"
+      fqdn = record.end_with?('.') ? record[0..-2] : "#{record}.#{@domain_suffix}"
       path = "ARecord/#{@zone}/#{fqdn}/"
       # Create the A records
       [target].flatten.each { |target|

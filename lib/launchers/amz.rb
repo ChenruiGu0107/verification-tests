@@ -279,7 +279,7 @@ module CucuShift
     # returns ssh connection
     def block_until_accessible(instance, host_opts={})
       logger.info "Waiting for instance to become accessible..."
-      host_opts = config[:hosts_opts].merge host_opts
+      host_opts = config[:host_opts].merge host_opts
       if instance.public_dns_name == ''
         logger.info("Reloading instance...")
         instance.reload
