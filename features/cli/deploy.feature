@@ -16,7 +16,7 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :failed
     When I run the :deploy client command with:
       | deployment_config | hooks |
-    Then the output should contain "hooks #1 deployment failed"
+    Then the output should match "hooks.*#1.*failed"
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | retry             ||
@@ -24,7 +24,7 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :deploy client command with:
       | deployment_config | hooks |
-    Then the output should contain "hooks #1 deployed"
+    Then the output should match "hooks.*#1.*deployed"
 
   # @author: xxing@redhat.com
   # @case_id: 457713
@@ -516,7 +516,7 @@ Feature: deployment related features
       | deployment_config | hooks |
     Then the step should succeed
     And the output should match:
-      | hooks #1 deployment failed |
+      | hooks.*#1.*failed |
 
 
   # @author pruan@redhat.com
@@ -588,18 +588,18 @@ Feature: deployment related features
       | latestVersion: 2 | latestVersion: -1 |
     Then the step should fail
     And the output should match:
-      | latestVersion: invalid value '-1', Details: latestVersion cannot be negative |
-      | atestVersion: invalid value '-1', Details: latestVersion cannot be decremented |
+      | nvalid value.*-1.*latestVersion cannot be negative |
+      | nvalid value.*-1.*latestVersion cannot be decremented |
     And I replace resource "dc" named "hooks":
       | latestVersion: 2 | latestVersion: 0 |
     Then the step should fail
-    And the output should contain:
-      | latestVersion: invalid value '0', Details: latestVersion cannot be decremented |
+    And the output should match:
+      | nvalid value.*0.*latestVersion cannot be decremented |
     And I replace resource "dc" named "hooks":
       | latestVersion: 2 | latestVersion: 5 |
     Then the step should fail
-    And the output should contain:
-      | latestVersion: invalid value '5', Details: latestVersion can only be incremented by 1 |
+    And the output should match:
+      | nvalid value.*5.*latestVersion can only be incremented by 1 |
 
   # @author pruan@redhat.com
   # @case_id 487643
@@ -702,8 +702,8 @@ Feature: deployment related features
       | resource | deploymentConfig |
       | resource_name | hooks       |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
-      |hooks\\s+ConfigChange\\s+1 |
+      |NAME\\s+REVISION.*TRIGGERED BY |
+      |hooks\\s+1.*config |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest ||
@@ -722,8 +722,8 @@ Feature: deployment related features
       | resource_name | hooks       |
     Then the step should succeed
     And the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
-      |hooks\\s+ConfigChange\\s+2 |
+      |NAME\\s+REVISION.*TRIGGERED BY |
+      |hooks\\s+2.*config |
     # This deviate form the testplan a little in that we are not doing more than one deploy, which should be sufficient since we are checking two deployments already (while the testcase called for 5)
 
   # @author cryan@redhat.com

@@ -135,26 +135,26 @@ Feature: project permissions
       | node_selector | env:qa |
       | project_name  | <%= @clipboard[:proj_name] %> |
     Then the step should fail
-    And the output should contain:
-      | nodeSelector: invalid value 'env:qa', Details: must be a valid label selector |
+    And the output should match:
+      | nvalid value.*env:qa |
     When I run the :oadm_new_project admin command with:
       | node_selector | env,qa |
       | project_name  | <%= @clipboard[:proj_name] %> |
     Then the step should fail
-    And the output should contain:
-      | nodeSelector: invalid value 'env,qa', Details: must be a valid label selector |
+    And the output should match:
+      | nvalid value.*env,qa |
     When I run the :oadm_new_project admin command with:
       | node_selector | env [qa] |
       | project_name  | <%= @clipboard[:proj_name] %> |
     Then the step should fail
-    And the output should contain:
-      | nodeSelector: invalid value 'env [qa]', Details: must be a valid label selector |
+    And the output should match:
+      | nvalid value.*env \[qa\] |
     When I run the :oadm_new_project admin command with:
       | node_selector | env, |
       | project_name  | <%= @clipboard[:proj_name] %> |
     Then the step should fail
-    And the output should contain:
-      | nodeSelector: invalid value 'env,', Details: must be a valid label selector |
+    And the output should match:
+      | nvalid value.*env, |
 
   # @author pruan@redhat.com
   # @case_id 481693
@@ -182,7 +182,6 @@ Feature: project permissions
     When I run the :create admin command with:
       |filename| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/prj_with_invalid_node-selector.json |
     Then the step should fail
-    And the output should contain:
-      |The project "jhou" is invalid |
-      |nodeSelector: invalid value 'env,qa', Details: must be a valid label selector |
+    And the output should match:
+      | nvalid value.*env,qa |
 

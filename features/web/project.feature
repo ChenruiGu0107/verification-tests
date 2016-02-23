@@ -84,8 +84,6 @@ Feature: projects related features via web
   # @author xxing@redhat.com
   # @case_id 499989
   Scenario: Could delete project from web console
-    Given I login via web console
-    Given I switch to the second user
     When I create a project via web with:
       | display_name | :null |
       | description  ||
@@ -124,25 +122,24 @@ Feature: projects related features via web
     Given I create a new project
     When I run the :policy_add_role_to_user client command with:
       | role      | edit            |
-      | user_name | <%= user(0, switch: false).name %> |
+      | user_name | <%= user(1, switch: false).name %> |
     Then the step should succeed
-    Given I switch to the first user
-    When I perform the :delete_project web console action with:
-      | project_name | <%= project.name %> |
-    And I get the html of the web page
-    Then the output should contain:
-      | User "<%= user(0).name %>" cannot delete projects in project "<%= project.name %>" |
-    Given I switch to the second user
-    When I run the :policy_add_role_to_user client command with:
+    And I run the :policy_add_role_to_user client command with:
       | role      | view                |
-      | user_name | <%= user(0, switch: false).name %> |
-    Given I switch to the first user
+      | user_name | <%= user(2, switch: false).name %>    |
+    Given I switch to the second user
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
     And I get the html of the web page
     Then the output should contain:
-      | User "<%= user(0).name %>" cannot delete projects in project "<%= project.name %>" |
-
+      | User "<%= user.name %>" cannot delete projects in project "<%= project.name %>" |
+    Given I switch to the third user
+    When I perform the :delete_project web console action with:
+      | project_name | <%= project.name %> |
+    And I get the html of the web page
+    Then the output should contain:
+      | User "<%= user.name %>" cannot delete projects in project "<%= project.name %>" |
+    
   # @author wsun@redhat.com
   # @case_id 470313
   Scenario: Could list all projects based on the user's authorization on web console
