@@ -155,7 +155,7 @@ Feature: rolling deployment related scenarios
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
-    Then the output should match:
+    Then the output should contain:
       |NAME                   |
       | hooks                 |
     When I run the :get client command with:
@@ -174,7 +174,7 @@ Feature: rolling deployment related scenarios
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
-    Then the output should match:
+    Then the output should contain:
       |NAME                   |
       | hooks                 |
     When I run the :get client command with:
@@ -216,7 +216,7 @@ Feature: rolling deployment related scenarios
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
-    Then the output should match:
+    Then the output should contain:
       |NAME                   |
       | hooks                 |
     When I run the :get client command with:
@@ -235,7 +235,7 @@ Feature: rolling deployment related scenarios
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
-    Then the output should match:
+    Then the output should contain:
       |NAME                   |
       | hooks                 |
     When I run the :get client command with:
@@ -269,7 +269,7 @@ Feature: rolling deployment related scenarios
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
-    Then the output should match:
+    Then the output should contain:
       |NAME                   |
       | hooks                 |
     When I run the :get client command with:
@@ -291,7 +291,7 @@ Feature: rolling deployment related scenarios
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
-    Then the output should match:
+    Then the output should contain:
       |NAME                   |
       | hooks                 |
     When I run the :get client command with:
@@ -310,7 +310,7 @@ Feature: rolling deployment related scenarios
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
-    Then the output should match:
+    Then the output should contain:
       |NAME                   |
       | hooks                 |
     When I run the :get client command with:
@@ -344,7 +344,7 @@ Feature: rolling deployment related scenarios
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
-    Then the output should match:
+    Then the output should contain:
       |NAME                   |
       | hooks                 |
     When I run the :get client command with:
@@ -352,4 +352,78 @@ Feature: rolling deployment related scenarios
       | resource_name | hooks |     
       | o             |  json |
     Then the output should contain:
+      | "replicas": 1 |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 454715
+  Scenario:[origin_runtime_509]Rollback to all components of previous deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+    Then the output should contain:
+      |NAME                   |
+      | hooks                 |
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |     
+      | o             |  json |
+    Then the output should contain:
+      | "type": "Recreate"     |
+      | "type": "ConfigChange" |
+      | "replicas": 1 |
+
+    When I run the :replace client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+    Then the output should contain:
+      |NAME                   |
+      | hooks                 |
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |     
+      | o             |  json |
+    Then the output should contain:
+      | "type": "Rolling"     |
+      | "type": "ImageChange" |
+      | "replicas": 2 |
+
+    ## post rest request for curl new json
+    When I perform the :rollback_deploy rest request with:
+        | project_name            | <%= project.name %> |
+        | deploy_name             | hooks-1 |
+        | includeTriggers         | true  |
+        | includeTemplate         | true  |
+        | includeReplicationMeta  | true  |
+        | includeStrategy         | true  |
+    Then the step should succeed
+    And the output should contain:
+        | 201 |
+    When I save the output to file>rollback.json
+    And I run the :replace client command with:
+      | f | rollback.json |
+    Then the step should succeed
+    And the output should contain:
+      | replaced |
+
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+    Then the output should contain:
+      |NAME                   |
+      | hooks                 |
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |     
+      | o             |  json |
+    Then the output should contain:
+      | "type": "Recreate"     |
+      | ConfigChange |
       | "replicas": 1 |
