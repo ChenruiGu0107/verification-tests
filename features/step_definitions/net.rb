@@ -38,6 +38,26 @@ When /^I download a file from "(.+?)"$/ do |url|
   end
 end
 
+# same as download regular file but here we don't put whole file into memory;
+# redirection is also not supported, return status is unreliable
+# response headers, cookies, etc. also lost;
+# You just get the freakin' big file downloaded without much validation
+When /^I download a big file from "(.+?)"$/ do |url|
+  file_name = File.basename(URI.parse(url).path)
+  File.open(file_name, 'wb') do |file|
+    @result = CucuShift::Http.get(url: url) do |chunk|
+      file.write chunk
+    end
+  end
+  if @result[:success]
+    # File.write(file_name, @result[:response])
+    @result[:file_name] = file_name
+    @result[:abs_path] = File.absolute_path(file_name)
+  else
+    raise "Failed to download file from #{url} with HTTP status #{@result[:exitstatus]}"
+  end
+end
+
 # this step simply delegates to the Http.request method;
 # all options are acepted in the form of a YAML or a JSON hash where each
 #   option correspond to an option of the said method.
