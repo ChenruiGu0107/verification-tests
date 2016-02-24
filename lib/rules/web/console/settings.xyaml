@@ -2,28 +2,36 @@
 check_settings_page:
   action: goto_settings_page
   elements:
-  - selector: 
+  - selector:
       text: General information
   - selector:
       text: Quota
   - selector:
-      text: Resource limits
+      text: Limit Range
 check_used_value:
   elements:
   - selector:
-      xpath: //tr[descendant::td[contains(text()[2],'<resource_type>')]]//span[contains(text(),'<used_value>')]
+      xpath: //td[descendant::span[contains(.,'<resource_type>')]]/following::span[contains(.,'<used_value>')]
 check_max_value:
   elements:
   - selector:
-      xpath: //tr[descendant::td[contains(text()[2],'<resource_type>')]]//span[contains(text(),'<max_value>')]
+      xpath: //td[descendant::span[contains(.,'<resource_type>')]]/following::span[contains(.,'<max_value>')]
 check_min_limit_value:
   elements:
   - selector:
-      xpath: //tr[descendant::td[contains(text(),'<resource_type>')]]//td[contains(text(),'<min_limit>')]
+      xpath: //td[contains(.,'<resource_type>')]/following-sibling::td[contains(.,'<min_limit>')]
 check_max_limit_value:
   elements:
   - selector:
-      xpath: //tr[descendant::td[contains(text(),'<resource_type>')]]//td[contains(text(),'<max_limit>')]
+      xpath: //td[contains(.,'<resource_type>')]/following-sibling::td[contains(.,'<max_limit>')]
+check_default_request:
+  elements:
+  - selector:
+      xpath: //td[contains(.,'<resource_type>')]/following-sibling::td[contains(.,'<default_request>')]
+check_default_limit:
+  elements:
+  - selector:
+      xpath: //td[contains(.,'<resource_type>')]/following-sibling::td[contains(.,'<default_limit>')]
 check_project_without_quota_settings:
   action: goto_settings_page
   elements:
