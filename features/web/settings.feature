@@ -45,92 +45,99 @@ Feature: check settings page on web console
 
     # check quota - cpu
     When I perform the :check_used_value web console action with:
-      | resource_type | cpu |
+      | resource_type | CPU     |
       | used_value    | 0 cores |
     Then the step should succeed
     When I perform the :check_max_value web console action with:
-      | resource_type | cpu |
+      | resource_type | CPU    |
       | max_value     | 1 core |
     Then the step should succeed
     # check quota - memory
     When I perform the :check_used_value web console action with:
-      | resource_type | memory |
-      | used_value    | 0 B |
+      | resource_type | Memory |
+      | used_value    | 0      |
     Then the step should succeed
     When I perform the :check_max_value web console action with:
-      | resource_type | memory |
+      | resource_type | Memory  |
       | max_value     | 750 MiB |
     Then the step should succeed
     # check quota - pods
     When I perform the :check_used_value web console action with:
-      | resource_type | pods |
+      | resource_type | Pods |
       | used_value    | 0    |
     Then the step should succeed
     When I perform the :check_max_value web console action with:
-      | resource_type | pods |
+      | resource_type | Pods |
       | max_value     | 10   |
     Then the step should succeed
     # check quota - replicationcontrollers
     When I perform the :check_used_value web console action with:
-      | resource_type | replicationcontrollers |
+      | resource_type | Replication Controllers |
       | used_value    | 0    |
     Then the step should succeed
     When I perform the :check_max_value web console action with:
-      | resource_type | replicationcontrollers |
+      | resource_type | Replication Controllers |
       | max_value     | 10   |
-    Then the step should succeed
-    # check quota - resourcequotas
-    When I perform the :check_used_value web console action with:
-      | resource_type | resourcequotas |
-      | used_value    | 1    |
-    Then the step should succeed
-    When I perform the :check_max_value web console action with:
-      | resource_type | resourcequotas |
-      | max_value     | 1    |
     Then the step should succeed
     # check quota - services
     When I perform the :check_used_value web console action with:
-      | resource_type | services |
+      | resource_type | Services |
       | used_value    | 0    |
     Then the step should succeed
     When I perform the :check_max_value web console action with:
-      | resource_type | services |
+      | resource_type | Services |
       | max_value     | 10    |
     Then the step should succeed
 
     # check resource limits - Pod cpu
     When I perform the :check_min_limit_value web console action with:
-      | resource_type | Pod cpu |
+      | resource_type | Pod CPU |
       | min_limit     | 10 millicores |
     Then the step should succeed
     When I perform the :check_max_limit_value web console action with:
-      | resource_type | Pod cpu |
+      | resource_type | Pod CPU |
       | max_limit     | 500 millicores |
     Then the step should succeed
     # check resource limits - Pod memory
     When I perform the :check_min_limit_value web console action with:
-      | resource_type | Pod memory |
+      | resource_type | Pod Memory |
       | min_limit     | 5 MiB |
     Then the step should succeed
     When I perform the :check_max_limit_value web console action with:
-      | resource_type | Pod memory |
+      | resource_type | Pod Memory |
       | max_limit     | 750 MiB |
     Then the step should succeed
-    # check resource limits - Container cpu 
+    # check resource limits - Container cpu
     When I perform the :check_min_limit_value web console action with:
-      | resource_type | Container cpu |
+      | resource_type | Container CPU |
       | min_limit     | 10 millicores |
     Then the step should succeed
     When I perform the :check_max_limit_value web console action with:
-      | resource_type | Container cpu |
+      | resource_type | Container CPU |
       | max_limit     | 500 millicores |
     Then the step should succeed
-    # check resource limits - Container memory 
+    When I perform the :check_default_request web console action with:
+      | resource_type   | Container CPU  |
+      | default_request | 100 millicores |
+    Then the step should succeed
+    When I perform the :check_default_limit web console action with:
+      | resource_type   | Container CPU  |
+      | default_limit   | 100 millicores |
+    Then the step should succeed
+    # check resource limits - Container memory
     When I perform the :check_min_limit_value web console action with:
-      | resource_type | Container memory |
+      | resource_type | Container Memory |
       | min_limit     | 5 MiB |
     Then the step should succeed
     When I perform the :check_max_limit_value web console action with:
-      | resource_type | Container memory |
+      | resource_type | Container Memory |
       | max_limit     | 750 MiB |
+    Then the step should succeed
+    When I perform the :check_default_request web console action with:
+      | resource_type   | Container Memory |
+      | default_request | 100 MiB          |
+    Then the step should succeed
+    When I perform the :check_default_limit web console action with:
+      | resource_type   | Container Memory |
+      | default_limit   | 100 MiB          |
     Then the step should succeed
