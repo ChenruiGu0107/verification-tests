@@ -70,11 +70,11 @@ Feature: buildconfig.feature
     When I run the :start_build client command with:
       | buildconfig | invalid | 
     Then the step should fail
-    And the output should contain "buildconfig "invalid" not found"
+    And the output should contain "buildconfigs "invalid" not found"
     When I run the :start_build client command with:
       | from_build| invalid |
     Then the step should fail
-    And the output should contain "build "invalid" not found"
+    And the output should contain "builds "invalid" not found"
 
   # @author xiazhao@redhat.com
   # @case_id 482207
@@ -108,7 +108,7 @@ Feature: buildconfig.feature
     When I replace resource "build" named "ruby-sample-build-1":
       | ImageStreamTag | ImageStreamTag123 |
     Then the step should fail
-    And the output should contain "spec.output.to.kind: invalid value 'ImageStreamTag123'"
+    And the output should contain "Invalid value: "ImageStreamTag123""
     When I replace resource "build" named "ruby-sample-build-1":
       | Git | Git123 |
     Then the step should succeed
