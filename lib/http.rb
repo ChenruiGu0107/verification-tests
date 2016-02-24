@@ -20,9 +20,13 @@ module CucuShift
     #   automatically multipart mime to be chosen, you need to look at
     #   rest-client documentation.
     # @param headers [Hash] request heders
+    # @yield [str_chunk] block will be called by rest-client (actually Net:HTTP)
+    #   with chunks of body content as read by the remote server; note that
+    #   HTTP status redirections, cookies, headers, etc. are all lost from
+    #   response when a block is passed
     # @return [CucuShift::ResultHash] standard cucushift result hash;
     #   there is :headers populated as a [Hash] where headers are lower-cased
-    def self.http_request(url:, cookies: nil, headers: {}, params: nil, payload: nil, method:, user: nil, password: nil, max_redirects: 10, verify_ssl: OpenSSL::SSL::VERIFY_NONE, proxy: ENV['http_proxy'], read_timeout: 30, open_timeout: 10, quiet: false)
+    def self.http_request(url:, cookies: nil, headers: {}, params: nil, payload: nil, method:, user: nil, password: nil, max_redirects: 10, verify_ssl: OpenSSL::SSL::VERIFY_NONE, proxy: ENV['http_proxy'], read_timeout: 30, open_timeout: 10, quiet: false, &block)
       rc_opts = {}
       rc_opts[:url] = url
       rc_opts[:cookies] = cookies if cookies
@@ -47,7 +51,7 @@ module CucuShift
       result[:proxy] = RestClient.proxy if RestClient.proxy
       logger.info(result[:instruction]) unless quiet
 
-      response = RestClient::Request.new(rc_opts).execute
+      response = RestClient::Request.new(rc_opts).execute &block
     rescue => e
       # REST request unsuccessful
       if e.respond_to?(:response) and e.response.respond_to?(:code) and e.response.code.kind_of? Integer
@@ -57,19 +61,29 @@ module CucuShift
         # request failed badly, server/network issue?
         result[:exitstatus] = -1
         result[:error] = e
-        result[:cookies] = HTTP::CookieJar.new #ampty cookies
+        result[:cookies] = HTTP::CookieJar.new # empty cookies
         result[:headers] = {}
         result[:size] = 0
         response = exception_to_string(e)
       end
     ensure
-      logger.info("HTTP status: #{result[:error] || response.description}") unless quiet
-      result[:exitstatus] ||= response.code
-      result[:response] = response
-      result[:success] = result[:exitstatus].to_s[0] == "2"
-      result[:cookies] ||= response.cookie_jar
-      result[:headers] ||= response.raw_headers
-      result[:size] ||= response.size
+      if block && !result[:error]
+        logger.info("HTTP: #{response} bytes of data passed to block")
+        result[:exitstatus] ||= -1
+        result[:response] = ""
+        result[:success] = true # we actually don't know
+        result[:cookies] = HTTP::CookieJar.new # empty cookies
+        result[:headers] = {}
+        result[:size] = response
+      else
+        logger.info("HTTP status: #{result[:error] || response.description}") unless quiet
+        result[:exitstatus] ||= response.code
+        result[:response] = response
+        result[:success] = result[:exitstatus].to_s[0] == "2"
+        result[:cookies] ||= response.cookie_jar
+        result[:headers] ||= response.raw_headers
+        result[:size] ||= response.size
+      end
       return result
     end
     class << self
@@ -77,8 +91,8 @@ module CucuShift
     end
 
     # simple HTTP GET an URL
-    def self.http_get(url: , max_redirects: 10)
-      return http_request(url: url, method: :get, max_redirects: max_redirects)
+    def self.http_get(url: , max_redirects: 10, &block)
+      return http_request(url: url, method: :get, max_redirects: max_redirects, &block)
     end
     class << self
       alias get http_get
