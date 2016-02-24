@@ -128,22 +128,24 @@ module CucuShift
       return @os_token
     end
 
-    def get_obj_ref(obj_name,obj)
+    def get_obj_ref(obj_name, obj_type, quiet: false)
       params = {}
-      url = self.os_ApiUrl + '/' + obj
+      url = self.os_ApiUrl + '/' + obj_type
       logger.info("Get #{url}")
       res = self.rest_run(url, "GET", params, self.os_token)
-      logger.info("Try to get the ref of #{obj}:  #{obj_name}")
       begin
         result = JSON.load(res)
-        for obj in result[obj]
+        for obj in result[obj_type]
           if obj['name'] == obj_name
-            return obj["links"][0]["href"]
+            ref = obj["links"][0]["href"]
+            logger.info("ref of #{obj_type} \"#{obj_name}\": #{ref}")
+            return ref
           end
         end
+        logger.warn "ref of #{obj_type} \"#{obj_name}\" not found" unless quiet
         return nil
       rescue => e
-        logger.error("Can not get the image info: #{e.message}")
+        logger.error("Can not get the #{obj} info: #{e.message}")
         #logger.info("Try to get the info of RHEL_6.4_x86_64")
       end
       #get_image("RHEL_6.4_x86_64")
@@ -231,17 +233,20 @@ module CucuShift
 
     def delete_instance(instance_name)
       params = {}
-      url = self.get_obj_ref(instance_name,"servers")
-      self.rest_run(url, "DELETE", params, self.os_token) if url
-      1.upto(60)  do
-        sleep 10
-        if self.get_obj_ref(instance_name,"servers")
-          logger.info("Wait for 10s to delete #{instance_name}")
-        else
-          return true
+      url = self.get_obj_ref(instance_name, "servers", quiet: true)
+      if url
+        logger.warn("deleting old instance \"#{instance_name}\"")
+        self.rest_run(url, "DELETE", params, self.os_token)
+        1.upto(60)  do
+          sleep 10
+          if self.get_obj_ref(instance_name, "servers", quiet: true)
+            logger.info("Wait for 10s to delete #{instance_name}")
+          else
+            return true
+          end
         end
+        raise "could not delete old instance \"#{instance_name}\""
       end
-      self.delete_instance(instance_name)
     end
 
     def assign_ip(instance_name)
