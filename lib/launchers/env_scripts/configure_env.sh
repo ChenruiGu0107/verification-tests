@@ -468,14 +468,24 @@ function modify_IS_for_testing()
   #for line_num in $(grep -n 'name' ${file2} | grep -v 'latest' | grep -v '"[0-9]' | awk -F':' '{print $1}'); do
   #  sed -i "${line_num}s|\(.*\)|\1\"annotations\": { \"openshift.io/image.insecureRepository\": \"true\"},|g" ${file2}
   #done
-  for file in ${file1} ${file2}; do
-    sed -i "s/registry.access.redhat.com/${registry_server}/g" ${file}
-    oc create -f ${file} -n openshift
-  done
 
-  for i in ruby nodejs perl php python mysql postgresql mongodb jenkins jboss-amq-62 jboss-datagrid65-openshift jboss-decisionserver62-openshift jboss-eap64-openshift jboss-webserver30-tomcat7-openshift jboss-webserver30-tomcat8-openshift; do
+  if openshift version | grep -q "openshift v3.1.[0-9].[0-9]-"; then
+    # when it is v3.1.z version
+    for file in ${file1} ${file2}; do
+      sed -i "s/registry.access.redhat.com/${registry_server}/g" ${file}
+      oc create -f ${file} -n openshift
+    done
+    for i in ruby nodejs perl php python mysql postgresql mongodb jenkins jboss-amq-62 jboss-datagrid65-openshift jboss-decisionserver62-openshift jboss-eap64-openshift jboss-webserver30-tomcat7-openshift jboss-webserver30-tomcat8-openshift; do
       oc patch is ${i} -p '{"metadata":{"annotations":{"openshift.io/image.insecureRepository":"true"}}}' -n openshift
-  done
+    done
+  else
+    # when it is v3.2 version
+    for file in ${file1} ${file2}; do
+      sed -i "s/registry.access.redhat.com/${registry_server}/g" ${file}
+      sed -i '/from/i\"importPolicy\"\:\ \{\"insecure\"\:\ true\}\,' ${file}
+      oc create -f ${file} -n openshift
+    done
+  fi
 }
 
 function confiugre_kerberos()
