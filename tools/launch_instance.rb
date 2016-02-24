@@ -286,7 +286,7 @@ module CucuShift
       user_data = user_data(options.user_data)
       amz = Amz_EC2.new
       res = amz.launch_instances(tag_name: [instance_name], image: image,
-                           create_opts: {user_data: user_data})
+                           create_opts: {user_data: Base64.encode64(user_data)})
 
       instance, host = res[0]
       unless host.kind_of? CucuShift::Host
