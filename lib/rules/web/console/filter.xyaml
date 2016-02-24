@@ -2,11 +2,11 @@
 filter_resources:
   elements:
   - selector:
-      placeholder: 'Label key '
+      placeholder: 'Filter by label '
     op: send_keys <label_key>
     type: input
   - selector:
-      xpath: //div[@class='selectize-dropdown-content']/div[@data-value='<label_key>']
+      xpath: //div[@class='selectize-dropdown-content']/div[contains(@data-value,'<label_key>')]
     op: click
   - selector:
       xpath: //div[text()='<filter_action>']
@@ -15,16 +15,17 @@ filter_resources:
       xpath: //div[@data-value='<label_value>']
     op: click
   - selector:
-      xpath: //button/span[contains(text(),'Add')]
+      class: label-filter-add
+    type: button
     op: click
 filter_resources_with_non_existing_label:
   elements:
   - selector:
-      placeholder: 'Label key '
+      placeholder: 'Filter by label '
     op: send_keys <label_key>
     type: input
   - selector:
-      placeholder: 'Label key '
+      placeholder: 'Filter by label '
     op: send_keys <press_enter>
     type: input
   - selector:
@@ -39,23 +40,25 @@ filter_resources_with_non_existing_label:
     op: send_keys <press_enter>
     type: input
   - selector:
-      xpath: //button/span[contains(text(),'Add')]
+      class: label-filter-add
+    type: button
     op: click
 
 filter_resources_with_exists_option:
   elements:
   - selector:
-      placeholder: 'Label key '
+      placeholder: 'Filter by label '
     op: send_keys <label_key>
     type: input
   - selector:
-      xpath: //div[@class='selectize-dropdown-content']/div[@data-value='<label_key>']
+      xpath: //div[@class='selectize-dropdown-content']/div[contains(@data-value,'<label_key>')]
     op: click
   - selector:
       xpath: //div[text()='<filter_action>']
     op: click
   - selector:
-      xpath: //button/span[contains(text(),'Add')]
+      class: label-filter-add
+    type: button
     op: click
 
 clear_one_filter:

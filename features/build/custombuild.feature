@@ -28,7 +28,7 @@ Feature: custombuild.feature
    Then the step should succeed
    And the output is parsed as JSON
    Given evaluation of `@result[:parsed]['items'][1]['metadata']['name']` is stored in the :pod_name clipboard
-   Given I wait up to 30 seconds for the steps to pass:
+   Given I wait up to 120 seconds for the steps to pass:
    """
    When I run the :exec client command with:
       | pod | <%= cb.pod_name %> |

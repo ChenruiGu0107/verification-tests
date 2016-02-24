@@ -430,7 +430,7 @@ Feature: resouces related scenarios
       | no_headers      | true       |
     Then the step should succeed
     And the output should match:
-      | database\\s+ConfigChange     |
+      | database\\s+\d.*config |
     And the output should not contain "NAME"
 
     Given a pod becomes ready with labels:

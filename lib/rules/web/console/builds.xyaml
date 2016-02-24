@@ -45,12 +45,14 @@ check_one_buildconfig_page_with_check_config:
   # Generic webhook URL
   - selector:
       xpath: //dl/div[1]//span//a[text()="Show URL"]
+    type: a
     op: click
   - selector:
       xpath: //span[contains(text(),"generic")]
   # GitHub webhook URL
   - selector:
       xpath: //dl/div[2]//span//a[text()="Show URL"]
+    type: a
     op: click
   - selector:
       xpath: //span[contains(text(),"github")]
@@ -86,6 +88,7 @@ cancel_build_from_pending_status:
   #  optional: true
   - selector:
       xpath: //span[@ng-switch-when='Pending']
+    optional: true
   - selector:
       text: Cancel
       class: btn-default

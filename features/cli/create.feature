@@ -310,9 +310,12 @@ Feature: creating 'apps' with CLI
     And the output should match "Uptime:\s+(\d+\s+min\s+)?\d+\s+sec"
     """
     Given I wait for the "sti-python" service to become ready
+    And I wait for the steps to pass:
+    """
     When I execute on the pod:
       | curl | -s | <%= service.url %> |
     Then the step should succeed
+    """
     When I create a new application with:
       | image_stream | openshift/python |
       | code         | git://github.com/openshift/sti-python |
@@ -328,9 +331,12 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     And the "sti-python2-1" build completed
     Given I wait for the "sti-python2" service to become ready
+    And I wait for the steps to pass:
+    """
     When I execute on the pod:
       | curl | -s | <%= service.url %> |
     Then the step should succeed
+    """
     Given the project is deleted
     And I have a project
     When I create a new application with:
@@ -361,9 +367,12 @@ Feature: creating 'apps' with CLI
     And the output should match "Uptime:\s+(\d+\s+min\s+)?\d+\s+sec"
     """
     Given I wait for the "sti-python" service to become ready
+    And I wait for the steps to pass:
+    """
     When I execute on the pod:
       | curl | -s | <%= service.url %> |
     Then the step should succeed
+    """
 
   # @author pruan@redhat.com
   # @case_id 476350
