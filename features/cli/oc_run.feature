@@ -70,7 +70,8 @@ Feature: oc run related scenarios
       | overrides    | {"apiVersion":"v1","spec":{"replicas":"2"}} |
     Then the step should fail
     And the output should contain:
-      | cannot unmarshal  |
+      | error |
+      | json: decNum  |
     When I run the :run client command with:
       | name         | webapp3               |
       | image        | training/webapp       |
@@ -83,13 +84,13 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       | replicas: 2       |
-
+    
     When I run the :run client command with:
       | name         | webapp4               |
       | image        | training/webapp       |
       | attach       | true                  |
       | restart      | Never                 |
-      | _timeout     | 10                    |
+      | _timeout     | 15                    |
     Then the step should have timed out
     And the output should match:
       | [Ww]aiting for pod .*webapp4 to be running       |
@@ -99,7 +100,7 @@ Feature: oc run related scenarios
       | -i           | true                  |
       | tty          | true                  |
       | restart      | Never                 |
-      | _timeout     | 10                    |
+      | _timeout     | 15                    |
     Then the step should have timed out
     And the output should match:
       | [Ww]aiting for pod .*webapp5 to be running       |
