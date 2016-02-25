@@ -18,6 +18,7 @@ check_one_image_stream:
       text: Show annotations
     op: click
     type: a
+    timeout: 60
   - selector:
       xpath: //td[contains(text(),"openshift.io/image")]
   - selector:
@@ -30,7 +31,7 @@ check_deleted_image_stream:
   - selector:
       xpath: //alerts//strong[contains(text(),'The image stream details could not be loaded')]
   - selector:
-      xpath: //alerts//span[contains(text(),'imageStream "<image_name>" not found')]
+      xpath: //alerts//span[contains(text(),'"<image_name>" not found')]
 goto_image_streams_page:
   url: /console/project/<project_name>/browse/images
 goto_one_image_stream_page:

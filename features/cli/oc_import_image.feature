@@ -4,11 +4,10 @@ Feature: oc import-image related feature
     Scenario: import an invalid image stream
         When I have a project
         And I run the :import_image client command with:
-            | image_name | invalidimagename|
+          | image_name | invalidimagename|
         Then the step should fail
-        And the output should contain:
-            |Error from server|
-            |imageStream "invalidimagename" not found|
+        And the output should match:
+          | no.*"invalidimagename" exists |   
 
   # @author chunchen@redhat.com
   # @case_id 488870

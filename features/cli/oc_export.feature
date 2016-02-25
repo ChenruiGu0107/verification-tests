@@ -131,8 +131,8 @@ Feature: oc exports related scenarios
       | resource | dc |
       | name     | nonexist |
     Then the step should fail
-    And the output should contain:
-      | Error from server: deploymentConfig "nonexist" not found |
+    And the output should match:
+      | eployment.*"nonexist" not found |
     And I run the :export client command with:
       | resource | svc |
       | l | name=nonexist|

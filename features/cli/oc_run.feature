@@ -8,7 +8,7 @@ Feature: oc run related scenarios
       | test_do_not_use | -u |
     Then the step should fail
     Then the output should contain:
-      | oc run NAME --image=image [--env="key=value"] [--port=port] [--replicas=replicas] [--dry-run=bool] [--overrides=inline-json] [options] |
+      | oc run NAME --image=image |
       | Error: unknown shorthand flag: 'u' in -u |
     And I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg | run |
