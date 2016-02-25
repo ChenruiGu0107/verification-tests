@@ -79,10 +79,10 @@ Feature: secrets related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc510612/hook-inheritance-secret-volume.json |
     Then the step should succeed
-    Given the pod named "hooks-1-prehook" becomes ready
+    Given the pod named "hooks-1-hook-pre" becomes ready
     When I run the :get client command with:
       | resource      | pod |
-      | resource_name | hooks-1-prehook |
+      | resource_name | hooks-1-hook-pre |
       | o             | yaml |
     Then the output by order should match:
       | - mountPath: /opt1 |

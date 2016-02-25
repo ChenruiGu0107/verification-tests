@@ -964,19 +964,19 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
     Then the step should succeed
-    When the pod named "hooks-1-prehook" becomes ready
+    When the pod named "hooks-1-hook-pre" becomes ready
     And I run the :get client command with:
       | resource | pod |
-      | resource_name | hooks-1-prehook    |
+      | resource_name | hooks-1-hook-pre    |
       | output        | yaml        |
     And the output should contain:
       | mountPath: /opt1empt |
       | emptyDir: {} |
       | name: dataem |
-    When the pod named "hooks-1-posthook" becomes ready
+    When the pod named "hooks-1-hook-post" becomes ready
     And I run the :get client command with:
       | resource | pod |
-      | resource_name | hooks-1-posthook    |
+      | resource_name | hooks-1-hook-post    |
       | output        | yaml        |
     And the output should contain:
       | mountPath: /opt1empt |
@@ -1038,12 +1038,12 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc510607/hooks-unexist-volume.json |
     Then the step should succeed
-    Given the pod named "hooks-1-prehook" becomes ready
+    Given the pod named "hooks-1-hook-pre" becomes ready
     When I run the :get client command with:
       | resource | pods |
     Then the output should contain:
       | NAME           |
-      | hooks-1-prehook|
+      | hooks-1-hook-pre|
 
 
    # @author yadu@redhat.com
@@ -1126,10 +1126,10 @@ Feature: deployment related features
         | f | true |
         | resource_name | dc/hooks |
       Then the output should contain:
-        | Created lifecycle pod <%= project.name %>/hooks-1-prehook for deployment <%= project.name %>/hooks-1 |
-        | Finished reading logs for hook pod <%= project.name %>/hooks-1-prehook |
-        | Created lifecycle pod <%= project.name %>/hooks-1-posthook for deployment <%= project.name %>/hooks-1 |
-        | Finished reading logs for hook pod <%= project.name %>/hooks-1-posthook |
+        | Created lifecycle pod <%= project.name %>/hooks-1-hook-pre for deployment <%= project.name %>/hooks-1 |
+        | Finished reading logs for hook pod <%= project.name %>/hooks-1-hook-pre |
+        | Created lifecycle pod <%= project.name %>/hooks-1-hook-post for deployment <%= project.name %>/hooks-1 |
+        | Finished reading logs for hook pod <%= project.name %>/hooks-1-hook-post |
 
     # @author yinzhou@redhat.com
     # @case_id 433309
