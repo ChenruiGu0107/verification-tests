@@ -57,7 +57,6 @@ fromtemplate_set_labels:
     op: send_keys <label_value>
     type: input
   - selector:
-      text: Add
-      class: btn-default
+      xpath: //button[text()='Add' and not(@disabled)]
     op: click
     type: button

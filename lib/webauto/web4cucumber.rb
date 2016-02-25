@@ -337,7 +337,6 @@ require 'watir-webdriver'
           raise "you must specify value for op #{op}" if val.empty?
           keys = Psych.load val
           element.send_keys keys
-          sleep(0.05)
         else
           raise "do not know how to '#{op}'"
         end
