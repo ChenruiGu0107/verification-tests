@@ -414,15 +414,11 @@ Feature: creating 'apps' with CLI
     Given I have a project
     When I run the :create client command with:
       | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_supplementalGroups.json |
-    Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pod             |
-      | name     | hello-openshift |
-    Then the output should match:
-      | System error: Uids and gids must be in range 0-2147483647 |
-    """
+    Then the step should fail
+    And the output should contain:
+      | Pod "hello-openshift" is invalid  |
+      | Invalid value                     |
+      | must be between 0 and 2147483647  |
 
   # @author yinzhou@redhat.com
   # @case_id 510545
