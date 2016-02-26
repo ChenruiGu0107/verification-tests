@@ -137,7 +137,7 @@ Feature: oc related features
       | name | :false |
     Then the output should contain:
       |Create and run a particular image, possibly replicated                                                 |
-      |oc run NAME --image=image [--env="key=value"] [--port=port] [--replicas=replicas] [--dry-run=bool] [--overrides=inline-json] [options] |
+      |oc run NAME --image=image [--env="key=value"] [--port=port] [--replicas=replicas] [--dry-run=bool] [--overrides=inline-json] |
       |--attach=false: If true, wait for the Pod to start running, and then attach to the Pod as if 'kubectl attach ...' were called.  Default false, unless '-i/--interactive' is set, in which case the default is true. |
       |--dry-run=false: If true, only print the object that would be sent, without sending it.                |
       |--generator='': The name of the API generator to use.  Default is 'run/v1' if --restart=Always, otherwise the default is 'run-pod/v1'.|
