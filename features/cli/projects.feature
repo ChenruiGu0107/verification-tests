@@ -79,11 +79,11 @@ Feature: projects related features via cli
     And I register clean-up steps:
      | I run the :oadm_add_cluster_role_to_group admin command with: |
      |   ! role_name  ! self-provisioner     !                       |
-     |   ! group_name ! system:authenticated !                       |
+     |   ! group_name ! system:authenticated:oauth !                       |
      | the step should succeed                                       |
     When I run the :oadm_remove_cluster_role_from_group admin command with:
       | role_name  | self-provisioner     |
-      | group_name | system:authenticated |
+      | group_name | system:authenticated:oauth |
     Then the step should succeed
     When I create a new project
     Then the step should fail
