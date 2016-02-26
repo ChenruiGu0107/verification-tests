@@ -336,8 +336,13 @@ Feature: ServiceAccount and Policy Managerment
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
     Then the step should succeed
-    And I wait for the "myapp" service to become ready
-    And I wait for the pod named "myapp-1-deploy" to die
+    And I wait for the steps to pass:
+      """
+      When I run the :get client command with:
+      | resource  | svc |
+      Then the output should match:
+      | myapp\\s+.*\\s+8080 |
+      """
     Given I use the "<%= cb.project1 %>" project
     Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
     Given I switch to the system:serviceaccount:<%= cb.project1 %>:test1 service account

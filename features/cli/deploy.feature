@@ -40,8 +40,7 @@ Feature: deployment related features
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      | NAME\\s+TRIGGERS\\s+LATEST |
-      | hooks\\s+ImageChange\\s+2          |
+      | hooks\\s+2\\s+2\\s+image.*|
     When I run the :rollback client command with:
       | deployment_name | hooks-1 |
       | dry_run         ||
@@ -147,7 +146,6 @@ Feature: deployment related features
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
       | hooks\\s+0                        |
     When I run the :deploy client command with:
       | deployment_config | hooks |
@@ -163,7 +161,6 @@ Feature: deployment related features
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      |NAME\\s+TRIGGERS\\s+LATEST |
       | hooks\\s+1                        |
     # Make the edit action
     When I run the :get client command with:
@@ -200,8 +197,7 @@ Feature: deployment related features
       | resource      | deploymentConfig |
       | resource_name | hooks |
     Then the output should match:
-      | NAME\\s+TRIGGERS\\s+LATEST |
-      | hooks\\s+ImageChange\\s+2          |
+      | hooks\\s+2\\s+2\\s+image.*|
     When I run the :rollback client command with:
       | deployment_name         | hooks-1 |
       | output                  | json  |
@@ -358,8 +354,8 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | notreal |
     Then the step should fail
-    Then the output should contain:
-      | Error from server: deploymentConfig "notreal" not found |
+    Then the output should match:
+      | Error\\s+.*\\s+"notreal" not found |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | retry | true |
@@ -378,21 +374,21 @@ Feature: deployment related features
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 2
 
   # @author pruan@redhat.com
-  # @case_id 483192
+  # @case_id 483173
   Scenario: Negative test for deployment history
     Given I have a project
     When I run the :describe client command with:
       | resource | dc         |
       | name     | no-such-dc |
     Then the step should fail
-    And the output should contain:
-      | Error from server: deploymentConfig "no-such-dc" not found |
+    And the output should match:
+      | Error\\s+.*\\s+"no-such-dc" not found |
     When I run the :describe client command with:
       | resource | dc              |
       | name     | docker-registry |
     Then the step should fail
-    And the output should contain:
-      | Error from server: deploymentConfig "docker-registry" not found |
+    And the output should match:
+      | Error\\s+.*\\s+"docker-registry" not found |
 
   # @author pruan@redhat.com
   # @case_id 487644
@@ -834,8 +830,8 @@ Feature: deployment related features
       | name=mysql |
     Then the output should not contain:
       | hooks-1-deploy   |
-      | hooks-1-prehook  |
-      | hooks-1-posthook |
+      | hooks-1-hook-pre  |
+      | hooks-1-hook-post |
     When I run the :logs client command with:
       | resource_name | dc/hooks |
     Then the step should succeed
@@ -946,7 +942,7 @@ Feature: deployment related features
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      | hooks\\s+ConfigChange\\s+1 |
+      | hooks\\s+1\\s+1\\s+config |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest ||
@@ -955,7 +951,7 @@ Feature: deployment related features
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      | hooks\\s+ConfigChange\\s+2 |
+      | hooks\\s+2\\s+1\\s+config |
 
   # @author yinzhou@redhat.com
   # @case_id 483179,510608
@@ -992,7 +988,7 @@ Feature: deployment related features
       Then the step should succeed
       When the pod named "<pod_name>" is present
       And I wait for the steps to pass:
-      # wait a while for make sure we are looping the posthook
+
       """
         When I run the :get client command with:
           | resource | pod  |
@@ -1003,8 +999,8 @@ Feature: deployment related features
       """
       Examples:
         | file_name | pod_name |
-        | pre.json  | hooks-1-prehook |
-        | post.json  | hooks-1-posthook |
+        | pre.json  | hooks-1-hook-pre |
+        | post.json | hooks-1-hook-post |
 
   # @author cryan@redhat.com
   # @case_id 515805

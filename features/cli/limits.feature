@@ -129,11 +129,10 @@ Feature: limit range related scenarios:
   @admin
   Scenario: Limit range with all values set with proper values
     Given I have a project
-    Given the first user is cluster-admin
+    When I run the :create admin command with:
+      | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508048/limit.yaml |
     Then the step should succeed
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508048/limit.yaml
-    Then the step should succeed
-    And I run the :describe client command with:
+    And I run the :describe admin command with:
       |resource | namespace            |
       | name    | <%= project.name %>  |
     Then the output should match:
@@ -141,14 +140,16 @@ Feature: limit range related scenarios:
       | Pod\\s+memory\\s+10Mi\\s+1Gi\\s+\-\\s+\-\\s+\-             |
       | Container\\s+cpu\\s+10m\\s+480m\\s+180m\\s+240m\\s+4       |
       | Container\\s+memory\\s+5Mi\\s+512Mi\\s+128Mi\\s+256Mi\\s+4 |
-    When I run the :create client command with:
+    When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508048/pod.yaml |
     Then the step should succeed
-    Given the pod named "mypod" becomes ready
-    When I run the :get client command with:
+    And I wait for the steps to pass:
+    """
+    When I run the :get admin command with:
       | resource      | pod    |
       | resource_name | mypod  |
       | o             | yaml   |
     Then the output should match:
       | \\s+limits:\n\\s+cpu: 300m\n\\s+memory: 300Mi\n   |
       | \\s+requests:\n\\s+cpu: 100m\n\\s+memory: 100Mi\n |
+    """

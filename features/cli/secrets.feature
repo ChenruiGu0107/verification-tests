@@ -79,12 +79,16 @@ Feature: secrets related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc510612/hook-inheritance-secret-volume.json |
     Then the step should succeed
-    Given the pod named "hooks-1-hook-pre" becomes ready
+  ## mount should be correct to the pod, no-matter if the pod is completed or not, check the case checkpoint
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
-      | resource      | pod |
+      | resource  | pod  |
       | resource_name | hooks-1-hook-pre |
-      | o             | yaml |
+      |  o        | yaml |
     Then the output by order should match:
-      | - mountPath: /opt1 |
-      | name: secret |
+      | - mountPath: /opt1    |
+      | name: secret          |
       | secretName: my-secret |
+    """
+
