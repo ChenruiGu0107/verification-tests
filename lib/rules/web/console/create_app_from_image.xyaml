@@ -76,29 +76,29 @@ create_app_from_image_change_dc_config_trigger:
 create_app_from_image_add_dc_env_vars:
   elements:
   - selector:
-      xpath: //span/osc-form-section[3]//div[@ng-show='editable']//input[@name="key"]      
+      xpath: //osc-key-values[@entries='deploymentConfig.envVars']//div[@ng-show='editable']//input[@name="key"]      
     op: send_keys <dc_env_key>
     type: input
   - selector:
-      xpath: //span/osc-form-section[3]//div[@ng-show='editable']//input[@name="value"]
+      xpath: //osc-key-values[@entries='deploymentConfig.envVars']//input[@name="value"]
     op: send_keys <dc_env_value>
     type: input
   - selector:
-      xpath: //span/osc-form-section[3]//div[@ng-show='editable']//button[text()="Add"]
+      xpath: //osc-key-values[@entries='deploymentConfig.envVars']//button[text()="Add"]
     op: click
     type: button
 create_app_from_image_add_bc_env_vars:
   elements:
   - selector:
-      xpath: //span/osc-form-section[2]//div[@ng-show='editable']//input[@name="key"]      
+      xpath: //osc-key-values[@entries='buildConfig.envVars']//input[@name="key"]      
     op: send_keys <bc_env_key>
     type: input
   - selector:
-      xpath: //span/osc-form-section[2]//div[@ng-show='editable']//input[@name="value"]
+      xpath: //osc-key-values[@entries='buildConfig.envVars']//input[@name="value"]
     op: send_keys <bc_env_value>
     type: input
   - selector:
-      xpath: //span/osc-form-section[2]//div[@ng-show='editable']//button[text()="Add"]
+      xpath: //osc-key-values[@entries='buildConfig.envVars']//button[text()="Add"]
     op: click
     type: button
 create_app_from_image_change_bc_webhook_trigger:
