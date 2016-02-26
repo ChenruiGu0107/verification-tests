@@ -611,36 +611,40 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
-    And the "ruby22-sample-build-1" build completed
+    And the "ruby22-sample-build-1" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.zip"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build  |
-      | from_dir  | - |
-      | _stdin      | <%= File.read "ruby-hello-world.zip" %> |
+      | buildconfig | ruby22-sample-build       |
+      | from_dir    | -                         |
+      | _stdin      | <%= @result[:response] %> |
+      | _binmode    |                           |
     Then the step succeeded
-    Then the "ruby22-sample-build-2" build completed
+    Then the "ruby22-sample-build-2" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.tar"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build  |
-      | from_dir  | - |
-      | _stdin      | <%= File.read "ruby-hello-world.tar" %> |
+      | buildconfig | ruby22-sample-build       |
+      | from_dir    | -                         |
+      | _stdin      | <%= @result[:response] %> |
+      | _binmode    |                           |
     Then the step succeeded
-    Then the "ruby22-sample-build-3" build completed
+    Then the "ruby22-sample-build-3" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.tar.gz"
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build  |
-      | from_dir  | - |
-      | _stdin      | <%= File.read "ruby-hello-world.tar.gz" %> |
+      | buildconfig | ruby22-sample-build       |
+      | from_dir    | -                         |
+      | _stdin      | <%= @result[:response] %> |
+      | _binmode    |                           |
     Then the step succeeded
-    Then the "ruby22-sample-build-4" build completed
+    Then the "ruby22-sample-build-4" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/test.zip"
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build  |
-      | from_dir  | - |
-      | _stdin      | <%= File.read "test.zip" %> |
+      | buildconfig | ruby22-sample-build       |
+      | from_dir    | -                         |
+      | _stdin      | <%= @result[:response] %> |
+      | _binmode    |                           |
     Then the step should succeed
-    And the "ruby22-sample-build-5" build failed
+    And the "ruby22-sample-build-5" build fails
 
   # @author pruan@redhat.com
   # @case_id 512267
@@ -649,53 +653,57 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | app_repo |   https://github.com/openshift/nodejs-ex |
     Then the step should succeed
-    Then the "nodejs-ex-1" build has completed
+    Then the "nodejs-ex-1" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.zip"
     When I run the :start_build client command with:
-      | buildconfig | nodejs-ex  |
-      | from_dir  | - |
-      | _stdin      | <%= File.read "nodejs-ex.zip" %> |
+      | buildconfig | nodejs-ex                 |
+      | from_dir    | -                         |
+      | _stdin      | <%= @result[:response] %> |
+      | _binmode    |                           |
     Then the step succeeded
-    Then the "nodejs-ex-2" build has completed
+    Then the "nodejs-ex-2" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.tar"
     When I run the :start_build client command with:
-      | buildconfig | nodejs-ex |
-      | from_dir  | - |
-      | _stdin      | <%= File.read "nodejs-ex.tar" %> |
+      | buildconfig | nodejs-ex                 |
+      | from_dir    | -                         |
+      | _stdin      | <%= @result[:response] %> |
+      | _binmode    |                           |
     Then the step succeeded
-    Then the "nodejs-ex-3" build has completed
+    Then the "nodejs-ex-3" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.tar.gz"
     When I run the :start_build client command with:
-      | buildconfig | nodejs-ex  |
-      | from_dir  | - |
-      | _stdin      | <%= File.read "nodejs-ex.tar.gz" %> |
+      | buildconfig | nodejs-ex                 |
+      | from_dir    | -                         |
+      | _stdin      | <%= @result[:response] %> |
+      | _binmode    |                           |
     Then the step succeeded
-    Then the "nodejs-ex-4" build has completed
+    Then the "nodejs-ex-4" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/test.zip"
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | nodejs-ex   |
-      | from_dir  | - |
-      | _stdin      | <%= File.read "test.zip" %> |
+      | buildconfig | nodejs-ex                 |
+      | from_dir    | -                         |
+      | _stdin      | <%= @result[:response] %> |
+      | _binmode    |                           |
     Then the step should succeed
-    And the "nodejs-ex-5" build has failed
+    And the "nodejs-ex-5" build fails
 
   # @author pruan@redhat.com
   # @case_id 512268
   Scenario: oc start-build with a zip,tar,or tar.gz passed,using sti build type, with context-dir
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | https://github.com/openshift/sti-nodejs.git |
-      | context_dir | 0.10/test/test-app/ |
+      | app_repo    | https://github.com/openshift/sti-nodejs.git |
+      | context_dir | 0.10/test/test-app/                         |
     Then the step should succeed
-    And the "sti-nodejs-1" build completed
+    And the "sti-nodejs-1" build completes
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/sti-nodejs.zip"
     When I run the :start_build client command with:
-      | buildconfig | sti-nodejs |
-      | from_dir  | - |
+      | buildconfig | sti-nodejs                |
+      | from_dir    | -                         |
       | _stdin      | <%= @result[:response] %> |
-      | _binmode ||
-    And the "sti-nodejs-2" build completed
+      | _binmode    |                           |
+    And the "sti-nodejs-2" build completes
 
   # @author pruan@redhat.com
   # @case_id 512258
@@ -704,19 +712,19 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json|
     Then the step should succeed
-    And the "ruby22-sample-build-1" build has completed
+    And the "ruby22-sample-build-1" build completes
     And I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
-      | from_dir  | ruby-hello-world |
+      | from_dir    | ruby-hello-world    |
     Then the step should succeed
-    And the "ruby22-sample-build-2" build has completed
+    And the "ruby22-sample-build-2" build completes
     Given I create the "tc512258" directory
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
-      | from_dir  | tc512258              |
+      | from_dir    | tc512258            |
     Then the step should succeed
-    And the "ruby22-sample-build-3" build has failed
+    And the "ruby22-sample-build-3" build fails
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
       | from_dir  | dir_not_exist         |
