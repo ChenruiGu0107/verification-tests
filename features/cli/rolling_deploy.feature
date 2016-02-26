@@ -58,8 +58,8 @@ Feature: rolling deployment related scenarios
     And I replace resource "dc" named "hooks":
       | maxSurge: 25% | maxSurge: -10 |
     Then the step should fail
-    And the output should contain:
-      | invalid value '-10', Details: must be non-negative |
+    And the output should match:
+      | .*nvalid value.*-10.*must be non-negative |
 
   # @author pruan@redhat.com
   # @case_id 503867
