@@ -139,3 +139,7 @@ Given /^(?:a|the) "([^"]+)" file is (created|appended) with the following lines:
     end
   }
 end
+
+Given /^I create the #{QUOTED} directory$/ do |path|
+  FileUtils.mkdir_p(path) unless File.exists?(path)
+end

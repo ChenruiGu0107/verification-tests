@@ -649,28 +649,28 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | app_repo |   https://github.com/openshift/nodejs-ex |
     Then the step should succeed
-    Then the "nodejs-ex-1" build is completed
+    Then the "nodejs-ex-1" build has completed
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.zip"
     When I run the :start_build client command with:
       | buildconfig | nodejs-ex  |
       | from_dir  | - |
       | _stdin      | <%= File.read "nodejs-ex.zip" %> |
     Then the step succeeded
-    Then the "nodejs-ex-2" build is completed
+    Then the "nodejs-ex-2" build has completed
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.tar"
     When I run the :start_build client command with:
       | buildconfig | nodejs-ex |
       | from_dir  | - |
       | _stdin      | <%= File.read "nodejs-ex.tar" %> |
     Then the step succeeded
-    Then the "nodejs-ex-3" build is completed
+    Then the "nodejs-ex-3" build has completed
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/nodejs-ex.tar.gz"
     When I run the :start_build client command with:
       | buildconfig | nodejs-ex  |
       | from_dir  | - |
       | _stdin      | <%= File.read "nodejs-ex.tar.gz" %> |
     Then the step succeeded
-    Then the "nodejs-ex-4" build is completed
+    Then the "nodejs-ex-4" build has completed
     And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/test.zip"
     Then the step should succeed
     When I run the :start_build client command with:
@@ -678,7 +678,7 @@ Feature: build 'apps' with CLI
       | from_dir  | - |
       | _stdin      | <%= File.read "test.zip" %> |
     Then the step should succeed
-    And the "nodejs-ex-5" build is failed
+    And the "nodejs-ex-5" build has failed
 
   # @author pruan@redhat.com
   # @case_id 512268
@@ -696,3 +696,32 @@ Feature: build 'apps' with CLI
       | _stdin      | <%= @result[:response] %> |
       | _binmode ||
     And the "sti-nodejs-2" build completed
+
+  # @author pruan@redhat.com
+  # @case_id 512258
+  Scenario: oc start-build with a directory passed ,using Docker build type
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json|
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build has completed
+    And I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | from_dir  | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby22-sample-build-2" build has completed
+    Given I create the "tc512258" directory
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | from_dir  | tc512258              |
+    Then the step should succeed
+    And the "ruby22-sample-build-3" build has failed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | from_dir  | dir_not_exist         |
+    Then the step should fail
+    And the output should contain:
+      | no such file or directory |
+
+
