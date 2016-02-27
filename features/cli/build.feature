@@ -710,7 +710,7 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a directory passed ,using Docker build type
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json|
+      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build completes
     And I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
@@ -727,7 +727,7 @@ Feature: build 'apps' with CLI
     And the "ruby22-sample-build-3" build fails
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
-      | from_dir  | dir_not_exist         |
+      | from_dir    | dir_not_exist       |
     Then the step should fail
     And the output should contain:
       | no such file or directory |

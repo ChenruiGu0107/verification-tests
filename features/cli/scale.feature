@@ -88,3 +88,37 @@ Feature: scaling related scenarios
     And the output should contain "myrun-"
     And the output should not contain "<%= cb.pod_name %>"
 
+  # @author pruan@redhat.com
+  # @case_id 511599
+  Scenario: Scale up/down jobs
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc511599/job.yaml |
+    And I run the :scale client command with:
+      | resource | jobs |
+      | name     | pi   |
+      | replicas | 5    |
+    Then the step should succeed
+    And I run the :describe client command with:
+      | resource | jobs |
+    Then the output should match:
+      | Parallelism:\s+5 |
+    And I run the :scale client command with:
+      | resource | jobs |
+      | name     | pi   |
+      | replicas | 1    |
+    Then the step should succeed
+    And I run the :describe client command with:
+      | resource | jobs |
+    Then the output should match:
+      | Parallelism:\s+1 |
+      | 1\s+Running      |
+    And I run the :scale client command with:
+      | resource | jobs |
+      | name     | pi   |
+      | replicas | 25   |
+    Then the step should succeed
+    And I run the :describe client command with:
+      | resource | jobs |
+    Then the output should match:
+      | Parallelism:\s+25 |
