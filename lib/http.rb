@@ -51,6 +51,7 @@ module CucuShift
       result[:proxy] = RestClient.proxy if RestClient.proxy
       logger.info(result[:instruction]) unless quiet
 
+      started = monotonic_seconds
       response = RestClient::Request.new(rc_opts).execute &block
     rescue => e
       # REST request unsuccessful
@@ -67,8 +68,9 @@ module CucuShift
         response = exception_to_string(e)
       end
     ensure
+      total_time = monotonic_seconds - started
       if block && !result[:error]
-        logger.info("HTTP: #{response} bytes of data passed to block")
+        logger.info("HTTP #{method.upcase} took #{'%.3f' % total_time} sec: #{response} bytes of data passed to block") unless quiet
         result[:exitstatus] ||= -1
         result[:response] = ""
         result[:success] = true # we actually don't know
@@ -76,7 +78,7 @@ module CucuShift
         result[:headers] = {}
         result[:size] = response
       else
-        logger.info("HTTP status: #{result[:error] || response.description}") unless quiet
+        logger.info("HTTP #{method.upcase} took #{'%.3f' % total_time} sec: #{result[:error] || response.description}") unless quiet
         result[:exitstatus] ||= response.code
         result[:response] = response
         result[:success] = result[:exitstatus].to_s[0] == "2"
@@ -84,6 +86,7 @@ module CucuShift
         result[:headers] ||= response.raw_headers
         result[:size] ||= response.size
       end
+      result[:total_time] = total_time
       return result
     end
     class << self
