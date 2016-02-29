@@ -112,8 +112,8 @@ Feature: oc run related scenarios
     When I run the :run client command with:
       | name         | myrun                 |
       | image        | aosqe/hello-openshift |
-      #yapei/hello-openshift
     Then the step should succeed
+    Given I wait until the status of deployment "myrun" becomes :running
     When I run the :get client command with:
       | resource | dc |
     Then the step should succeed
@@ -130,22 +130,18 @@ Feature: oc run related scenarios
       | resource | pod |
     Then the step should succeed
     And the output should contain:
-      | myrun-1-deploy|
+      | myrun-1- |
     # Create a standalone rc
     When I run the :run client command with:
       | name         | myrun-rc              |
       | image        | aosqe/hello-openshift |
       | generator    | run-controller/v1 |
     Then the step should succeed
+    Given I wait until replicationController "myrun-rc" is ready
     When I run the :get client command with:
       | resource | dc |
     Then the step should succeed
     And the output should not contain:
-      | myrun-rc |
-    When I run the :get client command with:
-      | resource | rc |
-    Then the step should succeed
-    And the output should contain:
       | myrun-rc |
     When I run the :get client command with:
       | resource | pod |

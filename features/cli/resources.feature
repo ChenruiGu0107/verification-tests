@@ -429,8 +429,8 @@ Feature: resouces related scenarios
       | resource        | dc         |
       | no_headers      | true       |
     Then the step should succeed
-    And the output should match:
-      | database\\s+\d.*config |
+    And the output should contain:
+      | database |
     And the output should not contain "NAME"
 
     Given a pod becomes ready with labels:
@@ -475,5 +475,5 @@ Feature: resouces related scenarios
       | key_val       | newlab=helloworld  |
     Then the step should succeed
     When I terminate last background process
-    Then the output should match 2 times:
-      | database\\s+ConfigChange     |
+    Then the output should contain 2 times:
+      | database     |
