@@ -73,9 +73,8 @@ Feature: create app on web console related
       | label_value   | test   |
     Then the step should fail
     When I get the html of the web page
-    Then the output should contain 2 times:
+    Then the output should contain 3 times:
       | Cannot create |
-      | kind Test is not supported by this server |
 
   # @author xxing@redhat.com
   # @case_id 507527
@@ -300,12 +299,15 @@ Feature: create app on web console related
     When I perform the :wait_latest_build_to_status web console action with:
       | project_name | <%= project.name %> |
       | bc_name      | nd       |
-      | build_status | complete |
+      | build_status | running  |
     Then the step should succeed
     When I perform the :check_build_log_tab web console action with:
       | project_name      | <%= project.name %> |
       | bc_and_build_name | nd/nd-1  |
-      | build_status_name | Complete |
+      | build_status_name | Running  |
+    Then the step should succeed
+    When I perform the :check_build_log_content web console action with:
+      | build_log_context | Displaying ENV vars |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
       | build_log_context | BCvalue=bcone |

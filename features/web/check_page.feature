@@ -60,10 +60,13 @@ Feature: check page info related
       | app_name     | nodejs-sample                              |
       | source_url   | https://github.com/openshift/nodejs-ex.git |
     Then the step should succeed
-    When I get the html of the web page
-    Then the output should contain:
-      | Command line tools  |
-      | Making code changes |
+    When I perform the :create_from_image_complete_info_on_next_page web console action with:
+      | project_name | <%= project.name %> |
+      | image_name   | nodejs              |
+      | image_tag    | 0.10                |
+      | namespace    | openshift           |
+      | app_name     | nodejs-sample       |
+    Then the step should succeed
     When I perform the :check_events_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed

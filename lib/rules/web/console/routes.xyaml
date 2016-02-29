@@ -31,13 +31,13 @@ check_a_route_detail_page:
   - selector:
       xpath: //h1[contains(text(),'<route_name>')]
   - selector:
-      xpath: //dt[text()='Hostname:']
+      xpath: //dt[contains(.,'Hostname')]
   - selector:
-      xpath: //dt[text()='Path:']
+      xpath: //dt[contains(.,'Path')]
   - selector:
-      xpath: //dt[text()='Routes to:']
+      xpath: //dt[contains(.,'Service')]
   - selector:
-      xpath: //dt[text()='Target Port:']
+      xpath: //dt[contains(.,'Target Port')]
   - selector:
       text: Show annotations
     type: a

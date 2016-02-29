@@ -11,11 +11,11 @@ delete_resources_pod:
   action: goto_one_pod_page
   elements:
   - selector:
-      xpath: //div[@class='tile']/h1/div/a
-    type: a
+      text: Actions
+    type: button
     op: click
   - selector:
-      xpath: //div[@class='tile']/h1/div/ul/li[2]/a
+      text: Delete
     type: a
     op: click
   - selector:
@@ -26,11 +26,11 @@ delete_resources_service:
   action: goto_one_service_page
   elements:
   - selector:
-      xpath: //div[@class='tile']/h1/div/a
-    type: a
+      text: Actions
+    type: button
     op: click
   - selector:
-      xpath: //div[@class='tile']/h1/div/ul/li[2]/a
+      text: Delete
     type: a
     op: click
   - selector:
@@ -41,11 +41,11 @@ delete_resources_build:
   url: /console/project/<project_name>/browse/builds/<build_name>
   elements:
   - selector:
-      xpath: //div[@class='pull-right dropdown']/a
-    type: a
+      text: Actions
+    type: button
     op: click
   - selector:
-      xpath: //ul[@class='dropdown-menu actions action-button']/li[3]/a
+      text: Delete
     type: a
     op: click
   - selector:
@@ -56,11 +56,11 @@ delete_resources_rc:
   url: /console/project/<project_name>/browse/deployments/<deployment_name>/<rc_name>
   elements:
   - selector:
-      xpath: //div[@class='tile']/h1/div/a
-    type: a
+      text: Actions
+    type: button
     op: click
   - selector:
-      xpath: //div[@class='tile']/h1/div/ul/li[2]/a
+      text: Delete
     type: a
     op: click
   - selector:
@@ -71,11 +71,11 @@ delete_resources_deploymentconfig:
   url: /console/project/<project_name>/browse/deployments/<deployment_name>
   elements:
   - selector:
-      xpath: //div[@class='pull-right dropdown']/a
-    type: a
+      text: Actions
+    type: button
     op: click
   - selector:
-      xpath: //ul[@class='dropdown-menu actions action-button']/li[3]/a
+      text: Delete
     type: a
     op: click
   - selector:
@@ -86,11 +86,11 @@ delete_resources_buildconfig:
   url: /console/project/<project_name>/browse/builds/<build_name>/<buildconfig_name>
   elements:
   - selector:
-      xpath: //div[@class='tile']/h1/div/a
-    type: a
+      text: Actions
+    type: button
     op: click
   - selector:
-      xpath: //div[@class='tile']/h1/div/ul/li[2]/a
+      text: Delete
     type: a
     op: click
   - selector:
@@ -101,11 +101,11 @@ delete_resources_route:
   action: goto_one_route_page
   elements:
   - selector:
-      xpath: //div[@class='tile']/h1/div/a
-    type: a
+      text: Actions
+    type: button
     op: click
   - selector:
-      xpath: //div[@class='tile']/h1/div/ul/li[2]/a
+      text: Delete
     type: a
     op: click
   - selector:
@@ -116,11 +116,11 @@ delete_resources_imagestream:
   action: goto_one_image_stream_page
   elements:
   - selector:
-      xpath: //div[@class='pull-right dropdown']/a
-    type: a
+      text: Actions
+    type: button
     op: click
   - selector:
-      xpath: //ul[@class='dropdown-menu actions action-button']/li[2]/a
+      text: Delete
     type: a
     op: click     
   - selector:
