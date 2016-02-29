@@ -278,6 +278,8 @@
     :context_dir: --context-dir=<value>
     :code: --code=<value>
     :search: --search=<value>
+    :search_raw: --search <value>
+    :allow_missing_images: --allow-missing-images=<value>
 :new_build:
   :cmd: oc new-build
   :options:

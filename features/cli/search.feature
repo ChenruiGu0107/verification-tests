@@ -168,3 +168,109 @@ Feature: new-app with --search option
       |Project: <%= project.name %>|
       |MySQL database service, with persistent storage. Scaling to more than one replica is not supported|
 
+  # @author: pruan@redhat.com
+  # @case_id: 497511
+  Scenario: Negative test on oc new-app with --search
+    Given I have a project
+    When I run the :new_app client command with:
+      | h | true |
+    Then the output should contain "--search"
+    When I run the :new_app client command with:
+      | search_raw | eap |
+    Then the output should not contain "<%= project.name %>"
+    When I run the :new_app client command with:
+      | search_raw |  |
+      | docker_image | mysql |
+    Then the output should not contain "<%= project.name %>"
+    When I run the :new_app client command with:
+      | search_raw |  |
+      | image_stream | mongodb |
+    Then the output should not contain "<%= project.name %>"
+    When I run the :new_app client command with:
+      | search_raw | |
+      | template | ruby |
+    Then the output should not contain "<%= project.name %>"
+    When I run the :new_app client command with:
+      | search_raw | |
+    Then the step should fail
+    And the output should contain:
+      | error: You must specify one or more images, image streams, templates, or source code locations to create an application. |
+    When I run the :new_app client command with:
+      | search_raw | --docker-image |
+      | config | :false |
+    Then the step should fail
+    And the output should contain:
+      | Error: flag needs an argument: --docker-image |
+    When I run the :new_app client command with:
+      | search_raw | --image-stream |
+      | config | :false |
+    Then the step should fail
+    And the output should contain:
+      | Error: flag needs an argument: --image-stream |
+    When I run the :new_app client command with:
+      | search_raw| --template |
+      | config | :false |
+    Then the step should fail
+    And the output should contain:
+      | Error: flag needs an argument: --template |
+    When I run the :new_app client command with:
+      | search_raw | xxxyyyy |
+    Then the step should fail
+    And the output should contain:
+      | no matches found |
+    When I run the :new_app client command with:
+      | search_raw | --docker-image=deadbeef123 |
+    Then the step should fail
+    And the output should contain:
+      | no matches found |
+    When I run the :new_app client command with:
+      | search_raw | --image-stream=deadbeef123 |
+    Then the step should fail
+    And the output should contain:
+      | no matches found |
+    When I run the :new_app client command with:
+      | search_raw | --template=deadbeef123 |
+    Then the step should fail
+    And the output should contain:
+      | no matches found |
+    When I run the :new_app client command with:
+      | search_raw | ruby |
+      | code   | https://github.com/openshift/ruby-hello-world |
+      | env    | path=/etc                                     |
+      | param  | name=test                                     |
+    Then the step should fail
+    And the output should contain:
+      |  --search can't be used with source code |
+      |  --search can't be used with --env       |
+      |  --search can't be used with --param     |
+    When I run the :new_app client command with:
+      | search_raw | --template=ruby |
+      | code   | https://github.com/openshift/ruby-hello-world |
+      | env    | path=/etc                                     |
+      | param  | name=test                                     |
+    Then the step should fail
+    And the output should contain:
+      |  --search can't be used with source code |
+      |  --search can't be used with --env       |
+      |  --search can't be used with --param     |
+    When I run the :new_app client command with:
+      | search_raw | --image-stream=mongodb |
+      | code   | https://github.com/openshift/ruby-hello-world |
+      | env    | path=/etc                                     |
+      | param  | name=test                                     |
+    Then the step should fail
+    And the output should contain:
+      |  --search can't be used with source code |
+      |  --search can't be used with --env       |
+      |  --search can't be used with --param     |
+     When I run the :new_app client command with:
+      | search_raw |  --docker-image=ruby |
+      | code   | https://github.com/openshift/ruby-hello-world |
+      | env    | path=/etc                                     |
+      | param  | name=test                                     |
+    Then the step should fail
+    And the output should contain:
+      |  --search can't be used with source code |
+      |  --search can't be used with --env       |
+      |  --search can't be used with --param     |
+       
