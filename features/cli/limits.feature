@@ -34,12 +34,12 @@ Feature: limit range related scenarios:
     Then the step should succeed
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
     And the step should fail
-    And the output should contain:
-      | The LimitRange "limits" is invalid |
-      | spec.limits[0].defaultRequest[cpu]: invalid value '<expr1>', Details: <expr2> value <expr3> is greater than <expr4> value <expr5> |
-      | spec.limits[0].default[cpu]: invalid value '<expr6>', Details: <expr7> value <expr8> is greater than <expr9> value <expr10>       |
-      | spec.limits[0].defaultRequest[memory]: invalid value '<expr11>', Details: <expr12> value <expr13> is greater than <expr14> value <expr15> |
-      | spec.limits[0].default[memory]: invalid value '<expr16>', Details: <expr17> value <expr18> is greater than <expr19> value <expr20>         |
+    And the output should match:
+      | LimitRange "limits" is invalid |
+      | defaultRequest\[cpu\].* <expr2> value <expr3> is greater than <expr4> value <expr5> |
+      | default\[cpu\].*<expr7> value <expr8> is greater than <expr9> value <expr10>       |
+      | defaultRequest\[memory\].*<expr12> value <expr13> is greater than <expr14> value <expr15> |
+      | default\[memory\].*<expr17> value <expr18> is greater than <expr19> value <expr20>         |
 
     Examples:
       | path | expr1 | expr2 | expr3 | expr4 | expr5 | expr6 | expr7 | expr8 | expr9 | expr10 | expr11 |expr12 | expr13| expr14 | expr15 | expr16 | expr17 | expr18 | expr19| expr20 |
@@ -55,9 +55,9 @@ Feature: limit range related scenarios:
     Then the step should succeed
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
     And the step should fail
-    And the output should contain:
-      | spec.limits[0].min[memory]: invalid value '<expr1>', Details: <expr2> value <expr3> is greater than <expr4> value <expr5> |
-      | spec.limits[0].min[cpu]: invalid value '<expr6>', Details: <expr7> value <expr8> is greater than <expr9> value <expr10>         |
+    And the output should match:
+      | min\[memory\].*<expr2> value <expr3> is greater than <expr4> value <expr5> |
+      | min\[cpu\].*<expr7> value <expr8> is greater than <expr9> value <expr10>   |
 
     Examples:
       | path | expr1 | expr2 | expr3 | expr4 | expr5 | expr6 | expr7 | expr8 | expr9 | expr10 |
@@ -73,9 +73,9 @@ Feature: limit range related scenarios:
     Then the step should succeed
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508046/limit.yaml
     Then the step should fail
-    And the output should contain:
-      | invalid value '200m', Details: min value 400m is greater than default request value 200m |
-      |  invalid value '1Gi', Details: min value 2Gi is greater than default request value 1Gi   |
+    And the output should match:
+      | cpu.*min value 400m is greater than default request value 200m    |
+      | memory.*min value 2Gi is greater than default request value 1Gi   |
 
   # @author gpei@redhat.com
   # @case_id 508042
@@ -86,9 +86,9 @@ Feature: limit range related scenarios:
     Then the step should succeed
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508042/limit.yaml
     Then the step should fail
-    And the output should contain:
-      | invalid value '400m', Details: default request value 400m is greater than default limit value 200m |
-      | invalid value '2Gi', Details: default request value 2Gi is greater than default limit value 1Gi    |
+    And the output should match:
+      | cpu.*default request value 400m is greater than default limit value 200m       |
+      | memory.*default request value 2Gi is greater than default limit value 1Gi      |
 
   # @author gpei@redhat.com
   # @case_id 508043
@@ -99,9 +99,9 @@ Feature: limit range related scenarios:
     Then the step should succeed
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508043/limit.yaml
     Then the step should fail
-    And the output should contain:
-      | invalid value '400m', Details: default request value 400m is greater than max value 200m  |
-      | invalid value '2Gi', Details: default request value 2Gi is greater than max value 1Gi     |
+    And the output should match:
+      | cpu.*default request value 400m is greater than max value 200m      |
+      | memory.*default request value 2Gi is greater than max value 1Gi     |
 
   # @author gpei@redhat.com
   # @case_id 508044

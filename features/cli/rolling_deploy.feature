@@ -147,7 +147,7 @@ Feature: rolling deployment related scenarios
     
   # @author xiaocwan@redhat.com
   # @case_id 454716
-  Scenario: [origin_runtime_509]Rollback to one component of previous deployment
+  Scenario: Rollback to one component of previous deployment
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |

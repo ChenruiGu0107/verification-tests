@@ -130,7 +130,7 @@ Feature: build 'apps' with CLI
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
     When I run the :new_app client command with:
-      | image_stream | openshift/ruby |
+      | image_stream | openshift/ruby:latest |
       | image_stream | <%= project.name %>/ruby:2.0 |
       | code         | https://github.com/openshift/ruby-hello-world |
       | l            | app=test |
