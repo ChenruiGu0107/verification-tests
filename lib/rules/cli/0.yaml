@@ -19,7 +19,6 @@
   :server: --server=<value>
   :stderrthreshold: --stderrthreshold=<value>
   :token: --token=<value>
-  :v: --v=<value>
 :add_secret:
   :cmd: oc secrets add serviceaccount/<sa_name> secrets/<secret_name>
   :options:
