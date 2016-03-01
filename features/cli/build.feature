@@ -289,6 +289,7 @@ Feature: build 'apps' with CLI
       | code         | https://github.com/openshift/ruby-hello-world |
       | env            | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test,MYSQL_ROOT_PASSWORD=test |
       | l            | app=testapps    |
+      | insecure_registry | true |
     Then the step should succeed
     When I run the :get client command with:
       |resource| buildConfig |

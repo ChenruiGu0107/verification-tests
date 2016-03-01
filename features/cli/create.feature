@@ -40,6 +40,7 @@ Feature: creating 'apps' with CLI
       | docker image | <%= product_docker_repo %>rhscl/perl-520-rhel7~https://github.com/openshift/sti-perl |
       | context dir  | 5.16/test/sample-test-app/            |
       | name         | 4igit-first |
+      | insecure_registry | true |
     Then the step should fail
     And the project is deleted
 
@@ -381,18 +382,21 @@ Feature: creating 'apps' with CLI
     And I run the :new_app client command with:
       | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
       | labels | name#@=ruby-hello-world |
+      | insecure_registry | true |
     Then the step should fail
     And the output should contain:
       | metadata.labels: invalid value 'name#@' |
     And I run the :new_app client command with:
       | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
       | labels | name=@#@ |
+      | insecure_registry | true |
     Then the step should fail
     And the output should contain:
       | metadata.labels: invalid value '@#@' |
     And I run the :new_app client command with:
       | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
       | labels | name=value1,name=value2,name=deadbeef010203 |
+      | insecure_registry | true |
     Then the step should succeed
     When I run the :get client command with:
       | resource | all |
