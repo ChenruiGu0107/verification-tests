@@ -15,20 +15,15 @@ Feature: Check deployments function
       | app_name      | ndapp  |
       | source_url    | https://github.com/openshift/nodejs-ex.git |
     And evaluation of `"ndapp"` is stored in the :app_name clipboard
-    # check dc detail info
-    When I perform the :check_deploymentconfigs_info web console action with:
-      | project_name | <%= project.name %> |
-      | dc_name      | <%= cb.app_name %>  |
-    Then the step should succeed
-    And I get the html of the web page
-    Then the output should match "oc deploy <%= cb.app_name %> --latest -n <%= project.name %>"
     When I perform the :wait_latest_deployments_to_status web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.app_name %>  |
       | status_name  | Deployed |
     Then the step should succeed
     # manually trigger deploy after deployments is "Deployed" 
-    When I run the :manually_deploy web console action
+    When I perform the :manually_deploy web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | <%= cb.app_name %>  |
     Then the step should succeed
     When I perform the :wait_latest_deployments_to_status web console action with:
       | project_name | <%= project.name %> |
@@ -44,7 +39,9 @@ Feature: Check deployments function
       | status_name  | Deployed |
     Then the step should succeed
     # cancel deployments
-    When I run the :manually_deploy web console action
+    When I perform the :manually_deploy web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | <%= cb.app_name %>  |
     Then the step should succeed
     When I perform the :wait_latest_deployments_to_status web console action with:
       | project_name | <%= project.name %> |
