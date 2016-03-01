@@ -1,5 +1,6 @@
 require 'rest-client'
 require 'http-cookie'
+require 'thread'
 
 module CucuShift
   module Http
@@ -26,7 +27,7 @@ module CucuShift
     #   response when a block is passed
     # @return [CucuShift::ResultHash] standard cucushift result hash;
     #   there is :headers populated as a [Hash] where headers are lower-cased
-    def self.http_request(url:, cookies: nil, headers: {}, params: nil, payload: nil, method:, user: nil, password: nil, max_redirects: 10, verify_ssl: OpenSSL::SSL::VERIFY_NONE, proxy: ENV['http_proxy'], read_timeout: 30, open_timeout: 10, quiet: false, &block)
+    def self.http_request(url:, cookies: nil, headers: {}, params: nil, payload: nil, method:, user: nil, password: nil, max_redirects: 10, verify_ssl: OpenSSL::SSL::VERIFY_NONE, proxy: ENV['http_proxy'], read_timeout: 30, open_timeout: 10, quiet: false, result: nil, &block)
       rc_opts = {}
       rc_opts[:url] = url
       rc_opts[:cookies] = cookies if cookies
@@ -45,7 +46,7 @@ module CucuShift
       rc_opts[:proxy] = proxy if proxy && ! proxy.empty?
 
       userstr = user ? "#{user}@" : ""
-      result = {}
+      result ||= {}
       result[:instruction] = "HTTP #{method.upcase} #{userstr}#{url}"
       result[:request_opts] = rc_opts
       result[:proxy] = RestClient.proxy if RestClient.proxy
@@ -99,6 +100,80 @@ module CucuShift
     end
     class << self
       alias get http_get
+    end
+
+    # @note avoid putting too big numbrs to avoid OutOfMemory situations; we
+    #   can implement an option to store less data per request to avoid that
+    def self.flood_count(count:, concurrency:, noout: false, timeout: 600, **req_opts)
+      res_queue = Queue.new
+      threads = []
+      req_opts[:quiet] = true unless req_opts.has_key?(:quiet)
+      req_opts[:quiet] = true if noout
+
+      req_proc = proc do
+        begin
+          # insert record before executing for better accuracy of total reqs
+          res = {}
+          res_queue << res
+          Http.request(**req_opts, result: res)
+        end while res_queue.size < count
+      end
+
+      started = monotonic_seconds
+      concurrency.times { threads << Thread.new(&req_proc) }
+
+      success = wait_for(timeout) {
+        threads.all? { |t| t.join(1) }
+      }
+      time = monotonic_seconds - started
+
+      unless success
+        threads.each { |t| t.terminate }
+        raise "concurrent HTTP requests did not complete within timeout"
+      end
+
+      results = []
+      loop { (results << res_queue.pop(true)) rescue break }
+
+      res = process_results(results)
+      res[:wall_time] = time
+
+      log_multi_result(res) unless noout
+
+      return res
+    end
+
+    def self.log_multi_result(result)
+      logger.info "#{result[:count]} HTTP requests " <<
+      "completed in #{'%.3f' % result[:wall_time]} seconds, " <<
+      "min: #{'%.3f' % result[:min]}, " <<
+      "max: #{'%.3f' % result[:max]}, " <<
+      "avg: #{'%.3f' % result[:avg]}, " <<
+      "std_dev: #{'%.3f' % result[:stddev]}"
+    end
+
+    # @param results [Array<Hash>, Array<ResultHash>]
+    def self.process_results(results)
+      res = results.find {|r| !r[:success]} || results.first
+      res[:count] = results.size
+      count = res[:count].to_f
+      res[:response] = results.map {|r| r[:response]}
+      res[:total_time] = results.map {|r| r[:total_time]}
+      res[:min] = res[:total_time].min
+      res[:max] = res[:total_time].max
+      res[:accumulated_time] = res[:total_time].reduce(0) {|s,t| s+t}
+      res[:avg] = res[:accumulated_time] / count
+      res[:stddev] = Math.sqrt(
+        res[:total_time].inject(0) {|s,t| s+(t-res[:avg])**2} / (count - 1).to_f
+      )
+
+      return res
+    end
+
+    # @note calculate stddev, etc using Welford's method as resultset
+    #   would usually be much larger than count limited flooding
+    def self.flood_duration(duration:, concurrency:, **req_opts)
+      # TODO
     end
   end
 end
