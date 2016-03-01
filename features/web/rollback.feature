@@ -38,6 +38,8 @@ Feature: Deployments rollback features
       | "value": "Plqe5Wevchange" |
     # rollback
     When I perform the :click_specific_no_of_deploy web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | <%= cb.dc_name %>   |
       | deploy_number | 1 |
     Then the step should succeed
     When I run the :<rollback_op> web console action
@@ -49,7 +51,9 @@ Feature: Deployments rollback features
       | status_name  | Deployed |
     Then the step should succeed
     When I perform the :check_latest_deployment_version web console action with:
-      | latest_deployment_version | 3 |
+      | project_name | <%= project.name %> |
+      | dc_name      | <%= cb.dc_name %>   |
+      | latest_deployment_version | 3      |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | deploymentConfig |
