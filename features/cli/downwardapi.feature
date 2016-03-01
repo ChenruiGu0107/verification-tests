@@ -28,10 +28,20 @@ Feature: Downward API
   # @case_id 483203
   Scenario: downward api pod name and pod namespace as env variables
     Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/tc483203/downward-example.yaml"
+    And I replace lines in "downward-example.yaml":
+      | v1beta3 | v1  |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/tc483203/downward-example.yaml |
+      | f | downward-example.yaml |
     Then the step should succeed
-    Given the pod named "dapi-test-pod" becomes ready
+    ## pod status should be Completed
+    When I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource  | pods |
+    Then the output should match:
+      | dapi-test-pod\\s+.*\\s+.*omplete.* |
+    """
     When I run the :logs client command with:
       | resource_name | dapi-test-pod |
     Then the step should succeed
