@@ -84,6 +84,12 @@ module CucuShift
         populate("/namespaces/<project_name>/deploymentconfigrollbacks", base_opts, opts)
         return Http.request(**base_opts, method: "POST")
       end
+
+      def self.get_subresources_oapi(base_opts, opts)
+        populate("/namespaces/<project_name>/<resource_type>/<resource_name>/status", base_opts, opts)
+        return Http.request(**base_opts, method: "GET")
+      end
+
     end
   end
 end
