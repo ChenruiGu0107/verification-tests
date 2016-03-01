@@ -1,7 +1,7 @@
 Feature: oc global options (oc options) related scenarios
   # @author xxia@redhat.com
   # @case_id 509019
-  Scenario: Use '--v' global option to see the sent API info for any oc command
+  Scenario: Use '--loglevel' global option to see the sent API info for any oc command
     Given I have a project
     And I run the :run client command with:
       | name  | mydc |
@@ -11,12 +11,12 @@ Feature: oc global options (oc options) related scenarios
     Given I wait until the status of deployment "mydc" becomes :running
     When I run the :get client command with:
       | resource  | dc    |
-      | v         | 0     |
+      | loglevel  | 0     |
     Then the step should succeed
 
     When I run the :get client command with:
       | resource  | dc    |
-      | v         | 6     |
+      | loglevel  | 6     |
     Then the step should succeed
     And the output should match:
       | GET https://.+/deploymentconfigs |
@@ -28,7 +28,7 @@ Feature: oc global options (oc options) related scenarios
 
     When I run the :get client command with:
       | resource  | dc    |
-      | v         | 7     |
+      | loglevel  | 7     |
     Then the step should succeed
     And the output should match:
       | GET https://.+/deploymentconfigs |
@@ -39,7 +39,7 @@ Feature: oc global options (oc options) related scenarios
 
     When I run the :get client command with:
       | resource  | dc    |
-      | v         | 8     |
+      | loglevel  | 8     |
     Then the step should succeed
     And the output should match:
       | GET https://.+/deploymentconfigs |
@@ -51,19 +51,19 @@ Feature: oc global options (oc options) related scenarios
       | mydc          |
 
     When I run the :create client command with:
-      | f  | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
-      | v  | 6     |
+      | f        | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+      | loglevel | 6   |
     Then the step should succeed
     And the output should match:
       | POST https://.+/pods |
 
     When I run the :get client command with:
       | resource  | dc    |
-      | v         | @#    |
+      | loglevel  | @#    |
     Then the step should fail
     When I run the :get client command with:
       | resource  | dc    |
-      | v         | abc   |
+      | loglevel  | abc   |
     Then the step should fail
     And the output should contain "invalid argument"
 
