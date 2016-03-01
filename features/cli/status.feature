@@ -167,3 +167,22 @@ Feature: Check oc status cli
     When I run the :new_app client command with:
       | template | ruby-helloworld-sample |
     Then the step should fail
+
+  # @author pruan@redhat.com
+  # @case_id 515694
+  Scenario: oc status looks nice in display and suggestion
+    Given I have a project
+    And I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | build |
+    And the "ruby-sample-build-1" build becomes :running
+    And I run the :status client command
+    Then the output should contain:
+      | use 'oc status -v' to see details |
+    And the "ruby-sample-build-1" build becomes :complete
+    And I run the :status client command
+    Then the output should not contain:
+      | use 'oc status -v' to see details |
+
