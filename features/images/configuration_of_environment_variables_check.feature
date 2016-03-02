@@ -88,3 +88,41 @@ Feature: Configuration of environment variables check
       | resource_name | expansion-pod |
     Then the step should succeed
     And the output should contain "http"
+  
+  # @author pruan@redhat.com
+  # @case_id 493676
+  Scenario: Substitute environment variables into a container's args
+    Given I have a project
+    When I run the :create client command with:
+      | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/container/argstest.json |
+    Then the step should succeed
+    Given the pod named "expansion-pod" status becomes :running
+    When I run the :logs client command with:
+      | resource_name | expansion-pod |
+    Then the step should succeed
+    And the output should contain:
+      |  serving on 8080 |
+      |  serving on 8888 |
+
+  # @author pruan@redhat.com
+  # @case_id 493678
+  Scenario: Substitute environment variables into a container's env
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc493678/envtest.json |
+    Then the step should succeed
+    Given the pod named "hello-openshift" status becomes :running
+    When I run the :env client command with:
+      | resource | pod             |
+      | keyval   | hello-openshift |
+      | list     | true            |
+    Then the step should succeed
+    And the output should match:
+      | zzhao=redhat                    |
+      | test2=\$\(zzhao\)               |
+      | test3=___\$\(zzhao\)___         |
+      | test4=\$\$\(zzhao\)_\$\(test2\) |
+      | test6=\$\(zzhao\$\(zzhao\)      |
+      | test7=\$\$\$\$\$\$\(zzhao\)     |
+      | test8=\$\$\$\$\$\$\$\(zzhao\)   |
+
