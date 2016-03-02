@@ -48,10 +48,11 @@ Feature: template related scnearios:
       | filename | application-template-stibuild.json |
     Then the step should succeed
     And I run the :new_app client command with:
-      | template | ruby-helloworld-sample |
+      | template | ruby-helloworld-sample-tc497538 |
     Then the step should fail
     And the output should contain:
-      | Error: unable to get type info from the object "*runtime.Unknown": no kind is registered for the type runtime.Unknown |
+      | error: unable to find object fields on reflect.Value |
+      | Kind:"FailedService" |
 
     # @author akostadi@redhat.com
     # @case_id 476351
