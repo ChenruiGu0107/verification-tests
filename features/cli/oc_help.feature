@@ -4,7 +4,8 @@ Feature: oc related features
   Scenario: Check OpenShift Concepts and Types via oc types
     When I run the :help client command
     Then the output should contain:
-      | types        An introduction to concepts and types |
+      | types |
+      | An introduction to concepts and types |
     When I run the :types client command with:
       | help | true |
     Then the output should contain:
@@ -131,7 +132,8 @@ Feature: oc related features
   Scenario: Check help info for oc run
     When I run the :help client command
     Then the output should contain:
-      | run          Run a particular image on the cluster. |
+      | run |
+      | Run a particular image on the cluster |
     When I run the :run client command with:
       | help | true   |
       | name | :false |
