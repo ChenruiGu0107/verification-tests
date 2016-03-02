@@ -6,12 +6,13 @@ unless $LOAD_PATH.any? {|p| File.expand_path(p) == lib_path}
 end
 
 require 'json'
-require 'rest-client'
 require 'io/console' # for reading password without echo
 require 'timeout' # to avoid freezes waiting for user input
+require 'yaml'
 
 require 'common'
 require 'host'
+require 'http'
 require 'net'
 
 module CucuShift
@@ -62,32 +63,38 @@ module CucuShift
       self.get_token()
     end
 
-    # TODO: migrate this to use Common::Http::request and support :ca_path
-    def rest_run(url, method, params, token = nil, timeout = 60, open_timeout = 60)
+    # @return [ResultHash]
+    # @yield [req_result] if block is given, it is yielded with the result as
+    #   param
+    def rest_run(url, method, params, token = nil, read_timeout = 60, open_timeout = 60)
       headers = {'Content-Type' => 'application/json',
                  'Accept' => 'application/json'}
-      token ?   headers['X-Auth-Token'] = token : headers
+      headers['X-Auth-Token'] = token if token
 
-      params = (params == {}) ? false : JSON.dump(params)
-      req = RestClient::Request.new(:url => "#{url}",
-                                    :method => method,
-                                    :payload => params,
-                                    :headers => headers,
-                                    :timeout => timeout,
-                                    :open_timeout => open_timeout)
-      begin
-        res = req.execute()
-      rescue => e
-        # REST request unsuccessful
-        if e.respond_to?(:response) and e.response.respond_to?(:code) and e.response.code.kind_of? Integer
-          logger.info("HTTP error:  #{e.response}")
-          # server replied with non-success HTTP status, that's ok
-          res = e.response
-        else
-          # request failed badly, server/network issue?
-          logger.error("Unsuccessful REST request: #{method} #{url} #{JSON.dump(params)}: #{e.message}")
-          raise e
+      if headers["Content-Type"].include?("json") &&
+          ( params.kind_of?(Hash) || params.kind_of?(Array) )
+        params = params.to_json
+      end
+
+      res = Http.request(:url => "#{url}",
+                          :method => method,
+                          :payload => params,
+                          :headers => headers,
+                          :read_timeout => read_timeout,
+                          :open_timeout => open_timeout)
+
+      if res[:success]
+        if res[:headers] && res[:headers]['content-type']
+          content_type = res[:headers]['content-type'][0]
+          case
+          when content_type.include?('json')
+            res[:parsed] = JSON.load(res[:response])
+          when content_type.include?('yaml')
+            res[:parsed] = YAML.load(res[:response])
+          end
         end
+
+        yield res if block_given?
       end
       return res
     end
@@ -102,28 +109,21 @@ module CucuShift
         auth_opts[:tenantName] = self.os_tenant_name
       end
       params = {:auth => auth_opts}
-      res = self.rest_run(self.os_url, "POST", params)
-      begin
-        result = JSON.load(res)
-        @os_token = result['access']['token']['id']
-        logger.info "logged in to tenant: #{result['access']['token']["tenant"].to_json}" if result['access']['token']["tenant"]
-        for server in result['access']['serviceCatalog']
+      res = self.rest_run(self.os_url, "POST", params) do |result|
+        parsed = result[:parsed] || next
+        @os_token = parsed['access']['token']['id']
+        logger.info "logged in to tenant: #{parsed['access']['token']["tenant"].to_json}" if parsed['access']['token']["tenant"]
+        for server in parsed['access']['serviceCatalog']
           if server['name'] == "nova" and server['type'] == "compute"
             @os_ApiUrl = server['endpoints'][0]['publicURL']
             break
           end
         end
-      rescue JSON::ParserError => e
-        logger.info("HTTP CODE: #{res.code}")
-        logger.info(res.to_s)
-        raise e
-      rescue => e
-        logger.error("OpenStack Error: #{e.inspect}")
-        raise e
       end
+
       unless @os_ApiUrl
-        logger.error res
-        raise "API did not return API URL, did you use proper tenant?"
+        logger.error res.to_yaml
+        raise "Could not obtain proper token and URL, see log"
       end
       return @os_token
     end
@@ -131,11 +131,9 @@ module CucuShift
     def get_obj_ref(obj_name, obj_type, quiet: false)
       params = {}
       url = self.os_ApiUrl + '/' + obj_type
-      logger.info("Get #{url}")
       res = self.rest_run(url, "GET", params, self.os_token)
-      begin
-        result = JSON.load(res)
-        for obj in result[obj_type]
+      if res[:success] && res[:parsed]
+        for obj in res[:parsed][obj_type]
           if obj['name'] == obj_name
             ref = obj["links"][0]["href"]
             logger.info("ref of #{obj_type} \"#{obj_name}\": #{ref}")
@@ -144,11 +142,9 @@ module CucuShift
         end
         logger.warn "ref of #{obj_type} \"#{obj_name}\" not found" unless quiet
         return nil
-      rescue => e
-        logger.error("Can not get the #{obj} info: #{e.message}")
-        #logger.info("Try to get the info of RHEL_6.4_x86_64")
+      else
+        raise "error getting object reference:\n" << res.to_yaml
       end
-      #get_image("RHEL_6.4_x86_64")
     end
 
     def get_image_ref(image_name)
@@ -171,13 +167,12 @@ module CucuShift
       params = {:server => {:name => instance_name, :key_name => key ,:imageRef => self.os_image, :flavorRef => self.os_flavor}.merge(create_opts)}
       url = self.os_ApiUrl + '/' + 'servers'
       res = self.rest_run(url, "POST", params, self.os_token)
-      begin
-        logger.info("Create Instance: #{instance_name}")
-        return JSON.load(res)
-      rescue => e
-        logger.error("Can not create #{instance_name} instance:  #{e.message}")
-        logger.error(res.to_a.flatten(1).join("\n")) rescue nil
-        raise e
+      if res[:success] && res[:parsed]
+        logger.info("created instance: #{instance_name}")
+        return res[:parsed]
+      else
+        logger.error("Can not create #{instance_name}")
+        raise "error creating instance reference:\n" << res.to_yaml
       end
     end
 
@@ -185,7 +180,7 @@ module CucuShift
     def list_tenants
       url = self.os_ApiUrl + '/' + 'tenants'
       res = self.rest_run(url, "GET", {}, self.os_token)
-      return JSON.load(res)
+      return res[:parsed]
     end
 
     def create_instance(instance_name, **create_opts)
@@ -200,7 +195,7 @@ module CucuShift
         # if creation attempt was performed, get instance status
         if url && params
           res = self.rest_run(url, "GET", params, self.os_token)
-          result = JSON.load(res)
+          result = res[:parsed]
         end
 
         # on first iteration and on instance launch failure we retry
@@ -253,9 +248,8 @@ module CucuShift
       assigning_ip = nil
       params = {}
       url = self.os_ApiUrl + '/os-floating-ips'
-      logger.info("Get #{url}")
       res = self.rest_run(url, "GET", params, self.os_token)
-      result = JSON.load(res)
+      result = res[:parsed]
       result['floating_ips'].each do | ip |
         if ip['instance_id'] == nil
           assigning_ip = ip['ip']
@@ -263,7 +257,7 @@ module CucuShift
           break
         end
       end
-      
+
       params = { "addFloatingIp" => {"address" => assigning_ip }}
       instance_href = self.get_obj_ref(instance_name, 'servers') + "/action"
       self.rest_run(instance_href, "POST", params, self.os_token)
