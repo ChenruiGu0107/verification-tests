@@ -19,9 +19,9 @@ module CucuShift
   class OpenStack
     include Common::Helper
 
-    attr_reader :os_tenant_id, :os_tenant_name
-    attr_reader :os_user, :os_passwd, :os_url, :opts, :os_VolApiUrl
-    attr_accessor :os_token, :os_ApiUrl, :os_image, :os_flavor
+    attr_reader :os_tenant_id, :os_tenant_name, :os_service_catalog
+    attr_reader :os_user, :os_passwd, :os_url, :opts, :os_volumes_url
+    attr_accessor :os_token, :os_compute_url, :os_image, :os_flavor
 
     def initialize(**options)
       # by default we look for 'openstack' service in configuration but lets
@@ -113,26 +113,55 @@ module CucuShift
         parsed = result[:parsed] || next
         @os_token = parsed['access']['token']['id']
         logger.info "logged in to tenant: #{parsed['access']['token']["tenant"].to_json}" if parsed['access']['token']["tenant"]
-        for server in parsed['access']['serviceCatalog']
-          if server['name'] == "nova" and server['type'] == "compute"
-            @os_ApiUrl = server['endpoints'][0]['publicURL']
-          elsif server['type'] == "volumev2"
-            @os_VolApiUrl = server['endpoints'][0]['publicURL']
-          end
-          break if @os_ApiUrl and @os_VolApiUrl
-        end
+        @os_service_catalog = parsed['access']['serviceCatalog']
       end
-
-      unless @os_ApiUrl && @os_VolApiUrl
+      unless @os_token
         logger.error res.to_yaml
-        raise "Could not obtain proper token and URL, see log"
+        raise "Could not obtain proper token"
       end
       return @os_token
     end
 
+    def os_compute_url
+      return @os_compute_url if @os_compute_url
+      type = nil
+
+      # older APIs may not work well with volume boot disks but we fallback
+      # to older if v3 is not found
+      for service in os_service_catalog
+        if service['name'].start_with?("nova") && service['type'].start_with?("compute")
+          @os_compute_url = service['endpoints'][0]['publicURL']
+          type = service['type']
+          if service['type'] == "computev3"
+            break
+          end
+        end
+      end
+
+      unless @os_compute_url
+        raise "could not find compute API URL in service catalog:\n#{os_service_catalog.to_yaml}"
+      end
+      unless type == "computev3"
+        logger.warn "Using compute API type #{type}, while expecting computev3"
+      end
+
+      return @os_compute_url
+    end
+
+    def os_volumes_url
+      return @os_volumes_url if @os_volumes_url
+      for service in os_service_catalog
+        if server['type'] == "volumev2"
+          @os_volumes_url = server['endpoints'][0]['publicURL']
+          return @os_volumes_url
+        end
+      end
+      raise "could not find volumes API URL in service catalog:\n#{os_service_catalog.to_yaml}"
+    end
+
     def get_obj_ref(obj_name, obj_type, quiet: false)
       params = {}
-      url = self.os_ApiUrl + '/' + obj_type
+      url = self.os_compute_url + '/' + obj_type
       res = self.rest_run(url, "GET", params, self.os_token)
       if res[:success] && res[:parsed]
         for obj in res[:parsed][obj_type]
@@ -186,7 +215,7 @@ module CucuShift
     def get_volume_by_name(name, return_key: "self_link")
       volume = nil
 
-      url = self.os_VolApiUrl + '/' + 'volumes'
+      url = self.os_volumes_url + '/' + 'volumes'
       res = self.rest_run(url, "GET", nil, self.os_token)
       if res[:success] && res[:parsed] && res[:exitstatus] == 200
         count = res[:parsed]["volumes"].count do |vol|
@@ -237,7 +266,7 @@ module CucuShift
         }
       ^
 
-      url = self.os_VolApiUrl + '/' + 'volumes'
+      url = self.os_volumes_url + '/' + 'volumes'
       res = self.rest_run(url, "POST", payload, self.os_token)
       if res[:success] && res[:parsed] && res[:exitstatus] == 202
         logger.info "cloned volume #{id} to #{name}"
@@ -267,7 +296,7 @@ module CucuShift
         }
       ^
 
-      url = self.os_VolApiUrl + '/' + 'volumes'
+      url = self.os_volumes_url + '/' + 'volumes'
       res = self.rest_run(url, "POST", payload, self.os_token)
       if res[:success] && res[:parsed] && res[:exitstatus] == 202
         logger.info "created volume #{name} #{size}GiB from #{image}"
@@ -287,7 +316,7 @@ module CucuShift
       self.get_image_ref(image)
       self.get_flavor_ref(flavor_name)
       params = {:server => {:name => instance_name, :key_name => key ,:imageRef => self.os_image, :flavorRef => self.os_flavor}.merge(create_opts)}
-      url = self.os_ApiUrl + '/' + 'servers'
+      url = self.os_compute_url + '/' + 'servers'
       res = self.rest_run(url, "POST", params, self.os_token)
       if res[:success] && res[:parsed]
         logger.info("created instance: #{instance_name}")
@@ -300,7 +329,7 @@ module CucuShift
 
     # doesn't really work if you didn't use tenant when authenticating
     def list_tenants
-      url = self.os_ApiUrl + '/' + 'tenants'
+      url = self.os_compute_url + '/' + 'tenants'
       res = self.rest_run(url, "GET", {}, self.os_token)
       return res[:parsed]
     end
@@ -326,7 +355,7 @@ module CucuShift
           res = create_instance_api_call(instance_name, **create_opts)
           server_id = res["server"]["id"] rescue next
           params = {}
-          url = self.os_ApiUrl + '/' + 'servers/' + server_id
+          url = self.os_compute_url + '/' + 'servers/' + server_id
           sleep 15
         elsif result["server"]["status"] == "ACTIVE"
           address_key = result["server"]["addresses"].keys[0]
@@ -369,7 +398,7 @@ module CucuShift
     def assign_ip(instance_name)
       assigning_ip = nil
       params = {}
-      url = self.os_ApiUrl + '/os-floating-ips'
+      url = self.os_compute_url + '/os-floating-ips'
       res = self.rest_run(url, "GET", params, self.os_token)
       result = res[:parsed]
       result['floating_ips'].each do | ip |

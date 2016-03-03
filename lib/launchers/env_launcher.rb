@@ -342,6 +342,7 @@ module CucuShift
             host.exec_admin('cat > configure_env.sh', stdin: conf_script)
 
           ## wait cloud-init setup to finish
+          # TODO: http://stackoverflow.com/questions/33019093/how-do-detect-that-cloud-init-completed-initialization
           check_res host.exec_admin("sh configure_env.sh wait_cloud_init",
                                     timeout: 1800)
 
