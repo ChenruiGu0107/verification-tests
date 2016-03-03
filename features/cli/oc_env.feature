@@ -83,9 +83,9 @@ Feature: oc_env.feature
       | resource | rc/database-1 |
       | e        | pe#cial%=1234 |
     Then the step should fail
-    And the output should contain:
-      | invalid value 'pe#cial%'   |
-      | Details: must be a C identifier |
+    And the output should match:
+      | [Ii]nvalid value.*pe#cial% |
+      | must be a C identifier     |
   # @author yapei@redhat.com
   # @case_id 479290
   Scenario: Update environment variables for resources
