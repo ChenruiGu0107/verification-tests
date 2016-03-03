@@ -389,8 +389,7 @@ def report_logs(options, status='FAILED')
   table = Text::Table.new
   table.head = ['caserun_id', 'case_id', 'auto_by', 'log_url']
   cases.each do | tc |
-    auto_by = get_author_from_notes(tc['notes'])
-    tc['auto_by'] = auto_by
+    tc['auto_by'] = get_author_from_notes(tc['notes'])
     if tc['case_run_status'] == status
       filtered_cases << tc
     end
