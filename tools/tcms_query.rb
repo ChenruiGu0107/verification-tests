@@ -21,8 +21,10 @@ require 'optparse'
 require 'json'
 require 'io/console' # for reading password without echo
 require 'time'
+require 'jira'
 
 require 'collections'
+require 'jira_rht'
 
 def print_report(options)
   status_lookup = {
@@ -91,26 +93,26 @@ def get_scenario_tags(tcms, line_number, file_contents)
   # now go backwards getting scenario tags until we hit line where no more tags
   # can be found
   while true
-      line_number -= 1
-      if line_number <= 0
-        raise "syntax error? we reached beginning of file but should have stopped already at most on the Feature line"
-      end
+    line_number -= 1
+    if line_number <= 0
+      raise "syntax error? we reached beginning of file but should have stopped already at most on the Feature line"
+    end
 
-      line = file_contents[line_number].strip()
-      case line
-      when ""
-        # skip empty lines
-        next
-      when /^@/
-        t = line.split(/\s+/)
-        unless t.all? {|w| w.start_with? "@"}
-          raise "found invalid tag line: #{line}"
-        end
-        tags.concat t
-      else
-        # we found non-blank line that is not tags so we stop
-        break
+    line = file_contents[line_number].strip()
+    case line
+    when ""
+      # skip empty lines
+      next
+    when /^@/
+      t = line.split(/\s+/)
+      unless t.all? {|w| w.start_with? "@"}
+        raise "found invalid tag line: #{line}"
       end
+      tags.concat t
+    else
+      # we found non-blank line that is not tags so we stop
+      break
+    end
   end
   return ( tags & valid_tags_to_be_added).map{|t| t[1..-1]}.join(',')
 end
@@ -356,6 +358,7 @@ def update_script(options)
     scenario_description = target_line.split("Scenario:")[1].strip()
   elsif target_line.include? 'Scenario Outline:'
     scenario_description = target_line.split("Scenario Outline:")[1].strip()
+  # for a scenario outline run, we specify the line of the table that represent the testcase your want to execute
   elsif (res = target_line.match(/\s+\|(.*)\|/))
     # res[1] is the arg , now we need to search back until to get the Senario Outline line
     arg_values = res[1].split('|').map { |a| a.strip }
@@ -381,24 +384,30 @@ def update_script(options)
   end
 end
 
-# query tcms and extract all of the failed logs from a test run 
+# query tcms and extract all of the failed logs from a test run
 def report_logs(options, status='FAILED')
   tcms = options.tcms
+  jira = options.jira
   cases = tcms.get_run_cases(options[:testrun_id])
-  filtered_cases = []
+  filtered_cases = {}
   table = Text::Table.new
   table.head = ['caserun_id', 'case_id', 'auto_by', 'log_url']
   cases.each do | tc |
     auto_by = get_author_from_notes(tc['notes'])
     tc['auto_by'] = auto_by
     if tc['case_run_status'] == status
-      filtered_cases << tc
+      filtered_cases[auto_by] = [] if filtered_cases[auto_by].nil?
+      filtered_cases[auto_by] << tc
     end
   end
-
-  filtered_cases.each do | tc |
-    log_url = tcms.get_latest_log_url(tc["case_run_id"])
-    table.rows << [tc["case_run_id"], tc["case_id"], tc["auto_by"], log_url]
+  filtered_cases.sort.each do | author, testcases |
+    testcases.each do | tc |
+      log_url = tcms.get_latest_log_url(tc["case_run_id"])
+      tc[:log_url] = log_url
+      tc[:testrun_id] = options[:testrun_id]
+      table.rows << [tc["case_run_id"], tc["case_id"], tc["auto_by"], log_url]
+    end
+    jira.create_failed_testcases_issue(testcases) if options.create_jira
   end
   puts table
 end
@@ -423,6 +432,9 @@ if __FILE__ == $0
     end
     opts.on('-m', '--non_auto', "exclude displaying those that have ruby scripts and marked as AUTO already") do
       options.exclude_auto=true
+    end
+    opts.on('-j', '--create_jira', "create JIRA issue for user from failed testcases in a TCMS run") do
+      options.create_jira=true
     end
     opts.on('-i', '--testrun [testrun_id]', Integer, "The id of the test run") do |id|
       options.testrun_id = id
@@ -453,8 +465,11 @@ if __FILE__ == $0
     end
   end.parse!
   tcms = CucuShift::TCMS.new(options.to_h)
-
   options.tcms = tcms
+  if options.create_jira
+    jira = CucuShift::Jira.new(options.to_h)
+    options.jira = jira
+  end
   cases = []
   if options.get_auto
     cases = report_auto_testcases(options)

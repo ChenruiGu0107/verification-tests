@@ -28,6 +28,7 @@ gem 'pry'
 # https://github.com/deivid-rodriguez/pry-byebug/issues/71
 # gem 'pry-byebug', :require => false
 gem 'byebug'
+gem 'jira-ruby'
 # gem 'mongo'
 # gem 'bson_ext'
 # gem 'parseconfig'
