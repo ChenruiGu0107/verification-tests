@@ -18,6 +18,12 @@ module CucuShift
         base_opts[:headers].delete("Accept") unless opts[:keep_accept]
         return perform(**base_opts, method: "GET")
       end
+
+      def self.delete_subresources_api(base_opts, opts)
+        populate("/namespaces/<project_name>/<resource_type>/<resource_name>/status", base_opts, opts)
+        return perform(**base_opts, method: "DELETE")
+      end
+
     end
   end
 end
