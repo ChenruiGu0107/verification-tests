@@ -25,6 +25,7 @@ function wait_cloud_init()
 {
   # exit early if cloud-init log does not exist (e.g. cloud-init not installed)
   [ -f /var/log/cloud-init.log ] || return 0
+  systemctl is-enabled cloud-init.service || return 0
   while :; do
     tail -n5 /var/log/cloud-init.log | grep -q 'Cloud-init .* finished' && break
     sleep 1
