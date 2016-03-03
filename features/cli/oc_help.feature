@@ -194,15 +194,12 @@ Feature: oc related features
 
     When I run the :explain client command with:
       | resource  | dc |
-    Then the step should fail
-    When I run the :explain client command with:
-      | resource  | bc |
-    Then the step should fail
+    Then the step should succeed
     When I run the :explain client command with:
       | resource  | no-this |
     Then the step should fail
     When I run the :explain client command with:
       | resource  | rc,no |
     Then the step should fail
-    And the output should match:
-      | error.*rc,no |
+    And the output should contain:
+      | rc,no |

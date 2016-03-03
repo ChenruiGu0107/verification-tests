@@ -41,7 +41,6 @@ Feature: admin build related features
       | h ||
     Then the step should succeed
     And the output should contain:
-      | removes older completed and failed builds |
       | --keep-younger-than=1h                    |
       | --keep-failed=1                           |
       | --keep-complete=5                         |
