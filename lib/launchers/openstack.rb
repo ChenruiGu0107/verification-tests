@@ -20,7 +20,7 @@ module CucuShift
     include Common::Helper
 
     attr_reader :os_tenant_id, :os_tenant_name
-    attr_reader :os_user, :os_passwd, :os_url, :opts
+    attr_reader :os_user, :os_passwd, :os_url, :opts, :os_VolApiUrl
     attr_accessor :os_token, :os_ApiUrl, :os_image, :os_flavor
 
     def initialize(**options)
@@ -116,12 +116,14 @@ module CucuShift
         for server in parsed['access']['serviceCatalog']
           if server['name'] == "nova" and server['type'] == "compute"
             @os_ApiUrl = server['endpoints'][0]['publicURL']
-            break
+          elsif server['type'] == "volumev2"
+            @os_VolApiUrl = server['endpoints'][0]['publicURL']
           end
+          break if @os_ApiUrl and @os_VolApiUrl
         end
       end
 
-      unless @os_ApiUrl
+      unless @os_ApiUrl && @os_VolApiUrl
         logger.error res.to_yaml
         raise "Could not obtain proper token and URL, see log"
       end
@@ -155,6 +157,126 @@ module CucuShift
       @os_flavor = get_obj_ref(flavor_name, 'flavors')
     end
 
+    # GET URL should result in all contained objects to be of the given status
+    def wait_resource_status(url, status, timeout: 300, interval: 10)
+      res = nil
+      success = wait_for(timeout) {
+        res = rest_run(url, :get, nil, os_token)
+        if res[:success]
+          if res[:parsed].all? {|k, v| v["status"] == status}
+            return res[:parsed]
+          end
+        else
+          raise "error obtaining resource:\n" << res.to_yaml
+        end
+      }
+
+      raise "after timeout status not #{status} but: " + res[:parsed].map {|k, v| "#{k}:#{v["status"]}"}.join(',')
+    end
+
+    def self_link(links)
+      links.any? do |l|
+        if l["rel"] == "self"
+          return l["href"]
+        end
+      end
+      raise "no self link found in:\n#{links.to_yaml}"
+    end
+
+    def get_volume_by_name(name, return_key: "self_link")
+      volume = nil
+
+      url = self.os_VolApiUrl + '/' + 'volumes'
+      res = self.rest_run(url, "GET", nil, self.os_token)
+      if res[:success] && res[:parsed] && res[:exitstatus] == 200
+        count = res[:parsed]["volumes"].count do |vol|
+          volume = vol if vol["name"] == name
+        end
+        case count
+        when 1
+          if return_key == "self_link"
+            return self_link(volume["links"])
+          elsif return_key == "self"
+            return volume
+          else
+            return volume[return_key]
+          end
+        when 0
+          raise "could not find volume #{name}"
+        else
+          raise "ambiguous volume name, found #{count}"
+        end
+      else
+        raise "error listing volumes:\n" << res.to_yaml
+      end
+    end
+
+    def clone_volume(src_name: nil, url: nil, id:nil , name:)
+      if [src_name, url, id].count{|o| o} != 1
+        raise "specify exactly one of 'src_name', 'url' and 'id'"
+      end
+
+      case
+      when src_name
+        id = get_volume_by_name(src_name, return_key: "id")
+        # id = get_volume_by_name(src_name)
+      when url
+        id = url.gsub(%r{^.*/([^/]+)$}, '\\1')
+      end
+
+      payload = %Q^
+        {
+          "volume": {
+            "availability_zone": null,
+            "source_volid": "#{id}",
+            "description": "CucuShift created volume",
+            "multiattach ": false,
+            "snapshot_id": null,
+            "name": "#{name}"
+          }
+        }
+      ^
+
+      url = self.os_VolApiUrl + '/' + 'volumes'
+      res = self.rest_run(url, "POST", payload, self.os_token)
+      if res[:success] && res[:parsed] && res[:exitstatus] == 202
+        logger.info "cloned volume #{id} to #{name}"
+        return self_link res[:parsed]["volume"]["links"]
+      else
+        raise "error cloning volume:\n" << res.to_yaml
+      end
+    end
+
+    def create_volume_from_image(size:, image:, name:)
+      payload = %Q^
+        {
+          "volume": {
+            "size": #{size},
+            "availability_zone": null,
+            "source_volid": null,
+            "description": "CucuShift created volume",
+            "multiattach ": false,
+            "snapshot_id": null,
+            "name": "#{name}",
+            "imageRef": "#{get_image_ref image}",
+            "volume_type": null,
+            "metadata": {},
+            "source_replica": null,
+            "consistencygroup_id": null
+          }
+        }
+      ^
+
+      url = self.os_VolApiUrl + '/' + 'volumes'
+      res = self.rest_run(url, "POST", payload, self.os_token)
+      if res[:success] && res[:parsed] && res[:exitstatus] == 202
+        logger.info "created volume #{name} #{size}GiB from #{image}"
+        return self_link res[:parsed]["volume"]["links"]
+      else
+        raise "error creating volume:\n" << res.to_yaml
+      end
+    end
+
     def create_instance_api_call(instance_name, image: nil,
                         flavor_name: nil, key: nil, **create_opts)
       image ||= opts[:image]
@@ -172,7 +294,7 @@ module CucuShift
         return res[:parsed]
       else
         logger.error("Can not create #{instance_name}")
-        raise "error creating instance reference:\n" << res.to_yaml
+        raise "error creating instance:\n" << res.to_yaml
       end
     end
 
@@ -289,7 +411,9 @@ end
 
 ## Standalone test
 if __FILE__ == $0
-  test = CucuShift::OpenStack.new()
+  test = CucuShift::OpenStack.new(service_name: "openstack_qeos7")
+  require 'pry'
+  binding.pry
   #puts test.create_instance("xiama_test", 'RHEL6.5-qcow2-updated-20131213', 'm1.medium')
   #test.delete_instance('test')
 end
