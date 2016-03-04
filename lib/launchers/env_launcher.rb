@@ -111,12 +111,10 @@ module CucuShift
                         image_pre:,
                         puddle_repo: nil,
                         etcd_num:,
-                        registry_ha:,
                         pre_ansible: nil, post_ansible: nil,
                         ansible_url:,
                         use_rpm_playbook:,
                         customized_ansible_conf: "",
-                        modify_IS_for_testing: "",
                         kerberos_kdc: conf[:services, :test_kerberos, :kdc],
                         kerberos_keytab_url:
                           conf[:services, :test_kerberos, :keytab_url],
@@ -134,6 +132,7 @@ module CucuShift
       master_host_lines = []
       node_host_lines = []
       lb_host_lines = []
+      nfs_host_lines = []
 
       dt1, dt2 = deployment_type.split(':', 2)
       openshift_pkg_version = ''
@@ -261,6 +260,10 @@ module CucuShift
       if hosts["master"].size == 1
         ose3_vars << "openshift_infra_nodes=#{router_ips}"
       end
+
+      #configure nfs on first master
+      nfs_host_lines << "#{hosts["master"][0].ansible_host_str}"
+
 
       ## Setup HA Master opts End
 
@@ -479,21 +482,6 @@ module CucuShift
       #   "sh configure_env.sh replace_template_domain"
       # )
 
-      ## create a router and a registry
-      check_res hosts['master'][0].exec_admin(
-        "sh configure_env.sh create_router_registry"
-      )
-
-      ## configure HA registry if requested
-      if registry_ha
-        check_res hosts['master'][0].exec_admin(
-          'sh configure_env.sh configure_nfs_service'
-        )
-        check_res hosts['master'][0].exec_admin(
-          'sh configure_env.sh configure_registry_to_ha'
-        )
-      end
-
       ## setup SkyDNS for proper resolution (not supported)
       if dns == "embedded_skydns"
         check_res hosts['master'][0].exec_admin(
@@ -509,7 +497,8 @@ module CucuShift
       end
 
       ## setup testing image streams if requested
-      if !modify_IS_for_testing.empty?
+      modify_IS_for_testing = image_pre.partition("/")[0]
+      if modify_IS_for_testing != "registry.access.redhat.com"
           check_res hosts['master'][0].exec_admin(
             "sh configure_env.sh modify_IS_for_testing #{modify_IS_for_testing}"
           )
@@ -564,11 +553,10 @@ module CucuShift
               :use_rpm_playbook,
               :image_pre,
               :puddle_repo,
-              :etcd_num, :registry_ha,
+              :etcd_num,
               :pre_ansible,
               :ansible_url,
               :customized_ansible_conf,
-              :modify_IS_for_testing,
               :kerberos_docker_base_image,
               :kerberos_kdc, :kerberos_keytab_url,
               :kerberos_docker_base_image,
@@ -580,7 +568,6 @@ module CucuShift
         end
       end
 
-      opts[:registry_ha] = false unless to_bool(opts[:registry_ha])
       opts[:use_rpm_playbook] = false unless to_bool(opts[:use_rpm_playbook])
     end
 
