@@ -86,8 +86,8 @@ Feature: template related scnearios:
     And the output should contain:
       | database     |
       | frontend     |
-      | ConfigChange |
-      | ImageChange  |
+      | config       |
+      | config,image |
 
     When I get project buildConfigs with labels:
       | <labels> |
