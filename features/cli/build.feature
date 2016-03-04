@@ -147,7 +147,7 @@ Feature: build 'apps' with CLI
       | resource | buildConfig      |
       | name     | ruby-hello-world |
     Then the output should match:
-      | ImageStreamTag openshift/ruby:latest |
+      | ImageStreamTag openshift/ruby |
     When I run the :describe client command with:
       | resource | buildConfig      |
       | name     | ruby-hello-world-1 |
@@ -360,14 +360,14 @@ Feature: build 'apps' with CLI
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
       | follow | true |
-      | _timeout | 90 |
+      | _timeout | 600 |
     And the output should contain:
       | Installing application source |
       | Building your Ruby application from source |
     When I run the :start_build client command with:
       | from_build | ruby22-sample-build-1 |
       | follow | true |
-      | _timeout | 90 |
+      | _timeout | 600 |
     And the output should contain:
       | Installing application source |
       | Building your Ruby application from source |
@@ -380,7 +380,7 @@ Feature: build 'apps' with CLI
       | buildconfig | ruby22-sample-build |
       | follow | true |
       | wait | true |
-      | _timeout | 90 |
+      | _timeout | 600 |
     Then the output should contain "unable to access 'https://nondomain.com/"
 
   # @author cryan@redhat.com

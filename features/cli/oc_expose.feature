@@ -43,6 +43,7 @@ Feature: oc_expose.feature
       | l           | app=test-perl                            |
       | context dir | 5.16/test/sample-test-app/               |
       | name        | myapp                                    |
+      | insecure_registry | true                               |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | deploymentconfig |
