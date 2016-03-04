@@ -733,4 +733,19 @@ Feature: build 'apps' with CLI
     And the output should contain:
       | no such file or directory |
 
-
+  # @author cryan@redhat.com
+  # @case_id 519486
+  Scenario: Implement post-build command for quickstart: Django
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc519486/django.json |
+    Given the "django-example-1" build completes
+    When I run the :build_logs client command with:
+      | build_name | django-example-1 |
+    Then the output should match "Ran \d+ tests"
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc519486/django-postgresql.json |
+    Given the "django-psql-example-1" build completes
+    When I run the :build_logs client command with:
+      | build_name | django-psql-example-1 |
+    Then the output should match "Ran \d+ tests"
