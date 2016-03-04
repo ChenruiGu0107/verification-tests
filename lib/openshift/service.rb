@@ -5,19 +5,6 @@ module CucuShift
   class Service < ProjectResource
     RESOURCE = "services"
 
-    # @return [CucuShift::ResultHash] with :success true if we've eventually
-    #   got the pod in ready status; the result hash is from last executed get
-    #   call
-    def wait_to_appear(user, seconds)
-      res = nil
-      success = wait_for(seconds) {
-        res = get(user: user)
-        res[:success]
-      }
-
-      return res
-    end
-
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that ca nchange at any time like status and spec
     def update_from_api_object(service_hash)

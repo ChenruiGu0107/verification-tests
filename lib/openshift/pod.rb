@@ -86,16 +86,6 @@ module CucuShift
       return res
     end
 
-    # check that a pod is present
-    def wait_till_present(user, seconds)
-      res = nil
-      success = wait_for(seconds) {
-        res = get(user:user)
-        res[:success]
-      }
-      return res
-    end
-
     def wait_till_status(status, user, seconds=15*60)
       res = nil
       success = wait_for(seconds) {

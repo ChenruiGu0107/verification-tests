@@ -32,7 +32,7 @@ end
 
 Given /^the pod(?: named "(.+)")? is present$/ do |name|
   present_timeout = 5 * 60
-  @result = pod(name).wait_till_present(user, present_timeout)
+  @result = pod(name).wait_to_appear(user, present_timeout)
 
   unless @result[:success]
     logger.error(@result[:response])
