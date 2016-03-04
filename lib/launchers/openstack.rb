@@ -308,14 +308,44 @@ module CucuShift
 
     def create_instance_api_call(instance_name, image: nil,
                         flavor_name: nil, key: nil, **create_opts)
-      image ||= opts[:image]
-      flavor_name ||= opts[:flavor]
-      key ||= opts[:key]
+      flavor_name ||= create_opts.delete(:flavor) || opts[:flavor]
+      key ||= create_opts.delete(:key) || opts[:key]
+      image ||= create_opts.delete(:image) || opts[:image]
+      new_boot_volume = create_opts.delete(:new_boot_volume) || opts[:new_boot_volume]
+      block_device_mapping_v2 = create_opts.delete(:block_device_mapping_v2) || opts[:block_device_mapping_v2]
 
       self.delete_instance(instance_name)
-      self.get_image_ref(image)
       self.get_flavor_ref(flavor_name)
-      params = {:server => {:name => instance_name, :key_name => key ,:imageRef => self.os_image, :flavorRef => self.os_flavor}.merge(create_opts)}
+      params = {:server => {:name => instance_name, :key_name => key , :flavorRef => self.os_flavor}.merge(create_opts)}
+
+      case
+      when Array === block_device_mapping_v2 && block_device_mapping_v2.size > 0
+        # TODO process mappings to help with image/flavor/volume/snapshot UUIDs
+        params[:server][:block_device_mapping_v2] = block_device_mapping_v2
+      when new_boot_volume && new_boot_volume > 0
+        self.get_image_ref(image)
+        params[:server][:block_device_mapping_v2] = [
+          {
+            boot_index: "0",
+            uuid: self.os_image.gsub(%r{.*/},""),
+            source_type: "image",
+            volume_size: new_boot_volume.to_s,
+            destination_type: "volume",
+            delete_on_termination: "true"
+          },{
+          # this may also attach empty ephemeral second disk depending on flavor
+            source_type: "blank",
+            destination_type: "local",
+            # guest_format: "swap"
+            guest_format: "ephemeral"
+          }
+        ]
+      else
+        # regular boot disk from image
+        self.get_image_ref(image)
+        params[:server][:imageRef] = self.os_image
+      end
+
       url = self.os_compute_url + '/' + 'servers'
       res = self.rest_run(url, "POST", params, self.os_token)
       if res[:success] && res[:parsed]
@@ -401,7 +431,7 @@ module CucuShift
       url = self.os_compute_url + '/os-floating-ips'
       res = self.rest_run(url, "GET", params, self.os_token)
       result = res[:parsed]
-      result['floating_ips'].each do | ip |
+      result['floating_ips'].shuffle.each do | ip |
         if ip['instance_id'] == nil
           assigning_ip = ip['ip']
           logger.info("The floating ip is #{assigning_ip}")
