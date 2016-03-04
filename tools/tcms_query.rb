@@ -154,12 +154,23 @@ def get_scenario_outline_info(arg_values, line_number, file_contents)
   return scenario_outline_info
 end
 
+# helper method to get the author from the 'Notes' field of a testcase
+def get_author_from_notes(tc_notes)
+  author_regex1 = /(automated by)\s(\w+)?/i
+  author_regex2= /(\w+)(?: is)? automat(\w+)/
+  auto_by = tc_notes.match(author_regex1)[2] if tc_notes.match(author_regex1)
+  # try another regex format
+  if auto_by.nil?
+    auto_by = tc_notes.match(author_regex2)[1] if tc_notes.match(author_regex2)
+  end
+  auto_by = "unknown" if auto_by.nil?
+  return auto_by
+end
+
 def report_auto_testcases_by_author(options)
   tcms = options.tcms
   table = Text::Table.new
   table.head = ['case_id', 'summary', 'author']
-  author_regex1 = /(automated by)\s(\w+)?/i
-  author_regex2= /(\w+)(?: is)? automat(\w+)/
   script_pattern = "\"ruby\""
   cases = []
   unknown_cases = []   # array to story 'unknown' testcase ids
@@ -176,12 +187,7 @@ def report_auto_testcases_by_author(options)
 
       if (testcase['script'].include? script_pattern and testcase['case_status'] == 'CONFIRMED')
         auto_case_total += 1
-        auto_by = testcase['notes'].match(author_regex1)[2] if testcase['notes'].match(author_regex1)
-        # try another regex format
-        if auto_by.nil?
-          auto_by = testcase['notes'].match(author_regex2)[1] if testcase['notes'].match(author_regex2)
-        end
-        auto_by = "unknown" if auto_by.nil?
+        auto_by = get_author_from_notes(testcase['notes'])
         if auto_by == 'unknown'
           unknown_cases << testcase['case_id']
         end
@@ -381,8 +387,9 @@ def report_logs(options, status='FAILED')
   cases = tcms.get_run_cases(options[:testrun_id])
   filtered_cases = []
   table = Text::Table.new
-  table.head = ['caserun_id', 'case_id', 'log_url']
+  table.head = ['caserun_id', 'case_id', 'auto_by', 'log_url']
   cases.each do | tc |
+    tc['auto_by'] = get_author_from_notes(tc['notes'])
     if tc['case_run_status'] == status
       filtered_cases << tc
     end
@@ -390,7 +397,7 @@ def report_logs(options, status='FAILED')
 
   filtered_cases.each do | tc |
     log_url = tcms.get_latest_log_url(tc["case_run_id"])
-    table.rows << [tc["case_run_id"], tc["case_id"],log_url]
+    table.rows << [tc["case_run_id"], tc["case_id"], tc["auto_by"], log_url]
   end
   puts table
 end
