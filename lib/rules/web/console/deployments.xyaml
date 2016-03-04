@@ -135,5 +135,14 @@ goto_deployments_page:
   url: /console/project/<project_name>/browse/deployments
 goto_one_dc_page:
   url: /console/project/<project_name>/browse/deployments/<dc_name>
+check_dc_loaded_completely:
+  action: goto_one_dc_page
+  elements:
+  - selector:
+      text: Configuration
+  - selector:
+      text: Triggers
+  - selector:
+      text: Template
 goto_one_deployment_page:
   url: /console/project/<project_name>/browse/deployments/<dc_name>/<dc_name>-<dc_number>
