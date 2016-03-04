@@ -93,6 +93,8 @@ module CucuShift
       }
     end
 
+    # TODO: implement the #status? and #wait_till_status like methods
+
     ############### take care of object comparison ###############
     def ==(resource)
       raise "need to be implemented by subclass"

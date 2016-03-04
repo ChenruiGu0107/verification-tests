@@ -20,3 +20,11 @@ Given(/^I wait for the(?: "([^"]*)")? service to become ready$/) do |name|
   step 'a pod becomes ready with labels:',
     table('|' + selector_to_label_arr(*service.selector(user: user)).join("|") + '|')
 end
+
+Given(/^I wait for the(?: "([^"]*)")? service to be created$/) do |name|
+  @result = service(name).wait_to_appear(user, 60)
+
+  unless @result[:success]
+    raise "timeout waiting for service #{name} to be created"
+  end
+end
