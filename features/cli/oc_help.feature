@@ -116,7 +116,8 @@ Feature: oc related features
   Scenario: Check the help page for oc annotate
     When I run the :help client command
     Then the output should contain:
-      | annotate     Update the annotations on a resource |
+      | annotate |
+      | Update the annotations on a resource |
     When I run the :annotate client command with:
       | help | true |
     Then the output should contain:
