@@ -255,7 +255,12 @@
   :options:
     :c: -c <value>
     :f: -f
+    :limit-bytes: --limit-bytes <value>
     :p: -p
+    :since: --since <value>
+    :since-time: --since-time <value>
+    :timestamps: --timestamps
+    :version: --version <value>
 :new_app:
   :cmd: oc new-app
   :options:
