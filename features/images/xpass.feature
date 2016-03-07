@@ -111,3 +111,137 @@ Feature: xpass.feature
       |application=eap-app|
     Then I wait for a server to become available via the "eap-app" route
     And  the output should contain "JBoss"
+
+  # @author xiuwang@redhat.com
+  # @case_id 498007 498009
+  Scenario Outline: Create tomcat7/tomcat8 application via installed template 
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template |  <template> |
+    Then the step should succeed
+    And the "jws-app-1" build was created
+    And the "jws-app-1" build completed
+    Given I wait for the "jws-app" service to become ready
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -k | <%= service.url %>/websocket-chat/ |
+    Then the step should succeed
+    """
+    And the output should contain "WebSocket connection opened"
+
+    Examples:
+      | template                |
+      | jws30-tomcat7-basic-s2i |
+      | jws30-tomcat8-basic-s2i |
+
+  # @author xiuwang@redhat.com
+  # @case_id 498011 498018
+  Scenario Outline: Create tomcat7/tomcat8 with mongodb application via installed template 
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template |  <template> |
+    Then the step should succeed
+    And the "jws-app-1" build was created
+    And the "jws-app-1" build completed
+    Given I wait for the "jws-app" service to become ready
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -k | <%= service.url %> |
+    Then the step should succeed
+    """
+    And the output should contain "TODO list"
+    Given 1 pods become ready with labels:
+      | deploymentconfig=jws-app-mongodb |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mongodb26 | mongo $MONGODB_DATABASE -u $MONGODB_USER -p $MONGODB_PASSWORD  --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 2.6 |
+
+    Examples:
+      | template                  |
+      | jws30-tomcat7-mongodb-s2i |
+      | jws30-tomcat8-mongodb-s2i |
+
+  # @author xiuwang@redhat.com
+  # @case_id 498023 498024
+  Scenario Outline: Create tomcat7/tomcat8 with postgresql application via installed template 
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template |  <template> |
+    Then the step should succeed
+    And the "jws-app-1" build was created
+    And the "jws-app-1" build completed
+    Given I wait for the "jws-app" service to become ready
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -k | <%= service.url %> |
+    Then the step should succeed
+    """
+    And the output should contain "TODO list"
+    Given 1 pods become ready with labels:
+      | deploymentconfig=jws-app-postgresql |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | psql -U $POSTGRESQL_USER -c 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));' -d $POSTGRESQL_DATABASE |
+      Then the step should succeed
+    """
+    And the output should contain:
+      | CREATE TABLE |
+
+    Examples:
+      | template                      |
+      |  jws30-tomcat7-postgresql-s2i |
+      |  jws30-tomcat8-postgresql-s2i |
+
+
+  # @author xiuwang@redhat.com
+  # @case_id 498020 498022
+  Scenario Outline: Create tomcat7/tomcat8 with mysql application via installed template 
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template |  <template> |
+    Then the step should succeed
+    And the "jws-app-1" build was created
+    And the "jws-app-1" build completed
+    Given I wait for the "jws-app" service to become ready
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -k | <%= service.url %> |
+    Then the step should succeed
+    """
+    And the output should contain "TODO list"
+    Given 1 pods become ready with labels:
+      | deploymentconfig=jws-app-mysql |
+   And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | mysql  -h $JWS_APP_MYSQL_SERVICE_HOST -u $MYSQL_USER -p$MYSQL_PASSWORD -e "show databases" |
+    Then the step should succeed
+    """
+   And the output should contain "root"
+
+    Examples:
+      | template                 |
+      |  jws30-tomcat7-mysql-s2i |
+      |  jws30-tomcat8-mysql-s2i |
