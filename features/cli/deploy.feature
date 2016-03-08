@@ -796,7 +796,7 @@ Feature: deployment related features
     When I run the :oadm_prune_deployments client command with:
       |h||
     Then the step should succeed
-    And the output should contain "Remove older completed and failed deployments"
+    And the output should contain "completed and failed deployments"
     Given 60 seconds have passed
     When I run the :oadm_prune_deployments admin command with:
       | keep_younger_than | 1m |

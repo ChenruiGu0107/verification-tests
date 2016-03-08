@@ -133,7 +133,7 @@ Feature: admin build related features
     When I run the :oadm_prune_builds client command with:
       | help ||
     Then the step should succeed
-    And the output should contain "removes older completed and failed builds"
+    And the output should contain "completed and failed builds"
     #Wait for the builds to finish:
     Given the "ruby-sample-build-1" build finished
     And the "ruby-sample-build-2" build finished
