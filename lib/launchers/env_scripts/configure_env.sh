@@ -27,6 +27,7 @@ function wait_cloud_init()
   [ -f /var/log/cloud-init.log ] || return 0
   systemctl is-enabled cloud-init.service || return 0
   while :; do
+    systemctl show cloud-init |grep -q SubState=exited && break
     tail -n5 /var/log/cloud-init.log | grep -q 'Cloud-init .* finished' && break
     sleep 1
   done
