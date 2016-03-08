@@ -127,9 +127,13 @@ module CucuShift
       type = nil
 
       # older APIs may not work well with volume boot disks but we fallback
-      # to older if v3 is not found
+      # to older if v3 is not found;
+      # also note that some broken OS instances return invalid computev3 URL,
+      # and we need to filter our any URLs that don't contain tenant_id
       for service in os_service_catalog
-        if service['name'].start_with?("nova") && service['type'].start_with?("compute")
+        if service['name'].start_with?("nova") &&
+            service['type'].start_with?("compute") &&
+            service['endpoints'][0]['publicURL'].include?(os_tenant_id)
           @os_compute_url = service['endpoints'][0]['publicURL']
           type = service['type']
           if service['type'] == "computev3"
