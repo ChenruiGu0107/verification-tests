@@ -119,9 +119,7 @@ Feature: ServiceAccount and Policy Managerment
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | service |
-    Then the step should succeed
+    Given I wait for the "myapp" service to be created
     When I run the :delete client command with:
       | object_type       | service    |
       | object_name_or_id | myapp  |
@@ -191,6 +189,7 @@ Feature: ServiceAccount and Policy Managerment
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
     Then the step should succeed
+    Given I wait for the "myapp" service to be created
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_group client command with:
       | role | edit     |
@@ -198,6 +197,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     Given I find a bearer token of the system:serviceaccount:<%= project.name %>:test1 service account
     Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
+    And I use the "<%= project.name %>" project
     When I create a new application with:
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
@@ -230,6 +230,7 @@ Feature: ServiceAccount and Policy Managerment
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
     Then the step should succeed
+    Given I wait for the "myapp" service to be created
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_group client command with:
       | role | view     |
@@ -237,6 +238,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     Given I find a bearer token of the system:serviceaccount:<%= project.name %>:test1 service account
     Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
+    And I use the "<%= project.name %>" project
     When I create a new application with:
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
@@ -277,33 +279,33 @@ Feature: ServiceAccount and Policy Managerment
       | role       | edit            |
       | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
     Then the step should succeed
-    When I create a new application with:
-      | image_stream | ruby         |
-      | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
-    Then the step should succeed
-    And I wait for the "myapp" service to become ready
-    And I wait for the pod named "myapp-1-deploy" to die
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Given I wait for the "database" service to be created    
     Given I use the "<%= cb.project1 %>" project
     Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
     Given I switch to the system:serviceaccount:<%= cb.project1 %>:test1 service account
+    And I use the "<%= project.name %>" project
     When I run the :get client command with:
       | resource | pod |
     Then the step should succeed
     Given I use the "<%= cb.project2 %>" project
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/e21d95cedad8f0ce06ff5d04ae9b978ce3d04d87/examples/sample-app/application-template-stibuild.json"
-    And I run the :create client command with:
-      |f|application-template-stibuild.json|
-    Then the step should succeed
     When I run the :deploy client command with:
-      | deployment_config | myapp |
-      | latest            | true  |
+      | deployment_config | database |
+      | cancel             ||
+    Then the step should succeed   
+    And I wait for the steps to pass:
+    """ 
+    When I run the :deploy client command with:
+    | deployment_config | database |
+    Then the output should contain:
+    | deployment was cancelled by the user|
+    """
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | retry             ||
     Then the step should succeed
-    And the pod named "myapp-2-deploy" becomes ready
-    When I run the :start_build client command with:
-      | buildconfig | myapp |
-      | wait | true |
-    Then the step should succeed
+    And the "ruby-sample-build-1" build was created
+
     When I run the :policy_add_role_to_user client command with:
       | role  | edit     |
       | user_name |  <%= user(1, switch: false).name %> |
@@ -328,45 +330,33 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     Given I use the "<%= cb.project2 %>" project
     When I run the :policy_add_role_to_user client command with:
-      | role      | view            |
+      | role       | view            |
       | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
     Then the step should succeed
-    When I create a new application with:
-      | image_stream | ruby         |
-      | code         | https://github.com/openshift/ruby-hello-world |
-      | name         | myapp         |
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
     Then the step should succeed
-    And I wait for the steps to pass:
-      """
-      When I run the :get client command with:
-      | resource  | svc |
-      Then the output should match:
-      | myapp\\s+.*\\s+8080 |
-      """
+    Given I wait for the "database" service to be created
     Given I use the "<%= cb.project1 %>" project
     Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
     Given I switch to the system:serviceaccount:<%= cb.project1 %>:test1 service account
+    And I use the "<%= project.name %>" project
     When I run the :get client command with:
       | resource | pod |
     Then the step should succeed
     Given I use the "<%= cb.project2 %>" project
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/e21d95cedad8f0ce06ff5d04ae9b978ce3d04d87/examples/sample-app/application-template-stibuild.json"
-    And I run the :create client command with:
-      |f|application-template-stibuild.json|
-    Then the step should fail
     When I run the :deploy client command with:
-      | deployment_config | myapp |
-      | latest            | true  |
-    Then the step should fail
-    When I run the :start_build client command with:
-      | buildconfig | myapp |
-    Then the step should fail
+      | deployment_config | database |
+      | cancel             ||
+    Then the step should fail   
+    And the output should contain:
+      | ser "system:serviceaccount:<%= cb.project1 %>:test1" cannot update |
+
     When I run the :policy_add_role_to_user client command with:
-      | role  | edit     |
+      | role  | view     |
       | user_name |  <%= user(1, switch: false).name %> |
     Then the step should fail
     When I run the :policy_remove_role_from_user client command with:
-      | role  | edit     |
+      | role  | view     |
       | user_name |  %= user(0, switch: false).name %> |
     Then the step should fail
 
@@ -381,19 +371,16 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     Given I find a bearer token of the system:serviceaccount:<%= project.name %>:test1 service account
     Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
-    When I run the :get client command with:
-      | resource | bc |
-    Then the step should succeed
+    And I use the "<%= project.name %>" project 
     When I create a new application with:
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
     Then the step should succeed
-    And I wait for the "myapp" service to become ready
+    Given I wait for the "myapp" service to be created
     When I replace resource "dc" named "myapp" saving edit to "tmp_out.yaml":
       | replicas: 1 | replicas: 2 |
     Then the step should succeed
-    And I wait until the status of deployment "myapp" becomes :complete
     When I run the :delete client command with:
       | object_type       | pod    |
       | l                 | deploymentconfig=myapp  |
@@ -469,3 +456,4 @@ Feature: ServiceAccount and Policy Managerment
       | user_name |  %= user(0, switch: false).name %> |
     Then the step should succeed
     
+
