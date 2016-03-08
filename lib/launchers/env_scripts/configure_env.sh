@@ -481,11 +481,10 @@ function modify_IS_for_testing()
     done
   else
     # when it is v3.2 version
-    for file in ${file2}; do
-      sed -i "s/registry.access.redhat.com/${registry_server}/g" ${file}
-      sed -i '/from/i\"importPolicy\"\:\ \{\"insecure\"\:\ true\}\,' ${file}
-      oc create -f ${file} -n openshift
-    done
+    oc create -f ${file1} -n openshift
+    sed -i "s/registry.access.redhat.com/${registry_server}/g" ${file2}
+    sed -i '/from/i\"importPolicy\"\:\ \{\"insecure\"\:\ true\}\,' ${file2}
+    oc create -f ${file2} -n openshift
   fi
 }
 

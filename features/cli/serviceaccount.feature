@@ -411,6 +411,49 @@ Feature: ServiceAccount and Policy Managerment
       | resource             |   pods                               |
       | o                    |   yaml                               |
     Then the step should succeed
-    And the output should contain:
+    And the output should match:
       | imagePullSecrets:\\s+- name: myserviceaccount<%= project.name  %>-dockercfg     |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 490720
+  Scenario:Could grant admin permission for the service account group to access to other project
+    Given an 8 characters random string of type :dns is stored into the :project1 clipboard
+    And an 8 characters random string of type :dns is stored into the :project2 clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.project1 %> |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | <%= cb.project2 %> |
+    Then the step should succeed
+    When I run the :policy_add_role_to_group client command with:
+      | role | admin     |
+      | group_name | system:serviceaccounts:<%= cb.project1 %> |
+    Then the step should succeed
+    Given I use the "<%= cb.project1 %>" project
+    And I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:default service account
+    And I switch to the system:serviceaccount:<%= cb.project1 %>:default service account
+    And I use the "<%= cb.project2 %>" project
+
+    When I run the :get client command with:
+      | resource | service |
+    Then the output should not contain "ruby-hello-world"
+    When I create a new application with:
+      | image_stream | ruby          |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | name         | myapp<%= cb.project1 %>                       |
+    Then the step should succeed
+    Given I wait for the "myapp<%= cb.project1 %>" service to be created
+    When I run the :delete client command with:
+      | object_type       | service        |
+      | object_name_or_id | myapp<%= cb.project1 %>          |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | edit     |
+      | user_name |  <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    When I run the :policy_remove_role_from_user client command with:
+      | role      | edit     |
+      | user_name |  %= user(0, switch: false).name %> |
+    Then the step should succeed
+    
 
