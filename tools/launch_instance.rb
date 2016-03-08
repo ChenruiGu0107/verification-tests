@@ -63,10 +63,13 @@ module CucuShift
             options.service_name ||= ENV['CLOUD_SERVICE_NAME'].strip
             options.service_name = options.service_name.to_sym
 
+            if ENV['PUDDLE_REPO'] && !ENV['PUDDLE_REPO'].empty?
+                options.puddle_repo ||= ENV["PUDDLE_REPO"].strip
+            end
             # a hack to put puddle tag into instance names
             options.launched_instances_name_prefix =
               process_instance_name(options.launched_instances_name_prefix,
-                                    ENV["PUDDLE_REPO"].strip)
+                                    options.puddle_repo)
 
             # TODO: allow specifying pre-launched machines
 
