@@ -51,21 +51,15 @@ module CucuShift
             el = EnvLauncher.new
 
             ## set some opts based on Environment Variables
-            options.master_num ||= Integer(ENV['MASTER_NUM']) rescue 1
-            options.node_num ||= ENV['NODE_NUM'].to_i
-            options.launched_instances_name_prefix ||= ENV['INSTANCE_NAME_PREFIX'].strip
-            if ENV['CLOUD_INSTANCE_TYPE'] && !ENV['CLOUD_INSTANCE_TYPE'].empty?
-              options.instance_type ||= ENV['CLOUD_INSTANCE_TYPE'].strip
-            end
-            if ENV['CLOUD_IMAGE_NAME'] && !ENV['CLOUD_IMAGE_NAME'].empty?
-              options.image_name ||= ENV['CLOUD_IMAGE_NAME'].strip
-            end
-            options.service_name ||= ENV['CLOUD_SERVICE_NAME'].strip
+            options.master_num ||= Integer(getenv('MASTER_NUM')) rescue 1
+            options.node_num ||= getenv('NODE_NUM').to_i
+            options.launched_instances_name_prefix ||= getenv('INSTANCE_NAME_PREFIX')
+            options.instance_type ||= getenv('CLOUD_INSTANCE_TYPE')
+            options.image_name ||= getenv('CLOUD_IMAGE_NAME')
+            options.service_name ||= getenv('CLOUD_SERVICE_NAME')
             options.service_name = options.service_name.to_sym
+            options.puddle_repo ||= getenv("PUDDLE_REPO")
 
-            if ENV['PUDDLE_REPO'] && !ENV['PUDDLE_REPO'].empty?
-                options.puddle_repo ||= ENV["PUDDLE_REPO"].strip
-            end
             # a hack to put puddle tag into instance names
             options.launched_instances_name_prefix =
               process_instance_name(options.launched_instances_name_prefix,
@@ -128,10 +122,7 @@ module CucuShift
     # @return [String] user data to pass to instance
     def user_data(spec = nil, erb_vars = {})
       ## process user data
-      if ENV['INSTANCES_USER_DATA'] && !ENV['INSTANCES_USER_DATA'].empty?
-        # sanitize the parameter to make it more tolerant of extra white-spaces
-        spec ||= ENV['INSTANCES_USER_DATA'].strip
-      end
+      spec ||= getenv('INSTANCES_USER_DATA')
       if spec
         case spec
         when URI.regexp
@@ -277,10 +268,10 @@ module CucuShift
     end
 
     def launch_ec2_instance(options)
-      image = options.image_name || ENV['CLOUD_IMAGE_NAME'].strip
+      image = options.image_name || getenv('CLOUD_IMAGE_NAME')
       image = nil if image && image.empty?
       instance_name = options.launched_instances_name_prefix
-      options.instance_type ||= ENV['CLOUD_INSTANCE_TYPE'].strip
+      options.instance_type ||= getenv('CLOUD_INSTANCE_TYPE')
       if options.instance_type && !options.instance_type.empty?
         create_opts[:instance_type] = options.instance_type
       end

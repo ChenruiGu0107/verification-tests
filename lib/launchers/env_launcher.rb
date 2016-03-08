@@ -527,18 +527,16 @@ module CucuShift
     # @param opts [Hash] instance launch opts to modify based on ENV
     # @return [Hash] the modified hash options
     def launcher_env_options(opts)
-      if ENV["AUTH_TYPE"] && !ENV["AUTH_TYPE"].empty?
-        if ENV["AUTH_TYPE"] == "RANDOM"
-          ## each day we want to use different auth type ignoring weekends
-          time = Time.now
-          day_of_year = time.yday
-          passed_weeks_of_year = time.strftime('%W').to_i - 1
-          opts[:auth_type] = ALTERNATING_AUTH[
-            (day_of_year - 2 * passed_weeks_of_year) % ALTERNATING_AUTH.size
-          ]
-        else
-          opts[:auth_type] = ENV["AUTH_TYPE"]
-        end
+      if getenv("AUTH_TYPE") == "RANDOM"
+        ## each day we want to use different auth type ignoring weekends
+        time = Time.now
+        day_of_year = time.yday
+        passed_weeks_of_year = time.strftime('%W').to_i - 1
+        opts[:auth_type] = ALTERNATING_AUTH[
+          (day_of_year - 2 * passed_weeks_of_year) % ALTERNATING_AUTH.size
+        ]
+      elsif getenv("AUTH_TYPE")
+        opts[:auth_type] = getenv("AUTH_TYPE")
       end
 
       # workaround https://issues.jenkins-ci.org/browse/JENKINS-30719
@@ -564,9 +562,8 @@ module CucuShift
               :kerberos_admin_server]
 
       keys.each do |key|
-        if ENV[key.to_s.upcase] && !ENV[key.to_s.upcase].empty?
-          opts[key] = ENV[key.to_s.upcase]
-        end
+        val = getenv(key.to_s.upcase)
+        opts[key] = val if val
       end
 
       opts[:use_rpm_playbook] = false unless to_bool(opts[:use_rpm_playbook])

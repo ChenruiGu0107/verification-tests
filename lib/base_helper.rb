@@ -199,6 +199,16 @@ module CucuShift
         end
         return b
       end
+
+      def getenv(var_name, strip: true, empty_is_nil: true)
+        v = ENV[var_name]
+        if v.nil? || empty_is_nil && v.empty?
+          return nil
+        else
+          v = v.strip if strip
+          return v
+        end
+      end
     end
   end
 end
