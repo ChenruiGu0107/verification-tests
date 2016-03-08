@@ -84,9 +84,9 @@ create_app_from_image_add_dc_env_vars:
     op: send_keys <dc_env_value>
     type: input
   - selector:
-      xpath: //osc-key-values[@entries='deploymentConfig.envVars']//button[text()="Add"]
+      xpath: //osc-key-values[@entries='deploymentConfig.envVars']//a[@role="button"]
     op: click
-    type: button
+    type: a
 create_app_from_image_add_bc_env_vars:
   elements:
   - selector:
@@ -98,9 +98,9 @@ create_app_from_image_add_bc_env_vars:
     op: send_keys <bc_env_value>
     type: input
   - selector:
-      xpath: //osc-key-values[@entries='buildConfig.envVars']//button[text()="Add"]
+      xpath: //osc-key-values[@entries='buildConfig.envVars']//a[@role="button"]
     op: click
-    type: button
+    type: a
 create_app_from_image_change_bc_webhook_trigger:
   element:
     selector:
@@ -138,9 +138,9 @@ create_app_from_image_add_labels:
     op: send_keys <label_value>
     type: input
   - selector:
-      xpath: //label-editor//div[@ng-show='expand']//button[text()="Add"]
+      xpath: //label-editor//div[@ng-show='expand']//a[@role="button"]
     op: click
-    type: button
+    type: a
 create_app_from_image_submit:
   element:
     selector:
