@@ -100,7 +100,7 @@ Feature: oc_portforward.feature
       <%= '"""' %>
     """
   # @author pruan@redhat.com
-  # @case_id 509396
+  # @case_id 509397
   Scenario: Forwarding local port to a non-existing port in a pod
     Given I have a project
     And evaluation of `rand(5000..7999)` is stored in the :porta clipboard
@@ -118,4 +118,3 @@ Feature: oc_portforward.feature
       :method: :get
       """
     Then the step should fail
-    And the expression should be true> @result[:exitstatus] == 503
