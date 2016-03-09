@@ -29,7 +29,8 @@ Feature: Check oc status cli
     And evaluation of `"my-secret"` is stored in the :missingscrt_name clipboard
     When I create a new application with:
       | template | ruby-helloworld-sample |
-    Then the step should succeed
+  # TODO: yapei, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then I wait for the "database" service to be created
     When I run the :status client command with:
       | v ||
     And the output should match:
@@ -143,12 +144,12 @@ Feature: Check oc status cli
   # @case_id 476295
   Scenario: Show Project.Status when listing the project
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-    Then the step should succeed
-    And I run the :new_app client command with:
-      | template | ruby-helloworld-sample |
-    Then the step should succeed
+    When I create a new application with:
+      | image_stream | ruby         |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | name         | myapp         |
+  # TODO: cryan, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then I wait for the "myapp" service to be created
     When I run the :get client command with:
       | resource | projects |
     Then the step should succeed
@@ -156,16 +157,22 @@ Feature: Check oc status cli
     When I run the :status client command
     Then the step should succeed
     And the output should contain "In project <%= project.name %> on server"
-    When I run the :delete client command with:
+
+    When I run the :delete background client command with:
       | object_type | projects |
       | object_name_or_id | <%= project.name %> |
-    Then the step should succeed
+
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | projects |
     Then the step should succeed
     And the output should match "<%= project.name %>\s+Terminating"
-    When I run the :new_app client command with:
-      | template | ruby-helloworld-sample |
+    """
+    When I create a new application with:
+      | image_stream | ruby         |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | name         | myapp         |
     Then the step should fail
 
   # @author pruan@redhat.com

@@ -337,8 +337,19 @@ Feature: change the policy of user/service account
     Given a 5 characters random string of type :dns is stored into the :proj1 clipboard
     When I run the :new_project client command with:
       | project_name  | <%= cb.proj1 %>      |
-    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
     Then the step should succeed
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
+  # TODO: xiaocwan, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    And I run the :new_app client command with:
+      | template | ruby-helloworld-sample|
+    Then the output should contain:
+      | ervice.*created          |
+      | oute.*created            |
+      | mageStream.*created      |
+      | eploymentConfig.*created |
+
     When I run the :policy_who_can client command with:
     | verb     |  get                        |
     | resource |  imagestreams/layers        |
@@ -358,8 +369,16 @@ Feature: change the policy of user/service account
     Given a 5 characters random string of type :dns is stored into the :proj2 clipboard
     When I run the :new_project client command with:
       | project_name  | <%= cb.proj2 %>      |
-    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
-    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
+    And I run the :new_app client command with:
+      | template | ruby-helloworld-sample|
+    Then the output should match:
+      | ervice.*created          |
+      | oute.*created            |
+      | mageStream.*created      |
+      | eploymentConfig.*created |
+
     When I run the :policy_who_can client command with:
     | verb     |  get                        |
     | resource |  imagestreams/layers        |

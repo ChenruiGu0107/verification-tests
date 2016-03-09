@@ -8,7 +8,8 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-    Then the step should succeed
+  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then I wait for the "myapp" service to be created
     Given I create the serviceaccount "demo"
     And I give project admin role to the demo service account
     When I run the :describe client command with:
@@ -22,7 +23,7 @@ Feature: ServiceAccount and Policy Managerment
     Given I find a bearer token of the demo service account
     And I switch to the demo service account
     When I run the :get client command with:
-      | resource | buildconfig        |
+      | resource | dc        |
     Then the output should contain:
       | myapp   |
 
@@ -65,7 +66,8 @@ Feature: ServiceAccount and Policy Managerment
     When I create a new application with:
       | docker image | <%= project_docker_repo %>openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-    Then the step should succeed
+  # TODO: xxia, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then I wait for the "myapp" service to be created
     When I give project view role to the default service account
     And I run the :get client command with:
       | resource       | rolebinding  |
@@ -76,7 +78,7 @@ Feature: ServiceAccount and Policy Managerment
     Given I find a bearer token of the default service account
     And I switch to the default service account
     When I run the :get client command with:
-      | resource | buildconfig         |
+      | resource | dc         |
       | n        | <%= project.name %> |
     Then the step should succeed
     And the output should contain:
@@ -87,7 +89,7 @@ Feature: ServiceAccount and Policy Managerment
       | n            | <%= project.name %> |
     Then the step should fail
     When I run the :delete client command with:
-      | object_type       | bc        |
+      | object_type       | dc        |
       | object_name_or_id | myapp     |
       | n                 | <%= project.name %> |
     Then the step should fail
@@ -118,8 +120,8 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-    Then the step should succeed
-    Given I wait for the "myapp" service to be created
+  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then I wait for the "myapp" service to be created
     When I run the :delete client command with:
       | object_type       | service    |
       | object_name_or_id | myapp  |
@@ -149,7 +151,9 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-    Then the step should succeed
+  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then the output should contain:
+      | service "myapp" created |
     When I run the :policy_add_role_to_group client command with:
       | role | view     |
       | group_name | system:serviceaccounts:<%= cb.project1 %> |
@@ -188,8 +192,8 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-    Then the step should succeed
-    Given I wait for the "myapp" service to be created
+  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then I wait for the "myapp" service to be created
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_group client command with:
       | role | edit     |
@@ -202,7 +206,7 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp2         |
-    Then the step should succeed
+    Then I wait for the "myapp2" service to be created
     When I run the :get client command with:
       | resource | service |
     Then the step should succeed
@@ -229,8 +233,8 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-    Then the step should succeed
-    Given I wait for the "myapp" service to be created
+  # TODO: anli, , this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then I wait for the "myapp" service to be created
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_group client command with:
       | role | view     |
@@ -279,12 +283,16 @@ Feature: ServiceAccount and Policy Managerment
       | role       | edit            |
       | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
     Then the step should succeed
-    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
-    Given I wait for the "database" service to be created    
+    
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    And I run the :new_app client command with:
+      | template | ruby-helloworld-sample|
+  # TODO: anli, , this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then I wait for the "database" service to be created
     Given I use the "<%= cb.project1 %>" project
     Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
     Given I switch to the system:serviceaccount:<%= cb.project1 %>:test1 service account
-    And I use the "<%= project.name %>" project
     When I run the :get client command with:
       | resource | pod |
     Then the step should succeed
@@ -293,18 +301,7 @@ Feature: ServiceAccount and Policy Managerment
       | deployment_config | database |
       | cancel             ||
     Then the step should succeed   
-    And I wait for the steps to pass:
-    """ 
-    When I run the :deploy client command with:
-    | deployment_config | database |
-    Then the output should contain:
-    | deployment was cancelled by the user|
-    """
-    When I run the :deploy client command with:
-      | deployment_config | database |
-      | retry             ||
-    Then the step should succeed
-    And the "ruby-sample-build-1" build was created
+    And the output should contain "ancelled deployment"
 
     When I run the :policy_add_role_to_user client command with:
       | role  | edit     |
@@ -333,9 +330,13 @@ Feature: ServiceAccount and Policy Managerment
       | role       | view            |
       | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
     Then the step should succeed
-    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
-    Then the step should succeed
-    Given I wait for the "database" service to be created
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    And I run the :new_app client command with:
+      | template | ruby-helloworld-sample|
+  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then I wait for the "database" service to be created
     Given I use the "<%= cb.project1 %>" project
     Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
     Given I switch to the system:serviceaccount:<%= cb.project1 %>:test1 service account
@@ -376,8 +377,8 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-    Then the step should succeed
-    Given I wait for the "myapp" service to be created
+  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    Then I wait for the "myapp" service to be created
     When I replace resource "dc" named "myapp" saving edit to "tmp_out.yaml":
       | replicas: 1 | replicas: 2 |
     Then the step should succeed

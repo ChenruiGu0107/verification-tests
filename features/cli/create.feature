@@ -461,6 +461,7 @@ Feature: creating 'apps' with CLI
     When I run the :create client command with:
       | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_fsGroup.json |
     Then the step should succeed
+
     When the pod named "hello-openshift" becomes ready
     When I run the :get client command with:
       | resource | pod             |

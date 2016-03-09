@@ -128,11 +128,10 @@ Feature: limit range related scenarios:
   # @case_id 508048
   @admin
   Scenario: Limit range with all values set with proper values
-    Given I have a project
-    When I run the :create admin command with:
-      | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508048/limit.yaml |
+    Given I have a project 
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508048/limit.yaml
     Then the step should succeed
-    And I run the :describe admin command with:
+    And I run the :describe client command with:
       |resource | namespace            |
       | name    | <%= project.name %>  |
     Then the output should match:
@@ -140,12 +139,13 @@ Feature: limit range related scenarios:
       | Pod\\s+memory\\s+10Mi\\s+1Gi\\s+\-\\s+\-\\s+\-             |
       | Container\\s+cpu\\s+10m\\s+480m\\s+180m\\s+240m\\s+4       |
       | Container\\s+memory\\s+5Mi\\s+512Mi\\s+128Mi\\s+256Mi\\s+4 |
-    When I run the :create admin command with:
+    When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508048/pod.yaml |
+      | n | <%= project.name %>  |
     Then the step should succeed
     And I wait for the steps to pass:
     """
-    When I run the :get admin command with:
+    When I run the :get client command with:
       | resource      | pod    |
       | resource_name | mypod  |
       | o             | yaml   |
