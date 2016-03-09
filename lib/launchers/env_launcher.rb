@@ -261,10 +261,6 @@ module CucuShift
         ose3_vars << "openshift_infra_nodes=#{router_ips}"
       end
 
-      #configure nfs on first master
-      nfs_host_lines << "#{hosts["master"][0].ansible_host_str}"
-
-
       ## Setup HA Master opts End
 
       ## DNS config
@@ -337,6 +333,9 @@ module CucuShift
 
       dns_subst.call # double substritution (if happens) should not hurt
       ## DNS config End
+
+      #configure nfs on first master (for HA registry)
+      nfs_host_lines << "#{hosts["master"][0].ansible_host_str}"
 
       hosts.each do |role, role_hosts|
         role_hosts.each do |host|
