@@ -99,9 +99,10 @@ module CucuShift
     #
     def create_failed_testcases_issue(testcases)
       query_params = {
-        :assignee => testcases[0]['auto_by'],
-      :run_id => testcases[0]['run_id']}
-
+        :assignee => testcases[0]['auto_by'], 
+        :run_id => testcases[0]['run_id']}
+      # read in the config from the :tcms section
+      @options[:tcms_base_url] = conf[:services, :tcms][:tcms_base_url]
       issues = find_issue_by_testrun_id(query_params)
       error_logs = ""
       testcases.each do | tc |
