@@ -407,7 +407,18 @@ def report_logs(options, status='FAILED')
       tc[:testrun_id] = options[:testrun_id]
       table.rows << [tc["case_run_id"], tc["case_id"], tc["auto_by"], log_url]
     end
-    jira.create_failed_testcases_issue(testcases) if options.create_jira
+    if options.create_jira
+      if options.author
+        if author == options.author
+          jira.create_failed_testcases_issue(testcases)
+        else
+          print ("Skipping JIRA update because author '#{author}' did not match author filter '#{options.author}'\n")
+        end
+      else
+        jira.create_failed_testcases_issue(testcases)
+      end
+    end
+    #jira.create_failed_testcases_issue(testcases) if options.create_jira
   end
   puts table
 end
