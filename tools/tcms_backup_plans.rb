@@ -31,7 +31,7 @@ module CucuShift
 
     def run
       program :name, 'tcms_backup_plans'
-      program :version, '0.0.1'
+      program :version, '0.0.3'
       program :description, 'Tool to backup TCMS plans into YAML files'
 
       # global_option('-p', '--plan-ids PLAN_IDS', 'comma separated list of plans to backup')
@@ -82,8 +82,10 @@ module CucuShift
       command :tags do |c|
         c.syntax = "#{$0} tags <backup_file.gz>"
         c.description = 'reports discrepancies between scenario and TCMS tags'
+        c.option('-p', '--plan-ids PLAN_IDS', 'comma separated list of plans to restore')
+        c.option('-b', '--backup BACKUP_ARCHIVE', 'backup archive to restore from')
         c.action do |args, options|
-          compare_tcms_to_code(args.first)
+          compare_tcms_to_code(options)
         end
       end
 
@@ -499,10 +501,14 @@ module CucuShift
       Asciidoctor.render(report, :safe => :unsafe, :to_file => BACKUP_DIFF_PREFIX + '.html')
     end
 
-    def compare_tcms_to_code(backup_file)
-      backup_struct = load_yaml_from_gz(backup_file)
+    def compare_tcms_to_code(options)
+      backup_struct = load_yaml_from_gz(options.backup)
+      plans = options.plan_ids.split(',').map {|id| Integer(id)}
+      plans_cases = backup_struct.reduce([]) do |res, pb|
+        plans.include?(pb.first) ? (res | pb.last) : res
+      end
       diff_cases = {}
-      backup_struct.values[0].each do |tcms_case|
+      plans_cases.each do |tcms_case|
         #Only check for 'CONFIRMED' cases in TCMS.
         if tcms_case['case_status'] == 'CONFIRMED'
           #Initialize arrays for missing tags. tcms_missing means that a tag
