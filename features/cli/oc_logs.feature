@@ -10,7 +10,7 @@ Feature: oc logs related features
     When I run the :logs client command with:
       | resource_name |   |
     Then the step should fail
-    And the output should contain "POD is required for logs"
+    And the output should contain "resource name may not be empty"
 
   #@author xxia@redhat.com
   #@case_id 512022
