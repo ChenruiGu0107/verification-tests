@@ -10,7 +10,7 @@ Feature: oc logs related features
     When I run the :logs client command with:
       | resource_name |   |
     Then the step should fail
-    And the output should contain "error: a pod must be specified"
+    And the output should contain "POD is required for logs"
 
   #@author xxia@redhat.com
   #@case_id 512022
