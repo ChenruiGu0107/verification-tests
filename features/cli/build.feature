@@ -307,7 +307,7 @@ Feature: build 'apps' with CLI
       | resource | buildConfig        |
       | name     | ruby-hello-world-1 |
     Then the output should match:
-      | ImageStreamTag openshift/ruby:latest |
+      | ImageStreamTag openshift/ruby:2.2 |
     When I run the :describe client command with:
       | resource | buildConfig        |
       | name     | ruby-hello-world-2 |
