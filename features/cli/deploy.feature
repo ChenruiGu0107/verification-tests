@@ -315,8 +315,8 @@ Feature: deployment related features
     Given I wait for the pod named "hooks-3-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | hooks |
-    Then the output should contain:
-      | hooks #3 deployed |
+    Then the output should match:
+      | hooks.*#3.*deployed |
     When I run the :get client command with:
       | resource | pod |
     Then the output should match:
@@ -487,8 +487,7 @@ Feature: deployment related features
       | deployment_config | test-stop-failed-deployment |
     Then the step should succeed
     And the output should match:
-      | test-stop-failed-deployment.+#1.+failed          |
-      | The deployment was cancelled by the user         |
+      | test-stop-failed-deployment.*#1.*cancelled |
 
   # @author pruan@redhat.com
   # @case_id 484482
