@@ -21,6 +21,7 @@ module CucuShift
     BACKUP_DIFF_PREFIX = "TCMS_backup.report"
 
     def initialize
+      always_trace!
     end
 
     def tcms
