@@ -220,6 +220,9 @@
   :cmd: oc help
   :options:
     # use global `h` and `help` options if needed
+# use the follow to get around existing commands that has 'required' field which is not need when using -h or --help
+:help_cmd:
+  :cmd: oc <cmd> --help
 :import_image:
   :cmd: oc import-image
   :options:
@@ -329,7 +332,8 @@
     :template: --template=<value>
     :type: --type=<value>
     :quiet: --quiet=<value>
-
+:options:
+  :cmd: oc options
 :patch:
   :cmd: oc patch <resource>
   :options:
