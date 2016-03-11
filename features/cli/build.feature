@@ -401,15 +401,20 @@ Feature: build 'apps' with CLI
   # @case_id 507557
   Scenario: Add more ENV to DockerStrategy buildConfig when do docker build
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/cjryan/v3-testfiles/tc507557/templates/tc507557/application-template-dockerbuild-multivars.json"
-    Given I replace lines in "application-template-dockerbuild-multivars.json":
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json"
+    Given I replace lines in "ruby22rhel7-template-docker.json":
       | registry.access.redhat.com/ | <%= product_docker_repo %> |
     When I run the :new_app client command with:
-      | file | application-template-dockerbuild-multivars.json |
+      | file | ruby22rhel7-template-docker.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       |deployment=frontend-1|
     Given evaluation of `@pods[0].name` is stored in the :frontendpod clipboard
+    When I run the :build_logs client command with:
+      | build_name | ruby22-sample-build-1 |
+    Then the output should contain:
+      | ENV RACK_ENV production  |
+      | ENV RAILS_ENV production |
     When I execute on the "<%= cb.frontendpod %>" pod:
       | env |
     Then the step should succeed
