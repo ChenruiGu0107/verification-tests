@@ -419,6 +419,31 @@ Feature: build 'apps' with CLI
       | env |
     Then the step should succeed
     And the output should contain "RACK_ENV=production"
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec": {"strategy": {"dockerStrategy": {"env": [{"name": "DISABLE_ASSET_COMPILATION","value": "1"}, {"name":"RACK_ENV","value":"development"}]}}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | o | json |
+    Then the output should contain "DISABLE_ASSET_COMPILATION"
+    And the output should contain "RACK_ENV"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    When I run the :build_logs client command with:
+      | build_name | ruby22-sample-build-2 |
+    Then the output should contain:
+      | ENV "DISABLE_ASSET_COMPILATION" "1" |
+      | "RACK_ENV" "development"  |
+    Given 2 pods become ready with labels:
+      |deployment=frontend-2|
+    Given evaluation of `@pods[2].name` is stored in the :frontendpod2 clipboard
+    When I execute on the "<%= cb.frontendpod2 %>" pod:
+      | env |
+    Then the step should succeed
+    And the output should contain "RACK_ENV=development"
 
   # @author cryan@redhat.com
   # @case_id 498212
