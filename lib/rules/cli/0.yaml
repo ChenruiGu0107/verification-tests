@@ -329,7 +329,8 @@
     :template: --template=<value>
     :type: --type=<value>
     :quiet: --quiet=<value>
-
+:options:
+  :cmd: oc options
 :patch:
   :cmd: oc patch <resource>
   :options:
@@ -372,6 +373,9 @@
   :cmd: oc project
   :options:
     :project_name: <value>
+:proxy:
+  :cmd: oc proxy
+  :options:
 :replace:
   :cmd: oc replace
   :options:
