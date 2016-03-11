@@ -1,5 +1,5 @@
 # support library for using RHT JIRA
-lib_path = File.expand_path(File.dirname(File.dirname(__FILE__)))
+lib_path = File.expand_path(File.dirname(__FILE__))
 unless $LOAD_PATH.any? {|p| File.expand_path(p) == lib_path}
   $LOAD_PATH.unshift(lib_path)
 end
@@ -11,12 +11,13 @@ module CucuShift
     include Common::Helper
 
     def initialize(options={})
-      raise "No default options detected, please makse sure the PRIVATE_REPO is cloned into your repo or ENV CUCUSHIFT_PRIVATE_DIR is defined" if default_opts.nil?
+      raise "No default options detected, please makse sure the PRIVATE_REPO \
+      is cloned into your repo or ENV CUCUSHIFT_PRIVATE_DIR is defined" if default_opts.nil?
       @options = default_opts.merge options
 
       ## try to obtain user/password in all possible ways
-      @options[:user] = ENV['JIRA_USER']
-      @options[:password] = ENV['TCMS_PASSWORD']
+      @options[:user] = ENV['JIRA_USER'] if ENV['JIRA_USER']
+      @options[:password] = ENV['JIRA_PASSWORD'] if ENV['JIRA_PASSWORD']
       unless @options[:user]
         Timeout::timeout(120) {
           STDERR.puts "JIRA user (timeout in 2 minutes): "
