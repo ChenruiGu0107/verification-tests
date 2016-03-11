@@ -837,3 +837,47 @@ Feature: build 'apps' with CLI
     Then the step should fail
     And the output should contain:
       |error: environment variables must be of the form key=value: @#@=value|
+
+  # @author xiuwang@redhat.com
+  # @case_id 491406
+  Scenario: Create applications only with multiple db images
+    Given I create a new project
+    When I run the :new_app client command with:
+      | image_stream | openshift/mongodb |
+      | image_stream | openshift/mysql   |
+      | docker_image | <%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
+      | env          | MONGODB_USER=test,MONGODB_PASSWORD=test,MONGODB_DATABASE=test,MONGODB_ADMIN_PASSWORD=test |
+      | env          | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test |
+      | env          | MYSQL_ROOT_PASSWORD=test |
+      | l            | app=testapps      |
+      | insecure_registry | true         |
+    Then the step should succeed
+
+    Given I wait for the "mysql" service to become ready
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | mysql  -h $MYSQL_SERVICE_HOST -u root -ptest -e "show databases" |
+    Then the step should succeed
+    """
+    And the output should contain "mysql"
+    Given I wait for the "mongodb" service to become ready
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mongodb26 | mongo $MONGODB_DATABASE -u $MONGODB_USER -p $MONGODB_PASSWORD  --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 2.6 |
+    Given I wait for the "postgresql-94-rhel7" service to become ready
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash |
+      | -c |
+      | psql -U user -c 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));' db |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | CREATE TABLE |
