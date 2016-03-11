@@ -138,6 +138,18 @@
   :options:
     :filename: --filename=<value>
     :output: --output=<value>
+:set_env:
+  :cmd: oc set env
+  :options:
+    :env_name: <value>
+    :all: --all=<value>
+    :list: --list=<value>
+    :resource: <value>
+    :keyval: <value>
+    :e: -e <value>
+    :o: -o <value>
+    :f: -f <value>
+    :c: -c <value>
 :env:
   :cmd: oc env
   :options:
