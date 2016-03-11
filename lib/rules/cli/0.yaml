@@ -220,9 +220,6 @@
   :cmd: oc help
   :options:
     # use global `h` and `help` options if needed
-# use the follow to get around existing commands that has 'required' field which is not need when using -h or --help
-:help_cmd:
-  :cmd: oc <cmd> --help
 :import_image:
   :cmd: oc import-image
   :options:
@@ -376,6 +373,9 @@
   :cmd: oc project
   :options:
     :project_name: <value>
+:proxy:
+  :cmd: oc proxy
+  :options:
 :replace:
   :cmd: oc replace
   :options:

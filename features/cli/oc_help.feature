@@ -233,62 +233,68 @@ Feature: oc related features
       | --token                                            |
       | --user                                             |
     # now check the subcommands
-    When I run the :help_cmd client command with:
-      | cmd | new-app |
+    When I run the :new_app client command with:
+      | help |  |
     Then the step should succeed
     And the output should contain:
       | Create a new application by specifying source code, templates, and/or images |
-    When I run the :help_cmd client command with:
-      | cmd | start-build |
+    When I run the :start_build client command with:
+      | help |  |
     Then the step should succeed
-    And the output should contain: 
+    And the output should contain:
       | Start a build |
-    When I run the :help_cmd client command with:
-      | cmd | cancel-build |
+    When I run the :cancel_build client command with:
+      | build_name | :false |
+      | help       |        |
     Then the step should succeed
     And the output should contain "Cancels a pending or running build"
-    When I run the :help_cmd client command with:
-      | cmd | rollback |
+    When I run the :rollback client command with:
+      | deployment_name | :false |
+      | help            |        |
     Then the step should succeed
     And the output should contain "Revert an application back to a previous deployment"
-    When I run the :help_cmd client command with:
-      | cmd | get |
+    When I run the :get client command with:
+      | resource | :false |
+      | help     |        |
     Then the step should succeed
     And the output should contain "Display one or many resources"
-      When I run the :help_cmd client command with:
-      | cmd | describe |
+      When I run the :describe client command with:
+      | resource | :false |
+      | help     |        |
     Then the step should succeed
     And the output should contain "Show details of a specific resource"
-    When I run the :help_cmd client command with:
-      | cmd | create |
+    When I run the :create client command with:
+      | help |  |
     Then the step should succeed
     And the output should contain "Create a resource by filename or stdin"
-    When I run the :help_cmd client command with:
-      | cmd | delete |
+    When I run the :delete client command with:
+      | help |  |
     Then the step should succeed
     And the output should contain "Delete a resource"
-    When I run the :help_cmd client command with:
-      | cmd | process |
+    When I run the :process client command with:
+      | help |  |
     Then the step should succeed
     And the output should contain "Process template into a list of resources specified in filename or stdin"
-    When I run the :help_cmd client command with:
-      | cmd | replace |
+    When I run the :replace client command with:
+      | help |  |
     Then the step should succeed
     And the output should contain "Replace a resource by filename or stdin"
-    When I run the :help_cmd client command with:
-      | cmd | project |
+    When I run the :project client command with:
+      | help |  |
     Then the step should succeed
     And the output should contain "Switch to another project and make it the default in your configuration"
-    When I run the :help_cmd client command with:
-      | cmd | log |
+    When I run the :logs client command with:
+      | resource_name | :false |
+      | help          |        |
     Then the step should succeed
     And the output should contain "Print the logs for a resource"
-    When I run the :help_cmd client command with:
-      | cmd | proxy |
+    When I run the :proxy client command with:
+      | help |  |
     Then the step should succeed
     And the output should contain "Run a proxy to the Kubernetes API server"
-    When I run the :help_cmd client command with:
-      | cmd | build-logs |
+    When I run the :build_logs client command with:
+      | build_name | :false |
+      | help       |        |
     Then the step should succeed
     And the output should contain:
       | DEPRECATED: This command has been moved to "oc logs"  |
