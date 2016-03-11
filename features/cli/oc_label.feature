@@ -44,7 +44,7 @@ Feature: oc_label.feature
     When I run the :label client command with:
       | resource | pods |
       | all | true |
-      | key_val | status=unhealthy |
+      | key_val | status=healthy |
       | overwrite | true |
     Then the step should succeed
     And the output should contain:
@@ -54,8 +54,8 @@ Feature: oc_label.feature
       | resource | pod |
     Then the step should succeed
     And the output should match:
-      |Labels:\\s+name=hello-openshift,status=unhealthy|
-      |Labels:\\s+name=tc482217-pod,status=unhealthy|
+      |Labels:\\s+name=hello-openshift,status=healthy|
+      |Labels:\\s+name=tc482217-pod,status=healthy|
     When I run the :label client command with:
       | resource | pods |
       | name | hello-openshift |
