@@ -749,3 +749,61 @@ Feature: build 'apps' with CLI
     When I run the :build_logs client command with:
       | build_name | django-psql-example-1 |
     Then the output should match "Ran \d+ tests"
+
+  # @author xiuwang@redhat.com
+  # @case_id 489748
+  Scenario: Create a build config based on the source code in the current git repository 
+    Given I have a project
+    And I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
+    When I run the :new_build client command with:
+      | image | openshift/ruby   |
+      | code  | ruby-hello-world |
+      | e     | FOO=bar          |
+      | name  | myruby           |
+    Then the step should succeed
+    And the "myruby-1" build was created
+    And the "myruby-1" build completed
+    When I run the :get client command with:
+      | resource          | buildConfig |
+      | resource_name     | myruby      |
+      | o                 | yaml        |
+    Then the output should match:
+      | uri:\\s+https://github.com/openshift/ruby-hello-world |
+      | name:\\s+FOO  |
+      | value:\\s+bar |
+    When I run the :get client command with:
+      | resource          | imagestream |
+      | resource_name     | myruby      |
+      | o                 | yaml        |
+    Then the output should match:
+      | tag:\\s+latest |
+
+    When I run the :new_build client command with:
+      | code  | ruby-hello-world |
+      | strategy | source        |
+      | e     | key1=value1,key2=value2,key3=value3 |
+      | name  | myruby1          |
+    Then the step should succeed
+    And the "myruby1-1" build was created
+    And the "myruby1-1" build completed
+    When I run the :get client command with:
+      | resource          | buildConfig |
+      | resource_name     | myruby1     |
+      | o                 | yaml        |
+    Then the output should match:
+      | sourceStrategy:  |
+      | name:\\s+key1    |
+      | value:\\s+value1 |
+      | name:\\s+key2    |
+      | value:\\s+value2 |
+      | name:\\s+key3    |
+      | value:\\s+value3 |
+      | type:\\s+Source  |
+
+    When I run the :new_build client command with:
+      | code  | ruby-hello-world |
+      | e     | @#@=value        |
+      | name  | myruby2          |
+    Then the step should fail
+    And the output should contain:
+      |error: environment variables must be of the form key=value: @#@=value|
