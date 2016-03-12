@@ -21,7 +21,6 @@ require 'optparse'
 require 'json'
 require 'io/console' # for reading password without echo
 require 'time'
-require 'jira'
 
 require 'collections'
 require 'jira_rht'

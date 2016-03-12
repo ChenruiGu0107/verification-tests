@@ -41,15 +41,10 @@ module CucuShift
         :site     => @options[:site],
         :context_path => @options[:context_path],
         :auth_type => @options[:auth_type],
-        :ssl_verify_mode  =>OpenSSL::SSL::VERIFY_NONE,
+        :ssl_verify_mode  => OpenSSL::SSL::VERIFY_NONE,
         :read_timeout => @options[:read_timeout]
       }
-      jira_client = JIRA::Client.new(options)
-      @client = jira_client
-      return jira_client
-    end
-
-    def update_issue(issue_id, params)
+      @client = JIRA::Client.new(options)
     end
 
     ## XXX not sure if a regular user can delete issues
@@ -63,11 +58,14 @@ module CucuShift
     end
 
     # @params is a hash of paramters to be created for the JIRA issue.
+    # returns the save status & the issue object
     def create_issue(params)
       issue = client.Issue.build
-      issue.save("fields"=>params)
-      raise "Unable to create issue" unless issue.fetch
-      return issue
+      status = issue.save("fields"=>params)
+      # call fetch to update the issue object
+      @logger.error("Failed to create JIRA issue") unless status
+      issue.fetch
+      return status, issue
     end
 
     # @params is a hash containing: assignee, and testrun id in the summary
@@ -121,6 +119,11 @@ module CucuShift
       else
         # step 1. get the author's information
         assignee = get_user(query_params[:assignee])
+        if assignee.nil?
+          @logger.error("JIRA system does not have username '#{query_params[:assignee]}', assigning issue to the reporter '#{@options[:user]}'")
+          assignee = get_user(@options[:user])
+        end
+
         component_auto = get_component(@options[:component_id])
         run_url = make_link(url=(@options[:tcms_base_url] + "run/#{query_params[:run_id]}"), text=query_params[:run_id])
         error_logs = "Errors from test run #{run_url}" + "\n" + error_logs
@@ -132,13 +135,18 @@ module CucuShift
           "description" => error_logs,
           "components" => [component_auto.attrs]
         }
-        new_issue =create_issue(issue_params)
-        @logger.info("Issue create #{new_issue.key}")
+        status, new_issue = create_issue(issue_params)
+        @logger.info("Created issue #{new_issue.key} for '#{@options[:user]}'") if status
       end
     end
 
     def get_user(user_name)
-      client.User.find(user_name)
+      user = nil
+      begin
+        user = client.User.find(user_name)
+      rescue => e
+        @logger.error("Error: #{e.to_s}")
+      end
     end
 
     def default_opts
