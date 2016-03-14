@@ -133,6 +133,8 @@ module CucuShift
       for service in os_service_catalog
         if service['name'].start_with?("nova") &&
             service['type'].start_with?("compute") &&
+            service['endpoints'] && !service['endpoints'].empty? &&
+            service['endpoints'][0]['publicURL'] &&
             service['endpoints'][0]['publicURL'].include?(os_tenant_id)
           @os_compute_url = service['endpoints'][0]['publicURL']
           type = service['type']
