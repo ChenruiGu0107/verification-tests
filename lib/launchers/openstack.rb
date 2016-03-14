@@ -112,7 +112,13 @@ module CucuShift
       res = self.rest_run(self.os_url, "POST", params) do |result|
         parsed = result[:parsed] || next
         @os_token = parsed['access']['token']['id']
-        logger.info "logged in to tenant: #{parsed['access']['token']["tenant"].to_json}" if parsed['access']['token']["tenant"]
+        if parsed['access']['token']["tenant"]
+          @os_tenant_name ||= parsed['access']['token']["tenant"]["name"]
+          @os_tenant_id ||= parsed['access']['token']["tenant"]["id"]
+          logger.info "logged in to tenant: #{parsed['access']['token']["tenant"].to_json}"
+        else
+          raise "no tenant found in reply: #{result[:response]}"
+        end
         @os_service_catalog = parsed['access']['serviceCatalog']
       end
       unless @os_token
@@ -329,7 +335,7 @@ module CucuShift
         # TODO process mappings to help with image/flavor/volume/snapshot UUIDs
         params[:server][:block_device_mapping_v2] = block_device_mapping_v2
       when new_boot_volume && new_boot_volume > 0
-        self.get_image_ref(image)
+        self.get_image_ref(image) || raise("image #{image} not found")
         params[:server][:block_device_mapping_v2] = [
           {
             boot_index: "0",
@@ -348,7 +354,7 @@ module CucuShift
         ]
       else
         # regular boot disk from image
-        self.get_image_ref(image)
+        self.get_image_ref(image) || raise("image #{image} not found")
         params[:server][:imageRef] = self.os_image
       end
 
@@ -476,7 +482,27 @@ end
 
 ## Standalone test
 if __FILE__ == $0
-  test = CucuShift::OpenStack.new(service_name: "openstack_qeos7")
+  extend CucuShift::Common::Helper
+  test_res = {}
+  conf[:services].each do |name, service|
+    if service[:cloud_type] == 'openstack' && service[:password]
+      os = CucuShift::OpenStack.new(service_name: name)
+      res = true
+      test_res[name] = res
+      begin
+        os.launch_instances(names: ["test_terminate"])
+        os.delete_instance "test_terminate"
+        test_res[name] = false
+      rescue => e
+        test_res[name] = e
+      end
+    end
+  end
+
+  test_res.each do |name, res|
+    puts "OpenStack instance #{name} failed: #{res}"
+  end
+
   require 'pry'
   binding.pry
   #puts test.create_instance("xiama_test", 'RHEL6.5-qcow2-updated-20131213', 'm1.medium')
