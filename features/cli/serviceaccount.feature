@@ -63,7 +63,7 @@ Feature: ServiceAccount and Policy Managerment
   Scenario: Could grant view permission for the service account username to access to its own project
     Given I have a project
     When I create a new application with:
-      | docker image | <%= project_docker_repo %>openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | docker image | <%= project_docker_repo %>openshift/hello-openshift |
       | name         | myapp         |
     Then the step should succeed
     When I give project view role to the default service account
@@ -76,22 +76,22 @@ Feature: ServiceAccount and Policy Managerment
     Given I find a bearer token of the default service account
     And I switch to the default service account
     When I run the :get client command with:
-      | resource | buildconfig         |
+      | resource | dc                  |
       | n        | <%= project.name %> |
     Then the step should succeed
     And the output should contain:
       | myapp   |
     When I create a new application with:
-      | docker image | <%= project_docker_repo %>openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | docker image | <%= project_docker_repo %>openshift/hello-openshift |
       | name         | another-app         |
       | n            | <%= project.name %> |
     Then the step should fail
     When I run the :delete client command with:
-      | object_type       | bc        |
-      | object_name_or_id | myapp     |
+      | object_type       | dc        |
+      | all               |           |
       | n                 | <%= project.name %> |
     Then the step should fail
-    When I give project admin role to the builder service account
+    When I give project admin role to the deployer service account
     Then the step should fail
 
 
