@@ -415,6 +415,8 @@
   :cmd: oc run <name>
   :options:
     :attach: --attach=<value>
+    :command: --command=<value>
+    :cmd: <value>
     :image: --image <value>
     :port: --port <value>
     :replicas: --replicas <value>
