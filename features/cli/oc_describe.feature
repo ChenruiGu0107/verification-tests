@@ -76,20 +76,22 @@ Feature: Return description with cli
       When  I run the :describe client command with:
       | resource | buildConfig |
       | name | abc |
-     Then the output should contain:
-      | buildconfig "abc" not found |
+     #Then the output should contain:
+     Then the output should match "buildconfigs? "abc" not found"
+     # | buildconfigs "abc" not found |
 
       When  I run the :describe client command with:
       | resource | replicationControllers |
       | name | abc |
      Then the output should contain:
-      | replicationControllers "abc" not found |
+      | replicationcontrollers "abc" not found |
 
       When  I run the :describe client command with:
       | resource | builds |
       | name | abc |
-      Then the output should contain:
-      | build "abc" not found |
+      #Then the output should contain:
+      Then the output should match "builds? "abc" not found"
+      #| builds "abc" not found |
 
       When  I run the :describe client command with:
       |resource| :false|
