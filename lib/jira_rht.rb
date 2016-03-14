@@ -6,6 +6,8 @@ end
 require 'jira'
 require 'common'
 
+
+
 module CucuShift
   class Jira
     include Common::Helper
@@ -41,7 +43,9 @@ module CucuShift
         :site     => @options[:site],
         :context_path => @options[:context_path],
         :auth_type => @options[:auth_type],
-        :ssl_verify_mode  => OpenSSL::SSL::VERIFY_NONE,
+        :use_ssl => true,
+        :ca_path => expand_private_path(@options[:ca_path],
+                                        public_safe: true),
         :read_timeout => @options[:read_timeout]
       }
       @client = JIRA::Client.new(options)
@@ -154,6 +158,18 @@ module CucuShift
     end
 
     def finalize
+    end
+  end
+end
+
+module JIRA
+  class HttpClient
+    old_http_client = instance_method(:http_conn)
+    define_method(:http_conn) do |url|
+      h = old_http_client.bind(self).(url)
+      h.ca_path = @options[:ca_path] if @options[:ca_path]
+      h.ca_file = @options[:ca_file] if @options[:ca_file]
+      return h
     end
   end
 end
