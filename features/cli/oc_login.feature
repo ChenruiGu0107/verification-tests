@@ -9,7 +9,7 @@ Feature: oc_login.feature
       | u | <%= @user.name %>     |
       | p | <%= @user.password %> |
     Then the step should succeed
-    And the output should contain "Login successful"
+    And the output should match "Login successful|Logged into"
  
   # @author xiaocwan@redhat.com
   # @case_id 476303
