@@ -180,3 +180,42 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_hostdir.json|
     Then the step should succeed
+
+  Scenario: [platformmanagement_public_586] Check if the capabilities work in pods
+    # @author wjiang@redhat.com
+    # @case_id 518942
+    Given I have a project
+    When I run the :run client command with:
+      |name|busybox|
+      |image|openshift/busybox-http-app:latest|
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      |deploymentconfig=busybox|
+    When I run the :get client command with:
+      |resource | pod|
+    Then the step should succeed
+    When I execute on the pod:
+      |sh|
+      |-c|
+      |mknod /tmp/sda b 8 0 && echo ok|
+    Then the output should match "Operation not permitted"
+    When I execute on the pod:
+      |sh|
+      |-c|
+      |touch /tmp/random && chown :$RANDOM /tmp/random && echo ok|
+    Then the output should match "Operation not permitted"
+    When I execute on the pod:
+      |sh|
+      |-c|
+      |touch /tmp/random && chown 0 /tmp/random && echo ok|
+    Then the output should match "Operation not permitted"
+    When I execute on the pod:
+      |sh|
+      |-c|
+      |chroot /tmp && echo ok|
+    Then the output should match "Operation not permitted"
+    When I execute on the pod:
+      |sh|
+      |-c|
+      |kill -9 1 && if [[ `ls /proc/\|grep ^1$` == "" ]]; then echo ok;else echo "not ok"; fi;|
+    Then the output should match "not ok"
