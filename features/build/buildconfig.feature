@@ -14,7 +14,7 @@ Feature: buildconfig.feature
     When I replace resource "bc" named "php-sample-build":
       | ImageStreamTag | ImageStreamTag123 |
     Then the step should fail
-    And the output should contain "spec.output.to.kind: invalid value 'ImageStreamTag123'"
+    And the output should contain "spec.output.to.kind: Invalid value: "ImageStreamTag123""
     When I replace resource "bc" named "php-sample-build":
       | Git | Git123 |
     Then the step should succeed
@@ -100,7 +100,7 @@ Feature: buildconfig.feature
 
   # @author gpei@redhat.com
   # @case_id 495026
-  Scenario: Buildconfig spec part cannot be updated
+  Scenario: Build spec cannot be updated
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
     Then the step should succeed
