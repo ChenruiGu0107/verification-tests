@@ -178,11 +178,14 @@ Feature: projects related features via cli
     When I run the :new_project client command with:
       | project_name | <%= cb.prj_name %> |
     Then the step should succeed
+  # TODO: yapei, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     And I create a new application with:
       | docker image | openshift/mysql-55-centos7 |
       | code         | https://github.com/openshift/ruby-hello-world |
       | n            | <%= cb.prj_name %>           |
-    Then the step should succeed
+    Then the output should contain:
+      | mysql-55-centos7 |
+      | ruby-hello-world |
 
     ### get project resource
     When I run the :get client command with:
@@ -193,12 +196,6 @@ Feature: projects related features via cli
       | ruby-hello-world |
 
     When I run the :get client command with:
-      | resource | buildconfigs |
-      | n        | <%= cb.prj_name %> |
-    Then the output should contain:
-      | ruby-hello-world |
-
-    When I run the :get client command with:
       | resource | services |
       | n        | <%= cb.prj_name %> |
     Then the output should contain:
@@ -206,11 +203,11 @@ Feature: projects related features via cli
       | ruby-hello-world |
 
     When I run the :get client command with:
-      | resource | pods  |
+      | resource | is |
       | n        | <%= cb.prj_name %> |
     Then the output should contain:
-      | mysql-55-centos7-1-deploy |
-      | ruby-hello-world-1-build |
+      | mysql-55-centos7 |
+      | ruby-hello-world |
 
     ### delete this project
     Then I run the :delete client command with:
@@ -222,23 +219,20 @@ Feature: projects related features via cli
     When I run the :get client command with:
       | resource | deploymentconfigs |
       | n        | <%= cb.prj_name %>  |
-    Then the output should contain:
-      | Error from server: User "<%= @user.name %>" cannot list deploymentconfigs in project "<%= cb.prj_name %>" |
-    When I run the :get client command with:
-      | resource | buildconfigs |
-      | n        | <%= cb.prj_name %> |
-    Then the output should contain:
-      | Error from server: User "<%= @user.name %>" cannot list buildconfigs in project "<%= cb.prj_name %>" |
+    Then the output should not contain:
+      | mysql-55-centos7 |
+      | ruby-hello-world |
     When I run the :get client command with:
       | resource | services |
       | n        | <%= cb.prj_name %> |
-    Then the output should contain:
-      | Error from server: User "<%= @user.name %>" cannot list services in project "<%= cb.prj_name %>" |
+    Then the output should not contain:
+      | mysql-55-centos7 |
+      | ruby-hello-world |
     When I run the :get client command with:
       | resource | pods  |
       | n        | <%= cb.prj_name %> |
-    Then the output should contain:
-      | Error from server: User "<%= @user.name %>" cannot list pods in project "<%= cb.prj_name %>" |
+    Then the output should not contain:
+      | mysql-55-centos7-1-deploy |
 
     ### create a project with same name, no context for this new one
     Given I run the :new_project client command with:
@@ -247,7 +241,7 @@ Feature: projects related features via cli
     Then I run the :status client command
     And the output should contain:
       | In project <%= cb.prj_name %> on server |
-      | You have no services, deployment configs, or build configs |
+      | You have no services, deployment configs |
 
   # @author cryan@redhat.com
   # @case_id 481697
@@ -342,7 +336,10 @@ Feature: projects related features via cli
     When I use the "<%= cb.proj_name %>" project
     Then the step should succeed
 
-    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    When I create a new application with:
+      | image_stream | ruby         |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | name         | myapp         |
     Then the step should succeed
 
     When I delete the project

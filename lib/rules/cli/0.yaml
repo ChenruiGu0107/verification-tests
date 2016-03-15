@@ -556,6 +556,7 @@
     :keep_failed: --keep-failed=<value>
     :keep_younger_than: --keep-younger-than=<value>
     :orphans: --orphans=<value>
+    :orphans_noopt: --orphans
 :oadm_prune_deployments:
   :cmd: oadm prune deployments
   :options:

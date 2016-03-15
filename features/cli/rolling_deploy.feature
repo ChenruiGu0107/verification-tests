@@ -20,7 +20,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
     And the output should contain:
-      | keep 7 pods available, don't exceed 10 pods |
+      | keep 8 pods available, don't exceed 10 pods |
     And I replace resource "dc" named "hooks":
       | maxUnavailable: 25% | maxUnavailable: 50% |
     Then the step should succeed
@@ -74,7 +74,8 @@ Feature: rolling deployment related scenarios
       | replicas | 10                     |
     And all pods in the project are ready
     And I replace resource "dc" named "hooks":
-      | maxSurge: 25% | maxSurge: 0 |
+      | maxSurge: 25%       | maxSurge: 10%       |
+      | maxUnavailable: 25% | maxUnavailable: 0 |
     Then the step should succeed
     When I run the :deploy client command with:
       | deployment_config | hooks |
@@ -82,9 +83,9 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
     And the output should contain:
-      | keep 7 pods available, don't exceed 10 pods |
+      | keep 10 pods available, don't exceed 11 pods |
     And I replace resource "dc" named "hooks":
-      | maxSurge: 0 | maxSurge: 30% |
+      | maxSurge: 10% | maxSurge: 30% |
     Then the step should succeed
     When I run the :deploy client command with:
       | deployment_config | hooks |
@@ -92,7 +93,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
     And the output should contain:
-      | keep 7 pods available, don't exceed 13 pods |
+      | keep 10 pods available, don't exceed 13 pods |
     And I replace resource "dc" named "hooks":
       | maxSurge: 30% | maxSurge: 60% |
     Then the step should succeed
@@ -102,7 +103,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-4-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
     And the output should contain:
-      | keep 7 pods available, don't exceed 16 pods |
+      | keep 10 pods available, don't exceed 16 pods |
 
   # @author pruan@redhat.com
   # @case_id 503865,483171

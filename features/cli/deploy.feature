@@ -697,8 +697,8 @@ Feature: deployment related features
       | resource | deploymentConfig |
       | resource_name | hooks       |
     Then the output should match:
-      |NAME\\s+REVISION.*TRIGGERED BY |
-      |hooks\\s+1.*config |
+      |NAME         |
+      |hooks.*onfig |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest ||
@@ -717,8 +717,8 @@ Feature: deployment related features
       | resource_name | hooks       |
     Then the step should succeed
     And the output should match:
-      |NAME\\s+REVISION.*TRIGGERED BY |
-      |hooks\\s+2.*config |
+      |NAME          |
+      |hooks.*onfig |
     # This deviate form the testplan a little in that we are not doing more than one deploy, which should be sufficient since we are checking two deployments already (while the testcase called for 5)
 
   # @author cryan@redhat.com
@@ -941,7 +941,7 @@ Feature: deployment related features
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      | hooks\\s+1\\s+1\\s+config |
+      | hooks.*onfig |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest ||
@@ -950,7 +950,7 @@ Feature: deployment related features
       | resource      | dc    |
       | resource_name | hooks |
     Then the output should match:
-      | hooks\\s+2\\s+1\\s+config |
+      | hooks.*onfig |
 
   # @author yinzhou@redhat.com
   # @case_id 483179,510608
@@ -1033,13 +1033,14 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc510607/hooks-unexist-volume.json |
     Then the step should succeed
-    Given the pod named "hooks-1-hook-pre" becomes ready
+    Given I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | pods |
     Then the output should contain:
       | NAME           |
       | hooks-1-hook-pre|
-
+    """
 
    # @author yadu@redhat.com
    # @case_id 497544
@@ -1099,6 +1100,7 @@ Feature: deployment related features
         | o             | json  |
       And the output is parsed as JSON
       Then the expression should be true> @result[:parsed]['spec']['replicas'] == 10
+
       When I run the :deploy client command with:
         | deployment_config | hooks |
         | latest            ||
