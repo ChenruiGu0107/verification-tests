@@ -92,3 +92,83 @@ Feature: secrets related scenarios
       | secretName: my-secret |
     """
 
+  # @author xiuwang@redhat.com
+  # @case_id 508970
+  Scenario: Create new secrets for basic authentication
+    Given I have a project
+    When I run the :new_basicauth client command with:
+      |secret_name |testsecret |
+      |username    |tester     |
+      |password    |password   |
+    Then the step should succeed
+    When I run the :get client command with:
+      |resource      |secrets    |
+      |resource_name |testsecret |
+      |o             |yaml       |
+    Then the step should succeed
+    And the output should contain:
+      |password:|
+      |username:|
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508970/ca.crt"
+    When I run the :new_basicauth client command with:
+      |secret_name |testsecret2 |
+      |username    |tester      |
+      |password    |password    |
+      |cafile      |ca.crt      |
+    Then the step should succeed
+    When I run the :get client command with:
+      |resource      |secrets     |
+      |resource_name |testsecret2 |
+      |o             |yaml        |
+    Then the step should succeed
+    And the output should contain:
+      |password:|
+      |username:|
+      |ca.crt:  |
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508970/.gitconfig"
+    When I run the :new_basicauth client command with:
+      |secret_name |testsecret3 |
+      |username    |tester      |
+      |password    |password    |
+      |cafile      |ca.crt      |
+      |gitconfig   |.gitconfig  |
+    Then the step should succeed
+    When I run the :get client command with:
+      |resource      |secrets     |
+      |resource_name |testsecret3 |
+      |o             |yaml        |
+    Then the step should succeed
+    And the output should contain:
+      |.gitconfig:|
+      |ca.crt:    |
+
+  # @author xiuwang@redhat.com
+  # @case_id 508971
+  Scenario: Create new secrets for ssh authentication
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508971/id_rsa"
+    When I run the :new_sshauth client command with:
+      |secret_name    |testsecret |
+      |ssh_privatekey |id_rsa     |
+    Then the step should succeed
+    When I run the :get client command with:
+      |resource      |secrets    |
+      |resource_name |testsecret |
+      |o             |yaml       |
+    Then the step should succeed
+    And the output should contain:
+      |ssh-privatekey:|
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508970/ca.crt"
+    When I run the :new_sshauth client command with:
+      |secret_name    |testsecret2 |
+      |ssh_privatekey |id_rsa      |
+      |cafile         |ca.crt      |
+    Then the step should succeed
+    When I run the :get client command with:
+      |resource      |secrets     |
+      |resource_name |testsecret2 |
+      |o             |yaml        |
+    Then the step should succeed
+    And the output should contain:
+      |ssh-privatekey:|
+      |ca.crt:        |
