@@ -1180,3 +1180,51 @@ Feature: deployment related features
       When I run the :deploy client command with:
         | deployment_config | deployment-example |
       Then the output should contain "The deployment was cancelled as a newer deployment was found running"
+
+    # @author yinzhou@redhat.com
+    # @case_id 518647
+    Scenario: Check the deployments in a completed state on test deployment configs
+      Given I have a project
+      And I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-deployment.json |
+      Then the step should succeed
+      And I run the :logs client command with:
+        | f | true |
+        | resource_name | dc/hooks |
+      Then the output should contain:
+        | Scaling <%= project.name %>/hooks-1 to 1 before performing acceptance check |
+        | Deployment hooks-1 successfully made active |
+      And I wait until the status of deployment "hooks" becomes :complete
+      When I run the :get client command with:
+        | resource      | rc |
+        | resource_name | hooks-1 |
+        | o             | yaml |
+      Then the output by order should match:
+        | phase: Complete |
+        | status: |
+        | replicas: 0 |
+
+    # @author yinzhou@redhat.com
+    # @case_id 518648
+    Scenario: Check the deployments in a failed state on test deployment configs
+      Given I have a project
+      And I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-deployment.json |
+      Then the step should succeed
+      Given I wait until the status of deployment "hooks" becomes :running
+      And I replace resource "pod" named "hooks-1-deploy":
+        | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 3 |
+      Then the step should succeed
+      When I run the :deploy client command with:
+        | deployment_config | hooks |
+      Then the step should succeed
+      And the output should match:
+        | hooks.*#1.*failed |
+      When I run the :get client command with:
+        | resource      | rc |
+        | resource_name | hooks-1 |
+        | o             | yaml |
+      Then the output by order should match:
+        | phase: Failed |
+        | status: |
+        | replicas: 0 |
