@@ -307,7 +307,7 @@ Feature: build 'apps' with CLI
       | resource | buildConfig        |
       | name     | ruby-hello-world-1 |
     Then the output should match:
-      | ImageStreamTag openshift/ruby:latest |
+      | ImageStreamTag openshift/ruby:2.2 |
     When I run the :describe client command with:
       | resource | buildConfig        |
       | name     | ruby-hello-world-2 |
@@ -401,19 +401,49 @@ Feature: build 'apps' with CLI
   # @case_id 507557
   Scenario: Add more ENV to DockerStrategy buildConfig when do docker build
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/cjryan/v3-testfiles/tc507557/templates/tc507557/application-template-dockerbuild-multivars.json"
-    Given I replace lines in "application-template-dockerbuild-multivars.json":
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json"
+    Given I replace lines in "ruby22rhel7-template-docker.json":
       | registry.access.redhat.com/ | <%= product_docker_repo %> |
     When I run the :new_app client command with:
-      | file | application-template-dockerbuild-multivars.json |
+      | file | ruby22rhel7-template-docker.json |
     Then the step should succeed
     Given 2 pods become ready with labels:
       |deployment=frontend-1|
     Given evaluation of `@pods[0].name` is stored in the :frontendpod clipboard
+    When I run the :build_logs client command with:
+      | build_name | ruby22-sample-build-1 |
+    Then the output should contain:
+      | ENV RACK_ENV production  |
+      | ENV RAILS_ENV production |
     When I execute on the "<%= cb.frontendpod %>" pod:
       | env |
     Then the step should succeed
     And the output should contain "RACK_ENV=production"
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec": {"strategy": {"dockerStrategy": {"env": [{"name": "DISABLE_ASSET_COMPILATION","value": "1"}, {"name":"RACK_ENV","value":"development"}]}}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | o | json |
+    Then the output should contain "DISABLE_ASSET_COMPILATION"
+    And the output should contain "RACK_ENV"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    When I run the :build_logs client command with:
+      | build_name | ruby22-sample-build-2 |
+    Then the output should contain:
+      | ENV "DISABLE_ASSET_COMPILATION" "1" |
+      | "RACK_ENV" "development"  |
+    Given 2 pods become ready with labels:
+      |deployment=frontend-2|
+    Given evaluation of `@pods[2].name` is stored in the :frontendpod2 clipboard
+    When I execute on the "<%= cb.frontendpod2 %>" pod:
+      | env |
+    Then the step should succeed
+    And the output should contain "RACK_ENV=development"
 
   # @author cryan@redhat.com
   # @case_id 498212
@@ -749,3 +779,105 @@ Feature: build 'apps' with CLI
     When I run the :build_logs client command with:
       | build_name | django-psql-example-1 |
     Then the output should match "Ran \d+ tests"
+
+  # @author xiuwang@redhat.com
+  # @case_id 489748
+  Scenario: Create a build config based on the source code in the current git repository 
+    Given I have a project
+    And I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
+    When I run the :new_build client command with:
+      | image | openshift/ruby   |
+      | code  | ruby-hello-world |
+      | e     | FOO=bar          |
+      | name  | myruby           |
+    Then the step should succeed
+    And the "myruby-1" build was created
+    And the "myruby-1" build completed
+    When I run the :get client command with:
+      | resource          | buildConfig |
+      | resource_name     | myruby      |
+      | o                 | yaml        |
+    Then the output should match:
+      | uri:\\s+https://github.com/openshift/ruby-hello-world |
+      | name:\\s+FOO  |
+      | value:\\s+bar |
+    When I run the :get client command with:
+      | resource          | imagestream |
+      | resource_name     | myruby      |
+      | o                 | yaml        |
+    Then the output should match:
+      | tag:\\s+latest |
+
+    When I run the :new_build client command with:
+      | code  | ruby-hello-world |
+      | strategy | source        |
+      | e     | key1=value1,key2=value2,key3=value3 |
+      | name  | myruby1          |
+    Then the step should succeed
+    And the "myruby1-1" build was created
+    And the "myruby1-1" build completed
+    When I run the :get client command with:
+      | resource          | buildConfig |
+      | resource_name     | myruby1     |
+      | o                 | yaml        |
+    Then the output should match:
+      | sourceStrategy:  |
+      | name:\\s+key1    |
+      | value:\\s+value1 |
+      | name:\\s+key2    |
+      | value:\\s+value2 |
+      | name:\\s+key3    |
+      | value:\\s+value3 |
+      | type:\\s+Source  |
+
+    When I run the :new_build client command with:
+      | code  | ruby-hello-world |
+      | e     | @#@=value        |
+      | name  | myruby2          |
+    Then the step should fail
+    And the output should contain:
+      |error: environment variables must be of the form key=value: @#@=value|
+
+  # @author xiuwang@redhat.com
+  # @case_id 491406
+  Scenario: Create applications only with multiple db images
+    Given I create a new project
+    When I run the :new_app client command with:
+      | image_stream | openshift/mongodb |
+      | image_stream | openshift/mysql   |
+      | docker_image | <%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
+      | env          | MONGODB_USER=test,MONGODB_PASSWORD=test,MONGODB_DATABASE=test,MONGODB_ADMIN_PASSWORD=test |
+      | env          | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test |
+      | env          | MYSQL_ROOT_PASSWORD=test |
+      | l            | app=testapps      |
+      | insecure_registry | true         |
+    Then the step should succeed
+
+    Given I wait for the "mysql" service to become ready
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | mysql  -h $MYSQL_SERVICE_HOST -u root -ptest -e "show databases" |
+    Then the step should succeed
+    """
+    And the output should contain "mysql"
+    Given I wait for the "mongodb" service to become ready
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mongodb26 | mongo $MONGODB_DATABASE -u $MONGODB_USER -p $MONGODB_PASSWORD  --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 2.6 |
+    Given I wait for the "postgresql-94-rhel7" service to become ready
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash |
+      | -c |
+      | psql -U user -c 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));' db |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | CREATE TABLE |

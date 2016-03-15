@@ -66,6 +66,10 @@ Feature: oc_delete.feature
     Given 10 seconds have passed
     When I run the :get admin command with:
       | resource | namespaces |
+    #The namespace should not be immediately deleted,
+    #because all pods in it have a graceful termination period.
+    #If the namespace does not exist, it is due to bug 1277101
+    #as noted in the @bug_id above.
     Then the output should contain "<%= project.name %>"
     When I get project pods
     Then the step should succeed

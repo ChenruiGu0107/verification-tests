@@ -148,3 +148,26 @@ Feature: general_db.feature
       | image                       | sclname      | output |
       | openshift3/mongodb-24-rhel7 | mongodb24    | 2.4    |
       | rhscl/mongodb-26-rhel7      | rh-mongodb26 | 2.6    |
+  # @author haowang@redhat.com
+  # @case_id 498006
+  @admin
+  @destructive
+  Scenario: mongodb persistent template
+    Given I have a project
+    And I have a NFS service in the project
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    Then I run the :new_app client command with:
+      | template | mongodb-persistent |
+      | param    | MONGODB_ADMIN_PASSWORD=admin |
+    And a pod becomes ready with labels:
+      | name=mongodb          |
+      | deployment=mongodb-1  |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mongodb26 | mongo admin -u admin -padmin  --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 2.6 |

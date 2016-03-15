@@ -76,8 +76,7 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
         |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_kill.json|
     Then the step should fail
-    And the output should contain "forbidden: unable to validate against any security context constraint"
-    And the output should contain "invalid value 'KILL', Details: capability may not be added"
+    And the output should contain "capability may not be added"
 
     # Create SCC to allow KILL
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_capabilities.yaml"
@@ -93,7 +92,9 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
         |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_cap_chown.json|
     Then the step should fail
-    And the output should contain "invalid value 'CHOWN'"
+    And the output should contain:
+        |CHOWN|
+        |capability may not be added|
 
 
   #@author bmeng@redhat.com
@@ -112,9 +113,10 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_selinux.json|
     Then the step should fail
-    And the output should contain "invalid value 'object_r'"
-    And the output should contain "invalid value 'system_u'"
-    And the output should contain "invalid value 's0:c9'"
+    And the output should contain:
+        |does not match required user|
+        |does not match required role|
+        |does not match required level|
     When I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_nothing.json|
     Then the step should succeed
@@ -139,8 +141,7 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_privileged.json|
     Then the step should fail
-    And the output should contain "invalid value 'true'"
-    And the output should contain "Details: Privileged containers are not allowed"
+    And the output should contain "Privileged containers are not allowed"
 
     # Create new scc to allow the privileged pod for specify project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_privileged.yaml"
@@ -164,8 +165,9 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_hostdir.json|
     Then the step should fail
-    And the output should contain "unable to validate against any security context constraint"
-    And the output should contain "Details: Host Volumes are not allowed to be used"
+    And the output should contain: 
+        |unable to validate against any security context constraint|
+        |Host Volumes are not allowed to be used|
 
     # Create new scc to allow the hostdir for pod in specify project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_hostdir.yaml"

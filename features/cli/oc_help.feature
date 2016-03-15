@@ -116,7 +116,8 @@ Feature: oc related features
   Scenario: Check the help page for oc annotate
     When I run the :help client command
     Then the output should contain:
-      | annotate     Update the annotations on a resource |
+      | annotate |
+      | Update the annotations on a resource |
     When I run the :annotate client command with:
       | help | true |
     Then the output should contain:
@@ -203,3 +204,97 @@ Feature: oc related features
     Then the step should fail
     And the output should contain:
       | rc,no |
+
+  # @author pruan@redhat.com
+  # @case_id 474043
+  Scenario: Check cli and subcommands help docs
+    When I run the :help client command
+    Then the step should succeed
+    And the output should contain:
+      | Use "oc help <command>" for more information about a given command. |
+      | Use "oc options" for a list of global command-line options (applies to all commands). |
+    When I run the :options client command
+    Then the step should succeed
+    And the output should contain:
+      | The following options can be passed to any command |
+      | --api-version                                      |
+      | --certificate-authority                            |
+      | --client-certificate                               |
+      | --client-key                                       |
+      | --cluster                                          |
+      | --config                                           |
+      | --context                                          |
+      | --insecure-skip-tls-verify                         |
+      | --log-flush-frequency                              |
+      | --loglevel                                         |
+      | --match-server-version                             |
+      | --namespace                                        |
+      | --server                                           |
+      | --token                                            |
+      | --user                                             |
+    # now check the subcommands
+    When I run the :new_app client command with:
+      | help |  |
+    Then the step should succeed
+    And the output should contain:
+      | Create a new application by specifying source code, templates, and/or images |
+    When I run the :start_build client command with:
+      | help |  |
+    Then the step should succeed
+    And the output should contain:
+      | Start a build |
+    When I run the :cancel_build client command with:
+      | build_name | :false |
+      | help       |        |
+    Then the step should succeed
+    And the output should contain "Cancels a pending or running build"
+    When I run the :rollback client command with:
+      | deployment_name | :false |
+      | help            |        |
+    Then the step should succeed
+    And the output should contain "Revert an application back to a previous deployment"
+    When I run the :get client command with:
+      | resource | :false |
+      | help     |        |
+    Then the step should succeed
+    And the output should contain "Display one or many resources"
+      When I run the :describe client command with:
+      | resource | :false |
+      | help     |        |
+    Then the step should succeed
+    And the output should contain "Show details of a specific resource"
+    When I run the :create client command with:
+      | help |  |
+    Then the step should succeed
+    And the output should contain "Create a resource by filename or stdin"
+    When I run the :delete client command with:
+      | help |  |
+    Then the step should succeed
+    And the output should contain "Delete a resource"
+    When I run the :process client command with:
+      | help |  |
+    Then the step should succeed
+    And the output should contain "Process template into a list of resources specified in filename or stdin"
+    When I run the :replace client command with:
+      | help |  |
+    Then the step should succeed
+    And the output should contain "Replace a resource by filename or stdin"
+    When I run the :project client command with:
+      | help |  |
+    Then the step should succeed
+    And the output should contain "Switch to another project and make it the default in your configuration"
+    When I run the :logs client command with:
+      | resource_name | :false |
+      | help          |        |
+    Then the step should succeed
+    And the output should contain "Print the logs for a resource"
+    When I run the :proxy client command with:
+      | help |  |
+    Then the step should succeed
+    And the output should contain "Run a proxy to the Kubernetes API server"
+    When I run the :build_logs client command with:
+      | build_name | :false |
+      | help       |        |
+    Then the step should succeed
+    And the output should contain:
+      | DEPRECATED: This command has been moved to "oc logs"  |

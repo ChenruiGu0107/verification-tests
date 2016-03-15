@@ -138,6 +138,18 @@
   :options:
     :filename: --filename=<value>
     :output: --output=<value>
+:set_env:
+  :cmd: oc set env
+  :options:
+    :env_name: <value>
+    :all: --all=<value>
+    :list: --list=<value>
+    :resource: <value>
+    :keyval: <value>
+    :e: -e <value>
+    :o: -o <value>
+    :f: -f <value>
+    :c: -c <value>
 :env:
   :cmd: oc env
   :options:
@@ -329,7 +341,8 @@
     :template: --template=<value>
     :type: --type=<value>
     :quiet: --quiet=<value>
-
+:options:
+  :cmd: oc options
 :patch:
   :cmd: oc patch <resource>
   :options:
@@ -372,6 +385,9 @@
   :cmd: oc project
   :options:
     :project_name: <value>
+:proxy:
+  :cmd: oc proxy
+  :options:
 :replace:
   :cmd: oc replace
   :options:
@@ -399,6 +415,8 @@
   :cmd: oc run <name>
   :options:
     :attach: --attach=<value>
+    :command: --command=<value>
+    :cmd: <value>
     :image: --image <value>
     :port: --port <value>
     :replicas: --replicas <value>

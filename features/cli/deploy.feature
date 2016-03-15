@@ -69,7 +69,7 @@ Feature: deployment related features
     Given I wait for the pod named "deployment-example-1-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | deployment-example |
-    Then the output should contain "deployment-example #1 deployed"
+    Then the output should match "deployment-example.+#1.+deployed"
     When  I run the :describe client command with:
       | resource | dc |
       | name     | deployment-example |
@@ -83,7 +83,7 @@ Feature: deployment related features
     Then the output should contain "No deployments are in progress"
     When I run the :deploy client command with:
       | deployment_config | deployment-example |
-    Then the output should contain "deployment-example #1 deployed"
+    Then the output should match "deployment-example.+#1.+deployed"
     When I run the :describe client command with:
       | resource | dc |
       | name     | deployment-example |
@@ -93,7 +93,7 @@ Feature: deployment related features
       | deployment_config | deployment-example |
       | retry             ||
     Then the output should contain:
-      | error: #1 is Complete; only failed deployments can be retried |
+      | #1 is Complete; only failed deployments can be retried        |
       | You can start a new deployment using the --latest option      |
     When I run the :get client command with:
       | resource | pod |
@@ -141,12 +141,12 @@ Feature: deployment related features
     Then the step should succeed
     When I run the :deploy client command with:
       | deployment_config | hooks |
-    Then the output should contain "hooks #1 deployment waiting for manual"
+    Then the output should match "hooks.+#1.+waiting for manual"
     When I run the :get client command with:
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      | hooks\\s+0                        |
+      | hooks\\s+0 |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            ||
@@ -156,7 +156,7 @@ Feature: deployment related features
     Given I wait for the pod named "hooks-1-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | hooks |
-    Then the output should contain "hooks #1 deployed"
+    Then the output should match "hooks.+#1.+deployed"
     When I run the :get client command with:
       | resource      | dc |
       | resource_name | hooks |
@@ -255,8 +255,8 @@ Feature: deployment related features
     Given I wait for the pod named "hooks-3-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | hooks |
-    Then the output should contain:
-      | hooks #3 deployed |
+    Then the output should match:
+      | hooks.+#3.+deployed |
     When I run the :get client command with:
       | resource | pod |
     Then the output should match:
@@ -315,8 +315,8 @@ Feature: deployment related features
     Given I wait for the pod named "hooks-3-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | hooks |
-    Then the output should contain:
-      | hooks #3 deployed |
+    Then the output should match:
+      | hooks.*#3.*deployed |
     When I run the :get client command with:
       | resource | pod |
     Then the output should match:
@@ -486,9 +486,8 @@ Feature: deployment related features
     And I run the :deploy client command with:
       | deployment_config | test-stop-failed-deployment |
     Then the step should succeed
-    And the output should contain:
-      | test-stop-failed-deployment #1 deployment failed |
-      | The deployment was cancelled by the user         |
+    And the output should match:
+      | test-stop-failed-deployment.*#1.*cancelled |
 
   # @author pruan@redhat.com
   # @case_id 484482

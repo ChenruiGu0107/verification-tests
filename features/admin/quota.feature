@@ -33,3 +33,28 @@ Feature: Quota related scenarios
       | tc509092 | pod-request-limit-valid-1.yaml | pod-request-limit-valid-1 | cpu\\s+500m\\s+30 | memory\\s+(536870912\|512Mi)\\s+16Gi |
       | tc509093 | pod-request-limit-valid-2.yaml | pod-request-limit-valid-2 | cpu\\s+200m\\s+30 | memory\\s+(268435456\|256Mi)\\s+16Gi |
 
+  # @author xiaocwan@redhat.com
+  # @case_id 516457
+  @admin
+  Scenario:when the deployment can not be created due to a quota limit will get event from original report
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml"
+    And I replace lines in "quota.yaml":
+      | memory: 750Mi | memory: 20Mi        |
+    And I run the :create admin command with:
+      | f             |  quota.yaml         |
+      | n             | <%= project.name %> |
+    Then the step should succeed
+
+    When I run the :create client command with:
+      | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+    Then the step should succeed
+    And the output should match:
+      | eployment.*onfig.*reated            |
+
+    When I get project pods
+    Then the output should not match:
+      | \\S+ |
+    When I get project events
+    Then the output should match:
+      | rror creating deployer pod.*<%= project.name %>/dctest-1 |

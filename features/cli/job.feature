@@ -8,11 +8,8 @@ Feature: job.feature
     When I run the :create client command with:
       | f | job.yaml |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | jobs |
-      | name | pi |
-    Then the step should succeed
-    And the output should contain "5 Running"
+    Given 5 pods become ready with labels:
+      | app=pi |
     When I run the :get client command with:
       | resource | pods |
       | l | app=pi |
@@ -43,10 +40,10 @@ Feature: job.feature
     When I run the :create client command with:
       | f | job.yaml |
     Then the step should fail
-    And the output should contain "must be non-negative"
+    And the output should contain "must be greater than or equal to 0"
     Given I replace lines in "job.yaml":
       | completions: -1 | completions: 0.1 |
     When I run the :create client command with:
       | f | job.yaml |
     Then the step should fail
-    And the output should contain "cannot unmarshal number 0.1"
+    And the output should contain "fractional integer"

@@ -328,7 +328,7 @@ Feature: oc run related scenarios
       | replicas | 2 |
       | limits | cpu100m\&memory=512Mi |
     Then the step should fail
-    And the output should contain "invalid value"
+    And the output should contain "Invalid value"
     When I run the :run client command with:
       | name | nginx |
       | image | nginx |
