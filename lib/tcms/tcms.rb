@@ -386,7 +386,12 @@ module CucuShift
 
     def get_latest_log_url(caserun_id)
       logs = self.get_caserun_logs(caserun_id)
-      return logs[-1]["url"]
+      if logs.count == 0
+        @logger.info("There are no run logs stored for caserun_id #{caserun_id}")
+        return nil
+      else
+        return logs[-1]["url"]
+      end
     end
     # @param [Array of Integer] integers which represetns caserun_id
     # @return [{TestCaseRun+TestCase}, ...]

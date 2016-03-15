@@ -140,7 +140,7 @@ module CucuShift
           "components" => [component_auto.attrs]
         }
         status, new_issue = create_issue(issue_params)
-        @logger.info("Created issue #{new_issue.key} for '#{@options[:user]}'") if status
+        @logger.info("Created issue #{new_issue.key} for '#{assignee}'") if status
       end
     end
 
