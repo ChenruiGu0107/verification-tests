@@ -245,3 +245,64 @@ Feature: xpass.feature
       | template                 |
       |  jws30-tomcat7-mysql-s2i |
       |  jws30-tomcat8-mysql-s2i |
+  # @author haowang@redhat.com
+  # @case_id 498016 514971 514967 514972
+  @admin
+  @destructive
+  Scenario Outline: jbosseap templates with pv
+    Given I have a project
+    And I have a NFS service in the project
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template |  <template> |
+    Then the step should succeed
+    And the "eap-app-1" build was created
+    And the "eap-app-1" build completed
+    And <podno> pods become ready with labels:
+     |application=eap-app|
+
+    Examples: OS Type
+      | template                           | podno |
+      | eap64-amq-persistent-s2i           | 2     |
+      | eap64-mongodb-persistent-s2i       | 2     |
+      | eap64-mysql-persistent-s2i         | 2     |
+      | eap64-postgresql-persistent-s2i    | 2     |
+  # @author haowang@redhat.com
+  # @case_id 514966
+  @admin
+  @destructive
+  Scenario: Create amq application from pre-installed templates : amq62-persistent-ssl
+    Given I have a project
+    And I have a NFS service in the project
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/amq-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | amq62-persistent-ssl |
+      | param    | AMQ_TRUSTSTORE_PASSWORD=password,AMQ_KEYSTORE_PASSWORD=password |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | application=broker |
+  # @author haowang@redhat.com
+  # @case_id 498015
+  @admin
+  @destructive
+  Scenario: Create amq application from pre-installed templates: amq62-persistent
+    Given I have a project
+    And I have a NFS service in the project
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/amq-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | amq62-persistent |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | application=broker |
