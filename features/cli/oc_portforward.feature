@@ -59,56 +59,46 @@ Feature: oc_portforward.feature
     And I run the :port_forward background client command with:
       | pod | doublecontainers |
       | port_spec | <%= cb[:porta] %>:8080  |
-      | _timeout | 20 |
-    Then the step should succeed
-    And I run the :port_forward background client command with:
-      | pod | doublecontainers |
       | port_spec | <%= cb[:portb] %>:8081  |
-      | _timeout | 20 |
-    Then the step should succeed
-    And I run the :port_forward background client command with:
-      | pod | doublecontainers |
       | port_spec | <%= cb[:portc] %>:8080  |
-      | _timeout | 20 |
-    Then the step should succeed
-    And I run the :port_forward background client command with:
-      | pod | doublecontainers |
       | port_spec | <%= cb[:portd] %>:8081  |
-      | _timeout | 20 |
+      | _timeout | 40 |
     Then the step should succeed
+    And I wait up to 40 seconds for the steps to pass:
+    """
     And I perform the HTTP request:
-      """
+      <%= '"""' %>
       :url: 127.0.0.1:<%= cb[:porta] %>
       :method: :get
-      """
+      <%= '"""' %>
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift |
     Then the step should succeed
     And the output should contain:
       | Hello OpenShift |
     And I perform the HTTP request:
-      """
+      <%= '"""' %>
       :url: 127.0.0.1:<%= cb[:portb] %>
       :method: :get
-      """
+      <%= '"""' %>
     Then the step should succeed
     And the output should contain:
       | Hello OpenShift |
     And I perform the HTTP request:
-      """
+      <%= '"""' %>
       :url: 127.0.0.1:<%= cb[:portc] %>
       :method: :get
-      """
+      <%= '"""' %>
     Then the step should succeed
     And the output should contain:
       | Hello OpenShift |
     And I perform the HTTP request:
-      """
+      <%= '"""' %>
       :url: 127.0.0.1:<%= cb[:portd] %>
       :method: :get
-      """
-    Then the step should succeed
-    And the output should contain:
-      | Hello OpenShift |
-
+      <%= '"""' %>
+    """
   # @author pruan@redhat.com
   # @case_id 509396
   Scenario: Forwarding local port to a non-existing port in a pod
