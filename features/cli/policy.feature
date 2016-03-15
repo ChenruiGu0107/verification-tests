@@ -341,7 +341,7 @@ Feature: change the policy of user/service account
 
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
-  # TODO: xiaocwan, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: xiaocwan, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample|
     Then the output should contain:
@@ -373,6 +373,7 @@ Feature: change the policy of user/service account
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample|
+    # TODO: xiaocwan, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then the output should match:
       | ervice.*created          |
       | oute.*created            |

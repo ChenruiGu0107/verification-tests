@@ -161,6 +161,7 @@ Feature: Check oc status cli
     When I run the :delete background client command with:
       | object_type | projects |
       | object_name_or_id | <%= project.name %> |
+    Then the step should succeed
 
     And I wait for the steps to pass:
     """

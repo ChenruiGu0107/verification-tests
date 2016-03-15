@@ -192,7 +192,7 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_group client command with:
@@ -206,6 +206,7 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp2         |
+    # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp2" service to be created
     When I run the :get client command with:
       | resource | service |
