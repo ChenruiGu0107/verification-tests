@@ -383,6 +383,62 @@ def update_script(options)
   end
 end
 
+  # @testcases is an array of failed testcase in a TCMS hash format.  Use
+  # this method to create an issue that is targeted for jenkins run failure
+  #
+  # We create an issued for a user based on the testrun id.  Create an issue
+  # if there is no existing issued around that testrun id (need to query
+  # JIRA).  If there's an JIRA already, we just append the new infromation
+  # to the 'comments' section of the existing JIRA.  This way we minimize
+  # the amount of JIRA issued to the user.
+  #
+  def create_failed_testcases_issue(testcases, tcms, jira)
+    query_params = {
+      :assignee => testcases[0]['auto_by'], 
+      :run_id => testcases[0]['run_id']}
+    # read in the config from the :tcms section
+    tcms_base_url = tcms.default_opts[:tcms_base_url]
+    logger = jira.logger
+    options = jira.client.options
+    issues = jira.find_issue_by_testrun_id(query_params)
+    error_logs = ""
+    testcases.each do | tc |
+      tc_url = tcms_base_url + "case/#{tc['case_id']}"
+      error_logs += jira.make_link(tc_url, tc['case_id']) + " " + jira.make_link( tc[:log_url], 'run_log') + "\n"
+    end
+    if issues.count > 0
+      # issue already exist, just append the run logs as comments
+      issue = issues[0]
+      issue.fetch('reload')  # this is needed to reload all comments
+      logger.info("JIRA issue '#{issue.key}' already exists, adding logs to comments section...")
+
+      comment = issue.comments.build
+      comment.save!(:body => error_logs)
+    else
+      # step 1. get the author's information
+      assignee = jira.get_user(query_params[:assignee])
+      if assignee.nil?
+        reporter = options[:username]
+        logger.info("JIRA system does not have username '#{query_params[:assignee]}', assigning issue to the reporter '#{reporter}'")
+        assignee = jira.get_user(reporter)
+      end
+
+      component_auto = jira.get_component(options[:component_id])
+      run_url = jira.make_link(url=(tcms_base_url + "run/#{query_params[:run_id]}"), text=query_params[:run_id])
+      error_logs = "Errors from test run #{run_url}" + "\n" + error_logs
+      issue_params = {
+        "summary" => "test failures from run:#{query_params[:run_id]}",
+        "project" => {"id"=> options[:project]},
+        "issuetype"=>{"id"=>"1"},
+        "assignee" => assignee.attrs,
+        "description" => error_logs,
+        "components" => [component_auto.attrs]
+      }
+      status, new_issue = jira.create_issue(issue_params)
+      logger.info("Created issue #{new_issue.key} for '#{assignee.name}'") if status
+    end
+  end
+
 # query tcms and extract all of the failed logs from a test run
 def report_logs(options, status='FAILED')
   tcms = options.tcms
@@ -409,15 +465,14 @@ def report_logs(options, status='FAILED')
     if options.create_jira
       if options.author
         if author == options.author
-          jira.create_failed_testcases_issue(testcases)
+          create_failed_testcases_issue(testcases, tcms, jira)
         else
           print ("Skipping JIRA update because author '#{author}' did not match author filter '#{options.author}'\n")
         end
       else
-        jira.create_failed_testcases_issue(testcases)
+        create_failed_testcases_issue(testcases, tcms, jira)
       end
     end
-    #jira.create_failed_testcases_issue(testcases) if options.create_jira
   end
   puts table
 end
