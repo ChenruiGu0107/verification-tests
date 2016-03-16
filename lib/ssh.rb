@@ -223,8 +223,8 @@ module CucuShift
         end
       end
       unless opts[:quiet]
-        logger.print(stdout, false)
-        logger.print(stderr, false) unless stdout == stderr
+        logger.plain(stdout, false)
+        logger.plain(stderr, false) unless stdout == stderr
       end
       logger.info("Exit Status: #{exit_status}")
 

@@ -109,7 +109,7 @@ module CucuShift
         config_str = res[:stdout].gsub(/^(\s*server:)\s.*$/) {
           $1 + " " + env.api_endpoint_url
         }
-        logger.print config_str, false
+        logger.plain config_str, false
         raise "wrong config" unless config_str.include? "server: #{env.api_endpoint_url}"
         File.write(config, config_str)
       else

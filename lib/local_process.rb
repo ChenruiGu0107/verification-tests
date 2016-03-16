@@ -219,9 +219,9 @@ module CucuShift
           result[:response] = result[:stdout].to_s
 
           unless opts[:quiet]
-            logger.print(result[:stdout], false)
+            logger.plain(result[:stdout], false)
             unless result[:stderr].equal?(result[:stdout])
-              logger.print(result[:stderr], false)
+              logger.plain(result[:stderr], false)
             end
           end
           logger.info("Exit Status: #{result[:exitstatus]}")

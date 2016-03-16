@@ -70,7 +70,7 @@ module CucuShift
     end
 
     def time
-      @@runtime.puts("#{Time.now.utc}")
+      print("#{Time.now.utc}")
     end
 
     def log(msg, level=INFO, show_datetime='time')
@@ -96,7 +96,7 @@ module CucuShift
       # set colo/reset terminal if Term::ANSIColor installed, skip otherwise
       m = "#{COLOR[level]}#{m}#{RESET}"
 
-      @@runtime.puts(m)
+      print(m)
     end
 
     def info(msg, show_datetime='time')
@@ -118,6 +118,9 @@ module CucuShift
     def plain(msg, show_datetime='time')
       self.log(msg, PLAIN, show_datetime)
     end
-    alias :print :plain
+
+    def print(msg)
+      @@runtime.puts(msg)
+    end
   end
 end
