@@ -5,12 +5,13 @@ Feature: rolling deployment related scenarios
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
-    And I wait until replicationController "hooks-1" is ready
+    #And I wait until replicationController "hooks-1" is ready
+    And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | hooks-1                |
       | replicas | 10                     |
-    And I wait for the pod named "hooks-1-deploy" to die
+    #And I wait for the pod named "hooks-1-deploy" to die
     And I replace resource "dc" named "hooks":
       | maxSurge: 25% | maxSurge: 0 |
     Then the step should succeed
@@ -117,13 +118,17 @@ Feature: rolling deployment related scenarios
       | name     | hooks-1                |
       | replicas | 10                     |
     And all pods in the project are ready
+    And I wait up to 120 seconds for the steps to pass:
+    """
     And I run the :get client command with:
       | resource | dc |
       | resource_name | hooks |
       | output | yaml |
     Then the output should contain:
+      | replicas: 10  |
       | maxSurge: 25% |
       | maxUnavailable: 25%  |
+    """
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            | true  |
@@ -131,7 +136,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
     And the output should contain:
-      | keep 7 pods available, don't exceed 13 pods |
+      | keep 8 pods available, don't exceed 13 pods |
     And I replace resource "dc" named "hooks":
       | maxUnavailable: 25% | maxUnavailable: 2 |
       | maxSurge: 25% | maxSurge: 5             |
