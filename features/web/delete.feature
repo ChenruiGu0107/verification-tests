@@ -64,8 +64,8 @@ Feature: Delete the resources via web console
     When I expose the "nodejs-sample" service
     Then the step should succeed
     Given I wait for the "nodejs-sample" service to become ready
-    When I run the :oadm_add_role_to_user client command with:
-      | role name |   view    |
+    When I run the :policy_add_role_to_user client command with:
+      | role      |   view    |
       | user_name | <%= user(1, switch: false).name %> |
     Then the step should succeed
     Given I switch to the second user 
