@@ -89,3 +89,35 @@ Feature: dockerbuild.feature
       | from_file | nonexist.json |
     Then the step should fail
     And the output should contain "no such file"
+  # @author yantan@redhat.com
+  # @case_id 479296 
+  Scenario: Custom build with dockerImage with specified tag
+    Given I have a project
+    Then the step should succeed
+    And I process and create:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479296/application-template-custombuild.json |
+    Then the step should succeed
+    And I run the :describe client command with:
+      | resource | buildconfig |
+      | name | ruby-sample-build |
+    Then the step should succeed
+    And the output should contain:
+      |DockerImage openshift/origin-custom-docker-builder:latest|
+    And I run the :get client command with:
+      | resource | builds |
+    Then the step should succeed
+    And I run the :describe client command with:
+      | resource | builds|
+    Then the step should succeed
+    Then the output should contain:
+      |DockerImage openshift/origin-custom-docker-builder:latest|
+    When I replace resource "bc" named "ruby-sample-build":
+      | openshift/origin-custom-docker-builder:latest  | openshift/origin-custom-docker-builder:a2aa234 |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :logs client command with:
+      | resource_name | bc/ruby-sample-build |
+    And the output should contain:
+      | timed out |
