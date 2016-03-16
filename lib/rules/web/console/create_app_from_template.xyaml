@@ -57,6 +57,6 @@ fromtemplate_set_labels:
     op: send_keys <label_value>
     type: input
   - selector:
-      xpath: //button[text()='Add' and not(@disabled)]
+      xpath: //a[contains(text(),'Add') and contains(@role, 'button') and not(@disabled)]
     op: click
-    type: button
+    type: a
