@@ -17,7 +17,7 @@ Feature: Configuration of environment variables check
     Then the step should succeed
     And the output should contain "<image>"
     When I execute on the pod:
-      | curl | -s | <%= service.url %> |
+      | curl | -k | <%= service.url %> |
     Then the step should succeed
     And the output should contain:
       | Welcome to an OpenShift v3 Demo App |
