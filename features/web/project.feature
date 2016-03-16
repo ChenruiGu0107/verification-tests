@@ -190,3 +190,52 @@ Feature: projects related features via web
     When I perform the :check_specific_project web console action with:
       | project_name | <%= cb.project3 %> |
     Then the step should fail
+ 
+  # @author wsun@redhat.com
+  # @case_id 499992
+  Scenario: Can edit the project description and display name from web console
+      When I create a project via web with:
+      | display_name | projecttest |
+      | description  | test        |
+    Then the step should succeed
+    When I perform the :check_general_information web console action with:
+      | project_name | <%= project.name %> |
+      | dispaly_name | projecttest         |
+      | description  | test                |
+    Then the step should succeed
+    When I perform the :cancel_edit_general_informantion web console action with:
+      | project_name | <%= project.name %> |
+      | display_name | projecttestupdate |
+      | description  | testupdate        |
+    Then the step should succeed
+    When I perform the :check_general_information web console action with:
+      | project_name | <%= project.name %> |
+      | dispaly_name | projecttest         |
+      | description  | test                |
+    Then the step should succeed
+    When I perform the :save_edit_general_informantion web console action with:
+      | project_name | <%= project.name %> |
+      | display_name | projecttestupdate |
+      | description  | testupdate        |
+    Then the step should succeed
+    When I perform the :check_general_information web console action with:
+      | project_name | <%= project.name %> |
+      | dispaly_name | projecttestupdate   |
+      | description  | testupdate          |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | edit                                |
+      | user_name |  <%= user(1, switch: false).name %> |
+      | n         | <%= project.name %>                 |
+    Given I switch to the second user
+    When I perform the :save_edit_general_informantion web console action with:
+      | project_name | <%= project.name %> |
+      | display_name | projecttesteditor   |
+      | description  | testeditor          |
+    Then the step should succeed
+    When I perform the :check_general_information web console action with:
+      | project_name | <%= project.name %> |
+      | dispaly_name | projecttestupdate   |
+      | description  | testupdate          |
+    Then the step should succeed
+
