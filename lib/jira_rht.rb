@@ -18,12 +18,12 @@ module CucuShift
       @options = default_opts.merge options
 
       ## try to obtain user/password in all possible ways
-      @options[:user] = ENV['JIRA_USER'] if ENV['JIRA_USER']
+      @options[:username] = ENV['JIRA_USER'] if ENV['JIRA_USER']
       @options[:password] = ENV['JIRA_PASSWORD'] if ENV['JIRA_PASSWORD']
-      unless @options[:user]
+      unless @options[:username]
         Timeout::timeout(120) {
           STDERR.puts "JIRA user (timeout in 2 minutes): "
-          @options[:user] = STDIN.gets.chomp
+          @options[:username] = STDIN.gets.chomp
         }
       end
       unless @options[:password]
@@ -32,14 +32,13 @@ module CucuShift
       end
       ## set logger
       @logger = @options[:logger] || logger
-      raise "specify JIRA user and password" unless @options[:user] && @options[:password] && !@options[:user].empty? && !@options[:password].empty?
+      raise "specify JIRA user and password" unless @options[:username] && @options[:password] && !@options[:username].empty? && !@options[:password].empty?
     end
 
     def client
       return @client if @client
       options = @options.dup
       options[:read_timeout] ||= 30
-      options[:username] = @options[:user]
       options[:use_ssl] ||= true
       options[:ca_path] = expand_private_path(options[:ca_path], public_safe: true) if options[:ca_path]
       options[:ca_file] = expand_private_path(options[:ca_file], public_safe: true) if options[:ca_file]
