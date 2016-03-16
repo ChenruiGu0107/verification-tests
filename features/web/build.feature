@@ -120,3 +120,90 @@ Feature: build related feature on web console
       | ruby-sample-2.+Cancelled |
       | ruby-sample-3.+Complete  |
       | ruby-sample-another-1.+Failed |
+
+  # @author yapei@redhat.com
+  # @case_id 518661
+  Scenario: Negative test for modify buildconfig
+    Given I have a project
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Then the step should succeed
+    When I perform the :wait_latest_build_to_status web console action with:
+      | project_name  | <%= project.name %>  |
+      | bc_name       | ruby-sample-build    |
+      | build_status  | complete             |
+    Then the step should succeed
+    # check source repo on Configuration tab
+    When I perform the :check_buildconfig_source_repo web console action with:
+      | project_name  | <%= project.name %>  |
+      | bc_name       | ruby-sample-build    |
+      | source_repo_url | https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    # change source repo on edit page and save the changes
+    When I perform the :change_bc_source_repo_url web console action with:
+      | project_name             | <%= project.name %> |
+      | bc_name                  | ruby-sample-build   |
+      | changing_source_repo_url | https://github.com/yapei/ruby-hello-world |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :check_buildconfig_source_repo web console action with:
+      | project_name    | <%= project.name %> |
+      | bc_name         | ruby-sample-build   |
+      | source_repo_url | https://github.com/yapei/ruby-hello-world |
+    Then the step should succeed
+    # change source repo on edit page, but cancel the update
+    When I perform the :change_bc_source_repo_url web console action with:
+      | project_name             | <%= project.name %> |
+      | bc_name                  | ruby-sample-build   |
+      | changing_source_repo_url | https://github.com/yapei/test-ruby-hello-world |
+    Then the step should succeed
+    When I run the :cancel_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :check_buildconfig_source_repo web console action with:
+      | project_name    | <%= project.name %>  |
+      | bc_name         | ruby-sample-build    |
+      | source_repo_url | https://github.com/yapei/ruby-hello-world |
+    Then the step should succeed
+    # change source repo URL to invalid random character
+    When I perform the :change_bc_source_repo_url web console action with:
+      | project_name             | <%= project.name %>  |
+      | bc_name                  | ruby-sample-build    |
+      | changing_source_repo_url | iwio%##$7234         |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I run the :check_invalid_url_warn_message web console action
+    Then the step should succeed
+    # edit bc via CLI before save changes on web console
+    When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name  | <%= project.name %>  |
+      | bc_name       | ruby-sample-build    |
+      | env_var_key   | testkey              |
+      | env_var_value | testvalue            |
+    Then the step should succeed
+    When I run the :env client command with:
+      | resource | bc/ruby-sample-build |
+      | e        | key1=value1          |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I run the :check_outdated_bc_warn_message web console action
+    Then the step should succeed
+    # delete bc before save changes on web console
+    When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name  | <%= project.name %>  |
+      | bc_name       | ruby-sample-build    |
+      | env_var_key   | testkey              |
+      | env_var_value | testvalue            |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_name_or_id | bc/ruby-sample-build |
+    Then the step should succeed
+    When I run the :check_deleted_bc_warn_message web console action
+    Then the step should succeed
+    When I get the "disabled" attribute of the "button" web element:
+      | text | Save |
+    Then the output should contain "true"
+    When I get the "disabled" attribute of the "element" web element:
+      | xpath | //fieldset |
+    Then the output should contain "true"
