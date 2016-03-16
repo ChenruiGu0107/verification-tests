@@ -6,9 +6,7 @@ Feature: oc_portforward.feature
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod-bad.json |
-    When I run the :get client command with:
-      | resource | pod |
-    Then the output should contain "Pending"
+    Given the pod named "hello-openshift" status becomes :pending
     When I run the :port_forward client command with:
       | pod | hello-openshift |
       | port_spec | :8080 |
