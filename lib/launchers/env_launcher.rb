@@ -506,6 +506,13 @@ module CucuShift
             "sh configure_env.sh modify_IS_for_testing #{modify_IS_for_testing}"
           )
       end
+      
+      ## create docker-registry if not use_nfs_storage
+      if !use_nfs_storage
+          check_res hosts['master'][0].exec_admin(
+            "sh configure_env.sh create_router_registry"
+          )
+      end
 
       ## execute post-ansible hook
       # TODO
