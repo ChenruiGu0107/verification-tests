@@ -97,11 +97,7 @@ Feature: containers related features
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc472859/hello-pod.json|
-    When I run the :get client command with:
-      | resource | pods |
-    Then the step should succeed
-    And the output should contain:
-      | Pending |
+    And the pod named "hello-openshift" status becomes :pending
     And I run the :exec client command with:
       | pod | hello-openshift |
       | container | hello-openshift |
