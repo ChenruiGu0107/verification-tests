@@ -294,7 +294,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   Scenario: Add/Remove hostPath volume to dc and rc
     # Preparations
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_super_template_1.yaml"
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_super_template.yaml"
     And I replace lines in "scc_super_template.yaml":
       |#NAME#|<%= project.name %>|
       |#ACCOUNT#|<%= user.name %>|
