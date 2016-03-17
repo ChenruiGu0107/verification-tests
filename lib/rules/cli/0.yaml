@@ -324,7 +324,7 @@
     :output: --output=<value>  # One of: json|yaml|template|templatefile|wide
     :output_version: --output-version=<value>
     :template: --template=<value>
-:new_basicauth:
+:oc_secrets_new_basicauth:
   :cmd: oc secrets new-basicauth <secret_name>
   :options:
     :username: --username=<value>
@@ -336,7 +336,7 @@
     :output: --output=<value>
     :output_version: --output-version=<value>
     :template: --template=<value>
-:new_sshauth:
+:oc_secrets_new_sshauth:
   :cmd: oc secrets new-sshauth <secret_name>
   :options:
     :ssh_privatekey: --ssh-privatekey=<value>

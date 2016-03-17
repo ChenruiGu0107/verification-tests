@@ -96,7 +96,7 @@ Feature: secrets related scenarios
   # @case_id 508970
   Scenario: Create new secrets for basic authentication
     Given I have a project
-    When I run the :new_basicauth client command with:
+    When I run the :oc_secrets_new_basicauth client command with:
       |secret_name |testsecret |
       |username    |tester     |
       |password    |password   |
@@ -110,7 +110,7 @@ Feature: secrets related scenarios
       |password:|
       |username:|
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508970/ca.crt"
-    When I run the :new_basicauth client command with:
+    When I run the :oc_secrets_new_basicauth client command with:
       |secret_name |testsecret2 |
       |username    |tester      |
       |password    |password    |
@@ -126,7 +126,7 @@ Feature: secrets related scenarios
       |username:|
       |ca.crt:  |
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508970/.gitconfig"
-    When I run the :new_basicauth client command with:
+    When I run the :oc_secrets_new_basicauth client command with:
       |secret_name |testsecret3 |
       |username    |tester      |
       |password    |password    |
@@ -147,7 +147,7 @@ Feature: secrets related scenarios
   Scenario: Create new secrets for ssh authentication
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508971/id_rsa"
-    When I run the :new_sshauth client command with:
+    When I run the :oc_secrets_new_sshauth client command with:
       |secret_name    |testsecret |
       |ssh_privatekey |id_rsa     |
     Then the step should succeed
@@ -159,7 +159,7 @@ Feature: secrets related scenarios
     And the output should contain:
       |ssh-privatekey:|
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508970/ca.crt"
-    When I run the :new_sshauth client command with:
+    When I run the :oc_secrets_new_sshauth client command with:
       |secret_name    |testsecret2 |
       |ssh_privatekey |id_rsa      |
       |cafile         |ca.crt      |
