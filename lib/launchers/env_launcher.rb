@@ -338,6 +338,14 @@ module CucuShift
       #configure nfs on first master (for HA registry) if use_nfs_storage
       if use_nfs_storage
         nfs_host_lines << "#{hosts["master"][0].ansible_host_str}"
+
+        ose3_vars << "openshift_hosted_registry_storage_kind=nfs"
+        ose3_vars << "openshift_hosted_registry_storage_nfs_options='*(rw,root_squash,sync,no_wdelay)'"
+        ose3_vars << "openshift_hosted_registry_storage_nfs_directory=/var/lib/exports"
+        ose3_vars << "openshift_hosted_registry_storage_volume_name=regpv"
+        ose3_vars << "openshift_hosted_registry_storage_access_modes=['ReadWriteMany']"
+        ose3_vars << "openshift_hosted_registry_storage_volume_size=17G"
+
       end
 
       hosts.each do |role, role_hosts|

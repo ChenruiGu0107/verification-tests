@@ -12,13 +12,6 @@ deployment_type=<%=deployment_type%>
 oreg_url=<%=image_pre%>
 openshift_docker_additional_registries=<%=image_pre.partition("/")[0]%>
 
-#openshift_hosted_registry_storage_kind=nfs
-#openshift_hosted_registry_storage_nfs_options='*(rw,root_squash,sync,no_wdelay)'
-#openshift_hosted_registry_storage_nfs_directory=/var/lib/exports
-#openshift_hosted_registry_storage_volume_name=regpv
-#openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
-#openshift_hosted_registry_storage_volume_size=17G
-
 # Pre-release additional repo
 openshift_use_openshift_sdn=true
 osm_default_subdomain=<%=app_domain%>
