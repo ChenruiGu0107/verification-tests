@@ -114,6 +114,7 @@ module CucuShift
                         pre_ansible: nil, post_ansible: nil,
                         ansible_url:,
                         use_rpm_playbook:,
+                        use_nfs_storage:,
                         customized_ansible_conf: "",
                         kerberos_kdc: conf[:services, :test_kerberos, :kdc],
                         kerberos_keytab_url:
@@ -334,8 +335,18 @@ module CucuShift
       dns_subst.call # double substritution (if happens) should not hurt
       ## DNS config End
 
-      #configure nfs on first master (for HA registry)
-      nfs_host_lines << "#{hosts["master"][0].ansible_host_str}"
+      #configure nfs on first master (for HA registry) if use_nfs_storage
+      if use_nfs_storage
+        nfs_host_lines << "#{hosts["master"][0].ansible_host_str}"
+
+        ose3_vars << "openshift_hosted_registry_storage_kind=nfs"
+        ose3_vars << "openshift_hosted_registry_storage_nfs_options='*(rw,root_squash,sync,no_wdelay)'"
+        ose3_vars << "openshift_hosted_registry_storage_nfs_directory=/var/lib/exports"
+        ose3_vars << "openshift_hosted_registry_storage_volume_name=regpv"
+        ose3_vars << "openshift_hosted_registry_storage_access_modes=['ReadWriteMany']"
+        ose3_vars << "openshift_hosted_registry_storage_volume_size=17G"
+
+      end
 
       hosts.each do |role, role_hosts|
         role_hosts.each do |host|
@@ -503,6 +514,13 @@ module CucuShift
             "sh configure_env.sh modify_IS_for_testing #{modify_IS_for_testing}"
           )
       end
+      
+      ## create docker-registry if not use_nfs_storage
+      if !use_nfs_storage
+          check_res hosts['master'][0].exec_admin(
+            "sh configure_env.sh create_router_registry"
+          )
+      end
 
       ## execute post-ansible hook
       # TODO
@@ -549,6 +567,7 @@ module CucuShift
               :rhel_base_repo,
               :dns, :set_hostnames,
               :use_rpm_playbook,
+              :use_nfs_storage,
               :image_pre,
               :puddle_repo,
               :etcd_num,
@@ -566,6 +585,7 @@ module CucuShift
       end
 
       opts[:use_rpm_playbook] = false unless to_bool(opts[:use_rpm_playbook])
+      opts[:use_nfs_storage] = false unless to_bool(opts[:use_nfs_storage])
     end
 
     # generate hostnames for any hosts that lack a real hostname or when forced
