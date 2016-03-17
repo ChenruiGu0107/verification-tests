@@ -422,8 +422,7 @@ end
         logger.info("JIRA system does not have username '#{query_params[:assignee]}', assigning issue to the reporter '#{reporter}'")
         assignee = jira.get_user(reporter)
       end
-
-      component_auto = jira.get_component(options[:component_id])
+      component_auto = jira.get_component(options[:components][0])
       run_url = jira.make_link(url=(tcms_base_url + "run/#{query_params[:run_id]}"), text=query_params[:run_id])
       error_logs = "Errors from test run #{run_url}" + "\n" + error_logs
       issue_params = {
