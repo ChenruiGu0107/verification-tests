@@ -178,8 +178,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Preparations
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mysql |
-      | env | MYSQL_USER=tester,MYSQL_PASSWORD=xxx,MYSQL_DATABASE=testdb |
+      | image_stream | openshift/mongodb |
+      | env | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
       | name | mydb |
     Then the step should succeed
     And a pod becomes ready with labels:
@@ -301,8 +301,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       |#NS#|<%= project.name %>|
     Given the following scc policy is created: scc_super_template.yaml
     When I run the :new_app client command with:
-      | image_stream | openshift/postgresql |
-      | env | POSTGRESQL_USER=tester,POSTGRESQL_PASSWORD=xxx,POSTGRESQL_DATABASE=testdb |
+      | image_stream | openshift/mongodb |
+      | env | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
       | name | mydb |
     Then the step should succeed
     And a pod becomes ready with labels:
