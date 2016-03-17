@@ -37,7 +37,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name          | v1                      |
       | claim-name    | nfsc-<%= project.name %>|
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     # check after add pvc to dc
@@ -68,7 +68,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | action        | --remove              |
       | name          | v1                    |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     # check after remove pvc from dc
@@ -108,7 +108,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type   | pod                   |
       | l             | app=mydb              |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -130,7 +130,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type   | pod                   |
       | l             | app=mydb              |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -165,7 +165,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | claim-name    | nfsc-<%= project.name %>|
       | overwrite     |                         |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -192,7 +192,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | mount-path    | /opt1                   |
       | name          | v1                      |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     # check after add emptyDir to dc
@@ -221,7 +221,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | action        | --remove              |
       | name          | v1                    |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     # check after remove emptyDir from dc
@@ -259,7 +259,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type   | pod                   |
       | l             | app=mydb              |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -281,7 +281,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type   | pod                   |
       | l             | app=mydb              |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -316,7 +316,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | path          | /usr                    |
       | name          | v1                      |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     # check after add hostPath to dc
@@ -350,7 +350,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | action        | --remove              |
       | name          | v1                    |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     # check after remove hostPath from dc
@@ -393,7 +393,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type   | pod                   |
       | l             | app=mydb              |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -418,7 +418,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type   | pod                   |
       | l             | app=mydb              |
     Then the step should succeed
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -474,7 +474,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     |mounted at /opt111      |
 
     #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
-    And I wait for the pod to die
+    And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
     | app=mydb |
 
