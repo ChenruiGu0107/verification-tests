@@ -335,7 +335,7 @@ module CucuShift
       dns_subst.call # double substritution (if happens) should not hurt
       ## DNS config End
 
-      #configure nfs on first master (for HA registry)
+      #configure nfs on first master (for HA registry) if use_nfs_storage
       if use_nfs_storage
         nfs_host_lines << "#{hosts["master"][0].ansible_host_str}"
       end
