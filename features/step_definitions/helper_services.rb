@@ -16,6 +16,7 @@ Given /^I have a NFS service in the(?: "([^ ]+?)")? project$/ do |project_name|
   path = @result[:abs_path]
   policy["metadata"]["name"] = "super-" + user.name.gsub(/[@]/,"-")
   policy["users"] = [user.name]
+  policy["groups"] = "system:serviceaccounts:" + project.name
   File.write(path, policy.to_yaml)
 
   # now we seem to need setting policy on user, not project

@@ -295,10 +295,11 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Preparations
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_super_template_1.yaml"
-    And I replace lines in "scc_super_template_1.yaml":
+    And I replace lines in "scc_super_template.yaml":
+      |#NAME#|<%= project.name %>|
       |#ACCOUNT#|<%= user.name %>|
       |#NS#|<%= project.name %>|
-    Given the following scc policy is created: scc_super_template_1.yaml
+    Given the following scc policy is created: scc_super_template.yaml
     When I run the :new_app client command with:
       | image_stream | openshift/postgresql |
       | env | POSTGRESQL_USER=tester,POSTGRESQL_PASSWORD=xxx,POSTGRESQL_DATABASE=testdb |
