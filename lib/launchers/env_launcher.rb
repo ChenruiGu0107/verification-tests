@@ -114,6 +114,7 @@ module CucuShift
                         pre_ansible: nil, post_ansible: nil,
                         ansible_url:,
                         use_rpm_playbook:,
+                        use_nfs_storage:,
                         customized_ansible_conf: "",
                         kerberos_kdc: conf[:services, :test_kerberos, :kdc],
                         kerberos_keytab_url:
@@ -335,7 +336,9 @@ module CucuShift
       ## DNS config End
 
       #configure nfs on first master (for HA registry)
-      nfs_host_lines << "#{hosts["master"][0].ansible_host_str}"
+      if use_nfs_storage
+        nfs_host_lines << "#{hosts["master"][0].ansible_host_str}"
+      end
 
       hosts.each do |role, role_hosts|
         role_hosts.each do |host|
@@ -549,6 +552,7 @@ module CucuShift
               :rhel_base_repo,
               :dns, :set_hostnames,
               :use_rpm_playbook,
+              :use_nfs_storage,
               :image_pre,
               :puddle_repo,
               :etcd_num,
@@ -566,6 +570,7 @@ module CucuShift
       end
 
       opts[:use_rpm_playbook] = false unless to_bool(opts[:use_rpm_playbook])
+      opts[:use_nfs_storage] = false unless to_bool(opts[:use_nfs_storage])
     end
 
     # generate hostnames for any hosts that lack a real hostname or when forced
