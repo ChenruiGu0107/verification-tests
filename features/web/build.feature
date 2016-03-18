@@ -207,3 +207,66 @@ Feature: build related feature on web console
     When I get the "disabled" attribute of the "element" web element:
       | xpath | //fieldset |
     Then the output should contain "true"
+
+  # author yapei@redhat.com
+  # @case_id 518658
+  Scenario: Modify buildconfig for bc has ImageSource
+  Given I have a project
+  When I run the :create client command with:
+    | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/image-source.yaml |
+  Then the step should succeed
+  When I run the :get client command with:
+    | resource      | bc |
+    | resource_name | imagedockerbuild |
+    | o             | json             |
+  Then the step should succeed
+  And the output is parsed as JSON
+  Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 1
+  When I run the :get client command with:
+    | resource      | bc |
+    | resource_name | imagesourcebuild |
+    | o             | json             |
+  Then the step should succeed
+  And the output is parsed as JSON
+  Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 2
+  # check bc on web console
+  When I perform the :count_buildconfig_image_paths web console action with:
+    | project_name     | <%= project.name %>  |
+    | bc_name          | imagedockerbuild     |
+    | image_path_count | 1                    |
+  Then the step should succeed
+  When I perform the :count_buildconfig_image_paths web console action with:
+    | project_name     | <%= project.name %>  |
+    | bc_name          | imagesourcebuild     |
+    | image_path_count | 2                    |
+  Then the step should succeed
+  # change bc
+  When I perform the :add_bc_source_and_destination_paths web console action with:
+    | project_name     | <%= project.name %>  |
+    | bc_name          | imagedockerbuild     |
+    | image_source_from | Image Stream Tag    |
+    | image_source_namespace | openshift      |
+    | image_source_is | ruby |
+    | image_source_tag | 2.2 |
+    | source_path | /usr/bin/ruby |
+    | dest_dir  | user/test |
+  Then the step should succeed
+  When I run the :save_buildconfig_changes web console action
+  Then the step should succeed
+  # for bc has more than one imagestream source, couldn't add
+  When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
+    | project_name | <%= project.name %>  |
+    | bc_name      | imagesourcebuild     |
+  Then the step should succeed
+  When I perform the :choose_image_source_from web console action with:
+    | image_source_from | Image Stream Tag |
+  Then the step should fail
+  And the output should contain "element not found"
+  # check image source via CLI
+  When I run the :get client command with:
+    | resource      | bc |
+    | resource_name | imagedockerbuild |
+    | o             | json             |
+  Then the step should succeed
+  And the output is parsed as JSON
+  Then the expression should be true> @result[:parsed]['spec']['source']['images'][0]['paths'].length == 2
