@@ -103,5 +103,6 @@ Feature: Quota related scenarios
     When I get project events
     # here comes a bug which fail the last step - 1317783 
     Then the output should match:
-      | rror creating deployer pod.*<%= project.name %>/database-2  |
-      | od "deploy-database-2" is forbidden.*imited to 750Mi memory |
+      | pods "database-\\d+-deploy" is forbidden |
+      | aximum memory usage.*is 750Mi.*limit is 796917760 |
+      | aximum cpu usage.*is 500m.*limit is 1100m |
