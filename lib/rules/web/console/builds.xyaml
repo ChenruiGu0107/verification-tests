@@ -16,7 +16,7 @@ check_build_log_tab:
         xpath: //div[@ng-if='build']//uib-tab-heading[text()='Logs']
       op: click
     - selector:
-        xpath: //div[@ng-if='build']//span[@ng-if='status']//span[contains(.,'<build_status_name>')]
+        xpath: //div[contains(.,'Build status')]//span[contains(.,'<build_status_name>')]
 check_one_buildconfig_page:
   action: goto_one_buildconfig_page
   element:
