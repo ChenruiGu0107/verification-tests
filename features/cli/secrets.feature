@@ -15,7 +15,7 @@ Feature: secrets related scenarios
   # @case_id 490966
   Scenario: Generate dockercfg type secrets via oc secrets new-dockercfg
     Given I have a project
-    When I run the :new_dockercfg client command with:
+    When I run the :oc_secrets_new_dockercfg client command with:
       |secret_name      |test                     |
       |docker_email     |serviceaccount@redhat.com|
       |docker_password  |password                 |
