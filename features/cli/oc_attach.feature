@@ -15,7 +15,8 @@ Feature: oc attach related scenarios
       | See 'oc attach -h' for help and examples |
     When I run the :attach client command with:
       | h ||
-    Then the output should contain:
+    Then the step should succeed
+    And the output should contain:
       | Attach to a running container   |
       | Attach the current shell to a remote container, returning output or setting up a full |
       | terminal session. Can be used to debug containers and invoke interactive commands. |
@@ -34,12 +35,14 @@ Feature: oc attach related scenarios
       | -t, --tty=false: Stdin is a TTY |
     When I run the :attach client command with:
       | pod | <%= cb.pod_name %> |
-    Then the output should contain:
+    Then the step should succeed
+    And the output should contain:
       | Started, serving at 8080 |
     When I run the :attach client command with:
       | pod | <%= cb.pod_name %> |
       | c   | hello-openshift-fedora |
-    Then the output should contain:
+    Then the step should succeed
+    And the output should contain:
       | serving on 8081 |
       | serving on 8888 |
     When I run the :attach client command with:
@@ -47,8 +50,8 @@ Feature: oc attach related scenarios
       | container   | hello-openshift-fedora |
       | tty         | true       |
       | stdin       | true       |
-    Then the output should contain:
-      | Unable to use a TTY - container hello-openshift-fedora doesn't allocate one |
+    Then the step should succeed
+    And the output should contain:
       | serving on 8081 |
       | serving on 8888 |
 
