@@ -448,6 +448,7 @@ def report_logs(options, status='FAILED')
   table.head = ['caserun_id', 'case_id', 'auto_by', 'log_url']
   cases.each do | tc |
     tc['auto_by'] = get_author_from_notes(tc['notes'])
+    auto_by = tc['auto_by']
     if tc['case_run_status'] == status
       filtered_cases[auto_by] = [] if filtered_cases[auto_by].nil?
       filtered_cases[auto_by] << tc
