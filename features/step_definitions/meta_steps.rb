@@ -88,3 +88,10 @@ Given /^I wait(?: up to ([0-9]+) seconds)? for the steps to pass:$/ do |seconds,
 
   raise error unless success
 end
+
+# repeat steps x times in a multi-line string
+Given /^I run the steps (\d+) times:$/ do |num, steps_string|
+  (1..Integer(num)).each {
+    steps steps_string
+  }
+end
