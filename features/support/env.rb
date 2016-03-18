@@ -51,11 +51,15 @@ Before do |_scenario|
   manager.test_case_manager.signal(:finish_before_hook, scenario, err)
   hook_error!(err)
   logger.info("=== End Before Scenario: #{_scenario.name} ===")
+  # dedup at these hooks broken as log goes to the next step and in Outlines
+  #   it even ends up under one and the same step. Need to fix hooks somehow.
+  # logger.dedup_start
 end
 
 ## while we can move everything inside World, lets try to outline here the
 #    basic steps that are run after each scenario execution
 After do |_scenario|
+  # logger.dedup_flush
   logger.info("=== After Scenario: #{_scenario.name} ===")
   self.scenario = _scenario # this is different object than in Before hook
 
@@ -74,6 +78,11 @@ After do |_scenario|
   hook_error!(err)
   logger.info("=== End After Scenario: #{_scenario.name} ===")
   CucuShift::Logger.reset_runtime # otherwise we lose output from test case mgmt
+end
+
+AfterStep do |scenario|
+  # logger.dedup_flush
+  # logger.dedup_start
 end
 
 AfterConfiguration do |config|
