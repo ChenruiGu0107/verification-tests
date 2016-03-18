@@ -194,19 +194,21 @@ module CucuShift
           else
             new_candidates[i] = 1
           end
+          # here we lose possible duplicates - those that are part of another
+          #   candidate duplicate and those that start with the current msg (
+          #   when current msg is part of a possible duplicate)
         end
 
         require 'pry'
-        binding.pry if msg[:msg] == "message1" || buffer.last[:msg] == "message1"
+        binding.pry if msg[:msg] == "message2" || buffer.last[:msg] == "message2"
 
         if ongoing_candidates.empty? && new_candidates.empty?
           raise "log deduplicator bug, please report"
           flush(msg: msg)
-        elsif ongoing_candidates.empty?
-          # all previous candidates have been rejected
-          flushres = flush(trim: false)
-          self.candidates.replace new_candidates
-          return flushres
+        #elsif ongoing_candidates.empty?
+        #  # all previous candidates have been rejected
+        #  self.candidates.replace new_candidates
+        #  return print_buf()
         else
           self.candidates.replace(ongoing_candidates.merge(new_candidates))
         end
@@ -214,12 +216,12 @@ module CucuShift
         rejected_max_size = rejected_candidates.reduce(0) do |max, c|
           c[1] > max ? c[1] : max
         end
-        ongoing_max_size = ongoing_candidates.reduce(0) do |max, c|
+        candidates_max_size = candidates.reduce(0) do |max, c|
           # here ongoing are already incremented by 1 but we want original
-          c[1] - 1 > max ? c[1] - 1 : max
+          c[1] - 1 > max ? c[1] -1 : max
         end
 
-        if rejected_candidates.empty? || rejected_max_size < ongoing_max_size
+        if rejected_candidates.empty? || rejected_max_size < candidates_max_size
           # rejected candidates shorter that ongoing candidates, just drop them
           return []
         end
@@ -242,7 +244,7 @@ module CucuShift
           #   a shorter candidate that was at the end of buffer but now with
           #   these new lines, it would have not been trashed; just too hard to
           #   handle
-          return print_buf(rejected_max.first[0], rejected_max_size - ongoing_max_size)
+          return print_buf(rejected_max.first[0], rejected_max_size - candidates_max_size)
         end
       end
 
