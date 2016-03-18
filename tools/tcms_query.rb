@@ -400,6 +400,7 @@ end
     tcms_base_url = tcms.default_opts[:tcms_base_url]
     logger = jira.logger
     options = jira.client.options
+    default_issue_type = jira.get_default_issuetype
     issues = jira.find_issue_by_testrun_id(query_params)
     error_logs = ""
     testcases.each do | tc |
@@ -422,16 +423,18 @@ end
         logger.info("JIRA system does not have username '#{query_params[:assignee]}', assigning issue to the reporter '#{reporter}'")
         assignee = jira.get_user(reporter)
       end
-      component_auto = jira.get_component(options[:components][0])
+      components = jira.get_default_components
+      component_attrs = components.map { |c| c.attrs }
+      default_issue_type = jira.get_default_issuetype
       run_url = jira.make_link(url=(tcms_base_url + "run/#{query_params[:run_id]}"), text=query_params[:run_id])
       error_logs = "Errors from test run #{run_url}" + "\n" + error_logs
       issue_params = {
         "summary" => "test failures from run:#{query_params[:run_id]}",
-        "project" => {"id"=> options[:project]},
-        "issuetype"=>{"id"=>"1"},
+        "project" => {"id"=> jira.project.id.to_i},
+        "issuetype"=>{"id"=> default_issue_type.attrs["id"]},
         "assignee" => assignee.attrs,
         "description" => error_logs,
-        "components" => [component_auto.attrs]
+        "components" => component_attrs #, [component_auto.attrs]
       }
       status, new_issue = jira.create_issue(issue_params)
       logger.info("Created issue #{new_issue.key} for '#{assignee.name}'") if status
@@ -454,6 +457,7 @@ def report_logs(options, status='FAILED')
       filtered_cases[auto_by] << tc
     end
   end
+
   filtered_cases.sort.each do | author, testcases |
     testcases.each do | tc |
       log_url = tcms.get_latest_log_url(tc["case_run_id"])
