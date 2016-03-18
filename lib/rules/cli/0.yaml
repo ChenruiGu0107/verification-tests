@@ -313,17 +313,6 @@
     :to_docker: --to-docker=<value>
     :to : --to=<value>
     :no-output: --no-output=<value>
-:new_dockercfg:
-  :cmd: oc secrets new-dockercfg <secret_name>
-  :options:
-    :docker_email: --docker-email=<value>
-    :docker_password: --docker-password=<value>
-    :docker_server: --docker-server=<value>
-    :docker_username: --docker-username=<value>
-    :no_headers: --no-headers=<value>
-    :output: --output=<value>  # One of: json|yaml|template|templatefile|wide
-    :output_version: --output-version=<value>
-    :template: --template=<value>
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:
@@ -341,6 +330,39 @@
     :template: --template=<value>
     :type: --type=<value>
     :quiet: --quiet=<value>
+:oc_secrets_new_basicauth:
+  :cmd: oc secrets new-basicauth <secret_name>
+  :options:
+    :username: --username=<value>
+    :password: --password=<value>
+    :cafile: --ca-cert=<value>
+    :gitconfig: --gitconfig=<value>
+    :prompt: --prompt=<value>
+    :no_headers: --no-headers=<value>
+    :output: --output=<value>
+    :output_version: --output-version=<value>
+    :template: --template=<value>
+:oc_secrets_new_dockercfg:
+  :cmd: oc secrets new-dockercfg <secret_name>
+  :options:
+    :docker_email: --docker-email=<value>
+    :docker_password: --docker-password=<value>
+    :docker_server: --docker-server=<value>
+    :docker_username: --docker-username=<value>
+    :no_headers: --no-headers=<value>
+    :output: --output=<value>  # One of: json|yaml|template|templatefile|wide
+    :output_version: --output-version=<value>
+    :template: --template=<value>
+:oc_secrets_new_sshauth:
+  :cmd: oc secrets new-sshauth <secret_name>
+  :options:
+    :ssh_privatekey: --ssh-privatekey=<value>
+    :cafile: --ca-cert=<value>
+    :gitconfig: --gitconfig=<value>
+    :prompt: --prompt=<value>
+    :no_headers: --no-headers=<value>
+    :output: --output=<value>
+    :template: --template=<value>
 :options:
   :cmd: oc options
 :patch:
