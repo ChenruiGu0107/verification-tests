@@ -24,6 +24,7 @@ Feature: general_db.feature
     Then the step should succeed
     When I use the "jws-http-service" service
     Then I wait for a server to become available via the "jws-http-route" route
+
   # @author haowang@redhat.com
   # @case_id 473389 508066
   Scenario Outline: Add env variables to mongodb image
@@ -108,6 +109,7 @@ Feature: general_db.feature
     """
     And the output should contain:
       | 2.6 |
+
   # @author haowang@redhat.com
   # @case_id 500991 508085
   Scenario Outline: Verify cluster mongodb can be connect after change admin and user password or redeployment for ephemeral storage - mongodb-24-rhel7 mongodb-26-rhel7
@@ -148,6 +150,7 @@ Feature: general_db.feature
       | image                       | sclname      | output |
       | openshift3/mongodb-24-rhel7 | mongodb24    | 2.4    |
       | rhscl/mongodb-26-rhel7      | rh-mongodb26 | 2.6    |
+
   # @author haowang@redhat.com
   # @case_id 498006
   @admin
