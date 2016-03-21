@@ -893,3 +893,51 @@ Feature: build 'apps' with CLI
     """
     And the output should contain:
       | CREATE TABLE |
+
+  # @author cryan@redhat.com
+  # @case_id 519263
+  Scenario: Can't allocate out of limits resources to container which builder pod launched for docker build
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec":{"resources": {"requests": {"cpu": "600m","memory": "200Mi"},"limits": {"cpu": "800m","memory": "200Mi"}}}} |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"memlarge"}}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | o | json |
+    Then the output should contain:
+      | ruby-cgroup |
+      | 600m |
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Given the "ruby22-sample-build-2" build fails
+    When I run the :build_logs client command with:
+      | build_name | ruby22-sample-build-2 |
+    Then the output should contain:
+      | stress: FAIL |
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"cpularge"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | follow | true |
+      | _timeout | 600 |
+    And the output should contain:
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_period_us |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us |
