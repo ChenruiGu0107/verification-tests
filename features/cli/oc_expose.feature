@@ -14,9 +14,9 @@ Feature: oc_expose.feature
     When I run the :expose client command with:
       | resource | service |
       | resource_name | myapp |
-      | route_port | 80 |
+      | port | 80 |
       | target_port | 8080 |
-      | route_name | myservice |
+      | name | myservice |
       | generator  | service/v1 |
     Then the step should succeed
     When I run the :get client command with:
