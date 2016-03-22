@@ -21,6 +21,7 @@ require 'optparse'
 require 'json'
 require 'io/console' # for reading password without echo
 require 'time'
+require 'gherkin_parse'
 
 require 'collections'
 require 'jira_rht'
@@ -60,99 +61,6 @@ def print_report(options)
     end
   end
   return cases
-end
-#########################################################################
-# search for scenario tags of a scenario
-# search backward for the line Scenario or Scenario Outline.
-# Once we find the indicator line we keep searching back looking for
-# @tagX lines skipping blank lines; we stop on any other line or line 0
-#########################################################################
-def get_scenario_tags(tcms, line_number, file_contents)
-  tags = []
-  original_line_number = line_number
-  scenario_regex = /^\s*Scenario(?: Outline)?:/
-  # we only add the tags if they are one or more of the following groups
-  # https://mojo.redhat.com/docs/DOC-935729  (V2)
-  # https://mojo.redhat.com/docs/DOC-1043047 (V3)
-  if tcms.default_opts[:plan] == 4962
-    # V2 tags
-    valid_tags_to_be_added = ['@devenv', '@destructive', '@aggressive', '@sequential']
-  else  # everything else is assumed to be v3 variants
-    valid_tags_to_be_added = ['@admin', '@destructive', '@vpn', '@smoke']
-  end
-  # goes back searching for Scenario line
-  while line_number > 0
-    line = file_contents[line_number]
-    break if line.match(scenario_regex)
-    line_number -= 1
-  end
-  unless line.match(scenario_regex)
-    raise "could not find scenario line; are line number and syntax correct?"
-  end
-  # now go backwards getting scenario tags until we hit line where no more tags
-  # can be found
-  while true
-    line_number -= 1
-    if line_number <= 0
-      raise "syntax error? we reached beginning of file but should have stopped already at most on the Feature line"
-    end
-
-    line = file_contents[line_number].strip()
-    case line
-    when ""
-      # skip empty lines
-      next
-    when /^@/
-      t = line.split(/\s+/)
-      unless t.all? {|w| w.start_with? "@"}
-        raise "found invalid tag line: #{line}"
-      end
-      tags.concat t
-    else
-      # we found non-blank line that is not tags so we stop
-      break
-    end
-  end
-  return ( tags & valid_tags_to_be_added).map{|t| t[1..-1]}.join(',')
-end
-
-def get_scenario_outline_info(arg_values, line_number, file_contents)
-  original_line_number = line_number
-  scenario_outline_info = {}
-  # goes back searching for a line that contains Scenario Outline:
-  while line_number > 0 do
-    if file_contents[line_number].include? 'Scenario Outline:'
-      scenario_description = file_contents[line_number].split("Scenario Outline:")[1].strip()
-      scenario_outline_info[:description] = scenario_description
-      break
-    else
-      line_number -= 1
-    end
-  end
-  # now get the Arguements field by looking for 'Examples:', the line after that is the hash key to the Arguments field
-  arg_hash = {}
-  while line_number < original_line_number do
-    line = file_contents[line_number]
-    if line.match(/\s+\Examples:/)
-      # skip lines that are not part of the 'Example:' table
-      while line_number < original_line_number do
-        if file_contents[line_number+1].match(/\s+\|/)
-          break
-        else
-          line_number += 1
-        end
-      end
-      arg_hash_keys = file_contents[line_number+1].match(/\s+\|(.*)\|/)[1].split('|').map! { |n| n.strip }
-      arg_hash_keys.each_with_index do |value, index|
-        arg_hash[value] = arg_values[index]
-      end
-      scenario_outline_info[:arg_field] = arg_hash
-      break
-    else
-      line_number += 1
-    end
-  end
-  return scenario_outline_info
 end
 
 # helper method to get the author from the 'Notes' field of a testcase
@@ -338,6 +246,26 @@ def get_cucushift_home
   ENV['CUCUSHIFT_HOME'] || File.dirname(File.dirname(__FILE__))
 end
 
+# search for scenario tags of a scenario
+def get_scenario_tags(scenario, tcms)
+  # we only add the tags if they are one or more of the following groups
+  # https://mojo.redhat.com/docs/DOC-935729  (V2)
+  # https://mojo.redhat.com/docs/DOC-1043047 (V3)
+  if tcms.default_opts[:plan] == 4962
+    # V2 tags
+    valid_tags_to_be_added = ['devenv', 'destructive', 'aggressive', 'sequential']
+  else  # everything else is assumed to be v3 variants
+    valid_tags_to_be_added = ['admin', 'destructive', 'vpn', 'smoke']
+  end
+
+  #Remove the leading '@' from tags, convert the array to a string for TCMS
+  #processing
+  scenario_tags = scenario[:tags].map{|s| s[:name][1..-1]}
+
+  #Compare valid tags and scenario tags, and return the common tags.
+  matching_tags = (scenario_tags & valid_tags_to_be_added)
+end
+
 # generic update script field of TCMS case
 # usage example:
 # Scenario
@@ -350,28 +278,61 @@ def update_script(options)
   raise "A line number must be specified" unless line_number
   target_line_number = line_number.to_i
   scenario_description = nil
+  example_row_headers = []
+  example_row_cells = []
+  arg_hash = {}
+  tcms_arg_field = nil
+  tags = ""
 
-  file_contents = File.readlines(File.join(get_cucushift_home, path))
-  target_line = file_contents[target_line_number - 1]
-  if target_line.include? 'Scenario:'
-    scenario_description = target_line.split("Scenario:")[1].strip()
-  elsif target_line.include? 'Scenario Outline:'
-    scenario_description = target_line.split("Scenario Outline:")[1].strip()
-  # for a scenario outline run, we specify the line of the table that represent the testcase your want to execute
-  elsif (res = target_line.match(/\s+\|(.*)\|/))
-    # res[1] is the arg , now we need to search back until to get the Senario Outline line
-    arg_values = res[1].split('|').map { |a| a.strip }
-    scenario_info = get_scenario_outline_info(arg_values, target_line_number-1, file_contents)
-    scenario_description = scenario_info[:description]
-    tcms_arg_field = scenario_info[:arg_field].to_json
-  else
+  gparser = CucuShift::GherkinParse.new
+  file_contents = gparser.parse_feature(File.join(get_cucushift_home, path))
+  #Iterate over each scenario in a file
+  file_contents[:scenarioDefinitions].each do |scenario|
+    #Check for the Scenario description. If a basic scenario, take the description.
+    #If a Scenario Outline, determine if it's a table argument, or just the Scenario Outline name.
+    if scenario[:location][:line] == target_line_number and scenario[:type] == :Scenario
+      scenario_description = scenario[:name]
+      tags = get_scenario_tags(scenario, tcms) unless scenario[:tags].empty?
+      #exit once the scenario description is found
+      break
+    elsif scenario[:location][:line] == target_line_number and scenario[:type] == :ScenarioOutline
+      scenario_description = scenario[:name]
+      tags = get_scenario_tags(scenario, tcms)  unless scenario[:tags].empty?
+      #exit once the scenario description is found
+      break
+    elsif scenario[:type] == :ScenarioOutline
+      scenario[:examples].each do |example|
+        example[:tableBody].each do |row|
+          if row[:location][:line] == target_line_number
+            #Get the scenario description
+            scenario_description = scenario[:name]
+            #Get the scenario tags
+            tags = get_scenario_tags(scenario, tcms) unless scenario[:tags].empty?
+            #Get table headers to zip with arguments
+            example[:tableHeader][:cells].each do |thead|
+              example_row_headers << thead[:value]
+            end
+            #Get table arguments
+            row[:cells].each do |cell|
+              example_row_cells << cell[:value]
+            end
+          end
+        end
+        #Zip the table headers and table cells
+        example_row_headers.each_with_index do |value, index|
+          arg_hash[value] = example_row_cells[index]
+        end
+        tcms_arg_field = arg_hash.to_json
+      end
+    end
+  end
+  if scenario_description == nil
     raise 'Can not find Scenario or Scenario Outline target line, please check the line number specified for the file is correct'
   end
   # for tcms we need to strip out the features/ part of the arguement
   path = path[9..path.length]
   ruby_script = "#{path}:#{scenario_description}"
   tcms_script_field =  {"ruby"=>ruby_script}.to_json
-  tags = get_scenario_tags(tcms, line_number.to_i - 1, file_contents)
   tcms.add_testcase_tags(options.cases, tags) unless tags == ""
 
   if options.notes
@@ -394,7 +355,7 @@ end
   #
   def create_failed_testcases_issue(testcases, tcms, jira)
     query_params = {
-      :assignee => testcases[0]['auto_by'], 
+      :assignee => testcases[0]['auto_by'],
       :run_id => testcases[0]['run_id']}
     # read in the config from the :tcms section
     tcms_base_url = tcms.default_opts[:tcms_base_url]
