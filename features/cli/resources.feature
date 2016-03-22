@@ -491,3 +491,49 @@ Feature: resouces related scenarios
     When I terminate last background process
     Then the output should contain 2 times:
       | hello     |
+
+  # @author xxia@redhat.com
+  # @case_id 510406
+  Scenario: Check resources with different output formats using oc get, oc run etc.
+    Given I have a project
+    When I run the :run client command with:
+      | name      | myrun             |
+      | image     | <%= project_docker_repo %>openshift/hello-openshift             |
+      | -o        | jsonpath={.kind} {.metadata.name}  |
+    Then the step should succeed
+    And the output should contain "DeploymentConfig myrun"
+
+    Given a pod becomes ready with labels:
+      | deployment=myrun-1    |
+    When I run the :get client command with:
+      | resource       | pod          |
+      | o              | wide         |
+    Then the step should succeed
+    And the output should contain "NODE"
+
+    Given a "a.txt" file is created with the following lines:
+    """
+    {{.metadata.name}} {{.kind}} {{.metadata.labels.newlab}}
+    """
+    When I run the :label client command with:
+      | resource       | dc           |
+      | name           | myrun        |
+      | key_val        | newlab=Hello |
+      | o              | go-template-file=a.txt |
+    Then the step should succeed
+    And the output should contain "myrun DeploymentConfig Hello"
+
+    When I run the :expose client command with:
+      | resource       | dc           |
+      | resource_name  | myrun        |
+      | port           | 8080         |
+      | o              | go-template  |
+      | template       | {{.metadata.name}} {{.kind}}  |
+    Then the step should succeed
+    And the output should contain "myrun Service"
+
+    When I run the :get client command with:
+      | resource       | pod          |
+      | o              | no-this      |
+    Then the step should fail
+    And the output should contain "no-this"

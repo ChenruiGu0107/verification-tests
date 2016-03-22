@@ -206,11 +206,11 @@
   :options:
     :generator: --generator=<value>
     :external_ip: --external-ip=<value>
-    :route_port: --port=<value>
-    :route_protocol: --protocol=<value>
+    :port: --port=<value>
+    :protocol: --protocol=<value>
+    :template: --template=<value>
     :target_port: --target-port=<value>
-    :route_name: --name=<value>
-    :route_type: --type=<value>
+    :type: --type=<value>
     :name: --name=<value>
     :selector: --selector=<value>
     :output: --output=<value>
@@ -242,6 +242,7 @@
     :all: --all=<value>
     :key_val: <value>
     :name: <value>
+    :o: -o <value>
     :overwrite: --overwrite=<value>
 :login:
   :cmd: oc login
