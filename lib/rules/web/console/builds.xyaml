@@ -90,7 +90,7 @@ cancel_build_from_pending_status:
       xpath: //span[@ng-switch-when='Pending']
     optional: true
   - selector:
-      text: Cancel
+      text: Cancel Build
       class: btn-default
     op: click
     type: button
@@ -104,7 +104,7 @@ cancel_build_from_running_status:
   - selector:
       xpath: //span[@ng-switch-when='Running']
   - selector:
-      text: Cancel
+      text: Cancel Build
       class: btn-default
     op: click
     type: button

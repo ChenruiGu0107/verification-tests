@@ -99,6 +99,8 @@ Feature: creating 'apps' with CLI
     And the output should contain "test"
 
     # access web app through the service
+    Given the "ruby-hello-world-1" build was created
+    Given the "ruby-hello-world-1" build completed
     Given I wait for the "ruby-hello-world" service to become ready
     When I execute on the pod:
       | bash                       |

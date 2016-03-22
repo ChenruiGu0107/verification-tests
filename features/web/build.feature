@@ -101,7 +101,7 @@ Feature: build related feature on web console
     Then the step should succeed
     When I get the html of the web page
     Then the output should not match:
-      | >Cancel</button> |
+      | >Cancel Build</button> |
     When I perform the :start_build_base_on_buildconfig web console action with:
       | project_name  | <%= project.name %> |
       | bc_name       | ruby-sample |
@@ -113,7 +113,7 @@ Feature: build related feature on web console
     Then the step should succeed
     When I get the html of the web page
     Then the output should not match:
-      | >Cancel</button> |
+      | >Cancel Build</button> |
     When I get project builds
     Then the output by order should match:
       | ruby-sample-1.+Cancelled |

@@ -18,9 +18,9 @@ Feature: oc exports related scenarios
     And I run the :get client command with:
       | resource | dc |
     Then the step should succeed
-    And the output should contain:
-      | database   ConfigChange                1 |
-      | frontend   ConfigChange, ImageChange   0 |
+    And the output should match:
+      | database.*[Cc]onfig           |
+      | frontend.*[Cc]onfig.*[Ii]mage |
     And I run the :export client command with:
       | resource | svc |
       | name     | frontend |
@@ -51,8 +51,8 @@ Feature: oc exports related scenarios
     And I run the :get client command with:
       | resource | dc |
     Then the step should succeed
-    And the output should contain:
-      | frontend   ConfigChange, ImageChange   0 |
+    And the output should match:
+      | frontend.*[Cc]onfig.*[Ii]mage |
 
   # @author pruan@redhat.com
   # @case_id 488096
@@ -73,9 +73,9 @@ Feature: oc exports related scenarios
     And I run the :get client command with:
       | resource | dc |
     Then the step should succeed
-    And the output should contain:
-      | database   ConfigChange                1 |
-      | frontend   ConfigChange, ImageChange   0 |
+    And the output should match:
+      | database.*[Cc]onfig           |
+      | frontend.*[Cc]onfig.*[Ii]mage |
     And I run the :export client command with:
       | resource | svc |
       | name     | frontend |
