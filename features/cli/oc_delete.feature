@@ -51,16 +51,9 @@ Feature: oc_delete.feature
   @admin
   Scenario: The namespace will not be deleted until all pods gracefully terminate
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/graceful-delete/0.json  |
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/graceful-delete/10.json |
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/graceful-delete/20.json |
+    And evaluation of `project.name` is stored in the :prj1 clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/graceful-delete/40.json |
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/graceful-delete/default.json |
     Given all pods in the project are ready
     Given the project is deleted
     Given 10 seconds have passed
@@ -70,16 +63,17 @@ Feature: oc_delete.feature
     #because all pods in it have a graceful termination period.
     #If the namespace does not exist, it is due to bug 1277101
     #as noted in the @bug_id above.
-    Then the output should contain "<%= project.name %>"
-    When I get project pods
-    Then the step should succeed
-    And the output should contain 3 times:
-      | Terminating |
+    Then the output should match "<%= cb.prj1 %>\s+Terminating"
+    When I run the :get admin command with:
+      | resource | pods |
+      | all_namespace | true |
+    And the output should contain "Terminating"
     Given 30 seconds have passed
-    When I get project pods
+    When I run the :get admin command with:
+      | resource | pods |
+      | all_namespace | true |
     Then the step should succeed
     And the output should not contain "Terminating"
-    And the output should not contain "Running"
 
   # @author cryan@redhat.com
   # @case_id 509040
