@@ -160,6 +160,7 @@ Feature: oc exports related scenarios
 
   # @author pruan@redhat.com
   # @case_id 489300
+  # TODO: currently this test will fail due to bug  https://bugzilla.redhat.com/show_bug.cgi?id=1276564
   Scenario: Convert a file to specific version by oc export
     Given I have a project
     When I run the :export client command with:
