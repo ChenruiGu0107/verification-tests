@@ -184,6 +184,7 @@ Feature: admin build related features
     When I run the :delete client command with:
       | object_type       | buildconfig       |
       | object_name_or_id | ruby-sample-build |
+      | cascade           | false             |
     Then the step should succeed
 
     When I run the :oadm_prune_builds admin command with:

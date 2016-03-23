@@ -790,8 +790,9 @@ Feature: deployment related features
       | resource | rc |
       | n | <%= project.name %> |
     Then the step should succeed
-    And the output should contain 9 times:
-      | name=database |
+    And the output should contain:
+      | database-1 |
+      | database-9 |
     When I run the :oadm_prune_deployments client command with:
       |h||
     Then the step should succeed

@@ -67,14 +67,6 @@ Feature: oc run related scenarios
     When I run the :run client command with:
       | name         | webapp3               |
       | image        | training/webapp       |
-      | overrides    | {"apiVersion":"v1","spec":{"replicas":"2"}} |
-    Then the step should fail
-    And the output should contain:
-      | error |
-      | json: decNum  |
-    When I run the :run client command with:
-      | name         | webapp3               |
-      | image        | training/webapp       |
       | overrides    | {"apiVersion":"v1","spec":{"replicas":2}} |
     Then the step should succeed
     When I run the :get client command with:
