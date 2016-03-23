@@ -1181,7 +1181,7 @@ Feature: deployment related features
       Then the step should succeed
       When I run the :deploy client command with:
         | deployment_config | deployment-example |
-      Then the output should contain "The deployment was cancelled as a newer deployment was found running"
+      Then the output should match "cancelled.*newer.*running"
 
     # @author yinzhou@redhat.com
     # @case_id 518647
