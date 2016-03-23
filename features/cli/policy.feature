@@ -338,64 +338,40 @@ Feature: change the policy of user/service account
     When I run the :new_project client command with:
       | project_name  | <%= cb.proj1 %>      |
     Then the step should succeed
-
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
-    # TODO: xiaocwan, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
-    And I run the :new_app client command with:
-      | template | ruby-helloworld-sample|
-    Then the output should contain:
-      | ervice.*created          |
-      | oute.*created            |
-      | mageStream.*created      |
-      | eploymentConfig.*created |
-
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
+    Then the step should succeed
     When I run the :policy_who_can client command with:
     | verb     |  get                        |
     | resource |  imagestreams/layers        |
-    |  n       | <%= cb.proj1 %>             |
     Then the step should succeed
     And the output should contain:
-    | system:serviceaccount:<%= cb.proj1 %>  |
-    | system:serviceaccounts:<%= cb.proj1 %> |
+    | system:serviceaccount:<%= cb.proj1 %>:builder  |
+    | system:serviceaccounts:<%= cb.proj1 %>         |
     When I run the :policy_who_can client command with:
     | verb     |  update                     |
     | resource |  imagestreams/layers        |
-    |  n       | <%= cb.proj1 %>             |
     Then the step should succeed
     And the output should contain:
-    | system:serviceaccount:<%= cb.proj1 %>  |
-
-    Given a 5 characters random string of type :dns is stored into the :proj2 clipboard
-    When I run the :new_project client command with:
-      | project_name  | <%= cb.proj2 %>      |
+    | system:serviceaccount:<%= cb.proj1 %>:builder  |
+    When I create a new project
+    Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
-    And I run the :new_app client command with:
-      | template | ruby-helloworld-sample|
-    # TODO: xiaocwan, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
-    Then the output should match:
-      | ervice.*created          |
-      | oute.*created            |
-      | mageStream.*created      |
-      | eploymentConfig.*created |
-
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
+    Then the step should succeed
     When I run the :policy_who_can client command with:
     | verb     |  get                        |
     | resource |  imagestreams/layers        |
-    |  n       | <%= cb.proj2 %>             |
     Then the step should succeed
     And the output should not contain:
-    | system:serviceaccount:<%= cb.proj1 %>  |
-    | system:serviceaccounts:<%= cb.proj1 %> |
+    | system:serviceaccount:<%= cb.proj1 %>:builder  |
+    | system:serviceaccounts:<%= cb.proj1 %>         |
     When I run the :policy_who_can client command with:
     | verb     |  update                     |
     | resource |  imagestreams/layers        |
-    |  n       | <%= cb.proj2 %>             |
     Then the step should succeed
     And the output should not contain:
-    | system:serviceaccount:<%= cb.proj1 %>  |
-
+    | system:serviceaccount:<%= cb.proj1 %>:builder  |
     When I run the :oadm_policy_who_can admin command with:
     | verb     |  get                        |
     | resource |  imagestreams               |
