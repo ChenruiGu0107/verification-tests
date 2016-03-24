@@ -67,13 +67,13 @@ Feature: oc_delete.feature
     When I run the :get admin command with:
       | resource | pods |
       | all_namespace | true |
-    And the output should contain "Terminating"
+    And the output should match "<%= pod.name %>.*Terminating"
     Given 30 seconds have passed
     When I run the :get admin command with:
       | resource | pods |
       | all_namespace | true |
     Then the step should succeed
-    And the output should not contain "Terminating"
+    And the output should not match "<%= pod.name %>.*Terminating"
 
   # @author cryan@redhat.com
   # @case_id 509040
