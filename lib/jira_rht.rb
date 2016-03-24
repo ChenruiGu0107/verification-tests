@@ -6,8 +6,6 @@ end
 require 'jira'
 require 'common'
 
-
-
 module CucuShift
   class Jira
     include Common::Helper
@@ -16,7 +14,6 @@ module CucuShift
       raise "No default options detected, please makse sure the PRIVATE_REPO \
       is cloned into your repo or ENV CUCUSHIFT_PRIVATE_DIR is defined" if default_opts.nil?
       @options = default_opts.merge options
-
       ## try to obtain user/password in all possible ways
       @options[:username] = ENV['JIRA_USER'] if ENV['JIRA_USER']
       @options[:password] = ENV['JIRA_PASSWORD'] if ENV['JIRA_PASSWORD']
@@ -44,6 +41,21 @@ module CucuShift
       options[:ca_file] = expand_private_path(options[:ca_file], public_safe: true) if options[:ca_file]
 
       @client = JIRA::Client.new(options)
+    end
+
+    # @id is the identifier for the project, can be either an Integer or Name string
+    def project(id: nil)
+      if id.nil?
+        return client.Project.find(self.client.options[:project])
+      else
+        # id is set, ignore reload status
+        begin
+          return client.Project.find(id)
+        rescue => e
+          @logger.error("Can't find project '#{id}', exiting...\n #{e}") 
+          exit
+        end
+      end
     end
 
     ## XXX not sure if a regular user can delete issues
@@ -75,10 +87,41 @@ module CucuShift
       return res
     end
 
+    def get_all_project_issues(proj_id: nil)
+      proj = project(id: proj_id)
+      return proj.issues
+    end
+
+    def get_all_project_issuetypes(proj_id: nil)
+      proj = project(id: proj_id)
+      return proj.issuetypes
+    end
+
+    def get_default_issuetype
+      issue_type = @options[:issue_type]
+      issuetypes = get_all_project_issuetypes
+      return issuetypes.select {|i| i.attrs if issue_type == i.name}[0]
+    end
+    
+    # @id, id could either be Integer or String 
     # returns a component object
-    def get_component(comp_id)
+    def get_component(id)
       # Automation component has id of 11173
-      return client.Component.find(comp_id)
+      return client.Component.find(id)
+    end
+
+    # @comps is an array of component names from your project i.e. ['Automation', 'SVT']
+    # if empty, then we just get that from the config
+    def get_default_components(comps=[])
+      comps = @options[:components] if comps.count == 0
+      all_comps = get_components
+      return all_comps.select {|c| c.attrs if comps.include? (c.name)}
+    end
+    # returns all components for the a project
+    def get_components(project_id=nil)
+      return self.project.components if project_id.nil?
+      project = client.Project.find(project_id)
+      return project.components
     end
 
     # constuct a text str that will appear as hyperlink under JIRA
