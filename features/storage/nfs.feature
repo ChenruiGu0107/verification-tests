@@ -139,8 +139,10 @@ Feature: NFS Persistent Volume
         """
         Then the PV becomes :released
         """
-        When I execute on the pod:
-          | ls | /mnt/data/myfile |
+        When I run the :exec client command with:
+          | pod | nfs-server |
+          | exec_command | ls |
+          | exec_command_arg | /mnt/data/myfile |
         Then the step should succeed
 
     # @author lxia@redhat.com
@@ -190,6 +192,8 @@ Feature: NFS Persistent Volume
         """
         Then the PV becomes :released
         """
-        When I execute on the pod:
-          | ls | /mnt/data/myfile |
+        When I run the :exec client command with:
+          | pod | nfs-server |
+          | exec_command | ls |
+          | exec_command_arg | /mnt/data/myfile |
         Then the step should succeed
