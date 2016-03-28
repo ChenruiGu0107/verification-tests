@@ -468,3 +468,18 @@ Feature: creating 'apps' with CLI
     Then the output by order should match:
       | securityContext:|
       | fsGroup: 0 |
+
+  # @author cryan@redhat.com
+  # @case_id 467937
+  Scenario: User can expose the environment variables to pods
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc467937/pod467937.yaml |
+    Then the step should succeed
+    Given the pod named "kubernetes-metadata-volume-example" becomes ready
+    When I execute on the pod:
+      | ls | -laR | /etc |
+    Then the step should succeed
+    And the output should contain:
+      | annotations -> |
+      | labels -> |
