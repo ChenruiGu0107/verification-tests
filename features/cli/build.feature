@@ -941,3 +941,12 @@ Feature: build 'apps' with CLI
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_period_us |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us |
+
+  # @author cryan@redhat.com
+  # @case_id 470327
+  Scenario: Do source builds with blank builder image
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc470327/python-34-rhel7-stibuild.json |
+    Then the step should fail
+    And the output should contain "spec.strategy.sourceStrategy.from.name: Required value"
