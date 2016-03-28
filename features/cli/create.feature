@@ -69,6 +69,7 @@ Feature: creating 'apps' with CLI
     ## create app with labels
     And I have a project
     When I create a new application with:
+      | image_stream | openshift/ruby:latest                                   |
       | image_stream | openshift/mysql:latest                                  |
       | code         | https://github.com/openshift/ruby-hello-world           |
       | l            | app=hi                                                  |
@@ -216,11 +217,6 @@ Feature: creating 'apps' with CLI
       | context_dir | 5.20/test/sample-test-app/ |
     Then the step should succeed
     And the "sti-perl-1" build completed
-    When I run the :get client command with:
-      | resource | all |
-      | l | app=<%= cb.rand_label %> |
-    Then the step should succeed
-    And the output should contain "app=<%= cb.rand_label %>"
     When I run the :delete client command with:
       | all_no_dash ||
       | l | app=<%= cb.rand_label %> |
