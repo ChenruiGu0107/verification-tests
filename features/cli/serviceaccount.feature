@@ -458,4 +458,42 @@ Feature: ServiceAccount and Policy Managerment
       | user_name |  %= user(0, switch: false).name %> |
     Then the step should succeed
     
+  # @author xiaocwan@redhat.com
+  # @case_id 490718
+  @admin
+  Scenario: Could grant admin permission for the service account username to access to its own project
+    Given an 8 characters random string of type :dns is stored into the :project1 clipboard
+    Given an 8 characters random string of type :dns is stored into the :project2 clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.project1 %> |
+    And I run the :new_project client command with:
+      | project_name | <%= cb.project2 %> |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | docker_image | openshift/hello-openshift |
+    Then the step should succeed
+    
+    When I run the :policy_add_role_to_user client command with:
+      | role     | admin                                  |
+      | user_name | system:serviceaccount:<%= cb.project1 %>:default |
+    Then the step should succeed
 
+    Given I use the "<%= cb.project1 %>" project
+    Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:default service account
+    Given I switch to the system:serviceaccount:<%= cb.project1 %>:default service account
+    Given I use the "<%= cb.project2 %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployments_nobc_cpulimit.json |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                  |
+      | user_name | <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    When I run the :policy_remove_role_from_user client command with:
+      | role      | admin                                  |
+      | user_name | <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    # pod will be here a little late, so delay this step to the end of case
+    When I get project pods
+    Then the output should contain:
+      | hello-openshift | 
