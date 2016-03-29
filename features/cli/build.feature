@@ -943,6 +943,22 @@ Feature: build 'apps' with CLI
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us |
 
   # @author cryan@redhat.com
+  # @case_id 470341
+  Scenario: Do sti build with the OnBuild instructions strategy and sti scripts via oc
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/template_onbuild.json |
+    Given the "ruby-sample-build-1" build completes
+    When I run the :build_logs client command with:
+      | build_name | ruby-sample-build-1 |
+    Then the output should contain:
+      | COPY . $HOME |
+      | RUN mkdir /tmp/src |
+      | RUN mkdir /tmp/artifacts |
+      | COPY package.json $HOME/package.json |
+      | RUN npm install |
+
+  # @author cryan@redhat.com
   # @case_id 470327
   Scenario: Do source builds with blank builder image
     Given I have a project
