@@ -365,6 +365,8 @@ module CucuShift
       host_opts = config[:host_opts].merge host_opts
       instance = instance_spec.kind_of?(Hash) ?
                  instance_from_hash(instance_spec) : instance_spec
+      host_opts[:cloud_instance] = instance
+      host_opts[:cloud_instance_name] = instance.name
       ip = instance_external_ip instance
       # Sometimes could not use hostname obtained by reverse DNS lookup
       # I assume because hostname starts with digits, play safe and use IPs

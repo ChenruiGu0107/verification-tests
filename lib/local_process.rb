@@ -25,7 +25,7 @@ module CucuShift
       self.opts = opts.dup
       @status = :pending
 
-      log_text = "Shell Commands:\n"
+      log_text = "Shell Commands: "
       if opts[:env]
         log_text << opts[:env].inject("") { |r,e| r << e.join('=') << "\n" }
       end
@@ -189,6 +189,7 @@ module CucuShift
       }
       unless success
         result[:timeout] = true
+        logger.warn("process timeout") unless opts[:quiet]
         kill_tree
       end
 

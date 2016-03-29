@@ -6,6 +6,7 @@ require 'socket'
 # @note put only very base things here, do not use for configuration settings
 module CucuShift
   # autoload to avoid too much require statements and speed-up load times
+  autoload :Dynect, 'launchers/dyn/dynect'
   autoload :Amz_EC2, 'launchers/amz'
   autoload :GCE, 'launchers/gce'
   autoload :OpenStack, "launchers/openstack"

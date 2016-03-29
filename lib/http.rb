@@ -27,7 +27,7 @@ module CucuShift
     #   response when a block is passed
     # @return [CucuShift::ResultHash] standard cucushift result hash;
     #   there is :headers populated as a [Hash] where headers are lower-cased
-    def self.http_request(url:, cookies: nil, headers: {}, params: nil, payload: nil, method:, user: nil, password: nil, max_redirects: 10, verify_ssl: OpenSSL::SSL::VERIFY_NONE, proxy: ENV['http_proxy'], read_timeout: 30, open_timeout: 10, quiet: false, result: nil, &block)
+    def self.http_request(url:, cookies: nil, headers: {}, params: nil, payload: nil, method:, user: nil, password: nil, max_redirects: 10, verify_ssl: OpenSSL::SSL::VERIFY_NONE, proxy: ENV['http_proxy'], read_timeout: 30, open_timeout: 10, quiet: false, result: nil, raise_on_error: false, &block)
       rc_opts = {}
       rc_opts[:url] = url
       rc_opts[:cookies] = cookies if cookies
@@ -56,6 +56,7 @@ module CucuShift
       response = RestClient::Request.new(rc_opts).execute &block
     rescue => e
       # REST request unsuccessful
+      raise e if raise_on_error
       if e.respond_to?(:response) and e.response.respond_to?(:code) and e.response.code.kind_of? Integer
         # server replied with non-success HTTP status, that's ok
         response = e.response
@@ -95,8 +96,9 @@ module CucuShift
     end
 
     # simple HTTP GET an URL
-    def self.http_get(url: , max_redirects: 10, &block)
-      return http_request(url: url, method: :get, max_redirects: max_redirects, &block)
+    def self.http_get(url: , max_redirects: 10, raise_on_error: false, &block)
+      return http_request(url: url, method: :get, max_redirects: max_redirects,
+                          raise_on_error: raise_on_error, &block)
     end
     class << self
       alias get http_get

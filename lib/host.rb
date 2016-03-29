@@ -57,6 +57,10 @@ module CucuShift
       properties[key]
     end
 
+    def []=(key, value)
+      properties[key] = value
+    end
+
     # override for hosts that can be accessed (ssh, remote desctop, etc.)
     def accessible?
       return {
@@ -120,16 +124,28 @@ module CucuShift
     end
 
     def roles
-      @properties[:roles] ||= {}
+      @properties[:roles] ||= []
     end
 
     def has_role?(role)
       roles.include? role
     end
 
+    def has_any_role?(test_roles)
+      !has_none_of_roles?(test_roles)
+    end
+
+    def has_none_of_roles?(test_roles)
+      (roles & test_roles).empty?
+    end
+
+    def has_all_roles?(test_roles)
+      (test_roles - roles).empty?
+    end
+
     def has_hostname?
-      # TODO: support IPv6
-      ! (hostname =~ /^[0-9.]+$/)
+      # TODO: support IPv6 /\A(?:[0-9.]+|[0-9a-f:]+)\z/ or IPAddr class
+      ! (hostname =~ /\A[0-9.]+\z/)
     end
 
     # discouraged, used for updating hosts that did not have a hostname initially
