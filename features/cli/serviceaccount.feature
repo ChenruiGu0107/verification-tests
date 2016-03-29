@@ -66,7 +66,9 @@ Feature: ServiceAccount and Policy Managerment
     When I create a new application with:
       | docker image | <%= project_docker_repo %>openshift/hello-openshift |
       | name         | myapp         |
-  # TODO: xxia, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # `oc new-app` with just image but no code (such as https://github.com/openshift/ruby-hello-world.git. See oc new-app -h) creates no bc.
+    # Thus could be used for AEP along with `the step should succeed`
+    Then the step should succeed
     Then I wait for the "myapp" service to be created
     When I give project view role to the default service account
     And I run the :get client command with:
@@ -497,3 +499,32 @@ Feature: ServiceAccount and Policy Managerment
     When I get project pods
     Then the output should contain:
       | hello-openshift | 
+
+  # @author xxia@redhat.com
+  # @case_id 511007
+  Scenario: Inside one pod, the user of oc operations is the service account that runs the pod
+    Given I have a project
+    When I run the :run client command with:
+      | name      | mydc                 |
+      | image     | <%= project_docker_repo %>openshift/origin             |
+      | env       | POD_NAMESPACE=<%= project.name %>     |
+      | command   | true                 |
+      | cmd       | sleep                |
+      | cmd       | 3600                 |
+    Then the step should succeed
+
+    When I run the :policy_add_role_to_user client command with:
+      | role          | view             |
+      | user_name     | system:serviceaccount:<%= project.name %>:default  |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=mydc-1    |
+    When I execute on the pod:
+      | oc  | whoami |
+    Then the step should succeed
+    And the output should contain "system:serviceaccount:<%= project.name %>:default"
+    When I execute on the pod:
+      | oc  | get | pod |
+    Then the step should succeed
+    And the output should contain "mydc"
+

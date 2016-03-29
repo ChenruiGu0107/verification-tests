@@ -23,7 +23,6 @@ Feature: oc_expose.feature
       | resource | service |
     Then the output should contain "myservice"
     And the output should contain "80/TCP"
-    And the output should contain "app=test-perl"
     Given I wait for the "myservice" service to become ready
     And I wait up to 900 seconds for the steps to pass:
     """

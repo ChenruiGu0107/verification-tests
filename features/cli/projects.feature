@@ -390,3 +390,20 @@ Feature: projects related features via cli
     And the output should match:
       | Users:\\s+<%= user.name %>, <%= user(1, switch: false).name %> |
     And the output should not contain "system:serviceaccounts:<%= user(1, switch: false).name %>"
+
+  # @author cryan@redhat.com
+  # @case_id 494766
+  Scenario: Race to create new project
+    Given a 5 characters random string of type :dns is stored into the :user1proj1 clipboard
+    When I run the :new_project background client command with:
+      | project_name | <%= cb.user1proj1 %> |
+      | description  | racetocreate |
+    Given I switch to the second user
+    When I run the :new_project client command with:
+      | project_name | <%= cb.user1proj1 %> |
+      | description  | racetocreate |
+    Then the step should fail
+    And the output should contain "already exists"
+    When I run the :get client command with:
+      | resource | projects |
+    Then the output should not contain "racetocreate"

@@ -69,6 +69,7 @@ Feature: creating 'apps' with CLI
     ## create app with labels
     And I have a project
     When I create a new application with:
+      | image_stream | openshift/ruby:latest                                   |
       | image_stream | openshift/mysql:latest                                  |
       | code         | https://github.com/openshift/ruby-hello-world           |
       | l            | app=hi                                                  |
@@ -216,11 +217,6 @@ Feature: creating 'apps' with CLI
       | context_dir | 5.20/test/sample-test-app/ |
     Then the step should succeed
     And the "sti-perl-1" build completed
-    When I run the :get client command with:
-      | resource | all |
-      | l | app=<%= cb.rand_label %> |
-    Then the step should succeed
-    And the output should contain "app=<%= cb.rand_label %>"
     When I run the :delete client command with:
       | all_no_dash ||
       | l | app=<%= cb.rand_label %> |
@@ -472,3 +468,18 @@ Feature: creating 'apps' with CLI
     Then the output by order should match:
       | securityContext:|
       | fsGroup: 0 |
+
+  # @author cryan@redhat.com
+  # @case_id 467937
+  Scenario: User can expose the environment variables to pods
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc467937/pod467937.yaml |
+    Then the step should succeed
+    Given the pod named "kubernetes-metadata-volume-example" becomes ready
+    When I execute on the pod:
+      | ls | -laR | /etc |
+    Then the step should succeed
+    And the output should contain:
+      | annotations -> |
+      | labels -> |
