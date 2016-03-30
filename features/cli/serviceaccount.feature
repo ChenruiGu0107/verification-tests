@@ -462,7 +462,6 @@ Feature: ServiceAccount and Policy Managerment
     
   # @author xiaocwan@redhat.com
   # @case_id 490718
-  @admin
   Scenario: Could grant admin permission for the service account username to access to its own project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
@@ -528,3 +527,36 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     And the output should contain "mydc"
 
+  # @author xiaocwan@redhat.com
+  # @case_id 490719
+  Scenario:Could grant admin permission for the service account group to access to its own project
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image | openshift/hello-openshift |
+    Then the step should succeed
+
+    When I run the :policy_add_role_to_group client command with:
+      | role       | admin                                     |
+      | group_name | system:serviceaccounts:<%= project.name %> |
+    Then the step should succeed
+    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:default service account
+    Given I switch to the system:serviceaccount:<%= project.name %>:default service account
+
+    When I get project services
+    Then the output should contain:
+      | hello-openshift | 
+    ## this template is to create an application without any build
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployments_nobc_cpulimit.json"
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | svc             |
+      | object_name_or_id | hello-openshift |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                  |
+      | user_name | <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    When I run the :policy_remove_role_from_user client command with:
+      | role      | admin                                  |
+      | user_name | <%= user(1, switch: false).name %> |
+    Then the step should succeed
