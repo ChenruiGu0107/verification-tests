@@ -208,7 +208,9 @@ Feature: creating 'apps' with CLI
 
   # @author cryan@redhat.com
   # @case_id 476353
-  Scenario: Easy delete resources of 'new-app' created
+   execute on the pod:
+  | curl | -s | <%= service.url %> |
+Then the step should succeedScenario: Easy delete resources of 'new-app' created
     Given I have a project
     Given a 5 characters random string of type :dns is stored into the :rand_label clipboard
     When I run the :new_app client command with:
@@ -237,7 +239,7 @@ Feature: creating 'apps' with CLI
       | resource | all |
       | l | app2=<%= cb.rand_label2 %> |
     Then the step should succeed
-    And the output should contain "app2=<%= cb.rand_label2 %>"
+    And the output should contain "sti-perl"
     When I run the :delete client command with:
       | all_no_dash ||
       | l | app2=<%= cb.rand_label2 %> |
@@ -311,8 +313,13 @@ Feature: creating 'apps' with CLI
     Given I wait for the "sti-python" service to become ready
     And I wait for the steps to pass:
     """
-    When I execute on the pod:
-      | curl | -s | <%= service.url %> |
+    When I run the :exec client command with:
+      | pod     | <%= pod.name %> |
+      | c       | sti-python |
+      |oc_opts_end ||
+      | exec_command | curl|
+      | exec_command_arg |-s|
+      | exec_command_arg | <%= service.url %>|
     Then the step should succeed
     """
     When I create a new application with:
@@ -333,7 +340,7 @@ Feature: creating 'apps' with CLI
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-      | curl | -s | <%= service.url %> |
+    | curl | -s | <%= service.url %> |
     Then the step should succeed
     """
     Given the project is deleted
@@ -368,8 +375,13 @@ Feature: creating 'apps' with CLI
     Given I wait for the "sti-python" service to become ready
     And I wait for the steps to pass:
     """
-    When I execute on the pod:
-      | curl | -s | <%= service.url %> |
+    When I run the :exec client command with:
+      | pod     | <%= pod.name %> |
+      | c       | sti-python |
+      |oc_opts_end ||
+      | exec_command | curl|
+      | exec_command_arg |-s|
+      | exec_command_arg | <%= service.url %> |
     Then the step should succeed
     """
 
@@ -401,7 +413,7 @@ Feature: creating 'apps' with CLI
       | l | name=deadbeef010203 |
     Then the step should succeed
     And the output should contain:
-      | name=deadbeef010203 |
+      | ruby-22-rhel7 |
 
   # @author xiacwan@redhat.com
   # @case_id 510225

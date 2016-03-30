@@ -108,7 +108,6 @@ Feature: template related scnearios:
     Then the step should succeed
     And the output should contain:
       | origin-ruby-sample |
-      | ruby-20            |
 
     When I get project route with labels:
       | <labels> |
