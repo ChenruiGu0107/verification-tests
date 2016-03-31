@@ -14,7 +14,7 @@ module CucuShift
       end
 
       def self.access_heapster(base_opts, opts)
-        populate("/proxy/namespaces/<project_name>/services/https:heapster:/validate", base_opts, opts)
+        populate("/api/v1/proxy/namespaces/<project_name>/services/https:heapster:/api/v1/model/metrics", base_opts, opts)
         base_opts[:headers].delete("Accept") unless opts[:keep_accept]
         return perform(**base_opts, method: "GET")
       end
