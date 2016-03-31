@@ -208,9 +208,7 @@ Feature: creating 'apps' with CLI
 
   # @author cryan@redhat.com
   # @case_id 476353
-   execute on the pod:
-  | curl | -s | <%= service.url %> |
-Then the step should succeedScenario: Easy delete resources of 'new-app' created
+  Scenario: Easy delete resources of 'new-app' created
     Given I have a project
     Given a 5 characters random string of type :dns is stored into the :rand_label clipboard
     When I run the :new_app client command with:
@@ -340,7 +338,7 @@ Then the step should succeedScenario: Easy delete resources of 'new-app' created
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-    | curl | -s | <%= service.url %> |
+      | curl | -s | <%= service.url %> |
     Then the step should succeed
     """
     Given the project is deleted
