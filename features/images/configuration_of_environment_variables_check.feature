@@ -8,7 +8,7 @@ Feature: Configuration of environment variables check
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-<os>.json |
       | n | <%= project.name %> |
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499490/ruby20<os>-env-sti.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-env-sti.json |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
     When I run the :describe client command with:
@@ -31,7 +31,7 @@ Feature: Configuration of environment variables check
     Examples:
       | os | image |
       | rhel7   | <%= product_docker_repo %>openshift3/ruby-20-rhel7:latest |
-      | centos7 | docker.io/openshift/ruby-20-centos7 |
+      #| centos7 | docker.io/openshift/ruby-20-centos7 |
 
   # @author xiuwang@redhat.com
   # @case_id 499491
