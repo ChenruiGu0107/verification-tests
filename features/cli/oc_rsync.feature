@@ -69,3 +69,54 @@ Feature: oc_rsync.feature
     And the output should match "sent \d+ bytes"
     And the output should contain "deleting"
     Given the "<%= cb.tcdir %>/<%= cb.tcfile3 %>" file is not present
+
+  # @author cryan@redhat.com
+  # @case_id 510657
+  Scenario: Copying files from container to host using oc rsync comand with rsync strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | aosqe/scratch:tarrsync |
+    Given a pod becomes ready with labels:
+      | app=scratch |
+    Given I create the "rsync_folder" directory
+    Given a "test1" file is created with the following lines:
+    """
+    test1
+    """
+    When I run the :rsync client command with:
+      | source | . |
+      | destination | <%= pod.name %>:/tmp/test1  |
+      | loglevel | 5 |
+      | strategy | rsync |
+    Then the step should succeed
+    When I run the :rsync client command with:
+      | source | <%= pod.name %>:/tmp/test1 |
+      | destination | ./rsync_folder |
+      | loglevel | 5 |
+      | strategy | rsync |
+    Then the step should succeed
+    And the output should match "sent \d+ bytes"
+    Given the "rsync_folder/test1" file is present
+    When I run the :rsync client command with:
+      | source | <%= pod.name %>:/root/notexisted/  |
+      | destination | . |
+      | loglevel | 5 |
+      | strategy | rsync |
+    Then the step should fail
+    And the output should contain "No such file or directory"
+    When I run the :rsync client command with:
+      | source | <%= pod.name %>:/tmp/test1 |
+      | destination | ./nonexisted |
+      | loglevel | 5 |
+      | strategy | rsync |
+    Then the step should fail
+    And the output should contain "invalid path"
+    Given I create the "rsync_folder/lvl2" directory
+    When I run the :rsync client command with:
+      | source | <%= pod.name %>:/tmp/test1 |
+      | destination | ./rsync_folder/lvl2 |
+      | loglevel | 5 |
+      | strategy | rsync |
+    Then the step should succeed
+    And the output should match "sent \d+ bytes"
+    Given the "rsync_folder/lvl2/test1" file is present
