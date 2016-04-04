@@ -143,3 +143,29 @@ end
 Given /^I create the #{QUOTED} directory$/ do |path|
   FileUtils.mkdir_p(path)
 end
+
+# @author cryan@redhat.com
+# @param [String] path Path to the file
+# @note Deletes a local file
+Given /^(?:a|the) "([^"]+)" file is deleted$/ do |file|
+  if File.exist?(file)
+    FileUtils.rm(file)
+  else
+    raise "Unable to delete the file; please check the path/filename."
+  end
+end
+
+# @author cryan@redhat.com
+# @param [String] path Path to the file
+# @note Checks for the presence or absence of a local file
+Given /^(?:a|the) "([^"]+)" file is( not)? present$/ do |file, negative|
+  if File.exist?(file)
+    if negative
+      raise "The file exists, when it should not."
+    end
+  else
+    if negative.nil?
+      raise "The file is not present."
+    end
+  end
+end

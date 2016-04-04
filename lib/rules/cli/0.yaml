@@ -434,6 +434,15 @@
   :options:
     :app_name: <value>
     :pod: <value>
+:rsync:
+  #either source or destination must be in to format POD:/remote/dir/, i.e.
+  #oc rsync ./local/dir/ POD:/remote/dir
+  #oc rsync POD:/remote/dir/ ./local/dir
+  #Please reference TC 510666 in features/cli/oc_rsync.feature for an example.
+  :cmd: oc rsync <source> <destination>
+  :options:
+    :delete: --delete=<value>
+    :strategy: --strategy=<value>
 :run:
   :cmd: oc run <name>
   :options:
