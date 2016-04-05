@@ -14,7 +14,7 @@ Feature: oc_process.feature
       | <output>  |
     Examples:
       | beforreplace | afterreplace | output                              |
-      | expression   | test         | test                                |
+      | expression   | test         | test |
       | A-Z          | A-Z0-z       | invalid range specified             |
   # @author haowang@redhat.com
   # @case_id 474030
