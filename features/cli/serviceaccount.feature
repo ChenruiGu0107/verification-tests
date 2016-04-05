@@ -35,7 +35,7 @@ Feature: ServiceAccount and Policy Managerment
       | verb     | get |
       | resource | imagestreams/layers |
     Then the output should match:
-      | system:serviceaccounts(?:)?:<%= Regexp.escape(project.name) %> |
+      | system:serviceaccounts?:<%= Regexp.escape(project.name) %> |
     When I run the :policy_who_can client command with:
       | verb     | get |
       | resource | pods/layers |
@@ -47,7 +47,7 @@ Feature: ServiceAccount and Policy Managerment
       | verb     | get |
       | resource | imagestreams/layers |
     Then the output should not match:
-      | system:serviceaccount(?:s)?:<%= Regexp.escape(@projects[0].name) %>  |
+      | system:serviceaccounts?:<%= Regexp.escape(@projects[0].name) %>  |
     When I run the :policy_who_can client command with:
       | verb     | update |
       | resource | imagestreams/layers |
