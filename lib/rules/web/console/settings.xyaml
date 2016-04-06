@@ -11,27 +11,27 @@ check_settings_page:
 check_used_value:
   elements:
   - selector:
-      xpath: //td[descendant::span[contains(.,'<resource_type>')]]/following::span[contains(.,'<used_value>')]
+      xpath: //td[contains(.,'<resource_type>')]/parent::tr/td[contains(.,'<used_value>')]
 check_max_value:
   elements:
   - selector:
-      xpath: //td[descendant::span[contains(.,'<resource_type>')]]/following::span[contains(.,'<max_value>')]
+      xpath: //td[contains(.,'<resource_type>')]/parent::tr/td[contains(.,'<max_value>')]
 check_min_limit_value:
   elements:
   - selector:
-      xpath: //td[contains(.,'<resource_type>')]/following-sibling::td[contains(.,'<min_limit>')]
+      xpath: //td[contains(.,'<resource_type>')]/parent::tr/td[contains(.,'<min_limit>')]
 check_max_limit_value:
   elements:
   - selector:
-      xpath: //td[contains(.,'<resource_type>')]/following-sibling::td[contains(.,'<max_limit>')]
+      xpath: //td[contains(.,'<resource_type>')]/parent::tr/td[contains(.,'<max_limit>')]
 check_default_request:
   elements:
   - selector:
-      xpath: //td[contains(.,'<resource_type>')]/following-sibling::td[contains(.,'<default_request>')]
+      xpath: //td[contains(.,'<resource_type>')]/parent::tr/td[contains(.,'<default_request>')]
 check_default_limit:
   elements:
   - selector:
-      xpath: //td[contains(.,'<resource_type>')]/following-sibling::td[contains(.,'<default_limit>')]
+      xpath: //td[contains(.,'<resource_type>')]/parent::tr/td[contains(.,'<default_limit>')]
 check_project_without_quota_settings:
   action: goto_settings_page
   elements:
