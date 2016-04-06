@@ -366,8 +366,16 @@ end
     error_logs = ""
     testcases.each do | tc |
       tc_url = tcms_base_url + "case/#{tc['case_id']}"
-      error_logs += jira.make_link(tc_url, tc['case_id']) + " " + jira.make_link( tc[:log_url], 'run_log') + "\n"
+      bugs_link = " "
+      if tc[:bugs]
+        tc[:bugs].each do |bug_id|
+          bug_url = "https://bugzilla.redhat.com/show_bug.cgi?id=#{bug_id}"
+          bugs_link += jira.make_link(bug_url, "bz"+ bug_id + " ")
+        end
+      end
+      error_logs += jira.make_link(tc_url, tc['case_id']) + " " + jira.make_link(tc[:log_url], 'run_log') + " " + bugs_link + "\n"
     end
+
     if issues.count > 0
       # issue already exist, just append the run logs as comments
       issue = issues[0]
@@ -379,8 +387,15 @@ end
     else
       # step 1. get the author's information
       assignee = jira.get_user(query_params[:assignee])
+      # make sure assignee is still active.
+      unless assignee.attrs['active']
+        new_assignee = testcases[0]['default_tester']
+        logger.info("JIRA user #{assignee.name} is not active, assigning it to default_tester '#{new_assignee}'")
+        assignee = jira.get_user(new_assignee)
+      end
       if assignee.nil?
-        reporter = options[:username]
+        # assign the case to 'default_tester' if automation author is unknown
+        reporter = testcases[0]['default_tester']
         logger.info("JIRA system does not have username '#{query_params[:assignee]}', assigning issue to the reporter '#{reporter}'")
         assignee = jira.get_user(reporter)
       end
@@ -409,7 +424,7 @@ def report_logs(options, status='FAILED')
   cases = tcms.get_run_cases(options[:testrun_id])
   filtered_cases = {}
   table = Text::Table.new
-  table.head = ['caserun_id', 'case_id', 'auto_by', 'log_url']
+  table.head = ['caserun_id', 'case_id', 'auto_by', 'bug_id', 'log_url']
   cases.each do | tc |
     tc['auto_by'] = get_author_from_notes(tc['notes'])
     auto_by = tc['auto_by']
@@ -422,9 +437,16 @@ def report_logs(options, status='FAILED')
   filtered_cases.sort.each do | author, testcases |
     testcases.each do | tc |
       log_url = tcms.get_latest_log_url(tc["case_run_id"])
+      caserun_bugs = tcms.get_caserun_bugs(tc['case_run_id'])
+      # tc[:bugs] is an array of bug ids
+      if caserun_bugs.count > 0
+        tc[:bugs] = caserun_bugs.map { |c| c["bug_id"] }
+      else
+        tc[:bugs] = nil
+      end
       tc[:log_url] = log_url
       tc[:testrun_id] = options[:testrun_id]
-      table.rows << [tc["case_run_id"], tc["case_id"], tc["auto_by"], log_url]
+      table.rows << [tc["case_run_id"], tc["case_id"], tc["auto_by"], tc[:bugs],log_url]
     end
     if options.create_jira
       if options.author
