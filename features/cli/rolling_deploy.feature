@@ -10,7 +10,7 @@ Feature: rolling deployment related scenarios
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | hooks-1                |
-      | replicas | 10                     |
+      | replicas | 3                     |
     #And I wait for the pod named "hooks-1-deploy" to die
     And I replace resource "dc" named "hooks":
       | maxSurge: 25% | maxSurge: 0 |
@@ -21,7 +21,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
     And the output should contain:
-      | keep 8 pods available, don't exceed 10 pods |
+      | keep 2 pods available, don't exceed 3 pods |
     And I replace resource "dc" named "hooks":
       | maxUnavailable: 25% | maxUnavailable: 50% |
     Then the step should succeed
@@ -31,7 +31,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
     And the output should contain:
-      | keep 5 pods available|
+      | keep 2 pods available|
     And I replace resource "dc" named "hooks":
       | maxUnavailable: 50% | maxUnavailable: 80% |
     Then the step should succeed
@@ -41,7 +41,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-4-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
     And the output should contain:
-      | keep 2 pods available |
+      | keep 1 pods available |
 
 
   # @author pruan@redhat.com
@@ -72,7 +72,7 @@ Feature: rolling deployment related scenarios
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | hooks-1                |
-      | replicas | 10                     |
+      | replicas | 3                     |
     And all pods in the project are ready
     And I replace resource "dc" named "hooks":
       | maxSurge: 25%       | maxSurge: 10%       |
@@ -84,7 +84,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
     And the output should contain:
-      | keep 10 pods available, don't exceed 11 pods |
+      | keep 3 pods available, don't exceed 4 pods |
     And I replace resource "dc" named "hooks":
       | maxSurge: 10% | maxSurge: 30% |
     Then the step should succeed
@@ -94,7 +94,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
     And the output should contain:
-      | keep 10 pods available, don't exceed 13 pods |
+      | keep 3 pods available, don't exceed 4 pods |
     And I replace resource "dc" named "hooks":
       | maxSurge: 30% | maxSurge: 60% |
     Then the step should succeed
@@ -104,7 +104,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-4-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-4-deploy" until it disappears
     And the output should contain:
-      | keep 10 pods available, don't exceed 16 pods |
+      | keep 3 pods available, don't exceed 5 pods |
 
   # @author pruan@redhat.com
   # @case_id 503865,483171
@@ -116,7 +116,7 @@ Feature: rolling deployment related scenarios
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | hooks-1                |
-      | replicas | 10                     |
+      | replicas | 3                     |
     And all pods in the project are ready
     And I wait up to 120 seconds for the steps to pass:
     """
@@ -125,7 +125,7 @@ Feature: rolling deployment related scenarios
       | resource_name | hooks |
       | output | yaml |
     Then the output should contain:
-      | replicas: 10  |
+      | replicas: 3  |
       | maxSurge: 25% |
       | maxUnavailable: 25%  |
     """
@@ -136,10 +136,10 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-2-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-2-deploy" until it disappears
     And the output should contain:
-      | keep 8 pods available, don't exceed 13 pods |
+      | keep 3 pods available, don't exceed 4 pods |
     And I replace resource "dc" named "hooks":
-      | maxUnavailable: 25% | maxUnavailable: 2 |
-      | maxSurge: 25% | maxSurge: 5             |
+      | maxUnavailable: 25% | maxUnavailable: 1 |
+      | maxSurge: 25% | maxSurge: 2             |
     Then the step should succeed
     When I run the :deploy client command with:
       | deployment_config | hooks |
@@ -148,7 +148,7 @@ Feature: rolling deployment related scenarios
     And the pod named "hooks-3-deploy" becomes ready
     Given I collect the deployment log for pod "hooks-3-deploy" until it disappears
     And the output should contain:
-      | keep 8 pods available, don't exceed 15 pods |
+      | keep 2 pods available, don't exceed 5 pods |
 
     
   # @author xiaocwan@redhat.com
