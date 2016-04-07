@@ -39,19 +39,14 @@ Feature: Logging and Metrics
     And I wait for the "hawkular-cassandra" service to become ready
     And I wait for the "hawkular-metrics" service to become ready
     And I wait for the "heapster" service to become ready
-#    Given I wait for the steps to pass:
-#    """
-#    When I run the :get client command with:
-#      | resource  | pods |
-#    Then the output should match "heapster.*Running.*[1-9]\d*\s+."
-#    """
-#    And 5 seconds have passed
     Given the first user is cluster-admin
     Given I wait for the steps to pass:
     """
     When I perform the :access_heapster rest request with:
       | project_name | <%=project.name%> |
-    Then the output should match "Heapster Version: \d+\.\d+\.\d+"
+    Then the output should contain:
+      | cpu-usage |
+      | memory-usage |
     """
 
   # @author chunchen@redhat.com
