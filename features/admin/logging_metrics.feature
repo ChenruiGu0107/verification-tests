@@ -62,7 +62,7 @@ Feature: Logging and Metrics
       | credential_file | nothing=/dev/null |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/chunyunchen/v3-testfiles/master/templates/tc509059/sa.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc509059/sa.yaml |
     Then the step should succeed
     When I run the :policy_add_role_to_user client command with:
       | role            |   edit |
