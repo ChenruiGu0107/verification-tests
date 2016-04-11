@@ -70,66 +70,49 @@ Feature: Check oc status cli
     And the output should match:
       | pod/hello-openshift runs aosqe/hello-openshift |
 
-  # @author akostadi@redhat.com
+  # @author akostadi@redhat.com xxia@redhat.com
   # @case_id 476320
   Scenario: [origin_runtime_613]Get project status from CLI
     Given I have a project
     # And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
     And I download a file from "https://raw.githubusercontent.com/openshift/origin/e21d95cedad8f0ce06ff5d04ae9b978ce3d04d87/examples/sample-app/application-template-stibuild.json"
+    And I replace lines in "application-template-stibuild.json":
+      |"host": "www.example.com"|"host": "www.<%= rand_str(5, :dns) %>example.com"|
 
-    And I run the :process client command with:
-      |f|application-template-stibuild.json|
-    And the step should succeed
-    And I save the output to file> processed-stibuild.json
-    When I run the :create client command with:
-      |f|processed-stibuild.json|
+    When I create a new application with:
+      | file     | application-template-stibuild.json |
     Then the step should succeed
-    And I run the :status client command
+    Given the "ruby-sample-build-1" build was created
+    When I run the :status client command
     Then the step should succeed
     And the output should match:
       |svc\/database\\s+-\\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\\d+\\s+->\\s+3306|
-      |svc\/frontend\\s+-\\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\\d+\\s+->\\s+8080|
-      |not built yet\|1 build pending\|1 build new|
-      |deployment|
+      |svc\/frontend|
+      |build.*1.*pending\|build.*new|
 
-    # When I run the :start_build client command with:
-    #   |buildconfig|ruby-sample-build|
-    #Then the step should succeed
-    Given the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build becomes :running
+    Given the "ruby-sample-build-1" build becomes :running
     When I run the :status client command
     Then the step should succeed
-    And the output should contain:
-      |1 build running|
-      |deployment waiting|
+    And the output should match:
+      |build.*1.*running    |
+      |deployment.*waiting  |
 
     Given the "ruby-sample-build-1" build completed
     When I run the :status client command
     Then the step should succeed
-    And the output by order should match:
+    And the output should contain:
       |frontend deploys |
-      |deployment running\|deployed|
 
-    # check build with wrong URL
-    Given I delete the project
-    And I have a project
-    And I replace lines in "application-template-stibuild.json":
-      |https://github.com/openshift/ruby-hello-world.git|https://github.com/openshift/invalid_test_repo.gah|
-    And I run the :process client command with:
-      |f|application-template-stibuild.json|
-    And the step should succeed
-    And I save the output to file> processed-stibuild-bad-url.json
-
-    When I run the :create client command with:
-      |f|processed-stibuild-bad-url.json|
+    # check failed build
+    When I run the :start_build client command with:
+       |buildconfig|ruby-sample-build|
+       |commit     |notexist         |
     Then the step should succeed
-
-    Given the "ruby-sample-build-1" build was created
-    And the "ruby-sample-build-1" build failed
+    Given the "ruby-sample-build-2" build failed
     When I run the :status client command
     Then the step should succeed
     And the output should match:
-      |1 build failed|
+      |build.*2.*fail|
 
   # @author cryan@redhat.com
   # @case_id 497403

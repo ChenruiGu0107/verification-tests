@@ -561,3 +561,59 @@ Feature: ServiceAccount and Policy Managerment
       | role      | admin                                  |
       | user_name | <%= user(1, switch: false).name %> |
     Then the step should succeed
+
+  # @author xxia@redhat.com
+  # @case_id 483278
+  Scenario: Check the serviceaccount that runs pod
+    Given I have a project
+    When I run the :create client command with:
+      | f    | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+
+    Given the pod named "hello-openshift" becomes ready
+    When I run the :get client command with:
+      | resource      | pod                |
+      | resource_name | hello-openshift    |
+      | output        | yaml               |
+    Then the step should succeed
+    And the output should contain:
+      | serviceAccountName: default |
+      | secretName: default-token   |
+
+    Given a "sa.yaml" file is created with the following lines:
+    """
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: myserviceaccount
+    """
+    When I run the :create client command with:
+      | f    | sa.yaml |
+    Then the step should succeed
+
+    Given a "pod.yaml" file is created with the following lines:
+    """
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: hello-openshift-2nd
+    spec:
+      containers:
+      - image: openshift/hello-openshift
+        name: hello-openshift
+      serviceAccountName: myserviceaccount
+    """
+
+    When I run the :create client command with:
+      | f    | pod.yaml |
+    Then the step should succeed
+
+    Given the pod named "hello-openshift-2nd" becomes ready
+    When I run the :get client command with:
+      | resource      | pod                |
+      | resource_name | hello-openshift-2nd|
+      | output        | yaml               |
+    Then the step should succeed
+    And the output should contain:
+      | serviceAccountName: myserviceaccount |
+      | secretName: myserviceaccount-token   |
