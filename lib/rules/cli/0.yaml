@@ -306,6 +306,7 @@
     :D : -D <value>
     :e: -e <value>
     :image: --image=<value>
+    :image_stream: --image-stream=<value>
     :l: -l <value>
     :name: --name=<value>
     :output: --output=<value>
