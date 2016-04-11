@@ -5,13 +5,14 @@ Feature: build 'apps' with CLI
   Scenario: Create a build config from a remote repository using branch
     Given I have a project
     When I run the :new_build client command with:
-      | code    | https://github.com/openshift/ruby-hello-world#beta2 |
-      | e       | key1=value1,key2=value2,key3=value3 |
+      | code           | https://github.com/openshift/ruby-hello-world#beta2 |
+      | e              | key1=value1,key2=value2,key3=value3                 |
+      | image_stream   | openshift/ruby                                      |
     Then the step should succeed
     When I run the :get client command with:
-      | resource          | buildConfig |
+      | resource          | buildConfig      |
       | resource_name     | ruby-hello-world |
-      | o                 | yaml        |
+      | o                 | yaml             |
     Then the output should match:
       | uri:\\s+https://github.com/openshift/ruby-hello-world|
       | ref:\\s+beta2                                        |
@@ -32,7 +33,6 @@ Feature: build 'apps' with CLI
     When I run the :get client command with:
       |resource| imageStream |
     Then the output should contain:
-      | ruby-20-centos7  |
       | ruby-hello-world |
 
   # @author cryan@redhat.com
@@ -40,9 +40,9 @@ Feature: build 'apps' with CLI
   Scenario: Create a build config based on the provided image and source code
     Given I have a project
     When I run the :new_build client command with:
-      | code  | https://github.com/openshift/ruby-hello-world |
-      | image | openshift/ruby                                |
-      | l     | app=rubytest                                  |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | image        | openshift/ruby                                |
+      | l            | app=rubytest                                  |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | bc               |
