@@ -106,3 +106,64 @@ Feature: Quota related scenarios
       | pods "database-\\d+-deploy" is forbidden |
       | aximum memory usage.*is 750Mi.*limit is 796917760 |
       | aximum cpu usage.*is 500m.*limit is 1100m |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 470361
+  @admin
+  Scenario: [origin_platformexp_372][origin_platformexp_334] Resource quota can be set for project
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml"
+    And I replace lines in "quota.yaml":
+      | 750Mi    | 110Mi               |
+    Then the step should succeed
+    And I run the :create admin command with:
+      | f        | quota.yaml          |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+  
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/xiaocwan/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should fail
+    And the output should match:
+      | specify.*memory |
+
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/xiaocwan/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      |resource | pod  |
+      | o       | yaml |
+    Then the output should match:
+      | cpu:\\s*100m     |
+      | memory:\\s*100Mi |
+    When I run the :describe admin command with:
+      | resource      | quota               |
+      | name          | quota               |
+      | n             | <%= project.name %> |
+    Then the output should match:
+      | cpu\\s*100m      |
+      | memory\\s*100Mi  |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/xiaocwan/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should fail
+    And the output should match:
+      | xceeded quota |
+      | xceeded quota |
+    When I run the :delete client command with:
+      | object_type | pods |
+      | all         |      |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe admin command with:
+      | resource      | quota               |
+      | name          | quota               |
+      | n             | <%= project.name %> |
+    Then the output should not match:
+      | cpu\\s*100m      |
+      | memory\\s*100Mi  |
+    """
