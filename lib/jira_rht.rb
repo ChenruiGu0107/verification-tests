@@ -75,7 +75,7 @@ module CucuShift
       status = issue.save("fields"=>params)
       # call fetch to update the issue object
       @logger.error("Failed to create JIRA issue") unless status
-      issue.fetch
+      issue.fetch if status
       return status, issue
     end
 

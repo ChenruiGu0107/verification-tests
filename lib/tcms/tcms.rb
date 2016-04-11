@@ -329,6 +329,20 @@ module CucuShift
       return self.call('TestCaseRun.get', caserun_id.to_i)
     end
 
+    def get_testcase_bugs(case_id)
+      return self.call('TestCase.get_bugs', Integer(case_id))
+    end
+
+    # get all bugs associated with a caserun_id
+    def get_caserun_bugs(caserun_id)
+      return self.call('TestCaseRun.get_bugs', Integer(caserun_id))
+    end
+
+    # get all bugs associated with a testrun
+    def get_testrun_bugs(testrun_id)
+      return self.call('TestRun.get_bugs', Integer(testrun_id))
+    end
+
     def get_test_case_runs(testrun_id)
       return self.call('TestRun.get_test_case_runs', testrun_id)
     end
