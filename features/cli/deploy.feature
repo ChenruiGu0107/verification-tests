@@ -979,28 +979,28 @@ Feature: deployment related features
       | emptyDir: {} |
       | name: dataem |
 
-    # @author pruan@redhat.com
-    # @case_id 483177, 483178
-    Scenario Outline: Failure handler of pre-post deployment hook
-      Given I have a project
-      When I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/<file_name>|
-      Then the step should succeed
-      When the pod named "<pod_name>" is present
-      And I wait for the steps to pass:
+  # @author pruan@redhat.com
+  # @case_id 483177, 483178
+  Scenario Outline: Failure handler of pre-post deployment hook
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/<file_name>|
+    Then the step should succeed
+    When the pod named "<pod_name>" is present
+    And I wait for the steps to pass:
 
-      """
-        When I run the :get client command with:
-          | resource | pod  |
-          | resource_name | <pod_name> |
-          |  o        | json |
-        And the output is parsed as JSON
-        Then the expression should be true> @result[:parsed]['status']['containerStatuses'][0]['restartCount'] > 1
-      """
-      Examples:
-        | file_name | pod_name |
-        | pre.json  | hooks-1-hook-pre |
-        | post.json | hooks-1-hook-post |
+    """
+      When I run the :get client command with:
+        | resource | pod  |
+        | resource_name | <pod_name> |
+        |  o        | json |
+      And the output is parsed as JSON
+      Then the expression should be true> @result[:parsed]['status']['containerStatuses'][0]['restartCount'] > 1
+    """
+    Examples:
+      | file_name | pod_name |
+      | pre.json  | hooks-1-hook-pre |
+      | post.json | hooks-1-hook-post |
 
   # @author cryan@redhat.com
   # @case_id 515805
@@ -1043,9 +1043,9 @@ Feature: deployment related features
       | hooks-1-hook-pre|
     """
 
-   # @author yadu@redhat.com
-   # @case_id 497544
-   Scenario: Recreate deployment strategy
+  # @author yadu@redhat.com
+  # @case_id 497544
+  Scenario: Recreate deployment strategy
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/deployment/recreate-example.yaml |
@@ -1065,169 +1065,186 @@ Feature: deployment related features
     Then the output should contain:
       | v2 |
 
-    # @author pruan@redhat.com
-    # @case_id 515920
-    Scenario: start deployment when the latest deployment is completed
-      Given I have a project
-      And I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
-      Then the step should succeed
-      And I wait until the status of deployment "hooks" becomes :complete
-      And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
-        | replicas: 1 | replicas: 3 |
-      Then the step should succeed
-      And I wait until the status of deployment "hooks" becomes :complete
-      And I run the :get client command with:
-        | resource | rc |
-        | o | json |
-      And the output is parsed as JSON
-      Then the expression should be true> @result[:parsed]['items'][0]['status']['replicas'] == 3
+  # @author pruan@redhat.com
+  # @case_id 515920
+  Scenario: start deployment when the latest deployment is completed
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
+      | replicas: 1 | replicas: 3 |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    And I run the :get client command with:
+      | resource | rc |
+      | o | json |
+    And the output is parsed as JSON
+    Then the expression should be true> @result[:parsed]['items'][0]['status']['replicas'] == 3
 
-    # @author pruan@redhat.com
-    # @case_id 515921
-    Scenario: Manual scale dc will update the deploymentconfig's replicas
-      Given I have a project
-      And I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
-      Then the step should succeed
-      When I run the :scale client command with:
-        | resource | dc    |
-        | name     | hooks |
-        | replicas | 10    |
-      Then the step should succeed
-      When I run the :get client command with:
-        | resource      | dc    |
-        | resource_name | hooks |
-        | o             | json  |
-      And the output is parsed as JSON
-      Then the expression should be true> @result[:parsed]['spec']['replicas'] == 10
+  # @author pruan@redhat.com
+  # @case_id 515921
+  Scenario: Manual scale dc will update the deploymentconfig's replicas
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | dc    |
+      | name     | hooks |
+      | replicas | 10    |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | o             | json  |
+    And the output is parsed as JSON
+    Then the expression should be true> @result[:parsed]['spec']['replicas'] == 10
 
-      When I run the :deploy client command with:
-        | deployment_config | hooks |
-        | latest            ||
-      And I wait until number of replicas match "10" for replicationController "hooks-1"
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            ||
+    And I wait until number of replicas match "10" for replicationController "hooks-1"
 #      And 10 pods become ready with labels:
 #        |name=mysql|
-      Then I run the :scale client command with:
-        | resource | dc    |
-        | name     | hooks |
-        | replicas | 5     |
-      And I wait until number of replicas match "5" for replicationController "hooks-1"
+    Then I run the :scale client command with:
+      | resource | dc    |
+      | name     | hooks |
+      | replicas | 5     |
+    And I wait until number of replicas match "5" for replicationController "hooks-1"
 
-    # @author pruan@redhat.com
-    # @case_id 510686
-    Scenario: Inline deployer hook logs
-      Given I have a project
-      And I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
-      And I run the :logs client command with:
-        | f | true |
-        | resource_name | dc/hooks |
-      Then the output should contain:
-        | Created lifecycle pod <%= project.name %>/hooks-1-hook-pre for deployment <%= project.name %>/hooks-1 |
-        | Finished reading logs for hook pod <%= project.name %>/hooks-1-hook-pre |
-        | Created lifecycle pod <%= project.name %>/hooks-1-hook-post for deployment <%= project.name %>/hooks-1 |
-        | Finished reading logs for hook pod <%= project.name %>/hooks-1-hook-post |
 
-    # @author yinzhou@redhat.com
-    # @case_id 433309
-    Scenario: Trigger info is retained for deployment caused by image changes
-      Given I have a project
-      When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
-      Then the step should succeed
-      Given the "ruby-sample-build-1" build was created
-      And the "ruby-sample-build-1" build completed
-      Given I wait until the status of deployment "frontend" becomes :complete
-      When I run the :get client command with:
-        | resource      | dc |
-        | resource_name | frontend |
-        | o             | yaml |
-      Then the output by order should match:
-        | causes:         |
-        | - imageTrigger: |
-        | from: |
-        | type: ImageChange |
+  # @author pruan@redhat.com
+  # @case_id 510686
+  Scenario: Inline deployer hook logs
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
+    And I run the :logs client command with:
+      | f | true |
+      | resource_name | dc/hooks |
+    Then the output should contain:
+      | Created lifecycle pod <%= project.name %>/hooks-1-hook-pre for deployment <%= project.name %>/hooks-1 |
+      | Finished reading logs for hook pod <%= project.name %>/hooks-1-hook-pre |
+      | Created lifecycle pod <%= project.name %>/hooks-1-hook-post for deployment <%= project.name %>/hooks-1 |
+      | Finished reading logs for hook pod <%= project.name %>/hooks-1-hook-post |
 
-    # @author yinzhou@redhat.com
-    # @case_id 433308
-    Scenario: Trigger info is retained for deployment caused by config changes
-      Given I have a project
-      When I run the :new_app client command with:
-        | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
-      Then the step should succeed
-      And I wait until the status of deployment "deployment-example" becomes :complete
-      And I replace resource "dc" named "deployment-example":
-        | terminationGracePeriodSeconds: 30 | terminationGracePeriodSeconds: 36 |
-      Then the step should succeed
-      And I wait until the status of deployment "deployment-example" becomes :complete
-      When I run the :get client command with:
-        | resource      | dc |
-        | resource_name | deployment-example |
-        | o             | yaml |
-      Then the output by order should match:
-        | terminationGracePeriodSeconds: 36 |
-        | causes:         |
-        | - type: ConfigChange |
+  # @author yinzhou@redhat.com
+  # @case_id 433309
+  Scenario: Trigger info is retained for deployment caused by image changes
+    Given I have a project
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    Given I wait until the status of deployment "frontend" becomes :complete
+    When I run the :get client command with:
+      | resource      | dc |
+      | resource_name | frontend |
+      | o             | yaml |
+    Then the output by order should match:
+      | causes:         |
+      | - imageTrigger: |
+      | from: |
+      | type: ImageChange |
 
-    # @author yinzhou@redhat.com
-    # @case_id 515919
-    Scenario: Start new deployment when deployment running
-      Given I have a project
-      When I run the :new_app client command with:
-        | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
-      Then the step should succeed
-      Given I wait until the status of deployment "deployment-example" becomes :running
-      And I replace resource "dc" named "deployment-example":
-        | latestVersion: 1 | latestVersion: 2 |
-      Then the step should succeed
-      When I run the :deploy client command with:
-        | deployment_config | deployment-example |
-      Then the output should match "cancelled.*newer.*running"
+  # @author yinzhou@redhat.com
+  # @case_id 433308
+  Scenario: Trigger info is retained for deployment caused by config changes
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    Then the step should succeed
+    And I wait until the status of deployment "deployment-example" becomes :complete
+    And I replace resource "dc" named "deployment-example":
+      | terminationGracePeriodSeconds: 30 | terminationGracePeriodSeconds: 36 |
+    Then the step should succeed
+    And I wait until the status of deployment "deployment-example" becomes :complete
+    When I run the :get client command with:
+      | resource      | dc |
+      | resource_name | deployment-example |
+      | o             | yaml |
+    Then the output by order should match:
+      | terminationGracePeriodSeconds: 36 |
+      | causes:         |
+      | - type: ConfigChange |
 
-    # @author yinzhou@redhat.com
-    # @case_id 518647
-    Scenario: Check the deployments in a completed state on test deployment configs
-      Given I have a project
-      And I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-deployment.json |
-      Then the step should succeed
-      And I run the :logs client command with:
-        | f | true |
-        | resource_name | dc/hooks |
-      Then the output should contain:
-        | Scaling <%= project.name %>/hooks-1 to 1 before performing acceptance check |
-        | Deployment hooks-1 successfully made active |
-      And I wait until the status of deployment "hooks" becomes :complete
-      When I run the :get client command with:
-        | resource      | rc |
-        | resource_name | hooks-1 |
-        | o             | yaml |
-      Then the output by order should match:
-        | phase: Complete |
-        | status: |
-        | replicas: 0 |
+  # @author yinzhou@redhat.com
+  # @case_id 515919
+  Scenario: Start new deployment when deployment running
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    Then the step should succeed
+    Given I wait until the status of deployment "deployment-example" becomes :running
+    And I replace resource "dc" named "deployment-example":
+      | latestVersion: 1 | latestVersion: 2 |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | deployment-example |
+    Then the output should match "cancelled.*newer.*running"
 
-    # @author yinzhou@redhat.com
-    # @case_id 518648
-    Scenario: Check the deployments in a failed state on test deployment configs
-      Given I have a project
-      And I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-deployment.json |
-      Then the step should succeed
-      Given I wait until the status of deployment "hooks" becomes :running
-      And I replace resource "pod" named "hooks-1-deploy":
-        | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 3 |
-      Then the step should succeed
-      When I run the :deploy client command with:
-        | deployment_config | hooks |
-      Then the step should succeed
-      And the output should match:
-        | hooks.*#1.*failed |
-      When I run the :get client command with:
-        | resource      | rc |
-        | resource_name | hooks-1 |
-        | o             | yaml |
-      Then the output by order should match:
-        | phase: Failed |
-        | status: |
-        | replicas: 0 |
+  # @author yinzhou@redhat.com
+  # @case_id 518647
+  Scenario: Check the deployments in a completed state on test deployment configs
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-deployment.json |
+    Then the step should succeed
+    And I run the :logs client command with:
+      | f | true |
+      | resource_name | dc/hooks |
+    Then the output should contain:
+      | Scaling <%= project.name %>/hooks-1 to 1 before performing acceptance check |
+      | Deployment hooks-1 successfully made active |
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :get client command with:
+      | resource      | rc |
+      | resource_name | hooks-1 |
+      | o             | yaml |
+    Then the output by order should match:
+      | phase: Complete |
+      | status: |
+      | replicas: 0 |
+
+  # @author yinzhou@redhat.com
+  # @case_id 518648
+  Scenario: Check the deployments in a failed state on test deployment configs
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-deployment.json |
+    Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :running
+    And I replace resource "pod" named "hooks-1-deploy":
+      | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 3 |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+    Then the step should succeed
+    And the output should match:
+      | hooks.*#1.*failed |
+    When I run the :get client command with:
+      | resource      | rc |
+      | resource_name | hooks-1 |
+      | o             | yaml |
+    Then the output by order should match:
+      | phase: Failed |
+      | status: |
+      | replicas: 0 |
+
+  # @author pruan@redhat.com
+  # @case_id 518650
+  Scenario: Scale the deployments will failed on test deployment config
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc518650/test.json |
+    Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :complete
+    Then I run the :scale client command with:
+      | resource | deploymentconfig |
+      | name     | hooks            |
+      | replicas | 2                |
+    Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :complete
+    And I wait until number of replicas match "0" for replicationController "hooks"

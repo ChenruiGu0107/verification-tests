@@ -13,3 +13,4 @@ Xvfb
 
 ansible
 pyOpenSSL
+redhat-rpm-config
