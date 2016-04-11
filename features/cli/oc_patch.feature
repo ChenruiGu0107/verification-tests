@@ -13,23 +13,29 @@ Feature: oc patch related scenarios
       | resource_name | hello           |
       | p             | {"spec":{"replicas":2}} |
     Then the step should succeed
+    Then I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | dc                 |
       | resource_name | hello              |
       | template      | {{.spec.replicas}} |
     Then the step should succeed
     And the output should contain "2"
+    """
     When I run the :patch client command with:
       | resource      | dc              |
       | resource_name | hello           |
       | p             | {"metadata":{"labels":{"template":"newtemp","name1":"value1"}},"spec":{"replicas":3}} |
     Then the step should succeed
+    Then I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | dc                 |
       | resource_name | hello              |
       | template      | {{.metadata.labels.template}} {{.metadata.labels.name1}} {{.spec.replicas}} |
     Then the step should succeed
     And the output should contain "newtemp value1 3"
+    """
 
 
   # @author xxia@redhat.com
@@ -45,12 +51,15 @@ Feature: oc patch related scenarios
       | resource_name | database        |
       | p             | {"spec":{"replicas":2}} |
     Then the step should succeed
+    Then I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | dc                 |
       | resource_name | database           |
       | template      | {{.spec.replicas}} |
     Then the step should succeed
     And the output should contain "2"
+    """
 
 
     When I run the :patch client command with:
@@ -58,24 +67,30 @@ Feature: oc patch related scenarios
       | resource_name | ruby-sample-build       |
       | p             | {"spec":{"output":{"to":{"name":"origin-ruby-sample:tag1"}}}} |
     Then the step should succeed
+    Then I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | bc                 |
       | resource_name | ruby-sample-build  |
       | template      | {{.spec.output.to.name}} |
     Then the step should succeed
     And the output should contain "origin-ruby-sample:tag1"
+    """
 
     When I run the :patch client command with:
       | resource      | is                      |
       | resource_name | origin-ruby-sample      |
       | p             | {"spec":{"dockerImageRepository":"xxia/origin-ruby-sample"}} |
     Then the step should succeed
+    Then I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | is                 |
       | resource_name | origin-ruby-sample |
       | template      | {{.spec.dockerImageRepository}} |
     Then the step should succeed
     And the output should contain "xxia/origin-ruby-sample"
+    """
 
   # @author xxia@redhat.com
   # @case_id 507685
@@ -119,12 +134,15 @@ Feature: oc patch related scenarios
       # Not work well to simply use | p             | spec:\n  replicas: 2 |
       | p             | <%= cb.patch_yaml %> |
     Then the step should succeed
+    Then I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | dc                 |
       | resource_name | database           |
       | template      | {{.spec.replicas}} |
     Then the step should succeed
     And the output should contain "2"
+    """
 
     Given evaluation of `"spec:\n  output:\n    to:\n      name: origin-ruby-sample:tag1"` is stored in the :patch_yaml clipboard
     When I run the :patch client command with:
@@ -132,12 +150,15 @@ Feature: oc patch related scenarios
       | resource_name | ruby-sample-build    |
       | p             | <%= cb.patch_yaml %> |
     Then the step should succeed
+    Then I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | bc                 |
       | resource_name | ruby-sample-build  |
       | template      | {{.spec.output.to.name}} |
     Then the step should succeed
     And the output should contain "origin-ruby-sample:tag1"
+    """
 
     Given evaluation of `"spec:\n  dockerImageRepository: xxia/origin-ruby-sample"` is stored in the :patch_yaml clipboard
     When I run the :patch client command with:
@@ -145,9 +166,12 @@ Feature: oc patch related scenarios
       | resource_name | origin-ruby-sample   |
       | p             | <%= cb.patch_yaml %> |
     Then the step should succeed
+    Then I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | is                 |
       | resource_name | origin-ruby-sample |
       | template      | {{.spec.dockerImageRepository}} |
     Then the step should succeed
     And the output should contain "xxia/origin-ruby-sample"
+    """
