@@ -980,11 +980,9 @@ Feature: build 'apps' with CLI
     And I run the :logs client command with:
       | resource_name | bc/ruby-cgroup-test |
     And the output should contain:
-      | Fetching gem metadata from |
-    """
-    And the output should contain:
       | ===Cgroup info===                                |
       | cat /sys/fs/cgroup/memory/memory.limit_in_bytes  |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares        |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_period_us |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us  |
+    """
