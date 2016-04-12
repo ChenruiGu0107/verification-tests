@@ -794,7 +794,7 @@ Feature: build 'apps' with CLI
 
   # @author xiuwang@redhat.com
   # @case_id 489748
-  Scenario: Create a build config based on the source code in the current git repository 
+  Scenario: Create a build config based on the source code in the current git repository
     Given I have a project
     And I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
     When I run the :new_build client command with:
@@ -966,3 +966,23 @@ Feature: build 'apps' with CLI
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc470327/python-34-rhel7-stibuild.json |
     Then the step should fail
     And the output should contain "spec.strategy.sourceStrategy.from.name: Required value"
+
+  # @author pruan@redhat.com
+  # @case_id 519266
+  Scenario: Check cgroup info in container which builder pod launched for s2i build
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo |  openshift/ruby:latest~https://github.com/openshift-qe/ruby-cgroup-test |
+    Then the step should succeed
+    Given the "ruby-cgroup-test-1" build becomes :running
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    And I run the :logs client command with:
+      | resource_name | bc/ruby-cgroup-test |
+    And the output should contain:
+      | ===Cgroup info===                                |
+      | cat /sys/fs/cgroup/memory/memory.limit_in_bytes  |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares        |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_period_us |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us  |
+    """
