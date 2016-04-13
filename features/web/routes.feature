@@ -61,14 +61,14 @@ Feature: Routes related features on web console
 
     When I perform the :open_create_route_page_from_overview_page web console action with:
       | project_name | <%= project.name%> |
-      | service_name | hello-nginx        |
+      | service_name | service-unsecure   |
     Then the step should succeed
      
     When I perform the :create_unsecured_route_from_service_or_overview_page web console action with:
-      | route_name | hello-nginx |
+      | route_name | service-unsecure-route |
     Then the step should succeed
 
     When I perform the :check_routes_page web console action with:
       | project_name | <%= project.name %> |
-      | route_name   | hello-nginx         |
+      | route_name   | service-unsecure    |
     Then the step should succeed 
