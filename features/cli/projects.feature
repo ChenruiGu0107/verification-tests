@@ -407,3 +407,92 @@ Feature: projects related features via cli
     When I run the :get client command with:
       | resource | projects |
     Then the output should not contain "racetocreate"
+
+  # @author xxia@redhat.com
+  # @case_id 498148
+  @admin
+  Scenario: Update on project
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+    Given the pod named "hello-openshift" becomes ready
+    # Update with cluster-admin (*admin* command)
+    When I run the :annotate admin command with:
+      | resource     | project/<%= project.name %>  |
+      | overwrite    | true                         |
+      | keyval       | openshift.io/description=descr1       |
+      | keyval       | openshift.io/display-name=display1    |
+    Then the step should succeed
+    Then I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource      | project/<%= project.name %>  |
+    Then the step should succeed
+    And the output should contain:
+      | openshift.io/description=descr1     |
+      | openshift.io/display-name=display1  |
+    """
+
+    When I run the :get client command with:
+      | resource      | pod/hello-openshift  |
+    Then the step should succeed
+    # Resource is not affected by above project update.
+    And the output should match "unning\s*0"
+
+    When I run the :annotate admin command with:
+      | resource     | project/<%= project.name %>  |
+      | overwrite    | true              |
+      | keyval       | openshift.io/sa.scc.uid-range=1000030000/100001 |
+      | keyval       | openshift.io/node-selector=region=primary       |
+      | keyval       | openshift.io/sa.scc.mcs=s0:c7,c1111             |
+    Then the step should fail
+    And the output should match:
+      | sa.scc.uid-range.*immutable   |
+      | node-selector.*immutable      |
+      | sa.scc.mcs.*immutable         |
+
+    When I run the :patch admin command with:
+      | resource      | project/<%= project.name %>      |
+      | p             | {"metadata":{"name":"new-name"}} |
+    Then the step should fail
+
+    # Update with noraml user (*client* command)
+    When I run the :annotate client command with:
+      | resource     | project/<%= project.name %>  |
+      | overwrite    | true                         |
+      | keyval       | openshift.io/description=descr2       |
+      | keyval       | openshift.io/display-name=display2    |
+    Then the step should succeed
+    Then I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource      | project/<%= project.name %>  |
+    Then the step should succeed
+    And the output should contain:
+      | openshift.io/description=descr2     |
+      | openshift.io/display-name=display2  |
+    """
+
+    When I run the :get client command with:
+      | resource      | pod/hello-openshift  |
+    Then the step should succeed
+    # Resource is not affected by above project update.
+    And the output should match "unning\s*0"
+
+    When I run the :annotate client command with:
+      | resource     | project/<%= project.name %>  |
+      | overwrite    | true              |
+      | keyval       | openshift.io/sa.scc.uid-range=1000030000/100001 |
+      | keyval       | openshift.io/node-selector=region=primary       |
+      | keyval       | openshift.io/sa.scc.mcs=s0:c7,c1111             |
+    Then the step should fail
+    And the output should match:
+      | sa.scc.uid-range.*immutable   |
+      | node-selector.*immutable      |
+      | sa.scc.mcs.*immutable         |
+
+    When I run the :patch client command with:
+      | resource      | project/<%= project.name %>      |
+      | p             | {"metadata":{"name":"new-name"}} |
+    Then the step should fail
