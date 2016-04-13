@@ -22,21 +22,13 @@ require 'json'
 require 'io/console' # for reading password without echo
 require 'time'
 require 'gherkin_parse'
+require 'nokogiri'
+require 'open-uri'
 
 require 'collections'
 require 'jira_rht'
 
 def print_report(options)
-  status_lookup = {
-    1 => 'IDLE',
-    2 => 'PASSED',
-    3 => 'FAILED',
-    4 => 'RUNNING',
-    5 => 'PAUSED',
-    6 => 'BLOCKED',
-    7 => 'ERROR',
-    8 => 'WAIVED'}
-
   testrun_id = options.testrun_id
   author_filter = options.author if options.author
   outcome_filter = options.outcome if options.outcome
@@ -81,7 +73,6 @@ def report_auto_testcases_by_author(options)
   table = Text::Table.new
   table.head = ['case_id', 'summary', 'author']
   script_pattern = "\"ruby\""
-  cases = []
   unknown_cases = []   # array to story 'unknown' testcase ids
   authors = {}
   auto_case_total = 0
@@ -424,7 +415,7 @@ def report_logs(options, status='FAILED')
   cases = tcms.get_run_cases(options[:testrun_id])
   filtered_cases = {}
   table = Text::Table.new
-  table.head = ['caserun_id', 'case_id', 'auto_by', 'bug_id', 'log_url']
+  table.head = ['caserun_id', 'case_id', 'auto_by', 'bug_id', 'msg', 'log_url']
   cases.each do | tc |
     tc['auto_by'] = get_author_from_notes(tc['notes'])
     auto_by = tc['auto_by']
@@ -433,20 +424,33 @@ def report_logs(options, status='FAILED')
       filtered_cases[auto_by] << tc
     end
   end
+  testrun_bugs = tcms.get_testrun_bugs(options[:testrun_id])
+  bugs_hash = {}
+  testrun_bugs.each do |testrun|
+    bugs_hash[testrun['case_run_id']] = testrun["bug_id"].to_i
+  end
+
+  caserun_list = bugs_hash.keys()
 
   filtered_cases.sort.each do | author, testcases |
     testcases.each do | tc |
       log_url = tcms.get_latest_log_url(tc["case_run_id"])
-      caserun_bugs = tcms.get_caserun_bugs(tc['case_run_id'])
-      # tc[:bugs] is an array of bug ids
-      if caserun_bugs.count > 0
-        tc[:bugs] = caserun_bugs.map { |c| c["bug_id"] }
-      else
-        tc[:bugs] = nil
-      end
+      tc[:bugs] = bugs_hash[tc["case_run_id"]] if caserun_list.include? tc["case_run_id"]
       tc[:log_url] = log_url
+      if log_url.nil?
+        tc[:error_msg] = nil
+      else
+        log_page = Nokogiri::HTML(open(log_url)) unless log_url.nil?
+        back_trace_div = log_page.css('div.step_backtrace')
+        if back_trace_div
+          # we just take the first line of the backtrace and diplay it.
+          tc[:error_msg] = back_trace_div.children[0]
+        else
+          tc[:error_msg] = "Can't find a error message"
+        end
+      end
       tc[:testrun_id] = options[:testrun_id]
-      table.rows << [tc["case_run_id"], tc["case_id"], tc["auto_by"], tc[:bugs],log_url]
+      table.rows << [tc["case_run_id"], tc["case_id"], tc["auto_by"], tc[:bugs], tc[:error_msg] ,log_url]
     end
     if options.create_jira
       if options.author

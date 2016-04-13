@@ -29,6 +29,7 @@ gem 'pry'
 # gem 'pry-byebug', :require => false
 gem 'byebug'
 gem 'jira-ruby'
+gem 'nokogiri'
 # gem 'mongo'
 # gem 'bson_ext'
 # gem 'parseconfig'
