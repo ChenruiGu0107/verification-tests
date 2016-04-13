@@ -410,17 +410,24 @@ module CucuShift
       return template
     end
 
-    def run_ansible_playbook(playbook, inventory)
+    def run_ansible_playbook(playbook, inventory, retries: 1)
       ENV["ANSIBLE_FORCE_COLOR"] = "true"
       ENV["ANSIBLE_CALLBACK_WHITELIST"] = 'profile_tasks'
-      say "############ ANSIBLE RUN - #{playbook} ############################"
-      res = Host.localhost.exec(
-        'ansible-playbook', '-v', '-i', inventory,
-        playbook,
-        single: true, stderr: :out, stdout: STDOUT, timeout: 36000
-      )
-      raise "ansible failed execution, see logs" unless res[:success]
-      say "############ ANSIBLE END - #{playbook} ############################"
+      retries.times do |attempt|
+        id_str = (attempt == 0 ? ': ' : " (try #{attempt + 1}): ") + playbook
+        say "############ ANSIBLE RUN#{id_str} ############################"
+        res = Host.localhost.exec(
+          'ansible-playbook', '-v', '-i', inventory,
+          playbook,
+          single: true, stderr: :out, stdout: STDOUT, timeout: 36000
+        )
+        say "############ ANSIBLE END#{id_str} ############################"
+        if res[:success]
+          break
+        elsif attempt >= retries - 1
+          raise "ansible failed execution, see logs" unless res[:success]
+        end
+      end
     end
 
     # performs an installation task
@@ -466,7 +473,8 @@ module CucuShift
         inventory = Host.localhost.absolutize task[:inventory]
         puts "Ansible inventory #{File.basename inventory}:\n#{inventory_str}"
         File.write(inventory, inventory_str)
-        run_ansible_playbook(localize(task[:playbook]), inventory)
+        run_ansible_playbook(localize(task[:playbook]), inventory,
+                             retries: (task[:retries] || 1))
       end
     end
 
