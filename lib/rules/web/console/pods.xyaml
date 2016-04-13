@@ -31,7 +31,7 @@ goto_pods_page:
 open_in_new_window:
   elements:
   - selector:
-      text: Open full view of log
+      text: Expand
     type: a
     op: click
 open_full_view_log:
