@@ -22,7 +22,7 @@ require 'json'
 require 'io/console' # for reading password without echo
 require 'time'
 require 'gherkin_parse'
-require 'nokogiri'
+require 'oga'  # replaces nokogiri
 require 'open-uri'
 
 require 'collections'
@@ -440,11 +440,13 @@ def report_logs(options, status='FAILED')
       if log_url.nil?
         tc[:error_msg] = nil
       else
-        log_page = Nokogiri::HTML(open(log_url)) unless log_url.nil?
+        #log_page = Nokogiri::HTML(open(log_url)) unless log_url.nil?
+        log_page = Oga.parse_html(open(log_url)) unless log_url.nil?
         back_trace_div = log_page.css('div.step_backtrace')
         if back_trace_div
           # we just take the first line of the backtrace and diplay it.
-          tc[:error_msg] = back_trace_div.children[0]
+          # tc[:error_msg] = back_trace_div.children[0]
+          tc[:error_msg] = back_trace_div[0].children[0].text
         else
           tc[:error_msg] = "Can't find a error message"
         end

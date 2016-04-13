@@ -29,6 +29,9 @@ gem 'pry'
 # gem 'pry-byebug', :require => false
 gem 'byebug'
 gem 'jira-ruby'
+
+# replacemen for nokogiri as it's easier to install w/o system lib dependencies
+gem 'oga'
 # gem 'nokogiri'
 # gem 'mongo'
 # gem 'bson_ext'
