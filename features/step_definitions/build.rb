@@ -20,7 +20,11 @@ Given /^the "([^"]*)" build complete(?:d|s)$/ do |build_name|
   @result = build(build_name).wait_till_completed(user, 60*15)
 
   unless @result[:success]
-    raise "build #{build_name} never completed or failed"
+    if [:failed, :error].include? @result[:matched_status]
+      user.cli_exec(:logs, resource_name: "build/#{build_name}")
+      raise "build #{build_name} failed"
+    end 
+    raise "build #{build_name} never completed"
   end
 end
 
