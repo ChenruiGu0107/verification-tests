@@ -39,13 +39,13 @@ environments:
     admin_cli: MasterKubeconfigLocalAdminCliExecutor
     api_port: 8443
   origin:
-    # hosts: use OPENSHIFT_ENV_OSE_HOSTS=host:role1:...,host2:role1:...
+    # hosts: use OPENSHIFT_ENV_ORIGIN_HOSTS=host:role1:...,host2:role1:...
     hosts_type: SSHAccessibleHost
     # this is the user for remote access to the OpenShift nodes
     user: fedora
     type: StaticEnvironment
     user_manager: StaticUserManager
-    # set users in OPENSHIFT_ENV_OSE_USER_MANAGER_USERS=user:password,...
+    # set users in OPENSHIFT_ENV_ORIGIN_USER_MANAGER_USERS=user:password,...
     # user_manager_users: joe:redhat,alice:redhat
     cli: SharedLocalCliExecutor
     # cli: SharedLocalCliExecutor
@@ -67,7 +67,17 @@ environments:
     hosts_type: Host # we can't basically access that host so this should work
     type: StaticEnvironment
     user_manager: StaticUserManager
-    #set OPENSHIFT_ENV_STAGE_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #set OPENSHIFT_ENV_DED-STAGE-AWS_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #user_manage_users:
+    cli: SharedLocalCliExecutor
+    admin_cli: false
+  engint:
+    hosts: api.engint.openshift.com:etcd:master:node
+    web_console_url: https://console.engint.openshift.com
+    hosts_type: Host # we can't basically access that host so this should work
+    type: StaticEnvironment
+    user_manager: StaticUserManager
+    #set OPENSHIFT_ENV_ENGINT_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
