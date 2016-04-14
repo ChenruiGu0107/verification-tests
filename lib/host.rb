@@ -601,8 +601,11 @@ module CucuShift
         str << ' ansible_ssh_user=' << sshopts[:user]
       end
       if sshopts[:private_key]
-        str << ' ansible_ssh_private_key_file="' <<
-          expand_private_path(sshopts[:private_key]) << '"'
+        # we chmod ssh key upon ssh to machine, but make sure it is done
+        #   before we run ansible (e.g. we never sshed to host before that)
+        ssh_key = expand_private_path(sshopts[:private_key])
+        File.chmod(0600, ssh_key) rescue nil
+        str << ' ansible_ssh_private_key_file="' << ssh_key << '"'
       end
       if sshopts[:password]
         pswd = sshopts[:password].gsub('"','\\"')
