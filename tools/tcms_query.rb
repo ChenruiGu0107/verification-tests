@@ -434,7 +434,8 @@ def report_logs(options, status='FAILED')
 
   filtered_cases.sort.each do | author, testcases |
     testcases.each do | tc |
-      log_url = tcms.get_latest_log_url(tc["case_run_id"])
+      log_url = nil 
+      log_url = tcms.get_latest_log_url(tc["case_run_id"]) if options.author == tc['auto_by'] or options.author.nil?
       tc[:bugs] = bugs_hash[tc["case_run_id"]] if caserun_list.include? tc["case_run_id"]
       tc[:log_url] = log_url
       if log_url.nil?
@@ -452,7 +453,7 @@ def report_logs(options, status='FAILED')
         end
       end
       tc[:testrun_id] = options[:testrun_id]
-      table.rows << [tc["case_run_id"], tc["case_id"], tc["auto_by"], tc[:bugs], tc[:error_msg] ,log_url]
+      table.rows << [tc["case_run_id"], tc["case_id"], tc["auto_by"], tc[:bugs], tc[:error_msg] ,log_url] unless log_url.nil?
     end
     if options.create_jira
       if options.author
