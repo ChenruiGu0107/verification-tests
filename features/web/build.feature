@@ -270,3 +270,104 @@ Feature: build related feature on web console
   Then the step should succeed
   And the output is parsed as JSON
   Then the expression should be true> @result[:parsed]['spec']['source']['images'][0]['paths'].length == 2
+
+  # @author yapei@redhat.com
+  # @case_id 518657
+  Scenario: Modify buildconfig settings for Dockerfile source
+    Given I have a project
+    When I run the :new_build client command with:
+      | D     | FROM centos:7\nRUN yum install -y httpd |
+      | to    | myappis                                 |
+      | name  | myapp                                   |
+    Then the step should succeed
+    When I perform the :check_build_strategy web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+      | build_strategy      | Docker               |
+    Then the step should succeed
+    When I perform the :check_buildconfig_dockerfile_config web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+      | docker_file_content | FROM centos:7RUN yum install -y httpd |
+    Then the step should succeed
+    # edit bc
+    When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+      | env_var_key         | dockertest           |
+      | env_var_value       | docker1234           |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+      | env_var_key         | testname          |
+      | env_var_value       | testvalue         |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :enable_webhook_build_trigger web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+    Then the step should fail
+    # check env vars on web console
+    When I perform the :check_buildconfig_environment web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+      | env_var_key         | dockertest           |
+      | env_var_value       | docker1234           |
+    Then the step should succeed
+    When I perform the :check_buildconfig_environment web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+      | env_var_key         | testname          |
+      | env_var_value       | testvalue         |
+    Then the step should succeed
+    # check env vars via CLI
+    When I run the :get client command with:
+      | resource      | bc    |
+      | resource_name | myapp | 
+      | o             | json  |
+    Then the step should succeed
+    And the output is parsed as JSON
+    Then the expression should be true> @result[:parsed]['spec']['strategy']['dockerStrategy']['env'].include?({"name"=>"dockertest", "value"=>"docker1234"})
+    Then the expression should be true> @result[:parsed]['spec']['strategy']['dockerStrategy']['env'].include?({"name"=>"testname", "value"=>"testvalue"})
+    # remove env vars
+    When I perform the :delete_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+      | env_var_key         | dockertest           |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :check_buildconfig_environment web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+      | env_var_key         | testname             |
+      | env_var_value       | testvalue            |
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should not contain:
+      | dockertest |
+      | docker1234 |
+    When I perform the :delete_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+      | env_var_key         | testname             |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    # check env vars again
+    When I perform the :check_empty_buildconfig_environment web console action with:
+      | project_name        | <%= project.name %>  |
+      | bc_name             | myapp                |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | bc    |
+      | resource_name | myapp | 
+      | o             | json  |
+    Then the step should succeed
+    And the output should not contain:
+      | dockertest |
+      | testname   |
