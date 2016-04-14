@@ -164,17 +164,7 @@ Feature: change the policy of user/service account
       | ! object_name_or_id !   <%= project.name %>         ! |
       | the step should succeed                               |
 
-    Given a 5 characters random string of type : dns is stored into the :role_name clipboard
-    When I run the :oadm_add_cluster_role_to_user admin command with:
-      | role_name           |   <%= project.name %>           |
-      | user_name           |   <%=  user.name %>             |
-    Then the step should succeed
-    And I register clean-up steps:
-      | I run the :oadm_remove_cluster_role_from_user admin command with: |
-      | ! role_name     ! <%= project.name %>               ! |
-      | ! user_name     ! <%=  user.name %>                 ! |
-      | the step should succeed                               |
-
+    Given cluster role "<%= project.name %>" is added to the "first" user
     When I perform the :check_error_list_project_resources web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed

@@ -14,17 +14,7 @@ Feature: Logging and Metrics
       | role            |   edit |
       | user_name       |   system:serviceaccount:<%=project.name%>:metrics-deployer |
     Then the step should succeed
-    When I run the :oadm_add_cluster_role_to_user admin command with:
-      | role_name            |   cluster-reader      |
-      | user_name       |   system:serviceaccount:<%=project.name%>:heapster    |
-    Then the step should succeed
-    Given I register clean-up steps:
-    """
-    I run the :oadm_remove_cluster_role_from_user admin command with:
-      | role_name            |   cluster-reader      |
-      | user_name       |   system:serviceaccount:<%=project.name%>:heapster    |
-    the step should succeed
-    """
+    Given cluster role "cluster-reader" is added to the "heapster" service account
     When I run the :new_secret client command with:
       | secret_name | metrics-deployer |
       | credential_file | nothing=/dev/null |
@@ -68,17 +58,7 @@ Feature: Logging and Metrics
       | role            |   edit |
       | user_name       |   system:serviceaccount:<%= project.name %>:logging-deployer |
     Then the step should succeed
-    When I run the :oadm_add_cluster_role_to_user admin command with:
-      | role_name       |   cluster-reader      |
-      | user_name       |   system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd |
-    Then the step should succeed
-    Given I register clean-up steps:
-    """
-    I run the :oadm_remove_cluster_role_from_user admin command with:
-      | role_name            |   cluster-reader      |
-      | user_name       |   system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd |
-    the step should succeed
-    """
+    Given cluster role "cluster-reader" is added to the "aggregated-logging-fluentd" service account
     When I run the :oadm_policy_add_scc_to_user admin command with:
       | scc       | privileged      |
       | user_name | system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd |
