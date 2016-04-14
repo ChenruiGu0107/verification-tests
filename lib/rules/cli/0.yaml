@@ -465,13 +465,13 @@
     :restart: --restart=<value>
     :tty: --tty=<value>
     :env: --env=<value>
-
 :scale:
   :cmd: oc scale <resource> <name>
   :options:
     :current_replicas: --current-replicas=<value>
     :replicas:  --replicas=<value>
     :resource_ver: --resource-version=<value>
+    :timeout: --timeout=<value>
 :secrets:
   :cmd: oc secrets <action>
   :options:
