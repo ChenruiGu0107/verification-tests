@@ -138,18 +138,6 @@
   :options:
     :filename: --filename=<value>
     :output: --output=<value>
-:set_env:
-  :cmd: oc set env
-  :options:
-    :env_name: <value>
-    :all: --all=<value>
-    :list: --list=<value>
-    :resource: <value>
-    :keyval: <value>
-    :e: -e <value>
-    :o: -o <value>
-    :f: -f <value>
-    :c: -c <value>
 :env:
   :cmd: oc env
   :options:
@@ -482,6 +470,29 @@
     :for: --for=<value>
     :username: --username=<value>
     :password: --password=<value>
+:set_env:
+  :cmd: oc set env
+  :options:
+    :all: --all=<value>
+    :env_name: <value>
+    :keyval: <value>
+    :list: --list=<value>
+    :resource: <value>
+    :c: -c <value>
+    :e: -e <value>
+    :o: -o <value>
+    :f: -f <value>
+:set_triggers:
+  :cmd: oc set triggers
+  :options:
+    :all: --all=<value>
+    :remove: --remove=<value>
+    :remove_all: --remove-all=<value>
+    :resource: <value>
+    :f: --filename=<value>
+    :l: -l <value>
+    :o: --output=<value>
+    :t: --template=<value>    
 :start_build:
   :cmd: oc start-build
   :options:
