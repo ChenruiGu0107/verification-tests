@@ -1,13 +1,17 @@
 require 'yaml'
 
-require 'base_helper'
-require 'openshift/pod'
-require 'openshift/build'
+require_relative 'build'
+require_relative 'cluster_resource'
+require_relative 'pod'
 
 module CucuShift
   # @note represents an OpenShift environment project
-  class Project < Resource
+  class Project < ClusterResource
     RESOURCE = "projects".freeze
+    SYSTEM_PROJECTS = [ "openshift-infra".freeze,
+                        "default".freeze,
+                        "management-infra".freeze,
+                        "openshift".freeze ]
 
     attr_reader :props, :name, :env
 
@@ -48,7 +52,8 @@ module CucuShift
     # @return [Array<Project>]
     # @note raises error on issues
     def self.list(user:)
-      res = user.cli_exec(:get, resource: "projects", output: "yaml")
+      res = user.cli_exec(:get, resource: "projects", output: "yaml",
+                          _quiet: true)
       if res[:success]
         list = YAML.load(res[:response])["items"]
         return list.map { |project_hash|
@@ -64,7 +69,7 @@ module CucuShift
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create project as
     # @param name [String] the name of the project
     # @return [CucuShift::ResultHash]
-    def self.create(by: , name: nil, **opts)
+    def self.create(by:, name: nil, **opts)
       if name
         res = self.new(name: name, env: by.env).create(by: by, **opts)
         res[:resource] = res[:project]
@@ -146,16 +151,6 @@ module CucuShift
       opts = default_opts.merge cmd_opts
 
       return cli_exec(as: by, key: :delete, **opts)
-    end
-
-    ############### take care of object comparison ###############
-    def ==(p)
-      p.kind_of?(self.class) && name == p.name && env == p.env
-    end
-    alias eql? ==
-
-    def hash
-      :project.hash ^ name.hash ^ env.hash
     end
   end
 end
