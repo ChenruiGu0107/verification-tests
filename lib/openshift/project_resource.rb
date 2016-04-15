@@ -27,8 +27,8 @@ module CucuShift
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create
     #   ProjectResource as
     # @param project [CucuShift::Project] the namespace for the new resource
-    # @param spec [String, Hash] the Hash object to create PV or a String path of
-    #   a JSON/YAML file
+    # @param spec [String, Hash] the Hash object to create project resource or
+    #   a String path of a JSON/YAML file
     # @return [CucuShift::ResultHash]
     def self.create(by:, project:, spec:, **opts)
       if spec.kind_of? String

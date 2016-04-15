@@ -19,15 +19,15 @@ module CucuShift
       raise "need to be implemented by subclass"
     end
 
-    def visible?(user:)
-      res = get(user: user)
-      if res[:success]
+    def visible?(user:, result: {})
+      result.clear.merge!(get(user: user))
+      if result[:success]
         return true
-      elsif res[:responce] =~ /not found/
+      elsif result[:responce] =~ /not found/
         return false
       else
         # e.g. when called by user without rights to list Resource
-        raise "error getting to knoe #{self.class.name} existence: #{res[:response]}"
+        raise "error getting to knoe #{self.class.name} existence: #{result[:response]}"
       end
     end
     alias exists? visible?
@@ -64,22 +64,42 @@ module CucuShift
     end
     alias reload get
 
-    # creates a new Resource CucuShift object from spec
+    # creates a new OpenShift /Project/ Resource from spec
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create
-    #   Resource as
-    # @param spec [String, Hash] the API object to create PV or a JSON/YAML file
+    #   ProjectResource as
+    # @param project [CucuShift::Project] the namespace for the new resource
+    #   /only for ProjectResource/
+    # @param spec [String, Hash] the Hash to create object from (pod, service,
+    #   etc. API Hash) or a String path of a JSON/YAML file /not needed for
+    #   Project creation/
     # @return [CucuShift::ResultHash]
-    def self.create(by:, spec:, **opts)
-      raise "need to be implemented by subclass"
+    def self.create(by:, project: nil, spec: nil, **opts)
+      if spec.kind_of? String
+        # assume a file path (TODO: be more intelligent)
+        spec = YAML.load_file(spec)["metadata"]["name"]
+      end
+      name = spec["metadata"]["name"]
+      create_opts = { f: '-', _stdin: spec.to_json, **opts }
+      init_opts = {name: name}
+      if method_defined?(:project)
+        raise "need project parameter" unless project
+        create_opts[:n] = project.name
+        init_opts[:project] = project
+      else
+        init_opts[:env] = by.env
+      end
+
+      res = by.cli_exec(:create, **create_opts)
+      res[:resource] = self.class.new(**init_opts)
+
+      return res
     end
 
     # @return [CucuShift::ResultHash]
-    def wait_to_appear(user, seconds)
-      res = nil
-
-      success = wait_for(seconds) {
-        res = get(user: user)
-        res[:success]
+    def wait_to_appear(user, seconds = 30)
+      res = {}
+      wait_for(seconds) {
+        exists?(user: user, result: res)
       }
 
       return res
@@ -92,6 +112,7 @@ module CucuShift
         ! visible?(user: user)
       }
     end
+    alias wait_to_disappear disappeared?
 
     # TODO: implement the #status? and #wait_till_status like methods
 
