@@ -116,6 +116,7 @@ services:
       #- device_name: "/dev/sda1"
       #  ebs:
       #    volume_size: 30
+      #    volume_type: gp2
 
     config_opts:
       region: "us-east-1"

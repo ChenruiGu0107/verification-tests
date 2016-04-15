@@ -277,9 +277,10 @@ module CucuShift
     end
 
     # returns ssh connection
-    def block_until_accessible(instance, host_opts={})
-      logger.info "Waiting for instance to become accessible..."
+    def get_host(instance, host_opts={}, wait: false)
       host_opts = config[:host_opts].merge host_opts
+      host_opts[:cloud_instance] = instance
+      host_opts[:cloud_instance_name] = instance.tags.find{|t| t[:key] == "Name"}[:value]
       if instance.public_dns_name == ''
         logger.info("Reloading instance...")
         instance.reload
@@ -287,18 +288,21 @@ module CucuShift
 
       hostname = instance.public_dns_name
       host = CucuShift.const_get(config[:hosts_type]).new(hostname, host_opts)
-      logger.info("hostname: #{hostname}")
-      logger.info("Trying to connect host #{hostname}..")
-      res = host.wait_to_become_accessible(600)
+      if wait
+        logger.info("Waiting for #{hostname} to become accessible..")
+        res = host.wait_to_become_accessible(600)
 
-      unless res[:success]
-        terminate_instance(instance)
-        logger.error res[:response]
-        # raise error with a cause (ever heard of that ruby dude?)
-        raise res[:error] rescue
-              raise ScriptError, "SSH availability timed out for #{hostname}"
+        unless res[:success]
+          terminate_instance(instance)
+          logger.error res[:response]
+          # raise error with a cause (ever heard of that ruby dude?)
+          raise res[:error] rescue
+                raise ScriptError, "SSH availability timed out for #{hostname}"
+        end
+        logger.info "Instance (#{hostname}) is accessible"
+      else
+        logger.info("hostname: #{hostname}")
       end
-      logger.info "Instance (#{hostname}) is accessible"
       return host
     end
 
@@ -326,7 +330,8 @@ module CucuShift
     def launch_instances(image: nil,
                          tag_name: nil,
                          create_opts: nil,
-                         max_retries: 1)
+                         max_retries: 1,
+                         wait_accessible: false)
       # default to use rhel if no filter is specified
       instance_opt = config[:create_opts] ? config[:create_opts].dup : {}
       instance_opt.merge!(create_opts) if create_opts
@@ -372,16 +377,11 @@ module CucuShift
         tag = tag_name[i] || tag.last
         inst = instance.wait_until_running
         logger.info("Tagging instance with name #{tag} ...")
-        inst.create_tags({
-          tags: [
-            {
-              key: "Name",
-              value: tag
-            },
-          ]
-        })
+        tag_hash = {key: "Name", value: tag}
+        inst.create_tags({ tags: [ tag_hash ] })
+        inst.tags << tag_hash # odd that we need this
         # make sure we can ssh into the instance
-        host = block_until_accessible(instance)
+        host = get_host(inst, wait: wait_accessible)
         res << [inst, host]
       end
       return res

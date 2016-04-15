@@ -57,6 +57,10 @@ module CucuShift
       properties[key]
     end
 
+    def []=(key, value)
+      properties[key] = value
+    end
+
     # override for hosts that can be accessed (ssh, remote desctop, etc.)
     def accessible?
       return {
@@ -120,16 +124,28 @@ module CucuShift
     end
 
     def roles
-      @properties[:roles] ||= {}
+      @properties[:roles] ||= []
     end
 
     def has_role?(role)
       roles.include? role
     end
 
+    def has_any_role?(test_roles)
+      !has_none_of_roles?(test_roles)
+    end
+
+    def has_none_of_roles?(test_roles)
+      (roles & test_roles).empty?
+    end
+
+    def has_all_roles?(test_roles)
+      (test_roles - roles).empty?
+    end
+
     def has_hostname?
-      # TODO: support IPv6
-      ! (hostname =~ /^[0-9.]+$/)
+      # TODO: support IPv6 /\A(?:[0-9.]+|[0-9a-f:]+)\z/ or IPAddr class
+      ! (hostname =~ /\A[0-9.]+\z/)
     end
 
     # discouraged, used for updating hosts that did not have a hostname initially
@@ -585,8 +601,11 @@ module CucuShift
         str << ' ansible_ssh_user=' << sshopts[:user]
       end
       if sshopts[:private_key]
-        str << ' ansible_ssh_private_key_file="' <<
-          expand_private_path(sshopts[:private_key]) << '"'
+        # we chmod ssh key upon ssh to machine, but make sure it is done
+        #   before we run ansible (e.g. we never sshed to host before that)
+        ssh_key = expand_private_path(sshopts[:private_key])
+        File.chmod(0600, ssh_key) rescue nil
+        str << ' ansible_ssh_private_key_file="' << ssh_key << '"'
       end
       if sshopts[:password]
         pswd = sshopts[:password].gsub('"','\\"')

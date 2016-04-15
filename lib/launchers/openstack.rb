@@ -473,7 +473,7 @@ module CucuShift
       host_opts = opts[:host_opts].merge(host_opts) # merge with global opts
       names.each { |name|
         _, ip = create_instance(name, **create_opts)
-        res[name] = Host.from_ip(ip, host_opts)
+        res[name] = Host.from_ip(ip, host_opts.merge({cloud_instance_name: name}))
       }
       return res
     end

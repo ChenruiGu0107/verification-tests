@@ -6,6 +6,7 @@ module CucuShift
   class Dynect < ::OpenShift::DynectPlugin
     # FYI logger method is overridden by Helper so we should be good to go
     include Common::Helper
+    extend Common::BaseHelper
 
     def initialize(opts={})
       args = opts.dup
@@ -96,8 +97,12 @@ module CucuShift
       return data["data"]
     end
 
-    def gen_timed_random_component
+    def self.gen_timed_random_component
       return Time.now.strftime("%m%d") << "-" << rand_str(3, :dns)
+    end
+
+    def gen_timed_random_component
+      self.class.gen_timed_random_component
     end
 
     # @return [Time]
