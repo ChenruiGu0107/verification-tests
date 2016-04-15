@@ -126,3 +126,36 @@ Feature: buildconfig.feature
       | name         | ruby-sample-build-1      |
     Then the output should not contain "Source123"
 
+  # @author cryan@redhat.com
+  # @case_id 508800
+  Scenario: Warning appears if completionDeadlineSeconds set to invalid value
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sourcebuildconfig.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | source-build |
+      | p | {"spec": {"completionDeadlineSeconds": -5}} |
+    Then the step should fail
+    And the output should contain "greater than 0"
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | source-build |
+      | p | {"spec": {"completionDeadlineSeconds": "abc"}} |
+    Then the step should fail
+    And the output should contain "char"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sourcebuildconfig.json"
+    Then the step should succeed
+    Given I replace lines in "sourcebuildconfig.json":
+      | "completionDeadlineSeconds": 5, | "completionDeadlineSeconds": -5, |
+    When I run the :create client command with:
+      | f | sourcebuildconfig.json |
+    Then the step should fail
+    And the output should contain "greater than 0"
+    Given I replace lines in "sourcebuildconfig.json":
+      | "completionDeadlineSeconds": -5, | "completionDeadlineSeconds": "abc", |
+    When I run the :create client command with:
+      | f | sourcebuildconfig.json |
+    Then the step should fail
+    And the output should contain "char"
