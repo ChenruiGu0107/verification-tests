@@ -70,6 +70,7 @@ Feature:Create apps using new_app cmd feature
     When I run the :new_app client command with:
       | app_repo | https://github.com/xiuwang/ruby-hello-world.git   |
       | app_repo | https://github.com/openshift/ruby-hello-world.git |
+      | image_stream | openshift/ruby                                |
       | l        | app=test |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
@@ -86,6 +87,7 @@ Feature:Create apps using new_app cmd feature
     Then I run the :new_app client command with:
       | app_repo | https://github.com/openshift/ruby-hello-world.git |
       | app_repo | https://github.com/openshift/ruby-hello-world.git |
+      | image_stream | openshift/ruby                                |
       | l        | app=test |
     Then the step should succeed
     When I run the :get client command with:

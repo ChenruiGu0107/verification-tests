@@ -17,11 +17,6 @@ Feature: Configuration of environment variables check
     Then the step should succeed
     And the output should contain "<image>"
     When I execute on the pod:
-      | curl | -k | <%= service.url %> |
-    Then the step should succeed
-    And the output should contain:
-      | Welcome to an OpenShift v3 Demo App |
-    When I execute on the pod:
       | env |
     Then the step should succeed
     And the output should contain:
@@ -41,11 +36,6 @@ Feature: Configuration of environment variables check
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/perl516rhel7-env-sti.json |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
-    When I execute on the pod:
-      | curl | -s | <%= service.url %> |
-    Then the step should succeed
-    And the output should contain:
-      | Everything is OK |
     When I execute on the pod:
       | env |
     Then the step should succeed

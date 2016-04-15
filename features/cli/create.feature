@@ -92,23 +92,29 @@ Feature: creating 'apps' with CLI
     # access mysql through the service
     Given I use the "mysql" service
     And I reload the service
+    And I wait for the steps to pass:
+    """
     When I execute on the pod:
       | bash                                                           |
       | -c                                                             |
       | mysql -h <%= service.ip %> -utest -ptest -e 'show databases;'  |
     Then the step should succeed
     And the output should contain "test"
+    """
 
     # access web app through the service
     Given the "ruby-hello-world-1" build was created
     Given the "ruby-hello-world-1" build completed
     Given I wait for the "ruby-hello-world" service to become ready
+    And I wait for the steps to pass:
+    """
     When I execute on the pod:
       | bash                       |
       | -c                         |
       | curl -k <%= service.url %> |
     Then the step should succeed
     And the output should contain "Demo App"
+    """
 
     # delete resources by label
     When I delete all resources by labels:

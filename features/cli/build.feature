@@ -372,14 +372,16 @@ Feature: build 'apps' with CLI
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
       | follow | true |
-      | _timeout | 600 |
+      | wait   | true |
+      | _timeout | 120|
     And the output should contain:
       | Installing application source |
       | Building your Ruby application from source |
     When I run the :start_build client command with:
       | from_build | ruby22-sample-build-1 |
       | follow | true |
-      | _timeout | 600 |
+      | wait   | true |
+      | _timeout | 120|
     And the output should contain:
       | Installing application source |
       | Building your Ruby application from source |
@@ -391,8 +393,8 @@ Feature: build 'apps' with CLI
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
       | follow | true |
-      | wait | true |
-      | _timeout | 600 |
+      | wait   | true |
+      | _timeout | 120|
     Then the output should contain "unable to access 'https://nondomain.com/"
 
   # @author cryan@redhat.com
@@ -933,14 +935,18 @@ Feature: build 'apps' with CLI
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-      | follow | true |
-      | _timeout | 600 |
-    And the output should contain:
-      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares |
+    Given the "ruby22-sample-build-3" build was created
+    Given the "ruby22-sample-build-3" build completed
+    When I run the :build_logs client command with:
+      | build_name | ruby22-sample-build-3 |
+    Then the output should contain:
+      | cat /sys/fs/cgroup/memory/memory.limit_in_bytes  |
+      | 209715200                                        |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares        |
+      | 614                                              |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_period_us |
-      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us |
+      | 100000                                           |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us  |
 
   # @author cryan@redhat.com
   # @case_id 470341
