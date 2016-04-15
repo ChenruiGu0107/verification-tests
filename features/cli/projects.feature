@@ -76,15 +76,7 @@ Feature: projects related features via cli
     Then the output should contain:
       | <%= project.name %> |
       | Active              |
-    And I register clean-up steps:
-     | I run the :oadm_add_cluster_role_to_group admin command with: |
-     |   ! role_name  ! self-provisioner     !                       |
-     |   ! group_name ! system:authenticated:oauth !                       |
-     | the step should succeed                                       |
-    When I run the :oadm_remove_cluster_role_from_group admin command with:
-      | role_name  | self-provisioner     |
-      | group_name | system:authenticated:oauth |
-    Then the step should succeed
+    Given cluster role "self-provisioner" is removed from the "system:authenticated:oauth" group
     When I create a new project
     Then the step should fail
     And the output should contain:
