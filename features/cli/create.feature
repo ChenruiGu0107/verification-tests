@@ -499,3 +499,16 @@ Feature: creating 'apps' with CLI
     And the output should contain:
       | annotations -> |
       | labels -> |
+
+  # @author cryan@redhat.com
+  # @case_id 521730
+  Scenario: Can add label to app even it exists
+    Given I have a project
+    #The json file below contains several labels
+    #that are specific to this testcase
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/test/fixtures/template-with-app-label.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo | ruby-helloworld-sample |
+    Given the "ruby-sample-build-1" build finishes
