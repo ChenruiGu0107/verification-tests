@@ -486,10 +486,13 @@
   :cmd: oc set triggers
   :options:
     :all: --all=<value>
+    :auto: --auto=<value>
+    :containers: --containers=<value>
     :from_config: --from-config=<value>    
     :from_github: --from-github=<value>    
     :from_image: --from-image=<value>    
-    :from_webhook: --from-webhook=<value>    
+    :from_webhook: --from-webhook=<value>
+    :manual: --manual=<value>
     :remove: --remove=<value>
     :remove_all: --remove-all=<value>
     :resource: <value>

@@ -127,3 +127,72 @@ Feature: oc set triggers tests
     Then the expression should be true> @clipboard.triggers[3]['type'] == 'Generic' && @clipboard.triggers[3]['generic'].has_key?('secret')
     Then the expression should be true> @clipboard.triggers[4]['type'] == 'ImageChange' && @clipboard.triggers[4]['imageChange']['from']['name'] == "ruby-another-centos7:latest"
 
+  # @author pruan@redhat.com
+  # @case_id 519818
+  Scenario: `oc set triggers` for dc
+    Given I have a project
+    And I run the :create client command with:
+    	| f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+    Then the step should succeed
+    When I run the :set_triggers client command with:
+      | resource   | dc/dctest              |
+      | from_image | hello-openshift:latest |
+      | containers | dctest-1,dctest-2      |
+      | manual     | true                   |
+    Then the step should succeed
+    When I run the :set_triggers client command with:
+      | resource | dc/dctest |
+    Then the step should succeed
+    And the output should match:
+      | deploymentconfigs/dctest\\s+image\\s+hello-openshift:latest\\s+\(dctest\-1, dctest\-2\)\\s+false |
+    When I run the :set_triggers client command with:
+      | resource   | dc/dctest            |
+      | from_image | hello-openshift:tag1 |
+      | containers | dctest-1             |
+      | auto       | true                 |
+    Then the step should succeed
+    When I run the :set_triggers client command with:
+      | resource | dc/dctest |
+    Then the step should succeed
+    And the output should match:
+      | deploymentconfigs/dctest\\s+image\\s+hello-openshift:tag1\\s+\(dctest\-1\)\\s+true |
+    # remove triggers
+    When I run the :set_triggers client command with:
+      | resource    | dc/dctest |
+      | from_config | true      |
+      | remove      | true      |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | dc/dctest |
+      | o        | yaml      |
+    And the output is parsed as YAML
+    Then the expression should be true> !@result[:parsed]['spec']['triggers'].inspect.include? 'ConfigChange'
+    #remove all triggers
+    And I run the :set_triggers client command with:
+      | resource   | dc/dctest |
+      | remove_all | true      |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | dc/dctest |
+      | o        | yaml      |
+    Then the step should succeed
+    And the output is parsed as YAML
+    # empty triggers array mean all triggers are removed
+    Then the expression should be true> @result[:parsed]['spec']['triggers'].count == 0
+    # negative tests
+    When I run the :set_triggers client command with:
+      | resource   | dc/dctest              |
+      | from_image | hello-openshift:latest |
+      | containers | deadbeef     |
+    Then the step should fail
+    And the output should contain:
+      | not all container names exist: deadbeef |
+    When I run the :set_triggers client command with:
+      | resource   | dc/dctest              |
+      | from_image | hello-openshift:latest |
+      | containers | dctest-1               |
+      | auto       | true                   |
+      | manual     | true                   |
+    Then the step should fail
+    And the output should contain:
+      | error: you must specify at most one of --auto or --manual |
