@@ -1,10 +1,10 @@
 Feature: Add env variables to image feature
  # @auther dyan@redhat.com
- # @case_id 473390
- Scenario: Add env variables to mysql-55-rhel7 image
+ # @case_id 473390 500960
+ Scenario Outline: Add env variables to mysql image
    Given I have a project
    When I run the :create client command with:
-     | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-55-env-var-test.json |
+     | f | <template> |
    Then the step should succeed
    And I run the :get client command with:
      | resource | template |
@@ -70,4 +70,8 @@ Feature: Add env variables to image feature
    And the output should contain:
      | innodb_use_native_aio |
      | ON                    |
-
+   
+   Examples:
+     | template |
+     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-55-env-var-test.json |
+     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-56-env-var-test.json |
