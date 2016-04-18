@@ -121,11 +121,11 @@ Feature: oc set triggers tests
     And the output is parsed as YAML
     # just create a shorthand to save from typing long variables
     And evaluation of `@result[:parsed]['spec']['triggers']` is stored in the :triggers clipboard
-    Then the expression should be true> @clipboard.triggers[0]['type'] == 'ConfigChange'
-    Then the expression should be true> @clipboard.triggers[1]['type'] == 'ImageChange'
-    Then the expression should be true> @clipboard.triggers[2]['type'] == 'GitHub' && @clipboard.triggers[2]['github'].has_key?('secret')
-    Then the expression should be true> @clipboard.triggers[3]['type'] == 'Generic' && @clipboard.triggers[3]['generic'].has_key?('secret')
-    Then the expression should be true> @clipboard.triggers[4]['type'] == 'ImageChange' && @clipboard.triggers[4]['imageChange']['from']['name'] == "ruby-another-centos7:latest"
+    Then the expression should be true> cb.triggers[0]['type'] == 'ConfigChange'
+    Then the expression should be true> cb.triggers[1]['type'] == 'ImageChange'
+    Then the expression should be true> cb.triggers[2]['type'] == 'GitHub' && cb.triggers[2]['github'].has_key?('secret')
+    Then the expression should be true> cb.triggers[3]['type'] == 'Generic' && cb.triggers[3]['generic'].has_key?('secret')
+    Then the expression should be true> cb.triggers[4]['type'] == 'ImageChange' && cb.triggers[4]['imageChange']['from']['name'] == "ruby-another-centos7:latest"
 
   # @author pruan@redhat.com
   # @case_id 519818
