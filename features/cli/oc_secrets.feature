@@ -181,3 +181,56 @@ Feature: oc_secrets.feature
       | tmpfile1 |
       | tmpfile2 |
       
+  # @author xxia@redhat.com
+  # @case_id 484329
+  Scenario: Check name requirements for oc secret
+    Given I have a project
+    And I run the :get client command with:
+      | resource      | project |
+      | resource_name | <%= project.name %> |
+      | o             | json    |
+    Then the step should succeed
+    # Prepare filenames
+    Then I save the output to file> file-1234567890.com.json
+    And I save the output to file> file.json
+    And I save the output to file> file!@#$.json
+
+    When I run the :secrets client command with:
+      | action | new           |
+      | name   | mysecret1     |
+      | source | file!@#$.json |
+    Then the step should fail
+    And the output should match:
+      | [Ee]rror |
+      | valid |
+
+    When I run the :secrets client command with:
+      | action | new           |
+      | name   | mysecret1     |
+      | source | file-1234567890.com.json |
+    Then the step should succeed
+
+    When I run the :secrets client command with:
+      | action | new           |
+      | name   | mysecret!@#$  |
+      | source | file.json |
+    Then the step should fail
+    And the output should match:
+      | [Ii]nvalid     |
+      | DNS subdomain |
+
+    When I run the :secrets client command with:
+      | action | new       |
+      | name   | mysecret-1234567890.com  |
+      | source | file.json |
+    Then the step should succeed
+
+    # Same filenames
+    When I run the :secrets client command with:
+      | action | new       |
+      | name   | mysecret2 |
+      | source | file.json |
+      | source | file.json |
+    Then the step should fail
+    And the output should match:
+      | cannot add key file.json.*another key by that name already exist |
