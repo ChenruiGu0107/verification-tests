@@ -27,7 +27,7 @@ module CucuShift
         return false
       else
         # e.g. when called by user without rights to list Resource
-        raise "error getting to knoe #{self.class.name} existence: #{result[:response]}"
+        raise "error getting #{self.class.name} '#{name}' existence: #{result[:response]}"
       end
     end
     alias exists? visible?
@@ -82,6 +82,21 @@ module CucuShift
       }
     end
     alias wait_to_disappear disappeared?
+
+    def status_raw(user:, cached: false)
+      if cached && props[:status]
+        return props[:status]
+      else
+        get(user: user)
+        raise("#{self.class}} does not handle status") unless props[:status]
+        return props[:status]
+      end
+    end
+
+    def phase(user: , cached: false)
+      return status_raw(user: user, cached: cached)["phase"].downcase.to_sym
+      # TODO: implement `missing` phase?
+    end
 
     # TODO: implement the #status? and #wait_till_status like methods
 

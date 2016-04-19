@@ -1,14 +1,19 @@
 Given /^I have a project$/ do
   # system projects should not be selected by default
-  sys_projects = [ "default", "openshift", "openshift-infra" ]
+  sys_projects = CucuShift::Project::SYSTEM_PROJECTS
 
-  project = @projects.reverse.find {|p| p.visible?(user: user) && !sys_projects.include?(p.name)}
+  project = @projects.reverse.find {|p|
+    p.visible?(user: user) &&
+    p.active?(user: user, cached: 1) &&
+    !sys_projects.include?(p.name)}
   if project
     # project does exist as visible is doing an actual query
     # also move project up the stack
     @projects << @projects.delete(project)
   else
-    projects = user.projects
+    projects = (user.projects - sys_projects).select {|p|
+      p.active?(user: user, cached: true)
+    }
     if projects.empty?
       step 'I create a new project'
       unless @result[:success]

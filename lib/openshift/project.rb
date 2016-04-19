@@ -28,14 +28,16 @@ module CucuShift
 
     # @override
     def visible?(user:, result: {})
-      result.clear.merge!(cli_exec(as: user, key: :get, resource_name: name, resource: "project"))
-      case result[:response]
-      when /DISPLAY NAME/
+      result.clear.merge!(get(user: user))
+      if result[:success]
         return true
-      when /cannot get projects in project/, /not found/
-        return false
       else
-        raise "error getting project existence: #{result[:response]}"
+        case  result[:response]
+        when /cannot get projects in project/, /not found/
+          return false
+        else
+          raise "error getting project '#{name}' existence: #{result[:response]}"
+        end
       end
     end
     alias exists? visible?
@@ -92,7 +94,13 @@ module CucuShift
       props[:description] = h["annotations"]["openshift.io/description"]
       props[:display_name] = h["annotations"]["openshift.io/display-name"]
 
+      props[:status] = project_hash["status"]
+
       return self # mainly to help ::from_api_object
+    end
+
+    def active?(user:, cached: false)
+      phase(user: user, cached: cached) == :active
     end
 
     def delete(by:)
