@@ -19,15 +19,15 @@ module CucuShift
       raise "need to be implemented by subclass"
     end
 
-    def visible?(user:)
-      res = get(user: user)
-      if res[:success]
+    def visible?(user:, result: {})
+      result.clear.merge!(get(user: user))
+      if result[:success]
         return true
-      elsif res[:responce] =~ /not found/
+      elsif result[:responce] =~ /not found/
         return false
       else
         # e.g. when called by user without rights to list Resource
-        raise "error getting to knoe #{self.class.name} existence: #{res[:response]}"
+        raise "error getting to knoe #{self.class.name} existence: #{result[:response]}"
       end
     end
     alias exists? visible?
@@ -64,22 +64,11 @@ module CucuShift
     end
     alias reload get
 
-    # creates a new Resource CucuShift object from spec
-    # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create
-    #   Resource as
-    # @param spec [String, Hash] the API object to create PV or a JSON/YAML file
     # @return [CucuShift::ResultHash]
-    def self.create(by:, spec:, **opts)
-      raise "need to be implemented by subclass"
-    end
-
-    # @return [CucuShift::ResultHash]
-    def wait_to_appear(user, seconds)
-      res = nil
-
-      success = wait_for(seconds) {
-        res = get(user: user)
-        res[:success]
+    def wait_to_appear(user, seconds = 30)
+      res = {}
+      wait_for(seconds) {
+        exists?(user: user, result: res)
       }
 
       return res
@@ -92,6 +81,7 @@ module CucuShift
         ! visible?(user: user)
       }
     end
+    alias wait_to_disappear disappeared?
 
     # TODO: implement the #status? and #wait_till_status like methods
 

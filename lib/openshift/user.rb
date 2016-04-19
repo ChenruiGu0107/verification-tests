@@ -129,8 +129,16 @@ module CucuShift
       return Token.new_oauth_bearer_token(self) # this should add token to cache
     end
 
-    def clean_up_on_load
-      # clean-up any projects
+    def clean_projects
+      projects = projects()
+      return if projects.empty?
+
+      ## make sure we don't delete special projects due to wrong permissions
+      project_names = projects.map(&:name)
+      unless (project_names & Project::SYSTEM_PROJECTS).empty?
+        raise "system projects visible to user #{name}, clean-up too dangerous"
+      end
+
       res = cli_exec(:delete, object_type: "projects", object_name_or_id: '--all')
       # we don't need to check exit status, but some time is needed before
       #   project deleted status propagates properly
@@ -148,6 +156,10 @@ module CucuShift
           logger.warn("user has visible projects after clean-up, beware")
         end
       end
+    end
+
+    def clean_up_on_load
+      clean_projects
     end
 
     def projects

@@ -1,14 +1,17 @@
 require 'yaml'
 
-require 'base_helper'
-require 'openshift/pod'
-require 'openshift/build'
+require_relative 'build'
+require_relative 'cluster_resource'
+require_relative 'pod'
 
 module CucuShift
   # @note represents an OpenShift environment project
-  class Project
-    include Common::Helper
-    include Common::UserObjectHelper
+  class Project < ClusterResource
+    RESOURCE = "projects".freeze
+    SYSTEM_PROJECTS = [ "openshift-infra".freeze,
+                        "default".freeze,
+                        "management-infra".freeze,
+                        "openshift".freeze ]
 
     attr_reader :props, :name, :env
 
@@ -23,15 +26,16 @@ module CucuShift
       @props = props
     end
 
-    def visible?(user:)
-      res = cli_exec(as: user, key: :get, resource_name: name, resource: "project")
-      case res[:response]
-      when /DISPLAY NAME/, /not found/
+    # @override
+    def visible?(user:, result: {})
+      result.clear.merge!(cli_exec(as: user, key: :get, resource_name: name, resource: "project"))
+      case result[:response]
+      when /DISPLAY NAME/
         return true
-      when /cannot get projects in project/
+      when /cannot get projects in project/, /not found/
         return false
       else
-        raise "error getting project existence: #{res[:response]}"
+        raise "error getting project existence: #{result[:response]}"
       end
     end
     alias exists? visible?
@@ -43,27 +47,13 @@ module CucuShift
       return res
     end
 
-    def get(user:)
-      res = cli_exec(as: user, key: :get,
-                resource_name: name,
-                resource: "project",
-                output: "yaml")
-
-      if res[:success]
-        res[:parsed] = YAML.load(res[:response])
-        update_from_api_object(res[:parsed])
-      end
-
-      return res
-    end
-    alias reload get
-
     # list projects for a user
     # @param user [CucuShift::User] the user who's projects we want to list
     # @return [Array<Project>]
     # @note raises error on issues
     def self.list(user:)
-      res = user.cli_exec(:get, resource: "projects", output: "yaml")
+      res = user.cli_exec(:get, resource: "projects", output: "yaml",
+                          _quiet: true)
       if res[:success]
         list = YAML.load(res[:response])["items"]
         return list.map { |project_hash|
@@ -79,8 +69,15 @@ module CucuShift
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create project as
     # @param name [String] the name of the project
     # @return [CucuShift::ResultHash]
-    def self.create(by: , name:, **opts)
-      self.new(name: name, env: by.env).create(by: by, **opts)
+    def self.create(by:, name: nil, **opts)
+      if name
+        res = self.new(name: name, env: by.env).create(by: by, **opts)
+        res[:resource] = res[:project]
+      else
+        res = super(by: by, **opts)
+        res[:project] = res[:resource]
+      end
+      return res
     end
 
     # creates new project from an OpenShift API Project object
@@ -116,18 +113,6 @@ module CucuShift
       end
       res[:project] = self
       return res
-    end
-
-    def wait_to_be_created(user, seconds = 30)
-      return wait_for(seconds) {
-        exists?(user: user)
-      }
-    end
-
-    def wait_to_be_deleted(user, seconds = 30)
-      return wait_for(seconds) {
-        ! exists?(user: user)
-      }
     end
 
     ############### related to objects owned by this project ###############
@@ -166,16 +151,6 @@ module CucuShift
       opts = default_opts.merge cmd_opts
 
       return cli_exec(as: by, key: :delete, **opts)
-    end
-
-    ############### take care of object comparison ###############
-    def ==(p)
-      p.kind_of?(self.class) && name == p.name && env == p.env
-    end
-    alias eql? ==
-
-    def hash
-      :project.hash ^ name.hash ^ env.hash
     end
   end
 end

@@ -28,7 +28,7 @@ When /^I create a new project(?: via (.*?))?$/ do |via|
   @result = CucuShift::Project.create(by: user, name: rand_str(5, :dns), _via: (via.to_sym if via))
   if @result[:success]
     @projects << @result[:project]
-    @result[:success] = @result[:project].wait_to_be_created(user)
+    @result = @result[:project].wait_to_be_created(user)
     unless @result[:success]
       logger.warn("Project #{@result[:project].name} not visible on server after create")
     end
@@ -53,7 +53,7 @@ When /^I create a project via (.+?) with:$/ do |via, table|
   @result = CucuShift::Project.create(by: user, name: rand_str(5, :dns), _via: (via.to_sym if via), **opts)
   if @result[:success]
     @projects << @result[:project]
-    @result[:success] = @result[:project].wait_to_be_created(user)
+    @result = @result[:project].wait_to_be_created(user)
     unless @result[:success]
       logger.warn("Project #{@result[:project].name} not visible on server after create")
     end
@@ -124,7 +124,7 @@ When /^I delete the(?: "(.+?)")? project$/ do |project_name|
   @result = project(project_name).delete(by: user)
   if @result[:success]
     @projects.delete(p)
-    @result[:success] = p.wait_to_be_deleted(user)
+    @result[:success] = p.wait_to_disappear(user)
     unless @result[:success]
       logger.warn("Project #{p.name} still visible on server after delete")
     end
