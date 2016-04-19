@@ -28,8 +28,7 @@ Feature:policy related features on web console
     And the output should contain:
       | <%= project.name %> |
 
-    Given I login via web console
-    And I switch to the first user
+    Given I switch to the first user
     When I perform the :check_specific_project web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
@@ -43,10 +42,7 @@ Feature:policy related features on web console
     Then the step should succeed
 
     Given I switch to the first user
-    When I run the :delete client command with:
-      | object_type         | project             |
-      | object_name_or_id   | <%= project.name %> |
-    Then the step should succeed
+    And the project is deleted
     When I run the :get client command with:
       | resource | project  |
     Then the step should succeed
@@ -64,5 +60,3 @@ Feature:policy related features on web console
     Then the step should succeed
     And the output should not contain:
       | <%= project.name %> |
-
-
