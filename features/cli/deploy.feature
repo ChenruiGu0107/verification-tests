@@ -548,10 +548,13 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     And I wait until the status of deployment "hooks" becomes :running
+    And I wait up to 60 seconds for the steps to pass:
+    """
     And I run the :deploy client command with:
       | deployment_config | hooks |
       | cancel            ||
     Then the step should succeed
+    """
     And the output should match:
       | ancelled deployment #1 |
     And I wait until the status of deployment "hooks" becomes :failed
