@@ -815,42 +815,37 @@ Feature: deployment related features
   Scenario: View the logs of the latest deployment
     # check deploy log when deploying
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    When I run the :run client command with:
+      |  name  | hooks   |
+      | image  | openshift/hello-openshift:latest|
     Then the step should succeed
     When I run the :logs client command with:
       | resource_name | dc/hooks |
-    Then the step should succeed
-    # when deploy is completed running, check log
-    When I run the :get client command with:
-      | resource | pods |
-    Given a pod becomes ready with labels:
-      | deployment=hooks-1 |
-      | deploymentconfig=hooks |
-      | name=mysql |
-    Then the output should not contain:
-      | hooks-1-deploy   |
-      | hooks-1-hook-pre  |
-      | hooks-1-hook-post |
-    When I run the :logs client command with:
+    Then the output should match:
+      | eploying |
+
+    Given I collect the deployment log for pod "hooks-1-deploy" until it disappears
+    And I run the :logs client command with:
       | resource_name | dc/hooks |
     Then the step should succeed
-    # cancel, retry and check log
+    And the output should contain "erving"
+
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            |       |
     And I run the :deploy client command with:
       | deployment_config | hooks |
       | cancel            |       |
-    # this is to make sure the pod is gone beofre getting the log
-    Given I collect the deployment log for pod "hooks-1-deploy" until it disappears
+    Then I wait until the status of deployment "hooks" becomes :failed
     And I run the :logs client command with:
       | resource_name | dc/hooks |
     Then the step should fail
+    And the output should contain "not available"
     # check for non-existent dc
     When I run the :logs client command with:
       | resource_name | dc/nonexistent |
     Then the step should fail
+    And the output should contain "not found"
 
   # @author yinzhou@redhat.com
   # @case_id 497540
