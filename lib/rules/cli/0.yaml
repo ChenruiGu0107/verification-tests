@@ -470,6 +470,11 @@
     :for: --for=<value>
     :username: --username=<value>
     :password: --password=<value>
+:serviceaccounts_new_token: 
+  :cmd: oc serviceaccounts new-token <serviceaccount_name>
+  :options:
+    :labels: --labels=<labels>
+    :timeout: --timeout=<timeout_seconds>
 :set_env:
   :cmd: oc set env
   :options:
