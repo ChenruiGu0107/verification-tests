@@ -144,6 +144,49 @@ wait_latest_build_to_status:
     selector: 
       xpath: //span[@class='latest-build-status']/span[contains(.,'<build_status>')]
     timeout: 600
+check_buildconfig_environment:
+  action: goto_buildconfig_environment_tab
+  elements:
+  - selector:
+      xpath: //tr[@ng-repeat='env in envVars' and contains(.,'<env_var_key>')]
+  - selector:
+      xpath: //tr[@ng-repeat='env in envVars' and contains(.,'<env_var_value>')]
+check_empty_buildconfig_environment:
+  action: goto_buildconfig_environment_tab
+  elements:
+  - selector:
+      xpath: //em[contains(.,'had no environment variables')] 
+check_buildconfig_dockerfile_config:
+  action: goto_buildconfig_configuration_tab
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Dockerfile')]/following-sibling::div[contains(.,'<docker_file_content>')]
+check_build_strategy:
+  action: goto_buildconfig_configuration_tab
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Build strategy')]/following-sibling::dd[contains(.,'<build_strategy>')]
+enable_webhook_build_trigger:
+  action: check_buildconfig_edit_page_loaded_completely
+  elements:
+  - selector:
+      xpath: //input[@ng-model="triggers.present.webhook"]
+    op: click
+goto_buildconfig_environment_tab:
+  action: goto_one_buildconfig_page
+  elements:
+  - selector:
+      xpath: //uib-tab-heading[contains(.,'Environment')]
+    op: click
+  - selector:
+      xpath: //environment
+    optional: true
+delete_env_vars_on_buildconfig_edit_page:
+  action: check_buildconfig_edit_page_loaded_completely
+  elements:
+  - selector:
+      xpath: //div[@ng-controller="KeyValuesEntryController" and descendant::div[@title="<env_var_key>"]]//a[@title='Delete']
+    op: click
 count_buildconfig_image_paths:
   action: goto_buildconfig_configuration_tab
   scripts:
