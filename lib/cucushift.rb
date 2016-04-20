@@ -14,6 +14,7 @@ module CucuShift
   autoload :LocalProcess, "local_process.rb"
 
   autoload :ImageStream, "openshift/image_stream"
+  autoload :Project, "openshift/project"
 
   HOME = File.expand_path(__FILE__ + "/../..")
   PRIVATE_DIR = ENV['CUCUSHIFT_PRIVATE_DIR'] || File.expand_path(HOME + "/private")

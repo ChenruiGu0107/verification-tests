@@ -302,10 +302,14 @@ module CucuShift
       end
     end
 
+    def basename(path_or_url)
+      File.basename(URI.parse(path_or_url).path)
+    end
+
     def localize(path, basepath=nil)
       case path
       when %r{\Ahttps?://}
-        filename = File.basename(URI.parse(path).path)
+        filename = basename(path)
         unless filename =~ /\A[-a-zA-Z0-9._]+\z/
           raise "bad filename '#{filename}' for URL: #{path}"
         end
@@ -470,7 +474,7 @@ module CucuShift
         inventory_erb = ERB.new(readfile(task[:inventory], config_dir))
         inventory_erb.filename = task[:inventory]
         inventory_str = inventory_erb.result(erb_binding)
-        inventory = Host.localhost.absolutize task[:inventory]
+        inventory = Host.localhost.absolutize basename(task[:inventory])
         puts "Ansible inventory #{File.basename inventory}:\n#{inventory_str}"
         File.write(inventory, inventory_str)
         run_ansible_playbook(localize(task[:playbook]), inventory,
