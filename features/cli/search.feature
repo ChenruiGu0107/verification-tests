@@ -93,7 +93,8 @@ Feature: new-app with --search option
       |Templates (oc new-app --template=<template>)|
       |mysql-persistent|
       |Project: <%= project.name %>|
-      |MySQL database service, with persistent storage. Scaling to more than one replica is not supported|
+      |MySQL database service, with persistent storage.|
+      |Scaling to more than one replica is not supported|
     When I run the :new_app client command with:
       | search | true |
       | template | mongodb |
@@ -115,7 +116,8 @@ Feature: new-app with --search option
       |Templates (oc new-app --template=<template>)|
       |mysql-persistent|
       |Project: <%= project.name %>|
-      |MySQL database service, with persistent storage. Scaling to more than one replica is not supported|
+      |MySQL database service, with persistent storage.|
+      |Scaling to more than one replica is not supported|
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |php|
       |Project: <%= project.name %>|
@@ -132,7 +134,8 @@ Feature: new-app with --search option
       |Templates (oc new-app --template=<template>)|
       |mysql-persistent|
       |Project: <%= project.name %>|
-      |MySQL database service, with persistent storage. Scaling to more than one replica is not supported|
+      |MySQL database service, with persistent storage.|
+      |Scaling to more than one replica is not supported|
       |Image streams (oc new-app --image-stream=<image-stream> [--code=<source>])|
       |php|
       |Project: <%= project.name %>|
@@ -166,7 +169,8 @@ Feature: new-app with --search option
       |Templates (oc new-app --template=<template>)|
       |mysql-persistent|
       |Project: <%= project.name %>|
-      |MySQL database service, with persistent storage. Scaling to more than one replica is not supported|
+      |MySQL database service, with persistent storage.|
+      |Scaling to more than one replica is not supported|
 
   # @author: pruan@redhat.com
   # @case_id: 497511
