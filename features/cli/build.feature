@@ -992,3 +992,18 @@ Feature: build 'apps' with CLI
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_period_us |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us  |
     """
+
+  # @author cryan@redhat.com
+  # @case_id 482216
+  Scenario: Add ENV vars to .sti/environment when do sti build in openshift
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    Given I replace lines in "ruby20rhel7-template-sti.json":
+      | "uri": "https://github.com/openshift/ruby-hello-world.git" | "uri": "https://github.com/openshift-qe/ruby-hello-world-tc482216.git" |
+    Given I process and create "ruby20rhel7-template-sti.json"
+    Given the "ruby-sample-build-1" build completes
+    Given 2 pods become ready with labels:
+      | name=frontend |
+    When I execute on the "<%= pod.name %>" pod:
+      | env |
+    Then the output should contain "envtest1"
