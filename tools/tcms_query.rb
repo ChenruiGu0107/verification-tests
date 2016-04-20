@@ -271,7 +271,6 @@ def update_script(options)
   scenario_description = nil
   example_row_headers = []
   example_row_cells = []
-  arg_hash = {}
   tcms_arg_field = nil
   tags = ""
 
@@ -279,6 +278,7 @@ def update_script(options)
   file_contents = gparser.parse_feature(File.join(get_cucushift_home, path))
   #Iterate over each scenario in a file
   file_contents[:scenarioDefinitions].each do |scenario|
+    arg_hash = {}
     #Check for the Scenario description. If a basic scenario, take the description.
     #If a Scenario Outline, determine if it's a table argument, or just the Scenario Outline name.
     if scenario[:location][:line] == target_line_number and scenario[:type] == :Scenario
