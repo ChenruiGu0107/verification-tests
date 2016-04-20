@@ -70,7 +70,15 @@ Feature: Postgresql images test
     Then the output should contain:
       | max_connections |
       | 42              |
-
+  # @author haowang@redhat.com
+  # @case_id 511970
+  Scenario: postgresql-ephemeral with postgresql-92-rhel7 image
+    Given I have a project
+    When I run the :new_app client command with:
+        | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-92-ephemeral-template.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      |name=postgresql|
 
 
 
