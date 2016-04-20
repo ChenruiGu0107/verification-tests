@@ -15,5 +15,32 @@ module CucuShift
 
       return self # mainly to help ::from_api_object
     end
+    
+    # should be ready when all items in `Status` have tag 
+    def ready?(user:)
+      res = get(user: user)
+
+      if res[:success]
+        res[:success] =
+          res[:parsed]["status"]["tags"] &&
+          res[:parsed]["status"]["tags"].length > 0 &&
+          res[:parsed]["status"]["tags"].all? { |c|
+            c.key?("tag")
+          }
+      end
+
+      return res
+    end
+
+    def wait_till_ready(user, seconds)
+      res = nil
+      success = wait_for(seconds) {
+        res = ready?(user: user)
+        res[:success]
+      }
+
+      return res
+    end
+    
   end
 end
