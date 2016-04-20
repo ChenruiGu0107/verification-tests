@@ -10,7 +10,7 @@ Feature: Quota related scenarios
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
     """
-    When  I run the :describe client command with:
+    When I run the :describe client command with:
       | resource | quota   |
       | name     | myquota |
     Then the output should match:
@@ -20,7 +20,7 @@ Feature: Quota related scenarios
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/<path>/<file>
     Then the step should succeed
     And the pod named "<pod_name>" becomes ready
-    When  I run the :describe client command with:
+    When I run the :describe client command with:
       | resource | quota   |
       | name     | myquota |
     Then the output should match:
@@ -32,6 +32,99 @@ Feature: Quota related scenarios
       | tc509090 | pod-request-limit-valid-3.yaml | pod-request-limit-valid-3 | cpu\\s+100m\\s+30 | memory\\s+(134217728\|128Mi)\\s+16Gi |
       | tc509092 | pod-request-limit-valid-1.yaml | pod-request-limit-valid-1 | cpu\\s+500m\\s+30 | memory\\s+(536870912\|512Mi)\\s+16Gi |
       | tc509093 | pod-request-limit-valid-2.yaml | pod-request-limit-valid-2 | cpu\\s+200m\\s+30 | memory\\s+(268435456\|256Mi)\\s+16Gi |
+
+
+# @author qwang@redhat.com
+# @case_id 509096
+  @admin
+  Scenario: The quota usage should NOT be incremented if Requests and Limits aren't specified
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml |
+      | n | <%= project.name %>                                                                   |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu\\s+0\\s+30      |
+      | memory\\s+0\\s+16Gi |
+    """
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509096/pod-request-limit-invalid-1.yaml
+    Then the step should fail
+    And the output should contain:
+      | must make a non-zero request for memory since it is tracked by quota |
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu\\s+0\\s+30      |
+      | memory\\s+0\\s+16Gi |
+
+
+# @author qwang@redhat.com
+# @case_id 509095
+  @admin
+  Scenario: The quota usage should NOT be incremented if Requests > Limits
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml |
+      | n | <%= project.name %>                                                                   |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When  I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu\\s+0\\s+30      |
+      | memory\\s+0\\s+16Gi |
+    """
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509095/pod-request-limit-invalid-2.yaml
+    Then the step should fail
+    And the output should contain:
+      | spec.containers[0].resources.resources.limits[memory]: invalid value '256Mi', Details: limit cannot be smaller than request |
+      | spec.containers[0].resources.resources.limits[cpu]: invalid value '500m', Details: limit cannot be smaller than request     |
+    And I wait for the steps to pass
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu\\s+0\\s+30      |
+      | memory\\s+0\\s+16Gi |
+
+
+# @author qwang@redhat.com
+# @case_id 509094
+  @admin
+  Scenario: The quota usage should NOT be incremented if Requests = Limits but exceeding hard quota
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml |
+      | n | <%= project.name %>                                                                   |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When  I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu\\s+0\\s+30      |
+      | memory\\s+0\\s+16Gi |
+    """
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509094/pod-request-limit-invalid-3.yaml
+    Then the step should fail
+    And the output should contain:
+      | unable to admit pod without exceeding quota for resource cpu:  limited to 30 but require 35 to succeed |
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu\\s+0\\s+30      |
+      | memory\\s+0\\s+16Gi |
+
 
   # @author xiaocwan@redhat.com
   # @case_id 516457
