@@ -331,3 +331,28 @@ Feature: create app on web console related
       | env |
       | name: DCvalue |
       | value: dcone  |
+
+  # @author yapei@redhat.com
+  # @case_id 515804
+  Scenario: v1bata3 API version is not supported
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    Given I replace resource "template" named "ruby-helloworld-sample" saving edit to "tempsti.json":
+      | v1 | v1beta3 |
+    When I perform the :create_app_from_template web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | ruby-helloworld-sample |
+      | namespace     | <%= project.name %>    |
+      | param_one     | :null  |
+      | param_two     | :null  |
+      | param_three   | :null  |
+      | param_four    | :null  |
+      | param_five    | :null  |
+      | label_key     | label1 |
+      | label_value   | test   |
+    Then the step should fail
+    When I get the html of the web page
+    Then the output should match: 
+      | API version v1beta3.* is not supported |
