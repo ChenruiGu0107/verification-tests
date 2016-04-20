@@ -497,3 +497,14 @@ Feature: projects related features via cli
       | resource      | project/<%= project.name %>      |
       | p             | {"metadata":{"name":"new-name"}} |
     Then the step should fail
+  
+  # @author wjiang@redhat.com
+  # @case_id 516715
+  Scenario: serviceaccount can not create projectrequest
+    Given I have a project
+    Given I find a bearer token of the default service account
+    And I switch to the default service account
+    When I create a new project
+    Then the step should fail
+    And the output should contain:
+      |You may not request a new project via this API|
