@@ -504,8 +504,7 @@ Feature: projects related features via cli
     Given I have a project
     Given I find a bearer token of the default service account
     And I switch to the default service account
-    When I run the :new_project client command with:
-      |project_name|<%= rand_str(6, :dns) %>|
+    When I create a new project
     Then the step should fail
     And the output should contain:
       |You may not request a new project via this API|
