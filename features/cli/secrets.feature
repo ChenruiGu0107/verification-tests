@@ -172,3 +172,48 @@ Feature: secrets related scenarios
     And the output should contain:
       |ssh-privatekey:|
       |ca.crt:        |
+
+
+  # @author qwang@redhat.com
+  # @case_id 483168
+  Scenario: Pods do not have access to each other's secrets in the same namespace
+    Given I have a project
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483168/first-secret.json |
+    And I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483168/second-secret.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483168/first-secret-pod.yaml |
+    And I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483168/second-secret-pod.yaml |
+    Then the step should succeed
+    Given the pod named "first-secret-pod" status becomes :running
+    When I run the :exec client command with:
+      | pod              | first-secret-pod            |
+      | exec_command     | cat                         |
+      | exec_command_arg | /etc/secret-volume/username |
+    Then the output should contain:
+      | first-username |
+    When I run the :exec client command with:
+      | pod              | first-secret-pod            |
+      | exec_command     | cat                         |
+      | exec_command_arg | /etc/secret-volume/password |
+    Then the output should contain:
+      | password-first |
+    Given the pod named "second-secret-pod" status becomes :running
+    When I run the :exec client command with:
+      | pod              | second-secret-pod           |
+      | exec_command     | cat                         |
+      | exec_command_arg | /etc/secret-volume/username |
+    Then the output should contain:
+      | second-username |
+    When I run the :exec client command with:
+      | pod              | second-secret-pod           |
+      | exec_command     | cat                         |
+      | exec_command_arg | /etc/secret-volume/password |
+    Then the output should contain:
+      | password-second |
+
+
+
