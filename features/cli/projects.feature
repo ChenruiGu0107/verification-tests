@@ -502,12 +502,10 @@ Feature: projects related features via cli
   # @case_id 516715
   Scenario: serviceaccount can not create projectrequest
     Given I have a project
-    When I run the :serviceaccounts_new_token client command with:
-      |serviceaccount_name|default|
-    Then the step should succeed
+    Given I find a bearer token of the default service account
+    And I switch to the default service account
     When I run the :new_project client command with:
       |project_name|<%= rand_str(6, :dns) %>|
-      |token| <%= @result[:response] %>|
     Then the step should fail
     And the output should contain:
       |You may not request a new project via this API|
