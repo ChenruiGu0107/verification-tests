@@ -174,3 +174,26 @@ Feature: general_db.feature
     """
     And the output should contain:
       | 2.6 |
+  # @author haowang@redhat.com
+  # @case_id 519474
+  @admin
+  @destructive
+  Scenario: mongodb 24 with persistent volume
+    Given I have a project
+    And I have a NFS service in the project
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    Then I run the :new_app client command with:
+      | file     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mongodb24-persistent-template.json |
+      | param    | MONGODB_ADMIN_PASSWORD=admin |
+    And a pod becomes ready with labels:
+      | name=mongodb          |
+      | deployment=mongodb-1  |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | mongodb24 | mongo admin -u admin -padmin  --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 2.4 |
