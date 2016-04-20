@@ -184,3 +184,30 @@ Feature: Testing route
     And evaluation of `@result[:parsed]['items'][0]['spec']['host']` is stored in the :header_test clipboard
     When I wait for a server to become available via the route
     Then the output should contain ";host=<%= cb.header_test %>;proto=http"
+
+
+
+    # @author: yadu@redhat.com
+    # @case_id: 511645 
+    Scenario: Config insecureEdgeTerminationPolicy to an invalid value for route
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name     | myroute      |
+      | hostname | www.edge.com |
+      | service  | service-unsecure |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | route              |
+      | resource_name | myroute            |
+      | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Abc"}}} |
+    And the output should contain:
+      | invalid value for InsecureEdgeTerminationPolicy option, acceptable values are None, Allow, Redirect, or empty |
+
+ 
