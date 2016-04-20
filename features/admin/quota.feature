@@ -198,7 +198,7 @@ Feature: Quota related scenarios
     Then the output should match:
       | pods "database-\\d+-deploy" is forbidden |
       | aximum memory usage.*is 750Mi.*limit is 796917760 |
-      | aximum cpu usage.*is 500m.*limit is 1100m |
+      | aximum cpu usage.*is 500m.*limit is 1020m |
 
   # @author xiaocwan@redhat.com
   # @case_id 470361
