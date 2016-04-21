@@ -154,24 +154,25 @@ Feature: oc_volume.feature
       |   name: git                                                |
 
   # @author xxia@redhat.com
+  # @author jhou@redhat.com
   # @case_id 491432
   Scenario: Add volume to all available resources in the namespace
     Given I have a project
     When I run the :run client command with:
-      | name         | myrc1                 |
-      | image | <%= project_docker_repo %>openshift/hello-openshift |
-      | generator    | run-controller/v1     |
+      | name      | myrc1                                               |
+      | image     | aosqe/hello-openshift                               |
+      | generator | run-controller/v1                                   |
     Then the step should succeed
     When I run the :run client command with:
-      | name         | myrc2                 |
-      | image | <%= project_docker_repo %>openshift/hello-openshift |
-      | generator    | run-controller/v1     |
+      | name      | myrc2                                               |
+      | image     | aosqe/hello-openshift                               |
+      | generator | run-controller/v1                                   |
     Then the step should succeed
     When I run the :run client command with:
-      | name         | myrc3                 |
-      | image | <%= project_docker_repo %>openshift/hello-openshift |
-      | generator    | run-controller/v1     |
-      | -l           | label=myrc3           |
+      | name      | myrc3                 |
+      | image     | aosqe/hello-openshift |
+      | generator | run-controller/v1     |
+      | -l        | label=myrc3           |
     Then the step should succeed
     When I run the :secrets client command with:
       | action | new             |
