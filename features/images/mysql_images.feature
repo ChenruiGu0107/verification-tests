@@ -141,3 +141,66 @@ Feature: mysql_images.feature
         """
         And the output should contain:
             | 10 |
+
+    # @author haowang@redhat.com
+    # @case_id 508132
+    @admin
+    @destructive
+    Scenario: Data remains after pod being re-created for clustered mysql - mysql-55-rhel7
+        Given I have a project
+        And I have a NFS service in the project
+        Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
+            | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+        And I run the :new_app client command with:
+            | file | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
+            | param    | MYSQL_USER=user              |
+            | param    | MYSQL_PASSWORD=user          |
+        And a pod becomes ready with labels:
+            | name=mysql-slave         |
+            | deployment=mysql-slave-1 |
+        And a pod becomes ready with labels:
+            | name=mysql-master         |
+            | deployment=mysql-master-1 |
+        And I wait up to 60 seconds for the steps to pass:
+        """
+        When I execute on the pod:
+            | scl | enable | mysql55 | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'create table test (age INTEGER(32));' |
+        Then the step should succeed
+        """
+        And I wait up to 60 seconds for the steps to pass:
+        """
+        When I execute on the pod:
+            | scl | enable | mysql55 | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'insert into test VALUES(10);' |
+        Then the step should succeed
+        """
+        And I wait up to 60 seconds for the steps to pass:
+        """
+        When I execute on the pod:
+            | scl | enable | mysql55 | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'select * from  test;' |
+        Then the step should succeed
+        """
+        And the output should contain:
+            | 10 |
+        When I run the :deploy client command with:
+            | deployment_config | mysql-master   |
+            | latest            |               |
+        Then the step should succeed
+        When I run the :deploy client command with:
+            | deployment_config | mysql-slave   |
+            | latest            |               |
+        Then the step should succeed
+        And a pod becomes ready with labels:
+            | name=mysql-slave         |
+            | deployment=mysql-slave-2 |
+        And a pod becomes ready with labels:
+            | name=mysql-master         |
+            | deployment=mysql-master-2 |
+        And I wait up to 60 seconds for the steps to pass:
+        """
+        When I execute on the pod:
+            | scl | enable | mysql55 | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'select * from  test;' |
+        Then the step should succeed
+        """
+        And the output should contain:
+            | 10 |
+
