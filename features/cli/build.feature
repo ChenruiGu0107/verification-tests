@@ -1007,3 +1007,29 @@ Feature: build 'apps' with CLI
     When I execute on the "<%= pod.name %>" pod:
       | env |
     Then the output should contain "envtest1"
+
+  # @author cryan@redhat.com
+  # @case_id 521602
+  Scenario: Overriding builder image scripts in buildConfig under invalid proxy
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"scripts": "https://raw.githubusercontent.com/dongboyan77/builderimage-scripts/master/bin"}}}} |
+      Then the step should succeed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"env": [{"name":"http_proxy","value":"http://incorrect.proxy:3128"}]}}}} |
+      Then the step should succeed
+      When I run the :start_build client command with:
+        | buildconfig | ruby-sample-build |
+      Then the step should succeed
+      Given the "ruby-sample-build-1" build finishes
+      When I run the :logs client command with:
+        | resource_name | build/ruby-sample-build-2 |
+      Then the step should succeed
+      And the output should contain "error connecting to proxy"
