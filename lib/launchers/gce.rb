@@ -127,7 +127,10 @@ module CucuShift
       end
       return create.map.with_index do |create_op, index|
         logger.info "waiting for instance #{names[index]}"
-        res = operation_from_hash(wait_status(create_op, "DONE"))
+        op_report_str = "create #{names[index]} op"
+        res = operation_from_hash(wait_status(create_op, "DONE",
+                                              timeout: 180,
+                                              obj_report_name: op_report_str))
         if res.error
           res.error.errors.each do |e|
             logger.error e.message
@@ -340,7 +343,10 @@ module CucuShift
 
     # get API object selfLink intil status becomes as requested
     # @param object [#self_link, String] if string, we use it as the desired URL
-    def wait_status(object, status, timeout: 120, interval: 10)
+    # @param obj_report_name [String] optionally the human readable name of
+    #   object to make error message easier to understand
+    def wait_status(object, status, timeout: 120, interval: 10,
+                    obj_report_name: nil)
       url = object.respond_to?(:self_link) ? object.self_link : object
       return if object.respond_to?(:status) && object.status == status
       last_status = nil
@@ -354,7 +360,7 @@ module CucuShift
       if success
         return ohash
       else
-        raise "#{url} never reached #{status.inspect}, only #{last_status.inspect}"
+        raise "#{obj_report_name || url} never reached #{status.inspect}, only #{last_status.inspect}"
       end
     end
 
