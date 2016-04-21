@@ -217,3 +217,37 @@ Feature: secrets related scenarios
 
 
 
+  # @author xxia@redhat.com
+  # @case_id 491403
+  Scenario: There should be a dockcfg secret generated automatically based on the serviceaccount token
+    Given I have a project
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | secret              |
+    Then the output should contain:
+      | default-dockercfg-  |
+      | deployer-dockercfg- |
+      | builder-dockercfg-  |
+    """
+    When I run the :describe client command with:
+      | resource | secret              |
+      | name     | default-dockercfg-  |
+    Then the step should succeed
+    And the output should contain:
+      | openshift.io/token-secret.name=default-token- |
+
+    When I run the :describe client command with:
+      | resource | secret               |
+      | name     | deployer-dockercfg-  |
+    Then the step should succeed
+    And the output should contain:
+      | openshift.io/token-secret.name=deployer-token- |
+
+    When I run the :describe client command with:
+      | resource | secret               |
+      | name     | builder-dockercfg-   |
+    Then the step should succeed
+    And the output should contain:
+      | openshift.io/token-secret.name=builder-token- |
+
