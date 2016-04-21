@@ -314,7 +314,11 @@ def update_script(options)
         example_row_headers.each_with_index do |value, index|
           arg_hash[value] = example_row_cells[index]
         end
-        tcms_arg_field = arg_hash.to_json
+        if arg_hash.empty?
+          arg_hash = nil
+        else
+          tcms_arg_field = arg_hash.to_json
+        end
       end
     end
   end
@@ -435,7 +439,7 @@ def report_logs(options, status='FAILED')
 
   filtered_cases.sort.each do | author, testcases |
     testcases.each do | tc |
-      log_url = nil 
+      log_url = nil
       log_url = tcms.get_latest_log_url(tc["case_run_id"]) if options.author == tc['auto_by'] or options.author.nil?
       tc[:bugs] = bugs_hash[tc["case_run_id"]] if caserun_list.include? tc["case_run_id"]
       tc[:log_url] = log_url
