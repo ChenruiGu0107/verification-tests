@@ -42,6 +42,10 @@ module CucuShift
         end
       end
 
+      def expand_path(path, public_safe: true)
+        expand_private_path(path, public_safe: public_safe)
+      end
+
       # @return the desired base docker image tag prefix based on
       #   PRODUCT_DOCKER_REPO env variable
       def product_docker_repo
