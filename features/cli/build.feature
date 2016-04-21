@@ -239,7 +239,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
 
-    Given the "ruby-sample-build-1" build becomes running
+    Given the "ruby-sample-build-1" build becomes :running
     Then the step should succeed
     When I run the :cancel_build client command with:
       | build_name | ruby-sample-build-1 |
