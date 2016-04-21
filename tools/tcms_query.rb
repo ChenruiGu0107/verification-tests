@@ -278,6 +278,7 @@ def update_script(options)
   file_contents = gparser.parse_feature(File.join(get_cucushift_home, path))
   #Iterate over each scenario in a file
   file_contents[:scenarioDefinitions].each do |scenario|
+    # need to clear out arg_hash each iteration.
     arg_hash = {}
     #Check for the Scenario description. If a basic scenario, take the description.
     #If a Scenario Outline, determine if it's a table argument, or just the Scenario Outline name.
