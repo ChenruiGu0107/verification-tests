@@ -143,16 +143,16 @@ Feature: mysql_images.feature
             | 10 |
 
     # @author haowang@redhat.com
-    # @case_id 508132
+    # @case_id 508132 508134
     @admin
     @destructive
-    Scenario: Data remains after pod being re-created for clustered mysql - mysql-55-rhel7
+    Scenario Outline: Data remains after pod being re-created for clustered mysql - mysql-55-rhel7 mysql-56-rhel7
         Given I have a project
         And I have a NFS service in the project
         Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
             | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
         And I run the :new_app client command with:
-            | file | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
+            | file     | <template>                   |
             | param    | MYSQL_USER=user              |
             | param    | MYSQL_PASSWORD=user          |
         And a pod becomes ready with labels:
@@ -164,19 +164,19 @@ Feature: mysql_images.feature
         And I wait up to 60 seconds for the steps to pass:
         """
         When I execute on the pod:
-            | scl | enable | mysql55 | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'create table test (age INTEGER(32));' |
+            | scl | enable | <sclname> | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'create table test (age INTEGER(32));' |
         Then the step should succeed
         """
         And I wait up to 60 seconds for the steps to pass:
         """
         When I execute on the pod:
-            | scl | enable | mysql55 | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'insert into test VALUES(10);' |
+            | scl | enable | <sclname> | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'insert into test VALUES(10);' |
         Then the step should succeed
         """
         And I wait up to 60 seconds for the steps to pass:
         """
         When I execute on the pod:
-            | scl | enable | mysql55 | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'select * from  test;' |
+            | scl | enable | <sclname> | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'select * from  test;' |
         Then the step should succeed
         """
         And the output should contain:
@@ -198,9 +198,14 @@ Feature: mysql_images.feature
         And I wait up to 60 seconds for the steps to pass:
         """
         When I execute on the pod:
-            | scl | enable | mysql55 | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'select * from  test;' |
+            | scl | enable | <sclname> | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'select * from  test;' |
         Then the step should succeed
         """
         And the output should contain:
             | 10 |
+        Examples:
+            | sclname    | template |
+            | mysql55    | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
+            | rh-mysql56 | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
+
 
