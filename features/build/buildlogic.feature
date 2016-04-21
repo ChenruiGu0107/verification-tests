@@ -94,7 +94,6 @@ Feature: buildlogic.feature
       | resource | bc |
       | o | yaml |
     Then the step should succeed
-    And the output is parsed as YAML
     Then the output should contain:
       | dockerfile: |
       |  FROM centos:7 |
