@@ -81,36 +81,6 @@ Feature: projects related features via cli
     Then the step should fail
     And the output should contain:
       | You may not request a new project via this API |
-  # @author pruan@redhat.com
-  # @case_id 470729
-  Scenario: Should use and show the existing projects after the user login
-    Given I create a new project
-    And evaluation of `user.projects` is stored in the :user1_proj clipboard
-    And I switch to the second user
-    And I create a new project
-    And I create a new project
-    And I create a new project
-    And evaluation of `user.projects` is stored in the :user2_proj clipboard
-    And I switch to the first user
-    And I run the :login client command with:
-      | u | <%= @user.name %>     |
-    Then the output should contain:
-      | Using project "<%= cb.user1_proj[0].name %>" |
-    And I switch to the second user
-    And I run the :login client command with:
-      | u | <%= @user.name %>     |
-    Then the output should contain:
-      | Using project "<%= project.name %>" |
-      | You have access to the following projects and can switch between them with 'oc project <projectname>': |
-      | * <%= cb.user2_proj[0].name %> |
-      | * <%= cb.user2_proj[1].name %> |
-      | * <%= cb.user2_proj[2].name %> |
-    And I switch to the third user
-    And I run the :login client command with:
-      | u | <%= @user.name %>     |
-    Then the step should succeed
-    And the output should contain:
-      | You don't have any projects. You can try to create a new project |
 
   # @author pruan@redhat.com
   # @case_id 470730
@@ -508,3 +478,42 @@ Feature: projects related features via cli
     Then the step should fail
     And the output should contain:
       |You may not request a new project via this API|
+
+  # @author xxia@redhat.com
+  # @case_id 470729
+  Scenario: Should use and show the existing projects after the user login
+    Given I create 3 new projects
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %>         |
+      | token    | <%= user.get_bearer_token.token %>  |
+      | insecure | true                  |
+      | config   | new_config_file       |
+    Then the step should succeed
+    And the output should contain:
+      | You have access to the following projects and can switch between them with 'oc project <projectname>': |
+      | * <%= @projects[0].name %> |
+      | * <%= @projects[1].name %> |
+      | * <%= @projects[2].name %> |
+
+    # 'Using project "<project>" uses the alphabetically least project name when config is newly created 
+    # So can not be hard coded as <%= project.name %>
+    And the output should match:
+      | Using project "(<%= @projects[0].name %>\|<%= @projects[1].name %>\|<%= @projects[2].name %>)" |
+
+    When I switch to the second user
+    # Due to FW, to cover bug 1263562, script must use --config=<the same file> for oc login here
+    And I run the :login client command with:
+      | token    | <%= user.get_bearer_token.token %>  |
+      | config   | new_config_file       |
+    Then the step should succeed
+    And the output should contain:
+      | You don't have any projects. You can try to create a new project |
+
+    #  Similarly, use --config=<the same file> here
+    When I run the :config_view client command with:
+      | config   | new_config_file       |
+    Then the step should succeed
+    And the output should match:
+      |   name: .+/.+/<%= user(0, switch: false).name %> |
+      | current-context: /.+/<%= user.name %>            |
+
