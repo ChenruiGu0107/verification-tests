@@ -294,6 +294,10 @@ check_deleted_bc_warn_message:
   elements:
   - selector:
       xpath: //strong[@ng-if='alert.message' and contains(.,'This build configuration has been deleted')]
+check_build_has_started_message:
+  elements:
+  - selector:
+      xpath: //strong[@ng-if='alert.message' and contains(.,'has started')]
 save_buildconfig_changes:
   elements:
   - selector:

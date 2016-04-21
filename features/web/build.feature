@@ -371,3 +371,25 @@ Feature: build related feature on web console
     And the output should not contain:
       | dockertest |
       | testname   |
+
+  # @author pruan@redhat.com
+  # @case_id 515770
+  Scenario: Check build trends chart when no buiilds under buildconfig
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sourcebuildconfig.json |
+    Then the step should succeed
+    When I perform the :check_empty_buildconfig_environment web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | source-build        |
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should contain:
+      | No builds. |
+    And I click the following "button" element:
+      | text  | Start Build           |
+      | class | btn-default hidden-xs |
+    Then the step should succeed
+    When I run the :check_build_has_started_message web console action
+    Then the step should succeed
+    
