@@ -817,7 +817,7 @@ Feature: deployment related features
     Given I have a project
     When I run the :run client command with:
       |  name  | hooks   |
-      | image  | openshift/hello-openshift:latest|
+      | image  | <%= project_docker_repo %>openshift/hello-openshift:latest|
     Then the step should succeed
     When I run the :logs client command with:
       | resource_name | dc/hooks |
