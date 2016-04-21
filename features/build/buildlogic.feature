@@ -82,3 +82,27 @@ Feature: buildlogic.feature
     When I run the :build_logs client command with:
       | build_name | myapp-1 |
     Then the output should contain "Build does not have an Output defined, no output image was pushed to a registry"
+    # @author yantan@redhat.com
+    # @case_id 520291
+    Scenario: Create new build config use dockerfile with source repo
+    Given I have a project
+    And I run the :new_build client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | D | FROM centos:7\nRUN yum install -y httpd |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | bc |
+      | o | yaml |
+    Then the step should succeed
+    Then the output should contain:
+      | dockerfile: |
+      |  FROM centos:7 |
+      |  RUN yum install -y httpd |
+      | git: |
+      | uri: https://github.com/openshift/ruby-hello-world |
+      | secrets: [] |
+      | type: Git |
+    When I run the :get client command with:
+      | resource | build |
+    Then the "ruby-hello-world-1" build completed
+
