@@ -558,6 +558,7 @@ Feature: build 'apps' with CLI
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
     Then the step should succeed
+    Then the "ruby-sample-build-1" build completed
     And I run the :delete client command with:
       | object_type | buildConfig |
       | object_name_or_id | ruby-sample-build |
