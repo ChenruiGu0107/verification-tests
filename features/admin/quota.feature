@@ -167,3 +167,59 @@ Feature: Quota related scenarios
       | cpu\\s*100m      |
       | memory\\s*100Mi  |
     """
+
+  # @author qwang@redhat.com
+  # @case_id 519921
+  @admin
+  Scenario: The quota status is calculated ASAP when editing its quota spec
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml |
+      | n | <%= project.name %>                                                                   |
+    Then the step should succeed
+    When  I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu.*30                    |
+      | memory.*16Gi               |
+      | persistentvolumeclaims.*20 |
+      | pods.*20                   |
+      | replicationcontrollers.*30 |
+      | resourcequotas.*1          |
+      | secrets.*15                |
+      | services.*10               |
+    When I run the :patch admin command with:
+      | resource | quota |
+      | resource_name | myquota |
+      | namespace | <%= project.name %> |
+      | p | {"spec":{"hard":{"cpu":"40"}}} |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu.*40 |
+    When I run the :patch admin command with:
+      | resource | quota |
+      | resource_name | myquota |
+      | namespace | <%= project.name %> |
+      | p | {"spec":{"hard":{"memory":"20Gi"}}} |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | memory.*20Gi |
+    When I run the :patch admin command with:
+      | resource | quota |
+      | resource_name | myquota |
+      | namespace | <%= project.name %> |
+      | p | {"spec":{"hard":{"services":"100"}}} |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | services.*100 |
+
