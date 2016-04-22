@@ -151,6 +151,9 @@ Feature: mysql_images.feature
         And I have a NFS service in the project
         Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
             | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+        And I download a file from "<file>"
+        And I replace lines in "mysql_replica.json":
+            | <tobereplaced> | <%= product_docker_repo %><replaced> |
         And I run the :new_app client command with:
             | file     | <template>                   |
             | param    | MYSQL_USER=user              |
@@ -161,51 +164,129 @@ Feature: mysql_images.feature
         And a pod becomes ready with labels:
             | name=mysql-master         |
             | deployment=mysql-master-1 |
-        And I wait up to 60 seconds for the steps to pass:
+        Given evaluation of `@pods.last.name` is stored in the :masterpod clipboard
+        And I wait up to 200 seconds for the steps to pass:
         """
         When I execute on the pod:
-            | scl | enable | <sclname> | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'create table test (age INTEGER(32));' |
+            | scl | enable | <sclname> | mysql -h <%= cb.masterpod %> -u user -puser -D userdb -e 'create table test (age INTEGER(32));' |
         Then the step should succeed
         """
         And I wait up to 60 seconds for the steps to pass:
         """
         When I execute on the pod:
-            | scl | enable | <sclname> | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'insert into test VALUES(10);' |
+            | scl | enable | <sclname> | mysql -h <%= cb.masterpod %> -u user -puser -D userdb -e 'insert into test VALUES(10);' |
         Then the step should succeed
         """
         And I wait up to 60 seconds for the steps to pass:
         """
         When I execute on the pod:
-            | scl | enable | <sclname> | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'select * from  test;' |
+            | scl | enable | <sclname> | mysql -h <%= cb.masterpod %> -u user -puser -D userdb -e 'select * from  test;' |
         Then the step should succeed
         """
         And the output should contain:
             | 10 |
-        When I run the :deploy client command with:
-            | deployment_config | mysql-master   |
-            | latest            |               |
-        Then the step should succeed
-        When I run the :deploy client command with:
-            | deployment_config | mysql-slave   |
-            | latest            |               |
+        When I run the :delete client command with:
+            | object_type | pods   |
+            | all         |        |
         Then the step should succeed
         And a pod becomes ready with labels:
             | name=mysql-slave         |
-            | deployment=mysql-slave-2 |
+            | deployment=mysql-slave-1 |
         And a pod becomes ready with labels:
             | name=mysql-master         |
-            | deployment=mysql-master-2 |
-        And I wait up to 60 seconds for the steps to pass:
+            | deployment=mysql-master-1 |
+        Given evaluation of `@pods.last.name` is stored in the :masterpod clipboard
+        And I wait up to 200 seconds for the steps to pass:
         """
         When I execute on the pod:
-            | scl | enable | <sclname> | mysql -h 127.0.0.1 -u user -puser -D userdb -e 'select * from  test;' |
+            | scl | enable | <sclname> | mysql -h <%= cb.masterpod %> -u user -puser -D userdb -e 'select * from  test;' |
         Then the step should succeed
         """
         And the output should contain:
             | 10 |
         Examples:
-            | sclname    | template |
-            | mysql55    | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
-            | rh-mysql56 | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
-
-
+            | sclname    |tobereplaced              | replaced                   | template       | file                                                                                             |
+            | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
+            | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
+    # @author haowang@redhat.com
+    # @case_id 508136 508138
+    @admin
+    @destructive
+    Scenario Outline: Data remains after pod being scaled up from 0 for clustered mysql - mysql-55-rhel7 mysql-57-rhel7
+        Given I have a project
+        And I have a NFS service in the project
+        Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
+            | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+        And I download a file from "<file>"
+        And I replace lines in "mysql_replica.json":
+            | <tobereplaced> | <%= product_docker_repo %><replaced> |
+        And I run the :new_app client command with:
+            | file     | <template>                   |
+            | param    | MYSQL_USER=user              |
+            | param    | MYSQL_PASSWORD=user          |
+        And a pod becomes ready with labels:
+            | name=mysql-slave         |
+            | deployment=mysql-slave-1 |
+        And a pod becomes ready with labels:
+            | name=mysql-master         |
+            | deployment=mysql-master-1 |
+        Given evaluation of `@pods.last.name` is stored in the :masterpod clipboard
+        And I wait up to 200 seconds for the steps to pass:
+        """
+        When I execute on the pod:
+            | scl | enable | <sclname> | mysql -h <%= cb.masterpod %> -u user -puser -D userdb -e 'create table test (age INTEGER(32));' |
+        Then the step should succeed
+        """
+        And I wait up to 60 seconds for the steps to pass:
+        """
+        When I execute on the pod:
+            | scl | enable | <sclname> | mysql -h <%= cb.masterpod %> -u user -puser -D userdb -e 'insert into test VALUES(10);' |
+        Then the step should succeed
+        """
+        And I wait up to 60 seconds for the steps to pass:
+        """
+        When I execute on the pod:
+            | scl | enable | <sclname> | mysql -h <%= cb.masterpod %> -u user -puser -D userdb -e 'select * from  test;' |
+        Then the step should succeed
+        """
+        And the output should contain:
+            | 10 |
+        When I run the :scale client command with:
+            | resource | replicationcontrollers  |
+            | name     | mysql-master-1          |
+            | replicas | 0                       |
+        Then the step should succeed
+        When I run the :scale client command with:
+            | resource | replicationcontrollers  |
+            | name     | mysql-slave-1          |
+            | replicas | 0                  |
+        Then the step should succeed
+        When I run the :scale client command with:
+            | resource | replicationcontrollers  |
+            | name     | mysql-master-1          |
+            | replicas | 1                       |
+        Then the step should succeed
+        When I run the :scale client command with:
+            | resource | replicationcontrollers  |
+            | name     | mysql-slave-1          |
+            | replicas | 1                  |
+        Then the step should succeed
+        And a pod becomes ready with labels:
+            | name=mysql-slave         |
+            | deployment=mysql-slave-1 |
+        And a pod becomes ready with labels:
+            | name=mysql-master         |
+            | deployment=mysql-master-1 |
+        Given evaluation of `@pods.last.name` is stored in the :masterpod clipboard
+        And I wait up to 200 seconds for the steps to pass:
+        """
+        When I execute on the pod:
+            | scl | enable | <sclname> | mysql -h <%= cb.masterpod %> -u user -puser -D userdb -e 'select * from  test;' |
+        Then the step should succeed
+        """
+        And the output should contain:
+            | 10 |
+        Examples:
+            | sclname    |tobereplaced              | replaced                   | template       | file                                                                                             |
+            | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
+            | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
