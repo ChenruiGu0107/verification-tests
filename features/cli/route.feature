@@ -56,22 +56,17 @@ Feature: route related features via cli
       | name | myapp |
     Then the step should succeed
     And the "myapp-1" build completed
-    When I run the :expose client command with:
-      | resource | svc |
-      | resource_name | myapp |
+    When I expose the "myapp" service
     Then the step should succeed
-    And the output should contain "app=test-perl"
-    When I run the :get client command with:
-      | resource | route |
-    Then the step should succeed
+    Given I get project routes
     And the output should contain "app=test-perl"
     When I run the :describe client command with:
       | resource | route |
       | name | myapp |
     Then the step should succeed
     And the output should match "Labels:\s+app=test-perl"
-    When I use the "myapp" service
-    Then the output should contain "OpenShift"
+    When I open web server via the "myapp" route
+    Then the output should contain "Everything is fine"
 
   # @author cryan@redhat.com
   # @case_id 470699
@@ -84,4 +79,3 @@ Feature: route related features via cli
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json |
     Then the step should fail
     And the output should contain "routes "route" already exists"
-
