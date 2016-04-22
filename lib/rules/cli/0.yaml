@@ -203,6 +203,11 @@
     :selector: --selector=<value>
     :output: --output=<value>
     :o: -o <value>
+:create_route_edge:
+  :cmd: oc create route edge <name>
+  :options:
+    :hostname: --hostname=<value>
+    :service: --service=<value>
 :get:
   :cmd: oc get <resource>
   :options:
