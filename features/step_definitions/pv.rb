@@ -21,8 +21,8 @@ When /^admin creates a PV from "([^"]*)" where:$/ do |location, table|
     pv_hash = YAML.load_file location
   end
 
-  name = rand_str(5, :dns952) # use random name to avoid interference
-  pv_hash["metadata"]["name"] = name
+  # use random name to avoid interference
+  pv_hash["metadata"]["name"] = rand_str(5, :dns952)
   if pv_hash["kind"] != 'PersistentVolume'
     raise "why do you give me #{pv_hash["kind"]}"
   end
