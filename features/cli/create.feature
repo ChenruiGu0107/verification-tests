@@ -399,14 +399,18 @@ Feature: creating 'apps' with CLI
       | insecure_registry | true |
     Then the step should fail
     And the output should contain:
-      | metadata.labels| Invalid value| name#@ |
+      | metadata.labels|
+      | Invalid value|
+      | name#@ |
     And I run the :new_app client command with:
       | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
       | labels | name=@#@ |
       | insecure_registry | true |
     Then the step should fail
     And the output should contain:
-      | metadata.labels| Invalid value| @#@ |
+      | metadata.labels|
+      | Invalid value|
+      | @#@ |
     And I run the :new_app client command with:
       | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
       | labels | name=value1,name=value2,name=deadbeef010203 |

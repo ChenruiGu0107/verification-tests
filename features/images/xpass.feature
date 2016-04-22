@@ -113,7 +113,7 @@ Feature: xpass.feature
     And  the output should contain "JBoss"
 
   # @author xiuwang@redhat.com
-  # @case_id 498007 498009
+  # @case_id 498007 498009 517526 517527
   Scenario Outline: Create tomcat7/tomcat8 application via installed template 
     Given I have a project
     When I run the :create client command with:
@@ -137,6 +137,8 @@ Feature: xpass.feature
       | template                |
       | jws30-tomcat7-basic-s2i |
       | jws30-tomcat8-basic-s2i |
+      | jws30-tomcat7-https-s2i |
+      | jws30-tomcat8-https-s2i |
 
   # @author xiuwang@redhat.com
   # @case_id 498011 498018
