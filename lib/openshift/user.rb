@@ -130,6 +130,7 @@ module CucuShift
     end
 
     def clean_projects
+      logger.info "cleaning-up user #{name} projects"
       projects = projects()
       return if projects.empty?
 
@@ -144,16 +145,10 @@ module CucuShift
       #   project deleted status propagates properly
       unless res[:response].include? "No resource"
         logger.info("waiting up to 30 seconds for user clean-up to take place")
-        success = wait_for(30) {
-          res = cli_exec(:get, resource: "projects", o: :yaml)
-          if res[:success]
-            next YAML.load(res[:response])['items'].empty?
-          else
-            raise "cannot list user projects? too bad to continue"
-          end
-        }
+        visible_projects = []
+        success = wait_for(30) { (visible_projects = projects()).empty? }
         unless success
-          logger.warn("user has visible projects after clean-up, beware")
+          logger.warn("user #{name} has visible projects after clean-up, beware: #{visible_projects.map(&:name)}")
         end
       end
     end
@@ -162,6 +157,7 @@ module CucuShift
       clean_projects
     end
 
+    # @return [Array<Project>]
     def projects
       Project.list(user: self)
     end
