@@ -1034,3 +1034,51 @@ Feature: build 'apps' with CLI
         | resource_name | build/ruby-sample-build-2 |
       Then the step should succeed
       And the output should contain "error connecting to proxy"
+
+  # @author cryan@redhat.com
+  # @case_id 517970
+  Scenario: Specify build apiVersion for custom build
+    Given I have a project
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json"
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completes
+    Given I get project buildconfigs
+    Then the output should contain:
+      | ruby-sample-build |
+      | Custom |
+    When I run the :describe client command with:
+      | resource | buildconfig |
+      | name | ruby-sample-build |
+    Then the output should contain:
+      | ruby-sample-build |
+      | Custom |
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"spec": {"source": {"git": {"uri": "https://github.com/openshift-qe/ruby-hello-world"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build completes
+    When I run the :env client command with:
+      | resource | pod/ruby-sample-build-2-build |
+      | list | true |
+    Then the step should succeed
+    And the output should contain:
+      | "apiVersion":"v1" |
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"spec": {"strategy": {"customStrategy": {"buildAPIVersion": "v1beta3"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-3" build completes
+    When I run the :env client command with:
+      | resource | pod/ruby-sample-build-3-build |
+      | list | true |
+    Then the step should succeed
+    And the output should contain:
+      | "apiVersion":"v1beta3" |
