@@ -1246,3 +1246,38 @@ Feature: deployment related features
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :complete
     And I wait until number of replicas match "0" for replicationController "hooks"
+
+    # @author yinzhou@redhat.com
+    # @case_id 481677
+    @admin
+    Scenario: DeploymentConfig should allow valid value of resource requirements
+    Given I have a project
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml
+    Then the step should succeed
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
+      | n | <%= project.name %>  |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | pod    |
+      | resource_name | hooks-1-deploy  |
+      | o             | yaml   |
+    Then the output should match:
+      | \\s+limits:\n\\s+cpu: 30m\n\\s+memory: 150Mi\n   |
+      | \\s+requests:\n\\s+cpu: 30m\n\\s+memory: 150Mi\n |
+    """
+    And I wait until the status of deployment "hooks" becomes :complete
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | pod    |
+      | o             | yaml   |
+    Then the output should match:
+      | \\s+limits:\n\\s+cpu: 400m\n\\s+memory: 200Mi\n   |
+      | \\s+requests:\n\\s+cpu: 400m\n\\s+memory: 200Mi\n |
+    """
+
