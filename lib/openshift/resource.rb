@@ -32,7 +32,7 @@ module CucuShift
     end
     alias exists? visible?
 
-    def get_checked(user:)
+    def get_checked(user:, quiet: false)
       res = get(user: user)
       unless res[:success]
         logger.error(res[:response])
@@ -41,13 +41,14 @@ module CucuShift
       return res
     end
 
-    def get(user:)
+    def get(user:, quiet: false)
       get_opts = {
         as: user, key: :get,
         resource_name: name,
         resource: self.class::RESOURCE,
         output: "yaml"
       }
+      get_opts[:_quiet] = true if quiet
 
       if defined? project
         get_opts[:namespace] = project.name

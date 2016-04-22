@@ -39,8 +39,8 @@ module CucuShift
 
     # @return [CucuShift::ResultHash] with :success depending on status=True
     #   with type=Ready
-    def ready?(user:)
-      res = get(user: user)
+    def ready?(user:, quiet: false)
+      res = get(user: user, quiet: quiet)
 
       if res[:success]
         res[:success] =
@@ -99,7 +99,7 @@ module CucuShift
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if pod status is what's expected
-    def status?(user:, status:)
+    def status?(user:, status:, quiet: false)
       #The 'missing' status is used a a dummy value; when some pods become
       #ready, they die (build/deploy), and we still want to count them as well.
       statuses = {
@@ -111,7 +111,7 @@ module CucuShift
         unknown: "Unknown"
       }
 
-      res = get(user: user)
+      res = get(user: user, quiet: quiet)
       status = status.respond_to?(:map) ?
           status.map{ |s| statuses[s] } :
           [ statuses[status.to_sym] ]
@@ -155,12 +155,22 @@ module CucuShift
                                                                   get_opts: {})
       res = nil
 
+      unless get_opts.has_key? :_quiet
+        get_opts[:_quiet] = true
+      end
+
       wait_for(seconds) {
         res = get_matching(user: user, project: project, get_opts: get_opts) { |p, p_hash|
           yield p, p_hash
         }
         res[:matching].size >= count
       }
+
+      if get_opts[:_quiet]
+        # user didn't see any output, lets print used command
+        logger.info res[:command]
+      end
+      logger.info "returned #{res[:pods].size} pods, #{res[:matching].size} matching"
 
       return res
     end
