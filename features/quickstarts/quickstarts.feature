@@ -122,3 +122,13 @@ Feature: quickstarts.feature
     """
     Then the output should contain "Welcome to your CakePHP application on OpenShift"  
 
+  # @author dyan@redhat.com
+  # @case_id 479059
+  Scenario: Use the template parameters for the entire config
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc479059/application-template-parameters.json |
+    Then the step should succeed
+    And the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+
