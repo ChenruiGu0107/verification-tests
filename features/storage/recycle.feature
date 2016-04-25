@@ -13,10 +13,11 @@ Feature: Persistent Volume Recycling
         Then the step should succeed
 
         # Creating PV and PVC
-        Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto-nfs-recycle-rwo.json" where:
+        Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
           | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+          | ["metadata"]["name"]      | nfs                              |
         When I run the :create client command with:
-          | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
+          | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc.json |
         Then the step should succeed
 
         Given the PV becomes :bound
