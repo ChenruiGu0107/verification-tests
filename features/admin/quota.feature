@@ -55,7 +55,7 @@ Feature: Quota related scenarios
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509096/pod-request-limit-invalid-1.yaml
     Then the step should fail
     And the output should contain:
-      | must make a non-zero request for memory since it is tracked by quota |
+      | Failed quota: myquota: must specify cpu,memory |
     When I run the :describe client command with:
       | resource | quota   |
       | name     | myquota |
@@ -85,8 +85,8 @@ Feature: Quota related scenarios
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509095/pod-request-limit-invalid-2.yaml
     Then the step should fail
     And the output should contain:
-      | spec.containers[0].resources.resources.limits[memory]: invalid value '256Mi', Details: limit cannot be smaller than request |
-      | spec.containers[0].resources.resources.limits[cpu]: invalid value '500m', Details: limit cannot be smaller than request     |
+      | spec.containers[0].resources.limits[cpu]: Invalid value: "500m": must be greater than or equal to request     |
+      | spec.containers[0].resources.limits[memory]: Invalid value: "256Mi": must be greater than or equal to request |
     And I wait for the steps to pass
     When I run the :describe client command with:
       | resource | quota   |
@@ -117,7 +117,7 @@ Feature: Quota related scenarios
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509094/pod-request-limit-invalid-3.yaml
     Then the step should fail
     And the output should contain:
-      | unable to admit pod without exceeding quota for resource cpu:  limited to 30 but require 35 to succeed |
+      | Exceeded quota |
     When I run the :describe client command with:
       | resource | quota   |
       | name     | myquota |
