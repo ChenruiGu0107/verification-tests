@@ -594,12 +594,14 @@
     :admin: --admin=<value>
     :node_selector: --node-selector=<value>
 :oadm_policy_add_scc_to_user:
-  :cmd: oadm policy add-scc-to-user <scc> <user_name>
+  :cmd: oadm policy add-scc-to-user <scc>
   :options:
+    :user_name: <value>
     :serviceaccount: --serviceaccount=<value>
 :oadm_policy_remove_scc_from_user:
-  :cmd: oadm policy remove-scc-from-user <scc> <user_name>
+  :cmd: oadm policy remove-scc-from-user <scc>
   :options:
+    :user_name: <value>
     :serviceaccount: --serviceaccount=<value>
 :oadm_policy_add_scc_to_group:
   :cmd: oadm policy add-scc-to-group <scc> <group_name>
