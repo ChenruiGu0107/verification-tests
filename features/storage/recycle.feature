@@ -45,17 +45,10 @@ Feature: Persistent Volume Recycling
           | object_name_or_id | nfsc |
         Then the step should succeed
 
-        Given I wait for the steps to pass:
-        """
-        Then the PV becomes :available
-        """
+        Given the PV becomes :available
 
-        When I run the :exec client command with:
-          | pod | nfs-server |
-          | oc_opts_end | |
-          | exec_command | ls |
-          | exec_command_arg | -a |
-          | exec_command_arg | /mnt/data/ |
+        When I execute on the "nfs-server" pod:
+          | ls | -a | /mnt/data/ |
         Then the output should not contain:
           | file |
           | folder |
