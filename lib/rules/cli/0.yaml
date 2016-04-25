@@ -506,6 +506,29 @@
     :e: -e <value>
     :o: -o <value>
     :f: -f <value>
+:set_probe:
+  :cmd: oc set probe <global_options> <options>
+  :options:
+    :all: --all
+    :oc_opts_end: --
+    :exec_command: <value>
+    :failure_threshold: --failure-threshold=<value>
+    :get_url: --get-url=<value>
+    :initial_delay_seconds: --initial-delay-seconds=<value>
+    :liveness: --liveness
+    :no_headers: --no-headers
+    :open_tcp: --open-tcp=<value>
+    :output_version: --output-version=<value>
+    :period_seconds: --period-seconds=<value>
+    :readiness: --readiness
+    :remove: --remove
+    :resource: <value>
+    :success_threshold: --success-threshold=<value>
+    :timeout_seconds: --timeout-seconds=<value>
+    :c: -c <value>
+    :f: -f <value>
+    :l: -l <value>
+    :o: -o <value>
 :set_triggers:
   :cmd: oc set triggers
   :options:
