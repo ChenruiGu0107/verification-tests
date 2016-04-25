@@ -6,6 +6,7 @@ Given /^a pod becomes ready with labels:$/ do |table|
   @result = CucuShift::Pod.wait_for_labeled(*labels, user: user, project: project, seconds: pod_timeout)
 
   if @result[:matching].empty?
+    logger.info("Pod list:\n#{@result[:response]}")
     logger.error("Waiting for labeled pods futile: #{labels.join(",")}")
     raise "See log, waiting for labeled pods futile: #{labels.join(',')}"
   end

@@ -87,8 +87,16 @@ module CucuShift
       # TODO: are there non-http routes? we may try to auto-sense the proto
       res = nil
       timeout ||= 15*60
+
+      iterations = 0
+      start_time = monotonic_seconds
+
       wait_for(timeout) {
-        res = CucuShift::Http.get(url: proto + "://" + dns(by: by))
+        res = CucuShift::Http.get(url: proto + "://" + dns(by: by), quiet: true)
+
+        logger.info res[:instruction] if iterations == 0
+        iterations = iterations + 1
+
         if SocketError === res[:error] &&
             res[:error].to_s.include?('getaddrinfo')
           # unlikely to ever succeed when we can't resolve domain name
@@ -96,6 +104,11 @@ module CucuShift
         end
         res[:success]
       }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration} seconds:\n" <<
+        res[:response]
+
       return res
     end
 

@@ -66,10 +66,20 @@ module CucuShift
     #   call
     def wait_till_ready(user, seconds)
       res = nil
+      iterations = 0
+      start_time = monotonic_seconds
       success = wait_for(seconds) {
-        res = ready?(user: user)
+        res = ready?(user: user, quiet: true)
+
+        logger.info res[:command] if iterations == 0
+        iterations = iterations + 1
+
         res[:success]
       }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration} seconds:\n" <<
+        res[:response]
 
       return res
     end
@@ -77,10 +87,21 @@ module CucuShift
     # this useful if you wait for a pod to die
     def wait_till_not_ready(user, seconds)
       res = nil
+      iterations = 0
+      start_time = monotonic_seconds
+
       success = wait_for(seconds) {
         res = ready?(user: user)
+
+        logger.info res[:command] if iterations == 0
+        iterations = iterations + 1
+
         ! res[:success]
       }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration} seconds:\n" <<
+        res[:response]
 
       res[:success] = success
       return res
@@ -88,12 +109,24 @@ module CucuShift
 
     def wait_till_status(status, user, seconds=15*60)
       res = nil
+      iterations = 0
+      start_time = monotonic_seconds
+
       success = wait_for(seconds) {
         res = status?(user: user, status: status)
+
+        logger.info res[:command] if iterations == 0
+        iterations = iterations + 1
+
         # if pod completed there's no chance to change status so exit early
         break if [:failed, :unknown].include?(res[:matched_status])
         res[:success]
       }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration} seconds:\n" <<
+        res[:response]
+
       return res
     end
 
