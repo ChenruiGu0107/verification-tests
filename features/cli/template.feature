@@ -183,3 +183,63 @@ Feature: template related scnearios:
       |MYSQL_PASSWORD=cat |
       |MYSQL_DATABASE=mine|
 
+  # @author cryan@redhat.com
+  # @case_id 474056
+  # @bug_id 1330323
+  Scenario: Add arbitrary labels to all objects during template processing
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
+    Given an 8 characters random string of type :dns is stored into the :lbl1 clipboard
+    Given I replace lines in "ruby22rhel7-template-sti.json":
+      | "template": "application-template-stibuild" | "<%= cb.lbl1 %>": "application-template-stibuild" |
+    When I process and create "ruby22rhel7-template-sti.json"
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build completes
+    When I run the :get client command with:
+      | resource | services |
+      | l | <%= cb.lbl1 %>=application-template-stibuild |
+    Then the output should contain:
+      | database |
+      | frontend |
+    When I run the :get client command with:
+      | resource | buildconfigs |
+      | l | <%= cb.lbl1 %>=application-template-stibuild |
+    Then the output should contain:
+      | ruby22-sample-build |
+    When I run the :get client command with:
+      | resource | deploymentconfigs |
+      | l | <%= cb.lbl1 %>=application-template-stibuild |
+    Then the output should contain:
+      | database |
+      | frontend |
+    When I run the :get client command with:
+      | resource | builds |
+      | l | <%= cb.lbl1 %>=application-template-stibuild |
+    Then the output should contain:
+      | ruby22-sample-build-1 |
+    When I run the :get client command with:
+      | resource | is |
+      | l | <%= cb.lbl1 %>=application-template-stibuild |
+    Then the output should contain:
+      | origin-ruby22-sample |
+    When I run the :get client command with:
+      | resource | routes |
+      | l | <%= cb.lbl1 %>=application-template-stibuild |
+    Then the output should contain:
+      | route-edge |
+    Given I replace lines in "ruby22rhel7-template-sti.json":
+      | "<%= cb.lbl1 %>": "application-template-stibuild" | "label!!": "value1" |
+    When I process and create "ruby22rhel7-template-sti.json"
+    Then the step should fail
+    Given I replace lines in "ruby22rhel7-template-sti.json":
+      | "label!!": "value1" | "-test": "value2" |
+    When I process and create "ruby22rhel7-template-sti.json"
+    Then the step should fail
+    Given I replace lines in "ruby22rhel7-template-sti.json":
+      | "-test": "value2" | "test/one/two": "value3" |
+    When I process and create "ruby22rhel7-template-sti.json"
+    Then the step should fail
+    Given I replace lines in "ruby22rhel7-template-sti.json":
+      | "test/one/two": "value3" | "test-/one": "value4" |
+    When I process and create "ruby22rhel7-template-sti.json"
+    Then the step should fail
