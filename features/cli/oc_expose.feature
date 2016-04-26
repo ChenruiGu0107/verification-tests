@@ -56,7 +56,7 @@ Feature: oc_expose.feature
     Then the step should succeed
     And the output should contain "Everything is fine."
 
-  # @author xiuwang@redhat.comi
+  # @author xiuwang@redhat.com
   # @case_id 483240
   Scenario: Expose services from pod
     Given I have a project
@@ -80,3 +80,42 @@ Feature: oc_expose.feature
       | curl | -k | <%= service.url %> |
     Then the step should succeed
     And the output should contain "Everything is fine."
+
+  # @author yadu@redhat.com
+  # @case_id 515695
+  Scenario: Use service port name as route port.targetPort after 'oc expose service'
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/515695/svc_with_name.yaml |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | svc      |
+      | resource name | frontend |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | route    |
+      | resource_name | frontend |
+      | template      | "{{.spec.port.targetPort}}" |
+    Then the step should succeed
+    And the output should contain "web"
+    When I run the :delete client command with:
+      | object_type       | service  |
+      | object_name_or_id | frontend |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | route    |
+      | object_name_or_id | frontend |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/515695/svc_without_name.yaml |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | svc      |
+      | resource name | frontend |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | route    |
+      | resource_name | frontend |
+      | template      | "{{.spec.port.targetPort}}" |
+    Then the step should succeed
+    And the output should not contain "web"
