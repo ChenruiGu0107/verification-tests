@@ -86,7 +86,7 @@ Given /^cluster role #{QUOTED} is (added to|removed from) the #{QUOTED} (user|gr
         _res = _admin.cli_exec(_teardown_command, **_opts)
         _res[:success]
       }
-      raise "could not restore user #{which} #{type}" unless _res[:success]
+      raise "could not restore role of #{which} #{type}" unless _res[:success]
     }
   else
     raise "could not give #{which} #{type} the #{role} role"

@@ -61,3 +61,59 @@ Given /^scc policy #{QUOTED} is restored after scenario$/ do |policy|
     raise "cannot restore #{policy}" unless @result[:success]
   }
 end
+
+Given /^SCC #{QUOTED} is (added to|removed from) the #{QUOTED} (user|group|service account)$/ do |scc, op, which, type|
+  ensure_admin_tagged
+  _admin = admin
+
+  case type
+  when "group"
+    _add_command = :oadm_policy_add_scc_to_group
+    _remove_command = :oadm_policy_remove_scc_from_group
+    _opts = {scc: scc, group_name: which}
+  when "user", "service account"
+    _opts = {scc: scc}
+    if type == "user"
+      _user_name = user(word_to_num(which), switch: false).name
+      _opts[:user_name] = _user_name
+    else
+      _user_name = service_account(which, switch: false).shortname
+      _opts[:serviceaccount] = _user_name
+    end
+
+    _add_command = :oadm_policy_add_scc_to_user
+    _remove_command = :oadm_policy_remove_scc_from_user
+  else
+    raise "what is this subject type #{type}?!"
+  end
+
+  case op
+  when "added to"
+    _command = _add_command
+    _teardown_command = _remove_command
+  when "removed from"
+    _command = _remove_command
+    _teardown_command = _add_command
+  else
+    raise "unknown scc operation #{op}"
+  end
+
+  # we reattempt multiple times to workaround races where cluster policy is
+  #   concurrently changed by another test executor
+  wait_for(60, interval: 5) {
+    @result = _admin.cli_exec(_command, **_opts)
+    @result[:success]
+  }
+  if @result[:success]
+    teardown_add {
+      _res = nil
+      wait_for(60, interval: 5) {
+        _res = _admin.cli_exec(_teardown_command, **_opts)
+        _res[:success]
+      }
+      raise "could not restore SCC of #{which} #{type}" unless _res[:success]
+    }
+  else
+    raise "could not give #{which} #{type} the #{scc} scc"
+  end
+end
