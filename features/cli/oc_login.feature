@@ -33,9 +33,8 @@ Feature: oc_login.feature
   # @case_id 510552
   Scenario: Logout of the active session by clearing saved tokens
     Given I log the message> this scenario can pass only when user accounts have a known password
-    When I switch to the first user
     When I run the :login client command with:
-      | server   | https://<%= env.master_hosts[0].hostname %>:8443/ |
+      | server   | <%= env.api_endpoint_url %> |
       | u | <%= user.name %>     |
       | p | <%= user.password %> |
       | config   | dummy.kubeconfig |
@@ -65,7 +64,7 @@ Feature: oc_login.feature
       | resource | project |
       | token    | <%= cb.token %>  |
       | config   | dummy.kubeconfig |
-    Then the step should not succeed
+    Then the step should fail
 
   # @author pruan@redhat.com
   # @case_id 476032
