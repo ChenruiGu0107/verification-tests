@@ -171,18 +171,7 @@ Feature: projects related features via cli
       | mysql-55-centos7 |
       | ruby-hello-world |
     ### delete this project,make sure project is deleted
-    When I run the :delete client command with:
-      | object_type       | project |
-      | object_name_or_id | <%= cb.prj_name %> |
-    Then the step should succeed
-    Given I wait up to 60 seconds for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource | projects |
-    Then the step should succeed
-    And the output should not contain:
-      | <%= cb.prj_name %> |
-    """
+    Given the "<%= cb.prj_name %>" project is deleted
     ### get project resource after project is deleted
     When I run the :get client command with:
       | resource | deploymentconfigs |
@@ -206,13 +195,15 @@ Feature: projects related features via cli
       | mysql-55-centos7-1-deploy |
 
     ### create a project with same name, no context for this new one
+    And I wait for the steps to pass:
+    """
     Given I run the :new_project client command with:
       | project_name | <%= cb.prj_name %> |
     And the step should succeed
+    """
     Then I run the :status client command
     And the output should contain:
-      | In project <%= cb.prj_name %> on server |
-      | You have no services, deployment configs |
+      | no services, deployment configs |
 
   # @author cryan@redhat.com
   # @case_id 481697
