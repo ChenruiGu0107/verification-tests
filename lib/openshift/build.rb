@@ -2,23 +2,11 @@ require 'common'
 
 module CucuShift
   # represents an OpenShift build
-  class Build
-    include Common::Helper
-    include Common::UserObjectHelper
+  class Build < ProjectResource
     extend  Common::BaseHelper
 
+    RESOURCE = "builds"
     TERMINAL_STATUSES = [:complete, :failed, :cancelled, :error]
-
-    attr_reader :props, :name, :project
-
-    # @param name [String] name of the build
-    # @param project [CucuShift::Project] the project this build belongs to
-    # @param props [Hash] additional properties of the build
-    def initialize(name:, project:, props: {})
-      @name = name
-      @project = project
-      @props = props
-    end
 
     # creates new Build object from an OpenShift API Pod object
     def self.from_api_object(project, build_hash)
@@ -46,32 +34,6 @@ module CucuShift
       props[:spec] = s
 
       return self # mainly to help ::from_api_object
-    end
-
-    def get(user:)
-      res = cli_exec(as: user, key: :get, n: project.name,
-                resource_name: name,
-                resource: "build",
-                output: "yaml")
-
-      if res[:success]
-        res[:parsed] = YAML.load(res[:response])
-        update_from_api_object(res[:parsed])
-      end
-
-      return res
-    end
-    alias reload get
-
-    def exists?(user:)
-      res = get(user: user)
-
-      unless res[:success] || res[:response].include?("not found")
-        raise "error getting build from API"
-      end
-
-      res[:success] = ! res[:success]
-      return res
     end
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
@@ -196,16 +158,6 @@ module CucuShift
       return true
     end
 
-    def wait_to_appear(user, seconds)
-      res = nil
-      success = wait_for(seconds) {
-        res = get(user: user)
-        res[:success]
-      }
-
-      return res
-    end
-
     # @param labels [String, Array<String,String>] labels to filter on, read
     #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
     def self.wait_for_labeled(*labels, user:, project:, seconds:)
@@ -257,19 +209,6 @@ module CucuShift
     end
     class << self
       alias list get_matching
-    end
-
-    def env
-      project.env
-    end
-
-    def ==(b)
-      b.kind_of?(self.class) && name == b.name && project == b.project
-    end
-    alias eql? ==
-
-    def hash
-      :build.hash ^ name.hash ^ project.hash
     end
   end
 end
