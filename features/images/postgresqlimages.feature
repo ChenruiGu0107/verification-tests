@@ -63,13 +63,14 @@ Feature: Postgresql images test
       | 64MB           |
 
     And I execute on the pod:
-      | bash | 
-      | -c | 
+      | bash |
+      | -c |
       |psql -c 'show max_connections;'|
      Then the step should succeed
     Then the output should contain:
       | max_connections |
       | 42              |
+
   # @author haowang@redhat.com
   # @case_id 511970
   Scenario: postgresql-ephemeral with postgresql-92-rhel7 image
@@ -80,15 +81,21 @@ Feature: Postgresql images test
     And a pod becomes ready with labels:
       |name=postgresql|
 
-
-
-
-
-
-
-
-
-
-
-
- 
+  # @author cryan@redhat.com
+  # @case_id 508069
+  Scenario: Create nodejs postgresql applicaion - nodejs-010-rhel7
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/nodejs-template-stibuild.json |
+    Then the step should succeed
+    Given the "nodejs-sample-build-1" build completes
+    Given I get project routes
+    Then the output should contain "route-edge"
+    Given 2 pods become ready with labels:
+      | deployment=frontend-1 |
+    When I execute on the "<%= pod.name %>" pod:
+      | curl | localhost:8080 |
+    Then the output should contain:
+      | Hello |
+      | 0.10  |
+      | 9.2   |
