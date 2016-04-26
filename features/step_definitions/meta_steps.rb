@@ -78,7 +78,8 @@ Given /^I wait(?: up to ([0-9]+) seconds)? for the steps to pass:$/ do |seconds,
     error = nil
     success = wait_for(seconds) {
       repetitions += 1
-      logger.info("Beginning step repetition: #{repetitions}")
+      # this message needs to be disabled as it defeats deduping
+      # logger.info("Beginning step repetition: #{repetitions}")
       begin
         steps steps_string
         true

@@ -106,8 +106,8 @@ module CucuShift
       }
 
       duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration} seconds:\n" <<
-        res[:response]
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        " seconds:\n#{res[:response]}"
 
       return res
     end

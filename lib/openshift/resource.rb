@@ -19,8 +19,8 @@ module CucuShift
       raise "need to be implemented by subclass"
     end
 
-    def visible?(user:, result: {})
-      result.clear.merge!(get(user: user))
+    def visible?(user:, result: {}, quiet: false)
+      result.clear.merge!(get(user: user, quiet: quiet))
       if result[:success]
         return true
       elsif result[:responce] =~ /not found/
@@ -68,9 +68,21 @@ module CucuShift
     # @return [CucuShift::ResultHash]
     def wait_to_appear(user, seconds = 30)
       res = {}
+      iterations = 0
+      start_time = monotonic_seconds
+
       wait_for(seconds) {
-        exists?(user: user, result: res)
+        exists?(user: user, result: res, quiet: true)
+
+        logger.info res[:command] if iterations == 0
+        iterations = iterations + 1
+
+        res[:success]
       }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
 
       return res
     end
@@ -78,9 +90,24 @@ module CucuShift
 
     # @return [Boolean]
     def disappeared?(user, seconds = 30)
-      return wait_for(seconds) {
-        ! visible?(user: user)
+      res = {}
+      iterations = 0
+      start_time = monotonic_seconds
+
+      wait_for(seconds) {
+        visible?(user: user, result: res, quiet: true)
+
+        logger.info res[:command] if iterations == 0
+        iterations = iterations + 1
+
+        !res[:success]
       }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
+
+      return !res[:success]
     end
     alias wait_to_disappear disappeared?
 

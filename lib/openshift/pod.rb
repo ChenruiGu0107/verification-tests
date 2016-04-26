@@ -78,8 +78,8 @@ module CucuShift
       }
 
       duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration} seconds:\n" <<
-        res[:response]
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
 
       return res
     end
@@ -100,8 +100,8 @@ module CucuShift
       }
 
       duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration} seconds:\n" <<
-        res[:response]
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
 
       res[:success] = success
       return res
@@ -124,8 +124,8 @@ module CucuShift
       }
 
       duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration} seconds:\n" <<
-        res[:response]
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
 
       return res
     end
@@ -201,9 +201,9 @@ module CucuShift
 
       if get_opts[:_quiet]
         # user didn't see any output, lets print used command
-        logger.info res[:command]
+        user.logger.info res[:command]
       end
-      logger.info "returned #{res[:pods].size} pods, #{res[:matching].size} matching"
+      user.logger.info "returned #{res[:pods].size} pods, #{res[:matching].size} matching"
 
       return res
     end
