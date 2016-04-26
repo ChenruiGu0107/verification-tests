@@ -23,3 +23,38 @@ Feature: phpimages.feature
       | Warning |
       | Permission |
       | error |
+
+  # @author wzheng@redhat.com
+  # @case_id 526520,526521
+  Scenario Outline: Update php image to autoconfigure based on available memory
+    Given I have a project
+    When I run the :create client command with:
+      | f |  <template1> |
+    Then the step should succeed
+    And the "php-app-1" build was created
+    And the "php-app-1" build completed
+    And a pod becomes ready with labels:
+      | app=php-app |
+    When I execute on the pod:
+      | cat | /opt/app-root/etc/conf.d/50-mpm-tuning.conf |
+    Then the output should contain:
+      | MaxRequestWorkers     17 |
+      | ServerLimit           17 |
+    When I delete all resources by labels:
+      | app=php-app |
+    When I run the :create client command with:
+      | f |  <template2> |
+    Then the step should succeed
+    And the "php-app-1" build was created
+    And the "php-app-1" build completed
+    And a pod becomes ready with labels:
+      | app=php-app |
+    When I execute on the pod:
+      | cat | /opt/app-root/etc/conf.d/50-mpm-tuning.conf |
+    Then the output should contain:
+      | MaxRequestWorkers     256 |
+      | ServerLimit           256 |
+   Examples:
+     | template1 | template2| 
+     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526520/php-55-template.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526520/php-55-template-noresource.json |
+     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526521/php-56-template.json |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526521/php-56-template-noresource.json |
