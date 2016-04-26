@@ -44,25 +44,6 @@ module CucuShift
       return res
     end
 
-    # list objects
-    # @param user [CucuShift::User] the user who can list these resources
-    # @param project [CucuShift::Project] the project to list objects in
-    # @return [Array<Resource>]
-    # @note raises error on issues
-    def self.list(user:, project:)
-      res = user.cli_exec(:get, resource: self.class::RESOURCE, output: "yaml",
-                          namespace: project.name)
-      if res[:success]
-        list = YAML.load(res[:response])["items"]
-        return list.map { |resource_hash|
-          self.from_api_object(project, resource_hash)
-        }
-      else
-        logger.error(res[:response])
-        raise "error getting #{self.class::RESOURCE}"
-      end
-    end
-
     # creates new ProjectResource from an OpenShift API object hash
     def self.from_api_object(project, resource_hash)
       self.new(project: project, name: resource_hash["metadata"]["name"]).
@@ -72,6 +53,74 @@ module CucuShift
     def delete(by:)
       cli_exec(as: by, key: :delete, object_type: self.class::RESOURCE,
                object_name_or_id: name, namespace: project.name)
+    end
+
+    # @param labels [String, Array<String,String>] labels to filter on, read
+    #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
+    # @param count [Integer] minimum number of pods to wait for
+    def self.wait_for_labeled(*labels, count: 1, user:, project:, seconds:)
+      wait_for_matching(user: user, project: project, seconds: seconds,
+                        get_opts: {l: selector_to_label_arr(*labels)},
+                        count: count) { true }
+    end
+
+    # @param count [Integer] minimum number of items to wait for
+    # @yield block that selects items by returning true; see [#get_matching]
+    # @return [CucuShift::ResultHash] with :matching key being array of matched
+    #   resource items;
+    def self.wait_for_matching(count: 1, user:, project:, seconds:,
+                                                                  get_opts: {})
+      res = nil
+
+      unless get_opts.has_key? :_quiet
+        get_opts[:_quiet] = true
+      end
+
+      wait_for(seconds) {
+        res = get_matching(user: user, project: project, get_opts: get_opts) { |resource, resource_hash|
+          yield resource, resource_hash
+        }
+        res[:matching].size >= count
+      }
+
+      if get_opts[:_quiet]
+        # user didn't see any output, lets print used command
+        user.logger.info res[:command]
+      end
+      user.logger.info "returned #{res[:items].size} #{self::RESOURCE}, #{res[:matching].size} matching"
+
+      return res
+    end
+
+    # @yield block that selects resource items by returning true; block receives
+    #   |resource, resource_hash| as parameters where resource is a reloaded
+    #   [Resource] sub-type, e.g. [Pod], [Build], etc.
+    # @return [CucuShift::ResultHash] with :matching key being array of matched
+    #   resources
+    def self.get_matching(user:, project:, get_opts: {})
+      opts = {resource: self::RESOURCE, n: project.name, o: 'yaml'}
+      opts.merge! get_opts
+      res = user.cli_exec(:get, **opts)
+
+      if res[:success]
+        res[:parsed] = YAML.load(res[:response])
+        res[:items] = res[:parsed]["items"].map { |i|
+          self.from_api_object(project, i)
+        }
+      else
+        user.logger.error(res[:response])
+        raise "cannot get #{self::RESOURCE} for project #{project.name}"
+      end
+
+      res[:matching] = []
+      res[:items].zip(res[:parsed]["items"]) { |i, i_hash|
+        res[:matching] << i if !block_given? || yield(i, i_hash)
+      }
+
+      return res
+    end
+    class << self
+      alias list get_matching
     end
 
     ############### take care of object comparison ###############

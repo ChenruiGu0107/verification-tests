@@ -1,9 +1,8 @@
-require 'common'
+require 'openshift/project_resource'
 
 module CucuShift
   # represents an OpenShift build
   class Build < ProjectResource
-    extend  Common::BaseHelper
 
     RESOURCE = "builds"
     TERMINAL_STATUSES = [:complete, :failed, :cancelled, :error]
@@ -156,59 +155,6 @@ module CucuShift
         return false
       end
       return true
-    end
-
-    # @param labels [String, Array<String,String>] labels to filter on, read
-    #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
-    def self.wait_for_labeled(*labels, user:, project:, seconds:)
-      wait_for_matching(user: user, project: project, seconds: seconds,
-                        get_opts: {l: selector_to_label_arr(*labels)}) {true}
-    end
-
-    # @yield block that selects builds by returning true; see [#get_matching]
-    # @return [CucuShift::ResultHash] with :matching key being array of matched
-    #   builds;
-    def self.wait_for_matching(user:, project:, seconds:, get_opts: {})
-      res = nil
-
-      wait_for(seconds) {
-        res = get_matching(user: user, project: project, get_opts: get_opts) { |p, p_hash|
-          yield p, p_hash
-        }
-        ! res[:matching].empty?
-      }
-
-      return res
-    end
-
-    # @yield block that selects builds by returning true; block receives
-    #   |build, build_hash| as parameters where build is a reloaded [Build]
-    # @return [CucuShift::ResultHash] with :matching key being array of matched
-    #   builds
-    def self.get_matching(user:, project:, get_opts: {})
-      opts = {resource: 'build', n: project.name, o: 'yaml'}
-      opts.merge! get_opts
-      res = user.cli_exec(:get, **opts)
-
-      if res[:success]
-        res[:parsed] = YAML.load(res[:response])
-        res[:builds] = res[:parsed]["items"].map { |b|
-          self.from_api_object(project, b)
-        }
-      else
-        user.logger.error(res[:response])
-        raise "cannot get builds for project #{project.name}"
-      end
-
-      res[:matching] = []
-      res[:builds].zip(res[:parsed]["items"]) { |b, b_hash|
-        res[:matching] << b if !block_given? || yield(b, b_hash)
-      }
-
-      return res
-    end
-    class << self
-      alias list get_matching
     end
   end
 end

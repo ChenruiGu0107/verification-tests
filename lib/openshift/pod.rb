@@ -3,8 +3,6 @@ require 'openshift/project_resource'
 module CucuShift
   # represents an OpenShift pod
   class Pod < ProjectResource
-    extend  Common::BaseHelper
-    # extend  Common::UserObjectClassHelper
 
     # statuses that indicate pod running or completed successfully
     SUCCESS_STATUSES = [:running, :succeeded, :missing]
@@ -169,73 +167,6 @@ module CucuShift
         res[:matched_status] = :missing
       end
       return res
-    end
-
-    # @param labels [String, Array<String,String>] labels to filter on, read
-    # @param count [Integer] minimum number of pods to wait for
-    #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
-    def self.wait_for_labeled(*labels, count: 1, user:, project:, seconds:)
-      wait_for_matching(user: user, project: project, seconds: seconds,
-                        get_opts: {l: selector_to_label_arr(*labels)},
-                        count: count) { true }
-    end
-
-    # @param count [Integer] minimum number of pods to wait for
-    # @yield block that selects pods by returning true; see [#get_matching]
-    # @return [CucuShift::ResultHash] with :matching key being array of matched
-    #   pods;
-    def self.wait_for_matching(count: 1, user:, project:, seconds:,
-                                                                  get_opts: {})
-      res = nil
-
-      unless get_opts.has_key? :_quiet
-        get_opts[:_quiet] = true
-      end
-
-      wait_for(seconds) {
-        res = get_matching(user: user, project: project, get_opts: get_opts) { |p, p_hash|
-          yield p, p_hash
-        }
-        res[:matching].size >= count
-      }
-
-      if get_opts[:_quiet]
-        # user didn't see any output, lets print used command
-        user.logger.info res[:command]
-      end
-      user.logger.info "returned #{res[:pods].size} pods, #{res[:matching].size} matching"
-
-      return res
-    end
-
-    # @yield block that selects pods by returning true; block receives
-    #   |pod, pod_hash| as parameters where pod is a reloaded [Pod]
-    # @return [CucuShift::ResultHash] with :matching key being array of matched
-    #   pods
-    def self.get_matching(user:, project:, get_opts: {})
-      opts = {resource: 'pod', n: project.name, o: 'yaml'}
-      opts.merge! get_opts
-      res = user.cli_exec(:get, **opts)
-
-      if res[:success]
-        res[:parsed] = YAML.load(res[:response])
-        res[:pods] = res[:parsed]["items"].map { |p|
-          self.from_api_object(project, p)
-        }
-      else
-        user.logger.error(res[:response])
-        raise "cannot get pods for project #{project.name}"
-      end
-
-      res[:matching] = []
-      res[:pods].zip(res[:parsed]["items"]) { |p, p_hash|
-        res[:matching] << p if !block_given? || yield(p, p_hash)
-      }
-
-      return res
-    end
-    class << self
-      alias list get_matching
     end
 
     # executes command on pod

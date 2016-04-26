@@ -27,8 +27,8 @@ module CucuShift
     end
 
     # @override
-    def visible?(user:, result: {})
-      result.clear.merge!(get(user: user))
+    def visible?(user:, result: {}, quiet: false)
+      result.clear.merge!(get(user: user, quiet: quiet))
       if result[:success]
         return true
       else

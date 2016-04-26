@@ -7,6 +7,7 @@ module CucuShift
   class Resource
     include Common::Helper
     include Common::UserObjectHelper
+    extend  Common::BaseHelper
 
     # this needs to be set per sub class
     # represents the string we use with `oc get ...`
