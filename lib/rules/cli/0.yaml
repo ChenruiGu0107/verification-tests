@@ -270,26 +270,26 @@
 :new_app:
   :cmd: oc new-app
   :options:
+    :allow_missing_images: --allow-missing-images=<value>
     :app_repo: <value>
-    :labels: --labels=<value>
+    :code: --code=<value>
+    :context_dir: --context-dir=<value>
+    :docker_image: --docker-image=<value>
+    :env: --env=<value>
+    :file: --file=<value>
+    :group: --group=<value>
+    :image: --image=<value>
+    :image_stream: --image-stream=<value>
+    :insecure_registry: --insecure-registry=<value>
     :l: -l <value>
+    :labels: --labels=<value>
     :name: --name=<value>
-    :strategy: --strategy=<value>
-    :template: --template=<value>
     :output: --output=<value>
     :param: --param=<value>
-    :insecure_registry: --insecure-registry=<value>
-    :image_stream: --image-stream=<value>
-    :image: --image=<value>
-    :group: --group=<value>
-    :file: --file=<value>
-    :env: --env=<value>
-    :docker_image: --docker-image=<value>
-    :context_dir: --context-dir=<value>
-    :code: --code=<value>
     :search: --search=<value>
     :search_raw: --search <value>
-    :allow_missing_images: --allow-missing-images=<value>
+    :strategy: --strategy=<value>
+    :template: --template=<value>
 :new_build:
   :cmd: oc new-build
   :options:
@@ -475,7 +475,7 @@
     :for: --for=<value>
     :username: --username=<value>
     :password: --password=<value>
-:serviceaccounts_new_token: 
+:serviceaccounts_new_token:
   :cmd: oc serviceaccounts new-token <serviceaccount_name>
   :options:
     :labels: --labels=<labels>
@@ -498,9 +498,9 @@
     :all: --all=<value>
     :auto: --auto=<value>
     :containers: --containers=<value>
-    :from_config: --from-config=<value>    
-    :from_github: --from-github=<value>    
-    :from_image: --from-image=<value>    
+    :from_config: --from-config=<value>
+    :from_github: --from-github=<value>
+    :from_image: --from-image=<value>
     :from_webhook: --from-webhook=<value>
     :manual: --manual=<value>
     :remove: --remove=<value>
@@ -509,7 +509,7 @@
     :f: --filename=<value>
     :l: -l <value>
     :o: --output=<value>
-    :t: --template=<value>    
+    :t: --template=<value>
 :start_build:
   :cmd: oc start-build
   :options:

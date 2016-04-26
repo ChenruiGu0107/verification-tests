@@ -516,3 +516,94 @@ Feature: creating 'apps' with CLI
     When I run the :new_app client command with:
       | app_repo | ruby-helloworld-sample |
     Given the "ruby-sample-build-1" build finishes
+
+  # @author cryan@redhat.com
+  # @case_id 474050
+  Scenario: Create an application from source code
+    Given I have a project
+    When I git clone the repo "https://github.com/openshift/ruby-hello-world"
+    Then the step should succeed
+    Given an 8 character random string of type :dns952 is stored into the :appname clipboard
+    When I run the :new_app client command with:
+      | app_repo | ruby-hello-world |
+      | name | <%= cb.appname %> |
+      | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
+    Given the "<%= cb.appname %>-1" build completes
+    Given 1 pods become ready with labels:
+      | deployment=<%= cb.appname %>-1 |
+    When I execute on the "<%= pod.name %>" pod:
+      | curl | localhost:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    #Check https github url
+    Given an 8 character random string of type :dns952 is stored into the :appname1 clipboard
+    When I run the :new_app client command with:
+      | code | https://github.com/openshift/ruby-hello-world |
+      | name | <%= cb.appname1 %> |
+      | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
+    Given the "<%= cb.appname1 %>-1" build completes
+    Given 1 pods become ready with labels:
+      | deployment=<%= cb.appname1 %>-1 |
+    When I execute on the "<%= pod.name %>" pod:
+      | curl | localhost:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    #Check http github url
+    Given an 8 character random string of type :dns952 is stored into the :appname2 clipboard
+    When I run the :new_app client command with:
+      | code | http://github.com/openshift/ruby-hello-world |
+      | name | <%= cb.appname2 %> |
+      | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
+    Given the "<%= cb.appname2 %>-1" build completes
+    Given 1 pods become ready with labels:
+      | deployment=<%= cb.appname2 %>-1 |
+    When I execute on the "<%= pod.name %>" pod:
+      | curl | localhost:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    #Check git github url
+    Given an 8 character random string of type :dns952 is stored into the :appname3 clipboard
+    When I run the :new_app client command with:
+      | code | git://github.com/openshift/ruby-hello-world |
+      | name | <%= cb.appname3 %> |
+      | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
+    Given the "<%= cb.appname3 %>-1" build completes
+    Given 1 pods become ready with labels:
+      | deployment=<%= cb.appname3 %>-1 |
+    When I execute on the "<%= pod.name %>" pod:
+      | curl | localhost:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    #Check master branch
+    Given an 8 character random string of type :dns952 is stored into the :appname4 clipboard
+    When I run the :new_app client command with:
+      | code | https://github.com/openshift/ruby-hello-world#master |
+      | name | <%= cb.appname4 %> |
+      | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
+    When I run the :describe client command with:
+      | resource | buildconfig |
+      | name | <%= cb.appname4 %> |
+    Then the output should match "Ref:\s+master"
+    #Check invalid branch
+    Given an 8 character random string of type :dns952 is stored into the :appname5 clipboard
+    When I run the :new_app client command with:
+      | code | https://github.com/openshift/ruby-hello-world#invalid |
+      | name | <%= cb.appname5 %> |
+      | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
+    Then the output should contain "error"
+    #Check non-master branch
+    Given an 8 character random string of type :dns952 is stored into the :appname6 clipboard
+    When I run the :new_app client command with:
+      | code | https://github.com/openshift/ruby-hello-world#beta4 |
+      | name | <%= cb.appname6 %> |
+      | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
+    When I run the :describe client command with:
+      | resource | buildconfig |
+      | name | <%= cb.appname6 %> |
+    Then the output should match "Ref:\s+beta4"
+    #Check non-existing docker file
+    Then I run the :new_app client command with:
+     | app_repo | https://github.com/openshift-qe/sample-php |
+     | strategy | docker |
+    Then the step should fail
+    And the output should contain "No Dockerfile"
