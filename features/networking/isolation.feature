@@ -54,3 +54,50 @@ Feature: networking isolation related scenarios
     When I execute on the "hello-pod" pod:
       | /usr/bin/curl | <%= cb.default_ip %>:8080 |
     Then the output should contain "Hello OpenShift!"
+
+
+  # @author bmeng@redhat.com
+  # @case_id 497541
+  @smoke
+  Scenario: Only the pods nested in a same namespace can communicate with each other
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | n | <%= project(0).name %> |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `@pods[0].ip` is stored in the :pr1ip0 clipboard
+    And evaluation of `@pods[1].ip` is stored in the :pr1ip1 clipboard
+    And evaluation of `@pods[0].name` is stored in the :pr1pod0 clipboard
+
+    Given I create a new project
+    And I use the "<%= project(1).name %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      | n | <%= project(1).name %> |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `@pods[2].ip` is stored in the :pr2ip0 clipboard
+    And evaluation of `@pods[3].ip` is stored in the :pr2ip1 clipboard
+
+    Given I use the "<%= project(0).name %>" project
+    When I execute on the "<%= cb.pr1pod0 %>" pod:
+      |bash|
+      |-c|
+      |curl --connect-timeout 5 <%= cb.pr1ip1 %>:8080|
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.pr1pod0 %>" pod:
+      |bash|
+      |-c|
+      |curl --connect-timeout 5 <%= cb.pr2ip1 %>:8080|
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.pr1pod0 %>" pod:
+      |bash|
+      |-c|
+      |curl --connect-timeout 5 <%= cb.pr2ip0 %>:8080|
+    Then the step should fail
+    And the output should not contain "Hello"
