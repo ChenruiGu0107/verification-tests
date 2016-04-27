@@ -457,7 +457,7 @@ Feature: build 'apps' with CLI
     When I execute on the "<%= cb.frontendpod2 %>" pod:
       | env |
     Then the step should succeed
-    And the output should contain "RACK_ENV=development"
+    And the output should contain "RACK_ENV=production"
 
   # @author cryan@redhat.com
   # @case_id 498212
