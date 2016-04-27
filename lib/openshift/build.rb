@@ -139,38 +139,15 @@ module CucuShift
       wait_till_status(:pending, user, seconds)
     end
 
-    def wait_till_status(status, user, seconds)
-      res = nil
-      iterations = 0
-      start_time = monotonic_seconds
-
-      success = wait_for(seconds) {
-        res = status?(user: user, status: status, quiet: true)
-
-        logger.info res[:command] if iterations == 0
-        iterations = iterations + 1
-
-        # if build finished there's little chance to change status so exit early
-        if !res[:success] && !status_can_change?(res[:matched_status], status)
-          break
-        end
-        res[:success]
-      }
-
-      duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
-        "seconds:\n#{res[:response]}"
-
-      return res
-    end
-
     # @param from_status [Symbol] the status we currently see
     # @param to_status [Array, Symbol] the status(es) we check whether current
     #   status can change to
     # @return [Boolean] true if it is possible to transition between the
-    #   specified statuses (same -> same is not a transition)
-    def status_can_change?(from_status, to_status)
-      if TERMINAL_STATUSES.include?(from_status)
+    #   specified statuses (same -> should be true)
+    def status_reachable?(from_status, to_status)
+      if [to_status].flatten.include?(from_status)
+        return true
+      elsif TERMINAL_STATUSES.include?(from_status)
         if from_status == :failed &&
             [ to_status ].flatten.include?(:cancelled)
           return true

@@ -105,27 +105,14 @@ module CucuShift
       return res
     end
 
-    def wait_till_status(status, user, seconds=15*60)
-      res = nil
-      iterations = 0
-      start_time = monotonic_seconds
-
-      success = wait_for(seconds) {
-        res = status?(user: user, status: status, quiet: true)
-
-        logger.info res[:command] if iterations == 0
-        iterations = iterations + 1
-
-        # if pod completed there's no chance to change status so exit early
-        break if [:failed, :unknown].include?(res[:matched_status])
-        res[:success]
-      }
-
-      duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
-        "seconds:\n#{res[:response]}"
-
-      return res
+    # @param from_status [Symbol] the status we currently see
+    # @param to_status [Array, Symbol] the status(es) we check whether current
+    #   status can change to
+    # @return [Boolean] true if it is possible to transition between the
+    #   specified statuses (same -> should be true)
+    def status_reachable?(from_status, to_status)
+      [to_status].flatten.include?(from_status) ||
+        ![:failed, :unknown].include?(from_status)
     end
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol

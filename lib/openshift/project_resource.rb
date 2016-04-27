@@ -123,6 +123,42 @@ module CucuShift
       alias list get_matching
     end
 
+    # waits until resource status is reached
+    # @note this method requires sub-class to define the `#status?` method
+    def wait_till_status(status, user, seconds)
+      res = nil
+      iterations = 0
+      start_time = monotonic_seconds
+
+      success = wait_for(seconds) {
+        res = status?(user: user, status: status, quiet: true)
+
+        logger.info res[:command] if iterations == 0
+        iterations = iterations + 1
+
+        # if build finished there's little chance to change status so exit early
+        if !status_reachable?(res[:matched_status], status)
+          break
+        end
+        res[:success]
+      }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
+
+      return res
+    end
+
+    # @param from_status [Symbol] the status we currently see
+    # @param to_status [Array, Symbol] the status(es) we check whether current
+    #   status can change to
+    # @return [Boolean] true if it is possible to transition between the
+    #   specified statuses (same -> same should also be true)
+    # @note dummy class for generic use but better overload in sub-class
+    def status_reachable?(from_status, to_status)
+      true
+    end
     ############### take care of object comparison ###############
     def ==(p)
       p.kind_of?(self.class) && name == p.name && project == p.project
