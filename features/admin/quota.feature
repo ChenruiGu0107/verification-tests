@@ -316,3 +316,87 @@ Feature: Quota related scenarios
     Then the output should match:
       | services.*100 |
 
+  # @author xiaocwan@redhat.com
+  # @case_id 481681
+  @admin
+  Scenario:There is log event for deployment when they fail due to quota limits
+    Given I have a project
+    When I run the :create admin command with:
+      | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml  |
+      | n     | <%= project.name %> |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | n     | <%= project.name %> |
+    Then the step should succeed
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployments_nobc_cpulimit.json"
+    Then the step should succeed
+    And the output should match:
+      | eployment.*onfig\\s+"database".*reated |
+    When I get project pods
+    Then the output should contain:
+      | database-1-deploy |   
+    # update dc to be exceeded and triggered deplyment 
+    Given I replace resource "dc" named "database" saving edit to "database2.yaml":
+      | cpu: 20m     | cpu:    1020m |
+      | memory: 50Mi | memory: 760Mi |
+    When I get project pods
+    Then the output should not contain:
+      | database-2-deploy |   
+    When I wait until the status of deployment "database" becomes :complete
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | latest            ||
+    Then the output should match:
+      | tarted.*eployment.*2  |
+    When I get project pods
+    Then the output should not contain:
+      | database-2-deploy |
+    When I run the :describe client command with:
+      | resource | dc      |
+      | name     | database|
+    Then the output should match:
+      | pods "database-\\d+-deploy" is forbidden |
+      | aximum memory usage.*is 750Mi.*limit is 796917760 |
+      | aximum cpu usage.*is 500m.*limit is 1020m |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 481678
+  @admin
+  Scenario:Buildconfig should support providing cpu and memory usage
+    Given I have a project
+    When I run the :create admin command with:
+      | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml  |
+      | n     | <%= project.name %> |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | n     | <%= project.name %> |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/application-template-with-resources.json |
+    And I run the :new_app client command with:
+      | template | ruby-helloworld-sample-with-resources |
+    Then the step should succeed
+    And the output should match:
+      | uildconfig\\s+"ruby-sample-build"\\s+created |
+    When I get project pod as YAML
+    Then the output should match:
+      |   cpu:\\s+20m     |
+      |   memory:\\s+50Mi |
+      |   cpu:\\s+20m     |
+      |   memory:\\s+50Mi |
+    When I replace resource "bc" named "ruby-sample-build" saving edit to "ruby-sample-build2.yaml":
+      | cpu: 20m     | cpu:    1020m |
+      | memory: 50Mi | memory: 760Mi |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | build                |
+      | name     | ruby-sample-build-3  |
+    Then the output should match:
+      | pods "ruby-sample-build-3-build" is forbidden |
+      | aximum memory usage.*is 750Mi.*limit is 796917760 |
+      | aximum cpu usage.*is 500m.*limit is 1020m |   
