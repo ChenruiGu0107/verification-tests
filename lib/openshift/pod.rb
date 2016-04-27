@@ -89,7 +89,7 @@ module CucuShift
       start_time = monotonic_seconds
 
       success = wait_for(seconds) {
-        res = ready?(user: user)
+        res = ready?(user: user, quiet: true)
 
         logger.info res[:command] if iterations == 0
         iterations = iterations + 1
@@ -111,7 +111,7 @@ module CucuShift
       start_time = monotonic_seconds
 
       success = wait_for(seconds) {
-        res = status?(user: user, status: status)
+        res = status?(user: user, status: status, quiet: true)
 
         logger.info res[:command] if iterations == 0
         iterations = iterations + 1

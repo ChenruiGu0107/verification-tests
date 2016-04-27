@@ -37,7 +37,7 @@ module CucuShift
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if build status is what's expected
-    def status?(user:, status:)
+    def status?(user:, status:, quiet: false)
 
       # see https://github.com/openshift/origin/blob/master/pkg/build/api/v1/types.go (look for `const` definition)
       statuses = {
@@ -50,7 +50,7 @@ module CucuShift
         cancelled: "Cancelled"
       }
 
-      res = get(user: user)
+      res = get(user: user, quiet: quiet)
 
       if res[:success]
         status = status.respond_to?(:map) ?
@@ -72,8 +72,8 @@ module CucuShift
 
     # @return [CucuShift::ResultHash] :success if build completes regardless of
     #   completion status
-    def finished?(user:)
-      status?(user: user, status: TERMINAL_STATUSES)
+    def finished?(user:, quiet: false)
+      status?(user: user, status: TERMINAL_STATUSES, quiet: quiet)
     end
 
     # @return [CucuShift::ResultHash] with :success depending on status
@@ -96,10 +96,22 @@ module CucuShift
     #   still running; the result hash is from last executed get call
     def wait_till_finished(user, seconds)
       res = nil
+      iterations = 0
+      start_time = monotonic_seconds
+
       wait_for(seconds) {
-        res = finished?(user: user)
+        res = finished?(user: user, quiet: true)
+
+        logger.info res[:command] if iterations == 0
+        iterations = iterations + 1
+
         res[:success]
       }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
+
       return res
     end
 
@@ -129,14 +141,25 @@ module CucuShift
 
     def wait_till_status(status, user, seconds)
       res = nil
+      iterations = 0
+      start_time = monotonic_seconds
+
       success = wait_for(seconds) {
-        res = status?(user: user, status: status)
+        res = status?(user: user, status: status, quiet: true)
+
+        logger.info res[:command] if iterations == 0
+        iterations = iterations + 1
+
         # if build finished there's little chance to change status so exit early
         if !res[:success] && !status_can_change?(res[:matched_status], status)
           break
         end
         res[:success]
       }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
 
       return res
     end
