@@ -1,6 +1,7 @@
 Feature: Add, update remove volume to rc/dc and --overwrite option
 
   # @author jialiu@redhat.com
+  # @author jhou@redhat.com
   # @case_id 491430
   @admin @destructive
   Scenario: Add/Remove persistentVolumeClaim to dc and rc and '--overwrite' option
@@ -14,14 +15,10 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json"
-    And I replace lines in "pv-template.json":
-      |#NFS-Service-IP#|<%= service.ip %>|
-      |#NS#|<%= project.name %>|
-    Then admin creates a PV from "pv-template.json" where:
-    ||
-    Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json"
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json"
     And I replace lines in "pvc-template.json":
       |#NS#|<%= project.name %>|
     Then I run the :create client command with:
