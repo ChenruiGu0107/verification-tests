@@ -211,3 +211,19 @@ Feature: Testing route
       | invalid value for InsecureEdgeTerminationPolicy option, acceptable values are None, Allow, Redirect, or empty |
 
  
+  # @author: zzhao@redhat.com
+  # @case_id: 500002
+  Scenario: The later route should be HostAlreadyClaimed when there is a same host exist
+    Given I have a project
+    When I run the :create client command with:
+      | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json  |
+    Then the step should succeed
+    Given I create a new project
+    When I run the :create client command with:
+      | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json  |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | route  |
+      | resource_name | route  |
+    Then the output should contain "HostAlreadyClaimed"
+
