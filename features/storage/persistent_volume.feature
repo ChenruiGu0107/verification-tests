@@ -91,6 +91,217 @@ Feature: Persistent Volume Claim binding policies
       | persistentVolumeClaim: |
       | claimName: nfsc        |
     """
+    
+  # @author wehe@redhat.com
+  # @case_id 522131
+  @admin @destructive
+  Scenario: PVCs with size more than PV or access mode not supported by existing PV and expect pending 
+    Given I have a project
+    And I have a NFS service in the project
+
+    #Create PV by using create admin method to avoid the second time delete at pv.rb
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json"
+    And I replace lines in "pv-template.json":
+      |#NFS-Service-IP#|<%= service.ip %>|
+    When admin creates a PV from "pv-template.json" where:
+      | ["metadata"]["name"] | nfs-<%= project.name %> |
+    Then the step should succeed
+
+    #Create a bigger size pvc
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json"
+    And I replace lines in "claim-rwx.json":
+      |nfsc|nfsc-<%= project.name %>|
+      |5Gi|10Gi|  
+    And I run the :create client command with:
+      | f | claim-rwx.json |
+    Then the step should succeed
+
+    #Tricky method here, to avoid conflicting with other pv/pvc
+    When I run the :get admin command with:
+      | resource | pv |
+      | resource_name | <%= pv.name %> |   
+    Then the output should not contain:
+      | nfsc-<%= project.name %> |
+    Given I run the :delete client command with:
+      | object_type       | pvc  |
+      | object_name_or_id | nfsc-<%= project.name %> |
+    Then the step should succeed
+
+    #Create unmathed pvc of rox
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json"
+    And I replace lines in "claim-rox.json":
+      |nfsc|nfsc-<%= project.name %>|
+    And I run the :create client command with:
+      | f | claim-rox.json |
+    Then the step should succeed
+
+    #Verify the pv does not bind the pvc I created
+    When I run the :get admin command with:
+      | resource | pv |
+      | resource_name | <%= pv.name %> |   
+    Then the output should not contain:
+      | nfsc-<%= project.name %> |
+    Given I run the :delete client command with:
+      | object_type       | pvc  |
+      | object_name_or_id | nfsc-<%= project.name %> |
+    Then the step should succeed
+
+    #Create rwo pvc
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json"
+    And I replace lines in "claim-rwo.json":
+      |nfsc|nfsc-<%= project.name %>|
+    And I run the :create client command with:
+      | f | claim-rwo.json |
+    Then the step should succeed
+
+    #Verify unbound here
+    When I run the :get admin command with:
+      | resource | pv |
+      | resource_name | <%= pv.name %> |   
+    Then the output should not contain:
+      | nfsc-<%= project.name %> |
+    Given I run the :delete client command with:
+      | object_type       | pvc  |
+      | object_name_or_id | nfsc-<%= project.name %> |
+    Then the step should succeed
+
+    #Delete the pv by myself
+    Given I run the :delete admin command with:
+      | object_type       | pv   |
+      | object_name_or_id | <%= pv.name %> |
+    Then the step should succeed
+
+    #Replace the access mode to RWO and then create pv
+    And I replace lines in "pv-template.json":
+      |ReadWriteMany|ReadWriteOnce|
+    When admin creates a PV from "pv-template.json" where:
+      | ["metadata"]["name"] | nfs-<%= project.name %> |
+    Then the step should succeed
+
+    #Create rwx pvc
+    And I run the :create client command with:
+      | f | claim-rwx.json |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | pv |
+      | resource_name | <%= pv.name %> |   
+    Then the output should not contain:
+      | nfsc-<%= project.name %> |
+    Given I run the :delete client command with:
+      | object_type       | pvc  |
+      | object_name_or_id | nfsc-<%= project.name %> |
+    Then the step should succeed
+
+    #Create rox pvc
+    And I run the :create client command with:
+      | f | claim-rox.json |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | pv |
+      | resource_name | <%= pv.name %> |   
+    Then the output should not contain:
+      | nfsc-<%= project.name %> |
+    Given I run the :delete client command with:
+      | object_type       | pvc  |
+      | object_name_or_id | nfsc-<%= project.name %> |
+    Then the step should succeed
+
+    #Delete pv and recreate the pv with ROX with the method in pv.rb to delete the pv at the clean up step
+    Given I run the :delete admin command with:
+      | object_type       | pv   |
+      | object_name_or_id | <%= pv.name %> |
+    Then the step should succeed
+    And I replace lines in "pv-template.json":
+      |ReadWriteOnce|ReadOnlyMany|
+    When admin creates a PV from "pv-template.json" where:
+      | ["metadata"]["name"] | nfs-<%= project.name %> |
+    Then the step should succeed
+
+    #Create rwx pvc
+    And I run the :create client command with:
+      | f | claim-rwx.json |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | pv |
+      | resource_name | nfs-<%= project.name %> |   
+    Then the output should not contain:
+      | nfsc-<%= project.name %> |
+    Given I run the :delete client command with:
+      | object_type       | pvc  |
+      | object_name_or_id | nfsc-<%= project.name %> |
+    Then the step should succeed
+
+    #Create rwo pvc
+    And I run the :create client command with:
+      | f | claim-rwo.json |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | pv |
+      | resource_name | nfs-<%= project.name %> |   
+    Then the output should not contain:
+      | nfsc-<%= project.name %> |
+
+
+  # @author wehe@redhat.com
+  # @case_id 501013
+  @admin @destructive
+  Scenario: PVCs with accessmode ROX could bound to PV accessmode contanis ROX
+    Given I have a project
+    And I have a NFS service in the project
+
+    #Create RWXRWOROX pv
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-RWXRWOROX.json"
+    And I replace lines in "pv-template-RWXRWOROX.json":
+      |#NFS-Service-IP#|<%= service.ip %>|
+    When admin creates a PV from "pv-template-RWXRWOROX.json" where:
+      | ["metadata"]["name"] | nfs-<%= project.name %> |
+    Then the step should succeed
+
+    #Create RWXRWO pv
+    And I replace lines in "pv-template-RWXRWOROX.json":
+      |,"ReadOnlyMany"||
+    When admin creates a PV from "pv-template-RWXRWOROX.json" where:
+      | ["metadata"]["name"] | nfs1-<%= project.name %> |
+    Then the step should succeed
+
+    #Create rox pvc
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json"
+    And I replace lines in "claim-rox.json":
+      |nfsc|pvc-<%= project.name %>|
+    And I run the :create client command with:
+      | f | claim-rox.json |
+    Then the step should succeed
+
+    #To verify the test point in 3 ways
+    When I run the :get client command with:
+      | resource | pvc |
+    Then the output should contain:
+      | Bound |
+    When I run the :get admin command with:
+      | resource | pv/nfs-<%= project.name %> |
+    Then the output should contain:
+      | Bound |
+    When I run the :get admin command with:
+      | resource | pv/nfs1-<%= project.name %> |
+    Then the output should not contain:
+      | pvc-<%= project.name %> |
+
+    #Create the pod using the pvc
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json"
+    And I replace lines in "web-pod.json":
+      |nfsc|pvc-<%= project.name %>|
+    And I run the :create client command with:
+      | f | web-pod.json |
+    Then the step should succeed
+    Given the pod named "nfs" becomes ready
+
+    #Verify the mount path access
+    When I execute on the pod:
+      | touch | /mnt/wehe1 |
+    When I execute on the "nfs-server" pod:
+      | ls | /mnt/data |
+    Then the output should contain:
+      | wehe1 |
 
   # @author chaoyang@redhat.com
   # @case_id 501012
