@@ -107,6 +107,8 @@
   :options:
     :f: -f <value>
     :filename: --filename=<value>
+:create_serviceaccount:
+  :cmd: oc create serviceaccount <serviceaccount_name>
 :delete:
   :cmd: oc delete
   :options:
