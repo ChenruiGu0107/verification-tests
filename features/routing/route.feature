@@ -213,7 +213,7 @@ Feature: Testing route
  
   # @author: zzhao@redhat.com
   # @case_id: 500002
-  Scenario: The later route should be 'HostAlreadyClaimed' when there is a same host exist
+  Scenario: The later route should be HostAlreadyClaimed when there is a same host exist
     Given I have a project
     When I run the :create client command with:
       | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json  |
