@@ -1082,3 +1082,30 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     And the output should contain:
       | "apiVersion":"v1beta3" |
+
+  # @author cryan@redhat.com
+  # @case_id 497701
+  @admin
+  @destructive
+  Scenario: Can't start a new build when disable a build strategy globally after buildconfig has been created
+    Given I register clean-up steps:
+    """
+    I run the :oadm_add_cluster_role_to_group admin command with:
+      | role_name | system:build-strategy-docker |
+      | group_name | system:authenticated |
+    the step should succeed
+    """
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build becomes :running
+    Given I get project builds
+    Then the output should contain "ruby-sample-build-1"
+    When I run the :oadm_remove_cluster_role_from_group admin command with:
+      | role_name | system:build-strategy-docker |
+      | group_name | system:authenticated |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the output should contain "Docker is not allowed"
