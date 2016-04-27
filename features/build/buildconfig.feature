@@ -37,7 +37,7 @@ Feature: buildconfig.feature
       | resource | buildconfig  |
       | name     | source-build |
     Then the step should succeed
-    And the output should contain "Fail Build After:	5s"
+    And the output should match "Fail Build After:\s+5s"
     When I run the :start_build client command with:
       | buildconfig | source-build |
     Then the step should succeed
@@ -52,6 +52,8 @@ Feature: buildconfig.feature
       | image_stream | openshift/ruby:2.2 |
       | app_repo     | https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build finished
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
     Then the step should succeed

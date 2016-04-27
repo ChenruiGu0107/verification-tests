@@ -50,6 +50,8 @@ Feature: Configuration of environment variables check
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/php-55-rhel7-stibuild.json |
     Then the step should succeed
+    Given the "php-sample-build-1" build was created
+    Given the "php-sample-build-1" build completed
     Given I wait for the "frontend" service to become ready
     When I execute on the pod:
       | env |
