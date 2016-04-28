@@ -87,14 +87,14 @@ module CucuShift
     #   resource items;
     def self.wait_for_matching(count: 1, user:, project:, seconds:,
                                                                   get_opts: {})
-      res = nil
+      res = {}
 
       unless get_opts.has_key? :_quiet
         get_opts[:_quiet] = true
       end
 
       wait_for(seconds) {
-        res = get_matching(user: user, project: project, get_opts: get_opts) { |resource, resource_hash|
+        get_matching(user: user, project: project, result: res, get_opts: get_opts) { |resource, resource_hash|
           yield resource, resource_hash
         }
         res[:matching].size >= count
@@ -112,12 +112,13 @@ module CucuShift
     # @yield block that selects resource items by returning true; block receives
     #   |resource, resource_hash| as parameters where resource is a reloaded
     #   [Resource] sub-type, e.g. [Pod], [Build], etc.
-    # @return [CucuShift::ResultHash] with :matching key being array of matched
+    # @return [Array<ProjectResource>] with :matching key being array of matched
     #   resources
-    def self.get_matching(user:, project:, get_opts: {})
+    def self.get_matching(user:, project:, result: {}, get_opts: {})
+      res = result
       opts = {resource: self::RESOURCE, n: project.name, o: 'yaml'}
       opts.merge! get_opts
-      res = user.cli_exec(:get, **opts)
+      res.merge! user.cli_exec(:get, **opts)
 
       if res[:success]
         res[:parsed] = YAML.load(res[:response])
@@ -134,47 +135,10 @@ module CucuShift
         res[:matching] << i if !block_given? || yield(i, i_hash)
       }
 
-      return res
+      return res[:matching]
     end
     class << self
       alias list get_matching
-    end
-
-    # waits until resource status is reached
-    # @note this method requires sub-class to define the `#status?` method
-    def wait_till_status(status, user, seconds)
-      res = nil
-      iterations = 0
-      start_time = monotonic_seconds
-
-      success = wait_for(seconds) {
-        res = status?(user: user, status: status, quiet: true)
-
-        logger.info res[:command] if iterations == 0
-        iterations = iterations + 1
-
-        # if build finished there's little chance to change status so exit early
-        if !status_reachable?(res[:matched_status], status)
-          break
-        end
-        res[:success]
-      }
-
-      duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
-        "seconds:\n#{res[:response]}"
-
-      return res
-    end
-
-    # @param from_status [Symbol] the status we currently see
-    # @param to_status [Array, Symbol] the status(es) we check whether current
-    #   status can change to
-    # @return [Boolean] true if it is possible to transition between the
-    #   specified statuses (same -> same should also be true)
-    # @note dummy class for generic use but better overload in sub-class
-    def status_reachable?(from_status, to_status)
-      true
     end
 
     # @return [CucuShift::ResultHash] with :success true if we've eventually got

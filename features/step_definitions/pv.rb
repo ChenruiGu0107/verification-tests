@@ -36,10 +36,10 @@ When /^admin creates a PV from "([^"]*)" where:$/ do |location, table|
   @result = CucuShift::PersistentVolume.create(by: admin, spec: pv_hash)
 
   if @result[:success]
-    @pvs << @result[:pv]
+    @pvs << @result[:resource]
 
     # register mandatory clean-up
-    _pv = @result[:pv]
+    _pv = @result[:resource]
     _admin = admin
     teardown_add {
       @result = _pv.delete(by: _admin)

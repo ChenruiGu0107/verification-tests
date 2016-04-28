@@ -49,24 +49,6 @@ module CucuShift
       return res
     end
 
-    # list projects for a user
-    # @param user [CucuShift::User] the user who's projects we want to list
-    # @return [Array<Project>]
-    # @note raises error on issues
-    def self.list(user:)
-      res = user.cli_exec(:get, resource: "projects", output: "yaml",
-                          _quiet: true)
-      if res[:success]
-        list = YAML.load(res[:response])["items"]
-        return list.map { |project_hash|
-          self.from_api_object(user.env, project_hash)
-        }
-      else
-        logger.error(res[:response])
-        raise "error getting projects for user: '#{user}'"
-      end
-    end
-
     # creates a new project
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create project as
     # @param name [String] the name of the project
@@ -80,12 +62,6 @@ module CucuShift
         res[:project] = res[:resource]
       end
       return res
-    end
-
-    # creates new project from an OpenShift API Project object
-    def self.from_api_object(env, project_hash)
-      self.new(env: env, name: project_hash["metadata"]["name"]).
-                                update_from_api_object(project_hash)
     end
 
     def update_from_api_object(project_hash)
