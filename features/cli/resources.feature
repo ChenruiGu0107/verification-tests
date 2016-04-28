@@ -447,9 +447,8 @@ Feature: resouces related scenarios
     # Create a "Completed" pod using command which returns 0 and "Never" restartPolicy
     When I run the :run client command with:
       | name      | mypod1        |
-      | image     | <%= project_docker_repo %>openshift/mysql-55-centos7 |
+      | image     | <%= project_docker_repo %>openshift/origin |
       | generator | run-pod/v1    |
-      | env       | MYSQL_USER=user123,MYSQL_PASSWORD=abx346qw,MYSQL_DATABASE=root   |
       | command   | true          |
       | cmd       | /bin/true     |
       | restart   | Never         |
@@ -457,9 +456,8 @@ Feature: resouces related scenarios
     # Create a "Error" pod using command which returns non-0 and "Never" restartPolicy
     When I run the :run client command with:
       | name      | mypod2        |
-      | image     | <%= project_docker_repo %>openshift/mysql-55-centos7 |
+      | image     | <%= project_docker_repo %>openshift/origin |
       | generator | run-pod/v1    |
-      | env       | MYSQL_USER=user123,MYSQL_PASSWORD=abx346qw,MYSQL_DATABASE=root   |
       | command   | true          |
       | cmd       | /bin/false    |
       | restart   | Never         |
