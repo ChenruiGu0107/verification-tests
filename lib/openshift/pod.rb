@@ -59,29 +59,6 @@ module CucuShift
       return props[:ip]
     end
 
-    # @return [CucuShift::ResultHash] with :success true if we've eventually
-    #   got the pod in ready status; the result hash is from last executed get
-    #   call
-    def wait_till_ready(user, seconds)
-      res = nil
-      iterations = 0
-      start_time = monotonic_seconds
-      success = wait_for(seconds) {
-        res = ready?(user: user, quiet: true)
-
-        logger.info res[:command] if iterations == 0
-        iterations = iterations + 1
-
-        res[:success]
-      }
-
-      duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
-        "seconds:\n#{res[:response]}"
-
-      return res
-    end
-
     # this useful if you wait for a pod to die
     def wait_till_not_ready(user, seconds)
       res = nil

@@ -23,6 +23,23 @@ module CucuShift
       project.env
     end
 
+    # @note requires sub-class to define `#parse_oc_describe` method
+    def describe(user, quiet: false)
+      resource_type = self::RESOURCE
+      resource_name = name
+      cli_opts = {
+        as: user, key: :describe, n: project.name,
+        name: resource_name,
+        resource: resource_type,
+        _quiet: quiet
+      }
+      cli_opts[:_quiet] = quiet if quiet
+
+      res = cli_exec(**cli_opts)
+      res[:parsed] = self.parse_oc_describe(res[:response]) if res[:success]
+      return res
+    end
+
     # creates a new OpenShift Project Resource via API
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create
     #   ProjectResource as
@@ -159,7 +176,33 @@ module CucuShift
     def status_reachable?(from_status, to_status)
       true
     end
+
+    # @return [CucuShift::ResultHash] with :success true if we've eventually got
+    #   the rc in ready status; the result hash is from last executed get call
+    # @note sub-class needs to implement the `#ready?` method
+    def wait_till_ready(user, seconds)
+      res = nil
+      iterations = 0
+      start_time = monotonic_seconds
+
+      success = wait_for(seconds) {
+        res = ready?(user: user, quiet: true)
+
+        logger.info res[:command] if iterations == 0
+        iterations = iterations + 1
+
+        res[:success]
+      }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
+
+      return res
+    end
+
     ############### take care of object comparison ###############
+
     def ==(p)
       p.kind_of?(self.class) && name == p.name && project == p.project
     end

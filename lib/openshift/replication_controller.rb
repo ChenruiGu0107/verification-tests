@@ -18,22 +18,6 @@ module CucuShift
       return self # mainly to help ::from_api_object
     end
 
-    def describe(user, quiet: false)
-      resource_type = "rc"
-      resource_name = name
-      cli_opts = {
-        as: user, key: :describe, n: project.name,
-        name: resource_name,
-        resource: resource_type,
-        _quiet: quiet
-      }
-      cli_opts[:_quiet] = quiet if quiet
-
-      res = cli_exec(**cli_opts)
-      res[:parsed] = self.parse_oc_describe(res[:response]) if res[:success]
-      return res
-    end
-
     # @param from_status [Symbol] the status we currently see
     # @param to_status [Array, Symbol] the status(es) we check whether current
     #   status can change to
@@ -62,38 +46,15 @@ module CucuShift
       return res
     end
 
-    # @return [CucuShift::ResultHash] with :success depending on status['replicas'] == spec['replicas']
-    #  Please note we also need to check that the spec.replicas is > 0
+    # @return [CucuShift::ResultHash] with :success depending on
+    #   status['replicas'] == spec['replicas']
+    # @note we also need to check that the spec.replicas is > 0
     def ready?(user:, quiet: false)
       res = get(user: user, quiet: quiet)
       if res[:success]
         res[:success] = (res[:parsed]["status"]["replicas"] == res[:parsed]["spec"]["replicas"] \
                          and res[:parsed]["spec"]["replicas"].to_i > 0)
       end
-      return res
-    end
-
-    # @return [CucuShift::ResultHash] with :success true if we've eventually
-    #   got the rc in ready status; the result hash is from last executed get
-    #   call
-    def wait_till_ready(user, seconds)
-      res = nil
-      iterations = 0
-      start_time = monotonic_seconds
-
-      success = wait_for(seconds) {
-        res = ready?(user: user, quiet: true)
-
-        logger.info res[:command] if iterations == 0
-        iterations = iterations + 1
-
-        res[:success]
-      }
-
-      duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
-        "seconds:\n#{res[:response]}"
-
       return res
     end
 
