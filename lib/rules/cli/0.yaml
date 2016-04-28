@@ -550,8 +550,9 @@
     :oc_version: !ruby/regexp '/^oc v(.+)$/'
     :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
 :volume:
-  :cmd: oc volume <resource>
+  :cmd: oc volume
   :options:
+    :resource: <value>
     :resource_name: <value>
     :action: <value>
     :confirm: --confirm=<value>
