@@ -210,6 +210,10 @@
   :options:
     :hostname: --hostname=<value>
     :service: --service=<value>
+    :cert: --cert=<value>
+    :key: --key=<value>
+    :cacert: --ca-cert=<value>
+    :path: --path=<value>
 :get:
   :cmd: oc get <resource>
   :options:

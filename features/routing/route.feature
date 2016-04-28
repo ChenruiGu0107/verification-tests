@@ -184,9 +184,9 @@ Feature: Testing route
 
 
 
-    # @author: yadu@redhat.com
-    # @case_id: 511645 
-    Scenario: Config insecureEdgeTerminationPolicy to an invalid value for route
+  # @author: yadu@redhat.com
+  # @case_id: 511645 
+  Scenario: Config insecureEdgeTerminationPolicy to an invalid value for route
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
@@ -224,3 +224,45 @@ Feature: Testing route
       | resource_name | route  |
     Then the output should contain "HostAlreadyClaimed"
 
+    
+  # @author bmeng@redhat.com
+  # @case_id 470715
+  Scenario: Edge terminated route with custom cert
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
+    
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    And the pod named "hello-pod" becomes ready
+    And evaluation of `pod.name` is stored in the :ramp_pod clipboard
+    Given I execute on the "<%= cb.ramp_pod %>" pod:
+      | wget |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
+      | --no-check-certificate |
+      | -O |
+      | /tmp/ca.pem |
+    
+    When I run the :create_route_edge client command with:
+      | name | route-edge |
+      | hostname | www.edge.com |
+      | service | service-unsecure |
+      | cert | route_edge-www.edge.com.crt |
+      | key | route_edge-www.edge.com.key |
+    Then the step should succeed
+    When I execute on the "<%= cb.ramp_pod %>" pod:
+      | curl |
+      | --resolve |
+      | www.edge.com:443:<%= cb.router_ip[0] %> |
+      | https://www.edge.com/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Hello-OpenShift"
