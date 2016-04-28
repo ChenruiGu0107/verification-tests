@@ -157,8 +157,8 @@ Then(/^the project should be empty$/) do
   end
 end
 
-When /^I get project ([-a-zA-Z_]+)$/ do |resource|
-  @result = user.cli_exec(:get, resource: resource, n: project.name)
+When /^I get project ([-a-zA-Z_]+)(?: named "([^"]*)")?$/ do |resource, resource_name|
+  @result = user.cli_exec(:get, resource: resource, resource_name: resource_name, n: project.name)
 end
 
 When /^I get project ([-a-zA-Z_]+) with labels:$/ do |resource, table|
@@ -166,7 +166,7 @@ When /^I get project ([-a-zA-Z_]+) with labels:$/ do |resource, table|
   @result = user.cli_exec(:get, resource: resource, n: project.name, l: labels)
 end
 
-When /^I get project ([-a-zA-Z_]+) as (YAML|JSON)$/ do |resource, format|
-  @result = user.cli_exec(:get, resource: resource, n: project.name, o: format.downcase)
+When /^I get project ([-a-zA-Z_]+)(?: named "([^"]*)")? as (YAML|JSON)$/ do |resource, resource_name, format|
+  @result = user.cli_exec(:get, resource: resource, resource_name: resource_name, n: project.name, o: format.downcase)
   step "the output is parsed as #{format}"
 end
