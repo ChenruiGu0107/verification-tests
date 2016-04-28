@@ -663,18 +663,36 @@ Feature: ServiceAccount and Policy Managerment
     And the output should contain:
       |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
       |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    When I run the :get client command with:
+      |resource|users/~|
+      |token   |<%= @result[:response] %>|
+    Then the step should succeed
+    Then the output should contain:
+      |system:serviceaccount:<%= project.name %>:default|
     When I run the :serviceaccounts_new_token client command with:
       |serviceaccount_name|builder|
     Then the step should succeed
     And the output should contain:
       |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
       |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    When I run the :get client command with:
+      |resource|users/~|
+      |token   |<%= @result[:response] %>|
+    Then the step should succeed
+    Then the output should contain:
+      |system:serviceaccount:<%= project.name %>:builder|
     When I run the :serviceaccounts_new_token client command with:
       |serviceaccount_name|deployer|
     Then the step should succeed
     And the output should contain:
       |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
       |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    When I run the :get client command with:
+      |resource|users/~|
+      |token   |<%= @result[:response] %>|
+    Then the step should succeed
+    Then the output should contain:
+      |system:serviceaccount:<%= project.name %>:deployer|
     Given an 8 characters random string of type :dns is stored into the :serviceaccount_name clipboard
     When I run the :create_serviceaccount client command with:
       |serviceaccount_name|<%= cb.serviceaccount_name %>|
@@ -685,3 +703,10 @@ Feature: ServiceAccount and Policy Managerment
     And the output should contain:
       |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
       |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
+    When I run the :get client command with:
+      |resource|users/~|
+      |token   |<%= @result[:response] %>|
+    Then the step should succeed
+    Then the output should contain:
+      |system:serviceaccount:<%= project.name %>:<%= cb.serviceaccount_name %>|
+
