@@ -146,7 +146,10 @@ Feature: oc exports related scenarios
     Then the step should fail
     And the output should contain:
       | error: output format "xyz" not recognized |
-    And I create a new project
+
+    # For sake of Online test in which one user can only create 1 project
+    Given I switch to the second user
+    And I have a project
     And I run the :get client command with:
       | resource | svc |
     Then the step should succeed
