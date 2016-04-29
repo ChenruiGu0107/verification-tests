@@ -24,7 +24,7 @@ module CucuShift
       result.clear.merge!(get(user: user, quiet: quiet))
       if result[:success]
         return true
-      elsif result[:responce] =~ /not found/
+      elsif result[:response] =~ /not found/
         return false
       else
         # e.g. when called by user without rights to list Resource

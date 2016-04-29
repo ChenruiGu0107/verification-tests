@@ -30,7 +30,7 @@ module CucuShift
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if pod status is what's expected
-    def status?(user, status, quiet: false)
+    def status?(user:, status:, quiet: false)
       statuses = {
         waiting: "Waiting",
         running: "Running",

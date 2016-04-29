@@ -25,7 +25,7 @@ module CucuShift
 
     # @note requires sub-class to define `#parse_oc_describe` method
     def describe(user, quiet: false)
-      resource_type = self::RESOURCE
+      resource_type = self.class::RESOURCE
       resource_name = name
       cli_opts = {
         as: user, key: :describe, n: project.name,
@@ -102,9 +102,9 @@ module CucuShift
 
       if get_opts[:_quiet]
         # user didn't see any output, lets print used command
-        user.logger.info res[:command]
+        user.env.logger.info res[:command]
       end
-      user.logger.info "returned #{res[:items].size} #{self::RESOURCE}, #{res[:matching].size} matching"
+      user.env.logger.info "returned #{res[:items].size} #{self::RESOURCE}, #{res[:matching].size} matching"
 
       return res
     end
@@ -126,7 +126,7 @@ module CucuShift
           self.from_api_object(project, i)
         }
       else
-        user.logger.error(res[:response])
+        user.env.logger.error(res[:response])
         raise "cannot get #{self::RESOURCE} for project #{project.name}"
       end
 

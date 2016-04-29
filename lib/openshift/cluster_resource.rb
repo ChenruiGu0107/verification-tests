@@ -31,7 +31,7 @@ module CucuShift
     # @note requires subclass to define `#update_from_api_object`
     def self.from_api_object(env, resource_hash)
       self.new(env: env, name: resource_hash["metadata"]["name"]).
-                                update_from_api_object(project_hash)
+                                update_from_api_object(resource_hash)
     end
 
     # list resources by a user

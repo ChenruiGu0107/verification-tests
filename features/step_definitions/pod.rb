@@ -58,7 +58,7 @@ Given /^all pods in the project are ready$/ do
   logger.info("Number of pods: #{pods.count}")
   pods.each do | pod |
     cache_pods(pod)
-    res = pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES , user)
+    res = pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES, user, 15*60)
 
     unless res[:success]
       raise "pod #{self.pod.name} did not reach expected status"
@@ -84,7 +84,7 @@ Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
 
   # keep last waiting @result as the @result for knowing how pod failed
   @result[:matching].each do |pod|
-    @result = pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES , user)
+    @result = pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES, user, 900)
 
     unless @result[:success]
       raise "pod #{pod.name} did not reach expected status"
