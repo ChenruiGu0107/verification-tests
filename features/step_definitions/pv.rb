@@ -4,7 +4,7 @@ Given /^the(?: "([^"]*)")? PV becomes :(.+)$/ do |pv_name, status|
   @result = pv(pv_name).wait_till_status(status.to_sym, admin, 30)
 
   unless @result[:success]
-    raise "build #{pv_name} never reached status: #{status}"
+    raise "PV #{pv_name} never reached status: #{status}"
   end
 end
 

@@ -6,6 +6,19 @@ module CucuShift
   # @note represents a Resource / OpenShift API Object
   class ClusterResource < Resource
 
+    attr_reader :env
+
+    def initialize(name:, env:, props: {})
+
+      if name.nil? || env.nil?
+        raise "ClusterResource needs name and environment to be identified"
+      end
+
+      @name = name.freeze
+      @env = env
+      @props = props
+    end
+
     # creates a new OpenShift Cluster Resource from spec
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create
     #   Resource as
@@ -17,7 +30,7 @@ module CucuShift
         # assume a file path (TODO: be more intelligent)
         spec = YAML.load_file(spec)
       end
-      name = spec["metadata"]["name"]
+      name = spec["metadata"]["name"] || raise("no name specified for resource")
       create_opts = { f: '-', _stdin: spec.to_json, **opts }
       init_opts = {name: name, env: by.env}
 

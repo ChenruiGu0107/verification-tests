@@ -15,17 +15,6 @@ module CucuShift
 
     attr_reader :props, :name, :env
 
-    def initialize(name:, env:, props: {})
-
-      if name.nil? || env.nil?
-        raise "project need name and environment to be identified"
-      end
-
-      @name = name.freeze
-      @env = env
-      @props = props
-    end
-
     # @override
     def visible?(user:, result: {}, quiet: false)
       result.clear.merge!(get(user: user, quiet: quiet))
