@@ -107,6 +107,8 @@
   :options:
     :f: -f <value>
     :filename: --filename=<value>
+:create_serviceaccount:
+  :cmd: oc create serviceaccount <serviceaccount_name>
 :delete:
   :cmd: oc delete
   :options:
@@ -475,6 +477,8 @@
     :for: --for=<value>
     :username: --username=<value>
     :password: --password=<value>
+:serviceaccounts_get_token:
+  :cmd: oc serviceaccounts get-token <serviceaccount_name>
 :serviceaccounts_new_token:
   :cmd: oc serviceaccounts new-token <serviceaccount_name>
   :options:
