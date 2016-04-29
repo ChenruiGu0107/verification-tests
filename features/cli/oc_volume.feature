@@ -297,3 +297,54 @@ Feature: oc_volume.feature
       | selector      | volume=emptydir        |
     Then the output should contain "ruby-hello-world"
 
+  # @author jhou@redhat.com
+  # @case_id 491433
+  Scenario: Add/Remove volumes against multiple resources
+    Given I have a project
+
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Then the step should succeed
+
+    # Add volume to dc
+    Given I wait until replicationController "database-1" is ready
+    When I run the :volume client command with:
+      | resource   | rc/database-1 |
+      | resource   | dc/database   |
+      | action     | --add         |
+      | name       | emptyvol      |
+      | type       | emptyDir      |
+      | mount-path | /etc/         |
+    Then the step should succeed
+
+    When I run the :volume client command with:
+      | resource | dc/database |
+      | action   | --list      |
+    Then the output should contain "emptyvol"
+
+    When I run the :volume client command with:
+      | resource | rc/database-1 |
+      | action   | --list        |
+    Then the output should contain "emptyvol"
+
+    # Remove multiple volumes without giving volume name and '--confirm' option
+    When I run the :volume client command with:
+      | resource | rc/database-1 |
+      | resource | dc/database   |
+      | action   | --remove      |
+    Then the step should not succeed
+    And the output should contain "error: must provide --confirm"
+
+    # Remove volume from multiple resources
+    When I run the :volume client command with:
+      | resource | rc/database-1 |
+      | resource | dc/database   |
+      | action   | --remove      |
+      | confirm  | true          |
+    Then the step should succeed
+
+    # Volumes are removed from dc and rc
+    When I run the :volume client command with:
+      | resource | rc/database-1 |
+      | resource | dc/database   |
+      | action   | --list        |
+    Then the output should not contain "emptyvol"
