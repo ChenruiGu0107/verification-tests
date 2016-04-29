@@ -65,11 +65,11 @@ Feature: Testing route
 
     Given I switch to the first user
     And I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.json" URL replacing paths:
+      | ["spec"]["host"]  | www.<%= rand_str(5, :dns) %>.example.com |
     Then the step should succeed
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json" URL replacing paths:
+      | ["spec"]["host"]  | www.<%= rand_str(5, :dns) %>.example.com |
     Then the step should succeed
 
     Then evaluation of `project.name` is stored in the :proj_name clipboard
@@ -83,14 +83,14 @@ Feature: Testing route
       | /var/lib/containers/router/certs |
     Then the step should succeed
     And the output should contain:
-      | _<%= cb.edge_route %>.pem |
-      | _<%= cb.reencrypt_route %>.pem |
+      | <%= cb.proj_name %>_<%= cb.edge_route %>.pem |
+      | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
     When I execute on the pod:
       | ls                  |
       | /var/lib/containers/router/cacerts |
     Then the step should succeed
     And the output should contain:
-      | _<%= cb.reencrypt_route %>.pem |
+      | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
 
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
@@ -107,9 +107,9 @@ Feature: Testing route
       | /var/lib/containers/router/certs |
     Then the step should succeed
     And the output should not contain:
-      | _<%= cb.edge_route %>.pem |
+      | <%= cb.proj_name %>_<%= cb.edge_route %>.pem |
     And the output should contain:
-      | _<%= cb.reencrypt_route %>.pem |
+      | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
 
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
@@ -128,9 +128,6 @@ Feature: Testing route
     Then the step should succeed
     And the output should not contain:
       | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
-
-    Then I switch to the first user
-    And I use the "<%= cb.proj_name %>" project
 
   # @author yadu@redhat.com
   # @case_id 497886
