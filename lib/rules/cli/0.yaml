@@ -296,6 +296,7 @@
   :cmd: oc new-build
   :options:
     :app_repo: <value>
+    :binary: --binary <value>
     :code: --code=<value>
     :docker_image: --docker-image=<value>
     :D : -D <value>
