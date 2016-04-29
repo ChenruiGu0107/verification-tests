@@ -1099,3 +1099,45 @@ Feature: build 'apps' with CLI
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the output should contain "Docker is not allowed"
+
+  # @author dyan@redhat.com
+  # @case_id 519593
+  Scenario: oc new-build --binary should create BC according to the imagetype
+    Given I have a project
+    When I run the :new_build client command with:
+      | binary | ruby |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc |
+      | resource_name | ruby |
+      | o             | yaml |
+    Then the step should succeed
+    And the output should contain:
+      | sourceStrategy |
+      | type: Source   |
+    When I run the :new_build client command with:
+      | binary | registry.access.redhat.com/rhscl/ruby-22-rhel7:latest |
+      | to     | ruby1 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc |
+      | resource_name | ruby1 |
+      | o             | yaml  |
+    Then the step should succeed
+    And the output should contain:
+      | sourceStrategy |
+      | type: Source   |
+    When I run the :new_build client command with:
+      | binary | ruby |
+      | strategy | docker |
+      | to     | ruby2 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc |
+      | resource_name | ruby2 |
+      | o             | yaml |
+    Then the step should succeed
+    And the output should contain:
+      | dockerStrategy |
+      | type: Docker   |
+
