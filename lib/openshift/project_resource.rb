@@ -50,12 +50,18 @@ module CucuShift
     def self.create(by:, project:, spec:, **opts)
       if spec.kind_of? String
         # assume a file path (TODO: be more intelligent)
-        spec = YAML.load_file(spec)["metadata"]["name"]
+        case spec
+        when %r{https?://}
+          spec = YAML.load(Http.get(url: spec, raise_on_error: true)[:response])
+        else
+          spec = YAML.load_file(spec)
+        end
       end
       name = spec["metadata"]["name"]
+      # TODO: verify resource type!
 
-      res = cli_exec(as: by, n: project.name, key: :create, f: '-',
-                                              _stdin: spec.to_json, **opts)
+      res = by.cli_exec(:create, n: project.name, f: '-',
+                        _stdin: spec.to_json, **opts)
       res[:resource] = self.new(name: name, project: project)
 
       return res
