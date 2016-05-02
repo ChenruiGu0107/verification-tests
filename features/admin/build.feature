@@ -216,3 +216,29 @@ Feature: admin build related features
     When I save pruned builds in the "<%= project.name %>" project into the :pruned2 clipboard
     Then the expression should be true> cb.pruned1.to_set == cb.pruned2.to_set
     And the project should contain no builds
+
+  # @author cryan@redhat.com
+  # @case_id 472759
+  Scenario: Show friendly messages when invalid options and values for chain-build sub-command
+    When I run the :oadm_build_chain client command with:
+      | invalid_option | -invalid-opt|
+    Then the step should fail
+    And the output should contain "unknown shorthand flag"
+    When I run the :oadm_build_chain client command with:
+      | invalid_option | ---all |
+    Then the step should fail
+    And the output should contain "bad flag syntax"
+    When I run the :oadm_build_chain client command with:
+      | invalid_option | -all |
+    Then the step should fail
+    And the output should contain "unknown shorthand flag"
+    When I run the :oadm_build_chain client command with:
+      | imagestreamtag | not-existing/image-repo |
+    Then the step should fail
+    And the output should contain:
+      | doesn't have a resource type "not-existing" |
+    When I run the :oadm_build_chain client command with:
+      | imagestreamtag | ruby:2.2 |
+      | all | true |
+    Then the step should fail
+    And the output should contain "Error"
