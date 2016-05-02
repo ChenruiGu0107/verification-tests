@@ -166,7 +166,7 @@ module CucuShift
       res[:command] = command
       instruction = 'Remote cmd: `' + command + '` @ssh://' +
                     ( @user ? "#{@user}@#{@host}" : @host )
-      logger.info(instruction)
+      logger.info(instruction) unless opts[:quiet]
       res[:instruction] = instruction
       exit_status = nil
       stdout = res[:stdout] = opts[:stdout] || String.new
@@ -199,6 +199,7 @@ module CucuShift
           if opts[:stdin]
             channel.send_data opts[:stdin].to_s
           end
+
           channel.eof!
         end
       end
@@ -225,8 +226,8 @@ module CucuShift
       unless opts[:quiet]
         logger.plain(stdout, false)
         logger.plain(stderr, false) unless stdout == stderr
+        logger.info("Exit Status: #{exit_status}")
       end
-      logger.info("Exit Status: #{exit_status}")
 
       # TODO: should we use mutex to make sure our view of `res` is updated
       #   according to latest @loop_thread updates?

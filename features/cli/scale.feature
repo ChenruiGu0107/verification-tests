@@ -74,7 +74,7 @@ Feature: scaling related scenarios
     Then the step should succeed
     And the output should contain "myrun-"
 
-    Given evaluation of `project.pods(by: user)[:pods][0].name` is stored in the :pod_name clipboard
+    Given evaluation of `project.pods(by: user)[0].name` is stored in the :pod_name clipboard
     When I run the :delete client command with:
       | object_type | pod             |
       | l           | rc=myrun        |

@@ -13,6 +13,8 @@ require 'webauto/webconsole_executor'
 module CucuShift
   # @note this class represents an OpenShift test environment and allows setting it up and in some cases creating and destroying it
   class Environment
+    include Common::Helper
+
     attr_reader :opts
 
     # :master represents register, scheduler, etc.

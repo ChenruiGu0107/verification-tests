@@ -66,21 +66,12 @@ Then(/^I save pruned builds in the "([^"]*)" project into the :([^\s]*?) clipboa
 end
 
 Given /^I save project builds into the :([^\s]*?) clipboard$/ do |cb_name|
-  res = project.get_builds(by: user)
-  if res[:success]
-    cb[cb_name] = res[:builds]
-  else
-    raise "error getting project builds, see console log"
-  end
+  cb[cb_name] = project.get_builds(by: user)
 end
 
 Then /^the project should contain no builds$/ do
-  res = project.get_builds(by: user)
-  if res[:success]
-    unless res[:builds].size == 0
-      raise "#{res[:builds].size} builds present in the #{project.name} project"
-    end
-  else
-    raise "error getting project builds, see console log"
+  builds = project.get_builds(by: user)
+  unless builds.empty?
+    raise "#{builds.size} builds present in the #{project.name} project"
   end
 end

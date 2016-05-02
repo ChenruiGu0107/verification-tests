@@ -6,7 +6,8 @@ Given /^a pod becomes ready with labels:$/ do |table|
   @result = CucuShift::Pod.wait_for_labeled(*labels, user: user, project: project, seconds: pod_timeout)
 
   if @result[:matching].empty?
-    logger.error("Waiting for labeled pods futile: #{labels.join(",")}")
+    # logger.info("Pod list:\n#{@result[:response]}")
+    # logger.error("Waiting for labeled pods futile: #{labels.join(",")}")
     raise "See log, waiting for labeled pods futile: #{labels.join(',')}"
   end
 
@@ -51,13 +52,13 @@ Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
 end
 
 # for a rc that has multiple pods, oc describe currently doesn't support json/yaml output format, so do 'oc get pod' to get the status of each pod
+# this step is deprecated due to not having clear semantics
 Given /^all pods in the project are ready$/ do
   pods = project.pods(by:user)
-  logger.info("Number of pods: #{pods[:parsed]['items'].count}")
-  pods[:parsed]['items'].each do | pod |
-    pod_name = pod['metadata']['name']
-    logger.info("POD: #{pod_name}, STATUS: #{pod['status']['conditions']}")
-    res = pod(pod_name).wait_till_status(CucuShift::Pod::SUCCESS_STATUSES , user)
+  logger.info("Number of pods: #{pods.count}")
+  pods.each do | pod |
+    cache_pods(pod)
+    res = pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES, user, 15*60)
 
     unless res[:success]
       raise "pod #{self.pod.name} did not reach expected status"
@@ -83,7 +84,7 @@ Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
 
   # keep last waiting @result as the @result for knowing how pod failed
   @result[:matching].each do |pod|
-    @result = pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES , user)
+    @result = pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES, user, 900)
 
     unless @result[:success]
       raise "pod #{pod.name} did not reach expected status"
@@ -112,11 +113,8 @@ Given /^all existing pods die with labels:$/ do |table|
   timeout = 10 * 60
   start_time = monotonic_seconds
 
-  @result = CucuShift::Pod.get_matching(user: user, project: project,
+  current_pods = CucuShift::Pod.get_matching(user: user, project: project,
                     get_opts: {l: selector_to_label_arr(*labels)})
-  raise "could not get pods" unless @result[:success]
-
-  current_pods = @result[:matching]
 
   current_pods.each do |pod|
     @result =
