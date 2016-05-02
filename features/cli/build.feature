@@ -1141,3 +1141,59 @@ Feature: build 'apps' with CLI
       | dockerStrategy |
       | type: Docker   |
 
+  # @author cryan@redhat.com
+  # @case_id 517669
+  Scenario: Using a docker image as source input for new-build cmd--negetive test
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | openshift/jenkins:latest |
+      | source_image_path | src/:/destination-dir |
+      | name | app1 |
+    Then the step should fail
+    And the output should contain "relative path"
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | openshift/jenkins:latest |
+      | source_image_path | /non-existing-source/:destination-dir  |
+      | name | app2 |
+    Then the step should succeed
+    Given the "app2-1" build finishes
+    When I run the :logs client command with:
+      | resource_name | build/app2-1 |
+    Then the output should contain "no such file or directory"
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | openshift/jenkins:latest |
+      | source_image_path | /opt/openshift:Dockerfile |
+      | name | app3 |
+    Then the step should succeed
+    Given the "app3-1" build finishes
+    When I run the :logs client command with:
+      | resource_name | build/app3-1 |
+    Then the output should contain "must be a directory"
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image_path | /source-dir/:destiontion-dir/ |
+      | name | app4 |
+    Then the step should fail
+    And the output should contain "source-image must be specified"
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | openshift/jenkins:latest |
+      | name | app5 |
+    Then the step should fail
+    And the output should contain "source-image-path must be specified"
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | openshift/jenkins:latest |
+      | source_image_path ||
+      | name | app6 |
+    Then the step should fail
+    And the output should contain "source-image-path must be specified"
