@@ -310,6 +310,8 @@
     :l: -l <value>
     :name: --name=<value>
     :output: --output=<value>
+    :source_image: --source-image=<value>
+    :source_image_path: --source-image-path=<value>
     :strategy: --strategy=<value>
     :template: --template=<value>
     :to_docker: --to-docker=<value>
