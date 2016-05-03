@@ -251,3 +251,35 @@ Feature: secrets related scenarios
     And the output should contain:
       | openshift.io/token-secret.name=builder-token- |
 
+
+  # @author qwang@redhat.com
+  # @case_id 483169
+  Scenario: Pods do not have access to each other's secrets with the same secret name in different namespaces
+    Given I have a project
+    When I run the :create client command with:
+      | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret1.json |
+    And I run the :create client command with:
+      | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret-pod-1.yaml |
+    Then the step should succeed
+    And the pod named "secret-pod-1" status becomes :running
+    When I create a new project
+    And I run the :create client command with:
+      | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret2.json |
+    And I run the :create client command with:
+      | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret-pod-2.yaml |
+    Then the step should succeed
+    And the pod named "secret-pod-2" status becomes :running
+    When I run the :exec client command with:
+      | pod              | secret-pod-2                  |
+      | exec_command     | cat                           |
+      | exec_command_arg | /etc/secret-volume-2/password |
+      | namespace        | <%= project(1).name %>        |
+    Then the output should contain:
+      | password-second |
+    When I run the :exec client command with:
+      | pod              | secret-pod-1                  |
+      | exec_command     | cat                           |
+      | exec_command_arg | /etc/secret-volume-1/username |
+      | namespace        | <%= project(0).name %>        |
+    Then the output should contain:
+      | first-username |
