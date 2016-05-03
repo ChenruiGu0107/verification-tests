@@ -434,7 +434,10 @@
   :cmd: oc rsh <global_options> <options>
   :options:
     :app_name: <value>
+    :c: --container=<value>
+    :command: <value>
     :pod: <value>
+    :shell: --shell=<value>
 :rsync:
   #either source or destination must be in to format POD:/remote/dir/, i.e.
   #oc rsync ./local/dir/ POD:/remote/dir
