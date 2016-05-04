@@ -11,7 +11,6 @@ require 'openshift/pod'
 require 'openshift/persistent_volume'
 require 'openshift/replication_controller'
 require 'openshift/deployment_config'
-
 module CucuShift
   # @note this is our default cucumber World extension implementation
   class DefaultWorld
@@ -41,6 +40,8 @@ module CucuShift
       @rcs = []
       @dcs = []
       @image_streams = []
+      # used to store node the user wants to run commands on
+      @target_node = nil
 
       # procs and lambdas to call on clean-up
       @teardown = []
@@ -131,6 +132,10 @@ module CucuShift
       env.admin
     end
 
+    def target_node
+      return @target_node
+    end
+
     # @return project from cached projects for this scenario
     #   note that you need to have default `#env` set already;
     #   if no name is spefified, returns the last requested project;
@@ -138,7 +143,6 @@ module CucuShift
     #   the actual OpenShift environment)
     def project(name = nil, env: nil, generate: true, switch: true)
       env ||= self.env
-
       if name.kind_of? Integer
         p = @projects[name]
         raise "no project cached with index #{name}" unless p
