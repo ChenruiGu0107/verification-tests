@@ -515,7 +515,7 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     When I run the :new_app client command with:
       | app_repo | ruby-helloworld-sample |
-    Given the "ruby-sample-build-1" build finishes
+    Given the "ruby-sample-build-1" build completes
 
   # @author cryan@redhat.com
   # @case_id 474050
