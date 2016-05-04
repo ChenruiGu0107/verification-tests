@@ -1211,6 +1211,32 @@ Feature: build 'apps' with CLI
       | type: Docker   |
 
   # @author cryan@redhat.com
+  # @case_id 519259
+  Scenario: Cannot create secret from local file and with same name via oc new-build
+    Given I have a project
+    #Reusing similar secrets to TC #519256
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | image_stream | ruby:2.2 |
+      | app_repo | https://github.com/openshift-qe/build-secret.git |
+      | build_secret | /local/src/file:/destination/dir |
+    Then the step should fail
+    And the output should contain "must be valid secret"
+    When I run the :new_build client command with:
+      | image_stream | ruby:2.2 |
+      | app_repo | https://github.com/openshift-qe/build-secret.git |
+      | strategy | docker |
+      | build_secret | testsecret1:/tmp/mysecret |
+      | build_secret | testsecret2 |
+    Then the step should fail
+    And the output should contain "must be a relative path"
+
+  # @author cryan@redhat.com
   # @case_id 517669
   Scenario: Using a docker image as source input for new-build cmd--negetive test
     Given I have a project
