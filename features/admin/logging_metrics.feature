@@ -34,10 +34,7 @@ Feature: Logging and Metrics
     """
     When I perform the :access_heapster rest request with:
       | project_name | <%=project.name%> |
-    Then the output should contain:
-      | cpu-usage |
-      | memory-usage |
-    """
+    Then the step should succeed
 
   # @author chunchen@redhat.com
   # @case_id 509059
