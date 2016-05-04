@@ -1024,6 +1024,26 @@ Feature: build 'apps' with CLI
     Then the output should contain "envtest1"
 
   # @author cryan@redhat.com
+  # @case_id 521427
+  Scenario: Overriding builder image scripts by invalid scripts in buildConfig
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"scripts": "http:/foo.bar.com/invalid/assemble"}}}} |
+      Then the step should succeed
+      When I run the :start_build client command with:
+        | buildconfig | ruby-sample-build |
+      Then the step should succeed
+      Given the "ruby-sample-build-1" build finishes
+      When I run the :logs client command with:
+        | resource_name | build/ruby-sample-build-2 |
+      Then the step should succeed
+      And the output should contain "Could not download"
+
   # @case_id 517666
   Scenario: Add a image with multiple paths as source input
     Given I have a project
@@ -1053,7 +1073,7 @@ Feature: build 'apps' with CLI
       | resource | buildconfig |
       | resource_name | ruby-sample-build |
       | p | {"spec": {"strategy": {"sourceStrategy": {"scripts": "https://raw.githubusercontent.com/dongboyan77/builderimage-scripts/master/bin"}}}} |
-      Then the step should succeed
+    Then the step should succeed
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby-sample-build |
