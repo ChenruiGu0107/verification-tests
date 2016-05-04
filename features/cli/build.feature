@@ -995,6 +995,20 @@ Feature: build 'apps' with CLI
     """
 
   # @author cryan@redhat.com
+  # @case_id 522440
+  Scenario: Check bad proxy in .s2i/environment when performing s2i build
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    Given I replace lines in "ruby20rhel7-template-sti.json":
+      | "uri": "https://github.com/openshift/ruby-hello-world.git" | "uri": "https://github.com/openshift-qe/ruby-hello-world-badproxy.git" |
+    Given I process and create "ruby20rhel7-template-sti.json"
+    Given the "ruby-sample-build-1" build finishes
+    When I run the :build_logs client command with:
+      | build_name | ruby-sample-build-1 |
+    Then the step should succeed
+    And the output should contain "Could not fetch specs"
+
+  # @author cryan@redhat.com
   # @case_id 482216
   Scenario: Add ENV vars to .sti/environment when do sti build in openshift
     Given I have a project
