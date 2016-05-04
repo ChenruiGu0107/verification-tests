@@ -1024,6 +1024,25 @@ Feature: build 'apps' with CLI
     Then the output should contain "envtest1"
 
   # @author cryan@redhat.com
+  # @case_id 517666
+  Scenario: Add a image with multiple paths as source input
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc517666/ruby22rhel7-template-sti.json |
+    Given the "ruby22-sample-build-1" build completes
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | o | yaml |
+    Then the output should contain "xiuwangs2i-2"
+    Given 2 pods become ready with labels:
+      | deployment=frontend-1 |
+    When I execute on the "<%= pod.name %>" pod:
+      | ls |
+    Then the step should succeed
+    And the output should contain "xiuwangs2i-2"
+
+  # @author cryan@redhat.com
   # @case_id 521602
   Scenario: Overriding builder image scripts in buildConfig under invalid proxy
     Given I have a project
