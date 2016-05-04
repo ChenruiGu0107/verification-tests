@@ -1137,6 +1137,22 @@ Feature: build 'apps' with CLI
       | "apiVersion":"v1beta3" |
 
   # @author cryan@redhat.com
+  # @case_id 497657
+  @admin
+  @destructive
+  Scenario: Allowing only certain users to create builds with a particular strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Then the output should contain "build strategy Docker is not allowed"
+    Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
+    Given cluster role "system:build-strategy-docker" is added to the "first" user
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Given I get project builds
+    Then the output should contain "ruby-sample-build-1"
+
+  # @author cryan@redhat.com
   # @case_id 497701
   @admin
   @destructive
