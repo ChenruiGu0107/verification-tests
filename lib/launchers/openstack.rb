@@ -21,7 +21,7 @@ module CucuShift
 
     attr_reader :os_tenant_id, :os_tenant_name, :os_service_catalog
     attr_reader :os_user, :os_passwd, :os_url, :opts, :os_volumes_url
-    attr_accessor :os_token, :os_compute_url, :os_image, :os_flavor
+    attr_accessor :os_token, :os_image, :os_flavor
 
     def initialize(**options)
       # by default we look for 'openstack' service in configuration but lets
@@ -128,8 +128,8 @@ module CucuShift
       return @os_token
     end
 
-    def os_compute_url
-      return @os_compute_url if @os_compute_url
+    def os_compute_service
+      return @os_compute_service if @os_compute_service
       type = nil
 
       # older APIs may not work well with volume boot disks but we fallback
@@ -142,7 +142,7 @@ module CucuShift
             service['endpoints'] && !service['endpoints'].empty? &&
             service['endpoints'][0]['publicURL'] &&
             service['endpoints'][0]['publicURL'].include?(os_tenant_id)
-          @os_compute_url = service['endpoints'][0]['publicURL']
+          @os_compute_service = service
           type = service['type']
           if service['type'] == "computev3"
             break
@@ -150,14 +150,24 @@ module CucuShift
         end
       end
 
-      unless @os_compute_url
-        raise "could not find compute API URL in service catalog:\n#{os_service_catalog.to_yaml}"
+      unless @os_compute_service
+        raise "could not find compute API Service in service catalog:\n#{os_service_catalog.to_yaml}"
       end
       unless type == "computev3"
         logger.warn "Using compute API type #{type}, while expecting computev3"
       end
 
-      return @os_compute_url
+      return @os_compute_service
+    end
+
+    def os_compute_url
+      # select region?
+      os_compute_service['endpoints'][0]['publicURL']
+    end
+
+    def os_region
+      # maybe we don't want to always use same region?
+      os_compute_service['endpoints'][0]['region']
     end
 
     def os_volumes_url
@@ -171,6 +181,7 @@ module CucuShift
       raise "could not find volumes API URL in service catalog:\n#{os_service_catalog.to_yaml}"
     end
 
+    # @return object URL or faises and error
     def get_obj_ref(obj_name, obj_type, quiet: false)
       params = {}
       url = self.os_compute_url + '/' + obj_type
@@ -378,7 +389,7 @@ module CucuShift
 
     def create_instance(instance_name, **create_opts)
       params = nil
-      server_id = nil
+      server = nil
       url = nil
 
       attempts = 120
@@ -386,30 +397,21 @@ module CucuShift
         logger.info("launch attempt #{attempt}..")
 
         # if creation attempt was performed, get instance status
-        if url && params
-          res = self.rest_run(url, "GET", params, self.os_token)
-          result = res[:parsed]
+        if server
+          server.reload
         end
 
         # on first iteration and on instance launch failure we retry
-        if !result || result["server"]["status"] == "ERROR"
+        if !server || server.status == "ERROR"
           logger.info("** attempting to create an instance..")
           res = create_instance_api_call(instance_name, **create_opts)
-          server_id = res["server"]["id"] rescue next
-          params = {}
-          url = self.os_compute_url + '/' + 'servers/' + server_id
+          server = Instance.new(spec: res["server"], client: self) rescue next
           sleep 15
-        elsif result["server"]["status"] == "ACTIVE"
-          address_key = result["server"]["addresses"].keys[0]
-          if result["server"]["addresses"][address_key].length == 2
-            logger.info("Get the Private IP: #{result["server"]["addresses"][address_key][0]["addr"]}")
-            logger.info("Get the Pulic IP:   #{result["server"]["addresses"][address_key][1]["addr"]}")
-            return [
-              result["server"]["addresses"][address_key][0]["addr"],
-              result["server"]["addresses"][address_key][1]["addr"]
-            ]
+        elsif server.status == "ACTIVE"
+          if server.floating_ip
+            return server
           else
-            self.assign_ip(instance_name)
+            self.assign_ip(server.name)
           end
         else
           logger.info("Wait 10 seconds to get the IP of #{instance_name}")
@@ -472,10 +474,117 @@ module CucuShift
       host_opts = create_opts[:host_opts] || {}
       host_opts = opts[:host_opts].merge(host_opts) # merge with global opts
       names.each { |name|
-        _, ip = create_instance(name, **create_opts)
-        res[name] = Host.from_ip(ip, host_opts.merge({cloud_instance_name: name}))
+        instance = create_instance(name, **create_opts)
+        host_opts[:cloud_instance_name] = instance.name
+        host_opts[:cloud_instance] = instance
+        res[name] = Host.from_ip(instance.floating_ip, host_opts)
       }
       return res
+    end
+
+    class Instance
+      attr_reader :client
+
+      # @param client [CucuShift::OpenStack] the client to use for operations
+      # @param name [String] instance name as shown in console; required unless
+      #   `spec` is provided
+      # @param spec [Hash] the hash describing instance as returned by API
+      def initialize(client:, name: nil, spec: nil)
+        @spec = spec
+        @name = name
+        @client = client
+      end
+
+      private def spec(refresh: false)
+        return @spec if @spec && !refresh
+
+        res = client.rest_run(url, "GET", {}, client.os_token)
+
+        if res[:success]
+          @spec = res[:parsed]["server"]
+        else
+          raise "could not get instance"
+        end
+
+        return @spec
+      end
+
+      def reload
+        spec(refresh: true)
+        nil
+      end
+
+      def id
+        return @id ||= spec["id"]
+      end
+
+      def sec_groups
+        return @sec_group ||= spec["security_groups"]
+      end
+
+      def url
+        return @url if @url
+
+        if @spec
+          @url = spec["links"].find {|l| l["rel"] == "self"}["href"]
+        else
+          @url = client.get_obj_ref(name, "servers", quiet: true)
+        end
+
+        return @url
+      end
+
+      def region
+        # if we ever support multiple regions, we might be smart comparing
+        #   instance URL to the client endploints URLs
+        client.os_region
+      end
+
+      def name(refresh: false)
+        if refresh && !@spec
+          raise "cannot refresh instance name given we don't have spec"
+        elsif !refresh && !@spec
+          @name
+        else
+          reload if refresh
+          @spec["name"] || @name || raise("cannot (yet) get instance name, you can try to refresh later")
+        end
+      end
+
+      ["metadata", "created", "tenant_id", "key_name",
+       "updated", "addresses", "status"].each do |prop|
+        define_method(prop) do |refresh: false|
+          val = spec(refresh: refresh)[prop]
+        end
+      end
+
+      # @return one floating IP from the selected protocol version
+      def floating_ip(refresh: false, proto: 4)
+        if addresses(refresh: refresh)
+          addresses.first[1].each do |addr|
+            if addr["version"] = proto && addr["OS-EXT-IPS:type"] == "floating"
+              return addr["addr"]
+            end
+          end
+          return nil
+        else
+          return nil
+        end
+      end
+
+      # @return one internal IP from the selected protocol version
+      def internal_ip(refresh: false, proto: 4)
+        if addresses(refresh: refresh)
+          addresses.first[1].each do |addr|
+            if addr["version"] = proto && addr["OS-EXT-IPS:type"] == "fixed"
+              return addr["addr"]
+            end
+          end
+          return nil
+        else
+          return nil
+        end
+      end
     end
   end
 end

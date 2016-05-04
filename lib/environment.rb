@@ -164,6 +164,12 @@ module CucuShift
       return @api_version = api_paths[idx][5..-1]
     end
 
+    def nodes(user: admin, refresh: false)
+      return @nodes if @nodes && !refresh
+
+      @nodes = Node.list(user: user)
+    end
+
     def clean_up
       @user_manager.clean_up if @user_manager
       @hosts.each {|h| h.clean_up } if @hosts
@@ -201,12 +207,6 @@ module CucuShift
         end
       end
       return @hosts
-    end
-
-    def nodes(user: admin, refresh: false)
-      return @nodes if @nodes && !refresh
-
-      @nodes = Node.list(user: user)
     end
   end
 end
