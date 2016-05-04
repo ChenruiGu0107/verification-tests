@@ -607,3 +607,97 @@ Feature: creating 'apps' with CLI
      | strategy | docker |
     Then the step should fail
     And the output should contain "No Dockerfile"
+
+  # @author cryan@redhat.com
+  # @case_id 474039
+  Scenario: update multiple existing resources with file
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completes
+    Given 1 pods become ready with labels:
+      | deployment=frontend-1 |
+    #Change pod labels
+    When I run the :patch client command with:
+      | resource | pod |
+      | resource_name | <%= pod.name %> |
+      | p | {"metadata": {"labels": {"name":"changed"}}} |
+    Then the step should succeed
+    #Change buildconfig uri
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"spec": {"source": {"git": {"uri": "https://github.com/openshift/origin"}}}} |
+    Then the step should succeed
+    #Change service labels
+    Given I replace resource "services" named "frontend" saving edit to "serviceschange.json":
+      | app: ruby-sample-build | app: change |
+    When I run the :get client command with:
+      | resource | pods |
+      | resource_name | <%= pod.name %> |
+      | o | json |
+    Then the step should succeed
+    Given I save the output to file> podschange.json
+    When I run the :get client command with:
+      | resource | buildconfigs |
+      | o | json |
+    Then the step should succeed
+    Given I save the output to file> buildconfigschange.json
+    #Services are missing here, because they were replaced in the
+    #substitution above
+    When I run the :replace client command with:
+      | f | podschange.json |
+      | f | buildconfigschange.json |
+    Then the step should succeed
+    #Verify changes, and at the same time save the output to a directory
+    #and make new changes simultaneously.
+    Given I create the "change" directory
+    When I run the :get client command with:
+      | resource | services |
+      | o | json |
+    Then the output should contain:
+      | "app": "change" |
+    Given I save the output to file> change/services.json
+    Given I replace lines in "change/services.json":
+      | "app": "change" | "app": "change2" |
+    When I run the :get client command with:
+      | resource | pods |
+      | resource_name | <%= pod.name %> |
+      | o | json |
+    Then the output should contain:
+      | "name": "changed" |
+    Given I save the output to file> change/pods.json
+    Given I replace lines in "change/pods.json":
+      | "name": "changed" | "name": "changed2" |
+    When I run the :get client command with:
+      | resource | buildconfigs |
+      | o | json |
+    Then the output should contain:
+      | "uri": "https://github.com/openshift/origin" |
+    Given I save the output to file> change/buildconfig.json
+    Given I replace lines in "change/buildconfig.json":
+      | "uri": "https://github.com/openshift/origin" | "uri": "https://github.com/openshift/rails-ex" |
+    When I run the :replace client command with:
+      | f | change/ |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | services |
+      | o | json |
+    Then the output should contain:
+      | "app": "change2" |
+    When I run the :get client command with:
+      | resource | pods |
+      | resource_name | <%= pod.name %> |
+      | o | json |
+    Then the output should contain:
+      | "name": "changed2" |
+    When I run the :get client command with:
+      | resource | buildconfigs |
+      | o | json |
+    Then the output should contain:
+      | "uri": "https://github.com/openshift/rails-ex" |
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build completes
