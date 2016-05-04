@@ -91,3 +91,25 @@ Feature: Persistent Volume Claim binding policies
       | persistentVolumeClaim: |
       | claimName: nfsc        |
     """
+
+  # @author chaoyang@redhat.com
+  # @case_id 501012
+  @admin @destructive
+  Scenario: PV and PVC bound with accessmod rwx
+    Given I have a project
+    And I have a NFS service in the project
+
+    And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
+      | ["metadata"]["name"]       | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce                    |
+      | ["spec"]["accessModes"][1] | ReadWriteMany                    |
+      | ["spec"]["accessModes"][2] | ReadOnlyMany                     |
+
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json |
+
+    When I run the :get client command with:
+      | resource | pvc/nfsc |
+    Then the output should contain:
+      |Bound|
