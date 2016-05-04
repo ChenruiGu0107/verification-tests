@@ -43,7 +43,10 @@ When /^admin creates a PV from "([^"]*)" where:$/ do |location, table|
     _admin = admin
     teardown_add {
       @result = _pv.delete(by: _admin)
-      raise "could not remove PV: #{_pv.name}" unless @result[:success]
+      if !@result[:success] &&
+          @result[:response] !~ /persistent.*#{_pv.name}.*not found/i
+        raise "could not remove PV: #{_pv.name}"
+      end
     }
   else
     logger.error(@result[:response])
