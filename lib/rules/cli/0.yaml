@@ -143,13 +143,13 @@
 :env:
   :cmd: oc env
   :options:
-    :env_name: <value>
     :all: --all=<value>
-    :list: --list=<value>
-    :resource: <value>
-    :keyval: <value>
     :e: -e <value>
+    :env_name: <value>
+    :keyval: <value>
+    :list: --list=<value>
     :o: -o <value>
+    :resource: <value>
 :exec:
   # reorder global_options and options to allow specifying exec command
   :cmd: oc exec <pod> <global_options> <options>
