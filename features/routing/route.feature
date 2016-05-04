@@ -243,11 +243,9 @@ Feature: Testing route
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     And the pod named "hello-pod" becomes ready
-    And evaluation of `pod.name` is stored in the :ramp_pod clipboard
-    Given I execute on the "<%= cb.ramp_pod %>" pod:
+    Given I execute on the "<%= pod.name %>" pod:
       | wget |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | --no-check-certificate |
       | -O |
       | /tmp/ca.pem |
     
@@ -258,11 +256,93 @@ Feature: Testing route
       | cert | route_edge-www.edge.com.crt |
       | key | route_edge-www.edge.com.key |
     Then the step should succeed
-    When I execute on the "<%= cb.ramp_pod %>" pod:
+    When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
       | www.edge.com:443:<%= cb.router_ip[0] %> |
       | https://www.edge.com/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Hello-OpenShift"
+
+
+  # @author bmeng@redhat.com
+  # @case_id 470716
+  Scenario: Passthrough terminated route with custom cert
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    And the pod named "hello-pod" becomes ready
+    Given I execute on the "<%= pod.name %>" pod:
+      | wget |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
+      | -O |
+      | /tmp/ca.pem |
+    
+    When I run the :create_route_passthrough client command with:
+      | name | passthrough-route |
+      | hostname | www.example.com |
+      | service | service-secure |
+    Then the step should succeed
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | www.example.com:443:<%= cb.router_ip[0] %> |
+      | https://www.example.com/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Hello-OpenShift"
+
+
+  # @author bmeng@redhat.com
+  # @case_id 470717
+  Scenario: Reencrypt terminated route with custom cert
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    And the pod named "hello-pod" becomes ready
+    Given I execute on the "<%= pod.name %>" pod:
+      | wget |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
+      | -O |
+      | /tmp/ca.pem |
+    
+    When I run the :create_route_reencrypt client command with:
+      | name | route-recrypt |
+      | hostname | reen.example.com |
+      | service | service-secure |
+      | cert | route_reencrypt-reen.example.com.crt |
+      | key | route_reencrypt-reen.example.com.key |
+      | cacert | route_reencrypt.ca |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | reen.example.com:443:<%= cb.router_ip[0] %> |
+      | https://reen.example.com/ |
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
