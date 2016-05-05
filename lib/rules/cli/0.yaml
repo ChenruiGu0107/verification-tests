@@ -316,6 +316,7 @@
   :options:
     :app_repo: <value>
     :binary: --binary <value>
+    :build_secret: --build-secret=<value>
     :code: --code=<value>
     :docker_image: --docker-image=<value>
     :D : -D <value>
