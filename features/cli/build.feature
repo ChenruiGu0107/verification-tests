@@ -580,6 +580,7 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | app_repo | https://github.com/openshift/nodejs-ex |
     Then the step should succeed
+    And the "sti-nodejs-1" build completed
     And I git clone the repo "https://github.com/openshift/nodejs-ex"
     And I run the :start_build client command with:
       | buildconfig | nodejs-ex |
@@ -615,11 +616,11 @@ Feature: build 'apps' with CLI
       | app_repo | https://github.com/openshift/sti-nodejs.git |
       | context_dir | 0.10/test/test-app/                      |
     Then the step should succeed
+    Then the "sti-nodejs-1" build completed
     Given I git clone the repo "https://github.com/openshift/sti-nodejs.git"
     When I run the :start_build client command with:
       | buildconfig | sti-nodejs |
       | from_dir | sti-nodejs |
-    Then the "sti-nodejs-1" build completed
     And the "sti-nodejs-2" build completed
 
   # @author pruan@redhat.com
