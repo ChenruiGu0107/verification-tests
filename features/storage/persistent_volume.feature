@@ -113,3 +113,30 @@ Feature: Persistent Volume Claim binding policies
       | resource | pvc/nfsc |
     Then the output should contain:
       |Bound|
+
+  # @author chaoyang@redhat.com
+  # @case_id 501014
+  @admin @destructive
+  Scenario: PV and PVC does not bound due to mismatched accessmode
+    Given I have a project
+    And I have a NFS service in the project
+
+    And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
+      | ["metadata"]["name"]       | nfs-<%= project.name %>  |
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+      | ["spec"]["accessModes"][0] | ReadWriteMany                    |
+      | ["spec"]["accessModes"][1] | ReadOnlyMany                     |
+
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
+
+    When I run the :get client command with:
+      | resource | pvc/nfsc |
+    Then the output should contain:
+      | Pending |
+    
+    And I run the :get admin command with:
+      | resource | pv/nfs-<%= project.name %> |
+    Then the output should contain:
+      | Available |
+ 
