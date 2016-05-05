@@ -41,7 +41,7 @@ module CucuShift
       @dcs = []
       @image_streams = []
       # used to store node the user wants to run commands on
-      @target_node = nil
+      @host = nil
 
       # procs and lambdas to call on clean-up
       @teardown = []
@@ -132,8 +132,8 @@ module CucuShift
       env.admin
     end
 
-    def target_node
-      return @target_node
+    def host
+      return @host
     end
 
     # @return project from cached projects for this scenario
