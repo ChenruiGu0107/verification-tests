@@ -146,3 +146,34 @@ Feature: buildlogic.feature
     | buildname                               | template                                                                                                                   |
     | ruby-sample-build-onbuild-user0-1       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-user0.json      |
     | ruby-sample-build-onbuild-userdefault-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-userdefault.json|
+  
+  # @author haowang@redhat.com
+  # @case_id 497420 497421 497460 497461 497462 497463
+  Scenario Outline: ForcePull image for build
+    Given I have a project
+    And I run the :create client command with:
+      | f | <template> |
+    Then the step should succeed
+    And the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build becomes :running
+    When I run the :describe client command with:
+      | resource | build               |
+      | name     | ruby-sample-build-1 |
+    Then the step should succeed
+    And the output should match:
+      | Force Pull:\s+(true\|yes)|
+    When I run the :logs client command with:
+      | resource_name    | pod/ruby-sample-build-1-build |
+    Then the step should succeed
+    And the output should contain:
+      | "forcePull":true |
+
+    Examples:
+      | template                                                                                                                      |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStream.json      |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStream.json         |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-dockerimage.json      |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-dockerimage.json         |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStreamImage.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStreamImage.json    |
+
