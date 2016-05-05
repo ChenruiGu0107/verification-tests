@@ -249,6 +249,9 @@
 :import_image:
   :cmd: oc import-image
   :options:
+    :all: --all=<value>
+    :confirm: --confirm=<value>
+    :from: --from=<value>
     :image_name: <value>
 :label:
   :cmd: oc label <resource>
@@ -314,6 +317,7 @@
 :new_build:
   :cmd: oc new-build
   :options:
+    :allow_missing_imagestream_tags: --allow-missing-imagestream-tags=<value>
     :app_repo: <value>
     :binary: --binary <value>
     :build_secret: --build-secret=<value>
