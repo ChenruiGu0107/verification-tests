@@ -336,7 +336,7 @@ module CucuShift
 
       if name
         is = @image_streams.find {|s| s.name == name && s.project == project}
-        if is && @image_streams.last == b
+        if is && @image_streams.last == is
           return is
         elsif is
           @image_streams << @image_streams.delete(is)
