@@ -618,6 +618,39 @@ Feature: ServiceAccount and Policy Managerment
       | serviceAccountName: myserviceaccount |
       | secretName: myserviceaccount-token   |
 
+  # @author xiacowan@redhat.com
+  # @case_id 483279
+  Scenario:Check project service accounts and API tokens associated with the accounts
+    Given I have a project
+    When I get project sa
+    Then the output should contain:
+      | default  |
+      | builder  | 
+      | deployer |
+    When I get project secret
+    Then the output should contain:
+      | default-token-  |
+      | builder-token-  | 
+      | deployer-token- |
+    When I run the :describe client command with:
+      | resource | secret |
+      | name     | <%= "default-token-"+@result[:response].split("default-token-")[1].split(" ")[0] %> |
+    Then the output should match:
+      | token:\\s+\w+ |
+    When I get project secret
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret |
+      | name     | <%= "builder-token-"+@result[:response].split("builder-token-")[1].split(" ")[0] %> |
+    Then the output should match:
+      | token:\\s+\w+ |
+    When I get project secret
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret |
+      | name     | <%= "deployer-token-"+@result[:response].split("deployer-token-")[1].split(" ")[0] %> |
+    Then the output should match:
+      | token:\\s+\w+ |
 
   # @author wjiang@redhat.com
   # @case_id 520589
@@ -709,4 +742,5 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     Then the output should contain:
       |system:serviceaccount:<%= project.name %>:<%= cb.serviceaccount_name %>|
+
 
