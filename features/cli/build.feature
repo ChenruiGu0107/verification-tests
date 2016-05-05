@@ -1211,6 +1211,68 @@ Feature: build 'apps' with CLI
       | type: Docker   |
 
   # @author cryan@redhat.com
+  # @case_id 517670
+  Scenario: Using a docker image as source input using new-build cmd
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
+      | n | <%= project.name %> |
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | <%= project.name %>/python:latest |
+      | source_image_path | /tmp:xiuwangtest/ |
+      | name | final-app |
+      | allow_missing_imagestream_tags| true |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | final-app |
+      | o | yaml |
+    Then the output should match:
+      | kind:\s+ImageStreamTag |
+      | name:\s+python:latest |
+      | destinationDir:\s+xiuwangtest |
+      | sourcePath:\s+/tmp |
+    Given the "final-app-2" build completes
+    Given I get project builds
+    #Create a deploymentconfig to generate pods to test on,
+    #Avoids the use of direct docker commands.
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc517670/dc.json"
+    Then the step should succeed
+    Given I replace lines in "dc.json":
+      | replaceme | final-app |
+    Given I replace lines in "dc.json":
+      | origin-ruby22-sample | final-app |
+    When I run the :create client command with:
+      | f | dc.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=frontend |
+    When I execute on the "<%= pod.name %>" pod:
+      | ls | -al | xiuwangtest |
+    Then the output should contain "tmp"
+    Given I replace resource "buildconfig" named "final-app" saving edit to "edit_bldcfg.json":
+      | destinationDir: xiuwangtest/ | destinationDir: test/ |
+    When I run the :start_build client command with:
+      | buildconfig | final-app |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=frontend-2 |
+    When I execute on the "<%= pod.name %>" pod:
+      | ls | -al | test |
+    Then the output should contain "tmp"
+    Then I run the :import_image client command with:
+      | image_name | python |
+      | all | true |
+      | confirm | true |
+      | from | docker.io/openshift/python-33-centos7 |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain "final-app-4"
+
+  # @author cryan@redhat.com
   # @case_id 519259
   Scenario: Cannot create secret from local file and with same name via oc new-build
     Given I have a project
