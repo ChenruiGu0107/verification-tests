@@ -133,7 +133,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     When I execute on the pod:
       | grep | opt2 | /proc/mounts |
     Then the step should fail
-    # add pvc to dc with '--overwrite' option 
+    # add pvc to dc with '--overwrite' option
     When I run the :volume client command with:
       | resource      | dc/mydb                 |
       | action        | --add                   |
@@ -432,7 +432,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Given I have a project
     Given I have a NFS service in the project
 
-    # Creating PV 
+    # Creating PV
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
     | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     Then the step should succeed
@@ -489,3 +489,112 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the output should contain:
     |opt111|
 
+  # @author lxia@redhat.com
+  # @case_id 519349
+  @admin
+  @destructive
+  Scenario: Pod should be able to mount multiple PVCs
+    # Preparations
+    Given I have a project
+    And I have a NFS service in the project
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | mkdir -p /mnt/mydata ; echo '/mnt/mydata *(rw,sync,no_root_squash,insecure)' >> /etc/exports ; exportfs -a |
+    Then the step should succeed
+
+    When I run the :new_app client command with:
+      | image_stream | openshift/mongodb |
+      | env | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
+      | name | mydb |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | app=mydb |
+
+    # create 2 PVs and PVCs
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json"
+    And I replace lines in "pvc-template.json":
+      | #NS# | <%= project.name %> |
+    And I run the :create client command with:
+      | f | pvc-template.json |
+    Then the step should succeed
+    Given the PV becomes :bound
+
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]      | nfs1-<%= project.name %>         |
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json"
+    And I replace lines in "pvc-template.json":
+      | nfsc-#NS# | nfsc1-<%= project.name %> |
+      | nfs-#NS#  | nfs1-<%= project.name %>  |
+    And I run the :create client command with:
+      | f | pvc-template.json |
+    Then the step should succeed
+    Given the PV becomes :bound
+
+    # add pvc to dc
+    When I run the :volume client command with:
+      | resource   | dc/mydb               |
+      | action     | --add                 |
+      | type       | persistentVolumeClaim |
+      | mount-path | /opt1                 |
+      | name       | volume1               |
+      | claim-name | nfsc-<%= project.name %> |
+    Then the step should succeed
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | app=mydb |
+    When I run the :volume client command with:
+      | resource   | dc/mydb               |
+      | action     | --add                 |
+      | type       | persistentVolumeClaim |
+      | mount-path | /opt2                 |
+      | name       | volume2               |
+      | claim-name | nfsc1-<%= project.name %> |
+    Then the step should succeed
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | app=mydb |
+
+    # check after add pvc to dc
+    When I run the :get client command with:
+      | resource | dc   |
+      | output   | yaml |
+    Then the step should succeed
+    And the output should contain:
+      | mountPath: /opt1       |
+      | mountPath: /opt2       |
+      | name: volume1          |
+      | name: volume2          |
+      | persistentVolumeClaim: |
+      | claimName: nfsc-<%= project.name %>  |
+      | claimName: nfsc1-<%= project.name %> |
+
+    When I execute on the pod:
+      | df |
+    Then the step should succeed
+    And the output should contain:
+      | <%= service("nfs-service").ip %>:/ |
+    When I execute on the pod:
+      | mount |
+    Then the step should succeed
+    And the output should contain:
+      | <%= service("nfs-service").ip %>:/ |
+      | /opt1 |
+      | /opt2 |
+
+    When I run the :get client command with:
+      | resource | pods |
+      | output   | yaml |
+    Then the step should succeed
+    And the output should contain:
+      | mountPath: /opt1       |
+      | mountPath: /opt2       |
+      | name: volume1          |
+      | name: volume2          |
+      | persistentVolumeClaim: |
+      | claimName: nfsc-<%= project.name %>  |
+      | claimName: nfsc1-<%= project.name %> |
