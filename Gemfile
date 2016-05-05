@@ -32,6 +32,7 @@ gem 'jira-ruby'
 
 # replacemen for nokogiri as it's easier to install w/o system lib dependencies
 gem 'oga'
+gem 'gherkin', '>=4.0.0'
 # gem 'nokogiri'
 # gem 'mongo'
 # gem 'bson_ext'

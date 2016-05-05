@@ -295,7 +295,10 @@ def update_script(options)
   gparser = CucuShift::GherkinParse.new
   file_contents = gparser.parse_feature(File.join(get_cucushift_home, path))
   #Iterate over each scenario in a file
-  file_contents[:scenarioDefinitions].each do |scenario|
+  # XXX for gherkin 4.0  or greater, the hash structures have changed and not
+  # backward compatible
+  # https://github.com/cucumber/gherkin/blob/master/CHANGELOG.md
+  file_contents[:feature][:children].each do |scenario|
     # need to clear out arg_hash each iteration.
     arg_hash = {}
     #Check for the Scenario description. If a basic scenario, take the description.
