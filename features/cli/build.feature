@@ -1024,6 +1024,65 @@ Feature: build 'apps' with CLI
     Then the output should contain "envtest1"
 
   # @author cryan@redhat.com
+  # @case_id 483592
+  Scenario: Sync build status after delete its related pod
+    Given I have a project
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/php-55-rhel7-stibuild.json"
+    Then the step should succeed
+    Given the pod named "php-sample-build-1-build" status becomes :running
+    When I run the :delete client command with:
+      | object_type | pod |
+      | object_name_or_id | php-sample-build-1-build |
+    Then the step should succeed
+    Given the "php-sample-build-1" build finishes
+    Given I get project builds
+    Then the output should contain "Failed"
+    When I run the :start_build client command with:
+      | buildconfig | php-sample-build |
+    Then the step should succeed
+    Given the pod named "php-sample-build-2-build" status becomes :running
+    When I run the :delete client command with:
+      | object_type | pod |
+      | object_name_or_id | php-sample-build-2-build |
+    Then the step should succeed
+    Given the "php-sample-build-2" build finishes
+    Given I get project builds
+    Then the output should contain "Failed"
+    When I run the :start_build client command with:
+      | buildconfig | php-sample-build |
+    Then the step should succeed
+    Given the "php-sample-build-3" build completes
+    When I run the :delete client command with:
+      | object_type | pod |
+      | object_name_or_id | php-sample-build-3-build |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | builds |
+      | resource_name | php-sample-build-3 |
+    Then the output should contain "Complete"
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | php-sample-build |
+      | p | {"spec": {"source": {"git": {"uri": "https://nonexist.com"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | php-sample-build |
+    Then the step should succeed
+    Given the "php-sample-build-4" build finishes
+    When I run the :get client command with:
+      | resource | builds |
+      | resource_name | php-sample-build-4 |
+    Then the output should contain "Failed"
+    When I run the :delete client command with:
+      | object_type | pod |
+      | object_name_or_id | php-sample-build-4-build |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | builds |
+      | resource_name | php-sample-build-4 |
+    Then the output should contain "Failed"
+
+  # @author cryan@redhat.com
   # @case_id 521427
   Scenario: Overriding builder image scripts by invalid scripts in buildConfig
     Given I have a project
