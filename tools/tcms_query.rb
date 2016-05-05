@@ -298,7 +298,14 @@ def update_script(options)
   # XXX for gherkin 4.0  or greater, the hash structures have changed and not
   # backward compatible
   # https://github.com/cucumber/gherkin/blob/master/CHANGELOG.md
-  file_contents[:feature][:children].each do |scenario|
+  if file_contents.has_key? :feature
+    # for gherkin 4.0 or greater
+    scenarios = file_contents[:feature][:children]
+  else
+    scenarios = file_contents[:scenarioDefinitions]
+  end
+
+  scenarios.each do |scenario|
     # need to clear out arg_hash each iteration.
     arg_hash = {}
     #Check for the Scenario description. If a basic scenario, take the description.
