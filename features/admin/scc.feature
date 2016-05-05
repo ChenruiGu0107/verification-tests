@@ -165,9 +165,9 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_hostdir.json|
     Then the step should fail
-    And the output should contain: 
+    And the output should match: 
         |unable to validate against any security context constraint|
-        |Host Volumes are not allowed to be used|
+        |ost.*[Vv]olumes are not allowed |
 
     # Create new scc to allow the hostdir for pod in specify project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_hostdir.yaml"

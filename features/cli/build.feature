@@ -457,7 +457,7 @@ Feature: build 'apps' with CLI
     When I execute on the "<%= cb.frontendpod2 %>" pod:
       | env |
     Then the step should succeed
-    And the output should contain "RACK_ENV=development"
+    And the output should contain "RACK_ENV=production"
 
   # @author cryan@redhat.com
   # @case_id 498212
@@ -995,6 +995,20 @@ Feature: build 'apps' with CLI
     """
 
   # @author cryan@redhat.com
+  # @case_id 522440
+  Scenario: Check bad proxy in .s2i/environment when performing s2i build
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
+    Given I replace lines in "ruby20rhel7-template-sti.json":
+      | "uri": "https://github.com/openshift/ruby-hello-world.git" | "uri": "https://github.com/openshift-qe/ruby-hello-world-badproxy.git" |
+    Given I process and create "ruby20rhel7-template-sti.json"
+    Given the "ruby-sample-build-1" build finishes
+    When I run the :build_logs client command with:
+      | build_name | ruby-sample-build-1 |
+    Then the step should succeed
+    And the output should contain "Could not fetch specs"
+
+  # @author cryan@redhat.com
   # @case_id 482216
   Scenario: Add ENV vars to .sti/environment when do sti build in openshift
     Given I have a project
@@ -1010,6 +1024,45 @@ Feature: build 'apps' with CLI
     Then the output should contain "envtest1"
 
   # @author cryan@redhat.com
+  # @case_id 521427
+  Scenario: Overriding builder image scripts by invalid scripts in buildConfig
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"scripts": "http:/foo.bar.com/invalid/assemble"}}}} |
+      Then the step should succeed
+      When I run the :start_build client command with:
+        | buildconfig | ruby-sample-build |
+      Then the step should succeed
+      Given the "ruby-sample-build-1" build finishes
+      When I run the :logs client command with:
+        | resource_name | build/ruby-sample-build-2 |
+      Then the step should succeed
+      And the output should contain "Could not download"
+
+  # @case_id 517666
+  Scenario: Add a image with multiple paths as source input
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc517666/ruby22rhel7-template-sti.json |
+    Given the "ruby22-sample-build-1" build completes
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | o | yaml |
+    Then the output should contain "xiuwangs2i-2"
+    Given 2 pods become ready with labels:
+      | deployment=frontend-1 |
+    When I execute on the "<%= pod.name %>" pod:
+      | ls |
+    Then the step should succeed
+    And the output should contain "xiuwangs2i-2"
+
+  # @author cryan@redhat.com
   # @case_id 521602
   Scenario: Overriding builder image scripts in buildConfig under invalid proxy
     Given I have a project
@@ -1020,7 +1073,7 @@ Feature: build 'apps' with CLI
       | resource | buildconfig |
       | resource_name | ruby-sample-build |
       | p | {"spec": {"strategy": {"sourceStrategy": {"scripts": "https://raw.githubusercontent.com/dongboyan77/builderimage-scripts/master/bin"}}}} |
-      Then the step should succeed
+    Then the step should succeed
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby-sample-build |
@@ -1082,3 +1135,160 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     And the output should contain:
       | "apiVersion":"v1beta3" |
+
+  # @author cryan@redhat.com
+  # @case_id 497657
+  @admin
+  @destructive
+  Scenario: Allowing only certain users to create builds with a particular strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Then the output should contain "build strategy Docker is not allowed"
+    Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
+    Given cluster role "system:build-strategy-docker" is added to the "first" user
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Given I get project builds
+    Then the output should contain "ruby-sample-build-1"
+
+  # @author cryan@redhat.com
+  # @case_id 497701
+  @admin
+  @destructive
+  Scenario: Can't start a new build when disable a build strategy globally after buildconfig has been created
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build becomes :running
+    Given I get project builds
+    Then the output should contain "ruby-sample-build-1"
+    Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the output should contain "Docker is not allowed"
+
+  # @author dyan@redhat.com
+  # @case_id 519593
+  Scenario: oc new-build --binary should create BC according to the imagetype
+    Given I have a project
+    When I run the :new_build client command with:
+      | binary | ruby |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc |
+      | resource_name | ruby |
+      | o             | yaml |
+    Then the step should succeed
+    And the output should contain:
+      | sourceStrategy |
+      | type: Source   |
+    When I run the :new_build client command with:
+      | binary | registry.access.redhat.com/rhscl/ruby-22-rhel7:latest |
+      | to     | ruby1 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc |
+      | resource_name | ruby1 |
+      | o             | yaml  |
+    Then the step should succeed
+    And the output should contain:
+      | sourceStrategy |
+      | type: Source   |
+    When I run the :new_build client command with:
+      | binary | ruby |
+      | strategy | docker |
+      | to     | ruby2 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc |
+      | resource_name | ruby2 |
+      | o             | yaml |
+    Then the step should succeed
+    And the output should contain:
+      | dockerStrategy |
+      | type: Docker   |
+
+  # @author cryan@redhat.com
+  # @case_id 519259
+  Scenario: Cannot create secret from local file and with same name via oc new-build
+    Given I have a project
+    #Reusing similar secrets to TC #519256
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | image_stream | ruby:2.2 |
+      | app_repo | https://github.com/openshift-qe/build-secret.git |
+      | build_secret | /local/src/file:/destination/dir |
+    Then the step should fail
+    And the output should contain "must be valid secret"
+    When I run the :new_build client command with:
+      | image_stream | ruby:2.2 |
+      | app_repo | https://github.com/openshift-qe/build-secret.git |
+      | strategy | docker |
+      | build_secret | testsecret1:/tmp/mysecret |
+      | build_secret | testsecret2 |
+    Then the step should fail
+    And the output should contain "must be a relative path"
+
+  # @author cryan@redhat.com
+  # @case_id 517669
+  Scenario: Using a docker image as source input for new-build cmd--negetive test
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | openshift/jenkins:latest |
+      | source_image_path | src/:/destination-dir |
+      | name | app1 |
+    Then the step should fail
+    And the output should contain "relative path"
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | openshift/jenkins:latest |
+      | source_image_path | /non-existing-source/:destination-dir  |
+      | name | app2 |
+    Then the step should succeed
+    Given the "app2-1" build finishes
+    When I run the :logs client command with:
+      | resource_name | build/app2-1 |
+    Then the output should contain "no such file or directory"
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | openshift/jenkins:latest |
+      | source_image_path | /opt/openshift:Dockerfile |
+      | name | app3 |
+    Then the step should succeed
+    Given the "app3-1" build finishes
+    When I run the :logs client command with:
+      | resource_name | build/app3-1 |
+    Then the output should contain "must be a directory"
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image_path | /source-dir/:destiontion-dir/ |
+      | name | app4 |
+    Then the step should fail
+    And the output should contain "source-image must be specified"
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | openshift/jenkins:latest |
+      | name | app5 |
+    Then the step should fail
+    And the output should contain "source-image-path must be specified"
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby:latest |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | source_image | openshift/jenkins:latest |
+      | source_image_path ||
+      | name | app6 |
+    Then the step should fail
+    And the output should contain "source-image-path must be specified"

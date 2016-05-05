@@ -133,6 +133,8 @@ require 'watir-webdriver'
           res_join result, *spec.map { |st| handle_script(st, **user_opts) }
         when :cookies
           res_join result, *spec.map {|ck| handle_cookie(ck,**user_opts) }
+        when :with_window
+          res_join result, handle_switch_window(spec, **user_opts)
         else
           raise "unknown rule '#{rule}'"
         end
@@ -201,6 +203,29 @@ require 'watir-webdriver'
         exitstatus: -1
       }
       return res
+    end
+    
+    # window_rule[:selector] could be Regexp or String format of window's url/title
+    # see the example in lib/rules/web/console/debug.xyaml  
+    def handle_switch_window(window_rule, **user_opts)
+      unless window_rule.kind_of? Hash
+        raise "switch window rule should be a Hash."
+      end
+
+      unless window_rule.has_key?(:selector) && window_rule.has_key?(:action)
+        raise "switch window lack of selector or action"
+      end
+
+      if browser.window(window_rule[:selector]).exists?
+        browser.window(window_rule[:selector]).use do
+          return handle_action(window_rule[:action], **user_opts)
+        end
+      else
+        for win in browser.windows
+         logger.warn("window title: #{win.title}, window url: #{win.url}")
+        end
+        raise "specified window not found: #{window_rule[:selector].to_s}"
+      end
     end
 
     def handle_action(action_body, **user_opts)

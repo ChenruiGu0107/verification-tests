@@ -4,7 +4,7 @@ Given /^the(?: "([^"]*)")? PV becomes :(.+)$/ do |pv_name, status|
   @result = pv(pv_name).wait_till_status(status.to_sym, admin, 30)
 
   unless @result[:success]
-    raise "build #{pv_name} never reached status: #{status}"
+    raise "PV #{pv_name} never reached status: #{status}"
   end
 end
 
@@ -36,14 +36,17 @@ When /^admin creates a PV from "([^"]*)" where:$/ do |location, table|
   @result = CucuShift::PersistentVolume.create(by: admin, spec: pv_hash)
 
   if @result[:success]
-    @pvs << @result[:pv]
+    @pvs << @result[:resource]
 
     # register mandatory clean-up
-    _pv = @result[:pv]
+    _pv = @result[:resource]
     _admin = admin
     teardown_add {
       @result = _pv.delete(by: _admin)
-      raise "could not remove PV: #{_pv.name}" unless @result[:success]
+      if !@result[:success] &&
+          @result[:response] !~ /persistent.*#{_pv.name}.*not found/i
+        raise "could not remove PV: #{_pv.name}"
+      end
     }
   else
     logger.error(@result[:response])

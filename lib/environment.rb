@@ -5,14 +5,17 @@ require 'admin_cli_executor'
 require 'cluster_admin'
 require 'user_manager'
 require 'host'
-require 'rest'
 require 'http'
+require 'net'
+require 'rest'
 require 'openshift/node'
 require 'webauto/webconsole_executor'
 
 module CucuShift
   # @note this class represents an OpenShift test environment and allows setting it up and in some cases creating and destroying it
   class Environment
+    include Common::Helper
+
     attr_reader :opts
 
     # :master represents register, scheduler, etc.
@@ -99,6 +102,44 @@ module CucuShift
       opts[:web_console_url] || api_endpoint_url
     end
 
+    # obtain router detals like default router subdomain and router IPs
+    # @param user [CucuShift::User]
+    # @param project [CucuShift::project]
+    def get_routing_details(user:, project:)
+      clean_project = false
+
+      service_res = Service.create(by: user, project: project, spec: 'https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/service_with_selector.json')
+      raise "cannot create service" unless service_res[:success]
+      service = service_res[:resource]
+
+      ## create a dummy route
+      route = CucuShift::Route.new(name: "selector-service", service: service)
+      route_res = route.create(by: user)
+      raise "cannot create route" unless route_res[:success]
+
+      fqdn = route.dns(by: user)
+      opts[:router_subdomain] = fqdn.split('.',2)[1]
+      opts[:router_ips] = Common::Net.dns_lookup(fqdn, multi: true)
+
+      raise unless route.delete(by: user)[:success]
+      raise unless service.delete(by: user)[:success]
+    end
+
+    def router_ips(user:, project:)
+      unless opts[:router_ips]
+        get_routing_details(user: user, project: project)
+      end
+
+      return opts[:router_ips]
+    end
+
+    def router_default_subdomain(user:, project:)
+      unless opts[:router_subdomain]
+        get_routing_details(user: user, project: project)
+      end
+      return opts[:router_subdomain]
+    end
+
     # get environment supported API paths
     def api_paths
       return @api_paths if @api_paths
@@ -121,6 +162,12 @@ module CucuShift
       return @api_version if @api_version
       idx = api_paths.rindex{|p| p.start_with?("/api/v")}
       return @api_version = api_paths[idx][5..-1]
+    end
+
+    def nodes(user: admin, refresh: false)
+      return @nodes if @nodes && !refresh
+
+      @nodes = Node.list(user: user)
     end
 
     def clean_up
@@ -160,12 +207,6 @@ module CucuShift
         end
       end
       return @hosts
-    end
-
-    def nodes(user: admin, refresh: false)
-      return @nodes if @nodes && !refresh
-
-      @nodes = Node.list(user: user)
     end
   end
 end

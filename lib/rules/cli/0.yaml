@@ -107,6 +107,8 @@
   :options:
     :f: -f <value>
     :filename: --filename=<value>
+:create_serviceaccount:
+  :cmd: oc create serviceaccount <serviceaccount_name>
 :delete:
   :cmd: oc delete
   :options:
@@ -141,13 +143,13 @@
 :env:
   :cmd: oc env
   :options:
-    :env_name: <value>
     :all: --all=<value>
-    :list: --list=<value>
-    :resource: <value>
-    :keyval: <value>
     :e: -e <value>
+    :env_name: <value>
+    :keyval: <value>
+    :list: --list=<value>
     :o: -o <value>
+    :resource: <value>
 :exec:
   # reorder global_options and options to allow specifying exec command
   :cmd: oc exec <pod> <global_options> <options>
@@ -208,6 +210,25 @@
   :options:
     :hostname: --hostname=<value>
     :service: --service=<value>
+    :cert: --cert=<value>
+    :key: --key=<value>
+    :cacert: --ca-cert=<value>
+    :path: --path=<value>
+:create_route_passthrough:
+  :cmd: oc create route passthrough <name>
+  :options:
+    :hostname: --hostname=<value>
+    :service: --service=<value>
+:create_route_reencrypt:
+  :cmd: oc create route reencrypt <name>
+  :options:
+    :hostname: --hostname=<value>
+    :service: --service=<value>
+    :cert: --cert=<value>
+    :key: --key=<value>
+    :cacert: --ca-cert=<value>
+    :destcacert: --dest-ca-cert=<value>
+    :path: --path=<value>
 :get:
   :cmd: oc get <resource>
   :options:
@@ -270,30 +291,32 @@
 :new_app:
   :cmd: oc new-app
   :options:
+    :allow_missing_images: --allow-missing-images=<value>
     :app_repo: <value>
-    :labels: --labels=<value>
+    :code: --code=<value>
+    :context_dir: --context-dir=<value>
+    :docker_image: --docker-image=<value>
+    :env: --env=<value>
+    :file: --file=<value>
+    :group: --group=<value>
+    :image: --image=<value>
+    :image_stream: --image-stream=<value>
+    :insecure_registry: --insecure-registry=<value>
     :l: -l <value>
+    :labels: --labels=<value>
     :name: --name=<value>
-    :strategy: --strategy=<value>
-    :template: --template=<value>
     :output: --output=<value>
     :param: --param=<value>
-    :insecure_registry: --insecure-registry=<value>
-    :image_stream: --image-stream=<value>
-    :image: --image=<value>
-    :group: --group=<value>
-    :file: --file=<value>
-    :env: --env=<value>
-    :docker_image: --docker-image=<value>
-    :context_dir: --context-dir=<value>
-    :code: --code=<value>
     :search: --search=<value>
     :search_raw: --search <value>
-    :allow_missing_images: --allow-missing-images=<value>
+    :strategy: --strategy=<value>
+    :template: --template=<value>
 :new_build:
   :cmd: oc new-build
   :options:
     :app_repo: <value>
+    :binary: --binary <value>
+    :build_secret: --build-secret=<value>
     :code: --code=<value>
     :docker_image: --docker-image=<value>
     :D : -D <value>
@@ -303,6 +326,8 @@
     :l: -l <value>
     :name: --name=<value>
     :output: --output=<value>
+    :source_image: --source-image=<value>
+    :source_image_path: --source-image-path=<value>
     :strategy: --strategy=<value>
     :template: --template=<value>
     :to_docker: --to-docker=<value>
@@ -427,7 +452,10 @@
   :cmd: oc rsh <global_options> <options>
   :options:
     :app_name: <value>
+    :c: --container=<value>
+    :command: <value>
     :pod: <value>
+    :shell: --shell=<value>
 :rsync:
   #either source or destination must be in to format POD:/remote/dir/, i.e.
   #oc rsync ./local/dir/ POD:/remote/dir
@@ -475,7 +503,9 @@
     :for: --for=<value>
     :username: --username=<value>
     :password: --password=<value>
-:serviceaccounts_new_token: 
+:serviceaccounts_get_token:
+  :cmd: oc serviceaccounts get-token <serviceaccount_name>
+:serviceaccounts_new_token:
   :cmd: oc serviceaccounts new-token <serviceaccount_name>
   :options:
     :labels: --labels=<labels>
@@ -492,15 +522,38 @@
     :e: -e <value>
     :o: -o <value>
     :f: -f <value>
+:set_probe:
+  :cmd: oc set probe <global_options> <options>
+  :options:
+    :all: --all
+    :oc_opts_end: --
+    :exec_command: <value>
+    :failure_threshold: --failure-threshold=<value>
+    :get_url: --get-url=<value>
+    :initial_delay_seconds: --initial-delay-seconds=<value>
+    :liveness: --liveness
+    :no_headers: --no-headers
+    :open_tcp: --open-tcp=<value>
+    :output_version: --output-version=<value>
+    :period_seconds: --period-seconds=<value>
+    :readiness: --readiness
+    :remove: --remove
+    :resource: <value>
+    :success_threshold: --success-threshold=<value>
+    :timeout_seconds: --timeout-seconds=<value>
+    :c: -c <value>
+    :f: -f <value>
+    :l: -l <value>
+    :o: -o <value>
 :set_triggers:
   :cmd: oc set triggers
   :options:
     :all: --all=<value>
     :auto: --auto=<value>
     :containers: --containers=<value>
-    :from_config: --from-config=<value>    
-    :from_github: --from-github=<value>    
-    :from_image: --from-image=<value>    
+    :from_config: --from-config=<value>
+    :from_github: --from-github=<value>
+    :from_image: --from-image=<value>
     :from_webhook: --from-webhook=<value>
     :manual: --manual=<value>
     :remove: --remove=<value>
@@ -509,7 +562,7 @@
     :f: --filename=<value>
     :l: -l <value>
     :o: --output=<value>
-    :t: --template=<value>    
+    :t: --template=<value>
 :start_build:
   :cmd: oc start-build
   :options:
@@ -550,8 +603,9 @@
     :oc_version: !ruby/regexp '/^oc v(.+)$/'
     :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
 :volume:
-  :cmd: oc volume <resource>
+  :cmd: oc volume
   :options:
+    :resource: <value>
     :resource_name: <value>
     :action: <value>
     :confirm: --confirm=<value>
@@ -584,6 +638,12 @@
     :role_namespace: --role-namespace=<value>
 :oadm_add_role_to_group:
   :cmd: oadm policy add-role-to-group <role_name> <group_name>
+:oadm_build_chain:
+  :cmd: oadm build-chain
+  :options:
+    :all: --all=<value>
+    :imagestreamtag: <value>
+    :invalid_option: <value>   # for negative testing
 :oadm_new_project:
   :cmd: oadm new-project <project_name>
   :expected:

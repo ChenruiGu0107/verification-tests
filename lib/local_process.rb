@@ -30,7 +30,7 @@ module CucuShift
         log_text << opts[:env].inject("") { |r,e| r << e.join('=') << "\n" }
       end
       log_text << result[:command]
-      logger.info(log_text)
+      logger.info(log_text) unless opts[:quiet]
 
       spawn
     end
@@ -224,8 +224,8 @@ module CucuShift
             unless result[:stderr].equal?(result[:stdout])
               logger.plain(result[:stderr], false)
             end
+            logger.info("Exit Status: #{result[:exitstatus]}")
           end
-          logger.info("Exit Status: #{result[:exitstatus]}")
 
           @status = :finished
           return result

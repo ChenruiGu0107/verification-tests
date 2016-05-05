@@ -5,6 +5,7 @@ $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib")
 require 'tcms/tcms'
 
 require 'commander'
+require 'gherkin_parse'
 require 'yaml'
 require 'zlib'
 
@@ -31,7 +32,7 @@ module CucuShift
 
     def run
       program :name, 'tcms_backup_plans'
-      program :version, '0.0.3'
+      program :version, '0.0.4'
       program :description, 'Tool to backup TCMS plans into YAML files'
 
       # global_option('-p', '--plan-ids PLAN_IDS', 'comma separated list of plans to backup')
@@ -522,7 +523,7 @@ module CucuShift
           #Get Scenario tags from the source code
           #The 'metadata' key stores the author, case_id, and bug_id if they appear
           #to be used later if necessary.
-          scenario_tags = {case_id => [], "metadata" => []}
+          scenario_tags = {case_id => []}
           #Check for TCMS/source code automation mismatch
           auto_mismatch = {case_id => []}
           begin
@@ -537,41 +538,29 @@ module CucuShift
               auto_mismatch[case_id] = "mismatch"
             end
             begin
-              feature = IO.readlines("#{ENV['CUCUSHIFT_HOME']}/features/#{feature_file}")
+              #Use the Gherkin parser to collect all feature scenarios
+              gparser = CucuShift::GherkinParse.new
+              file_contents = gparser.parse_feature(File.join("#{ENV['CUCUSHIFT_HOME']}/features", feature_file))
             rescue => e
               puts "\e[0;31mError in case #: #{case_id}, #{e.message}\e[0m"
               next
             end
-            #Return the index of the feature file array where scenario is found
-            index = feature.index{|scenario_index| scenario_index =~ /^\s*(?:Scenario(?: Outline)?:\s*#{Regexp.escape(scenario)})$/}
-            if index == nil
-              puts "\e[0;31mError in case #: #{case_id}, scenario name not found in file\e[0m"
-              next
-            end
-            #Return all tags from the scenario file, if any.
-            #TODO: retrieve orphaned tags at the top of the full feature file
-            feature[0,index].reverse.each do |line|
-              if line !~ /@/
-                break #stop looking for tags if none immediately above scenario name
-              else
-                start_with = line.delete("\n").strip
-                #Check if a tag begins with a comment, (#@author, #@case_id, etc),
-                #if so, save it to the 'metadata' field of the scenario tags hash.
-                if start_with !~ /#/
-                  #Check for inline tags, like "@devenv @sequential"
-                  start_with = start_with.split(/\s+/).map{|t| t[1..-1]}
-                  start_with.each {|tag| scenario_tags[case_id].push tag}
-                else
-                  scenario_tags["metadata"].push start_with
-                  next #Don't add metadata tags twice
+            #Using the Gherkin parsed scenarios, return all found scenario tags
+            file_contents[:scenarioDefinitions].each do |auto_scenario|
+              if auto_scenario[:name].eql? scenario
+                unless auto_scenario[:tags].empty?
+                  found_tags = auto_scenario[:tags].map{|s| s[:name][1..-1]}
+                  found_tags.map{|t| scenario_tags[case_id].push t}
                 end
+              else
+              puts "\e[0;31mError in case #: #{case_id}, scenario name not found in file\e[0m"
               end
             end
           end
           #Only push tcms tags if there are mismatched scenario tags
-          if scenario_tags[case_id] != nil
+          if scenario_tags[case_id] != nil && !scenario_tags[case_id].empty?
             #Only list TCMS tag descrepancies if they are one of the "canonical" tags
-            canonical_tags = ["devenv","destructive","aggressive","sequential","migration"]
+            canonical_tags = ["devenv","destructive","aggressive","sequential","migration", "admin", "vpn", "smoke"]
             scenario_tags[case_id].each do |scenario_tag|
               if not tcms_tags[case_id].include? scenario_tag and canonical_tags.include? scenario_tag
                tcms_missing[case_id].push scenario_tag unless scenario_tag =~ /user/

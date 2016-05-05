@@ -71,27 +71,38 @@ end
 # repeat steps specified in a multi-line string until they pass (that means
 #   until they execute without raising an error)
 Given /^I wait(?: up to ([0-9]+) seconds)? for the steps to pass:$/ do |seconds, steps_string|
-  seconds = Integer(seconds) rescue 60
-  repetitions = 0
-  error = nil
-  success = wait_for(seconds) {
-    repetitions += 1
-    logger.info("Beginning step repetition: #{repetitions}")
-    begin
-      steps steps_string
-      true
-    rescue => e
-      error = e
-      false
-    end
-  }
+  begin
+    logger.dedup_start
+    seconds = Integer(seconds) rescue 60
+    repetitions = 0
+    error = nil
+    success = wait_for(seconds) {
+      repetitions += 1
+      # this message needs to be disabled as it defeats deduping
+      # logger.info("Beginning step repetition: #{repetitions}")
+      begin
+        steps steps_string
+        true
+      rescue => e
+        error = e
+        false
+      end
+    }
 
-  raise error unless success
+    raise error unless success
+  ensure
+    logger.dedup_flush
+  end
 end
 
 # repeat steps x times in a multi-line string
 Given /^I run the steps (\d+) times:$/ do |num, steps_string|
-  (1..Integer(num)).each {
-    steps steps_string
-  }
+  begin
+    logger.dedup_start
+    (1..Integer(num)).each {
+      steps steps_string
+    }
+  ensure
+    logger.dedup_flush
+  end
 end

@@ -237,8 +237,7 @@ def get_cucushift_home
   ENV['CUCUSHIFT_HOME'] || File.dirname(File.dirname(__FILE__))
 end
 
-# search for scenario tags of a scenario
-def get_scenario_tags(scenario, tcms)
+def sync_tags(tcms)
   # we only add the tags if they are one or more of the following groups
   # https://mojo.redhat.com/docs/DOC-935729  (V2)
   # https://mojo.redhat.com/docs/DOC-1043047 (V3)
@@ -248,13 +247,30 @@ def get_scenario_tags(scenario, tcms)
   else  # everything else is assumed to be v3 variants
     valid_tags_to_be_added = ['admin', 'destructive', 'vpn', 'smoke']
   end
+end
 
-  #Remove the leading '@' from tags, convert the array to a string for TCMS
-  #processing
+# Search for scenario tags of a scenario
+def get_scenario_tags(scenario, tcms)
+  #Remove the leading '@' from tags
   scenario_tags = scenario[:tags].map{|s| s[:name][1..-1]}
 
   #Compare valid tags and scenario tags, and return the common tags.
-  matching_tags = (scenario_tags & valid_tags_to_be_added)
+  verified_tags = sync_tags(tcms)
+  matching_tags = (scenario_tags & verified_tags)
+end
+
+# Search for the Example table tags of a scenario
+def get_example_table_tags(example, tcms)
+  #Remove the leading '@' from tags
+  example_table_tags = example[:tags].map{|ex_tag| ex_tag[:name][1..-1]}
+
+  if example_table_tags.empty?
+    return example_table_tags
+  else
+    #Compare valid tags and scenario tags, and return the common tags.
+    verified_table_tags = sync_tags(tcms)
+    matching_table_tags = (example_table_tags & verified_table_tags)
+  end
 end
 
 # generic update script field of TCMS case
@@ -271,8 +287,10 @@ def update_script(options)
   scenario_description = nil
   example_row_headers = []
   example_row_cells = []
+  example_table_tags= []
+  arg_hash = {}
   tcms_arg_field = nil
-  tags = ""
+  tags = []
 
   gparser = CucuShift::GherkinParse.new
   file_contents = gparser.parse_feature(File.join(get_cucushift_home, path))
@@ -282,16 +300,12 @@ def update_script(options)
     arg_hash = {}
     #Check for the Scenario description. If a basic scenario, take the description.
     #If a Scenario Outline, determine if it's a table argument, or just the Scenario Outline name.
-    if scenario[:location][:line] == target_line_number and scenario[:type] == :Scenario
+    if scenario[:location][:line] == target_line_number
       scenario_description = scenario[:name]
-      tags = get_scenario_tags(scenario, tcms) unless scenario[:tags].empty?
+      tags = get_scenario_tags(scenario, tcms)
       #exit once the scenario description is found
       break
-    elsif scenario[:location][:line] == target_line_number and scenario[:type] == :ScenarioOutline
-      scenario_description = scenario[:name]
-      tags = get_scenario_tags(scenario, tcms)  unless scenario[:tags].empty?
-      #exit once the scenario description is found
-      break
+    #The following block is if a table argument is specified after -s
     elsif scenario[:type] == :ScenarioOutline
       scenario[:examples].each do |example|
         example[:tableBody].each do |row|
@@ -299,7 +313,9 @@ def update_script(options)
             #Get the scenario description
             scenario_description = scenario[:name]
             #Get the scenario tags
-            tags = get_scenario_tags(scenario, tcms) unless scenario[:tags].empty?
+            tags = get_scenario_tags(scenario, tcms)
+            #Get the example table tags, if any
+            example_table_tags = get_example_table_tags(example, tcms)
             #Get table headers to zip with arguments
             example[:tableHeader][:cells].each do |thead|
               example_row_headers << thead[:value]
@@ -329,7 +345,17 @@ def update_script(options)
   path = path[9..path.length]
   ruby_script = "#{path}:#{scenario_description}"
   tcms_script_field =  {"ruby"=>ruby_script}.to_json
-  tcms.add_testcase_tags(options.cases, tags) unless tags == ""
+
+  #Combine example tags and scenario tags, if any
+  tags = tags | example_table_tags
+
+  #Delete existing TCMS tags, replace them with scenario tags
+  begin
+    tcms.remove_testcase_tags(options.cases, sync_tags(tcms))
+  rescue
+    raise "Unable to delete old TCMS tags."
+  end
+  tcms.add_testcase_tags(options.cases, tags) unless tags.empty?
 
   if options.notes
     time_stamp = "#{Time.now().strftime("%Y-%m-%d")}"

@@ -15,10 +15,10 @@ module CucuShift
 
       return self # mainly to help ::from_api_object
     end
-    
-    # should be ready when all items in `Status` have tag 
-    def ready?(user:)
-      res = get(user: user)
+
+    # should be ready when all items in `Status` have tag
+    def ready?(user:, quiet: false)
+      res = get(user: user, quiet: quiet)
 
       if res[:success]
         res[:success] =
@@ -31,16 +31,5 @@ module CucuShift
 
       return res
     end
-
-    def wait_till_ready(user, seconds)
-      res = nil
-      success = wait_for(seconds) {
-        res = ready?(user: user)
-        res[:success]
-      }
-
-      return res
-    end
-    
   end
 end

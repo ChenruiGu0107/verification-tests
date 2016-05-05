@@ -32,16 +32,16 @@ Feature: Testing haproxy router
     Given I have a project
     And evaluation of `project.name` is stored in the :pj_name clipboard
     When I run the :create client command with:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json|
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc505814/route_unsecure.json|
     Then the step should succeed
     When I run the :create client command with:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json|
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc505814/route_edge.json|
     Then the step should succeed
     When I run the :create client command with:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.json|
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc505814/route_reencrypt.json|
     Then the step should succeed
     When I run the :create client command with:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthough/route_pass.json|
+      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc505814/route_pass.json|
     Then the step should succeed
     
     Given I switch to cluster admin pseudo user

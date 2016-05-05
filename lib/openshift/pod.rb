@@ -3,8 +3,6 @@ require 'openshift/project_resource'
 module CucuShift
   # represents an OpenShift pod
   class Pod < ProjectResource
-    extend  Common::BaseHelper
-    # extend  Common::UserObjectClassHelper
 
     # statuses that indicate pod running or completed successfully
     SUCCESS_STATUSES = [:running, :succeeded, :missing]
@@ -39,8 +37,8 @@ module CucuShift
 
     # @return [CucuShift::ResultHash] with :success depending on status=True
     #   with type=Ready
-    def ready?(user:)
-      res = get(user: user)
+    def ready?(user:, quiet: false)
+      res = get(user: user, quiet: quiet)
 
       if res[:success]
         res[:success] =
@@ -61,45 +59,42 @@ module CucuShift
       return props[:ip]
     end
 
-    # @return [CucuShift::ResultHash] with :success true if we've eventually
-    #   got the pod in ready status; the result hash is from last executed get
-    #   call
-    def wait_till_ready(user, seconds)
-      res = nil
-      success = wait_for(seconds) {
-        res = ready?(user: user)
-        res[:success]
-      }
-
-      return res
-    end
-
     # this useful if you wait for a pod to die
     def wait_till_not_ready(user, seconds)
       res = nil
+      iterations = 0
+      start_time = monotonic_seconds
+
       success = wait_for(seconds) {
-        res = ready?(user: user)
+        res = ready?(user: user, quiet: true)
+
+        logger.info res[:command] if iterations == 0
+        iterations = iterations + 1
+
         ! res[:success]
       }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
 
       res[:success] = success
       return res
     end
 
-    def wait_till_status(status, user, seconds=15*60)
-      res = nil
-      success = wait_for(seconds) {
-        res = status?(user: user, status: status)
-        # if pod completed there's no chance to change status so exit early
-        break if [:failed, :unknown].include?(res[:matched_status])
-        res[:success]
-      }
-      return res
+    # @param from_status [Symbol] the status we currently see
+    # @param to_status [Array, Symbol] the status(es) we check whether current
+    #   status can change to
+    # @return [Boolean] true if it is possible to transition between the
+    #   specified statuses (same -> should be true)
+    def status_reachable?(from_status, to_status)
+      [to_status].flatten.include?(from_status) ||
+        ![:failed, :unknown].include?(from_status)
     end
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if pod status is what's expected
-    def status?(user:, status:)
+    def status?(user:, status:, quiet: false)
       #The 'missing' status is used a a dummy value; when some pods become
       #ready, they die (build/deploy), and we still want to count them as well.
       statuses = {
@@ -111,7 +106,7 @@ module CucuShift
         unknown: "Unknown"
       }
 
-      res = get(user: user)
+      res = get(user: user, quiet: quiet)
       status = status.respond_to?(:map) ?
           status.map{ |s| statuses[s] } :
           [ statuses[status.to_sym] ]
@@ -136,63 +131,6 @@ module CucuShift
         res[:matched_status] = :missing
       end
       return res
-    end
-
-    # @param labels [String, Array<String,String>] labels to filter on, read
-    # @param count [Integer] minimum number of pods to wait for
-    #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
-    def self.wait_for_labeled(*labels, count: 1, user:, project:, seconds:)
-      wait_for_matching(user: user, project: project, seconds: seconds,
-                        get_opts: {l: selector_to_label_arr(*labels)},
-                        count: count) { true }
-    end
-
-    # @param count [Integer] minimum number of pods to wait for
-    # @yield block that selects pods by returning true; see [#get_matching]
-    # @return [CucuShift::ResultHash] with :matching key being array of matched
-    #   pods;
-    def self.wait_for_matching(count: 1, user:, project:, seconds:,
-                                                                  get_opts: {})
-      res = nil
-
-      wait_for(seconds) {
-        res = get_matching(user: user, project: project, get_opts: get_opts) { |p, p_hash|
-          yield p, p_hash
-        }
-        res[:matching].size >= count
-      }
-
-      return res
-    end
-
-    # @yield block that selects pods by returning true; block receives
-    #   |pod, pod_hash| as parameters where pod is a reloaded [Pod]
-    # @return [CucuShift::ResultHash] with :matching key being array of matched
-    #   pods
-    def self.get_matching(user:, project:, get_opts: {})
-      opts = {resource: 'pod', n: project.name, o: 'yaml'}
-      opts.merge! get_opts
-      res = user.cli_exec(:get, **opts)
-
-      if res[:success]
-        res[:parsed] = YAML.load(res[:response])
-        res[:pods] = res[:parsed]["items"].map { |p|
-          self.from_api_object(project, p)
-        }
-      else
-        user.logger.error(res[:response])
-        raise "cannot get pods for project #{project.name}"
-      end
-
-      res[:matching] = []
-      res[:pods].zip(res[:parsed]["items"]) { |p, p_hash|
-        res[:matching] << p if !block_given? || yield(p, p_hash)
-      }
-
-      return res
-    end
-    class << self
-      alias list get_matching
     end
 
     # executes command on pod
