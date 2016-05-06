@@ -35,9 +35,13 @@ When /^I create a new project(?: via (.*?))?$/ do |via|
     @projects << @result[:project]
     @result = @result[:project].wait_to_be_created(user)
     unless @result[:success]
-      logger.warn("Project #{@result[:project].name} not visible on server after create")
+      logger.warn("Project #{@projects.last.name} not visible on server after create")
     end
-    cache_browser(user.webconsole_executor) if via == "web"
+    if via == "web"
+      cache_browser(user.webconsole_executor)
+      # switch automatically when creating via web
+      step %Q/I use the "#{@projects.last.name}" project/
+    end
   end
 end
 
@@ -60,9 +64,12 @@ When /^I create a project via (.+?) with:$/ do |via, table|
     @projects << @result[:project]
     @result = @result[:project].wait_to_be_created(user)
     unless @result[:success]
-      logger.warn("Project #{@result[:project].name} not visible on server after create")
+      logger.warn("Project #{@projects.last.name} not visible on server after create")
     end
-    cache_browser(user.webconsole_executor) if via == "web"
+    if via == "web"
+      cache_browser(user.webconsole_executor)
+      step %Q/I use the "#{@projects.last.name}" project/
+    end
   end
 end
 
