@@ -1248,6 +1248,78 @@ Feature: deployment related features
     And I wait until number of replicas match "0" for replicationController "hooks"
 
     # @author yinzhou@redhat.com
+    # @case_id 515919
+    Scenario: Start new deployment when deployment running
+      Given I have a project
+      When I run the :new_app client command with:
+        | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+      Then the step should succeed
+      Given I wait until the status of deployment "deployment-example" becomes :running
+      And I replace resource "dc" named "deployment-example":
+        | latestVersion: 1 | latestVersion: 2 |
+      Then the step should succeed
+      When I run the :deploy client command with:
+        | deployment_config | deployment-example |
+      Then the output should contain "The deployment was cancelled as a newer deployment was found running"
+
+  # @author cryan@redhat.com
+  # @case_id 515922
+  Scenario: When the latest deployment failed auto rollback to the active deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Given a pod becomes ready with labels:
+    | deployment=hooks-1 |
+    Then I run the :scale client command with:
+      | resource | deploymentconfig |
+      | name     | hooks            |
+      | replicas | 4                |
+    Given I wait until number of replicas match "4" for replicationController "hooks"
+    Then I run the :scale client command with:
+      | resource | deploymentconfig |
+      | name     | hooks            |
+      | replicas | 2                |
+    Given I wait until number of replicas match "2" for replicationController "hooks"
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest | true |
+    Then the step should succeed
+    Given the pod named "hooks-2-deploy" is present
+    When I run the :patch client command with:
+      | resource      | pod |
+      | resource_name | hooks-2-deploy            |
+      | p             | {"spec":{"activeDeadlineSeconds": 5}} |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      |dc |
+      | resource_name | hooks |
+      | p             | {"spec":{"replicas": 4}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | pod |
+      | resource_name | hooks-2-deploy |
+      | o | json |
+    Then the output should contain ""activeDeadlineSeconds": 5"
+    When I run the :get client command with:
+      | resource |dc |
+      | resource_name | hooks |
+      | o | json |
+    Then the output should contain ""replicas": 4"
+    Given all existing pods die with labels:
+      | deployment=hooks-2 |
+    When I run the :get client command with:
+      | resource | pods |
+      | l | deployment=hooks-2 |
+    Then the output should not contain "hooks-2"
+    Given a pod becomes ready with labels:
+      | deployment=hooks-1 |
+    When I run the :get client command with:
+      | resource | pods |
+    And the output should contain:
+      | DeadlineExceeded |
+      | hooks-1 |
+
+    # @author yinzhou@redhat.com
     # @case_id 481677
     @admin
     Scenario: DeploymentConfig should allow valid value of resource requirements
@@ -1280,4 +1352,3 @@ Feature: deployment related features
       | \\s+limits:\n\\s+cpu: 400m\n\\s+memory: 200Mi\n   |
       | \\s+requests:\n\\s+cpu: 400m\n\\s+memory: 200Mi\n |
     """
-
