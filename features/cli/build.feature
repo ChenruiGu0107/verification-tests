@@ -465,6 +465,8 @@ Feature: build 'apps' with CLI
     Given I have a project
     And I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Given the "ruby-22-centos7" image stream was created 
+    And the "ruby-22-centos7" image stream becomes ready
     And I run the :start_build client command with:
       | buildconfig |  ruby-sample-build |
     And I run the :start_build client command with:
@@ -477,6 +479,7 @@ Feature: build 'apps' with CLI
       | ruby-sample-build-1 |
       | ruby-sample-build-2 |
       | ruby-sample-build-3 |
+      | ruby-sample-build-4 |
 
   # @author pruan@redhat.com
   # @case_id 512096
