@@ -392,4 +392,100 @@ Feature: build related feature on web console
     Then the step should succeed
     When I run the :check_build_has_started_message web console action
     Then the step should succeed
-    
+
+  # @author yapei@redhat.com
+  # @case_id 518654
+  Scenario: Modify buildconfig settings for custom strategy
+    Given I create a new project
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json"
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource      | bc/ruby-sample-build |
+    Then the step should succeed
+    And the output should match:
+      | Strategy.*Custom  |
+      | URL.*git://github.com/openshift/ruby-hello-world.git |
+      | Image Reference.*ImageStreamTag   |
+      | Triggered by.*ImageChange.*Config |
+      | Webhook GitHub    |
+      | Webhook Generic   |
+    # check bc on web console
+    When I perform the :check_build_strategy web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | build_strategy | Custom               |
+    Then the step should succeed
+    When I perform the :check_bc_builder_image_stream web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | builder_image_streams | <%= project.name %>/origin-custom-docker-builder |
+    Then the step should succeed
+    When I perform the :check_buildconfig_source_repo web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | source_repo_url | github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    When I perform the :check_bc_output web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | bc_output      | <%= project.name %>/origin-ruby-sample:latest |
+    Then the step should succeed
+    When I perform the :check_bc_github_webhook_trigger web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | github_webhook_trigger | webhooks/secret101/github |
+    Then the step should succeed
+    When I perform the :check_bc_generic_webhook_trigger web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | generic_webhook_trigger | webhooks/secret101/generic |
+    Then the step should succeed
+    When I perform the :check_bc_image_change_trigger web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | image_change_trigger | <%= project.name %>/origin-custom-docker-builder:latest |
+    Then the step should succeed
+    When I perform the :check_bc_config_change_trigger web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | config_change_trigger | Build config ruby-sample-build |
+    Then the step should succeed
+    # edit bc
+    When I perform the :edit_build_image_to_docker_image web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | build_image_source | Docker Image Link |
+      | docker_image_link | yapei-test/origin-ruby-sample:latest |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :set_force_pull_on_buildconfig_edit_page web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :change_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | new_env_value  | yapei-test-custom    |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    # check bc after made changes
+    When I perform the :check_buildconfig_environment web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | env_var_key    | OPENSHIFT_CUSTOM_BUILD_BASE_IMAGE |
+      | env_var_value  | yapei-test-custom    |
+    Then the step should succeed
+    When I perform the :check_bc_builder_image_stream web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | builder_image_streams | yapei-test/origin-ruby-sample:latest |
+    When I run the :describe client command with:
+      | resource | bc |
+      | name     | ruby-sample-build |
+    Then the output should match:
+      | Force Pull.*yes |
+      | Image Reference.*DockerImage\syapei-test/origin-ruby-sample:latest |
