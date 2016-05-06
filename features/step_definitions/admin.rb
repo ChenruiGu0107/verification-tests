@@ -11,3 +11,4 @@ Given /^I have (?:(at least ))?(\d+) nodes?$/ do |quantifier, nodes|
   end
   raise "number of nodes '#{nodes_found}' in the setup does not meet the criteria of #{quantifier}#{nodes} nodes" unless @result[:success]
 end
+
