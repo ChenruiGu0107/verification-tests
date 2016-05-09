@@ -56,6 +56,7 @@ Feature: route related features via cli
       | name | myapp |
     Then the step should succeed
     And the "myapp-1" build completed
+    Given I wait for the "myapp" service to become ready
     When I expose the "myapp" service
     Then the step should succeed
     Given I get project routes
