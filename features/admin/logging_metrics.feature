@@ -38,7 +38,7 @@ Feature: Logging and Metrics
     """
 
   # @author chunchen@redhat.com
-  # @case_id 509059
+  # @case_id 509059,522124
   @admin
   @smoke
   @destructive
@@ -151,4 +151,12 @@ Feature: Logging and Metrics
       | replicas | 1                      |
     And I wait until number of replicas match "1" for replicationController "logging-fluentd-1"
     And I wait until number of replicas match "2" for replicationController "logging-kibana-1"
-
+    Given a pod becomes ready with labels:
+      | component=es |
+    And I wait for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name    | pods/<%= pod.name %>|
+    Then the output should match:
+      | \[<%= project.name %>\.\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\.\d{4}\.\d{2}\.\d{2}\] |
+    """
