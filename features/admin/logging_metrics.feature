@@ -79,39 +79,59 @@ Feature: Logging and Metrics
     Then the output should contain "logging-support-template"
     """
     And the first user is cluster-admin
+    Given I register clean-up steps:
+    """
+    I switch to cluster admin pseudo user
+    I use the "<%=project.name%>" project
+    I run the :delete admin command with:
+      | object_type |  oauthclients |
+      | object_name_or_id |   kibana-proxy |
+      | n |   <%=project.name%> |
+    I wait for the resource "oauthclient" named "kibana-proxy" to disappear
+    """
     When I create a new application with:
       | template | logging-support-template |
       | n | <%= project.name %> |
     Then the step should succeed
-    Given I register clean-up steps:
-    """
-    I switch to cluster admin pseudo user
-    I use the "openshift-infra" project
-    I run the :delete admin command with:
-      | object_type |  oauthclients |
-      | object_name_or_id |   kibana-proxy |
-      | n |   openshift-infra |
-    I wait for the resource "oauthclient" named "kibana-proxy" to disappear
-    """
     When I run the :patch client command with:
       | resource      | imagestreams |
-      | resource_name | logging-fluentd                      |
+      | resource_name | logging-fluentd |
       | p             | {"metadata": {"annotations": {"openshift.io/image.insecureRepository": "true"}}} |
+    Then the step should succeed
+    When I run the :import_image client command with:
+      | image_name | logging-fluentd:latest  |
+      | from       | <%= product_docker_repo %>openshift3/logging-fluentd:latest |
+      | insecure   | true             |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | imagestreams |
       | resource_name | logging-elasticsearch                      |
       | p             | {"metadata": {"annotations": {"openshift.io/image.insecureRepository": "true"}}} |
     Then the step should succeed
+    When I run the :import_image client command with:
+      | image_name | logging-elasticsearch:latest |
+      | from       |  <%= product_docker_repo %>openshift3/logging-elasticsearch:latest |
+      | insecure   | true             |
+    Then the step should succeed
     When I run the :patch client command with:
       | resource      | imagestreams |
       | resource_name | logging-auth-proxy                     |
       | p             | {"metadata": {"annotations": {"openshift.io/image.insecureRepository": "true"}}} |
     Then the step should succeed
+    When I run the :import_image client command with:
+      | image_name | logging-auth-proxy:latest |
+      | from       | <%= product_docker_repo %>openshift3/logging-auth-proxy:latest |
+      | insecure   | true             |
+    Then the step should succeed
     When I run the :patch client command with:
       | resource      | imagestreams |
       | resource_name | logging-kibana                      |
       | p             | {"metadata": {"annotations": {"openshift.io/image.insecureRepository": "true"}}} |
+    Then the step should succeed
+    When I run the :import_image client command with:
+      | image_name | logging-kibana:latest |
+      | from       | <%= product_docker_repo %>openshift3/logging-kibana:latest |
+      | insecure   | true             |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -131,3 +151,4 @@ Feature: Logging and Metrics
       | replicas | 1                      |
     And I wait until number of replicas match "1" for replicationController "logging-fluentd-1"
     And I wait until number of replicas match "2" for replicationController "logging-kibana-1"
+
