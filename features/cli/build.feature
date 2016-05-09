@@ -1553,6 +1553,38 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
+
+  # @case_id 517668
+  Scenario: Using a docker image as source input for docker build
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc517668/ruby22rhel7-template-docker.json |
+    Given the "ruby22-sample-build-1" build completes
+    When I run the :get client command with:
+      | resource      | buildconfig         |
+      | resource_name | ruby22-sample-build |
+      | o             | yaml                |
+    Then the output should contain "xiuwangtest"
+    Given 2 pods become ready with labels:
+      | deployment=frontend-1 |
+    When I execute on the "<%= pod.name %>" pod:
+      | ls |
+    Then the step should succeed
+    And the output should contain "xiuwangtest"
+
+  # @author xiuwang@redhat.com
+  # @case_id 519265
+  Scenario: Check cgroup info in container which builder pod launched for docker build
+    Given I have a project
+    When I run the :new_app client command with:
+      | code | https://github.com/openshift-qe/ruby-cgroup-test | 
+    Then the step should succeed
+    Then I run the :delete client command with:
+      | object_type       | builds             |
+      | object_name_or_id | ruby-cgroup-test-1 |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-cgroup-test |
       | follow   | true |
       | wait     | true |
       | _timeout | 120  |
@@ -1577,3 +1609,15 @@ Feature: build 'apps' with CLI
       | 100000                                           |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us  |
       | 80000                                            |
+      | RUN cp -r /sys/fs/cgroup/cpuacct,cpu/cpu* /tmp                     |
+      | RUN cp -r /sys/fs/cgroup/memory/memory.limit_in_bytes /tmp/memlimit|
+    Given the "ruby-cgroup-test-2" build completed
+    Given I wait for the "ruby-cgroup-test" service to become ready
+    When I execute on the pod:
+      | bash | -c | cat /tmp/memlimit /tmp/cpu.shares /tmp/cpu.cfs_period_us /tmp/cpu.cfs_quota_us |
+    Then the step should succeed
+    And the output should contain:
+      |92233720369152|
+      |2             |
+      |100000        |
+      |-1            |

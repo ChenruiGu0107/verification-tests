@@ -55,10 +55,13 @@
     :follow: --follow=<value>
     :nowait: --nowait=<value>
 :cancel_build:
-  :cmd: oc cancel-build <build_name>
+  :cmd: oc cancel-build
   :options:
+    :build_name: <value>
+    :bc_name: <value>
     :dump_logs: --dump-logs=<value>
     :restart: --restart=<value>
+    :state: --state=<value>
 :config:
   :cmd: oc config
   :options:
