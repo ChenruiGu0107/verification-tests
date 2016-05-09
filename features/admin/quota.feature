@@ -399,4 +399,327 @@ Feature: Quota related scenarios
     Then the output should match:
       | pods "ruby-sample-build-3-build" is forbidden |
       | aximum memory usage.*is 750Mi.*limit is 796917760 |
-      | aximum cpu usage.*is 500m.*limit is 1020m |   
+      | aximum cpu usage.*is 500m.*limit is 1020m |  
+
+
+  # @author qwang@redhat.com
+  # @case_id 520702
+  @admin
+  Scenario: Check BestEffort scope of resourcequota
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-besteffort.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When  I run the :describe client command with:
+      | resource | quota            |
+      | name     | quota-besteffort |
+    Then the output should match:
+      | Scopes:\\s+BestEffort |
+      | .*have best effort    |
+      | pods\\s+0\\s+2        |
+    # For BestEffort pod
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-besteffort.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod            |
+      | name     | pod-besteffort |
+    Then the output should match:
+      | memory:\\s+BestEffort |
+      | cpu:\\s+BestEffort    |
+    When I run the :describe client command with:
+      | resource | quota            |
+      | name     | quota-besteffort |
+    Then the output should match:
+      | pods\\s+1\\s+2 |
+    When I run the :delete client command with:
+      | object_type       | pod            |
+      | object_name_or_id | pod-besteffort |
+    Then the step should succeed
+    # Because quota optimation is under way, leave time gap to wait for operation completed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | quota            |
+      | name     | quota-besteffort |
+    Then the output should match:
+      | pods\\s+0\\s+2 |
+    """
+    # For Bustable/Guaranteed pod
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-notbesteffort.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod               |
+      | name     | pod-notbesteffort |
+    Then the output should match:
+      | memory:\\s+Guaranteed |
+      | cpu:\\s+Burstable     |
+    When I run the :describe client command with:
+      | resource | quota            |
+      | name     | quota-besteffort |
+    Then the output should match:
+      | pods\\s+0\\s+2 |
+    When I run the :delete client command with:
+      | object_type       | pod               |
+      | object_name_or_id | pod-notbesteffort |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota            |
+      | name     | quota-besteffort |
+    Then the output should match:
+      | pods\\s+0\\s+2 |
+
+
+  # @author qwang@redhat.com
+  # @case_id 520703
+  @admin
+  Scenario: Check NotBestEffort scope of resourcequota
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-notbesteffort.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota               |
+      | name     | quota-notbesteffort |
+    Then the output should match:
+      | Scopes:\\s+NotBestEffort    |
+      | .*not have best effort      |
+      | limits.cpu\\s+0\\s+4        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+2              |
+      | requests.cpu\\s+0\\s+2      |
+      | requests.memory\\s+0\\s+1Gi |
+    # For Bustable/Guaranteed pod
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-notbesteffort.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod               |
+      | name     | pod-notbesteffort |
+    Then the output should match:
+      | memory:\\s+Guaranteed |
+      | cpu:\\s+Burstable     |
+    When I run the :describe client command with:
+      | resource | quota               |
+      | name     | quota-notbesteffort |
+    Then the output should match:
+      | limits.cpu\\s+500m\\s+4         |
+      | limits.memory\\s+256Mi\\s+2Gi   |
+      | pods\\s+1\\s+2                  |
+      | requests.cpu\\s+200m\\s+2       |
+      | requests.memory\\s+256Mi\\s+1Gi |
+    When I run the :delete client command with:
+      | object_type       | pod               |
+      | object_name_or_id | pod-notbesteffort |
+    Then the step should succeed
+    # Because quota optimation is under way, leave time gap to wait for operation completed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | quota               |
+      | name     | quota-notbesteffort |
+    Then the output should match:
+      | limits.cpu\\s+0\\s+4        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+2              |
+      | requests.cpu\\s+0\\s+2      |
+      | requests.memory\\s+0\\s+1Gi |
+    """
+    # For BestEffort pod
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-besteffort.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod            |
+      | name     | pod-besteffort |
+    Then the output should match:
+      | memory:\\s+BestEffort |
+      | cpu:\\s+BestEffort    |
+    When I run the :describe client command with:
+      | resource | quota               |
+      | name     | quota-notbesteffort |
+    Then the output should match:
+      | limits.cpu\\s+0\\s+4        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+2              |
+      | requests.cpu\\s+0\\s+2      |
+      | requests.memory\\s+0\\s+1Gi |
+    When I run the :delete client command with:
+      | object_type       | pod            |
+      | object_name_or_id | pod-besteffort |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota               |
+      | name     | quota-notbesteffort |
+    Then the output should match:
+      | limits.cpu\\s+0\\s+4        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+2              |
+      | requests.cpu\\s+0\\s+2      |
+      | requests.memory\\s+0\\s+1Gi |
+
+
+  # @author qwang@redhat.com
+  # @case_id 520704
+  @admin
+  Scenario: Check NotTerminating scope of resourcequota
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-notterminating.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota                |
+      | name     | quota-notterminating |
+    Then the output should match:
+      | Scopes:\\s+NotTerminating     |
+      | .*not have an active deadline |
+      | limits.cpu\\s+0\\s+4          |
+      | limits.memory\\s+0\\s+2Gi     |
+      | pods\\s+0\\s+2                |
+      | requests.cpu\\s+0\\s+2        |
+      | requests.memory\\s+0\\s+1Gi   |
+    # For NotTerminating pod
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-notterminating.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota                |
+      | name     | quota-notterminating |
+    Then the output should match:
+      | limits.cpu\\s+500m\\s+4         |
+      | limits.memory\\s+256Mi\\s+2Gi   |
+      | pods\\s+1\\s+2                  |
+      | requests.cpu\\s+200m\\s+2       |
+      | requests.memory\\s+256Mi\\s+1Gi |
+    When I run the :delete client command with:
+      | object_type       | pod                |
+      | object_name_or_id | pod-notterminating |
+    Then the step should succeed
+    # Because quota optimation is under way, leave time gap to wait for operation completed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | quota                |
+      | name     | quota-notterminating |
+    Then the output should match:
+      | limits.cpu\\s+0\\s+4        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+2              |
+      | requests.cpu\\s+0\\s+2      |
+      | requests.memory\\s+0\\s+1Gi |
+    """
+    # For Terminating pod
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-terminating.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota                |
+      | name     | quota-notterminating |
+    Then the output should match:
+      | limits.cpu\\s+0\\s+4        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+2              |
+      | requests.cpu\\s+0\\s+2      |
+      | requests.memory\\s+0\\s+1Gi |
+    When I run the :delete client command with:
+      | object_type       | pod             |
+      | object_name_or_id | pod-terminating |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota                |
+      | name     | quota-notterminating |
+    Then the output should match:
+      | limits.cpu\\s+0\\s+4        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+2              |
+      | requests.cpu\\s+0\\s+2      |
+      | requests.memory\\s+0\\s+1Gi |
+
+
+  # @author qwang@redhat.com
+  # @case_id 520705
+  @admin
+  Scenario: Check Terminating scope of resourcequota
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-terminating.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota             |
+      | name     | quota-terminating |
+    Then the output should match:
+      | Scopes:\\s+Terminating         |
+      | .*that have an active deadline |
+      | limits.cpu\\s+0\\s+2           |
+      | limits.memory\\s+0\\s+2Gi      |
+      | pods\\s+0\\s+4                 |
+      | requests.cpu\\s+0\\s+1         |
+      | requests.memory\\s+0\\s+1Gi    |
+    # For Terminating pod
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-terminating.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota             |
+      | name     | quota-terminating |
+    Then the output should match:
+      | limits.cpu\\s+500m\\s+2         |
+      | limits.memory\\s+256Mi\\s+2Gi   |
+      | pods\\s+1\\s+4                  |
+      | requests.cpu\\s+200m\\s+1       |
+      | requests.memory\\s+256Mi\\s+1Gi |
+    # activeDeadlineSeconds=60s, after 60s, used quota returns to the original state
+    Given 60 seconds have passed
+    When I run the :describe client command with:
+      | resource | quota             |
+      | name     | quota-terminating |
+    Then the output should match:
+      | limits.cpu\\s+0\\s+2        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+4              |
+      | requests.cpu\\s+0\\s+1      |
+      | requests.memory\\s+0\\s+1Gi |
+    When I run the :delete client command with:
+      | object_type       | pod             |
+      | object_name_or_id | pod-terminating |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota             |
+      | name     | quota-terminating |
+    Then the output should match:
+      | limits.cpu\\s+0\\s+2        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+4              |
+      | requests.cpu\\s+0\\s+1      |
+      | requests.memory\\s+0\\s+1Gi |
+    # For NotTerminating pod
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-notterminating.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota             |
+      | name     | quota-terminating |
+    Then the output should match:
+      | limits.cpu\\s+0\\s+2        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+4              |
+      | requests.cpu\\s+0\\s+1      |
+      | requests.memory\\s+0\\s+1Gi |
+    When I run the :delete client command with:
+      | object_type       | pod                |
+      | object_name_or_id | pod-notterminating |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota             |
+      | name     | quota-terminating |
+    Then the output should match:
+      | limits.cpu\\s+0\\s+2        |
+      | limits.memory\\s+0\\s+2Gi   |
+      | pods\\s+0\\s+4              |
+      | requests.cpu\\s+0\\s+1      |
+      | requests.memory\\s+0\\s+1Gi |
