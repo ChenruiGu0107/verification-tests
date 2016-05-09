@@ -283,3 +283,106 @@ Feature: secrets related scenarios
       | namespace        | <%= project(0).name %>        |
     Then the output should contain:
       | first-username |
+
+  # @author xxia@redhat.com
+  # @case_id 491405
+  Scenario: User can pull a private image from a docker registry when a pull secret is defined
+    Given I have a project
+    And I run the :new_build client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world |
+      | name     | test |
+    Then the step should succeed
+
+    Given the "test-1" build completed
+    # Get user1's image as private docker image. Format is like: 172.31.168.158:5000/<project>/<istream>
+    Then evaluation of `image_stream("test").docker_image(user: user)` is stored in the :user1_image clipboard
+
+    Given I switch to the second user
+    And I create a new project
+    # Get user1's dockercfg as secret for user2
+    When I run the :oc_secrets_new_dockercfg client command with:
+      | secret_name      | user1-dockercfg  |
+      | docker_email     | any@any.com      |
+      # Get openshift docker registry. Format is like: 172.31.168.158:5000
+      | docker_server    | <%= cb.user1_image[/[^\/]*/] %>    |
+      | docker_username  | <%= user(0, switch: false).name %> |
+      | docker_password  | <%= user(0, switch: false).get_bearer_token.token %>   |
+    Then the step should succeed
+
+    When I run the :run client command with:
+      | name      | frontend   |
+      | image     | <%= cb.user1_image %>   |
+      | dry_run   |            |
+      | -o        | yaml       |
+    Then the step should succeed
+    And I save the output to file> dc.yaml
+
+    When I run oc create with "dc.yaml" replacing paths:
+      | ["spec"]["template"]["spec"]["containers"][0]["imagePullPolicy"] | Always                    |
+      | ["spec"]["template"]["spec"]["imagePullSecrets"]                 | - name: user1-dockercfg   |
+    Then the step should succeed
+
+    Then a pod becomes ready with labels:
+      | deploymentconfig=frontend |
+
+  # @author xxia@redhat.com
+  # @case_id 491401
+  Scenario: Deploy will fail with incorrently formed pull secrets
+    Given I have a project
+    And I run the :new_build client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world |
+      | name     | test |
+    Then the step should succeed
+
+    Given the "test-1" build completed
+    # Get user1's image as private docker image. Format is like: 172.31.168.158:5000/<project>/<istream>
+    Then evaluation of `image_stream("test").docker_image(user: user)` is stored in the :user1_image clipboard
+
+    Given I switch to the second user
+    And I create a new project
+
+    When I run the :run client command with:
+      | name      | frontend   |
+      | image     | <%= cb.user1_image %>   |
+      | dry_run   |            |
+      | -o        | yaml       |
+    Then the step should succeed
+    And I save the output to file> dc.yaml
+
+    # Not existent secret
+    When I run oc create with "dc.yaml" replacing paths:
+      | ["spec"]["template"]["spec"]["containers"][0]["imagePullPolicy"] | Always                    |
+      | ["spec"]["template"]["spec"]["imagePullSecrets"]                 | - name: notexist-secret   |
+    Then the step should succeed
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | pod     |
+    Then the step should succeed
+    And the output should match "frontend-1-.*(ImagePullBackOff|ErrImagePull)"
+    """
+    # TODO: check secrets "notexist-secret" not found?
+
+    # Not matched secret
+    When I run the :secrets client command with:
+      | action | new             |
+      | name   | notmatch-secret |
+      | source | dc.yaml         |
+    Then the step should succeed
+    When I run oc create with "dc.yaml" replacing paths:
+      | ["metadata"]["name"]                                             | newdc                     |
+      | ["spec"]["template"]["spec"]["containers"][0]["imagePullPolicy"] | Always                    |
+      | ["spec"]["template"]["spec"]["imagePullSecrets"]                 | - name: notmatch-secret   |
+    Then the step should succeed
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | pod                |
+    Then the step should succeed
+    And the output should match "newdc-1-.*(ImagePullBackOff|ErrImagePull)"
+    """
+    When I run the :describe client command with:
+      | resource      | pod       |
+      | name          | newdc-1-  |
+    Then the step should succeed
+    And the output should match "no.*credentials"

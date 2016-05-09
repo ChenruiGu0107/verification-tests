@@ -29,7 +29,7 @@ Feature: general_db.feature
   # @case_id 473389 508066
   Scenario Outline: Add env variables to mongodb image
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/<template>" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/<template>" replacing paths:
       | ["spec"]["template"]["spec"]["containers"][0]["image"] | <%= product_docker_repo %><image>|
     Then the step should succeed
     And a pod becomes ready with labels:

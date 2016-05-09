@@ -31,5 +31,16 @@ module CucuShift
 
       return res
     end
+
+    def docker_image(user:)
+      res = get(user: user)
+      if res[:success]
+        return res[:parsed]["status"]["dockerImageRepository"]
+      else
+        logger.error(@result[:response])
+        raise "Method docker_image failed to get the imagestream"
+      end
+    end
+
   end
 end

@@ -12,7 +12,7 @@ Feature: Add pvc to pod from web related
       | ["metadata"]["name"]       | nfs-1-<%= project.name %>         |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-1-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-1-<%= project.name %>  |
     Then the step should succeed
@@ -23,7 +23,7 @@ Feature: Add pvc to pod from web related
       | ["metadata"]["name"]       | nfs-2-<%= project.name %>         |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-2-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-2-<%= project.name %>  |
     Then the step should succeed
@@ -93,7 +93,7 @@ Feature: Add pvc to pod from web related
       | ["metadata"]["name"]       | nfs-<%= project.name %>         |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
