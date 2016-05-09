@@ -1,11 +1,12 @@
 require 'find'
-require 'headless'
 require 'psych'
 require 'uri'
 require 'watir-webdriver'
 
   class Web4Cucumber
     attr_reader :base_url, :browser_type, :logger, :rules
+
+    @@headless = nil
 
     FUNMAP = {
       :select => :select_lists,
@@ -59,11 +60,7 @@ require 'watir-webdriver'
       client = Selenium::WebDriver::Remote::Http::Default.new
       client.timeout = 180
 
-      if ENV["DEBUG_WEB"].nil? ||
-           ["off", "0", "false"].include?(ENV["DEBUG_WEB"].downcase)
-        @headless = Headless.new
-        @headless.start
-      end
+      headless
 
       if @browser_type == :firefox
         @browser = Watir::Browser.new :firefox, :profile => firefox_profile, :http_client=>client
@@ -75,9 +72,24 @@ require 'watir-webdriver'
       @browser
     end
 
+    # start a new headless session if we don't have a GUI environment already;
+    #   that means no windows, no mac, and no DISPLAY env variable;
+    #   if you want to force headless on linux, just `unset DISPLAY` prior run
+    def headless
+      if !Gem.win_platform? &&
+          /darwin/ !~ RUBY_PLATFORM &&
+          !ENV["DISPLAY"] &&
+          !@@headless
+        require 'headless'
+        @@headless = Headless.new
+        @@headless.start
+      end
+    end
+
     def finalize
       @browser.close if @browser
-      @headless.destroy if @headless
+      # avoid destroy as it happens at_exit anyway but often reused during run
+      # @@headless.destroy if @@headless
     end
 
     def res_join(master_res, *results)
@@ -146,7 +158,7 @@ require 'watir-webdriver'
       result[:response] << (result[:success] ? "completed" : "failed")
       return result
     end
-    
+
     def handle_cookie(cookie,**user_opts)
       unless cookie.kind_of? Hash
         raise "The script should be a Hash"
@@ -155,7 +167,7 @@ require 'watir-webdriver'
       unless cookie.has_key?(:name) && cookie.has_key?(:expect_result)
         raise "Cookie lack of name or expect_result"
       end
-      
+
       output = browser.cookies[cookie[:name]]
       if cookie[:expect_result].kind_of? String
         success = output == cookie[:expect_result]
@@ -179,7 +191,7 @@ require 'watir-webdriver'
       unless script.has_key?(:command) && script.has_key?(:expect_result)
         raise "Script lack of command or expect_result"
       end
-      # sleep to make sure the ajax done, still no idea how much time should be 
+      # sleep to make sure the ajax done, still no idea how much time should be
       sleep 1
 
       command = script[:command].gsub(/<([a-z_]+?)>/) { |match|
@@ -204,9 +216,9 @@ require 'watir-webdriver'
       }
       return res
     end
-    
+
     # window_rule[:selector] could be Regexp or String format of window's url/title
-    # see the example in lib/rules/web/console/debug.xyaml  
+    # see the example in lib/rules/web/console/debug.xyaml
     def handle_switch_window(window_rule, **user_opts)
       unless window_rule.kind_of? Hash
         raise "switch window rule should be a Hash."

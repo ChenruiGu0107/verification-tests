@@ -253,7 +253,8 @@ module CucuShift
     alias clean_up kill_tree
 
     def do_kill_tree
-      if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
+      #if /cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM
+      if Gem.win_platform?
         raise "dunno how to handle this on windows"
         # TODO: investigate sys-proctable based solution
       else
