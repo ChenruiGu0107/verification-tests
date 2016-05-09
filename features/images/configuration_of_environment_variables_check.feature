@@ -122,20 +122,14 @@ Feature: Configuration of environment variables check
   # @case_id 521464
   Scenario: Users can override the the env tuned by ruby base image -ruby-22-rhel7
     Given I have a project
-    #NOTE: There is a build issue preventing the use of rhscl/ruby-22-rhel7
-    #as of 04/05/16; please update the repo below to the rhscl repo once that
-    #resolves.
-    #Ref: https://github.com/openshift/cucushift/pull/3098#issuecomment-216726634
     When I run the :new_app client command with:
-      | app_repo | <%= product_docker_repo%>openshift3/ruby-20-rhel7~https://github.com/openshift/rails-ex |
+      | app_repo | openshift/ruby:2.2~https://github.com/openshift/rails-ex |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=rails-ex |
     When I run the :env client command with:
       | resource | dc/rails-ex |
       | e | PUMA_MIN_THREADS=1,PUMA_MAX_THREADS=14,PUMA_WORKERS=5 |
-    When I run the :deploy client command with:
-      | deployment_config | rails-ex |
     Given 1 pods become ready with labels:
       | deployment=rails-ex-2 |
     When I run the :logs client command with:
