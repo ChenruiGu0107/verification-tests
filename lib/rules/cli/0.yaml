@@ -710,3 +710,12 @@
   :properties:
     :oadm_version: !ruby/regexp '/^oadm v(.+)$/'
     :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
+:oadm_pod_network_join_projects:
+  :cmd: oadm pod-network join-projects <project>
+  :options: 
+    :selector: --selector=<value>
+    :to: --to=<value>
+:oadm_pod_network_make_projects_global:
+  :cmd: oadm pod-network make-projects-global <project>
+  :options:
+    :selector: --selector=<value>
