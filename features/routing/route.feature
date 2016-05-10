@@ -453,10 +453,3 @@ Feature: Testing route
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift-Path-Test"
 
-
-
-
-
-
-
-
