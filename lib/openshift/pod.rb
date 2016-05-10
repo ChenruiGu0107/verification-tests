@@ -29,7 +29,7 @@ module CucuShift
 
       spec = pod_hash["spec"] # this is runtime, lets not cache
       props[:node_hostname] = spec["host"]
-      # props[:node_name] = spec["nodeName"] # I want to discourage usage
+      props[:node_name] = spec["nodeName"]
 
       s = pod_hash["status"]
       props[:ip] = s["podIP"]
@@ -67,6 +67,13 @@ module CucuShift
       get_checked(user: user) if !props[:node_hostname]
 
       return props[:node_hostname]
+    end
+
+    # @note call without parameters only when props are loaded
+    def node_name(user: nil)
+      get_checked(user: user) if !props[:node_name]
+
+      return props[:node_name]
     end
 
     # this useful if you wait for a pod to die
