@@ -251,6 +251,44 @@ Feature: secrets related scenarios
     And the output should contain:
       | openshift.io/token-secret.name=builder-token- |
 
+  # @author cryan@redhat.com
+  # @case_id 519256
+  @admin
+  Scenario: Secret can be used to download dependency from private registry - custom build
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+    Then the step should succeed
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json"
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completes
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"spec": {"source": {"secrets":[{"secret":{"name":"testsecret1"}},{"secret":{"name":"testsecret2"}}]}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the pod named "ruby-sample-build-2-build" status becomes :running
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-2-build |
+      | n | <%= project.name %> |
+      | exec_command | env |
+    Then the output should contain:
+      | testsecret1 |
+      | testsecret2 |
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-2-build |
+      | n | <%= project.name %> |
+      | exec_command| ls |
+      | exec_command_arg | /var/run/secrets/openshift.io/build |
+    Then the output should contain:
+      | testsecret1 |
+      | testsecret2 |
 
   # @author qwang@redhat.com
   # @case_id 483169
