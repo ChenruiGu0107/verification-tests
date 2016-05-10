@@ -364,8 +364,8 @@ Feature: Testing route
       | path         | /test |
     When I get project route as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['host']` is stored in the :testpath clipboard
-    When I open web server via the "<%= cb.testpath %>/test/" url
-    Then the output should contain "Hello-Openshift-Path-Test"
+    When I open web server via the "http://<%= cb.testpath %>/test/" url
+    Then the output should contain "Hello-OpenShift-Path-Test"
 
   # @author zzhao@redhat.com
   # @case_id 470735
