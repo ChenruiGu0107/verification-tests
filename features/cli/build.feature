@@ -783,6 +783,51 @@ Feature: build 'apps' with CLI
       | no such file or directory |
 
   # @author cryan@redhat.com
+  # @case_id 519487
+  Scenario: Implement post-build command for s2i build
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Given the "ruby22-sample-build-1" build completes
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec":{"postCommit":{"script":"bundle exec rake test"}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | o | json |
+    Then the output should contain "postCommit"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Given the "ruby22-sample-build-2" build completes
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec":{"postCommit":{"command": ["/bin/bash", "-c", "bundle exec rake test --verbose"]}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Given the "ruby22-sample-build-3" build completes
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec":{"postCommit": {"args": ["bundle","exec","rake","test","--verbose"]}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Given the "ruby22-sample-build-4" build completes
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec":{"postCommit": {"args": ["--verbose"],"script": "bundle exec rake test $1"}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Given the "ruby22-sample-build-5" build completes
+
+  # @author cryan@redhat.com
   # @case_id 519486
   Scenario: Implement post-build command for quickstart: Django
     Given I have a project
