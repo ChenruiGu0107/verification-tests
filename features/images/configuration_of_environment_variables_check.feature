@@ -118,12 +118,12 @@ Feature: Configuration of environment variables check
       | test7=\$\$\$\$\$\$\(zzhao\)     |
       | test8=\$\$\$\$\$\$\$\(zzhao\)   |
 
-  # @author cryan@redhat.com
-  # @case_id 521464
-  Scenario: Users can override the the env tuned by ruby base image -ruby-22-rhel7
+  # @author cryan@redhat.com haowang@redhat.com
+  # @case_id 521464 521463
+  Scenario Outline: Users can override the the env tuned by ruby base image
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | openshift/ruby:2.2~https://github.com/openshift/rails-ex |
+      | app_repo | <imagestream>~https://github.com/openshift/rails-ex |
     Then the step should succeed
     Given 1 pods become ready with labels:
       | app=rails-ex |
@@ -135,6 +135,11 @@ Feature: Configuration of environment variables check
     When I run the :logs client command with:
       | resource_name | pod/<%= pod.name %>|
     Then the output should contain:
-      | Min threads: 1 |
-      | max threads: 14 |
+      | Min threads: 1     |
+      | max threads: 14    |
       | Process workers: 5 |
+
+    Examples:
+      | imagestream |
+      | openshift/ruby:2.0 |
+      | openshift/ruby:2.2 |
