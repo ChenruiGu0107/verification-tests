@@ -129,6 +129,8 @@ Feature: build 'apps' with CLI
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
+    Given the "ruby" image stream was created 
+    And the "ruby" image stream becomes ready
     When I run the :new_app client command with:
       | image_stream | openshift/ruby:latest |
       | image_stream | <%= project.name %>/ruby:2.0 |
@@ -271,8 +273,11 @@ Feature: build 'apps' with CLI
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Given the "ruby" image stream was created
+    And the "ruby" image stream becomes ready
     Given the "mysql" image stream was created
+    And the "mysql" image stream becomes ready
     Given the "postgresql" image stream was created
+    And the "postgresql" image stream becomes ready
     When I run the :new_app client command with:
       | image_stream | openshift/ruby |
       | image_stream | <%= project.name %>/ruby:2.2 |
@@ -287,7 +292,7 @@ Feature: build 'apps' with CLI
       | group        | <%= project.name %>/ruby:2.2+<%= project.name %>/mysql:5.5+<%= project.name %>/postgresql:9.2 |
       | group        | <%= product_docker_repo %>rhscl/ruby-22-rhel7+<%= product_docker_repo %>rhscl/mysql-56-rhel7+<%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
       | code         | https://github.com/openshift/ruby-hello-world |
-      | env            | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test,MYSQL_ROOT_PASSWORD=test |
+      | env          | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test,MYSQL_ROOT_PASSWORD=test |
       | l            | app=testapps    |
       | insecure_registry | true |
     Then the step should succeed

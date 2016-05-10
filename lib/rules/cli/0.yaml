@@ -296,6 +296,7 @@
   :cmd: oc new-app
   :options:
     :allow_missing_images: --allow-missing-images=<value>
+    :allow_missing_imagestream_tags: --allow-missing-imagestream-tags=<value>
     :app_repo: <value>
     :code: --code=<value>
     :context_dir: --context-dir=<value>
