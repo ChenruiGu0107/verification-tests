@@ -41,3 +41,20 @@ Feature: builderimage.feature
       | php_image | mysql_image |
       | php:5.5   | <%= product_docker_repo %>openshift3/mysql-55-rhel7 |
       | php:5.6   | <%= product_docker_repo %>rhscl/mysql-56-rhel7      |
+
+  # @case_id 515317
+  # @author xiuwang@redhat.com
+  Scenario: Use Jenkins as S2I builder with plugins
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/jenkins-example/master/jenkins-with-plugins.json | 
+    Then the step should succeed
+    And the "jenkins-master-1" build was created
+    And the "jenkins-master-1" build completed
+    When I run the :build_logs client command with:
+      | build_name | jenkins-master-1 |
+    Then the output should contain:
+      | Downloading credentials-1.23 |
+      | Downloading analysis-core-1.71 |
+      | Downloading ansicolor-0.4.1 |
+      | Installing 2 Jenkins plugins from plugins/ directory |
