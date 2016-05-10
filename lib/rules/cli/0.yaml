@@ -205,6 +205,7 @@
     :selector: --selector=<value>
     :output: --output=<value>
     :o: -o <value>
+    :path: --path=<value>
 :create_route_edge:
   :cmd: oc create route edge <name>
   :options:
