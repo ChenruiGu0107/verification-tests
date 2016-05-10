@@ -61,14 +61,15 @@ Feature: dockerbuild.feature
      When I run the :logs client command with:
        | resource_name| bc/ruby20-sample-build |
      Then the output should contain "/invalid/Dockerfile: no such file or directory"
+
   # @author haowang@redhat.com
   # @case_id 507555
   Scenario: Add empty ENV to DockerStrategy buildConfig when do docker build
-     Given I have a project
-     When I run the :new_app client command with:
-       | file |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template-dockerbuild-blankvar.json |
-     Then the step should failed
-     And the output should contain "invalid"
+    Given I have a project
+    When I run the :new_app client command with:
+      | file |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template-dockerbuild-blankvar.json |
+    Then the step should fail
+    And the output should contain "invalid"
 
   # @author cryan@redhat.com
   # @case_id 512262
