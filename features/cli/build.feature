@@ -1151,7 +1151,7 @@ Feature: build 'apps' with CLI
       When I run the :start_build client command with:
         | buildconfig | ruby-sample-build |
       Then the step should succeed
-      Given the "ruby-sample-build-1" build finishes
+      Given the "ruby-sample-build-2" build finishes
       When I run the :logs client command with:
         | resource_name | build/ruby-sample-build-2 |
       Then the step should succeed
