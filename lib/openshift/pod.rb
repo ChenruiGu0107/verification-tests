@@ -27,10 +27,13 @@ module CucuShift
       # for deployment pods
       # ???
 
-      # s = pod_hash["spec"] # this is runtime, lets not cache
+      spec = pod_hash["spec"] # this is runtime, lets not cache
+      props[:node_hostname] = spec["host"]
+      props[:node_name] = spec["nodeName"]
 
       s = pod_hash["status"]
       props[:ip] = s["podIP"]
+
 
       return self # mainly to help ::from_api_object
     end
@@ -57,6 +60,20 @@ module CucuShift
       get_checked(user: user) if !props[:ip]
 
       return props[:ip]
+    end
+
+    # @note call without parameters only when props are loaded
+    def node_hostname(user: nil)
+      get_checked(user: user) if !props[:node_hostname]
+
+      return props[:node_hostname]
+    end
+
+    # @note call without parameters only when props are loaded
+    def node_name(user: nil)
+      get_checked(user: user) if !props[:node_name]
+
+      return props[:node_name]
     end
 
     # this useful if you wait for a pod to die
