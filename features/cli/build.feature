@@ -1254,11 +1254,11 @@ Feature: build 'apps' with CLI
   @admin
   @destructive
   Scenario: Allowing only certain users to create builds with a particular strategy
+    Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
     Then the output should contain "build strategy Docker is not allowed"
-    Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
     Given cluster role "system:build-strategy-docker" is added to the "first" user
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
