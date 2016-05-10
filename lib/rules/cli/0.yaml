@@ -671,6 +671,12 @@
     :all: --all=<value>
     :imagestreamtag: <value>
     :invalid_option: <value>   # for negative testing
+:oadm_config_view:
+  :cmd: oadm config view
+  :options:
+    :flatten: --flatten
+    :minify: --minify
+    :raw: --raw
 :oadm_new_project:
   :cmd: oadm new-project <project_name>
   :expected:
