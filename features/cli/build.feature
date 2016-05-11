@@ -1467,3 +1467,46 @@ Feature: build 'apps' with CLI
       | name | app6 |
     Then the step should fail
     And the output should contain "source-image-path must be specified"
+
+  # @author cryan@redhat.com
+  # @case_id 521601
+  Scenario: Overriding builder image scripts by url scripts in buildConfig under proxy
+    Given I have a project
+    Then I use the "<%= project.name %>" project
+    #Create the proxy
+    When I run the :new_build client command with:
+      | code | https://github.com/openshift-qe/docker-squid |
+      | strategy | docker |
+      | to | myappis |
+      | name | myapp |
+    Then the step should succeed
+    Given the "myapp-1" build completes
+    When I run the :new_app client command with:
+      | image_stream | myappis |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=myappis-1 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"scripts": "https://raw.githubusercontent.com/openshift-qe/builderimage-scripts/master/bin"}}}} |
+    Then the step should succeed
+    #Get the proxy ip
+    Given I use the "myappis" service
+    And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"env": [{"name": "http_proxy","value": "http://<%= cb.service_ip %>:3128"}]}}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | o | json |
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build completes
