@@ -2,9 +2,11 @@ Feature: Logging and Metrics
 
   # @author chunchen@redhat.com
   # @case_id 509065
+  # @author xiazhao@redhat.com
+  # @case_id 521420
   @admin
   @smoke
-  Scenario: Access heapster interface
+  Scenario: Access heapster interface,Check jboss wildfly version from hawkular-metrics pod logs
     Given I have a project
     And I store default router subdomain in the :subdomain clipboard
     When I run the :create client command with:
@@ -29,6 +31,16 @@ Feature: Logging and Metrics
     And I wait for the "hawkular-cassandra" service to become ready
     And I wait for the "hawkular-metrics" service to become ready
     And I wait for the "heapster" service to become ready
+    # sync with upstream metrics image team about desired version if this fails https://trello.com/c/ZPQN4gdp/, or contact xiazhao@redhat.com
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    And I wait for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name    | pods/<%= pod.name %>|
+    Then the output should contain:
+      | JBoss EAP 6.4.4.GA  |
+    """
     Given the first user is cluster-admin
     Given I wait for the steps to pass:
     """
