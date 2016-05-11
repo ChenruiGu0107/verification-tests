@@ -91,11 +91,11 @@ Feature: Persistent Volume Claim binding policies
       | persistentVolumeClaim: |
       | claimName: nfsc        |
     """
-    
+
   # @author wehe@redhat.com
   # @case_id 522131
   @admin @destructive
-  Scenario: PVCs with size more than PV or access mode not supported by existing PV and expect pending 
+  Scenario: PVCs with size more than PV or access mode not supported by existing PV and expect pending
     Given I have a project
     And I have a NFS service in the project
 
@@ -111,7 +111,7 @@ Feature: Persistent Volume Claim binding policies
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json"
     And I replace lines in "claim-rwx.json":
       |nfsc|nfsc-<%= project.name %>|
-      |5Gi|10Gi|  
+      |5Gi|10Gi|
     And I run the :create client command with:
       | f | claim-rwx.json |
     Then the step should succeed
@@ -119,7 +119,7 @@ Feature: Persistent Volume Claim binding policies
     #Tricky method here, to avoid conflicting with other pv/pvc
     When I run the :get admin command with:
       | resource | pv |
-      | resource_name | <%= pv.name %> |   
+      | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
     Given I run the :delete client command with:
@@ -138,7 +138,7 @@ Feature: Persistent Volume Claim binding policies
     #Verify the pv does not bind the pvc I created
     When I run the :get admin command with:
       | resource | pv |
-      | resource_name | <%= pv.name %> |   
+      | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
     Given I run the :delete client command with:
@@ -157,7 +157,7 @@ Feature: Persistent Volume Claim binding policies
     #Verify unbound here
     When I run the :get admin command with:
       | resource | pv |
-      | resource_name | <%= pv.name %> |   
+      | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
     Given I run the :delete client command with:
@@ -184,7 +184,7 @@ Feature: Persistent Volume Claim binding policies
     Then the step should succeed
     When I run the :get admin command with:
       | resource | pv |
-      | resource_name | <%= pv.name %> |   
+      | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
     Given I run the :delete client command with:
@@ -198,7 +198,7 @@ Feature: Persistent Volume Claim binding policies
     Then the step should succeed
     When I run the :get admin command with:
       | resource | pv |
-      | resource_name | <%= pv.name %> |   
+      | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
     Given I run the :delete client command with:
@@ -223,7 +223,7 @@ Feature: Persistent Volume Claim binding policies
     Then the step should succeed
     When I run the :get admin command with:
       | resource | pv |
-      | resource_name | nfs-<%= project.name %> |   
+      | resource_name | nfs-<%= project.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
     Given I run the :delete client command with:
@@ -237,7 +237,7 @@ Feature: Persistent Volume Claim binding policies
     Then the step should succeed
     When I run the :get admin command with:
       | resource | pv |
-      | resource_name | nfs-<%= project.name %> |   
+      | resource_name | nfs-<%= project.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
 
@@ -345,9 +345,9 @@ Feature: Persistent Volume Claim binding policies
       | resource | pvc/nfsc |
     Then the output should contain:
       | Pending |
-    
+
     And I run the :get admin command with:
       | resource | pv/nfs-<%= project.name %> |
     Then the output should contain:
       | Available |
- 
+
