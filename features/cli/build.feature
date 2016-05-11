@@ -1049,6 +1049,30 @@ Feature: build 'apps' with CLI
     """
 
   # @author cryan@redhat.com
+  # @case_id 517667
+  Scenario: Add multiple source inputs
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc517667/ruby22rhel7-template-sti.json |
+    Given the "ruby22-sample-build-1" build completes
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | o | yaml |
+    Then the output should match "xiuwangs2i-2$"
+    And the output should not match "xiuwangs2i$"
+    Given 2 pods become ready with labels:
+      |deployment=frontend-1|
+    When I execute on the "<%= pod.name %>" pod:
+      | ls | xiuwangs2i |
+    Then the step should fail
+    When I execute on the "<%= pod.name %>" pod:
+      | ls |
+    Then the step should succeed
+    And the output should contain:
+      | xiuwangs2i-2 |
+
+  # @author cryan@redhat.com
   # @case_id 522440
   Scenario: Check bad proxy in .s2i/environment when performing s2i build
     Given I have a project
