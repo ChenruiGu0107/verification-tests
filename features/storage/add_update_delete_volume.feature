@@ -18,13 +18,11 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json"
-    And I replace lines in "pvc-template.json":
-      |#NS#|<%= project.name %>|
-    Then I run the :create client command with:
-      | f | pvc-template.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" URL replacing paths:
+      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
-    Given the PV becomes :bound
+    And the PV becomes :bound
     # add pvc to dc
     When I run the :volume client command with:
       | resource      | dc/mydb                 |
@@ -515,25 +513,20 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json"
-    And I replace lines in "pvc-template.json":
-      | #NS# | <%= project.name %> |
-    And I run the :create client command with:
-      | f | pvc-template.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" URL replacing paths:
+      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
-    Given the PV becomes :bound
+    And the PV becomes :bound
 
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]      | nfs1-<%= project.name %>         |
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json"
-    And I replace lines in "pvc-template.json":
-      | nfsc-#NS# | nfsc1-<%= project.name %> |
-      | nfs-#NS#  | nfs1-<%= project.name %>  |
-    And I run the :create client command with:
-      | f | pvc-template.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" URL replacing paths:
+      | ["metadata"]["name"]   | nfsc1-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs1-<%= project.name %>  |
     Then the step should succeed
-    Given the PV becomes :bound
+    And the PV becomes :bound
 
     # add pvc to dc
     When I run the :volume client command with:
