@@ -9,6 +9,7 @@ require 'openshift/route'
 require 'openshift/build'
 require 'openshift/pod'
 require 'openshift/persistent_volume'
+require 'openshift/persistent_volume_claim'
 require 'openshift/replication_controller'
 require 'openshift/deployment_config'
 module CucuShift
@@ -37,6 +38,7 @@ module CucuShift
       @builds = []
       @pods = []
       @pvs = []
+      @pvcs = []
       @rcs = []
       @dcs = []
       @image_streams = []
@@ -356,6 +358,34 @@ module CucuShift
         raise "what is are you talking about?"
       else
         return @image_streams.last
+      end
+    end
+
+    # @return [PersistentVolumeClaim] last used PVC from scenario cache;
+    #   with no params given, returns last requested is;
+    #   otherwise creates an [PersistentVolumeClaim] object with the given name
+    # @note you need the project already created
+    def pvc(name = nil, project = nil)
+      project ||= self.project(generate: false)
+
+      if name
+        pvc = @pvcs.find {|s| s.name == name && s.project == project}
+        if pvc && @pvcs.last == pvc
+          return pvc
+        elsif pvc
+          @pvcs << @pvcs.delete(pvc)
+          return pvc
+        else
+          # create new object with specified name
+          @pvcs << PersistentVolumeClaim.new(name: name, project: project)
+          return @pvcs.last
+        end
+      elsif @pvcs.empty?
+        # we do not create a random pvc like with projects because that
+        #   would rarely make sense
+        raise "what PVC are you talking about?"
+      else
+        return @pvcs.last
       end
     end
 

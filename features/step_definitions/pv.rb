@@ -1,10 +1,18 @@
 require 'yaml'
 
-Given /^the(?: "([^"]*)")? PV becomes :(.+)$/ do |pv_name, status|
+Given /^the#{OPT_QUOTED} PV becomes #{SYM}$/ do |pv_name, status|
   @result = pv(pv_name).wait_till_status(status.to_sym, admin, 30)
 
   unless @result[:success]
     raise "PV #{pv_name} never reached status: #{status}"
+  end
+end
+
+Given /^the#{OPT_QUOTED} PV status is #{SYM}$/ do |pv_name, status|
+  @result = pv(pv_name).status?(status: status.to_sym, user: admin)
+
+  unless @result[:success]
+    raise "PV #{pv_name} does not have status: #{status}"
   end
 end
 
