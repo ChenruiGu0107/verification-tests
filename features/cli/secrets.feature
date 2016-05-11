@@ -295,7 +295,7 @@ Feature: secrets related scenarios
 
     Given the "test-1" build completed
     # Get user1's image as private docker image. Format is like: 172.31.168.158:5000/<project>/<istream>
-    Then evaluation of `image_stream("test").docker_image(user: user)` is stored in the :user1_image clipboard
+    Then evaluation of `image_stream("test").docker_image_repository(user: user)` is stored in the :user1_image clipboard
 
     Given I switch to the second user
     And I create a new project
@@ -336,7 +336,7 @@ Feature: secrets related scenarios
 
     Given the "test-1" build completed
     # Get user1's image as private docker image. Format is like: 172.31.168.158:5000/<project>/<istream>
-    Then evaluation of `image_stream("test").docker_image(user: user)` is stored in the :user1_image clipboard
+    Then evaluation of `image_stream("test").docker_image_repository(user: user)` is stored in the :user1_image clipboard
 
     Given I switch to the second user
     And I create a new project
