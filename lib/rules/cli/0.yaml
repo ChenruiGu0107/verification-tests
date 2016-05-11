@@ -109,6 +109,22 @@
     :filename: --filename=<value>
 :create_serviceaccount:
   :cmd: oc create serviceaccount <serviceaccount_name>
+:debug:
+  :cmd: oc debug <global_options>
+  :options:
+     :resource: <value>
+     :keep_annotations: --keep-annotations
+     :keep_liveness: --keep-liveness
+     :keep_readiness: --keep-readiness
+     :one_container: --one-container=<value>
+     :node_name: --node-name=<value>
+     :c: -c <value>
+     :t: -t
+     :o: -o <value>
+     :f: -f <value>
+     :oc_opts_end: --
+     :exec_command: <value>
+     :exec_command_arg: <value>
 :delete:
   :cmd: oc delete
   :options:
