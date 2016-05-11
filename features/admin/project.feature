@@ -164,7 +164,7 @@ Feature: project permissions
     Given I register clean-up steps:
       | admin deletes the "<%= @clipboard[:proj_name] %>" project |
       | the step should succeed                         |
-    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/node-selector.json" URL replacing paths:
+    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/node-selector.json" replacing paths:
       | ["metadata"]["name"] | <%= @clipboard[:proj_name] %>|
       | ["metadata"]["labels"]["name"] | <%= @clipboard[:proj_name] %>|
     Then the step should succeed

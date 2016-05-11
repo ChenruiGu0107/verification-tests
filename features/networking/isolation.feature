@@ -25,7 +25,7 @@ Feature: networking isolation related scenarios
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And evaluation of `rand_str(5, :dns)` is stored in the :default_name clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" replacing paths:
       # | ["spec"]["containers"][0]["name"] | <%= cb.default_name %> |
       | ["metadata"]["name"]              | <%= cb.default_name %> |
     Then the step should succeed
@@ -110,7 +110,7 @@ Feature: networking isolation related scenarios
     # Create 3 projects and each contains 1 pod and 1 service
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-1 |
     Then the step should succeed
@@ -122,7 +122,7 @@ Feature: networking isolation related scenarios
 
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-2 |
     Then the step should succeed
@@ -133,7 +133,7 @@ Feature: networking isolation related scenarios
 
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][1]["metadata"]["name"] | test-service-3 |
     Then the step should succeed
@@ -162,7 +162,7 @@ Feature: networking isolation related scenarios
 
     # Create another new pod and service in each project
     Given I use the "<%= cb.proj1 %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -175,7 +175,7 @@ Feature: networking isolation related scenarios
     And evaluation of `service("new-test-service-1").ip(user: user)` is stored in the :proj1s2 clipboard
 
     Given I use the "<%= cb.proj2 %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
@@ -189,7 +189,7 @@ Feature: networking isolation related scenarios
     And evaluation of `service("new-test-service-2").ip(user: user)` is stored in the :proj2s2 clipboard
 
     Given I use the "<%= cb.proj3 %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
       | ["items"][0]["metadata"]["name"] | new-test-rc |
       | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |

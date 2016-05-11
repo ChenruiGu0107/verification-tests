@@ -43,7 +43,7 @@ Feature: Service related networking scenarios
     Given the pod named "hello-pod" becomes ready
 
     ## Create selector less service in project2 which point to the pod in project1
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
         | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.pod1_ip %> |
     Then the step should succeed
     Given I use the "selector-less-service" service
@@ -79,7 +79,7 @@ Feature: Service related networking scenarios
     Given the pod named "hello-pod" becomes ready
 
     ## Create selector less service in project2 which point to the service in project1
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_service.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_service.json" replacing paths:
         | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.service1_ip %> |
     Then the step should succeed
     Given I use the "selector-less-service" service

@@ -65,10 +65,10 @@ Feature: Testing route
 
     Given I switch to the first user
     And I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.json" replacing paths:
       | ["spec"]["host"]  | www.<%= rand_str(5, :dns) %>.example.com |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json" replacing paths:
       | ["spec"]["host"]  | www.<%= rand_str(5, :dns) %>.example.com |
     Then the step should succeed
 

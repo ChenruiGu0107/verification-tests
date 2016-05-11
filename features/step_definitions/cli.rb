@@ -51,13 +51,17 @@ end
 # 1. download file from JSON/YAML URL
 # 2. replace any path with given value from table
 # 3. runs `oc create` command over the resulting file
-When /^I run oc create( as admin)? over #{QUOTED} URL replacing paths:$/ do |admin, url, table|
-  step %Q|I download a file from "#{url}"|
+When /^I run oc create( as admin)? (?:over|with) #{QUOTED} replacing paths:$/ do |admin, file, table|
+  if file.include? '://'
+    step %Q|I download a file from "#{file}"|
+    resource_hash = YAML.load(@result[:response])
+  else
+    resource_hash = YAML.load_file(file)
+  end
 
   # replace paths from table
-  resource_hash = YAML.load(@result[:response])
   table.raw.each do |path, value|
-    eval "resource_hash#{path} = value"
+    eval "resource_hash#{path} = YAML.load value"
     # e.g. resource["spec"]["nfs"]["server"] = 10.10.10.10
     #      resource["spec"]["containers"][0]["name"] = "xyz"
   end
