@@ -366,6 +366,8 @@ Feature: Testing route
     And evaluation of `@result[:parsed]['items'][0]['spec']['host']` is stored in the :testpath clipboard
     When I open web server via the "http://<%= cb.testpath %>/test/" url
     Then the output should contain "Hello-OpenShift-Path-Test"
+    When I open web server via the "http://<%= cb.testpath %>/" url
+    Then the step should fail
 
   # @author zzhao@redhat.com
   # @case_id 470735
@@ -407,6 +409,14 @@ Feature: Testing route
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift-Path-Test"
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | www.edge.com:443:<%= cb.router_ip[0] %> |
+      | https://www.edge.com/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Application is not available"
 
   # @author zzhao@redhat.com
   # @case_id 498581
@@ -452,4 +462,11 @@ Feature: Testing route
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift-Path-Test"
-
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | reen.example.com:443:<%= cb.router_ip[0] %> |
+      | https://reen.example.com/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Application is not available"
