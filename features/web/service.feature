@@ -6,7 +6,7 @@ Feature: services related feature on web console
     Given I login via web console
     Given I have a project
     # oc process -f file | oc create -f -
-    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc477695/hello.json"
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc477695/hello.json"
     Then the step should succeed
     When I perform the :check_service_list_page web console action with:
       | project_name | <%= project.name %> |
@@ -31,7 +31,7 @@ Feature: services related feature on web console
       | routes       | www.hello2.com      |
       | target_port  | 5555                |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc477695/new_route.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc477695/new_route.json |
       | n | <%= project.name %> |
     Then the step should succeed
     When I perform the :check_one_service_page web console action with:
