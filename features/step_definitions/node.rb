@@ -7,8 +7,9 @@ end
 
 # @host from World will be used.
 Given /^I run commands on the host:$/ do |table|
-  raise "You must set a host prior to running this step" if host.nil?
-  table.raw.flatten.map do |cmd|
-    @result = host.exec(cmd)
-  end
+  ensure_admin_tagged
+
+  raise "You must set a host prior to running this step" unless host
+
+  @result = host.exec(*table.raw.flatten)
 end
