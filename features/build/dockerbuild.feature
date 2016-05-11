@@ -127,7 +127,7 @@ Feature: dockerbuild.feature
   # @case_id 479297, 482273
   Scenario Outline: Docker and STI build with dockerImage with specified tag
     Given I have a project
-    When I run oc create over "<template>" URL replacing paths:
+    When I run oc create over "<template>" replacing paths:
       | ["spec"]["strategy"]["<strategy>"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
     Then the step should succeed
     Given the "ruby-sample-build-1" build completed
