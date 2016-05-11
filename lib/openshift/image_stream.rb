@@ -13,6 +13,9 @@ module CucuShift
       props[:selfLink] = m["selfLink"]
       props[:created] = m["creationTimestamp"] # already [Time]
 
+      s = is_hash["status"]
+      props[:docker_image_repository] = s["dockerImageRepository"]
+
       return self # mainly to help ::from_api_object
     end
 
@@ -32,15 +35,10 @@ module CucuShift
       return res
     end
 
-    def docker_image(user:)
-      res = get(user: user)
-      if res[:success]
-        return res[:parsed]["status"]["dockerImageRepository"]
-      else
-        logger.error(@result[:response])
-        raise "Method docker_image failed to get the imagestream"
-      end
-    end
+    def docker_image_repository(user:)
+      get_checked(user: user) if !props[:docker_image_repository]
 
+      return props[:docker_image_repository]
+    end
   end
 end
