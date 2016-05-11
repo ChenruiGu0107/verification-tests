@@ -56,7 +56,7 @@ When /^I run oc create( as admin)? (?:over|with) #{QUOTED} replacing paths:$/ do
     step %Q|I download a file from "#{file}"|
     resource_hash = YAML.load(@result[:response])
   else
-    resource_hash = YAML.load_file(file)
+    resource_hash = YAML.load_file(File.expand_path(file))
   end
 
   # replace paths from table
