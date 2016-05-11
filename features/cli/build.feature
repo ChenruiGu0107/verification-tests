@@ -1496,7 +1496,6 @@ Feature: build 'apps' with CLI
   # @case_id 521601
   Scenario: Overriding builder image scripts by url scripts in buildConfig under proxy
     Given I have a project
-    Then I use the "<%= project.name %>" project
     #Create the proxy
     When I run the :new_build client command with:
       | code | https://github.com/openshift-qe/docker-squid |
@@ -1519,8 +1518,7 @@ Feature: build 'apps' with CLI
       | p | {"spec": {"strategy": {"sourceStrategy": {"scripts": "https://raw.githubusercontent.com/openshift-qe/builderimage-scripts/master/bin"}}}} |
     Then the step should succeed
     #Get the proxy ip
-    Given I use the "myappis" service
-    And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
+    And evaluation of `service("myappis").ip(user: user)` is stored in the :service_ip clipboard
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby-sample-build |
@@ -1530,6 +1528,7 @@ Feature: build 'apps' with CLI
       | resource | buildconfig |
       | resource_name | ruby-sample-build |
       | o | json |
+    Then the output should contain "http://<%= cb.service_ip %>:3128"
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
