@@ -148,7 +148,7 @@ Feature: buildlogic.feature
     | ruby-sample-build-onbuild-userdefault-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-userdefault.json|
   
   # @author haowang@redhat.com
-  # @case_id 497420 497421 497460 497461 497462 497463
+  # @case_id 497420 497421 497460 497461
   Scenario Outline: ForcePull image for build
     Given I have a project
     And I run the :create client command with:
@@ -169,11 +169,44 @@ Feature: buildlogic.feature
       | "forcePull":true |
 
     Examples:
-      | template                                                                                                                      |
+      | template                                                                                                                    |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStream.json      |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStream.json         |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-dockerimage.json      |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-dockerimage.json         |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStreamImage.json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStreamImage.json    |
+
+
+  # @author haowang@redhat.com
+  # @case_id  497462 497463
+  Scenario Outline: ForcePull image for build using ImageSteamImage
+    Given I have a project
+    When I run the :get client command with:
+      | resource      | istag          |
+      | resource_name | ruby:2.2       |
+      | o             | json           |
+      | n             | openshift      |
+    Then the step should succeed
+    And the output is parsed as JSON
+    And evaluation of `@result[:parsed]['image']['metadata']['name']` is stored in the :imagestreamimage clipboard
+    When I run oc create over "<template>" URL replacing paths:
+      | ['spec']['strategy']['<strategy>']['from']['name'] | ruby@<%= cb.imagestreamimage %> |
+    Then the step should succeed
+    And the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build becomes :running
+    When I run the :describe client command with:
+      | resource | build               |
+      | name     | ruby-sample-build-1 |
+    Then the step should succeed
+    And the output should match:
+      | Force Pull:\s+(true\|yes)|
+    When I run the :logs client command with:
+      | resource_name    | pod/ruby-sample-build-1-build |
+    Then the step should succeed
+    And the output should contain:
+      | "forcePull":true |
+
+    Examples:
+      | strategy       | template                                                                                                                   |
+      | dockerStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStreamImage.json |
+      | sourceStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStreamImage.json    |
 
