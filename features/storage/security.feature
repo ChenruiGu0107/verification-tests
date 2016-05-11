@@ -8,8 +8,8 @@ Feature: storage security check
     When I run the :create client command with:
     |filename| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret.yaml|
     Then the step should succeed
-    
-    #create a new scc restricted 
+
+    #create a new scc restricted
     When I run the :delete admin command with:
     |object_type| scc|
     |object_name_or_id|restricted|
@@ -20,7 +20,7 @@ Feature: storage security check
     When I run the :create admin command with:
     |filename|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc510760/secret_restricted.yaml |
     Then the step should succeed
-    
+
     When I run the :create client command with:
     |filename|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret-pod-test.json|
     And the pod named "secretpd" becomes ready
@@ -53,7 +53,7 @@ Feature: storage security check
   # @author wehe@redhat.com
   # @case_id 510759
   @admin @destructive
-  Scenario: gitRepo volume security testing 
+  Scenario: gitRepo volume security testing
     Given I have a project
 
     #Create the super scc for security testing
@@ -62,7 +62,7 @@ Feature: storage security check
       |#ACCOUNT#|<%= user.name %>|
       |#NAME#|<%= project.name %>|
     And the following scc policy is created: scc.yml
-    
+
     #Create tow pods for selinux testing
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gitrepo/gitrepo-selinux-fsgroup-auto510759.json |
@@ -89,8 +89,8 @@ Feature: storage security check
       | 1000130000 123456 |
       | system_u:object_r:svirt_sandbox_file_t:s0 |
       | file1 |
-    
-      
+
+
   # @author wehe@redhat.com
   # @case_id 510562
   @admin @destructive
@@ -176,6 +176,6 @@ Feature: storage security check
       | exec_command_arg | /tmp/ |
     Then the output should contain:
       | 1000160200 123456 |
-      | svirt_sandbox_file_t:s0:c2,c13 | 
+      | svirt_sandbox_file_t:s0:c2,c13 |
       | file2 |
 
