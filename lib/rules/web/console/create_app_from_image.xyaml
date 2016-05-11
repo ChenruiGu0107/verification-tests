@@ -34,6 +34,15 @@ create_app_without_route_action:
   action: create_app_from_image_show_advanced_param
   action: create_app_without_route
   action: create_app_from_image_submit
+create_app_from_image_with_port:
+  action: create_app_from_image_base_action
+  action: create_app_from_image_show_advanced_param
+  action: check_port_in_list
+  action: create_app_from_image_submit
+check_port_on_create_page:
+  action: create_app_from_image_navigate
+  action: create_app_from_image_show_advanced_param
+  action: check_port_in_list
 # all sub single action  
 create_app_from_image_navigate:
   url: /console/project/<project_name>/create/fromimage?imageName=<image_name>&imageTag=<image_tag>&namespace=<namespace>
@@ -158,4 +167,9 @@ create_app_without_route:
   elements:
   - selector:
       text: Create a route to the application
+    op: click
+check_port_in_list:
+  elements:
+  - selector:
+      xpath: //select[@id='routeTargetPort']/*[text()='<target_port>']
     op: click
