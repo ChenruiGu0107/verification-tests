@@ -28,7 +28,7 @@ Feature: secrets related scenarios
     Then the step should succeed
     And the output should contain:
       |kubernetes.io/dockercfg|
-      
+
   # @author xiacwan@redhat.com
   # @case_id 484337
   @admin
@@ -48,7 +48,7 @@ Feature: secrets related scenarios
     When I run the :create admin command with:
       | f        | myquota.yaml        |
       | n        | <%= project.name %> |
-    Then the step should succeed   
+    Then the step should succeed
     And I wait for the steps to pass:
     """
     When I run the :describe admin command with:
@@ -424,3 +424,43 @@ Feature: secrets related scenarios
       | name          | newdc-1-  |
     Then the step should succeed
     And the output should match "no.*credentials"
+  # @author yantan@redhat.com
+  # @case_id 519261 519260
+  Scenario Outline: Insert secret to builder container via oc new-build - source/docker build
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret1.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc519256/testsecret2.json |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | image_stream | ruby:2.2 |
+      | app_repo | https://github.com/yanliao/build-secret.git |
+      | strategy | <type> |
+      | build_secret | <build_secret> |
+      | build_secret | testsecret2 |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc519261/test.json |
+    Then the step should succeed
+    Given the "build-secret-1" build was created
+    And the "build-secret-1" build completed
+    Given the pod named "build-secret-1-hook-pre" is present
+    Given the pod named "build-secret-1-hook-pre" status becomes :running
+    When I run the :exec client command with:
+      | pod | build-secret-1-hook-pre |
+      | exec_command | <command> |
+      | exec_command_arg | <path>/secret1 |
+      | exec_command_arg | <path>/secret2 |
+      | exec_command_arg | <path>/secret3 |
+      | exec_command_arg | /opt/app-root/src/secret1 |
+      | exec_command_arg | /opt/app-root/src/secret2 |
+      | exec_command_arg | /opt/app-root/src/secret3 |
+    Then the step should succeed
+    And the expression should be true> <expression>
+
+    Examples:
+      | type   | build_secret         | path      | command | expression               |
+      | source | testsecret1:/tmp     | /tmp      | cat     | @result[:response] == "" |
+      | docker | testsecret1:mysecret1| mysecret1 | ls      | true                     |
