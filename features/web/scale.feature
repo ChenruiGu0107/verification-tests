@@ -9,7 +9,7 @@ Feature: scale related features
     Given I use the "<%= project.name %>" project
     When I run the :run client command with:
       | name         | mytest                    |
-      | image        |<%= project_docker_repo %>openshift/hello-openshift |
+      | image        | aosqe/hello-openshift |
       | -l           | label=test |
     Then the step should succeed
 

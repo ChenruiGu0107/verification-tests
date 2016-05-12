@@ -67,8 +67,6 @@ Feature: Check oc status cli
     Then the step should succeed
     When I run the :status client command
     Then the step should succeed
-    And the output should match:
-      | pod/hello-openshift runs aosqe/hello-openshift |
 
   # @author akostadi@redhat.com xxia@redhat.com
   # @case_id 476320
@@ -192,4 +190,3 @@ Feature: Check oc status cli
     And I run the :status client command
     Then the output should not contain:
       | use 'oc status -v' to see details |
-

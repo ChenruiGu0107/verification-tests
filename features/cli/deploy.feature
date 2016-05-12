@@ -822,6 +822,7 @@ Feature: deployment related features
       |  name  | hooks   |
       | image  | <%= project_docker_repo %>openshift/hello-openshift:latest|
     Then the step should succeed
+    Given the pod named "hooks-1-deploy" becomes ready
     When I run the :logs client command with:
       | resource_name | dc/hooks |
     Then the output should match:

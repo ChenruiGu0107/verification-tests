@@ -22,11 +22,12 @@ end
 When /^I open web server via the(?: "(.+?)")? route$/ do |route_name|
   @result = CucuShift::Http.get(url: "http://" + route(route_name).dns(by: user))
 end
+
 When /^I open web server via the(?: "(.+?)")? url$/ do |url|
   @result = CucuShift::Http.get(url: url)
 end
 
-When /^I download a file from "(.+?)"$/ do |url|
+Given /^I download a file from "(.+?)"$/ do |url|
   @result = CucuShift::Http.get(url: url)
   if @result[:success]
     file_name = File.basename(URI.parse(url).path)
