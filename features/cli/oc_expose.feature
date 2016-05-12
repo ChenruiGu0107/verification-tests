@@ -119,3 +119,38 @@ Feature: oc_expose.feature
       | template      | "{{.spec.port.targetPort}}" |
     Then the step should succeed
     And the output should not contain "web"
+
+  # @author xiuwang@redhat.com
+  # @case_id 483242
+  Scenario: Expose sevice from replicationcontrollers 
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/perl                        |
+      | code         | https://github.com/openshift/sti-perl |
+      | context_dir  | 5.20/test/sample-test-app/            |
+      | l            | app=test-perl                         |
+      | name         | myapp                                 |
+    Then the step should succeed
+    And the "myapp-1" build completed
+    Given I wait for the "myapp" service to become ready
+    When I run the :expose client command with:
+      | resource      | rc         |
+      | resource_name | myapp-1    |
+      | port          | 80         |
+      | target_port   | 8080       |
+      | name          | myservice  |
+      | generator     | service/v1 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | service |
+    Then the output should contain:
+      | myservice |
+      | 80/TCP    |
+    Given I wait for the "myservice" service to become ready
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -s | <%= service.url %> |
+    Then the step should succeed
+    """
+    And the output should contain "Everything is OK"
