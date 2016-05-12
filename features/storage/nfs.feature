@@ -196,7 +196,7 @@ Feature: NFS Persistent Volume
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" URL replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
       | ["spec"]["volumeName"] | <%= pv.name %> |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
