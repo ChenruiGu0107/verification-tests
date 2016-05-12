@@ -1554,7 +1554,32 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
+      | follow   | true |
+      | wait     | true |
+      | _timeout | 120  |
+    And the output should contain:
+      | stress: FAIL                                    |
+      | cat /sys/fs/cgroup/memory/memory.limit_in_bytes |
+      | 209715200                                       |
+    When I run the :patch client command with:
+      | resource      | buildconfig         |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"cpularge"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | follow   | true |
+      | wait     | true |
+      | _timeout | 120  |
+    And the output should contain:
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares        |
+      | 614                                              |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_period_us |
+      | 100000                                           |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us  |
+      | 80000                                            |
 
+  # @author xiuwang@redhat.com
   # @case_id 517668
   Scenario: Using a docker image as source input for docker build
     Given I have a project
@@ -1580,43 +1605,20 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | code | https://github.com/openshift-qe/ruby-cgroup-test | 
     Then the step should succeed
-    Then I run the :delete client command with:
-      | object_type       | builds             |
-      | object_name_or_id | ruby-cgroup-test-1 |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-cgroup-test |
-      | follow   | true |
-      | wait     | true |
-      | _timeout | 120  |
+    And the "ruby-cgroup-test-1" build was created
+    Given the "ruby-cgroup-test-1" build completed
+    When I run the :build_logs client command with:
+      | build_name  | ruby-cgroup-test-1 |
     And the output should contain:
-      | stress: FAIL                                    |
-      | cat /sys/fs/cgroup/memory/memory.limit_in_bytes |
-      | 209715200                                       |
-    When I run the :patch client command with:
-      | resource      | buildconfig         |
-      | resource_name | ruby22-sample-build |
-      | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"cpularge"}}}} |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-      | follow   | true |
-      | wait     | true |
-      | _timeout | 120  |
-    And the output should contain:
-      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares        |
-      | 614                                              |
-      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_period_us |
-      | 100000                                           |
-      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us  |
-      | 80000                                            |
       | RUN cp -r /sys/fs/cgroup/cpuacct,cpu/cpu* /tmp                     |
       | RUN cp -r /sys/fs/cgroup/memory/memory.limit_in_bytes /tmp/memlimit|
-    Given the "ruby-cgroup-test-2" build completed
     Given I wait for the "ruby-cgroup-test" service to become ready
+    And I wait for the steps to pass:
+    """
     When I execute on the pod:
       | bash | -c | cat /tmp/memlimit /tmp/cpu.shares /tmp/cpu.cfs_period_us /tmp/cpu.cfs_quota_us |
     Then the step should succeed
+    """
     And the output should contain:
       |92233720369152|
       |2             |
