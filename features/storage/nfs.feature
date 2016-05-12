@@ -10,39 +10,35 @@ Feature: NFS Persistent Volume
     And I have a NFS service in the project
 
     # Creating PV and PVC
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-invalid-path.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc.json |
+      | ["spec"]["nfs"]["path"]   | /non-exist-path                  |
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
+    And the PV becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes :bound
 
-    Given the PV becomes :bound
-
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | pod/nfs |
+      | resource | pod/mypod-<%= project.name %> |
     Then the output should not contain:
       | Running |
-    Given I wait for the steps to pass:
+    And I wait up to 300 seconds for the steps to pass:
     """
     When I run the :describe client command with:
-      | resource | pod |
-      | name     | nfs |
+      | resource | pod                       |
+      | name     | mypod-<%= project.name %> |
     Then the output should contain:
       | Unable to mount volumes for pod |
       | Mount failed: exit status       |
       | Mounting arguments              |
     """
-
-    Given I run the :delete client command with:
-      | object_type       | pod |
-      | object_name_or_id | nfs |
-    And I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc |
-    Then the step should succeed
 
   # @author lxia@redhat.com
   # @case_id 508049
