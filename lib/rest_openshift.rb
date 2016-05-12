@@ -90,6 +90,20 @@ module CucuShift
         return Http.request(**base_opts, method: "GET")
       end
 
+      def self.post_role_oapi(base_opts, opts)
+        base_opts[:payload] = {} 
+        base_opts[:payload]["kind"] = opts[:kind] 
+        base_opts[:payload]["apiVersion"] = opts[:api_version]
+        base_opts[:payload]["verb"] = opts[:verb] 
+        base_opts[:payload]["resource"] = opts[:resource] 
+        base_opts[:payload]["user"] = opts[:user] 
+
+        populate("/namespaces/<project_name>/<role>", base_opts, opts)
+        return Http.request(**base_opts, method: "POST")
+      end
+
+
+
     end
   end
 end
