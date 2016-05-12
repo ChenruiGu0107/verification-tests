@@ -30,6 +30,7 @@ module CucuShift
       spec = pod_hash["spec"] # this is runtime, lets not cache
       props[:node_hostname] = spec["host"]
       props[:node_name] = spec["nodeName"]
+      props[:fs_group] = spec["securityContext"]["fsGroup"]
 
       s = pod_hash["status"]
       props[:ip] = s["podIP"]
@@ -60,6 +61,13 @@ module CucuShift
       get_checked(user: user) if !props[:ip]
 
       return props[:ip]
+    end
+   
+    # @note call without parameters only when props are loaded
+    def fs_group(user: nil)
+      get_checked(user: user) if !props[:fs_group]
+
+      return props[:fs_group].to_s
     end
 
     # @note call without parameters only when props are loaded
