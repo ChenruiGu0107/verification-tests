@@ -636,9 +636,10 @@ Feature: build 'apps' with CLI
   Scenario: oc start-build with a file passed,Docker build type
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+      | app_repo |  openshift/ruby:2.2~https://github.com/openshift/ruby-hello-world.git |
+      | strategy |  docker                                                               |
     Then the step should succeed
-    Then the "ruby22-sample-build-1" build completed
+    Then the "ruby-hello-world-1" build completed
     Given a "Dockerfile" file is created with the following lines:
     """
     FROM openshift/ruby-22-centos7
@@ -648,14 +649,14 @@ Feature: build 'apps' with CLI
     ENV RAILS_ENV production
     """
     And I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-      | from_file | ./Dockerfile |
+      | buildconfig | ruby-hello-world |
+      | from_file   | ./Dockerfile     |
     Then the step should succeed
-    Then the "ruby22-sample-build-2" build completed
+    Then the "ruby-hello-world-2" build completed
     # start build with non-existing file
     When I run the :start_build client command with:
-      | buildconfig | ruby22-sample-build |
-      | from_file | ./non-existing-file-name |
+      | buildconfig | ruby-hello-world         |
+      | from_file   | ./non-existing-file-name |
     Then the step should fail
     And the output should contain "no such file or directory"
 
