@@ -248,7 +248,7 @@ Feature: Testing route
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
       | /tmp/ca.pem |
-    
+    Then the step should succeed
     When I run the :create_route_edge client command with:
       | name | route-edge |
       | hostname | www.edge.com |
@@ -287,7 +287,7 @@ Feature: Testing route
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
       | /tmp/ca.pem |
-    
+    Then the step should succeed
     When I run the :create_route_passthrough client command with:
       | name | passthrough-route |
       | hostname | www.example.com |
@@ -328,7 +328,7 @@ Feature: Testing route
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
       | /tmp/ca.pem |
-    
+    Then the step should succeed 
     When I run the :create_route_reencrypt client command with:
       | name | route-recrypt |
       | hostname | reen.example.com |
@@ -362,11 +362,9 @@ Feature: Testing route
       | resource     | svc |
       | resource_name| service-unsecure |
       | path         | /test |
-    When I get project route as JSON
-    And evaluation of `@result[:parsed]['items'][0]['spec']['host']` is stored in the :testpath clipboard
-    When I open web server via the "http://<%= cb.testpath %>/test/" url
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/test/" url
     Then the output should contain "Hello-OpenShift-Path-Test"
-    When I open web server via the "http://<%= cb.testpath %>/" url
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
     Then the step should fail
 
   # @author zzhao@redhat.com
@@ -392,7 +390,7 @@ Feature: Testing route
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
       | /tmp/ca.pem |
-
+    Then the step should succeed
     When I run the :create_route_edge client command with:
       | name | route-edge |
       | hostname | www.edge.com |
@@ -443,7 +441,7 @@ Feature: Testing route
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
       | /tmp/ca.pem |
-
+    Then the step should succeed
     When I run the :create_route_reencrypt client command with:
       | name | route-recrypt |
       | hostname | reen.example.com |
