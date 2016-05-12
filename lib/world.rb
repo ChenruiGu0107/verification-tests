@@ -416,7 +416,9 @@ module CucuShift
     def pod(name = nil, project = nil)
       project ||= self.project
 
-      if name
+      if Integer === name
+        return @pods[name] || raise("no pod with index #{name}")
+      elsif name
         p = @pods.find {|p| p.name == name && p.project == project}
         if p && @pods.last == p
           return p
