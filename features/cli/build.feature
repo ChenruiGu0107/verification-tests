@@ -968,13 +968,10 @@ Feature: build 'apps' with CLI
       | resource_name | ruby22-sample-build |
       | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"memlarge"}}}} |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
-      | o | json |
-    Then the output should contain:
-      | ruby-cgroup |
-      | 600m |
+    Then I run the :delete client command with:
+      | object_type       | builds                |
+      | object_name_or_id | ruby22-sample-build-1 |
+    Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     Given the "ruby22-sample-build-2" build fails
@@ -995,13 +992,12 @@ Feature: build 'apps' with CLI
     When I run the :build_logs client command with:
       | build_name | ruby22-sample-build-3 |
     Then the output should contain:
-      | cat /sys/fs/cgroup/memory/memory.limit_in_bytes  |
-      | 209715200                                        |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares        |
       | 614                                              |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_period_us |
       | 100000                                           |
       | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us  |
+      | 80000                                            |
 
   # @author cryan@redhat.com
   # @case_id 470341
@@ -1533,3 +1529,51 @@ Feature: build 'apps' with CLI
       | buildconfig | ruby-sample-build |
     Then the step should succeed
     Given the "ruby-sample-build-2" build completes
+
+  # @author xiuwang@redhat.com
+  # @case_id 519264
+  Scenario: Can't allocate out of limits resources to container which builder pod launched for s2i build
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig         |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec":{"resources": {"requests": {"cpu": "600m","memory": "200Mi"},"limits": {"cpu": "800m","memory": "200Mi"}}}} |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig         |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"memlarge"}}}} |
+    Then the step should succeed
+    Then I run the :delete client command with:
+      | object_type       | builds                |
+      | object_name_or_id | ruby22-sample-build-1 |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | follow   | true |
+      | wait     | true |
+      | _timeout | 120  |
+    And the output should contain:
+      | stress: FAIL                                    |
+      | cat /sys/fs/cgroup/memory/memory.limit_in_bytes |
+      | 209715200                                       |
+    When I run the :patch client command with:
+      | resource      | buildconfig         |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"cpularge"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+      | follow   | true |
+      | wait     | true |
+      | _timeout | 120  |
+    And the output should contain:
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.shares        |
+      | 614                                              |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_period_us |
+      | 100000                                           |
+      | cat /sys/fs/cgroup/cpuacct,cpu/cpu.cfs_quota_us  |
+      | 80000                                            |
