@@ -119,6 +119,8 @@ module CucuShift
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if pod status is what's expected
+    # @note
+    #   https://github.com/kubernetes/kubernetes/blob/master/pkg/api/types.go
     def status?(user:, status:, quiet: false)
       #The 'missing' status is used a a dummy value; when some pods become
       #ready, they die (build/deploy), and we still want to count them as well.
