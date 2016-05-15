@@ -598,6 +598,7 @@
     :from_file: --from-file=<value>
     :from_dir: --from-dir=<value>
     :from_webhook: --from-webhook=<value>
+    :from_repo: --from-repo=<value>
     :git_post: --git-post-receive=<value>
     :git_repository: --git-repository=<value>
     :list_webhooks: --list-webhooks=<value>

@@ -1616,3 +1616,44 @@ Feature: build 'apps' with CLI
       |2             |
       |100000        |
       |-1            |
+
+  # @author haowang@redhat.com
+  # @case_id 512264
+  Scenario: oc start-build with a local git repo and commit using sti build type
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/nodejs-ex |
+    Then the step should succeed
+    And the "nodejs-ex-1" build completed
+    Given I wait for the "nodejs-ex" service to become ready
+    When I expose the "nodejs-ex" service
+    Then I wait for a server to become available via the "nodejs-ex" route
+    And the output should contain "Welcome to OpenShift"
+    And I git clone the repo "https://github.com/openshift/nodejs-ex"
+    And I run the :start_build client command with:
+      | buildconfig | nodejs-ex |
+      | from_repo   | nodejs-ex |
+    Then the step should succeed
+    And the "nodejs-ex-2" build completed
+    Given 1 pods become ready with labels:
+      | app=nodejs-ex              |
+      | deployment=nodejs-ex-2     |
+    Then I wait for a server to become available via the "nodejs-ex" route
+    And the output should contain "Welcome to OpenShift"
+    Given I replace lines in "nodejs-ex/views/index.html":
+      | Welcome to OpenShift | Welcome all to OpenShift |
+    Then the step should succeed
+    And I git add all files from repo "nodejs-ex"
+    And I make a commit with message "update index.html" to repo "nodejs-ex"
+    Then I get the latest git commit id from repo "nodejs-ex"
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-ex|
+      | from_repo   | nodejs-ex|
+      | commit      | <%= cb.git_commit_id %> |
+    Then the step should succeed
+    And the "nodejs-ex-3" build completed
+    Given 1 pods become ready with labels:
+      | app=nodejs-ex              |
+      | deployment=nodejs-ex-3     |
+    Then I wait for a server to become available via the "nodejs-ex" route
+    And the output should contain "Welcome all to OpenShift"
