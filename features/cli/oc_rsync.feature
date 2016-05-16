@@ -122,6 +122,56 @@ Feature: oc_rsync.feature
     Given the "rsync_folder/lvl2/test1" file is present
 
   # @author cryan@redhat.com
+  # @case_id 510667
+  Scenario: oc rsync with --delete option, using tar strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | aosqe/scratch:tarrsync |
+    Given a pod becomes ready with labels:
+      | app=scratch |
+    Given I create the "test" directory
+    Given the "test/testfile1" file is created with the following lines:
+    """
+    testfile1
+    """
+    When I run the :rsync client command with:
+      | source | ./test |
+      | destination | <%= pod.name %>:/tmp/test |
+    Then the step should succeed
+    And the output should match "sent \d+ bytes"
+    When I execute on the pod:
+      | ls | -ltr | /tmp/test/test |
+    Then the step should succeed
+    And the output should contain "testfile1"
+    Given the "./test/testfile1" file is deleted
+    Given the "test/testfile2" file is created with the following lines:
+    """
+    testfile2
+    """
+    When I run the :rsync client command with:
+      | source | ./test |
+      | destination | <%= pod.name %>:/tmp/test |
+      | delete | true |
+    Then the step should succeed
+    And the output should match "sent \d+ bytes"
+    When I execute on the pod:
+      | ls | -ltr | /tmp/test/test |
+    Then the step should succeed
+    And the output should contain "testfile2"
+    And the output should not contain "testfile1"
+    Given the "test/testfile3" file is created with the following lines:
+    """
+    testfile3
+    """
+    When I run the :rsync client command with:
+      | source | <%= pod.name %>:/tmp/test |
+      | destination | ./ |
+      | delete | true |
+    Then the step should succeed
+    And the output should match "sent \d+ bytes"
+    Given the "testfile3" file is not present
+
+  # @author cryan@redhat.com
   # @case_id 510662
   Scenario: Copying files from host to container using oc rsync command using tar strategy
     Given I have a project
