@@ -37,7 +37,6 @@ Feature: REST policy related features
       | user_name | <%= user.name %>                       |
       | n         | <%= project.name %>                    |
     Then the step should succeed
-    Given I switch to the first user
     ## post rest request for curl new json
     When I perform the :post_role_oapi rest request with:
       | project_name         | <%= project.name %>       |
