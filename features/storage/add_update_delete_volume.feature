@@ -23,6 +23,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
     And the PV becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes :bound
     # add pvc to dc
     When I run the :volume client command with:
       | resource      | dc/mydb                 |
@@ -41,7 +42,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | output        | yaml               |
     And the output should contain:
       | - mountPath: /opt1         |
-      |   name: v1                 |
       | - name: v1                 |
       |   persistentVolumeClaim:   |
       |   claimName: nfsc-<%= project.name %>|
@@ -50,7 +50,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | output        | yaml               |
     And the output should contain:
       | - mountPath: /opt1         |
-      |   name: v1                 |
       | - name: v1                 |
       |   persistentVolumeClaim:   |
       |   claimName: nfsc-<%= project.name %>|
@@ -95,7 +94,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | output        | yaml                 |
     And the output should contain:
       | - mountPath: /opt2         |
-      |   name: v2                 |
       | - name: v2                 |
       |   persistentVolumeClaim:   |
       |   claimName: nfsc-<%= project.name %>|
@@ -167,7 +165,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | mongodb | /proc/mounts |
     Then the step should succeed
 
-
+  # @author jialiu@redhat.com
   # @case_id 491427
   Scenario: Add/Remove emptyDir volume to dc and rc
     # Preparations
@@ -196,7 +194,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | output        | yaml               |
     And the output should contain:
       | - mountPath: /opt1         |
-      |   name: v1                 |
       | - emptyDir: {}             |
       |   name: v1                 |
     When I run the :get client command with:
@@ -204,7 +201,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | output        | yaml               |
     And the output should contain:
       | - mountPath: /opt1         |
-      |   name: v1                 |
       | - emptyDir: {}             |
       |   name: v1                 |
     When I execute on the pod:
@@ -247,7 +243,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | output        | yaml                 |
     And the output should contain:
       | - mountPath: /opt2         |
-      |   name: v2                 |
       | - emptyDir: {}             |
       |   name: v2                 |
     When I run the :delete client command with:
@@ -283,7 +278,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | opt2 | /proc/mounts |
     Then the step should fail
 
-
+  # @author jialiu@redhat.com
   # @case_id 491429
   @admin @destructive
   Scenario: Add/Remove hostPath volume to dc and rc
@@ -320,7 +315,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | output        | yaml               |
     And the output should contain:
       | - mountPath: /opt1         |
-      |   name: v1                 |
       | - hostPath:                |
       |     path: /usr             |
       |   name: v1                 |
@@ -329,7 +323,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | output        | yaml               |
     And the output should contain:
       | - mountPath: /opt1         |
-      |   name: v1                 |
       | - hostPath:                |
       |     path: /usr             |
       |   name: v1                 |
@@ -381,7 +374,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | output        | yaml                 |
     And the output should contain:
       | - mountPath: /opt2         |
-      |   name: v2                 |
       | - hostPath:                |
       |     path: /usr             |
       |   name: v2                 |
@@ -448,7 +440,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
 
-
     When I run the :volume client command with:
       |resource| dc |
       |resource_name | mydb |
@@ -474,13 +465,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
-
-    When I run the :get client command with:
-      |resource | pvc/nfsc-<%= project.name %> |
-      |o      | json |
-    Then the step should succeed
-    And the output should contain:
-      |Bound|
+    And the "nfsc-<%= project.name %>" PVC becomes :bound
 
     #Verify the pod has mounted the nfs
     When I execute on the pod:
@@ -518,6 +503,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
     And the PV becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes :bound
 
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
@@ -527,6 +513,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | ["spec"]["volumeName"] | nfs1-<%= project.name %>  |
     Then the step should succeed
     And the PV becomes :bound
+    And the "nfsc1-<%= project.name %>" PVC becomes :bound
 
     # add pvc to dc
     When I run the :volume client command with:
