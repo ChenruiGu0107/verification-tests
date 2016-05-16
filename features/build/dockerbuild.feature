@@ -156,3 +156,66 @@ Feature: dockerbuild.feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json | dockerStrategy |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc482273/test-template-stibuild.json    | sourceStrategy |
  
+  # @author dyan@redhat.com
+  # @case_id 519484
+  Scenario: Implement post-build command for docker build
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+      | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
+      | ["spec"]["postCommit"]                                 | {"script":"bundle exec rake test"}                   |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completed
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build-1 |
+    Then the output should contain:
+      | 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+      | ["metadata"]["name"]                                   | ruby-sample-build2 |
+      | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
+      | ["spec"]["postCommit"]                                 | {"command":["/bin/bash","-c","bundle exec rake test --verbose"]} |
+    Then the step should succeed
+    And the "ruby-sample-build2-1" build completed
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build2-1 |
+    Then the output should contain:
+      | 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+      | ["metadata"]["name"]                                   | ruby-sample-build3 |
+      | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
+      | ["spec"]["postCommit"]                                 | {"args":["bundle","exec","rake","test","--verbose"]} |
+    Then the step should succeed
+    And the "ruby-sample-build3-1" build completed
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build3-1 |
+    Then the output should contain:
+      | 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+      | ["metadata"]["name"]                                   | ruby-sample-build4 |
+      | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
+      | ["spec"]["postCommit"]                                 | {"args":["--verbose"],"script":"bundle exec rake test $1"} |
+    Then the step should succeed
+    And the "ruby-sample-build4-1" build completed
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build4-1 |
+    Then the output should contain:
+      | 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+      | ["metadata"]["name"]                                   | ruby-sample-build5 |
+      | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
+      | ["spec"]["postCommit"]                                 | {"command":["/bin/bash","-c","bundle exec rake test"],"args":["--verbose"]} |
+    Then the step should succeed
+    And the "ruby-sample-build5-1" build completed
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build5-1 |
+    Then the output should contain:
+      | 1 runs, 1 assertions, 0 failures, 0 errors, 0 skips |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
+      | ["metadata"]["name"]                                   | ruby-sample-build6 |
+      | ["spec"]["strategy"]["dockerStrategy"]["from"]["name"] | <%= product_docker_repo %>rhscl/ruby-22-rhel7:latest |
+      | ["spec"]["postCommit"]                                 | {"script":"bundle exec rake1 test --verbose"} |
+    Then the step should succeed
+    And the "ruby-sample-build6-1" build failed
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build6-1 |
+    Then the output should contain:
+      | bundler: command not found: rake1 |
