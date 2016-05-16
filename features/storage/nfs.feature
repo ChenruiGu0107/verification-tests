@@ -226,3 +226,37 @@ Feature: NFS Persistent Volume
     Then the output should contain:
       | created_testfile |
     And the PV status is :released
+
+  # @author lxia@redhat.com
+  # @case_id 519352
+  @admin
+  @destructive
+  Scenario: PV/PVC status should be consistent
+    Given I have a project
+    And I have a NFS service in the project
+
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
+    Then the step should succeed
+    And the PV becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes :bound
+
+    When I run the :delete client command with:
+      | object_type       | pvc                      |
+      | object_name_or_id | nfsc-<%= project.name %> |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | pv/nfs-<%= project.name %> |
+    Then the output should not contain:
+      | Bound |
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
+    Then the step should succeed
+    And the "nfsc-<%= project.name %>" PVC becomes :bound within 900 seconds
+    And the PV becomes :bound
