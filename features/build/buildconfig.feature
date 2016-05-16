@@ -161,3 +161,42 @@ Feature: buildconfig.feature
       | f | sourcebuildconfig.json |
     Then the step should fail
     And the output should contain "char"
+
+  # @author wewang@redhat.com
+  # @case_id 507556
+  Scenario: Add ENV to DockerStrategy buildConfig and Dockerfile when do docker build
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/ruby-rhel7-multivars.json |
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build was created
+    And the "ruby22-sample-build-1" build completed
+    Given 2 pods become ready with labels:
+      | name=frontend |
+    When I execute on the "<%= pod.name %>" pod:
+      | env |
+    Then the output should contain "RACK_ENV=production"
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec": {"strategy": {"dockerStrategy": {"env": [{"name": "EXAMPLE","value": "sample-app"}, {"name":"HTTP_PROXY","value":"http://incorrect.proxy:3128"}]}}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | o | json |
+    Then the output should contain "HTTP_PROXY"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Given the "ruby22-sample-build-2" build was created
+    And the "ruby22-sample-build-2" build failed
+    When I run the :build_logs client command with:
+      | build_name | ruby22-sample-build-2 |
+    Then the output should contain:
+      | HTTPError Could not fetch specs from https://rubygems.org/  |
+
+
+
+
+
+
