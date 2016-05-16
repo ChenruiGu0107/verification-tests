@@ -62,7 +62,7 @@ module CucuShift
 
       return props[:ip]
     end
-   
+
     # @note call without parameters only when props are loaded
     def fs_group(user: nil)
       get_checked(user: user) if !props[:fs_group]
@@ -153,7 +153,7 @@ module CucuShift
           str == res[:parsed]["status"]["phase"]
         }
       # missing pods mean pod has been destroyed already probably deploy pod
-      elsif res[:stderr].include? 'not found'
+      elsif res[:stderr] && res[:stderr].include?('not found')
         res[:success] = true if status.include? :missing
         res[:matched_status] = :missing
       end
