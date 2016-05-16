@@ -15,7 +15,8 @@ module CucuShift
     #   is lack of per request proxy and request hooks with RestClient.
     #   Other than that it looks descent, supports replay logging which we may
     #   enable for better post fail debugging.
-    # @param params [Hash] URL params to send (not sure about POST requests)
+    # @param params [Hash, RestClient::ParamsArray] URL params to send on GET
+    #   or x-www-form-urlencoded POST request
     # @param payload [Hash|String|File|Object] payload to send; here you put
     #   your string content, JSON or file data. For file to be recognized and
     #   automatically multipart mime to be chosen, you need to look at
