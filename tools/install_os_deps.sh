@@ -28,5 +28,5 @@ else
     exit 3
 fi
 
-cat ${TOOLS_HOME}/os_deps/$file | xargs $(need_sudo) $cmd
+cat ${TOOLS_HOME}/os_deps/$file | grep -v '^\s*#' | xargs $(need_sudo) $cmd
 $additional_deps

@@ -13,4 +13,6 @@ Xvfb
 
 ansible
 pyOpenSSL
+# needed for local ansible repo/dnf operations
 redhat-rpm-config
+python-dnf
