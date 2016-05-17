@@ -1643,8 +1643,7 @@ Feature: build 'apps' with CLI
     Given I replace lines in "nodejs-ex/views/index.html":
       | Welcome to OpenShift | Welcome all to OpenShift |
     Then the step should succeed
-    And I git add all files from repo "nodejs-ex"
-    And I make a commit with message "update index.html" to repo "nodejs-ex"
+    And I commit all changes in repo "nodejs-ex" with message "update index.html"
     Then I get the latest git commit id from repo "nodejs-ex"
     When I run the :start_build client command with:
       | buildconfig | nodejs-ex|
@@ -1700,8 +1699,7 @@ Feature: build 'apps' with CLI
     Given I replace lines in "sti-nodejs/0.10/test/test-app/server.js":
       | This is a node.js echo service | Welcome to OpenShift  |
     Then the step should succeed
-    And I git add all files from repo "sti-nodejs"
-    And I make a commit with message "update server.js" to repo "sti-nodejs"
+    And I commit all changes in repo "sti-nodejs" with message "update server.js"
     Then I get the latest git commit id from repo "sti-nodejs"
     When I run the :start_build client command with:
       | buildconfig | sti-nodejs|
@@ -1757,8 +1755,7 @@ Feature: build 'apps' with CLI
     Given I replace lines in "ruby-hello-world/views/main.erb":
       | Welcome to an OpenShift v3 Demo App! | Welcome all to an OpenShift v3 Demo App!  |
     Then the step should succeed
-    And I git add all files from repo "ruby-hello-world"
-    And I make a commit with message "update server.js" to repo "ruby-hello-world"
+    And I commit all changes in repo "ruby-hello-world" with message "update server.js"
     Then I get the latest git commit id from repo "ruby-hello-world"
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world|
