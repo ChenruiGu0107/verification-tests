@@ -594,14 +594,14 @@ Feature: build 'apps' with CLI
       | buildconfig | nodejs-ex |
       | from_dir    | nodejs-ex |
     Given I wait for the steps to pass:
-      """
-      Given the pod named "nodejs-ex-2-build" is present
-      """
+    """
+    Given the pod named "nodejs-ex-2-build" is present
+    """
     Given the pod named "nodejs-ex-2-build" status becomes :succeeded
     Given the "tmp/test/testfile" file is created with the following lines:
-      """
-      This is a test!
-      """
+    """
+    This is a test!
+    """
     And I run the :start_build client command with:
       | buildconfig | nodejs-ex |
       | from_dir    | tmp/test |
