@@ -5,7 +5,7 @@ Feature: Return description with cli
   Scenario: Return description with cli describe with invalid parameter
     Given I have a project
     When I run the :new_app client command with:
-     | file  | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+     | file  | https://github.com/openshift-qe/v3-testfiles/blob/master/build/tc470422/application-template-stibuild.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created 
     Given the "ruby-sample-build-1" build completed
