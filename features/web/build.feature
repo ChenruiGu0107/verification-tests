@@ -489,3 +489,151 @@ Feature: build related feature on web console
     Then the output should match:
       | Force Pull.*yes |
       | Image Reference.*DockerImage\syapei-test/origin-ruby-sample:latest |
+      
+  # @author yapei@redhat.com
+  # @case_id 518655
+  Scenario: Modify buildconfig settings for Docker strategy
+    Given I create a new project
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json"
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource      | bc/ruby-sample-build |
+    Then the step should succeed
+    And the output should match:
+      | Strategy.*Docker  |
+      | From Image.*ImageStreamTag        |
+      | Triggered by.*ImageChange.*Config |
+      | Webhook GitHub  |
+      | Webhook Generic |
+    # check bc on web console
+    When I perform the :check_build_strategy web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | build_strategy | Docker               |
+    Then the step should succeed
+    # edit bc
+    When I perform the :toggle_bc_config_change web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :toggle_bc_image_change web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :toggle_bc_cache web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    # check bc after make changes
+    When I perform the :check_bc_image_change_trigger web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+    Then the step should fail
+    When I perform the :check_bc_config_change_trigger web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+    Then the step should fail
+    When I run the :describe client command with:
+      | resource      | bc/ruby-sample-build |
+    Then the step should succeed
+    And the output should not match:
+      | Triggered by.*ImageChange.*Config |
+    And the output should match:
+      | No Cache.*true |
+      
+  # @author yapei@redhat.com
+  # @case_id 518659
+  Scenario: Modify buildconfig settings for source strategy
+    Given I create a new project
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %> |
+      | image_name   | ruby                |
+      | image_tag    | 2.2                 |
+      | namespace    | openshift           |
+      | app_name     | ruby-sample         |
+      | source_url   | https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource      | bc/ruby-sample |
+    Then the step should succeed
+    And the output should match:
+      | Strategy.*Source  |
+      | URL.*https://github.com/openshift/ruby-ex.git |
+      | Triggered by.*ImageChange.*Config |
+      | Webhook GitHub  |
+      | Webhook Generic |
+    When I run the :tag client command with:
+      | source_type  | docker |
+      | source       | centos/ruby-22-centos7 |
+      | dest         | mystream:latest |
+    Then the step should succeed
+    Given the "mystream" image stream becomes ready
+    When I run the :get client command with:
+      | resource      | istag |
+      | resource_name | mystream:latest |
+      | template      | {{.image.dockerImageReference}} |
+    Then the step should succeed
+    And evaluation of `@result[:response][0,38]` is stored in the :image_stream_image clipboard
+    # check bc on web console
+    When I perform the :check_build_strategy web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample          |   
+      | build_strategy | Source               |
+    Then the step should succeed
+    # edit bc
+    When I perform the :change_bc_source_repo_url web console action with:
+      | project_name    | <%= project.name %>  |
+      | bc_name         | ruby-sample          |
+      | changing_source_repo_url | https://github.com/openshift/s2i-ruby.git |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :edit_bc_source_repo_ref web console action with:
+      | project_name    | <%= project.name %>  |
+      | bc_name         | ruby-sample          |
+      | source_repo_ref | mfojtik-patch-1      |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :edit_bc_source_context_dir web console action with:
+      | project_name       | <%= project.name %>  |
+      | bc_name            | ruby-sample          |
+      | source_context_dir | 2.2/test             |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :edit_build_image_to_image_stream_image web console action with:
+      | project_name       | <%= project.name %>  |
+      | bc_name            | ruby-sample          |
+      | build_image_source | Image Stream Image   |
+      | image_stream_image | <%= cb.image_stream_image %> |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    # check bc after make changes
+    When I perform the :check_buildconfig_source_repo web console action with:
+      | project_name       | <%= project.name %>  |
+      | bc_name            | ruby-sample          |
+      | source_repo_url    | https://github.com/openshift/s2i-ruby/tree/mfojtik-patch-1/2.2/test |
+    Then the step should succeed
+    When I perform the :check_bc_source_ref web console action with:
+      | project_name       | <%= project.name %>  |
+      | bc_name            | ruby-sample          |
+      | source_ref         | mfojtik-patch-1      |
+    Then the step should succeed
+    When I perform the :check_bc_source_context_dir web console action with:
+      | project_name       | <%= project.name %>  |
+      | bc_name            | ruby-sample          |
+      | source_context_dir | 2.2/test             |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource      | bc/ruby-sample |
+    Then the step should succeed
+    And the output should match:
+      | From Image.*ImageStreamImage.*<%= cb.image_stream_image %> |
