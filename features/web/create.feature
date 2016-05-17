@@ -381,3 +381,57 @@ Feature: create app on web console related
     Then the output should match:
       | [Ff]ailed to create |
       |  annot create.*fake |
+
+  # @author yanpzhan@redhat.com
+  # @case_id 516702
+  Scenario: Multiple ports can be shown and chosen on web console
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc516702.json |
+    Then the step should succeed
+
+    Given the imagestream named "nodejs" becomes ready 
+
+    When I perform the :check_port_on_create_page web console action with:
+      | project_name | <%= project.name %>    |
+      | image_name   | nodejs |
+      | image_tag    | 0.10   |
+      | namespace    | <%= project.name %> |
+      | target_port  | 5858/TCP |
+    Then the step should succeed
+ 
+    When I perform the :check_port_on_create_page web console action with:
+      | project_name | <%= project.name %>    |
+      | image_name   | nodejs |
+      | image_tag    | 0.10   |
+      | namespace    | <%= project.name %> |
+      | target_port  | 8080/TCP |
+    Then the step should succeed
+
+    When I perform the :create_app_from_image_with_port web console action with:
+      | project_name | <%= project.name %>    |
+      | image_name   | nodejs |
+      | image_tag    | 0.10   |
+      | namespace    | <%= project.name %> |
+      | app_name     | nodejs-test         |
+      | source_url   | https://github.com/openshift/nodejs-ex.git |
+      | target_port  | 8080/TCP |
+    Then the step should succeed
+
+    When I perform the :check_target_port_on_routes_page web console action with:
+      | project_name | <%= project.name %> |
+      | target_port  | 8080-tcp |
+      | route_name   | nodejs-test |
+    Then the step should succeed
+
+    When I perform the :check_target_port_on_services_page web console action with:
+      | project_name | <%= project.name %> |
+      | target_port  | 8080/TCP |
+      | service_name | nodejs-test |
+    Then the step should succeed
+
+    When I perform the :check_target_port_on_services_page web console action with:
+      | project_name | <%= project.name %> |
+      | target_port  | 5858/TCP |
+      | service_name | nodejs-test |
+    Then the step should succeed

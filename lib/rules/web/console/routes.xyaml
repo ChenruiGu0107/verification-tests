@@ -65,6 +65,13 @@ access_route_hostname_from_detail_page:
   - selector:
       xpath: //span//a[contains(text(),'<service_url>')]
     op: click
+check_target_port_on_routes_page:
+  action: goto_routes_page
+  elements:
+  - selector:
+      xpath: //td[@data-title="Name"]/a[contains(text(),'<route_name>')]
+  - selector:
+      xpath: //td[@data-title="Target Port"]//span[contains(text(),'<target_port>')]
 access_route_hostname:
   action: access_route_hostname_from_table
   action: access_route_hostname_from_detail_page

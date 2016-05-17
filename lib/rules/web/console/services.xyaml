@@ -19,6 +19,13 @@ check_one_service_page:
     type: a
   - selector:
       text: <target_port>
+check_target_port_on_services_page:
+  action: goto_services_page
+  elements:
+  - selector:
+      xpath: //td[@data-title="Name"]/a[contains(text(),'<service_name>')]
+  - selector:
+      xpath: //td[@data-title="Ports"]/span[contains(text(),'<target_port>')]
 goto_services_page:
   url: console/project/<project_name>/browse/services
 goto_one_service_page:
