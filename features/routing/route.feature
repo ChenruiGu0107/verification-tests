@@ -178,7 +178,7 @@ Feature: Testing route
     When I expose the "header-test-insecure" service
     Then the step should succeed
     When I wait for a server to become available via the route
-    Then the output should contain ";host=<%= route("header-test-insecure",service("header-test-insecure")).dns(by: user) %>;proto=http"
+    Then the output should contain ";host=<%= route.dns(by: user) %>;proto=http"
 
 
 
