@@ -24,3 +24,17 @@ And /^I get the latest git commit id from repo "([^"]+)"$/ do | spec |
   git = CucuShift::Git.new(uri: uri, dir: dir)
   @clipboard[:git_commit_id] = git.get_latest_commit_id
 end
+# @param [String] repo_url git repo that we want to commit
+# @param [String] message commit message that we add to commit
+# @note  Add a commit with a message to the repo
+When /^I commit all changes in repo "([^"]*)" with message "([^"]+)"$/ do | spec,message |
+  if spec.include? "://" or spec.include? "@"
+    raise "don't support remote git repo"
+  else
+    uri = nil
+    dir = spec
+  end
+  git = CucuShift::Git.new(uri: uri, dir: dir)
+  git.add(files:nil, :all => true)
+  git.commit(:msg => message)
+end

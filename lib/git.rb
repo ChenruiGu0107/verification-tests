@@ -53,7 +53,7 @@ module CucuShift
         raise "could not clone repo, see log" unless clone[:success]
       end
 
-      host.exec_as(user, "cd #{host.shell_escape dir}", *cmd)
+      res = host.exec_as(user, "cd #{host.shell_escape dir}", *cmd)
 
       unless res[:success]
         logger.info(res[:response])

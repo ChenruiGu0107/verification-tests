@@ -1616,3 +1616,170 @@ Feature: build 'apps' with CLI
       |2             |
       |100000        |
       |-1            |
+
+  # @author haowang@redhat.com
+  # @case_id 512264
+  Scenario: oc start-build with a local git repo and commit using sti build type
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/nodejs-ex |
+    Then the step should succeed
+    And the "nodejs-ex-1" build completed
+    Given I wait for the "nodejs-ex" service to become ready
+    When I expose the "nodejs-ex" service
+    Then I wait for a server to become available via the "nodejs-ex" route
+    And the output should contain "Welcome to OpenShift"
+    And I git clone the repo "https://github.com/openshift/nodejs-ex"
+    And I run the :start_build client command with:
+      | buildconfig | nodejs-ex |
+      | from_repo   | nodejs-ex |
+    Then the step should succeed
+    And the "nodejs-ex-2" build completed
+    Given 1 pods become ready with labels:
+      | app=nodejs-ex              |
+      | deployment=nodejs-ex-2     |
+    Then I wait for a server to become available via the "nodejs-ex" route
+    And the output should contain "Welcome to OpenShift"
+    Given I replace lines in "nodejs-ex/views/index.html":
+      | Welcome to OpenShift | Welcome all to OpenShift |
+    Then the step should succeed
+    And I commit all changes in repo "nodejs-ex" with message "update index.html"
+    Then I get the latest git commit id from repo "nodejs-ex"
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-ex|
+      | from_repo   | nodejs-ex|
+      | commit      | <%= cb.git_commit_id %> |
+    Then the step should succeed
+    And the "nodejs-ex-3" build completed
+    Given 1 pods become ready with labels:
+      | app=nodejs-ex              |
+      | deployment=nodejs-ex-3     |
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | cat                       |
+      | views/index.html          |
+    And the output should contain "Welcome all to OpenShift"
+    """
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-ex|
+      | from_repo   | nodejs-ex|
+      | commit      | fffffffffffffffffffffffffffffffffffff |
+    Then the step should fail
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-ex|
+      | from_repo   | no-exit  |
+      | commit      | <%= cb.git_commit_id %> |
+    Then the step should fail
+
+  # @author haowang@redhat.com
+  # @case_id 512265
+  Scenario: oc start-build with a local git repo and commit using sti build type, with context-dir
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo    | https://github.com/openshift/sti-nodejs.git |
+      | context_dir | 0.10/test/test-app                          |
+    Then the step should succeed
+    And the "sti-nodejs-1" build completed
+    Given I wait for the "sti-nodejs" service to become ready
+    When I expose the "sti-nodejs" service
+    Then I wait for a server to become available via the "sti-nodejs" route
+    And the output should contain "This is a node.js echo service"
+    And I git clone the repo "https://github.com/openshift/sti-nodejs"
+    And I run the :start_build client command with:
+      | buildconfig | sti-nodejs |
+      | from_repo   | sti-nodejs |
+    Then the step should succeed
+    And the "sti-nodejs-2" build completed
+    Given 1 pods become ready with labels:
+      | app=sti-nodejs              |
+      | deployment=sti-nodejs-2     |
+    Then I wait for a server to become available via the "sti-nodejs" route
+    And the output should contain "This is a node.js echo service"
+    Given I replace lines in "sti-nodejs/0.10/test/test-app/server.js":
+      | This is a node.js echo service | Welcome to OpenShift  |
+    Then the step should succeed
+    And I commit all changes in repo "sti-nodejs" with message "update server.js"
+    Then I get the latest git commit id from repo "sti-nodejs"
+    When I run the :start_build client command with:
+      | buildconfig | sti-nodejs|
+      | from_repo   | sti-nodejs|
+      | commit      | <%= cb.git_commit_id %> |
+    Then the step should succeed
+    And the "sti-nodejs-3" build completed
+    Given 1 pods become ready with labels:
+      | app=sti-nodejs              |
+      | deployment=sti-nodejs-3     |
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | cat                       |
+      | server.js        |
+    And the output should contain "Welcome to OpenShift"
+    """
+    When I run the :start_build client command with:
+      | buildconfig | sti-nodejs|
+      | from_repo   | sti-nodejs|
+      | commit      | fffffffffffffffffffffffffffffffffffff |
+    Then the step should fail
+    When I run the :start_build client command with:
+      | buildconfig | sti-nodejs|
+      | from_repo   | no-exit  |
+      | commit      | <%= cb.git_commit_id %> |
+    Then the step should fail
+
+  # @author haowang@redhat.com
+  # @case_id 512263
+  Scenario: oc start-build with a local git repo and commit using Docker build type
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo    | https://github.com/openshift/ruby-hello-world |
+      | strategy    | docker                          |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build completed
+    Given I wait for the "ruby-hello-world" service to become ready
+    When I expose the "ruby-hello-world" service
+    Then I wait for a server to become available via the "ruby-hello-world" route
+    And the output should contain "Welcome to an OpenShift v3 Demo App!"
+    And I git clone the repo "https://github.com/openshift/ruby-hello-world"
+    And I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | from_repo   | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build completed
+    Given 1 pods become ready with labels:
+      | app=ruby-hello-world              |
+      | deployment=ruby-hello-world-2     |
+    Then I wait for a server to become available via the "ruby-hello-world" route
+    And the output should contain "Welcome to an OpenShift v3 Demo App!"
+    Given I replace lines in "ruby-hello-world/views/main.erb":
+      | Welcome to an OpenShift v3 Demo App! | Welcome all to an OpenShift v3 Demo App!  |
+    Then the step should succeed
+    And I commit all changes in repo "ruby-hello-world" with message "update server.js"
+    Then I get the latest git commit id from repo "ruby-hello-world"
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world|
+      | from_repo   | ruby-hello-world|
+      | commit      | <%= cb.git_commit_id %> |
+    Then the step should succeed
+    And the "ruby-hello-world-3" build completed
+    Given 1 pods become ready with labels:
+      | app=ruby-hello-world              |
+      | deployment=ruby-hello-world-3     |
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | cat                       |
+      | views/main.erb            |
+    And the output should contain "Welcome all to an OpenShift v3 Demo App!"
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world|
+      | from_repo   | ruby-hello-world|
+      | commit      | fffffffffffffffffffffffffffffffffffff |
+    Then the step should fail
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world|
+      | from_repo   | no-exit  |
+      | commit      | <%= cb.git_commit_id %> |
+    Then the step should fail
