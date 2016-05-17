@@ -31,7 +31,7 @@ Feature:Create apps using new_app cmd feature
     Given I have a project
 
     When I run the :new_app client command with:
-      | file | https://github.com/openshift-qe/v3-testfiles/blob/master/build/tc476349/ruby20rhel7-template-sti.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc476349/ruby20rhel7-template-sti.json |
     Then the step should succeed
 
     When I run the :describe client command with:
