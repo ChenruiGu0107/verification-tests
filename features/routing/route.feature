@@ -177,10 +177,8 @@ Feature: Testing route
     Then the step should succeed
     When I expose the "header-test-insecure" service
     Then the step should succeed
-    When I get project route as JSON
-    And evaluation of `@result[:parsed]['items'][0]['spec']['host']` is stored in the :header_test clipboard
     When I wait for a server to become available via the route
-    Then the output should contain ";host=<%= cb.header_test %>;proto=http"
+    Then the output should contain ";host=<%= route("header-test-insecure",service("header-test-insecure")).dns(by: user) %>;proto=http"
 
 
 
