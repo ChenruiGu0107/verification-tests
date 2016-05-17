@@ -220,7 +220,7 @@ Feature: resouces related scenarios
       | Name:\\s+database-1                  |
       | Pods Status:                         |
       | Name:\\s+origin-ruby-sample          |
-      | Tags:                                |
+      | Tag                                |
       | Name:\\s+frontend                    |
       | Template:                            |
 
