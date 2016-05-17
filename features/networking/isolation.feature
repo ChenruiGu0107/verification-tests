@@ -55,7 +55,6 @@ Feature: networking isolation related scenarios
       | /usr/bin/curl | <%= cb.default_ip %>:8080 |
     Then the output should contain "Hello OpenShift!"
 
-
   # @author bmeng@redhat.com
   # @case_id 497541
   @smoke
@@ -101,7 +100,6 @@ Feature: networking isolation related scenarios
       |curl --connect-timeout 5 <%= cb.pr2ip0 %>:8080|
     Then the step should fail
     And the output should not contain "Hello"
-
 
   # @author bmeng@redhat.com
   # @case_id 508109
@@ -272,7 +270,6 @@ Feature: networking isolation related scenarios
     Then the step should fail
     And the output should not contain "Hello"
 
-
   # @author bmeng@redhat.com
   # @case_id 508110
   @admin
@@ -426,7 +423,6 @@ Feature: networking isolation related scenarios
     Then the step should succeed
     And the output should contain "Hello"
 
-
   # @author bmeng@redhat.com
   # @case_id 508129
   @admin
@@ -561,7 +557,6 @@ Feature: networking isolation related scenarios
       |curl --connect-timeout 5 <%= cb.proj1p2 %>:8080|
     Then the step should fail
     And the output should not contain "Hello"
-
 
   # @author bmeng@redhat.com
   # @case_id 508112

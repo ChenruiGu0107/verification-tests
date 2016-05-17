@@ -28,7 +28,6 @@ Feature: oc_login.feature
       | token | <%= @result[:response].split(">")[1].split("<")[0] %>   |
     Then the step should succeed
 
-
   # @author xiaocwan@redhat.com
   # @case_id 510552
   Scenario: Logout of the active session by clearing saved tokens

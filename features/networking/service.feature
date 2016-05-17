@@ -20,7 +20,6 @@ Feature: Service related networking scenarios
         | /usr/bin/curl | <%= cb.service_ip %>:10086 |
     Then the output should contain "www.youdao.com"
 
-
   # @author bmeng@redhat.com
   # @case_id 508149
   Scenario: The packets should be dropped when accessing the service which points to a pod in another project
@@ -54,7 +53,6 @@ Feature: Service related networking scenarios
          | /usr/bin/curl | --connect-timeout | 4 | <%= cb.service2_ip %>:10086 |
     Then the step should fail
     And the output should not contain "Hello OpenShift!"
-
 
   # @author bmeng@redhat.com
   # @case_id 508150

@@ -157,7 +157,6 @@ Feature: oc related features
       |-t, --template='': Template string or path to template file to use when -o=go-template, -o=go-template-file. |
       |--tty=false: Allocated a TTY for each container in the pod.|
 
-
   # @author xxia@redhat.com
   # @case_id 510553
   Scenario: Use oc explain to see detailed documentation of resources

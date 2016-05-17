@@ -279,8 +279,6 @@ Feature: projects related features via cli
     Then the output should contain:
       | <%= env.nodes.first.name %> |
 
-
-
   # @author xiaocwan@redhat.com
   # @case_id 476298
   Scenario: [origin_platformexp_387][origin_runtime_664] User should be notified if the set project does not exist anymore

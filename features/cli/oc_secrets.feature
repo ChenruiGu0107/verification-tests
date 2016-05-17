@@ -51,7 +51,6 @@ Feature: oc_secrets.feature
     And the output should contain 2 times:
       |"name": "test" |
 
-
   # @author qwang@redhat.com
   # @case_id 483167
   Scenario: CRUD operations on secrets
@@ -116,7 +115,6 @@ Feature: oc_secrets.feature
       | resource | secret |
     Then the step should succeed
     And the output should not contain "second-secret"
-
 
   # @author xiacwan@redhat.com
   # @case_id 484330
@@ -233,8 +231,6 @@ Feature: oc_secrets.feature
     Then the step should fail
     And the output should match:
       | cannot add key file.json.*another key by that name already exist |
-
-
 
   # @Author: wjiang@redhat.com
   # @case_id: 484327

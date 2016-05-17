@@ -35,7 +35,6 @@ Feature: Postgresql images test
       | max_connections |
       | 42              |
 
-
   # @author wewang@redhat.com
   # @case_id 508068 
   Scenario: Add env variables to postgresql-94-rhel7 image 

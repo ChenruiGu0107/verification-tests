@@ -43,7 +43,6 @@ Feature: rolling deployment related scenarios
     And the output should contain:
       | keep 1 pods available |
 
-
   # @author pruan@redhat.com
   # @case_id 503864
   Scenario: Rolling-update an invalid value of pods - Negative test

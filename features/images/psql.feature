@@ -159,4 +159,3 @@ Feature: Postgresql images test
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  | openshift/postgresql-92-centos7  | rhscl/postgresql-94-rhel7 | postgresql_replica.json |
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  | openshift/postgresql-92-centos7  | openshift3/postgresql-92-rhel7 | postgresql_replica.json |
 
-

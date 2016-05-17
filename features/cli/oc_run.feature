@@ -162,7 +162,6 @@ Feature: oc run related scenarios
     And the output should contain:
       | myrun-pod |
 
-
   # @author yadu@redhat.com
   # @case_id 510408
   Scenario: oc run has different default creation types when using different 'restart' option
@@ -223,7 +222,6 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       | test-m | 
-
 
   # @author yadu@redhat.com
   # @case_id 510407

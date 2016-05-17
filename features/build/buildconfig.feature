@@ -195,8 +195,3 @@ Feature: buildconfig.feature
     Then the output should contain:
       | HTTPError Could not fetch specs from https://rubygems.org/  |
 
-
-
-
-
-

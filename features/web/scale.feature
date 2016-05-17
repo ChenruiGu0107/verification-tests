@@ -37,7 +37,6 @@ Feature: scale related features
       | scaled_number | 5 |
     Then the step should succeed
 
-
     #scale down 3 times
     Given I run the steps 3 times:
     """

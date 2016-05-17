@@ -90,7 +90,6 @@ Feature: storage security check
       | system_u:object_r:svirt_sandbox_file_t:s0 |
       | file1 |
 
-
   # @author wehe@redhat.com
   # @case_id 510562
   @admin @destructive

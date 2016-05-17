@@ -63,7 +63,6 @@ Feature: limit range related scenarios:
       | path | expr1 | expr2 | expr3 | expr4 | expr5 | expr6 | expr7 | expr8 | expr9 | expr10 |
       | tc508047 | 2Gi | min | 2Gi | max | 1Gi | 400m | min | 400m | max | 200m |
 
-
   # @author pruan@redhat.com
   # @case_id 508046
   @admin

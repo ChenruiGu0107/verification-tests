@@ -106,7 +106,6 @@ Feature: containers related features
     And the output should contain:
       | error: pod hello-openshift is not running and cannot execute commands; current phase is Pending |
 
-
   # @author chaoyang@redhat.com
   # @case_id 472858
   Scenario: Executing command in inexistent containers
@@ -127,7 +126,6 @@ Feature: containers related features
     Then the step should fail
     Then the output should contain:
       |Error from server: container hello-openshift-notexist is not valid for pod hello-openshift|
-
 
   # @author xiacwan@redhat.com
   # @case_id 472857
@@ -156,12 +154,3 @@ Feature: containers related features
       | env \| grep KUBERNETES |
     Then the output should contain:
       | KUBERNETES_PORT |
-
-
-
-    
-    
-    
-
-
-
