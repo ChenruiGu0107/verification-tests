@@ -390,7 +390,7 @@ Feature: create app on web console related
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc516702.json |
     Then the step should succeed
 
-    Given the imagestream named "nodejs" becomes ready 
+    Given the "nodejs" image stream becomes ready
 
     When I perform the :check_port_on_create_page web console action with:
       | project_name | <%= project.name %>    |
