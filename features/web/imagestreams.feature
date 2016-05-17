@@ -1,8 +1,8 @@
 Feature: check image streams page
-  #@author: yapei@redhat.com
-  #@case_id: 511646
+  # @author yapei@redhat.com
+  # @case_id 511646
 
-  Scenario: check image stream page 
+  Scenario: check image stream page
     # create project on web
     When I create a new project via web
     Then the step should succeed
@@ -27,7 +27,7 @@ Feature: check image streams page
       | python  |
       | ruby    |
 
-    # check all image stream displayed well on web 
+    # check all image stream displayed well on web
     When I perform the :check_image_streams web console action with:
       | is_name | jenkins |
     Then the step should succeed
@@ -72,14 +72,14 @@ Feature: check image streams page
     When I get the html of the web page
     Then the output should not match:
       | openshift.io/image.dockerRepositoryCheck |
-      
+
     # delete one image stream via CLI
     When I run the :delete client command with:
       | object_type | is |
       | object_name_or_id | php |
     Then the output should match:
       | imagestream "php" deleted |
-    # check deleted image stream on web 
+    # check deleted image stream on web
     When I perform the :check_deleted_image_stream web console action with:
       | project_name | <%= project.name %> |
       | image_name   | php  |

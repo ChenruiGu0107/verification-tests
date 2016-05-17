@@ -54,8 +54,8 @@ Feature: template related scnearios:
       | error: unable to find object fields on reflect.Value |
       | Kind:"FailedService" |
 
-    # @author akostadi@redhat.com
-    # @case_id 476351
+  # @author akostadi@redhat.com
+  # @case_id 476351
   Scenario Outline: Easy delete resources from template created
     Given I have a project
     And I process and create:

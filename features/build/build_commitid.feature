@@ -1,10 +1,10 @@
 Feature: dockerbuild.feature
   # @author wewang@redhat.com
-  # @case_id  512257 
-  # @case_id  512256
+  # @case_id 512257
+  # @case_id 512256
   @admin
-  Scenario Outline: Store commit id in sti build  
-    Given I have a project 
+  Scenario Outline: Store commit id in sti build
+    Given I have a project
     When I download a file from "<file>"
     Then the step should succeed
     And I replace lines in "<file_name>":
@@ -33,7 +33,7 @@ Feature: dockerbuild.feature
     Then the output should contain:
       |github.com/v3test/ruby-hello-world.git|
     When I run the :start_build client command with:
-       | buildconfig | ruby22-sample-build |
+      | buildconfig | ruby22-sample-build |
     And the "ruby22-sample-build-2" build was created
     And the "ruby22-sample-build-2" build completed
     When I run the :describe client command with:
@@ -73,14 +73,14 @@ Feature: dockerbuild.feature
       | template      | {{.spec.clusterIP}} |
     Then the step should succeed
     And the output should contain "<%= cb.host_yaml %>"
- 
+
     When I run the :get admin command with:
       | resource      | service                 |
       | resource_name | docker-registry         |
       | template      | {{(index .spec.ports 0).port}} |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :port_yaml clipboard
- 
+
     When I run the :patch client command with:
       | resource      | bc                      |
       | resource_name | ruby22-sample-build     |
@@ -104,7 +104,7 @@ Feature: dockerbuild.feature
     Then the output should match:
       | Commit:.*[a-zA-Z0-9]+                         |
       | Output to:.*DockerImage.*                     |
-    
+
     Examples:
       | file                                                  |   file_name                              |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json   | ruby22rhel7-template-docker.json  |

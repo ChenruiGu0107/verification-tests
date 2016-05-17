@@ -26,7 +26,7 @@ Feature: Configuration of environment variables check
     Examples:
       | os | image |
       | rhel7   | <%= product_docker_repo %>openshift3/ruby-20-rhel7:latest |
-      #| centos7 | docker.io/openshift/ruby-20-centos7 |
+    #| centos7 | docker.io/openshift/ruby-20-centos7 |
 
   # @author xiuwang@redhat.com
   # @case_id 499491
@@ -80,7 +80,7 @@ Feature: Configuration of environment variables check
       | resource_name | expansion-pod |
     Then the step should succeed
     And the output should contain "http"
-  
+
   # @author pruan@redhat.com
   # @case_id 493676
   Scenario: Substitute environment variables into a container's args

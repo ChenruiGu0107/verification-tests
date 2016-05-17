@@ -1,7 +1,7 @@
 Feature: hotdeploy.feature
 
-  # @author: wzheng@redhat.com
-  # @case_id: 508723,508727,508729,508731,508733,508725
+  # @author wzheng@redhat.com
+  # @case_id 508723,508727,508729,508731,508733,508725
   Scenario Outline: Hot deploy test
     Given I have a project
     When I create a new application with:
@@ -28,9 +28,9 @@ Feature: hotdeploy.feature
       | https://github.com/openshift-qe/django-ex.git        | openshift/python:3.4 | APP_CONFIG=gunicorn.conf.py | django-ex  | s/Welcome/hotdeploy_test/g | /opt/app-root/src/welcome/templates/welcome/index.html |
       | https://github.com/openshift-qe/sinatra-hot-deploy.git | openshift/ruby:2.0 | RACK_ENV=development       | sinatra-hot-deploy | s/legen/hotdeploy_test/g | config.ru |
 
-    # @author: wzheng@redhat.com
-    # @case_id:508735
-    Scenario: Enable hot deploy for sinatra app - ruby-22-rhel7 which is created from imagestream via oc new-app
+  # @author wzheng@redhat.com
+  # @case_id 508735
+  Scenario: Enable hot deploy for sinatra app - ruby-22-rhel7 which is created from imagestream via oc new-app
     Given I have a project
     When I create a new application with:
       | app_repo |https://github.com/openshift-qe/sinatra-hot-deploy-ruby22.git |
@@ -47,11 +47,11 @@ Feature: hotdeploy.feature
     Then I wait for a server to become available via the "sinatra-hot-deploy-ruby2" route
     And the output should contain "hotdeploy_test"
 
-  # @author:wzheng@redhat.com
-  # @case_id:508721,508719
+  # @author wzheng@redhat.com
+  # @case_id 508721,508719
   Scenario Outline: Enable hot deploy for perl which is created from imagestream via oc new-app
-   Given I have a project
-   When I create a new application with:
+    Given I have a project
+    When I create a new application with:
       | app_repo     | <app_repo>     |
       | image_stream | <image_stream> |
       | env          | <env>          |

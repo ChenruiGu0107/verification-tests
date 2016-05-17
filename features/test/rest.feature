@@ -28,4 +28,3 @@ Feature: Testing REST Scenarios
     Then the step should succeed
     And the output should not contain:
       | demo |
-  

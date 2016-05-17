@@ -1,6 +1,6 @@
 Feature: new-app with --search option
-  # @author: yanpzhan@redhat.com
-  # @case_id: 497510
+  # @author yanpzhan@redhat.com
+  # @case_id 497510
   Scenario: Command oc new-app should support search function
     Given I have a project
     And I run the :create client command with:
@@ -172,8 +172,8 @@ Feature: new-app with --search option
       |MySQL database service, with persistent storage.|
       |Scaling to more than one replica is not supported|
 
-  # @author: pruan@redhat.com
-  # @case_id: 497511
+  # @author pruan@redhat.com
+  # @case_id 497511
   Scenario: Negative test on oc new-app with --search
     Given I have a project
     When I run the :new_app client command with:
@@ -267,7 +267,7 @@ Feature: new-app with --search option
       |  --search can't be used with source code |
       |  --search can't be used with --env       |
       |  --search can't be used with --param     |
-     When I run the :new_app client command with:
+    When I run the :new_app client command with:
       | search_raw |  --docker-image=ruby |
       | code   | https://github.com/openshift/ruby-hello-world |
       | env    | path=/etc                                     |
@@ -277,4 +277,4 @@ Feature: new-app with --search option
       |  --search can't be used with source code |
       |  --search can't be used with --env       |
       |  --search can't be used with --param     |
-       
+

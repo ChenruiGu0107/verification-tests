@@ -1,6 +1,6 @@
-Feature: Add pvc to pod from web related 
+Feature: Add pvc to pod from web related
   # @author yanpzhan@redhat.com
-  # @case_id 515688 
+  # @case_id 515688
   @admin @destructive
   Scenario: Attach pvc to pod with multiple containers from web console
     When I create a new project via web
@@ -17,7 +17,7 @@ Feature: Add pvc to pod from web related
       | ["spec"]["volumeName"] | nfs-1-<%= project.name %>  |
     Then the step should succeed
     Given the PV becomes :bound
-    
+
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-2-<%= project.name %>         |
@@ -82,7 +82,7 @@ Feature: Add pvc to pod from web related
       | f1 |
 
   # @author yanpzhan@redhat.com
-  # @case_id 515690 
+  # @case_id 515690
   @admin @destructive
   Scenario: Display and attach PVC to pod from web console
     Given I have a project

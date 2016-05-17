@@ -54,7 +54,7 @@ Feature: phpimages.feature
     Then the output should contain:
       | MaxRequestWorkers     256 |
       | ServerLimit           256 |
-   Examples:
-     | template1 | template2| 
-     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526520/php-55-template.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526520/php-55-template-noresource.json |
-     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526521/php-56-template.json |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526521/php-56-template-noresource.json |
+    Examples:
+      | template1 | template2|
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526520/php-55-template.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526520/php-55-template-noresource.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526521/php-56-template.json |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526521/php-56-template-noresource.json |

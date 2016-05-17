@@ -34,7 +34,7 @@ Feature: Check oc status cli
     And evaluation of `"my-secret"` is stored in the :missingscrt_name clipboard
     When I create a new application with:
       | template | ruby-helloworld-sample |
-  # TODO: yapei, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: yapei, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "database" service to be created
     When I run the :status client command with:
       | v ||
@@ -103,8 +103,8 @@ Feature: Check oc status cli
 
     # check failed build
     When I run the :start_build client command with:
-       |buildconfig|ruby-sample-build|
-       |commit     |notexist         |
+      |buildconfig|ruby-sample-build|
+      |commit     |notexist         |
     Then the step should succeed
     Given the "ruby-sample-build-2" build failed
     When I run the :status client command
@@ -145,7 +145,7 @@ Feature: Check oc status cli
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-  # TODO: cryan, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: cryan, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
     When I run the :get client command with:
       | resource | projects |

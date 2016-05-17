@@ -55,7 +55,7 @@ Feature: oc_secrets.feature
   # @case_id 483167
   Scenario: CRUD operations on secrets
     Given I have a project
-    # 1.1 Create a secret with a non-existing namespace 
+    # 1.1 Create a secret with a non-existing namespace
     When I run the :create client command with:
       | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483168/second-secret.json |
       | namespace | non483167 |
@@ -130,7 +130,7 @@ Feature: oc_secrets.feature
       | name   | test       |
     Then the step should not succeed
     And the output should contain:
-      |  error: | 
+      |  error: |
 
   # @author xiacwan@redhat.com
   # @case_id 484325
@@ -177,7 +177,7 @@ Feature: oc_secrets.feature
     And the output should contain:
       | tmpfile1 |
       | tmpfile2 |
-      
+
   # @author xxia@redhat.com
   # @case_id 484329
   Scenario: Check name requirements for oc secret
@@ -232,8 +232,8 @@ Feature: oc_secrets.feature
     And the output should match:
       | cannot add key file.json.*another key by that name already exist |
 
-  # @Author: wjiang@redhat.com
-  # @case_id: 484327
+  # @author wjiang@redhat.com
+  # @case_id 484327
   Scenario: Bundle secret will not load subdir and warning message will be displayed when -q is not present
     Given I have a project
     Given a "first/second/test" file is created with the following lines:

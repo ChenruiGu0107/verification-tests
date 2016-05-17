@@ -1,5 +1,5 @@
 Feature: oc_set_probe.feature
-   
+
   # @author dyan@redhat.com
   # @case_id 520353
   Scenario: Set a probe to open a TCP socket
@@ -62,8 +62,7 @@ Feature: oc_set_probe.feature
       | tcp-socket :33 |
       | probe failed |
     """
- 
- 
+
   # @author dyan@redhat.com
   # @case_id 520354
   Scenario: Set a probe over HTTPS/HTTP
@@ -112,7 +111,7 @@ Feature: oc_set_probe.feature
       | Readiness |
       | http-get https://127.0.0.1:1936/stats |
     """
- 
+
   # @author dyan@redhat.com
   # @case_id 520355
   Scenario: Set an exec action probe
@@ -126,7 +125,7 @@ Feature: oc_set_probe.feature
     Given I wait until the status of deployment "mysql" becomes :complete
     When I run the :set_probe client command with:
       | resource     | dc/mysql |
-      | liveness     |          |          
+      | liveness     |          |
       | oc_opts_end  |          |
       | exec_command | true     |
     Then the step should succeed
@@ -159,9 +158,8 @@ Feature: oc_set_probe.feature
       | Liveness     |
       | false        |
       | probe failed |
-#   And the pod status is restart
-  
-  
+    #   And the pod status is restart
+
   # @author dyan@redhat.com
   # @case_id 520384
   Scenario: Remove probe in dc
@@ -181,7 +179,7 @@ Feature: oc_set_probe.feature
     Then the step should succeed
     Given I wait until the status of deployment "mysql" becomes :complete
     And I wait until the status of deployment "mongodb" becomes :complete
- # set probe in both dc
+    # set probe in both dc
     When I run the :set_probe client command with:
       | resource    | dc/mysql |
       | readiness   |          |
@@ -215,7 +213,7 @@ Feature: oc_set_probe.feature
     Then the output should contain:
       | Liveness |
       | true     |
-# remove probe in both dc on the same time
+    # remove probe in both dc on the same time
     When I run the :set_probe client command with:
       | resource | dc       |
       | all      |          |
@@ -240,7 +238,7 @@ Feature: oc_set_probe.feature
     Then the output should not contain:
       | Liveness |
       | true     |
-#set two kind probe in one dc
+    #set two kind probe in one dc
     When I run the :set_probe client command with:
       | resource  | dc/mysql |
       | readiness |          |
@@ -267,7 +265,7 @@ Feature: oc_set_probe.feature
       | true      |
       | Readiness |
       | tcp-socket :3306 |
-# remove one probe
+    # remove one probe
     When I run the :set_probe client command with:
       | resource | dc        |
       | l        | app=mysql |
@@ -288,8 +286,7 @@ Feature: oc_set_probe.feature
     And the output should not contain:
       | Readiness |
       | tcp-socket :3306 |
- 
- 
+
   # @author dyan@redhat.com
   # @case_id 520388
   Scenario: Set a invalid probe in dc

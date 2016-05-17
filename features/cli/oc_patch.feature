@@ -129,7 +129,7 @@ Feature: oc patch related scenarios
     When I run the :patch client command with:
       | resource      | dc                   |
       | resource_name | database             |
-      # Not work well to simply use | p             | spec:\n  replicas: 2 |
+    # Not work well to simply use | p             | spec:\n  replicas: 2 |
       | p             | <%= cb.patch_yaml %> |
     Then the step should succeed
     Then I wait for the steps to pass:

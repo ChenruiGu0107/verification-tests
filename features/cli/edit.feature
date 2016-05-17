@@ -8,7 +8,7 @@ Feature: edit.feature
     Then the output should contain "the path "test" does not exist"
 
   # @author xxing@redhat.com
-  # @case_id  497623
+  # @case_id 497623
   Scenario: Edit the resource with the file
     Given I have a project
     When I run the :create client command with:

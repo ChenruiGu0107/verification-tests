@@ -128,8 +128,8 @@ Feature: oc related features
       | --overwrite=false: If true, allow annotations to be overwritten, otherwise reject annotation updates that overwrite existing annotations. |
       | --resource-version='': If non-empty, the annotation update will only succeed if this is the current resource-version for the object. Only valid when specifying a single resource. |
 
-  # @author: yanpzhan@redhat.com
-  # @case_id: 499893
+  # @author yanpzhan@redhat.com
+  # @case_id 499893
   Scenario: Check help info for oc run
     When I run the :help client command
     Then the output should contain:
@@ -257,7 +257,7 @@ Feature: oc related features
       | help     |        |
     Then the step should succeed
     And the output should contain "Display one or many resources"
-      When I run the :describe client command with:
+    When I run the :describe client command with:
       | resource | :false |
       | help     |        |
     Then the step should succeed

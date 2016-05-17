@@ -47,7 +47,7 @@ Feature: builderimage.feature
   Scenario: Use Jenkins as S2I builder with plugins
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/jenkins-example/master/jenkins-with-plugins.json | 
+      | file | https://raw.githubusercontent.com/openshift-qe/jenkins-example/master/jenkins-with-plugins.json |
     Then the step should succeed
     And the "jenkins-master-1" build was created
     And the "jenkins-master-1" build completed

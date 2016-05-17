@@ -6,43 +6,43 @@ Feature: storage security check
     Given I have a project
     Given scc policy "restricted" is restored after scenario
     When I run the :create client command with:
-    |filename| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret.yaml|
+      |filename| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret.yaml|
     Then the step should succeed
 
     #create a new scc restricted
     When I run the :delete admin command with:
-    |object_type| scc|
-    |object_name_or_id|restricted|
+      |object_type| scc|
+      |object_name_or_id|restricted|
     Then the step should succeed
     Then the outputs should contain "restricted"
     Then the outputs should contain "deleted"
 
     When I run the :create admin command with:
-    |filename|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc510760/secret_restricted.yaml |
+      |filename|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc510760/secret_restricted.yaml |
     Then the step should succeed
 
     When I run the :create client command with:
-    |filename|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret-pod-test.json|
+      |filename|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret-pod-test.json|
     And the pod named "secretpd" becomes ready
     When I execute on the pod:
-    |id|
+      |id|
     Then the step should succeed
     Then the outputs should contain "groups=123456"
     When I execute on the pod:
-    |ls|
-    |-lZd|
-    |/mnt/secret/|
+      |ls|
+      |-lZd|
+      |/mnt/secret/|
     Then the step should succeed
     And the outputs should contain "123456"
     And the outputs should contain "system_u:object_r:svirt_sandbox_file_t:s0"
     When I execute on the pod:
-    |touch|
-    |/mnt/secret/file |
+      |touch|
+      |/mnt/secret/file |
     Then the step should succeed
     When I execute on the pod:
-    |ls|
-    |-lZ|
-    |/mnt/secret/|
+      |ls|
+      |-lZ|
+      |/mnt/secret/|
     Then the step should succeed
     And the outputs should not contain "root"
     And the outputs should contain "123456"

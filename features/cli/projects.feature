@@ -140,7 +140,7 @@ Feature: projects related features via cli
     When I run the :new_project client command with:
       | project_name | <%= cb.prj_name %> |
     Then the step should succeed
-  # TODO: yapei, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: yapei, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     When I create a new application with:
       | docker image | openshift/mysql-55-centos7 |
       | code         | https://github.com/openshift/ruby-hello-world |
@@ -456,7 +456,7 @@ Feature: projects related features via cli
       | resource      | project/<%= project.name %>      |
       | p             | {"metadata":{"name":"new-name"}} |
     Then the step should fail
-  
+
   # @author wjiang@redhat.com
   # @case_id 516715
   Scenario: serviceaccount can not create projectrequest
@@ -484,7 +484,7 @@ Feature: projects related features via cli
       | * <%= @projects[1].name %> |
       | * <%= @projects[2].name %> |
 
-    # 'Using project "<project>" uses the alphabetically least project name when config is newly created 
+    # 'Using project "<project>" uses the alphabetically least project name when config is newly created
     # So can not be hard coded as <%= project.name %>
     And the output should match:
       | Using project "(<%= @projects[0].name %>\|<%= @projects[1].name %>\|<%= @projects[2].name %>)" |

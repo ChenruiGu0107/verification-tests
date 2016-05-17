@@ -10,7 +10,7 @@ Feature: quickstarts.feature
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed
     And <podno> pods become ready with labels:
-     |app=<template>|
+      |app=<template>|
     When I use the "<buildcfg>" service
     Then I wait for a server to become available via the "<buildcfg>" route
     Then the output should contain "<output>"
@@ -92,7 +92,7 @@ Feature: quickstarts.feature
     Then the step should succeed
     And the "beego-example-1" build was created
     And the "beego-example-1" build completed
-    Then I wait for the "beego-example" service to become ready 
+    Then I wait for the "beego-example" service to become ready
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -120,7 +120,7 @@ Feature: quickstarts.feature
       | curl | -s | <%= service.url %> |
     Then the step should succeed
     """
-    Then the output should contain "Welcome to your CakePHP application on OpenShift"  
+    Then the output should contain "Welcome to your CakePHP application on OpenShift"
 
   # @author dyan@redhat.com
   # @case_id 479059

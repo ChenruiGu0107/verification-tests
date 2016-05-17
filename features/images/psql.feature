@@ -1,8 +1,8 @@
-Feature: Postgresql images test 
+Feature: Postgresql images test
 
   # @author wewang@redhat.com
-  # @case_id  508090 501060
-  Scenario Outline:  Verify DB can be connect after change admin and user password and re-deployment for ephemeral storage - psql92 and psql94
+  # @case_id 508090 501060
+  Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for ephemeral storage - psql92 and psql94
     Given I have a project
     When I run the :new_app client command with:
       | file | <file_name> |
@@ -13,7 +13,7 @@ Feature: Postgresql images test
     """
     When I execute on the pod:
       | bash | -c | psql -U $POSTGRESQL_USER -c 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));' -d $POSTGRESQL_DATABASE |
-      Then the step should succeed
+    Then the step should succeed
     """
     And the output should contain:
       | CREATE TABLE |
@@ -28,7 +28,7 @@ Feature: Postgresql images test
     And the output should contain:
       | col1 | col2 |
       | foo1 | bar1 |
-    #Change the postgresql password 
+    #Change the postgresql password
     When I run the :env client command with:
       | resource |  dc/postgresql  |
       | e        | POSTGRESQL_PASSWORD=redhat  |
@@ -47,7 +47,7 @@ Feature: Postgresql images test
     """
     When I execute on the pod:
       | bash | -c | psql -U $POSTGRESQL_USER -c 'SELECT * FROM tbl;' -d $POSTGRESQL_DATABASE |
-      Then the step should fail
+    Then the step should fail
     """
     And the output should contain:
       | relation "tbl" does not exist |
@@ -55,22 +55,21 @@ Feature: Postgresql images test
       | file_name                     |
       | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-ephemeral-template.json  |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-92-ephemeral-template.json  |
-  
-    
-  # @author wewang@redhat.com 
-  # @case_id  501057  508089
+
+  # @author wewang@redhat.com
+  # @case_id 501057  508089
   @admin
   @destructive
-  Scenario Outline:  Verify clustered postgresql can be connect after change admin and user password and redeployment with persistent storage-psql92 and psql94
+  Scenario Outline: Verify clustered postgresql can be connect after change admin and user password and redeployment with persistent storage-psql92 and psql94
     Given I have a project
     And I have a NFS service in the project
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     And I download a file from "<file>"
     And I replace lines in "postgresql_replica.json":
-       | <org_image> | <%= product_docker_repo %><new_image> |
+      | <org_image> | <%= product_docker_repo %><new_image> |
     And I run the :new_app client command with:
-       | file     | <template>                   |
+      | file     | <template>                   |
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=postgresql-slave|
@@ -83,7 +82,7 @@ Feature: Postgresql images test
     """
     When I execute on the pod:
       | bash | -c | psql -U $POSTGRESQL_USER -c 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));' -d $POSTGRESQL_DATABASE |
-      Then the step should succeed
+    Then the step should succeed
     """
     And the output should contain:
       | CREATE TABLE |
@@ -99,7 +98,7 @@ Feature: Postgresql images test
       | col1 | col2 |
       | foo1 | bar1 |
 
-    # Change the postgresql password 
+    # Change the postgresql password
     When I run the :env client command with:
       | resource |  dc/postgresql-master  |
       | e        | POSTGRESQL_PASSWORD=redhat  |
@@ -124,12 +123,12 @@ Feature: Postgresql images test
     """
     When I execute on the pod:
       | bash | -c | psql -U $POSTGRESQL_USER -c 'SELECT * FROM tbl;' -d $POSTGRESQL_DATABASE |
-      Then the step should succeed
+    Then the step should succeed
     """
     And the output should contain:
       | col1 | col2 |
       | foo1 | bar1 |
- 
+
     #Re-deploy both master and slave pods
     When I run the :deploy client command with:
       | deployment_config | postgresql-slave  |
@@ -149,13 +148,13 @@ Feature: Postgresql images test
     """
     When I execute on the pod:
       | bash | -c | psql -U $POSTGRESQL_USER -c 'SELECT * FROM tbl;' -d $POSTGRESQL_DATABASE |
-     Then the step should succeed
+    Then the step should succeed
     """
     And the output should contain:
       | col1 | col2 |
       | foo1 | bar1 |
     Examples:
-      | file                     |   org_image    |  new_image | template| 
+      | file                     |   org_image    |  new_image | template|
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  | openshift/postgresql-92-centos7  | rhscl/postgresql-94-rhel7 | postgresql_replica.json |
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  | openshift/postgresql-92-centos7  | openshift3/postgresql-92-rhel7 | postgresql_replica.json |
 

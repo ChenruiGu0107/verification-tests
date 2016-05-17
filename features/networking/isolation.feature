@@ -26,7 +26,7 @@ Feature: networking isolation related scenarios
     And I use the "default" project
     And evaluation of `rand_str(5, :dns)` is stored in the :default_name clipboard
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" replacing paths:
-      # | ["spec"]["containers"][0]["name"] | <%= cb.default_name %> |
+    # | ["spec"]["containers"][0]["name"] | <%= cb.default_name %> |
       | ["metadata"]["name"]              | <%= cb.default_name %> |
     Then the step should succeed
     And I register clean-up steps:
@@ -150,7 +150,7 @@ Feature: networking isolation related scenarios
       | resource_name | <%= cb.proj1 %> |
       | template | {{.netid}} |
     Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :proj1netid clipboard 
+    And evaluation of `@result[:response]` is stored in the :proj1netid clipboard
     When I run the :get admin command with:
       | resource | netnamespace |
       | resource_name | <%= cb.proj2 %> |
@@ -214,7 +214,7 @@ Feature: networking isolation related scenarios
       |curl --connect-timeout 5 <%= cb.proj3p1 %>:8080|
     Then the step should fail
     And the output should not contain "Hello"
-    
+
     When I execute on the "<%= cb.proj1p1name %>" pod:
       |bash|
       |-c|
@@ -308,18 +308,18 @@ Feature: networking isolation related scenarios
       | name=test-pods |
     And evaluation of `pod.ip` is stored in the :proj3p1 clipboard
     And evaluation of `service("test-service-3").ip(user: user)` is stored in the :proj3s1 clipboard
-    
+
     # Add labels to projects and merge the network of specific label, and check the netid
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And I run the :label client command with:
       | resource | namespace |
       | name | <%= cb.proj1 %> |
-      | key_val | ns=unified | 
+      | key_val | ns=unified |
     And I run the :label client command with:
       | resource | namespace |
       | name | <%= cb.proj2 %> |
-      | key_val | ns=isolated | 
+      | key_val | ns=isolated |
     When I run the :oadm_pod_network_join_projects admin command with:
       | selector | ns=unified |
       | to | <%= cb.proj3 %> |
@@ -329,7 +329,7 @@ Feature: networking isolation related scenarios
       | resource_name | <%= cb.proj1 %> |
       | template | {{.netid}} |
     Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :proj1netid clipboard 
+    And evaluation of `@result[:response]` is stored in the :proj1netid clipboard
     When I run the :get admin command with:
       | resource | netnamespace |
       | resource_name | <%= cb.proj3 %> |
@@ -603,7 +603,7 @@ Feature: networking isolation related scenarios
     And I run the :label client command with:
       | resource | namespace |
       | name | <%= cb.proj3 %> |
-      | key_val | ns=global | 
+      | key_val | ns=global |
     When I run the :oadm_pod_network_make_projects_global admin command with:
       | selector | ns=global |
     Then the step should succeed

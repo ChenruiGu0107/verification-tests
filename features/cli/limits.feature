@@ -2,7 +2,7 @@ Feature: limit range related scenarios:
   # @author pruan@redhat.com
   # @case_id 508038, 508039, 508040
   @admin
-  Scenario Outline:  Limit range default request tests
+  Scenario Outline: Limit range default request tests
     Given I have a project
     Given the first user is cluster-admin
     Then the step should succeed
@@ -127,7 +127,7 @@ Feature: limit range related scenarios:
   # @case_id 508048
   @admin
   Scenario: Limit range with all values set with proper values
-    Given I have a project 
+    Given I have a project
     When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508048/limit.yaml
     Then the step should succeed
     And I run the :describe client command with:

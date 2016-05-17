@@ -3,7 +3,7 @@ Feature: oc_set_env.feature
   # @case_id 520276
   Scenario: Set environment variables for resources using oc set env
     Given I have a project
-     When I run the :new_app client command with:
+    When I run the :new_app client command with:
       | app_repo | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json  |
     And the step succeeded
     # set one enviroment variable
@@ -55,7 +55,7 @@ Feature: oc_set_env.feature
 
   # @author wewang@redhat.com
   # @case_id 520277
-  Scenario: Update environment variables for resources using oc set env 
+  Scenario: Update environment variables for resources using oc set env
     Given I have a project
     When I run the :new_app client command with:
       | app_repo | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json  |
@@ -186,9 +186,4 @@ Feature: oc_set_env.feature
     Then the step should succeed
     And the output should not contain:
       | MYSQL_USER= |
-
-    
-
-    
- 
 

@@ -1,6 +1,6 @@
 Feature: Check deployments function
-  #@author: yapei@redhat.com
-  #@case_id: 501003
+  # @author yapei@redhat.com
+  # @case_id 501003
   Scenario: make deployment from web console
     # create a project on web console
     When I create a new project via web
@@ -16,7 +16,7 @@ Feature: Check deployments function
       | dc_name      | <%= cb.dc_name %>  |
       | status_name  | Deployed |
     Then the step should succeed
-    # manually trigger deploy after deployments is "Deployed" 
+    # manually trigger deploy after deployments is "Deployed"
     When I perform the :manually_deploy web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>  |
@@ -51,9 +51,9 @@ Feature: Check deployments function
       | status_name  | Cancelled           |
     Then the step should succeed
 
-  # @author: wsun@redhat.com
-  # case_id: 515434
-  Scenario: Scale the application by changing replicas in deployment config 
+  # @author wsun@redhat.com
+  # @case_id 515434
+  Scenario: Scale the application by changing replicas in deployment config
     Given I login via web console
     Given I have a project
     And I run the :create client command with:
@@ -79,7 +79,7 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
       | dc_name      | hooks               |
       | dc_number    | 1                   |
-      | replicas     | 1                   | 
+      | replicas     | 1                   |
     And I wait until number of replicas match "1" for replicationController "hooks-1"
     Then the step should succeed
     When I perform the :edit_replicas_on_rc_page web console action with:

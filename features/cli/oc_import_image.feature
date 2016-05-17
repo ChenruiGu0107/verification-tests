@@ -1,13 +1,13 @@
 Feature: oc import-image related feature
-    # @author haowang@redhat.com
-    # @case_id 488868
-    Scenario: import an invalid image stream
-        When I have a project
-        And I run the :import_image client command with:
-          | image_name | invalidimagename|
-        Then the step should fail
-        And the output should match:
-          | no.*"invalidimagename" exists |   
+  # @author haowang@redhat.com
+  # @case_id 488868
+  Scenario: import an invalid image stream
+    When I have a project
+    And I run the :import_image client command with:
+      | image_name | invalidimagename|
+    Then the step should fail
+    And the output should match:
+      | no.*"invalidimagename" exists |
 
   # @author chunchen@redhat.com
   # @case_id 488870
@@ -96,7 +96,7 @@ Feature: oc import-image related feature
       | image_name | tc510524 |
     Then the step should fail
     And the output should match:
-      | the repository "aosqe/non-existen-image" was not found, tag "latest" has not been set on repository "aosqe/non-existen-image" | 
+      | the repository "aosqe/non-existen-image" was not found, tag "latest" has not been set on repository "aosqe/non-existen-image" |
 
   # @author wsun@redhat.com
   # @case_id 510529
@@ -114,22 +114,22 @@ Feature: oc import-image related feature
   # @author xiaocwan@redhat.com
   # @case_id 519468
   Scenario: oc import-image should take the new api endpoint to run imports instead of clearing the annotation
-  Given I have a project
-  When I run the :tag client command with:
-    | source_type | docker                 |
-    | source      | hello-openshift:latest |
-    | dest        | <%= project.name %>/ho:latest |
-  Then the output should match:
-    | [Tt]ag ho:latest |
-  When I get project is as YAML
-  Then the output should match:
-    | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                 |
+      | source      | hello-openshift:latest |
+      | dest        | <%= project.name %>/ho:latest |
+    Then the output should match:
+      | [Tt]ag ho:latest |
+    When I get project is as YAML
+    Then the output should match:
+      | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
 
-  When I run the :import_image client command with:
-    | image_name    | ho |
-    | loglevel | 6  |
-  Then the output should contain:
-    | /oapi/v1/namespaces/<%= project.name %>/imagestreams/ho |
-  When I get project is as YAML
-  Then the output should match:
-    | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
+    When I run the :import_image client command with:
+      | image_name    | ho |
+      | loglevel | 6  |
+    Then the output should contain:
+      | /oapi/v1/namespaces/<%= project.name %>/imagestreams/ho |
+    When I get project is as YAML
+    Then the output should match:
+      | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|

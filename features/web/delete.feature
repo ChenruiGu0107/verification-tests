@@ -21,7 +21,7 @@ Feature: Delete the resources via web console
       | deployment_config | nodejs-sample       |
     Then the step should succeed
     And I wait until the status of deployment "nodejs-sample" becomes :complete
-    When I perform the :delete_resources_in_the_project web console action with: 
+    When I perform the :delete_resources_in_the_project web console action with:
       | project_name     | <%= project.name %>   |
       | pod_name         | nodejs-sample-1-build |
       | service_name     | nodejs-sample         |
@@ -68,7 +68,7 @@ Feature: Delete the resources via web console
       | role      |   view    |
       | user_name | <%= user(1, switch: false).name %> |
     Then the step should succeed
-    Given I switch to the second user 
+    Given I switch to the second user
     When I perform the :delete_resources_in_the_project web console action with:
       | project_name     | <%= project.name %>   |
       | pod_name         | nodejs-sample-1-build |

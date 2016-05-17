@@ -76,7 +76,7 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       | replicas: 2       |
-    
+
     When I run the :run client command with:
       | name         | webapp4               |
       | image        | training/webapp       |
@@ -195,7 +195,7 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       | test-c |
-  # Negative test
+    # Negative test
     When I run the :run client command with:
       | name    | test-f                |
       | image   | aosqe/hello-openshift |
@@ -221,7 +221,7 @@ Feature: oc run related scenarios
       | resource | pod |
     Then the step should succeed
     And the output should contain:
-      | test-m | 
+      | test-m |
 
   # @author yadu@redhat.com
   # @case_id 510407
@@ -292,13 +292,13 @@ Feature: oc run related scenarios
       | image     | aosqe/hello-openshift   |
       | replicas  | 2                       |
       | overrides | {"apiVersion":"v1","spec":{"replicas":3}} |
-     Then the step should succeed
-     When I run the :get client command with:
+    Then the step should succeed
+    When I run the :get client command with:
       | resource      | dc     |
       | resource_name | test   |
       | o             | json   |
-     Then the step should succeed
-     And the output should contain:
+    Then the step should succeed
+    And the output should contain:
       | "replicas": 3 |
 
   # @author cryan@redhat.com
