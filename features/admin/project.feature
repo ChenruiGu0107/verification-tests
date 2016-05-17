@@ -69,7 +69,7 @@ Feature: project permissions
 
     ## clean-up mess
     When I delete all resources by labels:
-     | app=app1 |
+      | app=app1 |
 
     ## create another app and check user has full admin rights
     When I create a new application with:
@@ -178,7 +178,7 @@ Feature: project permissions
   # @author chaoyang@redhat.com
   # @case_id 481696
   @admin
-  Scenario:Could not create a project with invalid node-selector
+  Scenario: Could not create a project with invalid node-selector
     When I run the :create admin command with:
       |filename| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/prj_with_invalid_node-selector.json |
     Then the step should fail
