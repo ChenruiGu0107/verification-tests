@@ -2,7 +2,7 @@ Feature: dockerbuild.feature
   # @author wzheng@redhat.com
   # @case_id 470418
   Scenario: Docker build with blank source repo
-    Given I have a project 
+    Given I have a project
     When I run the :process client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker-blankrepo.json |
     Then the step should succeed
@@ -21,7 +21,7 @@ Feature: dockerbuild.feature
     Then the step should succeed
     When I run the :new_app client command with:
       | template | ruby-helloworld-sample |
-    Then the step should succeed 
+    Then the step should succeed
     And the "ruby22-sample-build-1" build was created
     And the "ruby22-sample-build-1" build failed
     When I run the :logs client command with:
@@ -50,17 +50,17 @@ Feature: dockerbuild.feature
   # @case_id 438850
   Scenario: Docker build with invalid context dir
     Given I have a project
-     When I run the :create client command with:
+    When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-invalidcontext-docker.json |
-     Then the step should succeed
-     When I run the :new_app client command with:
-       | template | ruby-helloworld-sample |
-     Then the step should succeed
-     And the "ruby20-sample-build-1" build was created
-     And the "ruby20-sample-build-1" build failed
-     When I run the :logs client command with:
-       | resource_name| bc/ruby20-sample-build |
-     Then the output should contain "/invalid/Dockerfile: no such file or directory"
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | ruby-helloworld-sample |
+    Then the step should succeed
+    And the "ruby20-sample-build-1" build was created
+    And the "ruby20-sample-build-1" build failed
+    When I run the :logs client command with:
+      | resource_name| bc/ruby20-sample-build |
+    Then the output should contain "/invalid/Dockerfile: no such file or directory"
 
   # @author haowang@redhat.com
   # @case_id 507555
@@ -91,7 +91,7 @@ Feature: dockerbuild.feature
     Then the step should fail
     And the output should contain "no such file"
   # @author yantan@redhat.com
-  # @case_id 479296 
+  # @case_id 479296
   Scenario: Custom build with dockerImage with specified tag
     Given I have a project
     Then the step should succeed
@@ -155,7 +155,7 @@ Feature: dockerbuild.feature
       | template | strategy |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json | dockerStrategy |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc482273/test-template-stibuild.json    | sourceStrategy |
- 
+
   # @author dyan@redhat.com
   # @case_id 519484
   Scenario: Implement post-build command for docker build

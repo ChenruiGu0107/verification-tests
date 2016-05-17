@@ -66,4 +66,4 @@ Feature: oc attach related scenarios
     Then the step should fail
     And the output should contain:
       | error: expected a single argument: POD, saw 2: [123456-7890 date] |
-      
+

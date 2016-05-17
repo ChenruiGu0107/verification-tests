@@ -104,7 +104,7 @@ Feature: projects related features via web
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I run the :check_project_list web console action 
+    When I run the :check_project_list web console action
     Then the step should fail
     When I perform the :new_project web console action with:
       | project_name | <%= project.name %> |
@@ -139,7 +139,7 @@ Feature: projects related features via web
     And I get the html of the web page
     Then the output should contain:
       | User "<%= user.name %>" cannot delete projects in project "<%= project.name %>" |
-    
+
   # @author wsun@redhat.com
   # @case_id 470313
   Scenario: Could list all projects based on the user's authorization on web console
@@ -190,11 +190,11 @@ Feature: projects related features via web
     When I perform the :check_specific_project web console action with:
       | project_name | <%= cb.project3 %> |
     Then the step should fail
- 
+
   # @author wsun@redhat.com
   # @case_id 499992
   Scenario: Can edit the project description and display name from web console
-      When I create a project via web with:
+    When I create a project via web with:
       | display_name | projecttest |
       | description  | test        |
     Then the step should succeed

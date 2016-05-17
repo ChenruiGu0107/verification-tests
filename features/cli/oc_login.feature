@@ -10,7 +10,7 @@ Feature: oc_login.feature
       | p | <%= @user.password %> |
     Then the step should succeed
     And the output should match "Login successful|Logged into"
- 
+
   # @author xiaocwan@redhat.com
   # @case_id 476303
   Scenario: User can login with the new generated token via web page for oc

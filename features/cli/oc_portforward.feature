@@ -111,8 +111,8 @@ Feature: oc_portforward.feature
       | _timeout  | 20                      |
     Then the step should succeed
     And I perform the HTTP request:
-      """
+    """
       :url: 127.0.0.1:<%= cb[:porta] %>
       :method: :get
-      """
+    """
     Then the step should fail

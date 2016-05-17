@@ -70,7 +70,7 @@ Feature: buildconfig.feature
   Scenario: Start build from invalid/blank buildConfig/build
     Given I have a project
     When I run the :start_build client command with:
-      | buildconfig | invalid | 
+      | buildconfig | invalid |
     Then the step should fail
     And the output should contain "buildconfigs "invalid" not found"
     When I run the :start_build client command with:
@@ -86,11 +86,11 @@ Feature: buildconfig.feature
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
-  # Test clean build firstly
+    # Test clean build firstly
     When I run the :build_logs client command with:
       | build_name      | ruby-sample-build-1 |
     Then the output should match "Clean build will be performed"
-  # Test incremental build secondly
+    # Test incremental build secondly
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed

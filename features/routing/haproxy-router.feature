@@ -1,7 +1,7 @@
 Feature: Testing haproxy router
 
   # @author zzhao@redhat.com
-  # @case_id 512275 
+  # @case_id 512275
   @admin
   Scenario: HTTP response header should return for default haproxy 503
     Given I switch to cluster admin pseudo user
@@ -23,7 +23,6 @@ Feature: Testing haproxy router
     And I execute on the pod:
       | /usr/bin/curl |  127.0.0.1:1936/healthz |
     Then the output should contain "Service ready"
-  
 
   # @author bmeng@redhat.com
   # @case_id 505814
@@ -43,7 +42,7 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc505814/route_pass.json|
     Then the step should succeed
-    
+
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And a pod becomes ready with labels:

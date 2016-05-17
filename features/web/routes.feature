@@ -43,7 +43,7 @@ Feature: Routes related features on web console
       | project_name | <%= project.name %> |
       | route_name   | nodejs-sample       |
       | service_url | <%= cb.patch_yaml %>|
-    Then the step should succeed    
+    Then the step should succeed
 
   # @author yanpzhan@redhat.com
   # @case_id 511915
@@ -51,7 +51,7 @@ Feature: Routes related features on web console
     When I create a new project via web
     Then the step should succeed
 
-    Given I use the "<%= project.name %>" project 
+    Given I use the "<%= project.name %>" project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_nothing.json |
     Then the step should succeed
@@ -63,7 +63,7 @@ Feature: Routes related features on web console
       | project_name | <%= project.name%> |
       | service_name | service-unsecure   |
     Then the step should succeed
-     
+
     When I perform the :create_unsecured_route_from_service_or_overview_page web console action with:
       | route_name | service-unsecure-route |
     Then the step should succeed
@@ -71,4 +71,4 @@ Feature: Routes related features on web console
     When I perform the :check_routes_page web console action with:
       | project_name | <%= project.name %> |
       | route_name   | service-unsecure    |
-    Then the step should succeed 
+    Then the step should succeed

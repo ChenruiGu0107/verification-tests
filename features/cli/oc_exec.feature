@@ -16,7 +16,7 @@ Feature: containers related features
       | Image:		jhou/hello-openshift-fedora |
     When I run the :exec client command with:
       | pod | <%= cb.pod_name %>  |
-      #| c | hello-openshift |
+    #| c | hello-openshift |
       | exec_command | cat  |
       | exec_command_arg |/etc/redhat-release|
     Then the output should contain:
@@ -47,7 +47,7 @@ Feature: containers related features
     Then the output should contain:
       | serving on 8081 |
       | serving on 8888 |
-  
+
   # @author xxing@redhat.com
   # @case_id 497482
   Scenario: Add env variables to postgresql-92-centos7 image
@@ -115,7 +115,7 @@ Feature: containers related features
     Then the step should succeed
     And the pod named "hello-openshift" becomes ready
     When I execute on the "hello-openshift_notexist" pod:
-       |date|
+      |date|
     Then the step should fail
     Then the output should contain:
       | Error from server: pods "hello-openshift_notexist" not found |

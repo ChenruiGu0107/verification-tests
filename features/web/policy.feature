@@ -2,7 +2,7 @@ Feature:policy related features on web console
 
   # @author xiaocwan@redhat.com
   # @case_id 476296
-  Scenario:All the users in the deleted project should be removed
+  Scenario: All the users in the deleted project should be removed
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
       | role            | edit                               |
@@ -14,7 +14,7 @@ Feature:policy related features on web console
       | user name       | <%= user(2, switch: false).name %> |
       | n               | <%= project.name %>                |
     Then the step should succeed
-    
+
     When I switch to the second user
     And I run the :get client command with:
       | resource | project  |

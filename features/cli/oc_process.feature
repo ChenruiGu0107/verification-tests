@@ -18,7 +18,7 @@ Feature: oc_process.feature
       | A-Z          | A-Z0-z       | invalid range specified             |
   # @author haowang@redhat.com
   # @case_id 474030
-  Scenario: "oc process" handles invalid json file 
+  Scenario: "oc process" handles invalid json file
     Given I have a project
     Then I run the :process client command with:
       | f | non.json |

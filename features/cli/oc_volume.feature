@@ -109,7 +109,7 @@ Feature: oc_volume.feature
       | volumes:                   |
       | - name: secret             |
       |   secret:                  |
-      |     secretName: my-secret  |   
+      |     secretName: my-secret  |
 
   # @author xxia@redhat.com
   # @case_id 491428
@@ -267,7 +267,7 @@ Feature: oc_volume.feature
   Scenario: Select resources with '--selector' option
     Given I have a project
     When I run the :new_app client command with:
-     | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     And I run the :run client command with:
       | name         | testpod                   |

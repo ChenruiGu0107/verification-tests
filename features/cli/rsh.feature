@@ -84,7 +84,7 @@ Feature: rsh.feature
       | options | -b |
     Then the step should fail
     And the output should contain "Error: unknown shorthand flag: 'b'"
-        When I run the :rsh client command with:
+    When I run the :rsh client command with:
       | app_name | double_containers |
       | options | --label=hello-openshift |
     Then the step should fail

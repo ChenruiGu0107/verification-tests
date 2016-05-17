@@ -413,7 +413,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     When I execute on the pod:
       | grep | opt2 | /proc/mounts |
     Then the step should fail
-     When I execute on the pod:
+    When I execute on the pod:
       | ls | /opt2/sbin |
     Then the step should fail
 

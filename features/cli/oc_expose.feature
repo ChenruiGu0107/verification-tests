@@ -71,7 +71,7 @@ Feature: oc_expose.feature
       | deploymentconfig=myapp  |
     When I run the :expose client command with:
       | resource      | pod                |
-      | resource name | <%= pod.name %> | 
+      | resource name | <%= pod.name %> |
       | target port   | 8080               |
       | generator     | service/v1         |
       | name          | myservice          |
@@ -122,7 +122,7 @@ Feature: oc_expose.feature
 
   # @author xiuwang@redhat.com
   # @case_id 483242
-  Scenario: Expose sevice from replicationcontrollers 
+  Scenario: Expose sevice from replicationcontrollers
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/perl                        |

@@ -8,7 +8,7 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
     Given I create the serviceaccount "demo"
     And I give project admin role to the demo service account
@@ -123,7 +123,7 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
     When I run the :delete client command with:
       | object_type       | service    |
@@ -141,7 +141,7 @@ Feature: ServiceAccount and Policy Managerment
 
   # @author anli@redhat.com
   # @case_id 497374
-   Scenario: Could grant view permission for the service account group to access to other project
+  Scenario: Could grant view permission for the service account group to access to other project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
     When I run the :new_project client command with:
@@ -154,7 +154,7 @@ Feature: ServiceAccount and Policy Managerment
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then the output should contain:
       | service "myapp" created |
     When I run the :policy_add_role_to_group client command with:
@@ -189,7 +189,7 @@ Feature: ServiceAccount and Policy Managerment
 
   # @author anli@redhat.com
   # @case_id 497375
-   Scenario: Could grant edit permission for the service account group to access to its own project
+  Scenario: Could grant edit permission for the service account group to access to its own project
     Given I have a project
     When I create a new application with:
       | image_stream | ruby         |
@@ -230,13 +230,13 @@ Feature: ServiceAccount and Policy Managerment
 
   # @author anli@redhat.com
   # @case_id 497376
-   Scenario: Could grant view permission for the service account group to access to its own project
+  Scenario: Could grant view permission for the service account group to access to its own project
     Given I have a project
     When I create a new application with:
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-  # TODO: anli, , this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: anli, , this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_group client command with:
@@ -270,7 +270,7 @@ Feature: ServiceAccount and Policy Managerment
 
   # @author anli@redhat.com
   # @case_id 497377
-   Scenario: Could grant edit permission for the service account username to access to other project
+  Scenario: Could grant edit permission for the service account username to access to other project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
     When I run the :new_project client command with:
@@ -286,12 +286,12 @@ Feature: ServiceAccount and Policy Managerment
       | role       | edit            |
       | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
     Then the step should succeed
-    
+
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample|
-  # TODO: anli, , this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: anli, , this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "database" service to be created
     Given I use the "<%= cb.project1 %>" project
     Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
@@ -303,7 +303,7 @@ Feature: ServiceAccount and Policy Managerment
     When I run the :deploy client command with:
       | deployment_config | database |
       | cancel             ||
-    Then the step should succeed   
+    Then the step should succeed
     And the output should contain "ancelled deployment"
 
     When I run the :policy_add_role_to_user client command with:
@@ -338,7 +338,7 @@ Feature: ServiceAccount and Policy Managerment
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample|
-  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "database" service to be created
     Given I use the "<%= cb.project1 %>" project
     Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
@@ -351,7 +351,7 @@ Feature: ServiceAccount and Policy Managerment
     When I run the :deploy client command with:
       | deployment_config | database |
       | cancel             ||
-    Then the step should fail   
+    Then the step should fail
     And the output should contain:
       | ser "system:serviceaccount:<%= cb.project1 %>:test1" cannot update |
 
@@ -366,7 +366,7 @@ Feature: ServiceAccount and Policy Managerment
 
   # @author anli@redhat.com
   # @case_id 497380
-   Scenario: Could grant edit permission for the service account username to access to its own project
+  Scenario: Could grant edit permission for the service account username to access to its own project
     Given I have a project
     Given I create the serviceaccount "test1"
     When I run the :policy_add_role_to_user client command with:
@@ -375,12 +375,12 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     Given I find a bearer token of the system:serviceaccount:<%= project.name %>:test1 service account
     Given I switch to the system:serviceaccount:<%= project.name %>:test1 service account
-    And I use the "<%= project.name %>" project 
+    And I use the "<%= project.name %>" project
     When I create a new application with:
       | image_stream | ruby         |
       | code         | https://github.com/openshift/ruby-hello-world |
       | name         | myapp         |
-  # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
+    # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "myapp" service to be created
     When I replace resource "dc" named "myapp" saving edit to "tmp_out.yaml":
       | replicas: 1 | replicas: 2 |
@@ -400,7 +400,7 @@ Feature: ServiceAccount and Policy Managerment
 
   # @author xiaocwan@redhat.com
   # @case_id 491400
-  Scenario:[origin_platformexp_407] Create pods without ImagePullSecrets will inherit the ImagePullSecrets from its service account.
+  Scenario: [origin_platformexp_407] Create pods without ImagePullSecrets will inherit the ImagePullSecrets from its service account.
     Given I have a project
     And I create the serviceaccount "myserviceaccount<%= project.name  %>"
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/a8c3f83d3aedfe6930d1b9f56b1e6e8fa42dcd89/pods/hello-pod.json"
@@ -420,7 +420,7 @@ Feature: ServiceAccount and Policy Managerment
 
   # @author xiaocwan@redhat.com
   # @case_id 490720
-  Scenario:Could grant admin permission for the service account group to access to other project
+  Scenario: Could grant admin permission for the service account group to access to other project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     And an 8 characters random string of type :dns is stored into the :project2 clipboard
     When I run the :new_project client command with:
@@ -459,7 +459,7 @@ Feature: ServiceAccount and Policy Managerment
       | role      | edit     |
       | user_name |  %= user(0, switch: false).name %> |
     Then the step should succeed
-    
+
   # @author xiaocwan@redhat.com
   # @case_id 490718
   Scenario: Could grant admin permission for the service account username to access to its own project
@@ -473,7 +473,7 @@ Feature: ServiceAccount and Policy Managerment
     When I run the :new_app client command with:
       | docker_image | openshift/hello-openshift |
     Then the step should succeed
-    
+
     When I run the :policy_add_role_to_user client command with:
       | role     | admin                                  |
       | user_name | system:serviceaccount:<%= cb.project1 %>:default |
@@ -497,7 +497,7 @@ Feature: ServiceAccount and Policy Managerment
     # pod will be here a little late, so delay this step to the end of case
     When I get project pods
     Then the output should contain:
-      | hello-openshift | 
+      | hello-openshift |
 
   # @author xxia@redhat.com
   # @case_id 511007
@@ -543,7 +543,7 @@ Feature: ServiceAccount and Policy Managerment
 
     When I get project services
     Then the output should contain:
-      | hello-openshift | 
+      | hello-openshift |
     ## this template is to create an application without any build
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployments_nobc_cpulimit.json"
     Then the step should succeed
@@ -618,17 +618,17 @@ Feature: ServiceAccount and Policy Managerment
 
   # @author xiacowan@redhat.com
   # @case_id 483279
-  Scenario:Check project service accounts and API tokens associated with the accounts
+  Scenario: Check project service accounts and API tokens associated with the accounts
     Given I have a project
     When I get project sa
     Then the output should contain:
       | default  |
-      | builder  | 
+      | builder  |
       | deployer |
     When I get project secret
     Then the output should contain:
       | default-token-  |
-      | builder-token-  | 
+      | builder-token-  |
       | deployer-token- |
     When I run the :describe client command with:
       | resource | secret |
@@ -653,7 +653,7 @@ Feature: ServiceAccount and Policy Managerment
   # @author wjiang@redhat.com
   # @case_id 520589
   Scenario: User can get the serviceaccount token via client
-    Given I have a project 
+    Given I have a project
     When I run the :serviceaccounts_get_token client command with:
       |serviceaccount_name| default|
     Then the step should succeed
@@ -686,7 +686,7 @@ Feature: ServiceAccount and Policy Managerment
   # @author wjiang@redhat.com
   # @case_id 520588
   Scenario: User can generate new token for specific serviceaccount via client
-    Given I have a project 
+    Given I have a project
     When I run the :serviceaccounts_new_token client command with:
       |serviceaccount_name|default|
     Then the step should succeed

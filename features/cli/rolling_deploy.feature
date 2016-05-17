@@ -149,7 +149,6 @@ Feature: rolling deployment related scenarios
     And the output should contain:
       | keep 2 pods available, don't exceed 5 pods |
 
-    
   # @author xiaocwan@redhat.com
   # @case_id 454716
   Scenario: Rollback to one component of previous deployment
@@ -165,7 +164,7 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "type": "Recreate"     |
@@ -184,7 +183,7 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "type": "Rolling"     |
@@ -193,15 +192,15 @@ Feature: rolling deployment related scenarios
 
     ## post rest request for curl new json
     When I perform the :rollback_deploy rest request with:
-        | project_name            | <%= project.name %> |
-        | deploy_name             | hooks-1 |
-        | includeTriggers         | false |
-        | includeTemplate         | true  |
-        | includeReplicationMeta  | false |
-        | includeStrategy         | false |
+      | project_name            | <%= project.name %> |
+      | deploy_name             | hooks-1 |
+      | includeTriggers         | false |
+      | includeTemplate         | true  |
+      | includeReplicationMeta  | false |
+      | includeStrategy         | false |
     Then the step should succeed
     And the output should contain:
-        | 201 |
+      | 201 |
     When I save the output to file>rollback.json
     And I run the :replace client command with:
       | f | rollback.json |
@@ -209,10 +208,9 @@ Feature: rolling deployment related scenarios
     And the output should contain:
       | replaced |
 
-   
   # @author xiaocwan@redhat.com
   # @case_id 454717
-  Scenario:[origin_runtime_509]Rollback to three components of previous deployment
+  Scenario: [origin_runtime_509]Rollback to three components of previous deployment
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
@@ -226,7 +224,7 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "type": "Recreate"     |
@@ -245,7 +243,7 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "type": "Rolling"     |
@@ -254,16 +252,16 @@ Feature: rolling deployment related scenarios
 
     ## post rest request for curl new json
     When I perform the :rollback_deploy rest request with:
-        | project_name            | <%= project.name %> |
-        | deploy_name             | hooks-1 |
-        | includeTriggers         | false |
-        | includeTemplate         | true  |
-        | includeReplicationMeta  | true  |
-        | includeStrategy         | true  |
+      | project_name            | <%= project.name %> |
+      | deploy_name             | hooks-1 |
+      | includeTriggers         | false |
+      | includeTemplate         | true  |
+      | includeReplicationMeta  | true  |
+      | includeStrategy         | true  |
     Then the step should succeed
     And the output should contain:
-        | 201 |
-   
+      | 201 |
+
     When I save the output to file>rollback.json
     And I run the :replace client command with:
       | f | rollback.json |
@@ -279,7 +277,7 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "type": "Recreate"     |
@@ -287,7 +285,7 @@ Feature: rolling deployment related scenarios
 
   # @author xiaocwan@redhat.com
   # @case_id 454718
-  Scenario:[origin_runtime_509]Rollback to two components of previous deployment
+  Scenario: [origin_runtime_509]Rollback to two components of previous deployment
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
@@ -301,7 +299,7 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "type": "Recreate"     |
@@ -320,7 +318,7 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "type": "Rolling"     |
@@ -329,16 +327,16 @@ Feature: rolling deployment related scenarios
 
     ## post rest request for curl new json
     When I perform the :rollback_deploy rest request with:
-        | project_name            | <%= project.name %> |
-        | deploy_name             | hooks-1 |
-        | includeTriggers         | false |
-        | includeTemplate         | true  |
-        | includeReplicationMeta  | true  |
-        | includeStrategy         | false |
+      | project_name            | <%= project.name %> |
+      | deploy_name             | hooks-1 |
+      | includeTriggers         | false |
+      | includeTemplate         | true  |
+      | includeReplicationMeta  | true  |
+      | includeStrategy         | false |
     Then the step should succeed
     And the output should contain:
-        | 201 |
-   
+      | 201 |
+
     When I save the output to file>rollback.json
     And I run the :replace client command with:
       | f | rollback.json |
@@ -354,14 +352,14 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "replicas": 1 |
 
   # @author xiaocwan@redhat.com
   # @case_id 454715
-  Scenario:[origin_runtime_509]Rollback to all components of previous deployment
+  Scenario: [origin_runtime_509]Rollback to all components of previous deployment
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
@@ -374,7 +372,7 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "type": "Recreate"     |
@@ -393,7 +391,7 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "type": "Rolling"     |
@@ -402,15 +400,15 @@ Feature: rolling deployment related scenarios
 
     ## post rest request for curl new json
     When I perform the :rollback_deploy rest request with:
-        | project_name            | <%= project.name %> |
-        | deploy_name             | hooks-1 |
-        | includeTriggers         | true  |
-        | includeTemplate         | true  |
-        | includeReplicationMeta  | true  |
-        | includeStrategy         | true  |
+      | project_name            | <%= project.name %> |
+      | deploy_name             | hooks-1 |
+      | includeTriggers         | true  |
+      | includeTemplate         | true  |
+      | includeReplicationMeta  | true  |
+      | includeStrategy         | true  |
     Then the step should succeed
     And the output should contain:
-        | 201 |
+      | 201 |
     When I save the output to file>rollback.json
     And I run the :replace client command with:
       | f | rollback.json |
@@ -426,7 +424,7 @@ Feature: rolling deployment related scenarios
       | hooks                 |
     When I run the :get client command with:
       | resource      | dc    |
-      | resource_name | hooks |     
+      | resource_name | hooks |
       | o             |  json |
     Then the output should contain:
       | "type": "Recreate"     |

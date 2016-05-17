@@ -1,6 +1,6 @@
 Feature: services related feature on web console
 
-  # @author: wsun@redhat.com
+  # @author wsun@redhat.com
   # @case_id 477695
   Scenario: Access services from web console
     Given I login via web console
@@ -20,7 +20,7 @@ Feature: services related feature on web console
       | routes       | www.hello.com       |
       | target_port  | 5555                |
     Then the step should succeed
-    When I replace resource "route" named "hello-route": 
+    When I replace resource "route" named "hello-route":
       | www.hello.com | www.hello2.com |
     Then the step should succeed
     When I perform the :check_one_service_page web console action with:
@@ -68,7 +68,7 @@ Feature: services related feature on web console
       | object_name_or_id | hello-service |
       | n | <%= project.name %> |
     Then the step should succeed
-    When I perform the :check_deleted_service web console action with: 
+    When I perform the :check_deleted_service web console action with:
       | project_name    | <%= project.name %> |
       | service_name    | hello-service       |
       | service_warning | The service details could not be loaded |

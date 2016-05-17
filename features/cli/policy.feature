@@ -128,9 +128,9 @@ Feature: change the policy of user/service account
     Then the step should succeed
     #clean-up clusterrole
     And I register clean-up steps:
-     | I run the :delete admin command with: |
-     |   ! f ! https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/clustergetproject.json ! |
-     | the step should succeed               |
+      | I run the :delete admin command with: |
+      |   ! f ! https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/clustergetproject.json ! |
+      | the step should succeed               |
     When admin creates a project
     Then the step should succeed
     When I run the :oadm_add_role_to_user admin command with:
@@ -146,7 +146,7 @@ Feature: change the policy of user/service account
   # @author xiaocwan@redhat.com
   # @case_id 470662
   @admin
-  Scenario:[origin_platformexp_239] The page should have error notification popup when got error during archiving resources of project from server
+  Scenario: [origin_platformexp_239] The page should have error notification popup when got error during archiving resources of project from server
     Given admin creates a project
 
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/getlistwatch_projNamespace.json"
@@ -209,8 +209,8 @@ Feature: change the policy of user/service account
 
     When I switch to the second user
     And I run the :get client command with:
-    | resource          | service |
-    | n                 | default |
+      | resource          | service |
+      | n                 | default |
     Then the step should succeed
     When I run the :policy_who_can admin command with:
       | verb                   | delete   |
@@ -222,7 +222,7 @@ Feature: change the policy of user/service account
   # @author xiaocwan@redhat.com
   # @case_id 470309
   @admin
-  Scenario:[origin_platformexp_279]Project bindings only work against the intended project
+  Scenario: [origin_platformexp_279]Project bindings only work against the intended project
     Given a 5 characters random string of type :dns is stored into the :project_1 clipboard
     When I run the :new_project client command with:
       | project_name | <%= cb.project_1 %> |
@@ -266,7 +266,7 @@ Feature: change the policy of user/service account
 
   # @author xiaocwan@redhat.com
   # @case_id 467926
-  Scenario:[origin_platformexp_214] User can view, add , modify and delete specific role to/from new added project via admin role user
+  Scenario: [origin_platformexp_214] User can view, add , modify and delete specific role to/from new added project via admin role user
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/projectviewservice.json"
     And I replace lines in "projectviewservice.json":
@@ -310,7 +310,7 @@ Feature: change the policy of user/service account
       | object_name_or_id | deploy                  |
     Then the step should succeed
     And the output should contain:
-      | deleted          |    
+      | deleted          |
     When I run the :describe client command with:
       | namespace    | <%= project.name %>          |
       | resource     | policy                       |
@@ -323,7 +323,7 @@ Feature: change the policy of user/service account
   # @author xiaocwan@redhat.com
   # @case_id 490721
   @admin
-  Scenario:[origin_platformexp_340]The builder service account only has get/update access to image streams in its own project
+  Scenario: [origin_platformexp_340]The builder service account only has get/update access to image streams in its own project
     Given a 5 characters random string of type :dns is stored into the :proj1 clipboard
     When I run the :new_project client command with:
       | project_name  | <%= cb.proj1 %>      |
@@ -332,50 +332,50 @@ Feature: change the policy of user/service account
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
     When I run the :policy_who_can client command with:
-    | verb     |  get                        |
-    | resource |  imagestreams/layers        |
+      | verb     |  get                        |
+      | resource |  imagestreams/layers        |
     Then the step should succeed
     And the output should contain:
-    | system:serviceaccount:<%= cb.proj1 %>:builder  |
-    | system:serviceaccounts:<%= cb.proj1 %>         |
+      | system:serviceaccount:<%= cb.proj1 %>:builder  |
+      | system:serviceaccounts:<%= cb.proj1 %>         |
     When I run the :policy_who_can client command with:
-    | verb     |  update                     |
-    | resource |  imagestreams/layers        |
+      | verb     |  update                     |
+      | resource |  imagestreams/layers        |
     Then the step should succeed
     And the output should contain:
-    | system:serviceaccount:<%= cb.proj1 %>:builder  |
+      | system:serviceaccount:<%= cb.proj1 %>:builder  |
     When I create a new project
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
     When I run the :policy_who_can client command with:
-    | verb     |  get                        |
-    | resource |  imagestreams/layers        |
+      | verb     |  get                        |
+      | resource |  imagestreams/layers        |
     Then the step should succeed
     And the output should not contain:
-    | system:serviceaccount:<%= cb.proj1 %>:builder  |
-    | system:serviceaccounts:<%= cb.proj1 %>         |
+      | system:serviceaccount:<%= cb.proj1 %>:builder  |
+      | system:serviceaccounts:<%= cb.proj1 %>         |
     When I run the :policy_who_can client command with:
-    | verb     |  update                     |
-    | resource |  imagestreams/layers        |
+      | verb     |  update                     |
+      | resource |  imagestreams/layers        |
     Then the step should succeed
     And the output should not contain:
-    | system:serviceaccount:<%= cb.proj1 %>:builder  |
+      | system:serviceaccount:<%= cb.proj1 %>:builder  |
     When I run the :oadm_policy_who_can admin command with:
-    | verb     |  get                        |
-    | resource |  imagestreams               |
-    | all_namespaces | false                 |
+      | verb     |  get                        |
+      | resource |  imagestreams               |
+      | all_namespaces | false                 |
     Then the step should succeed
     And the output should contain:
-    | Namespace: default  |
+      | Namespace: default  |
     When I run the :oadm_policy_who_can admin command with:
-    | verb     |  get                        |
-    | resource |  imagestreams               |
-    | all_namespaces | true                  |
+      | verb     |  get                        |
+      | resource |  imagestreams               |
+      | all_namespaces | true                  |
     Then the step should succeed
     And the output should contain:
-    | Namespace: <all>  |
+      | Namespace: <all>  |
 
   # @author anli@redhat.com
   # @case_id 470302

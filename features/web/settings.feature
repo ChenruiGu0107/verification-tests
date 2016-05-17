@@ -1,6 +1,6 @@
 Feature: check settings page on web console
-  #@author: yapei@redhat.com
-  #@case_id: 470357
+  # @author yapei@redhat.com
+  # @case_id 470357
   @admin
   Scenario: create project limit and quota, check settings on web console
     # create project on web console

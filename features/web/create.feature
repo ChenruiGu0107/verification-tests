@@ -36,7 +36,7 @@ Feature: create app on web console related
       | NAME              |
       | ruby-sample-build |
       | frontend          |
-      | database          |   
+      | database          |
     When I run the :delete client command with:
       | object_type | all  |
       | l           | label1=test |
@@ -110,7 +110,7 @@ Feature: create app on web console related
     Given the "python-sample-another-1" build completed
     Given I wait for the "python-sample-another" service to become ready
     And I wait for a server to become available via the "python-sample-another" route
-  
+
   # @author xxing@redhat.com
   # @case_id 470453
   Scenario: Create application from template with invalid parameters on web console
@@ -226,7 +226,6 @@ Feature: create app on web console related
     When I get the html of the web page
     Then the output should contain:
       | This name is already in use within the project. Please choose a different name. |
-
 
   # @author yanpzhan@redhat.com
   # @case_id 498145
@@ -354,7 +353,7 @@ Feature: create app on web console related
       | label_value   | test   |
     Then the step should fail
     When I get the html of the web page
-    Then the output should match: 
+    Then the output should match:
       | API version v1beta3.* is not supported |
 
   # @author xiaocwan@redhat.com
@@ -399,7 +398,7 @@ Feature: create app on web console related
       | namespace    | <%= project.name %> |
       | target_port  | 5858/TCP |
     Then the step should succeed
- 
+
     When I perform the :check_port_on_create_page web console action with:
       | project_name | <%= project.name %>    |
       | image_name   | nodejs |

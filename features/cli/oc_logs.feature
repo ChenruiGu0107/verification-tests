@@ -1,6 +1,6 @@
 Feature: oc logs related features
-  #@ author wzheng@redhat.com
-  #@case_id 438848
+  # @author wzheng@redhat.com
+  # @case_id 438848
   Scenario: Get buildlogs with invalid parameters
     Given I have a project
     When I run the :logs client command with:
@@ -12,33 +12,33 @@ Feature: oc logs related features
     Then the step should fail
     And the output should contain "resource name may not be empty"
 
-  #@author xxia@redhat.com
-  #@case_id 512022
+  # @author xxia@redhat.com
+  # @case_id 512022
   Scenario: oc logs for a resource with miscellaneous options
     Given I have a project
     When I create a new application with:
-     | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     When I run the :create client command with:
-     | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/double_containers.json |
+      | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/double_containers.json |
     Then the step should succeed
     When I run the :create client command with:
-     | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
     Then the step should succeed
 
     Given the pod named "doublecontainers" becomes ready
     When I run the :logs client command with:
-     | resource_name    | pod/doublecontainers |
-     | c                | hello-openshift      |
+      | resource_name    | pod/doublecontainers |
+      | c                | hello-openshift      |
     Then the step should succeed
     When I run the :logs client command with:
-     | resource_name    | pod/doublecontainers |
-     | c                | no-this              |
+      | resource_name    | pod/doublecontainers |
+      | c                | no-this              |
     Then the step should fail
 
     Given the pod named "hello-openshift" becomes ready
     When I run the :logs client command with:
-     | resource_name    | pod/hello-openshift  |
-     | limit-bytes      | 5                    |
+      | resource_name    | pod/hello-openshift  |
+      | limit-bytes      | 5                    |
     Then the step should succeed
     And the expression should be true> @result[:response].length == 5
 
@@ -46,58 +46,58 @@ Feature: oc logs related features
     Given I wait for the steps to pass:
     """
     When I run the :logs client command with:
-     | resource_name    | pod/hello-openshift  |
-     | timestamps       |                      |
-     | since            | 3h                   |
+      | resource_name    | pod/hello-openshift  |
+      | timestamps       |                      |
+      | since            | 3h                   |
     Then the step should succeed
     And the output should match:
-     | T[0-9:.]+Z |
+      | T[0-9:.]+Z |
     And evaluation of `@result[:response]` is stored in the :logs clipboard
     """
     And 2 seconds have passed
     # Once met cucumber ran fast: previous `oc logs` printed "2016-03-07T06:18:33...Z serving on 8080", and following `oc logs` was run at "[06:18:34] INFO> Shell Commands" and printed the same logs
     # Thus, "2 seconds have passed" could make scripts robuster
     When I run the :logs client command with:
-     | resource_name    | pod/hello-openshift  |
-     | timestamps       |                      |
-     | since            | 1s                   |
+      | resource_name    | pod/hello-openshift  |
+      | timestamps       |                      |
+      | since            | 1s                   |
     Then the step should succeed
     # Only logs newer than given time will be shown
     And the output should not contain "<%= cb.logs %>"
     When I run the :logs client command with:
-     | resource_name    | pod/hello-openshift  |
-     | timestamps       |                      |
-     | since-time       | 2000-01-01T00:00:00Z |
+      | resource_name    | pod/hello-openshift  |
+      | timestamps       |                      |
+      | since-time       | 2000-01-01T00:00:00Z |
     Then the step should succeed
     And the output should match:
-     | T[0-9:.]+Z |
+      | T[0-9:.]+Z |
 
     # Only one of "--since" and "--since-time" can be used
     When I run the :logs client command with:
-     | resource_name    | pod/hello-openshift  |
-     | since            | 2m                   |
-     | since-time       | 2000-01-01T00:00:00Z |
+      | resource_name    | pod/hello-openshift  |
+      | since            | 2m                   |
+      | since-time       | 2000-01-01T00:00:00Z |
     Then the step should fail
 
     Given the "ruby-sample-build-1" build finished
     When I run the :logs client command with:
-     | resource_name    | bc/ruby-sample-build |
-     | version          | 1                    |
+      | resource_name    | bc/ruby-sample-build |
+      | version          | 1                    |
     Then the step should succeed
     When I run the :logs client command with:
-     | resource_name    | bc/ruby-sample-build |
-     | version          | 5                    |
+      | resource_name    | bc/ruby-sample-build |
+      | version          | 5                    |
     Then the step should fail
     And the output should contain:
-     | not found |
+      | not found |
 
     When I run the :logs client command with:
-     | resource_name    | pod/hello-openshift  |
-     | since-time       | #@234                |
+      | resource_name    | pod/hello-openshift  |
+      | since-time       | #@234                |
     Then the step should fail
 
-  # @author: xiaocwan@redhat.com
-  # @case_id: 519497
+  # @author xiaocwan@redhat.com
+  # @case_id 519497
   Scenario: Debug pod with oc debug
     Given I have a project
     When I run the :create client command with:
@@ -113,8 +113,8 @@ Feature: oc logs related features
       | [Ww]aiting for pod to start |
       | [Rr]emoving debug pod       |
 
-  # @author: xiaocwan@redhat.com
-  # @case_id: 519503
+  # @author xiaocwan@redhat.com
+  # @case_id 519503
   Scenario: Debug the resource with keeping the original pod info
     Given I have a project
     When I run the :create client command with:
@@ -131,7 +131,7 @@ Feature: oc logs related features
       | openshift.io/deployment-config.latest-version:.*1              |
       | openshift.io/deployment-config.name:\\stest-deployment-config  |
       | openshift.io/deployment.name:\\s+test-deployment-config-1      |
-    
+
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-with-probe.yaml |
     Then the step should succeed
@@ -145,8 +145,8 @@ Feature: oc logs related features
     And the output should match:
       | livenessProbe:\\s+failureThreshold: |
 
-  # @author: xiaocwan@redhat.com
-  # @case_id: 519561
+  # @author xiaocwan@redhat.com
+  # @case_id 519561
   Scenario: Use oc debug with misc flags
     Given I have a project
     When I run the :create client command with:
@@ -154,7 +154,7 @@ Feature: oc logs related features
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=dctest-1 |
-    When I run the :debug client command with:  
+    When I run the :debug client command with:
       | resource       | dc/dctest       |
       | c              | dctest-2        |
       | one_container  | true            |

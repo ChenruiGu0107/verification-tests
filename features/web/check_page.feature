@@ -35,20 +35,20 @@ Feature: check page info related
       | xpath | //div/ul/li[1]/a[@tabindex="0"] |
     Then the output should contain "Test"
     When I perform the :check_project_without_quota_settings web console action with:
-      | project_name | <%= project.name %> |      
+      | project_name | <%= project.name %> |
     When I get the html of the web page
     Then the output should match:
       | <div.+Test |
 
   # @author cryan@redhat.com
-  # case_id 467928
+  # @case_id 467928
   Scenario: Check the login url in config.js
     When I download a file from "<%= env.api_endpoint_url %>/console/config.js"
     Then the step should succeed
     And the output should match "oauth_authorize_uri:\s+"https?:\/\/.+""
 
   # @author wsun@redhat.com
-  # case_id 479002
+  # @case_id 479002
   Scenario: Check Events page
     Given I login via web console
     Given I have a project
@@ -71,7 +71,7 @@ Feature: check page info related
       | project_name | <%= project.name %> |
     Then the step should succeed
   # @author yapei@redhat.com
-  # case_id 457796
+  # @case_id 457796
   Scenario: Check home page to list user projects
     Given I login via web console
     When I get the html of the web page
@@ -90,7 +90,7 @@ Feature: check page info related
       | <%= cb.prj_name %> |
 
   # @author yanpzhan@redhat.com
-  # case_id 515689
+  # @case_id 515689
   Scenario: Check storage page on web console
     When I create a new project via web
     Then the step should succeed
@@ -106,12 +106,12 @@ Feature: check page info related
 
     When I get project PersistentVolumeClaim as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :pvc_name clipboard
- 
+
     Then I perform the :check_pvcs_on storage_page web console action with:
       | project_name | <%= project.name %> |
       | pvc_name     | <%= cb.pvc_name %> |
     Then the step should succeed
-   
+
     When I perform the :check_one_pvc_detail web console action with:
       | project_name | <%= project.name %> |
       | pvc_name     | <%= cb.pvc_name %> |

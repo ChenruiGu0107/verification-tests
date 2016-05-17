@@ -24,8 +24,8 @@ Feature: Testing CLI Scenarios
       | object_name_or_id | demo |
     Then the step should succeed
 
-  # actually, because of user clean-up relying on cli, we never run REST
-  #   requests before we run cli requests
+    # actually, because of user clean-up relying on cli, we never run REST
+    #   requests before we run cli requests
   Scenario: rest request before cli
     Given I perform the :delete_project rest request with:
       | project name | demo |
@@ -40,11 +40,11 @@ Feature: Testing CLI Scenarios
   Scenario: noescape, literal and false rules executor features
     When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg | help create |
-      # we fail because "help create" is treated as a single option
+    # we fail because "help create" is treated as a single option
     Then the step should fail
     When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg | noescape: help create |
-      # here noescape prevents that
+    # here noescape prevents that
     Then the step should succeed
     When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg | literal: :false |
@@ -89,7 +89,7 @@ Feature: Testing CLI Scenarios
       | opt      | 6030  |
       | opt      | noescape: # |
     Then the step should succeed
-      # now check the sleep command is killed after scenario end
+    # now check the sleep command is killed after scenario end
 
   @test_bg
   Scenario: background and timeout 2

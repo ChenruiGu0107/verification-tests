@@ -1,10 +1,10 @@
 Feature: scale related features
-  # @author: yanpzhan@redhat.com
-  # @case_id: 510220
+  # @author yanpzhan@redhat.com
+  # @case_id 510220
   Scenario: Could scale up and down on overview page
     When I create a new project via web
     Then the step should succeed
-    
+
     #Create pod with dc
     Given I use the "<%= project.name %>" project
     When I run the :run client command with:
@@ -60,7 +60,7 @@ Feature: scale related features
       | scaled_number | 12 |
     Then the step should succeed
 
-    #scale down 10 times   
+    #scale down 10 times
     Given I run the steps 10 times:
     """
     When I run the :scale_down_once web console action
@@ -76,11 +76,11 @@ Feature: scale related features
     #scale down to 0
     When I run the :scale_down_once web console action
     Then the step should succeed
-    
+
     When I run the :cancel_scale_down_to_zero web console action
     Then the step should succeed
     And I perform the :check_pod_scaled_numbers web console action with:
-      | scaled_number | 1 | 
+      | scaled_number | 1 |
     When I run the :scale_down_to_zero web console action
     Then the step should succeed
 
