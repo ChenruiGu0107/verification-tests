@@ -209,4 +209,38 @@ Feature: buildlogic.feature
       | strategy       | template                                                                                                                   |
       | dockerStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStreamImage.json |
       | sourceStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStreamImage.json    |
-
+  # @author yantan@redhat.com
+  # @case_id 515252
+  Scenario:Build with specified Dockerfile to image with same image name via new-build 
+    Given I have a project
+    Then I use the "<%= project.name %>" project
+    And I run the :new_build client command with:
+      | D | FROM centos:7\nRUN yum install -y httpd     |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource      | bc |
+      | name | centos      |
+    Then the output should contain:
+      | From Image:		ImageStreamTag centos:7 |
+      | Output to:		ImageStreamTag centos:latest |
+    Given the "centos-1" build becomes :complete
+    When I run the :new_build client command with:
+      | D  | FROM centos:7\nRUN yum install -y httpd     |
+      | to | centos:7 |
+      | name | myapp |
+    When I run the :get client command with:
+      | resource | buildConfig |
+    Then the output should contain:
+      | myapp |
+    Given the "myapp-1" build becomes :complete
+    Given the "myapp-2" build becomes :complete
+    Given the "myapp-3" build becomes :running
+    When I run the :new_build client command with:
+      | code | https://github.com/openshift/nodejs-ex.git      |
+      | image_stream | openshift/nodejs:0.10                     |
+      | code | https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:2.0                        |
+      | to       | centos:7                                      |
+    Then the step should fail
+    And the output should contain:
+      | error |  
