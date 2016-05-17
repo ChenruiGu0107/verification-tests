@@ -245,7 +245,6 @@ Feature: resouces related scenarios
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
     Then the step should succeed
 
-
     When I run the :get admin command with:
       | resource         | build |
       | all_namespace    | true |

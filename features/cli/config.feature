@@ -133,7 +133,6 @@ Feature: config related scenarios
       | http://horse.org:8080 |
       | http://pig.org:8080 |
 
-
   # @author pruan@redhat.com
   # @case_id 470725
   Scenario: set credentials in config file

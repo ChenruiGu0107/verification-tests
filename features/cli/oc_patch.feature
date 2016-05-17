@@ -37,7 +37,6 @@ Feature: oc patch related scenarios
     And the output should contain "newtemp value1 3"
     """
 
-
   # @author xxia@redhat.com
   # @case_id 507674
   Scenario: oc patch to update resource fields using JSON format
@@ -60,7 +59,6 @@ Feature: oc patch related scenarios
     Then the step should succeed
     And the output should contain "2"
     """
-
 
     When I run the :patch client command with:
       | resource      | bc                      |

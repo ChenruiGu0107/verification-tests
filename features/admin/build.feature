@@ -169,7 +169,6 @@ Feature: admin build related features
       # some builds will succeed, some will fail so can't match exact numbers
       | <%= project.name %>\\s*ruby-sample-build- |
 
-
     When I save pruned builds in the "<%= project.name %>" project into the :pruned2 clipboard
     Then the expression should be true> cb.pruned1.to_set == cb.pruned2.to_set
 

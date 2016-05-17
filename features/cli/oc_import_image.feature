@@ -43,7 +43,6 @@ Feature: oc import-image related feature
       | o               | yaml              |
     Then the output should contain "tag: <%= cb.tag_name %>"
 
-
   # @author chaoyang@redhat.com
   # @case_id 474368
   Scenario: [origin_infrastructure_319]Do not create tags for ImageStream if image repository does not have tags

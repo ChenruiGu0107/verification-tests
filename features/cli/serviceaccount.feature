@@ -100,7 +100,6 @@ Feature: ServiceAccount and Policy Managerment
     When I give project admin role to the deployer service account
     Then the step should fail
 
-
   # @author anli@redhat.com
   # @case_id 497373
   Scenario: Could grant edit permission for the service account group to access to other project
@@ -228,7 +227,6 @@ Feature: ServiceAccount and Policy Managerment
       | role  | edit     |
       | user_name |  %= user(0, switch: false).name %> |
     Then the step should fail
-
 
   # @author anli@redhat.com
   # @case_id 497376
@@ -685,7 +683,6 @@ Feature: ServiceAccount and Policy Managerment
       |eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9|
       |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
 
-
   # @author wjiang@redhat.com
   # @case_id 520588
   Scenario: User can generate new token for specific serviceaccount via client
@@ -742,5 +739,4 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
     Then the output should contain:
       |system:serviceaccount:<%= project.name %>:<%= cb.serviceaccount_name %>|
-
 

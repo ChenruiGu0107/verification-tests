@@ -111,7 +111,6 @@ Feature: oc_volume.feature
       |   secret:                  |
       |     secretName: my-secret  |   
 
-
   # @author xxia@redhat.com
   # @case_id 491428
   Scenario: Add gitRepo volume to pod, dc and rc
@@ -239,7 +238,6 @@ Feature: oc_volume.feature
     Then the step should succeed
     # Using equality may be more reliable to discover future possible bug than just using "The output should (not) contain"
     And the output should equal "<%= cb.output %>"
-
 
   # @author gpei@redhat.com
   # @case_id 491435

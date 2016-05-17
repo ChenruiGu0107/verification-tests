@@ -175,7 +175,6 @@ Feature: buildlogic.feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-dockerimage.json      |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-dockerimage.json         |
 
-
   # @author haowang@redhat.com
   # @case_id  497462 497463
   Scenario Outline: ForcePull image for build using ImageSteamImage

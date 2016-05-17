@@ -24,7 +24,6 @@ Feature:Create apps using new_app cmd feature
       | openshift/jboss-webserver30-tomcat7-openshift:latest |
       | openshift/jboss-webserver30-tomcat8-openshift:latest |
 
-
   # @author xiuwang@redhat.com
   # @case_id 476349
   Scenario: Application with ruby-20-rhel7 base images lifecycle

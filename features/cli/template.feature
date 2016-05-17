@@ -124,7 +124,6 @@ Feature: template related scnearios:
       | redhat=rocks                                            |
       | label1=value1,label2=value2,label3=value3,label4=value4 |
 
-
   # @author xiuwang@redhat.com
   # @case_id 474042
   Scenario: Override/set/get values for multiple parameters

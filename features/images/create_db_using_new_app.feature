@@ -41,9 +41,6 @@ Feature:Create db using new_app cmd feature
      | mysql:5.6         |
      | mysql:5.5         |
 
-
-
-
  # @auther dyan@redhat.com
  # @case_id 508979, 515707
  Scenario Outline: Create mongodb resources from imagestream via oc new-app

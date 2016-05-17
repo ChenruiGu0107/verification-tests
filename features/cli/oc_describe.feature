@@ -105,7 +105,6 @@ Feature: Return description with cli
       Then the output should contain:
       | unknown command "des" for "oc" |
 
-
   # @author yadu@redhat.com
   # @case_id 510223
   Scenario: Disable v1beta3 in REST API
