@@ -260,3 +260,42 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes :bound within 900 seconds
     And the PV becomes :bound
+
+  # @author jhou@redhat.com
+  # @case_id 497695
+  @admin @destructive
+  Scenario: Share NFS with multiple pods with ReadWriteMany mode
+    Given I have a project
+    And I have a NFS service in the project
+
+    # Preparations
+    And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-retain.json" where:
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
+      | ["spec"]["volumeName"] | <%= pv.name %> |
+    And the PV becomes :bound
+
+    # Create a replication controller
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/rc.yml |
+    Then the step should succeed
+
+    # The replication controller creates 2 pods
+    Given 2 pods become ready with labels:
+      | name=hellopod |
+
+    When I execute on the "<%= pod(-1).name %>" pod:
+      | touch | /mnt/nfs/testfile_1 |
+    Then the step should succeed
+
+    When I execute on the "<%= pod(-2).name %>" pod:
+      | touch | /mnt/nfs/testfile_2 |
+    Then the step should succeed
+
+    # Finally verify both files created by each pod are under the same export dir in the nfs-server pod
+    When I execute on the "nfs-server" pod:
+      | ls | /mnt/data |
+    Then the output should contain:
+      | testfile_1 |
+      | testfile_2 |
