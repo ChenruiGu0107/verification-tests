@@ -594,14 +594,14 @@ Feature: build 'apps' with CLI
       | buildconfig | nodejs-ex |
       | from_dir    | nodejs-ex |
     Given I wait for the steps to pass:
-      """
-      Given the pod named "nodejs-ex-2-build" is present
-      """
+    """
+    Given the pod named "nodejs-ex-2-build" is present
+    """
     Given the pod named "nodejs-ex-2-build" status becomes :succeeded
     Given the "tmp/test/testfile" file is created with the following lines:
-      """
-      This is a test!
-      """
+    """
+    This is a test!
+    """
     And I run the :start_build client command with:
       | buildconfig | nodejs-ex |
       | from_dir    | tmp/test |
@@ -1783,3 +1783,74 @@ Feature: build 'apps' with CLI
       | from_repo   | no-exit  |
       | commit      | <%= cb.git_commit_id %> |
     Then the step should fail
+
+  # @author yantan@redhat.com
+  # @case_id 483593
+  Scenario: Sync pod status after delete its related build
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/php-56-rhel7-stibuild.json |
+    Then the step should succeed
+    Given the "php-sample-build-1" build becomes :pending
+    When I run the :delete client command with:
+      | object_type | build |
+      | object_name_or_id| php-sample-build-1 |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the step should succeed
+    And the output should not contain "php"
+    """
+    And I wait for the steps to pass:
+    """
+    When I get project replicationcontroller
+    Then the output should not contain "frontend"
+    """
+    When I run the :start_build client command with:
+      | buildconfig | php-sample-build |
+    Given the "php-sample-build-2" build becomes :running
+    When I get project pods
+    Then the output should contain "php"
+    When I run the :delete client command with:
+      | object_type | build|
+      | object_name_or_id | php-sample-build-2 |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the step should succeed
+    And the output should not contain "php"
+    """
+    When I run the :start_build client command with:
+       | buildconfig | php-sample-build |
+    Given the "php-sample-build-3" build becomes :complete
+    Given the pod named "php-sample-build-3-build" status becomes :succeeded
+    When I get project pods
+    Then the output should contain "php"
+    When I run the :delete client command with:
+       | object_type | build |
+       | object_name_or_id | php-sample-build-3 |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should not contain "php"
+    """
+    When I replace resource "bc" named "php-sample-build":
+      | https://github.com/openshift-qe/php-example-app | https://github.com/openshift-qe/php-example-apptest |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | php-sample-build |
+    Given the "php-sample-build-4" build becomes :failed
+    When I get project pods
+    Then the output should contain "php"
+    When I run the :delete client command with:
+      | object_type | build |
+      | object_name_or_id |  php-sample-build-4|
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should not contain "php"
+    """
