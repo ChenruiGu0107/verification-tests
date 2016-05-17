@@ -33,9 +33,8 @@ Feature: Quota related scenarios
       | tc509092 | pod-request-limit-valid-1.yaml | pod-request-limit-valid-1 | cpu\\s+500m\\s+30 | memory\\s+(536870912\|512Mi)\\s+16Gi |
       | tc509093 | pod-request-limit-valid-2.yaml | pod-request-limit-valid-2 | cpu\\s+200m\\s+30 | memory\\s+(268435456\|256Mi)\\s+16Gi |
 
-
-# @author qwang@redhat.com
-# @case_id 509096
+  # @author qwang@redhat.com
+  # @case_id 509096
   @admin
   Scenario: The quota usage should NOT be incremented if Requests and Limits aren't specified
     Given I have a project
@@ -63,9 +62,8 @@ Feature: Quota related scenarios
       | cpu\\s+0\\s+30      |
       | memory\\s+0\\s+16Gi |
 
-
-# @author qwang@redhat.com
-# @case_id 509095
+  # @author qwang@redhat.com
+  # @case_id 509095
   @admin
   Scenario: The quota usage should NOT be incremented if Requests > Limits
     Given I have a project
@@ -95,9 +93,8 @@ Feature: Quota related scenarios
       | cpu\\s+0\\s+30      |
       | memory\\s+0\\s+16Gi |
 
-
-# @author qwang@redhat.com
-# @case_id 509094
+  # @author qwang@redhat.com
+  # @case_id 509094
   @admin
   Scenario: The quota usage should NOT be incremented if Requests = Limits but exceeding hard quota
     Given I have a project
@@ -125,11 +122,10 @@ Feature: Quota related scenarios
       | cpu\\s+0\\s+30      |
       | memory\\s+0\\s+16Gi |
 
-
   # @author xiaocwan@redhat.com
   # @case_id 516457
   @admin
-  Scenario:when the deployment can not be created due to a quota limit will get event from original report
+  Scenario: when the deployment can not be created due to a quota limit will get event from original report
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml"
     And I replace lines in "quota.yaml":
@@ -155,7 +151,7 @@ Feature: Quota related scenarios
   # @author xiaocwan@redhat.com
   # @case_id 481679
   @admin
-  Scenario:DeploymentConfig should not allow the specification(which exceed resource quota) of resource requirements
+  Scenario: DeploymentConfig should not allow the specification(which exceed resource quota) of resource requirements
     Given I have a project
     When I run the :create admin command with:
       | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml  |
@@ -173,15 +169,15 @@ Feature: Quota related scenarios
     When I get project pods
     Then the output should contain:
       | database-1-deploy |
-    
-    # update dc to be exceeded and triggered deplyment 
+
+    # update dc to be exceeded and triggered deplyment
     Given I replace resource "dc" named "database" saving edit to "database2.yaml":
       | cpu: 20m     | cpu:    1020m |
       | memory: 50Mi | memory: 760Mi |
     When I get project pods
     Then the output should not contain:
       | database-2-deploy |
-    
+
     # trigger deployment manually according to the case step
     When I wait until the status of deployment "database" becomes :complete
     When I run the :deploy client command with:
@@ -194,7 +190,7 @@ Feature: Quota related scenarios
       | database-2-deploy |
 
     When I get project events
-    # here comes a bug which fail the last step - 1317783 
+    # here comes a bug which fail the last step - 1317783
     Then the output should match:
       | pods "database-\\d+-deploy" is forbidden |
       | aximum memory usage.*is 750Mi.*limit is 796917760 |
@@ -213,7 +209,7 @@ Feature: Quota related scenarios
       | f        | quota.yaml          |
       | n        | <%= project.name %> |
     Then the step should succeed
-  
+
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/xiaocwan/v3-testfiles/master/pods/hello-pod.json |
     Then the step should fail
@@ -319,7 +315,7 @@ Feature: Quota related scenarios
   # @author xiaocwan@redhat.com
   # @case_id 481681
   @admin
-  Scenario:There is log event for deployment when they fail due to quota limits
+  Scenario: There is log event for deployment when they fail due to quota limits
     Given I have a project
     When I run the :create admin command with:
       | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml  |
@@ -335,14 +331,14 @@ Feature: Quota related scenarios
       | eployment.*onfig\\s+"database".*reated |
     When I get project pods
     Then the output should contain:
-      | database-1-deploy |   
-    # update dc to be exceeded and triggered deplyment 
+      | database-1-deploy |
+    # update dc to be exceeded and triggered deplyment
     Given I replace resource "dc" named "database" saving edit to "database2.yaml":
       | cpu: 20m     | cpu:    1020m |
       | memory: 50Mi | memory: 760Mi |
     When I get project pods
     Then the output should not contain:
-      | database-2-deploy |   
+      | database-2-deploy |
     When I wait until the status of deployment "database" becomes :complete
     When I run the :deploy client command with:
       | deployment_config | database |
@@ -363,7 +359,7 @@ Feature: Quota related scenarios
   # @author xiaocwan@redhat.com
   # @case_id 481678
   @admin
-  Scenario:Buildconfig should support providing cpu and memory usage
+  Scenario: Buildconfig should support providing cpu and memory usage
     Given I have a project
     When I run the :create admin command with:
       | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml  |
@@ -399,8 +395,7 @@ Feature: Quota related scenarios
     Then the output should match:
       | pods "ruby-sample-build-3-build" is forbidden |
       | aximum memory usage.*is 750Mi.*limit is 796917760 |
-      | aximum cpu usage.*is 500m.*limit is 1020m |  
-
+      | aximum cpu usage.*is 500m.*limit is 1020m |
 
   # @author qwang@redhat.com
   # @case_id 520702
@@ -470,7 +465,6 @@ Feature: Quota related scenarios
       | name     | quota-besteffort |
     Then the output should match:
       | pods\\s+0\\s+2 |
-
 
   # @author qwang@redhat.com
   # @case_id 520703
@@ -561,7 +555,6 @@ Feature: Quota related scenarios
       | requests.cpu\\s+0\\s+2      |
       | requests.memory\\s+0\\s+1Gi |
 
-
   # @author qwang@redhat.com
   # @case_id 520704
   @admin
@@ -638,7 +631,6 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+2              |
       | requests.cpu\\s+0\\s+2      |
       | requests.memory\\s+0\\s+1Gi |
-
 
   # @author qwang@redhat.com
   # @case_id 520705

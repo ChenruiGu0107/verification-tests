@@ -1,7 +1,7 @@
 Feature: Node management
   # @author chaoyang@redhat.com
   # @case_id 472864
-  @admin 
+  @admin
   Scenario: admin can get nodes
     Given I have a project
     When I run the :get admin command with:
