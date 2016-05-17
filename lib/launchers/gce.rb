@@ -291,8 +291,8 @@ module CucuShift
       return orig_opts.map do |disk|
         if disk[:boot] || disk["boot"]
           # this is the boot disk so we merge here
-          boot_disk = deep_hash_symkeys(disk)
-          boot_disk.merge(override_opts) { |key, oldval, newval|
+          boot_disk = deep_hash_symkeys(disk) # array in config may need this
+          boot_disk = boot_disk.merge(override_opts) { |key, oldval, newval|
             if key == :initialize_params
               # special handling of :initialize_params merging
               # that means leave only image specifiers in new config
@@ -317,8 +317,8 @@ module CucuShift
           end
           boot_disk # this is return value
         else
-          # non-boot disk, we skip
-          disk
+          # non-boot disk, we pass through
+          deep_hash_symkeys(disk) # array in config might not be symkeyed
         end
       end
     end

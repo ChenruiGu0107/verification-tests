@@ -385,7 +385,6 @@ module CucuShift
         )
       when "gce"
         gce = CucuShift::GCE.new
-
         res = gce.create_instances(host_names, user_data: user_data_string,
                                    **launch_opts )
       else
