@@ -1,7 +1,8 @@
 require 'yaml'
 
-Given /^the#{OPT_QUOTED} PV becomes #{SYM}$/ do |pv_name, status|
-  @result = pv(pv_name).wait_till_status(status.to_sym, admin, 30)
+Given /^the#{OPT_QUOTED} PV becomes #{SYM}(?: within (\d+) seconds)?$/ do |pv_name, status, timeout|
+  timeout = timeout ? timeout.to_i : 30
+  @result = pv(pv_name).wait_till_status(status.to_sym, admin, timeout)
 
   unless @result[:success]
     raise "PV #{pv_name} never reached status: #{status}"
