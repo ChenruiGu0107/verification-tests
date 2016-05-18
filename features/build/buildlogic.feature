@@ -5,11 +5,11 @@ Feature: buildlogic.feature
   @admin
   Scenario: if build fails to schedule because of quota, after the quota increase, the build should start
     Given I have a project
-    Then I use the "<%= project.name %>" project
-    And I run the :create admin command with:
+    When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/quota_pods.yaml |
       | n | <%= project.name %> |
-    When I run the :create client command with:
+    Then the step should succeed
+    And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
@@ -31,8 +31,7 @@ Feature: buildlogic.feature
   # @case_id 515254
   Scenario: Build with specified Dockerfile via new-build -D
     Given I have a project
-    Then I use the "<%= project.name %>" project
-    And I run the :new_build client command with:
+    When I run the :new_build client command with:
       | D     | FROM centos:7\nRUN yum install -y httpd              |
       | to    | myappis                                              |
       | name  | myapp                                                |
@@ -71,8 +70,7 @@ Feature: buildlogic.feature
   # @case_id 515255
   Scenario: Create build without output
     Given I have a project
-    Then I use the "<%= project.name %>" project
-    And I run the :new_build client command with:
+    When I run the :new_build client command with:
       | app_repo  | openshift/ruby:2.0~https://github.com/openshift/ruby-hello-world.git |
       | no-output | true                                                                 |
       | name      | myapp                                                                |
@@ -87,11 +85,11 @@ Feature: buildlogic.feature
   # @case_id 520291
   Scenario: Create new build config use dockerfile with source repo
     Given I have a project
-    And I run the :new_build client command with:
+    When I run the :new_build client command with:
       | app_repo | https://github.com/openshift/ruby-hello-world |
       | D | FROM centos:7\nRUN yum install -y httpd |
     Then the step should succeed
-    And I run the :get client command with:
+    When I run the :get client command with:
       | resource | bc |
       | o | yaml |
     Then the step should succeed
@@ -111,10 +109,10 @@ Feature: buildlogic.feature
   # @case_id 499515
   Scenario Outline: Prevent STI builder images from running as root
     Given I have a project
-    And I run the :create client command with:
+    When I run the :create client command with:
       | f | <template> |
     Then the step should succeed
-    And the "<buildname>" build was created
+    Given the "<buildname>" build was created
     And the "<buildname>" build failed
     When I run the :build_logs client command with:
       | build_name  | <buildname> |
@@ -132,10 +130,10 @@ Feature: buildlogic.feature
   # @case_id 499516
   Scenario Outline: Prevent STI builder images from running as root - using onbuild image
     Given I have a project
-    And I run the :create client command with:
+    When I run the :create client command with:
       | f | <template> |
     Then the step should succeed
-    And the "<buildname>" build was created
+    Given the "<buildname>" build was created
     And the "<buildname>" build failed
     When I run the :build_logs client command with:
       | build_name  | <buildname> |
@@ -151,10 +149,10 @@ Feature: buildlogic.feature
   # @case_id 497420 497421 497460 497461
   Scenario Outline: ForcePull image for build
     Given I have a project
-    And I run the :create client command with:
+    When I run the :create client command with:
       | f | <template> |
     Then the step should succeed
-    And the "ruby-sample-build-1" build was created
+    Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build becomes :running
     When I run the :describe client command with:
       | resource | build               |
@@ -185,12 +183,12 @@ Feature: buildlogic.feature
       | o             | json           |
       | n             | openshift      |
     Then the step should succeed
-    And the output is parsed as JSON
+    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['image']['metadata']['name']` is stored in the :imagestreamimage clipboard
     When I run oc create over "<template>" URL replacing paths:
       | ['spec']['strategy']['<strategy>']['from']['name'] | ruby@<%= cb.imagestreamimage %> |
     Then the step should succeed
-    And the "ruby-sample-build-1" build was created
+    Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build becomes :running
     When I run the :describe client command with:
       | resource | build               |
@@ -209,3 +207,37 @@ Feature: buildlogic.feature
       | dockerStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStreamImage.json |
       | sourceStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStreamImage.json    |
 
+  # @author yantan@redhat.com
+  # @case_id 515252
+  Scenario:Build with specified Dockerfile to image with same image name via new-build 
+    Given I have a project
+    When I run the :new_build client command with:
+      | D | FROM centos:7\nRUN yum install -y httpd |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc     |
+      | name     | centos |
+    Then the output should contain:
+      | From Image:		ImageStreamTag centos:7      |
+      | Output to:		ImageStreamTag centos:latest |
+    Given the "centos-1" build becomes :complete
+    When I run the :new_build client command with:
+      | D    | FROM centos:7\nRUN yum install -y httpd |
+      | to   | centos:7                                |
+      | name | myapp                                   |
+    And I run the :get client command with:
+      | resource | buildConfig |
+    Then the output should contain:
+      | myapp |
+    Given the "myapp-1" build becomes :complete
+    And the "myapp-2" build becomes :complete
+    And the "myapp-3" build becomes :running
+    When I run the :new_build client command with:
+      | code         | https://github.com/openshift/nodejs-ex.git    |
+      | image_stream | openshift/nodejs:0.10                         |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:2.0                            |
+      | to           | centos:7                                      |
+    Then the step should fail
+    And the output should contain:
+      | error |
