@@ -9,7 +9,7 @@ filter_resources:
       xpath: //div[@class='selectize-dropdown-content']/div[contains(@data-value,'<label_key>')]
     op: click
   - selector:
-      xpath: //div[text()='<filter_action>']
+      xpath: //div[@class='selectize-dropdown-content']/div[text()='<filter_action>']
     op: click
   - selector:
       xpath: //div[@data-value='<label_value>']
