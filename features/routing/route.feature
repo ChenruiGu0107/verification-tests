@@ -466,3 +466,35 @@ Feature: Testing route
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Application is not available"
+
+  # @author zzhaoe@redhat.com
+  # @case_id 483186
+  Scenario: Re-encrypting route with no cert if a router is configured with a default wildcard cert
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    And the step should succeed
+   
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    And the pod named "hello-pod" becomes ready
+    When I run the :create_route_reencrypt client command with:
+      | name | route-recrypt |
+      | hostname | reen.example.com |
+      | service | service-secure |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | reen.example.com:443:<%= cb.router_ip[0] %> |
+      | https://reen.example.com/ |
+      | -k |
+    Then the output should contain "Hello-OpenShift"
