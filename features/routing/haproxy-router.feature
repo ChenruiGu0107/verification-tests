@@ -65,3 +65,100 @@ Feature: Testing haproxy router
       | os_tcp_be.map |
     Then the output should contain "<%= cb.pj_name %>_route-passthrough"
 
+
+  #@auther bmeng@redhat.com
+  #@case_id 483197
+  @admin
+  Scenario: Only the certs file of the certain route will be updated when the route is updated
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project clipboard
+
+    # create two routes which will contain cert files
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
+    When I run the :create_route_reencrypt client command with:
+      | name | route-reen |
+      | hostname | <%= rand_str(5, :dns) %>.reen.com |
+      | service | service-secure |
+      | cert | route_reencrypt-reen.example.com.crt |
+      | key | route_reencrypt-reen.example.com.key |
+      | cacert | route_reencrypt.ca |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name | route-edge |
+      | hostname | <%= rand_str(5, :dns) %>.edge.com |
+      | service | service-unsecure |
+      | cert | route_edge-www.edge.com.crt |
+      | key | route_edge-www.edge.com.key |
+    Then the step should succeed
+
+    # get the cert files creation time on router pod
+    When I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | ls |
+      | --full-time |
+      | /var/lib/containers/router/certs/<%= cb.project %>_route-edge.pem |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :edge_cert clipboard
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | ls |
+      | --full-time |
+      | /var/lib/containers/router/certs/<%= cb.project %>_route-reen.pem |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :reen_cert clipboard
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | ls |
+      | --full-time |
+      | /var/lib/containers/router/cacerts/<%= cb.project %>_route-reen.pem |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :reen_cacert clipboard
+
+    # update one of the routes
+    Given I switch to the first user
+    And I use the "<%= cb.project %>" project
+    When I run the :patch client command with:                                                                                                                        
+      | resource | route |
+      | resource_name | route-reen |
+      | p | {"spec": {"host": "<%= rand_str(5, :dns) %>.reen2.com"}} |
+    Then the step should succeed
+
+    # check only the cert files for the updated route are changed
+    When I switch to cluster admin pseudo user
+    And I use the "default" project
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | ls |
+      | --full-time |
+      | /var/lib/containers/router/certs/<%= cb.project %>_route-reen.pem |
+    Then the step should succeed
+    And the expression should be true> cb.reen_cert != @result[:response]
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | ls |
+      | --full-time |
+      | /var/lib/containers/router/cacerts/<%= cb.project %>_route-reen.pem |
+    Then the step should succeed
+    And the expression should be true> cb.reen_cacert != @result[:response]
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | ls |
+      | --full-time |
+      | /var/lib/containers/router/certs/<%= cb.project %>_route-edge.pem |
+    Then the step should succeed
+    And the expression should be true> cb.edge_cert = @result[:response]
