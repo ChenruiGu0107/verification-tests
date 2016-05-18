@@ -1,5 +1,6 @@
-Then /^a web server should be available via the(?: "(.+?)")? route$/ do |route_name|
-  @result = CucuShift::Http.get(url: "http://" + route(route_name).dns(by: user))
+Then /^a( secure)? web server should be available via the(?: "(.+?)")? route$/ do |secure, route_name|
+  proto = secure ? "https" : "http"
+  @result = route(route_name).http_get(by: user, proto: proto)
   unless @result[:success]
     logger.error(@result[:response])
     # you may notice now `route` refers to last called route,
@@ -19,8 +20,9 @@ Given /^I wait(?: up to ([0-9]+) seconds)? for a server to become available via 
   end
 end
 
-When /^I open web server via the(?: "(.+?)")? route$/ do |route_name|
-  @result = CucuShift::Http.get(url: "http://" + route(route_name).dns(by: user))
+When /^I open( secure)? web server via the(?: "(.+?)")? route$/ do |secure, route_name|
+  proto = secure ? "https" : "http"
+  @result = route(route_name).http_get(by: user, proto: proto)
 end
 
 When /^I open web server via the(?: "(.+?)")? url$/ do |url|
@@ -45,6 +47,7 @@ end
 # redirection is also not supported, return status is unreliable
 # response headers, cookies, etc. also lost;
 # You just get the freakin' big file downloaded without much validation
+# TODO: fix! see https://github.com/rest-client/rest-client/issues/452
 When /^I download a big file from "(.+?)"$/ do |url|
   file_name = File.basename(URI.parse(url).path)
   File.open(file_name, 'wb') do |file|
