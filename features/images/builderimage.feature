@@ -28,9 +28,6 @@ Feature: builderimage.feature
     When I run the :new_app client command with:
       | file | sample-php-rhel7.json |
     Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | php-sample-build |
-    Then the step should succeed
     And the "php-sample-build-1" build completed
     When I expose the "frontend" service
     Then I wait for a server to become available via the "frontend" route
