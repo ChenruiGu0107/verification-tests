@@ -637,3 +637,115 @@ Feature: build related feature on web console
     Then the step should succeed
     And the output should match:
       | From Image.*ImageStreamImage.*<%= cb.image_stream_image %> |
+      
+  # @author yapei@redhat.com
+  # @case_id 518656
+  Scenario: Modify buildconfig settings for Binary source
+    Given I create a new project
+    When I run the :new_build client command with:
+      | binary | ruby |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc/ruby |
+    Then the step should succeed
+    And the output should match:
+      | Strategy.*Source |
+      | Binary.*on build |
+    # change Binary Input
+    When I perform the :edit_bc_binary_input web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby                 |
+      | bc_binary      | hello-world-ruby.zip |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc/ruby |
+    Then the step should succeed
+    And the output should match:
+      | Binary.*provided as.*hello-world-ruby.zip.*on build |
+    # add Env Vars 
+    When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby                 |
+      | env_var_key    | binarykey            |
+      | env_var_value  | binaryvalue          |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :check_buildconfig_environment web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby                 |
+      | env_var_key    | binarykey            |
+      | env_var_value  | binaryvalue          |
+    Then the step should succeed
+    # for Binary build, there should be no webhook triggers
+    When I perform the :enable_webhook_build_trigger web console action with:
+      | project_name  | <%= project.name %>  |
+      | bc_name       | ruby                 |
+    Then the step should fail
+    And the output should contain "element not found"
+    
+  # @author yapei@redhat.com
+  # @case_id 518660
+  Scenario: Modify buildconfig has DockerImage as build output
+    Given I create a new project
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476357/application-template-stibuild.json"
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource      | bc/python-sample-build-sti |
+    Then the step should succeed
+    And the output should match:
+      | Strategy.*Source  |
+      | Output to.*DockerImage.*docker.io/aosqe/python-sample-sti:latest |
+      | Push Secret.*sec-push |
+    # check bc on web console
+    When I perform the :check_bc_output web console action with:
+      | project_name   | <%= project.name %>     |
+      | bc_name        | python-sample-build-sti |   
+      | bc_output      | docker.io/aosqe/python-sample-sti:latest |
+    Then the step should succeed
+    # edit bc output image to another DockerImageLink
+    When I perform the :change_bc_output_image_to_docker_image_link web console action with:
+      | project_name             | <%= project.name %>     |
+      | bc_name                  | python-sample-build-sti |
+      | output_image_dest        | Docker Image Link       |
+      | output_docker_image_link | docker.io/yapei/python-sample-test:latest |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :check_bc_output web console action with:
+      | project_name   | <%= project.name %>     |
+      | bc_name        | python-sample-build-sti |   
+      | bc_output      | docker.io/yapei/python-sample-test:latest |
+    Then the step should succeed
+    # change bc output image to ImageStreamTag
+    When I perform the :change_bc_output_image_to_image_stream_tag web console action with:
+      | project_name             | <%= project.name %>     |
+      | bc_name                  | python-sample-build-sti |
+      | output_image_dest        | Image Stream Tag        |
+      | output_image_namespace   | <%= project.name %>     |
+      | output_image_is          | python-sample-sti       |
+      | output_image_tag         | test                    |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :check_bc_output web console action with:
+      | project_name   | <%= project.name %>     |
+      | bc_name        | python-sample-build-sti |   
+      | bc_output      | <%= project.name %>/python-sample-sti:test |
+    Then the step should succeed
+    # change bc output image to None
+    When I perform the :change_bc_output_image_to_none web console action with:
+      | project_name      | <%= project.name %>     |
+      | bc_name           | python-sample-build-sti |   
+      | output_image_dest | None                    |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    When I perform the :check_bc_output web console action with:
+      | project_name   | <%= project.name %>     |
+      | bc_name        | python-sample-build-sti |
+      | bc_output      | None                    |
+    Then the step should fail
+    And the output should contain "element not found"
