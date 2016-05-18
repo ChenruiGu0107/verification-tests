@@ -9,8 +9,10 @@ Then /^a( secure)? web server should be available via the(?: "(.+?)")? route$/ d
   end
 end
 
-Given /^I wait(?: up to ([0-9]+) seconds)? for a server to become available via the(?: "(.+?)")? route$/ do |seconds, route_name|
-  @result = route(route_name).wait_http_accessible(by: user, timeout: seconds)
+Given /^I wait(?: up to ([0-9]+) seconds)? for a( secure)? web server to become available via the(?: "(.+?)")? route$/ do |seconds, secure, route_name|
+  proto = secure ? "https" : "http"
+  @result = route(route_name).wait_http_accessible(by: user, timeout: seconds,
+                                                   proto: proto)
 
   unless @result[:success]
     logger.error(@result[:response])

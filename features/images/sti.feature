@@ -31,7 +31,7 @@ Feature: sti.feature
     When I expose the "simple-openshift-sinatra" service
     Then the step should succeed
     Given I wait for the "simple-openshift-sinatra" service to become ready
-    And I wait for a server to become available via the route
+    And I wait for a web server to become available via the route
     And the output should contain "Hello, Sinatra!"
     When I run the :scale client command with:
       | replicas | 3 |

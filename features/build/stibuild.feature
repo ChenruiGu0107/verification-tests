@@ -74,6 +74,6 @@ Feature: stibuild.feature
     And the "php-sample-build-1" build was created
     And the "php-sample-build-1" build completed
     When I expose the "frontend" service
-    Then I wait for a server to become available via the "frontend" route
+    Then I wait for a web server to become available via the "frontend" route
     And the output should contain:
       | Hello World!|

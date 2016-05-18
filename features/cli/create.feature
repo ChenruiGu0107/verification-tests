@@ -13,7 +13,7 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     When I expose the "myapp" service
     Then the step should succeed
-    And I wait for a server to become available via the route
+    And I wait for a web server to become available via the route
     And the project is deleted
 
     ## recreate project between each test because of
@@ -133,7 +133,7 @@ Feature: creating 'apps' with CLI
       |param   |MYSQL_USER=admin,MYSQL_PASSWORD=admin,MYSQL_DATABASE=xxingtest|
     Then the step should succeed
     When I expose the "frontend" service
-    Then I wait for a server to become available via the "frontend" route
+    Then I wait for a web server to become available via the "frontend" route
     And the output should contain "Demo App"
     Given I wait for the "database" service to become ready
     When I execute on the pod:

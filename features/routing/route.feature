@@ -12,7 +12,7 @@ Feature: Testing route
     Then the step should succeed
     When I expose the "header-test-insecure" service
     Then the step should succeed
-    And I wait for a server to become available via the route
+    And I wait for a web server to become available via the route
     When I run the :get client command with:
       | resource      | route |
       | resource_name | header-test-insecure |
@@ -28,7 +28,7 @@ Feature: Testing route
       | resource      | route                                           |
       | resource_name | header-test-insecure-dup                        |
       | p             | {"spec":{"to":{"name":"header-test-insecure"}}} |
-    Then I wait for a server to become available via the "header-test-insecure-dup" route
+    Then I wait for a web server to become available via the "header-test-insecure-dup" route
 
   # @author: zzhao@redhat.com
   # @case_id: 470700
@@ -42,7 +42,7 @@ Feature: Testing route
     Then the step should succeed
     When I expose the "header-test-insecure" service
     Then the step should succeed
-    Then I wait for a server to become available via the "header-test-insecure" route
+    Then I wait for a web server to become available via the "header-test-insecure" route
     When I run the :delete client command with:
       | object_type | route |
       | object_name_or_id | header-test-insecure |
@@ -177,7 +177,7 @@ Feature: Testing route
     Then the step should succeed
     When I expose the "header-test-insecure" service
     Then the step should succeed
-    When I wait for a server to become available via the route
+    When I wait for a web server to become available via the route
     Then the output should contain ";host=<%= route.dns(by: user) %>;proto=http"
 
 
