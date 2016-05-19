@@ -868,7 +868,7 @@ Feature: deployment related features
       | selector      | ab-example=true |
     Then the step should succeed
     When I expose the "ab-example" service
-    Then I wait for a server to become available via the "ab-example" route
+    Then I wait for a web server to become available via the "ab-example" route
     And the output should contain "shardA"
     When I run the :new_app client command with:
       | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
@@ -882,7 +882,7 @@ Feature: deployment related features
       | replicas | 0                |
     Given I wait until number of replicas match "0" for replicationController "ab-example-a-1"
     When I use the "ab-example" service
-    Then I wait for a server to become available via the "ab-example" route
+    Then I wait for a web server to become available via the "ab-example" route
     And the output should contain "shardB"
     Then I run the :scale client command with:
       | resource | deploymentconfig |
@@ -894,7 +894,7 @@ Feature: deployment related features
       | replicas | 1                |
     Given I wait until number of replicas match "0" for replicationController "ab-example-b-1"
     When I use the "ab-example" service
-    Then I wait for a server to become available via the "ab-example" route
+    Then I wait for a web server to become available via the "ab-example" route
     And the output should contain "shardA"
 
   # @author yinzhou@redhat.com
@@ -915,9 +915,9 @@ Feature: deployment related features
       | resource_name | bluegreen-example-old |
       | name     | bluegreen-example |
     Then the step should succeed
-    #And I wait for a server to become available via the route
+    #And I wait for a web server to become available via the route
     When I use the "bluegreen-example-old" service
-    And I wait for a server to become available via the "bluegreen-example" route
+    And I wait for a web server to become available via the "bluegreen-example" route
     And the output should contain "v1"
     And I replace resource "route" named "bluegreen-example":
       | name: bluegreen-example-old | name: bluegreen-example-new |
@@ -925,7 +925,7 @@ Feature: deployment related features
     When I use the "bluegreen-example-new" service
     And I wait for the steps to pass:
     """
-    And I wait for a server to become available via the "bluegreen-example" route
+    And I wait for a web server to become available via the "bluegreen-example" route
     And the output should contain "v2"
     """
 
@@ -1051,7 +1051,7 @@ Feature: deployment related features
     Then the step should succeed
     And I wait until the status of deployment "recreate-example" becomes :complete
     When I use the "recreate-example" service
-    And I wait for a server to become available via the "recreate-example" route
+    And I wait for a web server to become available via the "recreate-example" route
     Then the output should contain:
       | v1 |
     When I run the :tag client command with:
@@ -1060,7 +1060,7 @@ Feature: deployment related features
     Then the step should succeed
     And I wait until the status of deployment "recreate-example" becomes :complete
     When I use the "recreate-example" service
-    And I wait for a server to become available via the "recreate-example" route
+    And I wait for a web server to become available via the "recreate-example" route
     Then the output should contain:
       | v2 |
 

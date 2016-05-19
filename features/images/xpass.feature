@@ -71,7 +71,7 @@ Feature: xpass.feature
     And a pod becomes ready with labels:
       |app=jboss-eap-quickstarts|
     When I expose the "jboss-eap-quickstarts" service
-    Then I wait for a server to become available via the "jboss-eap-quickstarts" route
+    Then I wait for a web server to become available via the "jboss-eap-quickstarts" route
     And  the output should contain "JBoss"
 
   # @author haowang@redhat.com
@@ -89,7 +89,7 @@ Feature: xpass.feature
     And 1 pods become ready with labels:
       |application=eap-app|
     And I use the "eap-app" service
-    Then I wait for a server to become available via the "eap-app" route
+    Then I wait for a web server to become available via the "eap-app" route
     And  the output should contain "JBoss"
     When I get project replicationcontroller as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :rc_name clipboard
@@ -101,7 +101,7 @@ Feature: xpass.feature
     And 2 pods become ready with labels:
       |application=eap-app|
     And I use the "eap-app" service
-    Then I wait for a server to become available via the "eap-app" route
+    Then I wait for a web server to become available via the "eap-app" route
     And  the output should contain "JBoss"
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
@@ -109,7 +109,7 @@ Feature: xpass.feature
       | replicas | 1                      |
     And 1 pods become ready with labels:
       |application=eap-app|
-    Then I wait for a server to become available via the "eap-app" route
+    Then I wait for a web server to become available via the "eap-app" route
     And  the output should contain "JBoss"
 
   # @author xiuwang@redhat.com

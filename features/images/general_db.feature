@@ -23,7 +23,7 @@ Feature: general_db.feature
       | file | jws-tomcat7-mysql-sti.json |
     Then the step should succeed
     When I use the "jws-http-service" service
-    Then I wait for a server to become available via the "jws-http-route" route
+    Then I wait for a web server to become available via the "jws-http-route" route
 
   # @author haowang@redhat.com
   # @case_id 473389 508066

@@ -43,7 +43,7 @@ Feature:Create apps using new_app cmd feature
         And the "ruby-sample-build-1" build completed
     Given I wait for the "frontend" service to become ready
     When I expose the "frontend" service
-    Then I wait for a server to become available via the "frontend" route
+    Then I wait for a web server to become available via the "frontend" route
     And the output should contain "Hello from OpenShift v3"
 
   # @author haowang@redhat.com
@@ -59,7 +59,7 @@ Feature:Create apps using new_app cmd feature
     And a pod becomes ready with labels:
       |app=nodejs-ex|
     When I expose the "nodejs-ex" service
-    Then I wait for a server to become available via the "nodejs-ex" route
+    Then I wait for a web server to become available via the "nodejs-ex" route
     And  the output should contain "Welcome to your Node.js application on OpenShift"
 
   # @author haowang@redhat.com

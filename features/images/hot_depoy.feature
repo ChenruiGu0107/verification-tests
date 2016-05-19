@@ -16,7 +16,7 @@ Feature: hotdeploy.feature
       | sed | -i | <parameter> | <file_name> |
     Then the step should succeed
     When I expose the "<buildcfg>" service
-    Then I wait for a server to become available via the "<buildcfg>" route
+    Then I wait for a web server to become available via the "<buildcfg>" route
     And the output should contain "hotdeploy_test"
 
     Examples:
@@ -44,7 +44,7 @@ Feature: hotdeploy.feature
       | sed | -i | s/Hello/hotdeploy_test/g | app.rb |
     Then the step should succeed
     When I expose the "sinatra-hot-deploy-ruby2" service
-    Then I wait for a server to become available via the "sinatra-hot-deploy-ruby2" route
+    Then I wait for a web server to become available via the "sinatra-hot-deploy-ruby2" route
     And the output should contain "hotdeploy_test"
 
   # @author wzheng@redhat.com
@@ -64,7 +64,7 @@ Feature: hotdeploy.feature
       | sed | -i | <parameter> | <file_name> |
     Then the step should succeed
     When I expose the "<buildcfg>" service
-    Then I wait for a server to become available via the "<buildcfg>" route
+    Then I wait for a web server to become available via the "<buildcfg>" route
     And the output should contain "hotdeploy_test"
 
     Examples:

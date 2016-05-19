@@ -93,7 +93,7 @@ Feature: create app on web console related
     Given the "python-sample-1" build was created
     Given the "python-sample-1" build completed
     Given I wait for the "python-sample" service to become ready
-    And I wait for a server to become available via the "python-sample" route
+    And I wait for a web server to become available via the "python-sample" route
     When I create a new project via web
     Then the step should succeed
     When I perform the :create_app_from_image_with_advanced_git_options web console action with:
@@ -109,7 +109,7 @@ Feature: create app on web console related
     Given the "python-sample-another-1" build was created
     Given the "python-sample-another-1" build completed
     Given I wait for the "python-sample-another" service to become ready
-    And I wait for a server to become available via the "python-sample-another" route
+    And I wait for a web server to become available via the "python-sample-another" route
 
   # @author xxing@redhat.com
   # @case_id 470453

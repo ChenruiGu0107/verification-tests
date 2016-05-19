@@ -1627,7 +1627,7 @@ Feature: build 'apps' with CLI
     And the "nodejs-ex-1" build completed
     Given I wait for the "nodejs-ex" service to become ready
     When I expose the "nodejs-ex" service
-    Then I wait for a server to become available via the "nodejs-ex" route
+    Then I wait for a web server to become available via the "nodejs-ex" route
     And the output should contain "Welcome to OpenShift"
     And I git clone the repo "https://github.com/openshift/nodejs-ex"
     And I run the :start_build client command with:
@@ -1638,7 +1638,7 @@ Feature: build 'apps' with CLI
     Given 1 pods become ready with labels:
       | app=nodejs-ex              |
       | deployment=nodejs-ex-2     |
-    Then I wait for a server to become available via the "nodejs-ex" route
+    Then I wait for a web server to become available via the "nodejs-ex" route
     And the output should contain "Welcome to OpenShift"
     Given I replace lines in "nodejs-ex/views/index.html":
       | Welcome to OpenShift | Welcome all to OpenShift |
@@ -1683,7 +1683,7 @@ Feature: build 'apps' with CLI
     And the "sti-nodejs-1" build completed
     Given I wait for the "sti-nodejs" service to become ready
     When I expose the "sti-nodejs" service
-    Then I wait for a server to become available via the "sti-nodejs" route
+    Then I wait for a web server to become available via the "sti-nodejs" route
     And the output should contain "This is a node.js echo service"
     And I git clone the repo "https://github.com/openshift/sti-nodejs"
     And I run the :start_build client command with:
@@ -1694,7 +1694,7 @@ Feature: build 'apps' with CLI
     Given 1 pods become ready with labels:
       | app=sti-nodejs              |
       | deployment=sti-nodejs-2     |
-    Then I wait for a server to become available via the "sti-nodejs" route
+    Then I wait for a web server to become available via the "sti-nodejs" route
     And the output should contain "This is a node.js echo service"
     Given I replace lines in "sti-nodejs/0.10/test/test-app/server.js":
       | This is a node.js echo service | Welcome to OpenShift  |
@@ -1739,7 +1739,7 @@ Feature: build 'apps' with CLI
     And the "ruby-hello-world-1" build completed
     Given I wait for the "ruby-hello-world" service to become ready
     When I expose the "ruby-hello-world" service
-    Then I wait for a server to become available via the "ruby-hello-world" route
+    Then I wait for a web server to become available via the "ruby-hello-world" route
     And the output should contain "Welcome to an OpenShift v3 Demo App!"
     And I git clone the repo "https://github.com/openshift/ruby-hello-world"
     And I run the :start_build client command with:
@@ -1750,7 +1750,7 @@ Feature: build 'apps' with CLI
     Given 1 pods become ready with labels:
       | app=ruby-hello-world              |
       | deployment=ruby-hello-world-2     |
-    Then I wait for a server to become available via the "ruby-hello-world" route
+    Then I wait for a web server to become available via the "ruby-hello-world" route
     And the output should contain "Welcome to an OpenShift v3 Demo App!"
     Given I replace lines in "ruby-hello-world/views/main.erb":
       | Welcome to an OpenShift v3 Demo App! | Welcome all to an OpenShift v3 Demo App!  |

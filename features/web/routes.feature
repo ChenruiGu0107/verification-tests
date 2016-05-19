@@ -20,7 +20,7 @@ Feature: Routes related features on web console
     Given the "nodejs-sample-1" build was created
     Given the "nodejs-sample-1" build completed
     Given I wait for the "nodejs-sample" service to become ready
-    And I wait for a server to become available via the "nodejs-sample" route
+    And I wait for a web server to become available via the "nodejs-sample" route
     When I run the :get client command with:
       | resource      | route                 |
       | resource_name | nodejs-sample         |

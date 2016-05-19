@@ -83,7 +83,13 @@ module CucuShift
       return res
     end
 
-    def wait_http_accessible(by: user, timeout: nil, proto: "http")
+    def http_get(by:, proto: "http", port: nil, quiet: false)
+      portstr = port ? ":#{port}" : ""
+      CucuShift::Http.get(url: proto + "://" + dns(by: by) + portstr,
+                          quiet: quiet)
+    end
+
+    def wait_http_accessible(by:, timeout: nil, proto: "http", port: nil)
       # TODO: are there non-http routes? we may try to auto-sense the proto
       res = nil
       timeout ||= 15*60
@@ -92,7 +98,7 @@ module CucuShift
       start_time = monotonic_seconds
 
       wait_for(timeout) {
-        res = CucuShift::Http.get(url: proto + "://" + dns(by: by), quiet: true)
+        res = http_get(by: by, proto: proto, port: port, quiet: true)
 
         logger.info res[:instruction] if iterations == 0
         iterations = iterations + 1

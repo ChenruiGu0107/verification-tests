@@ -12,7 +12,7 @@ Feature: quickstarts.feature
     And <podno> pods become ready with labels:
       |app=<template>|
     When I use the "<buildcfg>" service
-    Then I wait for a server to become available via the "<buildcfg>" route
+    Then I wait for a web server to become available via the "<buildcfg>" route
     Then the output should contain "<output>"
 
     Examples: OS Type
@@ -73,14 +73,14 @@ Feature: quickstarts.feature
       | file | cakephp.json |
     Then the step should succeed
     When I use the "cakephp-example" service
-    Then I wait for a server to become available via the "cakephp-example" route
+    Then I wait for a web server to become available via the "cakephp-example" route
     Then the output should contain "Welcome to OpenShift"
     Given I wait for the "cakephp-example" service to become ready
     When I execute on the pod:
       | sed | -i | s/Welcome/hotdeploy_test/g | /opt/app-root/src/app/View/Layouts/default.ctp |
     Then the step should succeed
     When I use the "cakephp-example" service
-    Then I wait for a server to become available via the "cakephp-example" route
+    Then I wait for a web server to become available via the "cakephp-example" route
     Then the output should contain "hotdeploy_test"
 
   # @author wzheng@redhat.com
