@@ -13,10 +13,12 @@ Feature: NFS Persistent Volume
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
       | ["spec"]["nfs"]["path"]   | /non-exist-path                  |
+      | ["spec"]["accessModes"][0]| ReadWriteMany                    |
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]| ReadWriteMany         |
     Then the step should succeed
     And the PV becomes :bound
     And the "nfsc-<%= project.name %>" PVC becomes :bound
@@ -53,18 +55,24 @@ Feature: NFS Persistent Volume
     Then the step should succeed
 
     # Creating PV and PVC
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto-nfs-recycle-rwo.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
+      | ["spec"]["accessModes"][0]| ReadWriteOnce                    |
+      | ["spec"]["persistentVolumeReclaimPolicy"]| Recycle           |
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]| ReadWriteOnce         |
     Then the step should succeed
+    And the PV becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes :bound
 
-    Given the PV becomes :bound
-
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
-    Given the pod named "nfs" becomes ready
+    Given the pod named "mypod-<%= project.name %>" becomes ready
     When I execute on the pod:
       | id |
     Then the step should succeed
@@ -72,18 +80,21 @@ Feature: NFS Persistent Volume
       | ls | -ld | /mnt/ |
     Then the step should succeed
     When I execute on the pod:
-      | touch | /mnt/myfile |
+      | touch | /mnt/tc508049 |
     Then the step should succeed
     And the output should not contain "Permission denied"
 
-    Given I run the :delete client command with:
-      | object_type       | pod |
-      | object_name_or_id | nfs |
+    When I run the :delete client command with:
+      | object_type       | pod                       |
+      | object_name_or_id | mypod-<%= project.name %> |
     And I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc |
+      | object_type       | pvc                      |
+      | object_name_or_id | nfsc-<%= project.name %> |
     Then the step should succeed
-    Then the PV becomes :available
+    And the PV becomes :available within 300 seconds
+    When I execute on the "nfs-server" pod:
+      | ls | /mnt/data/tc508049 |
+    Then the step should fail
 
   # @author lxia@redhat.com
   # @case_id 508050
@@ -98,18 +109,24 @@ Feature: NFS Persistent Volume
     Then the step should succeed
 
     # Creating PV and PVC
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto-nfs-retain-rox.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
+      | ["spec"]["accessModes"][0]| ReadOnlyMany                     |
+      | ["spec"]["persistentVolumeReclaimPolicy"]| Retain            |
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]| ReadOnlyMany          |
     Then the step should succeed
+    And the PV becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes :bound
 
-    Given the PV becomes :bound
-
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
-    Given the pod named "nfs" becomes ready
+    Given the pod named "mypod-<%= project.name %>" becomes ready
     When I execute on the pod:
       | id |
     Then the step should succeed
@@ -117,22 +134,20 @@ Feature: NFS Persistent Volume
       | ls | -ld | /mnt/ |
     Then the step should succeed
     When I execute on the pod:
-      | touch | /mnt/myfile |
+      | touch | /mnt/tc508050 |
     Then the step should succeed
     And the output should not contain "Permission denied"
 
-    Given I run the :delete client command with:
-      | object_type       | pod |
-      | object_name_or_id | nfs |
+    When I run the :delete client command with:
+      | object_type       | pod                       |
+      | object_name_or_id | mypod-<%= project.name %> |
     And I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc |
+      | object_type       | pvc                      |
+      | object_name_or_id | nfsc-<%= project.name %> |
     Then the step should succeed
-    Then the PV becomes :released
-    When I run the :exec client command with:
-      | pod | nfs-server |
-      | exec_command | ls |
-      | exec_command_arg | /mnt/data/myfile |
+    And the PV becomes :released
+    When I execute on the "nfs-server" pod:
+      | ls | /mnt/data/tc508050 |
     Then the step should succeed
 
   # @author lxia@redhat.com
@@ -148,18 +163,24 @@ Feature: NFS Persistent Volume
     Then the step should succeed
 
     # Creating PV and PVC
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto-nfs-default-rwx.json" where:
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json |
+      | ["spec"]["accessModes"][0]| ReadWriteMany                    |
+      | ["spec"]["persistentVolumeReclaimPolicy"]| Default           |
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]| ReadWriteMany         |
     Then the step should succeed
+    And the PV becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes :bound
 
-    Given the PV becomes :bound
-
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
-    Given the pod named "nfs" becomes ready
+    Given the pod named "mypod-<%= project.name %>" becomes ready
     When I execute on the pod:
       | id |
     Then the step should succeed
@@ -167,22 +188,20 @@ Feature: NFS Persistent Volume
       | ls | -ld | /mnt/ |
     Then the step should succeed
     When I execute on the pod:
-      | touch | /mnt/myfile |
+      | touch | /mnt/tc508051 |
     Then the step should succeed
     And the output should not contain "Permission denied"
 
-    Given I run the :delete client command with:
-      | object_type       | pod |
-      | object_name_or_id | nfs |
+    When I run the :delete client command with:
+      | object_type       | pod                       |
+      | object_name_or_id | mypod-<%= project.name %> |
     And I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc |
+      | object_type       | pvc                      |
+      | object_name_or_id | nfsc-<%= project.name %> |
     Then the step should succeed
-    Then the PV becomes :released
-    When I run the :exec client command with:
-      | pod | nfs-server |
-      | exec_command | ls |
-      | exec_command_arg | /mnt/data/myfile |
+    And the PV becomes :released
+    When I execute on the "nfs-server" pod:
+      | ls | /mnt/data/tc508051 |
     Then the step should succeed
 
   # @author jhou@redhat.com
