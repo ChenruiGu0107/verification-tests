@@ -219,13 +219,12 @@ Feature: dockerbuild.feature
       | resource_name | build/ruby-sample-build6-1 |
     Then the output should contain:
       | bundler: command not found: rake1 |
-  
+
   # @author wewang@redhat.com
   # @case_id 517672
   @admin
   @destructive
   Scenario: Edit bc with an allowed strategy to use a restricted strategy
-    Given I switch to the first user
     Given I have a project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
@@ -236,29 +235,30 @@ Feature: dockerbuild.feature
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build was created
-    #And the "ruby22-sample-build-1" build completed
     Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
     When I run the :get client command with:
       | resource | buildconfig |
       | resource_name | ruby22-sample-build |
       | o | json |
-    And I save the output to file>bc.json
+    Then the step should succeed
+    Given I save the output to file>bc.json
     And I replace lines in "bc.json":
       | Docker | Source |
       |dockerStrategy|sourceStrategy|
     When I run the :replace client command with:
       | f | bc.json |
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
-    And the "ruby22-sample-build-2" build was created
-  
+    Then the "ruby22-sample-build-2" build was created
+
     Given I switch to the first user
-        When I run the :get client command with:
+    When I run the :get client command with:
       | resource | buildconfig |
       | resource_name | ruby22-sample-build |
       | o | json |
-    And I save the output to file>bc1.json
+    Then the step should succeed
+    Given I save the output to file>bc1.json
     And I replace lines in "bc1.json":
       | Source | Docker  |
       | sourceStrategy|dockerStrategy|
@@ -266,4 +266,3 @@ Feature: dockerbuild.feature
       | f | bc1.json |
     Then the step should fail
     And the output should contain "build strategy Docker is not allowed"
-
