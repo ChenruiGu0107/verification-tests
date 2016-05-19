@@ -75,8 +75,8 @@ Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
   @result = CucuShift::Pod.wait_for_labeled(*labels, count: num,
                        user: user, project: project, seconds: pod_timeout)
 
-  if !@result[:success] || @result[:matching].size < num
-    logger.error("Wanted #{num} but only got #{@result[:matching].size} pods labeled: #{labels.join(",")}")
+  if !@result[:success] || @result[:matching].size != num
+    logger.error("Wanted #{num} but only got '#{@result[:matching].size}' pods labeled: #{labels.join(",")}")
     raise "See log, waiting for labeled pods futile: #{labels.join(',')}"
   end
 

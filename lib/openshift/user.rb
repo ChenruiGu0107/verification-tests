@@ -159,7 +159,7 @@ module CucuShift
 
     # @return [Array<Project>]
     def projects
-      Project.list(user: self, quiet: true)
+      Project.list(user: self, get_opts: {_quiet: true})
     end
 
     def clean_up

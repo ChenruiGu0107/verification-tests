@@ -147,7 +147,12 @@ module CucuShift
       #   selector_to_label_arr(*hash_selector)
       #   selector_to_label_arr(*array_of_arrays_with_label_key_value_pairs)
       #   selector_to_label_arr(str_label1, str_label2, ...)
-      #   selector_to_label_arr(*hash, str_label1, *arry, ...)
+      #   selector_to_label_arr(*hash, str_label1, *arr1, arr2, ...) # first we
+      #     have a Hash with label_key/label_value pairs, then a plain string
+      #     label, then an array of arrays with one or two elements denoting
+      #     label_key or label_key/label_value pairs and finally an array of
+      #     with one or two elements denoting a label_key or a
+      #     label_key/label_value pair
       def selector_to_label_arr(*sel)
         sel.map do |l|
           case l

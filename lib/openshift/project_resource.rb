@@ -80,7 +80,7 @@ module CucuShift
 
     # @param labels [String, Array<String,String>] labels to filter on, read
     #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
-    # @param count [Integer] minimum number of pods to wait for
+    # @param count [Integer] minimum number of resources to wait for
     def self.wait_for_labeled(*labels, count: 1, user:, project:, seconds:)
       wait_for_matching(user: user, project: project, seconds: seconds,
                         get_opts: {l: selector_to_label_arr(*labels)},
@@ -92,21 +92,26 @@ module CucuShift
     # @return [CucuShift::ResultHash] with :matching key being array of matched
     #   resource items;
     def self.wait_for_matching(count: 1, user:, project:, seconds:,
-                                                                  get_opts: {})
+                                                                  get_opts: [])
       res = {}
 
-      unless get_opts.has_key? :_quiet
-        get_opts[:_quiet] = true
+      quiet = get_opts.find {|k,v| k == :_quiet}
+      if quiet
+        # TODO: we may think about `:false` string value if passed by a step
+        quiet = quiet[1]
+      else
+        quiet = true
+        get_opts = get_opts.to_a << [:_quiet, true]
       end
 
       wait_for(seconds) {
         get_matching(user: user, project: project, result: res, get_opts: get_opts) { |resource, resource_hash|
           yield resource, resource_hash
         }
-        res[:matching].size >= count
+        res[:success] = res[:matching].size >= count
       }
 
-      if get_opts[:_quiet]
+      if quiet
         # user didn't see any output, lets print used command
         user.env.logger.info res[:command]
       end
@@ -120,11 +125,23 @@ module CucuShift
     #   [Resource] sub-type, e.g. [Pod], [Build], etc.
     # @return [Array<ProjectResource>] with :matching key being array of matched
     #   resources
-    def self.get_matching(user:, project:, result: {}, get_opts: {})
+    def self.get_matching(user:, project:, result: {}, get_opts: [])
+      # construct options
+      opts = [ [:resource, self::RESOURCE],
+               [:output, "yaml"],
+               [:n, project.name]
+      ]
+      get_opts.each { |k,v|
+        if [:resource, :output, :o, :n, :namespace, :resource_name,
+            :w, :watch, :watch_only].include?(k)
+          raise "incompatible option #{k} provided in get_opts"
+        else
+          opts << [k, v]
+        end
+      }
+
       res = result
-      opts = {resource: self::RESOURCE, n: project.name, o: 'yaml'}
-      opts.merge! get_opts
-      res.merge! user.cli_exec(:get, **opts)
+      res.merge! user.cli_exec(:get, opts)
 
       if res[:success]
         res[:parsed] = YAML.load(res[:response])

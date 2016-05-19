@@ -9,6 +9,44 @@ Given /^the#{OPT_QUOTED} PV becomes #{SYM}(?: within (\d+) seconds)?$/ do |pv_na
   end
 end
 
+Given /^the PVs become #{SYM}(?: within (\d+) seconds) with labels:?$/ do |status, timeout, table|
+  timeout = timeout ? timeout.to_i : 30
+  @result = pv(pv_name).wait_till_status(status.to_sym, admin, timeout)
+
+  unless @result[:success]
+    raise "PV #{pv_name} never reached status: #{status}"
+  end
+end
+
+Given /^([0-9]+) PVs become #{SYM}(?: within (\d+) seconds)? with labels:$/ do |count, status, timeout, table|
+  labels = table.raw.flatten # dimentions irrelevant
+  appear_timeout = 30
+  status_timeout = timeout ? timeout.to_i : 60
+  status = status.to_sym
+  num = Integer(count)
+
+  @result = CucuShift::PersistentVolume.wait_for_labeled(*labels, count: num,
+                       user: admin, seconds: appear_timeout)
+
+  if !@result[:success] || @result[:matching].size != num
+    logger.error("Wanted #{num} but only got '#{@result[:matching].size}' PVs labeled: #{labels.join(",")}")
+    raise "See log, waiting for labeled PVs futile: #{labels.join(',')}"
+  end
+
+  @pvs.reject! { |pv| @result[:matching].include? pv }
+  @pvs.concat @result[:matching]
+
+  # keep last waiting @result as the @result for knowing how pv failed
+  @result[:matching].each do |pv|
+    # TODO make status_timeout be a global timeout not per PV
+    @result = pv.wait_till_status(status, admin, status_timeout)
+
+    unless @result[:success]
+      raise "pv #{pv.name} did not reach expected status"
+    end
+  end
+end
+
 Given /^the#{OPT_QUOTED} PV status is #{SYM}$/ do |pv_name, status|
   @result = pv(pv_name).status?(status: status.to_sym, user: admin)
 
