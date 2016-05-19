@@ -162,3 +162,59 @@ Feature: Testing haproxy router
       | /var/lib/containers/router/certs/<%= cb.project %>_route-edge.pem |
     Then the step should succeed
     And the expression should be true> cb.edge_cert = @result[:response]
+
+
+  #@author bmeng@redhat.com
+  #@case_id 489261
+  Scenario: haproxy cookies based sticky session for unsecure routes
+    #create route and service which has two endpoints
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    And the pod named "hello-pod" becomes ready
+    #access the route without cookies
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -s |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+      | -c |
+      | /tmp/cookies |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    Given I wait for the steps to pass:
+    """
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -s |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access != @result[:response]
+    """
+    #access the route with cookies
+    Given I run the steps 6 times:
+    """
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -s |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+      | -b |
+      | /tmp/cookies |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access = @result[:response]
+    """
