@@ -16,7 +16,15 @@ module CucuShift
 
     # @return [#each, #clear, #find] a set of users that supports #clear, #each
     #   and #find methods; [Array] and [Set] should do
-    def users_used
+    private def users_used
+      raise 'should use a subclass with #{__method__} implemented'
+    end
+
+    # @param num [Integer] the index of user to return; this may allocate a new
+    #   user or return an already allocated one; negative index can only return
+    #   from allocated users but not encouraged to use negative index
+    # @return [User]
+    def [](num)
       raise 'should use a subclass with #{__method__} implemented'
     end
 
@@ -40,6 +48,8 @@ module CucuShift
 
   class StaticUserManager < UserManager
     attr_reader :users_used
+
+    private :users_used
 
     def initialize(env, **opts)
       super
@@ -68,6 +78,7 @@ module CucuShift
       Collections.deep_freeze(@user_specs)
     end
 
+    # @see UserManager#[]
     def [](num)
       if @users_used[num]
         return @users_used[num]
