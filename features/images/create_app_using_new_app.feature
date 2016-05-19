@@ -93,3 +93,21 @@ Feature:Create apps using new_app cmd feature
       | resource | bc |
     Then the output should contain "ruby-hello-world"
     And the output should not contain "ruby-hello-world-1"
+
+  # @author cryan@redhat.com
+  # @case_id 509050
+  Scenario: Create jenkins resources with oc new-app from imagestream -jenkins-1-rhel7
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | jenkins |
+      | env | JENKINS_PASSWORD=test123 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=jenkins-2 |
+    When I expose the "jenkins" service
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    When I open web server via the "http://<%= route("jenkins", service("jenkins")).dns(by: user) %>/" url
+    """
+    Then the output should contain "Jenkins"
