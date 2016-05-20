@@ -123,16 +123,24 @@ module CucuShift
       # @param interval [Numeric] the interval to wait between attempts
       # @yield block the block will be yielded until it returns true or timeout
       #   is reached
-      def wait_for(seconds, interval: 1)
+      def wait_for(seconds, interval: 1, stats: nil)
         if seconds > 60
           Kernel.puts("waiting for operation up to #{seconds} seconds..")
         end
+        iterations = 0
 
         start = monotonic_seconds
         success = false
         until monotonic_seconds - start > seconds
+          iterations += 1
           success = yield and break
           sleep interval
+        end
+
+        if stats
+          stats[:seconds] = monotonic_seconds - start
+          stats[:full_seconds] = stats[:seconds].to_i
+          stats[:iterations] = iterations
         end
 
         return success

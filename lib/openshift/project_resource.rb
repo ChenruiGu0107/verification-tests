@@ -106,7 +106,8 @@ module CucuShift
         get_opts = get_opts.to_a << [:_quiet, true]
       end
 
-      wait_for(seconds) {
+      stats = {}
+      wait_for(seconds, interval: 3, stats: stats) {
         get_matching(user: user, project: project, result: res, get_opts: get_opts) { |resource, resource_hash|
           yield resource, resource_hash
         }
@@ -117,7 +118,7 @@ module CucuShift
         # user didn't see any output, lets print used command
         user.env.logger.info res[:command]
       end
-      user.env.logger.info "returned #{res[:items].size} #{self::RESOURCE}, #{res[:matching].size} matching"
+      user.env.logger.info "#{stats[:iterations]} iterations for #{stats[:full_seconds]} sec, returned #{res[:items].size} #{self::RESOURCE}, #{res[:matching].size} matching"
 
       return res
     end
