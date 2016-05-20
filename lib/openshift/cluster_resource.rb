@@ -56,7 +56,9 @@ module CucuShift
     def self.wait_for_labeled(*labels, count: 1, user:, seconds:)
       wait_for_matching(user: user, seconds: seconds,
                         get_opts: {l: selector_to_label_arr(*labels)},
-                        count: count) { true }
+                        count: count) do |item, item_hash|
+                          !block_given? || yield(item, item_hash)
+      end
     end
 
     # @param count [Integer] minimum number of items to wait for
@@ -119,7 +121,7 @@ module CucuShift
           self.from_api_object(user.env, item_hash)
         }
       else
-        logger.error(res[:response])
+        user.env.logger.error(res[:response])
         raise "error getting #{self::RESOURCE} by user: '#{user}'"
       end
 

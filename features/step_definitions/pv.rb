@@ -20,30 +20,21 @@ end
 
 Given /^([0-9]+) PVs become #{SYM}(?: within (\d+) seconds)? with labels:$/ do |count, status, timeout, table|
   labels = table.raw.flatten # dimentions irrelevant
-  appear_timeout = 30
-  status_timeout = timeout ? timeout.to_i : 60
+  timeout = timeout ? timeout.to_i : 60
   status = status.to_sym
   num = Integer(count)
 
   @result = CucuShift::PersistentVolume.wait_for_labeled(*labels, count: num,
-                       user: admin, seconds: appear_timeout)
-
-  if !@result[:success] || @result[:matching].size != num
-    logger.error("Wanted #{num} but only got '#{@result[:matching].size}' PVs labeled: #{labels.join(",")}")
-    raise "See log, waiting for labeled PVs futile: #{labels.join(',')}"
+                       user: admin, seconds: timeout) do |pv, pv_hash|
+    pv.status?(user: admin, status: status, cached: true)[:success]
   end
 
   @pvs.reject! { |pv| @result[:matching].include? pv }
   @pvs.concat @result[:matching]
 
-  # keep last waiting @result as the @result for knowing how pv failed
-  @result[:matching].each do |pv|
-    # TODO make status_timeout be a global timeout not per PV
-    @result = pv.wait_till_status(status, admin, status_timeout)
-
-    unless @result[:success]
-      raise "pv #{pv.name} did not reach expected status"
-    end
+  if !@result[:success] || @result[:matching].size != num
+    logger.error("Wanted #{num} but only got '#{@result[:matching].size}' PVs labeled: #{labels.join(",")}")
+    raise "See log, waiting for labeled PVs futile: #{labels.join(',')}"
   end
 end
 

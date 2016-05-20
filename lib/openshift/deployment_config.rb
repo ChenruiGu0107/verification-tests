@@ -4,6 +4,7 @@ module CucuShift
   # represents an OpenShift DeploymentConfig (dc for short) used for scaling pods
   class DeploymentConfig < ProjectResource
     RESOURCE = "deploymentconfigs"
+    STATUSES = [:waiting, :running, :succeeded, :failed, :complete]
 
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that can change at any time like status and spec
@@ -30,7 +31,8 @@ module CucuShift
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if pod status is what's expected
-    def status?(user:, status:, quiet: false)
+    # @note TODO: can we just remove method and use [Resource#status?]
+    def status?(user:, status:, quiet: false, cached: false)
       statuses = {
         waiting: "Waiting",
         running: "Running",
