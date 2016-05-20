@@ -526,6 +526,7 @@ Feature: creating 'apps' with CLI
     Given an 8 character random string of type :dns952 is stored into the :appname clipboard
     When I run the :new_app client command with:
       | app_repo | ruby-hello-world |
+      | image_stream | openshift/ruby:latest |
       | name | <%= cb.appname %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Given the "<%= cb.appname %>-1" build completes
@@ -539,6 +540,7 @@ Feature: creating 'apps' with CLI
     Given an 8 character random string of type :dns952 is stored into the :appname1 clipboard
     When I run the :new_app client command with:
       | code | https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:2.2 |
       | name | <%= cb.appname1 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Given the "<%= cb.appname1 %>-1" build completes
@@ -552,6 +554,7 @@ Feature: creating 'apps' with CLI
     Given an 8 character random string of type :dns952 is stored into the :appname2 clipboard
     When I run the :new_app client command with:
       | code | http://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:2.0 |
       | name | <%= cb.appname2 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Given the "<%= cb.appname2 %>-1" build completes
@@ -565,6 +568,7 @@ Feature: creating 'apps' with CLI
     Given an 8 character random string of type :dns952 is stored into the :appname3 clipboard
     When I run the :new_app client command with:
       | code | git://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby |
       | name | <%= cb.appname3 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Given the "<%= cb.appname3 %>-1" build completes
@@ -578,6 +582,7 @@ Feature: creating 'apps' with CLI
     Given an 8 character random string of type :dns952 is stored into the :appname4 clipboard
     When I run the :new_app client command with:
       | code | https://github.com/openshift/ruby-hello-world#master |
+      | image_stream | openshift/ruby |
       | name | <%= cb.appname4 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     When I run the :describe client command with:
@@ -588,6 +593,7 @@ Feature: creating 'apps' with CLI
     Given an 8 character random string of type :dns952 is stored into the :appname5 clipboard
     When I run the :new_app client command with:
       | code | https://github.com/openshift/ruby-hello-world#invalid |
+      | image_stream | openshift/ruby |
       | name | <%= cb.appname5 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Then the output should contain "error"
@@ -595,6 +601,7 @@ Feature: creating 'apps' with CLI
     Given an 8 character random string of type :dns952 is stored into the :appname6 clipboard
     When I run the :new_app client command with:
       | code | https://github.com/openshift/ruby-hello-world#beta4 |
+      | image_stream | openshift/ruby |
       | name | <%= cb.appname6 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     When I run the :describe client command with:
