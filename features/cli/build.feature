@@ -1854,3 +1854,19 @@ Feature: build 'apps' with CLI
     When I get project pods
     Then the output should not contain "php"
     """
+
+  # @author cryan@redhat.com
+  # @case_id 525734
+  Scenario: Cannot docker build with no inputs in buildconfig
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/nosrc-extended-test-bldr/master/nosrc-test.json"
+    When I run the :create client command with:
+      | f | nosrc-test.json |
+    Then the step should fail
+    And the output should contain "must provide a value"
+    Given I replace lines in "nosrc-test.json":
+      | "source": {}, | "source": { "type": "None" }, |
+    When I run the :create client command with:
+      | f | nosrc-test.json |
+    Then the step should fail
+    And the output should contain "must provide a value"
