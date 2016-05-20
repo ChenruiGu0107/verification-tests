@@ -66,7 +66,7 @@ Feature: Testing haproxy router
     Then the output should contain "<%= cb.pj_name %>_route-passthrough"
 
 
-  #@auther bmeng@redhat.com
+  #@author bmeng@redhat.com
   #@case_id 483197
   @admin
   Scenario: Only the certs file of the certain route will be updated when the route is updated
