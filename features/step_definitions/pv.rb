@@ -34,6 +34,7 @@ Given /^([0-9]+) PVs become #{SYM}(?: within (\d+) seconds)? with labels:$/ do |
 
   if !@result[:success] || @result[:matching].size != num
     logger.error("Wanted #{num} but only got '#{@result[:matching].size}' PVs labeled: #{labels.join(",")}")
+    logger.info @result[:response]
     raise "See log, waiting for labeled PVs futile: #{labels.join(',')}"
   end
 end

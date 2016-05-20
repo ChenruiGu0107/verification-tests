@@ -25,6 +25,7 @@ Given /^([0-9]+) PVCs become #{SYM}(?: within (\d+) seconds)? with labels:$/ do 
 
   if !@result[:success] || @result[:matching].size != num
     logger.error("Wanted #{num} but got '#{@result[:matching].size}' PVCs labeled: #{labels.join(",")}")
+    logger.info @result[:response]
     raise "See log, waiting for labeled PVCs futile: #{labels.join(',')}"
   end
 end
