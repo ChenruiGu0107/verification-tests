@@ -131,12 +131,16 @@ module CucuShift
 
     def clean_projects
       logger.info "cleaning-up user #{name} projects"
-      projects = projects()
-      return if projects.empty?
 
       ## make sure we don't delete special projects due to wrong permissions
-      project_names = projects.map(&:name)
-      unless (project_names & Project::SYSTEM_PROJECTS).empty?
+      #  also make sure we don't hit policy cache incoherence
+      only_safe_projects = wait_for(30, interval: 5) {
+        projects = projects()
+        return if projects.empty?
+        project_names = projects.map(&:name)
+        (project_names & Project::SYSTEM_PROJECTS).empty?
+      }
+      unless only_safe_projects
         raise "system projects visible to user #{name}, clean-up too dangerous"
       end
 
@@ -154,6 +158,8 @@ module CucuShift
     end
 
     def clean_up_on_load
+      # keep project clean first as it can also catch policy cache incoherence
+      # see https://bugzilla.redhat.com/show_bug.cgi?id=1337096
       clean_projects
     end
 
