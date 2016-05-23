@@ -1870,3 +1870,40 @@ Feature: build 'apps' with CLI
       | f | nosrc-test.json |
     Then the step should fail
     And the output should contain "must provide a value"
+
+  #author yantan@redhat.com
+  # @case_id 525736
+  Scenario: Do sti build with no inputs in buildconfig
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/dongboyan77/nosrc-extended-test-bldr/master/nosrc-setup.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/dongboyan77/nosrc-extended-test-bldr/master/nosrc-test.json  |
+    When I run the :get client command with:
+      | resource | bc |
+    Then the output should contain:
+      | ruby-sample-build-ns |
+    When I run the :start_build client command with:
+      | buildconfig | nosrc-bldr |
+      | follow      | true       |
+    Then the step should succeed
+    Given the "nosrc-bldr-1" build becomes :complete
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build-ns |
+      | follow      | true |
+    Given the "ruby-sample-build-ns-1" build becomes :complete
+    When I run the :delete client command with:
+      | object_type      | bc |
+      | object_name_or_id | ruby-sample-build-ns |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525736/Nonesrc-sti.json |
+    When I run the :get client command with:
+      | resource      | bc |
+      | resource_name | ruby-sample-build-ns |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build-ns |
+    Then the step should succeed
+    Given the "ruby-sample-build-ns-1" build becomes :complete
