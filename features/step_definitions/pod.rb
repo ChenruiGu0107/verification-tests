@@ -43,7 +43,7 @@ end
 
 Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
   status_timeout = 15 * 60
-  @result = pod(name).wait_till_status(status, user, status_timeout)
+  @result = pod(name).wait_till_status(status.to_sym, user, status_timeout)
 
   unless @result[:success]
     logger.error(@result[:response])
@@ -72,11 +72,12 @@ Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
   ready_timeout = 15 * 60
   num = Integer(count)
 
+  # TODO: make waiting a single step like for PVs and PVCs
   @result = CucuShift::Pod.wait_for_labeled(*labels, count: num,
                        user: user, project: project, seconds: pod_timeout)
 
   if !@result[:success] || @result[:matching].size < num
-    logger.error("Wanted #{num} but only got #{@result[:matching].size} pods labeled: #{labels.join(",")}")
+    logger.error("Wanted #{num} but only got '#{@result[:matching].size}' pods labeled: #{labels.join(",")}")
     raise "See log, waiting for labeled pods futile: #{labels.join(',')}"
   end
 

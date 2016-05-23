@@ -3,10 +3,11 @@ require 'openshift/project_resource'
 module CucuShift
   # represents an OpenShift pod
   class Pod < ProjectResource
-
+    RESOURCE = "pods"
+    # https://github.com/kubernetes/kubernetes/blob/master/pkg/api/types.go
+    STATUSES = [:pending, :running, :succeeded, :failed, :unknown]
     # statuses that indicate pod running or completed successfully
     SUCCESS_STATUSES = [:running, :succeeded, :missing]
-    RESOURCE = "pods"
 
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that ca nchange at any time like status and spec
@@ -115,49 +116,6 @@ module CucuShift
     def status_reachable?(from_status, to_status)
       [to_status].flatten.include?(from_status) ||
         ![:failed, :unknown].include?(from_status)
-    end
-
-    # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
-    # @return [Boolean] if pod status is what's expected
-    # @note
-    #   https://github.com/kubernetes/kubernetes/blob/master/pkg/api/types.go
-    def status?(user:, status:, quiet: false)
-      #The 'missing' status is used a a dummy value; when some pods become
-      #ready, they die (build/deploy), and we still want to count them as well.
-      statuses = {
-        pending: "Pending",
-        running: "Running",
-        succeeded: "Succeeded",
-        failed: "Failed",
-        missing: "Dummy Value",
-        unknown: "Unknown"
-      }
-
-      res = get(user: user, quiet: quiet)
-      status = status.respond_to?(:map) ?
-          status.map{ |s| statuses[s] } :
-          [ statuses[status.to_sym] ]
-
-      #Check if the user-provided status actually exists
-      if status.any?{|s| s.nil?}
-        raise "The provided status is not a pre-existing state. Please check again."
-      end
-
-      if res[:success]
-        res[:success] =
-          res[:parsed]["status"] &&
-          res[:parsed]["status"]["phase"] &&
-          status.include?(res[:parsed]["status"]["phase"])
-
-        res[:matched_status], garbage = statuses.find { |sym, str|
-          str == res[:parsed]["status"]["phase"]
-        }
-      # missing pods mean pod has been destroyed already probably deploy pod
-      elsif res[:stderr] && res[:stderr].include?('not found')
-        res[:success] = true if status.include? :missing
-        res[:matched_status] = :missing
-      end
-      return res
     end
 
     # executes command on pod

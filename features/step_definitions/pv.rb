@@ -9,6 +9,36 @@ Given /^the#{OPT_QUOTED} PV becomes #{SYM}(?: within (\d+) seconds)?$/ do |pv_na
   end
 end
 
+Given /^the PVs become #{SYM}(?: within (\d+) seconds) with labels:?$/ do |status, timeout, table|
+  timeout = timeout ? timeout.to_i : 30
+  @result = pv(pv_name).wait_till_status(status.to_sym, admin, timeout)
+
+  unless @result[:success]
+    raise "PV #{pv_name} never reached status: #{status}"
+  end
+end
+
+Given /^([0-9]+) PVs become #{SYM}(?: within (\d+) seconds)? with labels:$/ do |count, status, timeout, table|
+  labels = table.raw.flatten # dimentions irrelevant
+  timeout = timeout ? timeout.to_i : 60
+  status = status.to_sym
+  num = Integer(count)
+
+  @result = CucuShift::PersistentVolume.wait_for_labeled(*labels, count: num,
+                       user: admin, seconds: timeout) do |pv, pv_hash|
+    pv.status?(user: admin, status: status, cached: true)[:success]
+  end
+
+  @pvs.reject! { |pv| @result[:matching].include? pv }
+  @pvs.concat @result[:matching]
+
+  if !@result[:success] || @result[:matching].size != num
+    logger.error("Wanted #{num} but only got '#{@result[:matching].size}' PVs labeled: #{labels.join(",")}")
+    logger.info @result[:response]
+    raise "See log, waiting for labeled PVs futile: #{labels.join(',')}"
+  end
+end
+
 Given /^the#{OPT_QUOTED} PV status is #{SYM}$/ do |pv_name, status|
   @result = pv(pv_name).status?(status: status.to_sym, user: admin)
 
