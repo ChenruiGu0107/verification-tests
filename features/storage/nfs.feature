@@ -335,14 +335,14 @@ Feature: NFS Persistent Volume
       | chmod | -R | 700 | /mnt/data |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/liangxia/v3-testfiles/master/cases/510532/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/510532/pod.json" replacing paths:
       | ["metadata"]["name"]                                 | pod1-<%= project.name %>         |
       | ["spec"]["securityContext"]["runAsUser"]             | 1000100001                       |
       | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100666                       |
       | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
       | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/liangxia/v3-testfiles/master/cases/510532/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/510532/pod.json" replacing paths:
       | ["metadata"]["name"]                                 | pod2-<%= project.name %>         |
       | ["spec"]["securityContext"]["runAsUser"]             | 1000100002                       |
       | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100666                       |
@@ -373,6 +373,71 @@ Feature: NFS Persistent Volume
       | ls | -ld | /mnt/nfs |
     Then the output should contain:
       | drwx------ |
+    When I execute on the "pod2-<%= project.name %>" pod:
+      | touch | /mnt/nfs/pod2 |
+    Then the step should fail
+
+    When I execute on the "nfs-server" pod:
+      | ls | /mnt/data |
+    Then the output should contain:
+      | pod1 |
+    And the output should not contain:
+      | pod2 |
+
+  # @author lxia@redhat.com
+  # @case_id 510690
+  @admin
+  @destructive
+  Scenario: [storage_private_155] group permission to write to nfs
+    Given I have a project
+    And I have a NFS service in the project
+
+    # make NFS only accessable to group 1000100011
+    When I execute on the pod:
+      | chown | -R | root:1000100011 | /mnt/data |
+    Then the step should succeed
+    When I execute on the pod:
+      | chmod | -R | 070 | /mnt/data |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/510690/pod.json" replacing paths:
+      | ["metadata"]["name"]                                 | pod1-<%= project.name %>         |
+      | ["spec"]["securityContext"]["runAsUser"]             | 1000100005                       |
+      | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100011                       |
+      | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
+      | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/510532/pod.json" replacing paths:
+      | ["metadata"]["name"]                                 | pod2-<%= project.name %>         |
+      | ["spec"]["securityContext"]["runAsUser"]             | 1000100005                       |
+      | ["spec"]["securityContext"]["supplementalGroups"][0] | 1000100022                       |
+      | ["spec"]["volumes"][0]["nfs"]["server"]              | <%= service("nfs-service").ip %> |
+      | ["spec"]["volumes"][0]["nfs"]["path"]                | /                                |
+    Then the step should succeed
+
+    Given 2 pods become ready with labels:
+      | name=frontendhttp |
+
+    When I execute on the "pod1-<%= project.name %>" pod:
+      | id |
+    Then the output should contain:
+      | 1000100011 |
+    When I execute on the "pod1-<%= project.name %>" pod:
+      | ls | -ld | /mnt/nfs |
+    Then the output should contain:
+      | d---rwx--- |
+    When I execute on the "pod1-<%= project.name %>" pod:
+      | touch | /mnt/nfs/pod1 |
+    Then the step should succeed
+
+    When I execute on the "pod2-<%= project.name %>" pod:
+      | id |
+    Then the output should contain:
+      | 1000100022 |
+    When I execute on the "pod2-<%= project.name %>" pod:
+      | ls | -ld | /mnt/nfs |
+    Then the output should contain:
+      | d---rwx--- |
     When I execute on the "pod2-<%= project.name %>" pod:
       | touch | /mnt/nfs/pod2 |
     Then the step should fail
