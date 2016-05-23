@@ -588,7 +588,7 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | app_repo | https://github.com/openshift/nodejs-ex |
     Then the step should succeed
-    And the "sti-nodejs-1" build completed
+    And the "nodejs-ex-1" build completed
     And I git clone the repo "https://github.com/openshift/nodejs-ex"
     And I run the :start_build client command with:
       | buildconfig | nodejs-ex |
