@@ -43,7 +43,7 @@ end
 
 Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
   status_timeout = 15 * 60
-  @result = pod(name).wait_till_status(status, user, status_timeout)
+  @result = pod(name).wait_till_status(status.to_sym, user, status_timeout)
 
   unless @result[:success]
     logger.error(@result[:response])
