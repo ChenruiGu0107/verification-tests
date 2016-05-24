@@ -12,8 +12,10 @@ module CucuShift
       s = rc_hash["spec"]
       props[:uid] = m["uid"]
       props[:labels] = m["labels"]
+      props[:annotations] = m["annotations"] # may change, use with care
       props[:created] = m["creationTimestamp"] # already [Time]
       props[:spec] = s
+      props[:status] = rc_hash["status"] # may change, use with care
 
       return self # mainly to help ::from_api_object
     end
@@ -49,12 +51,33 @@ module CucuShift
     # @return [CucuShift::ResultHash] with :success depending on
     #   status['replicas'] == spec['replicas']
     # @note we also need to check that the spec.replicas is > 0
-    def ready?(user:, quiet: false)
-      res = get(user: user, quiet: quiet)
-      if res[:success]
-        res[:success] = (res[:parsed]["status"]["replicas"] == res[:parsed]["spec"]["replicas"] \
-                         and res[:parsed]["spec"]["replicas"].to_i > 0)
+    def ready?(user:, quiet: false, cached: false)
+      if cached && props[:status] && props[:annotations] && props[:spec]
+        cache = {
+          "status" => props[:status],
+          "spec" => props[:spec],
+          "metadata" => {"annotations" => props[:annotations]}
+        }
+
+        res = {
+          success: true,
+          instruction: "get rc #{name} cached ready status",
+          response: cache.to_yaml,
+          parsed: cache
+        }
+        current_replicas = props[:status]["replicas"]
+        expected_replicas = props[:spec]["replicas"]
+        deployment_phase = props[:annotations]["openshift.io/deployment.phase"]
+      else
+        res = get(user: user, quiet: quiet)
+        return res unless res[:success]
+        current_replicas = res[:parsed]["status"]["replicas"]
+        expected_replicas = res[:parsed]["spec"]["replicas"]
+        deployment_phase = res[:parsed]['metadata']['annotations']["openshift.io/deployment.phase"]
       end
+      res[:success] = expected_replicas.to_i > 0 &&
+                      current_replicas == expected_replicas &&
+                      deployment_phase == 'Complete'
       return res
     end
 

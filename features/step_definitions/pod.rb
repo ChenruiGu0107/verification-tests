@@ -162,26 +162,3 @@ Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |po
   @result  = res_cache
 end
 
-
-# restore the default docker-registry by finding the latest deployment with
-# 'Complete' as status and do 'oc rollback <dc_name> --to-version=<lastest_golden_version>.
-Given /^default (router|docker-registry) deployment config is restored after scenario$/ do |resource|
-  ensure_admin_tagged
-  _admin = admin
-  # first we need to save the current version
-  @result = _admin.cli_exec(:get, resource: 'rc', o: 'yaml', n: 'default', l: resource)
-  raise "#{@result[:response]}" unless @result[:success]
-  @result[:parsed] = YAML.load @result[:response]
-  # XXX: ruby note, use sort_by is quicker for complicated keys like timestamp.
-  rcs = @result[:parsed]['items'].sort_by { |item| item['metadata']['creationTimeStamp']}
-  # get the latest rev of router & docker-registry
-  revert_version = rcs[-1]['metadata']['annotations']["openshift.io/deployment-config.latest-version"]
-  raise "latest version #{revert_version} is bad, exiting..." if rcs[-1]['metadata']['annotations']["openshift.io/deployment.phase"] != 'Complete'
-  teardown_add {
-    @result = _admin.cli_exec(:rollback, deployment_name: resource, to_version: revert_version, n: "default")
-    raise "Cannot restore #{resource}" unless @result[:success]
-    latest_version = @result[:response].match(/^#(\d+)/)[1]
-    rc_name = resource + "-" + latest_version
-    rc(rc_name,project("default")).wait_till_ready(_admin, 900)
-  }
-end
