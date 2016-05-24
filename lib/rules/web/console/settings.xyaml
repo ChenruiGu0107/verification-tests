@@ -86,4 +86,8 @@ save_edit_general_informantion:
       text: Save
     type: button
     op: click
-
+check_quota_scope_type:
+  action: goto_settings_page
+  elements:
+  - selector:
+      xpath: //div[@class="ng-binding ng-scope" and contains(text(),'<scope_type>')]
