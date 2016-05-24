@@ -164,8 +164,9 @@ Given /^I wait for the resource "(.+)" named "(.+)" to disappear$/ do |resource_
   seconds = 15 * 60   # just put a timeout so we don't hang there indefintely
   success = wait_for(seconds) {
     res = user.cli_exec(:get, **opts)
-    if res[:response].include? 'not found'
-      # the resource has terminated which means we are done waiting.
+    case res[:response]
+    # the resource has terminated which means we are done waiting.
+    when /cannot get projects in project/, /not found/
       break true
     end
   }

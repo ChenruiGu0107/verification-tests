@@ -80,14 +80,11 @@ Feature: create app on web console related
   # @case_id 507527
   Scenario: Create application from image on web console
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
-    Then the step should succeed
     Given I wait for the :create_app_from_image web console action to succeed with:
       | project_name | <%= project.name %> |
       | image_name   | python              |
       | image_tag    | 3.4                 |
-      | namespace    | <%= project.name %> |
+      | namespace    | openshift           |
       | app_name     | python-sample       |
       | source_url   | https://github.com/openshift/django-ex.git |
     Given the "python-sample-1" build was created
@@ -100,7 +97,7 @@ Feature: create app on web console related
       | project_name | <%= project.name %>   |
       | image_name   | python                |
       | image_tag    | 3.4                   |
-      | namespace    | <%= @projects[0].name %> |
+      | namespace    | openshift             |
       | app_name     | python-sample-another |
       | source_url   | https://github.com/openshift/django-ex.git |
       | git_ref      | v1.0.1                |
