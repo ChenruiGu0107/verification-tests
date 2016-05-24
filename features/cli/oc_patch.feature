@@ -48,16 +48,16 @@ Feature: oc patch related scenarios
     When I run the :patch client command with:
       | resource      | dc              |
       | resource_name | database        |
-      | p             | {"spec":{"replicas":2}} |
+      | p             | {"spec":{"strategy":{"resources":{"limits":{"memory":"300Mi"}}}}} |
     Then the step should succeed
     Then I wait for the steps to pass:
     """
     When I run the :get client command with:
       | resource      | dc                 |
       | resource_name | database           |
-      | template      | {{.spec.replicas}} |
+      | template      | {{.spec.strategy.resources.limits.memory}} |
     Then the step should succeed
-    And the output should contain "2"
+    And the output should contain "300Mi"
     """
 
     When I run the :patch client command with:
@@ -125,28 +125,25 @@ Feature: oc patch related scenarios
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
     Given I wait until the status of deployment "database" becomes :running
-    And evaluation of `"spec:\n  replicas: 2"` is stored in the :patch_yaml clipboard
     When I run the :patch client command with:
       | resource      | dc                   |
       | resource_name | database             |
-    # Not work well to simply use | p             | spec:\n  replicas: 2 |
-      | p             | <%= cb.patch_yaml %> |
+      | p             | spec:\n  strategy:\n    resources:\n      limits:\n        memory: 300Mi |
     Then the step should succeed
     Then I wait for the steps to pass:
     """
     When I run the :get client command with:
       | resource      | dc                 |
       | resource_name | database           |
-      | template      | {{.spec.replicas}} |
+      | template      | {{.spec.strategy.resources.limits.memory}} |
     Then the step should succeed
-    And the output should contain "2"
+    And the output should contain "300Mi"
     """
 
-    Given evaluation of `"spec:\n  output:\n    to:\n      name: origin-ruby-sample:tag1"` is stored in the :patch_yaml clipboard
     When I run the :patch client command with:
       | resource      | bc                   |
       | resource_name | ruby-sample-build    |
-      | p             | <%= cb.patch_yaml %> |
+      | p             | spec:\n  output:\n    to:\n      name: origin-ruby-sample:tag1 |
     Then the step should succeed
     Then I wait for the steps to pass:
     """
@@ -158,11 +155,10 @@ Feature: oc patch related scenarios
     And the output should contain "origin-ruby-sample:tag1"
     """
 
-    Given evaluation of `"spec:\n  dockerImageRepository: xxia/origin-ruby-sample"` is stored in the :patch_yaml clipboard
     When I run the :patch client command with:
       | resource      | is                   |
       | resource_name | origin-ruby-sample   |
-      | p             | <%= cb.patch_yaml %> |
+      | p             | spec:\n  dockerImageRepository: xxia/origin-ruby-sample |
     Then the step should succeed
     Then I wait for the steps to pass:
     """

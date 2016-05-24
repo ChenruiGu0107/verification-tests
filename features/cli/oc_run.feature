@@ -257,11 +257,7 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       |  "limits":          |
-      |  "cpu": "200m"      |
       |  "memory": "512Mi"  |
-      |  "requests"         |
-      |  "cpu": "100m"      |
-      |  "memory": "256Mi"  |
     When I run the :run client command with:
       | name      | myrun-pod-3             |
       | image     | aosqe/hello-openshift   |

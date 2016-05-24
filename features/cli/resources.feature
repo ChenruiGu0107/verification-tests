@@ -98,10 +98,12 @@ Feature: resouces related scenarios
       | generator    | run-pod/v1                |
     Then the step should succeed
     Given the pod named "mypod" becomes ready
-    And I run the :get client command with:
-      | resource      | pod                |
-      | resource_name | mypod              |
-      | output        | yaml               |
+    When I run the :run client command with:
+      | name         | mypod                     |
+      | image        | openshift/hello-openshift |
+      | generator    | run-pod/v1                |
+      | dry_run      |                           |
+      | -o           | yaml                      |
     Then the step should succeed
     When I save the output to file>pod.yaml
     And I run the :replace client command with:
@@ -446,7 +448,7 @@ Feature: resouces related scenarios
     # Create a "Completed" pod using command which returns 0 and "Never" restartPolicy
     When I run the :run client command with:
       | name      | mypod1        |
-      | image     | <%= project_docker_repo %>openshift/origin |
+      | image     | <%= project_docker_repo %>openshift/origin-base |
       | generator | run-pod/v1    |
       | command   | true          |
       | cmd       | /bin/true     |
@@ -455,7 +457,7 @@ Feature: resouces related scenarios
     # Create a "Error" pod using command which returns non-0 and "Never" restartPolicy
     When I run the :run client command with:
       | name      | mypod2        |
-      | image     | <%= project_docker_repo %>openshift/origin |
+      | image     | <%= project_docker_repo %>openshift/origin-base |
       | generator | run-pod/v1    |
       | command   | true          |
       | cmd       | /bin/false    |
