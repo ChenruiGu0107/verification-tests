@@ -266,3 +266,32 @@ Feature: dockerbuild.feature
       | f | bc1.json |
     Then the step should fail
     And the output should contain "build strategy Docker is not allowed"
+
+  # @author wewang@redhat.com
+  # @case_id 517672
+  @admin
+  @destructive
+  Scenario: Allowing only certain users in a specific project to create builds with a particular strategy
+    Given I have a project
+    Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should fail
+    And the output should contain "build strategy Docker is not allowed"
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    When I run the :policy_add_role_to_user admin command with:
+      | role            |   system:build-strategy-docker |
+      | user name       |   <%= user.name %>    |
+      | n               |   <%= cb.proj_name %> |
+    Then the step should succeed
+    And I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build was created
+    Given I create a new project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should fail
+    And the output should contain "build strategy Docker is not allowed"
+
