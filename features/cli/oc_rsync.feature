@@ -122,6 +122,50 @@ Feature: oc_rsync.feature
     Given the "rsync_folder/lvl2/test1" file is present
 
   # @author cryan@redhat.com
+  # @case_id 510661
+  Scenario: Copying files from host to container using oc rsync command using rsync-daemon strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | aosqe/scratch:tarrsync |
+    Given a pod becomes ready with labels:
+      | app=scratch |
+    Given I create the "test1" directory
+    Given a "test1/testfile1" file is created with the following lines:
+    """
+    test1
+    """
+    When I run the :rsync client command with:
+      | source | ./test1 |
+      | destination | <%= pod.name %>:/tmp/test1  |
+      | loglevel | 5 |
+      | strategy | rsync-daemon |
+    Then the step should succeed
+    And the output should match "sent \d+ bytes"
+    When I execute on the pod:
+      | ls | -ltr | /tmp |
+    Then the step should succeed
+    And the output should contain "test1"
+    When I run the :rsync client command with:
+      | source | ./test1 |
+      | destination | <%= pod.name %>:/tmp/test1  |
+      | loglevel | 5 |
+      | strategy | rsync-daemon |
+    Then the step should succeed
+    And the output should match "sent \d+ bytes"
+    When I execute on the pod:
+      | ls | -ltr | /tmp |
+    Then the step should succeed
+    And the output should contain "test1"
+    When I execute on the pod:
+      | ls | -ltr | /tmp/test1/test1 |
+    Then the step should succeed
+    And the output should contain "testfile1"
+    When I execute on the pod:
+      | cat | /tmp/test1/test1/testfile1 |
+    Then the step should succeed
+    And the output should contain "test1"
+
+  # @author cryan@redhat.com
   # @case_id 510667
   Scenario: oc rsync with --delete option, using tar strategy
     Given I have a project
