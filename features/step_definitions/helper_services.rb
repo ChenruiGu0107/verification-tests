@@ -109,12 +109,14 @@ Given /^I have an http-git service in the(?: "([^ ]+?)")? project$/ do |project_
   @result = user.cli_exec(:policy_add_role_to_user, role: "edit", serviceaccount: "git")
   raise "error with git service account policy" unless @result[:success]
 
+  step 'I wait for the "git" service to become ready'
+
   @result = service("git").wait_till_ready(user, 300)
   raise "git service did not become ready" unless @result[:success]
 
   ## we assume to get git pod in the result above, fail otherwise
   cache_pods *@result[:matching]
-  unless pod.name.start_with? "git-server-"
+  unless pod.name.start_with? "git-"
     raise("looks like underlying implementation changed and service ready" +
       "status does not return matching pods anymore; report CucuShift bug")
   end
