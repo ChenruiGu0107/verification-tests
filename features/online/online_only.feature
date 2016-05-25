@@ -1,8 +1,7 @@
-Feature: ONLY ONLINE related feature's scripts in this file 
-
+Feature: ONLY ONLINE related feature's scripts in this file
 
   # @author bingli@redhat.com
-  # @case_id 516510 
+  # @case_id 516510
   Scenario: cli disables Docker builds and custom builds and allow only sti builds
     Given I have a project
     When I run the :new_build client command with:

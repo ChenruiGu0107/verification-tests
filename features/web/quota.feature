@@ -1,20 +1,20 @@
 Feature: functions about resourcequotas
-  
+
   # @author yanpzhan@redhat.com
   # @case_id 521078 521120 521122
   @admin
   Scenario Outline: Check scopes of resourcequota on web console
     Given I have a project
     When I run the :create admin command with:
-      | f | <quota_file> |      
+      | f | <quota_file> |
       | n | <%= project.name %> |
     Then the step should succeed
-    
+
     When I perform the :check_quota_scope_type web console action with:
       | project_name | <%= project.name%> |
       | scope_type   | <scope_type> |
     Then the step should succeed
-  
+
     #Check used quota when no pod exists
     When I perform the :check_used_value web console action with:
       | resource_type | CPU (Limit) |
@@ -75,7 +75,7 @@ Feature: functions about resourcequotas
       | f | <pod2_file> |
     Then the step should succeed
 
-    #Check used quota when only "pod2" exists 
+    #Check used quota when only "pod2" exists
     When I perform the :goto_settings_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
@@ -125,7 +125,7 @@ Feature: functions about resourcequotas
       | resource_type | Pods |
       | used_value    | 0    |
     Then the step should succeed
-    
+
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-besteffort.yaml |
     Then the step should succeed

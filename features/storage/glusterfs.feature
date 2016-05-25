@@ -3,7 +3,7 @@ Feature: Storage of GlusterFS plugin testing
   # @author wehe@redhat.com
   # @case_id 522140
   @admin @destructive
-  Scenario: Gluster storage testing with Invalid gluster endpoint 
+  Scenario: Gluster storage testing with Invalid gluster endpoint
     Given I have a project
 
     #Create a invlid endpoint

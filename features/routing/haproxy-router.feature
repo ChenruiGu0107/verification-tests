@@ -134,7 +134,7 @@ Feature: Testing haproxy router
     # update one of the routes
     Given I switch to the first user
     And I use the "<%= cb.project %>" project
-    When I run the :patch client command with:                                                                                                                        
+    When I run the :patch client command with:
       | resource | route |
       | resource_name | route-reen |
       | p | {"spec": {"host": "<%= rand_str(5, :dns) %>.reen2.com"}} |

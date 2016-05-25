@@ -11,8 +11,8 @@ Feature: Get the build dependencies
       | confirm      | true |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | is | 
-      | o | json | 
+      | resource | is |
+      | o | json |
     Then the output should contain "<%= cb.proj_name %>/ruby"
     When I run the :new_app client command with:
       | image_stream   | <%= cb.proj_name %>/ruby |
