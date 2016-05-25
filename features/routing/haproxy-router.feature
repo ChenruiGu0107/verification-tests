@@ -160,7 +160,7 @@ Feature: Testing haproxy router
       | --full-time |
       | /var/lib/containers/router/certs/<%= cb.project %>_route-edge.pem |
     Then the step should succeed
-    And the expression should be true> cb.edge_cert = @result[:response]
+    And the expression should be true> cb.edge_cert == @result[:response]
 
   # @author bmeng@redhat.com
   # @case_id 489261
@@ -214,5 +214,88 @@ Feature: Testing haproxy router
       | /tmp/cookies |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
-    And the expression should be true> cb.first_access = @result[:response]
+    And the expression should be true> cb.first_access == @result[:response]
+    """
+
+  # @author bmeng@redhat.com
+  # @case_id 489258
+  Scenario: haproxy cookies based sticky session for edge termination routes
+    #create route and service which has two endpoints
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.pem"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.key"
+    When I run the :create_route_edge client command with:
+      | name | route-edge |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
+      | service | service-unsecure |
+      | cert | example_wildcard.pem |
+      | key | example_wildcard.key |
+    Then the step should succeed
+    Given I get project route as JSON
+    Then evaluation of `@result[:parsed]['items'][0]['spec']['host']` is stored in the :edge_route clipboard
+
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    And the pod named "hello-pod" becomes ready
+    When I execute on the "<%= pod.name %>" pod:
+      | wget |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
+      | -O |
+      | /tmp/ca.pem |
+    Then the step should succeed
+    #access the route without cookies
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -s |
+      | --resolve |
+      | <%= cb.edge_route %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= cb.edge_route %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+      | -c |
+      | /tmp/cookies |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    Given I wait for the steps to pass:
+    """
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -s |
+      | --resolve |
+      | <%= cb.edge_route %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= cb.edge_route %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access != @result[:response]
+    """
+    #access the route with cookies
+    Given I run the steps 6 times:
+    """
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -s |
+      | --resolve |
+      | <%= cb.edge_route %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= cb.edge_route %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+      | -b |
+      | /tmp/cookies |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access == @result[:response]
     """
