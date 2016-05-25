@@ -822,7 +822,7 @@ Feature: build 'apps' with CLI
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby22-sample-build |
-      | p | {"spec":{"postCommit":{"command": ["/bin/bash", "-c", "bundle exec rake test --verbose"]}}} |
+      | p | {"spec":{"postCommit":{"command": ["/bin/bash", "-c", "bundle exec rake test --verbose"], "args": null, "script":null}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
@@ -838,7 +838,7 @@ Feature: build 'apps' with CLI
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby22-sample-build |
-      | p | {"spec":{"postCommit": {"args": ["--verbose"],"script": "bundle exec rake test $1"}}} |
+      | p | {"spec":{"postCommit": {"args": ["--verbose"],"command":null, "script": "bundle exec rake test $1"}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
