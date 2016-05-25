@@ -1371,7 +1371,7 @@ Feature: build 'apps' with CLI
       | name:\s+python:latest |
       | destinationDir:\s+xiuwangtest |
       | sourcePath:\s+/tmp |
-    Given the "final-app-2" build completes
+    Given the "final-app-1" build completes
     Given I get project builds
     #Create a deploymentconfig to generate pods to test on,
     #Avoids the use of direct docker commands.
@@ -1407,7 +1407,7 @@ Feature: build 'apps' with CLI
       | n | <%= project.name %> |
     Then the step should succeed
     Given I get project builds
-    Then the output should contain "final-app-4"
+    Then the output should contain "final-app-3"
 
   # @author cryan@redhat.com
   # @case_id 519259
