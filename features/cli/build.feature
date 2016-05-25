@@ -1876,7 +1876,7 @@ Feature: build 'apps' with CLI
   Scenario: Do sti build with no inputs in buildconfig
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525736/nosrc-setup.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/nosrc-extended-test-bldr/master/nosrc-setup.json |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/nosrc-extended-test-bldr/master/nosrc-test.json  |
@@ -1886,12 +1886,10 @@ Feature: build 'apps' with CLI
       | ruby-sample-build-ns |
     When I run the :start_build client command with:
       | buildconfig | nosrc-bldr |
-      | follow      | true       |
     Then the step should succeed
+    Given the "nosrc-bldr-1" build becomes :complete
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build-ns |
-      | follow      | true |
-    Given the "nosrc-bldr-1" build becomes :complete
     Given the "ruby-sample-build-ns-1" build becomes :complete
     When I run the :delete client command with:
       | object_type      | bc |
