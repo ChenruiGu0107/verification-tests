@@ -1534,6 +1534,35 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given the "ruby-sample-build-2" build completes
 
+  # @author cryan@redhat.com
+  # @case_id 497658
+  @admin
+  @destructive
+  Scenario: Disabling a build strategy globally
+    Given I have a project
+    Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
+    When I run the :new_app client command with:
+        | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completes
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all||
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Then the step should fail
+    And the output should contain "Docker is not allowed"
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all||
+    Then the step should succeed
+    Given cluster role "system:build-strategy-custom" is removed from the "system:authenticated" group
+    When I run the :new_app client command with:
+        | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
+    Then the step should fail
+    And the output should contain "Custom is not allowed"
+
   # @author xiuwang@redhat.com
   # @case_id 519264
   Scenario: Can't allocate out of limits resources to container which builder pod launched for s2i build
