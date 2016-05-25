@@ -81,7 +81,7 @@ Feature: admin deployment related features
       | mydc-4  |
       | newdc-2 |
 
-    # Make deployments orphan 
+    # Make deployments orphan
     When I run the :delete client command with:
       | object_type       | dc    |
       | object_name_or_id | mydc  |
@@ -116,7 +116,6 @@ Feature: admin deployment related features
       | newdc-2 |
     And the output should contain:
       | mydc-4  |
-
 
   # @author xxia@redhat.com
   # @case_id 489298
