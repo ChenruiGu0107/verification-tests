@@ -241,3 +241,34 @@ Feature: admin build related features
       | all | true |
     Then the step should fail
     And the output should contain "Error"
+
+  # @author xxia@redhat.com
+  # @case_id 489297
+  @admin
+  Scenario: Negative/invalid options test for oadm prune builds
+    When I run the :oadm_prune_builds admin command with:
+      | confirm           | false  |
+      | keep_complete     | -2.1   |
+      | keep_failed       | 1      |
+      | keep_younger_than | 1m     |
+    Then the step should fail
+    And the output should match:
+      | [Ii]nvalid argument.*-2.1  |
+
+    When I run the :oadm_prune_builds admin command with:
+      | confirm           | false  |
+      | keep_complete     | letter |
+      | keep_failed       | 1      |
+      | keep_younger_than | 1m     |
+    Then the step should fail
+    And the output should match:
+      | [Ii]nvalid argument.*letter|
+
+    When I run the :oadm_prune_builds admin command with:
+      | confirm           | false  |
+      | keep_complete     | 2      |
+      | keep_failed       | 1      |
+      | keep_younger_than | 1min   |
+    Then the step should fail
+    And the output should match:
+      | [Ii]nvalid argument.*1min  |
