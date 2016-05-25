@@ -65,9 +65,8 @@ Feature: Testing haproxy router
       | os_tcp_be.map |
     Then the output should contain "<%= cb.pj_name %>_route-passthrough"
 
-
-  #@author bmeng@redhat.com
-  #@case_id 483197
+  # @author bmeng@redhat.com
+  # @case_id 483197
   @admin
   Scenario: Only the certs file of the certain route will be updated when the route is updated
     Given I have a project
@@ -163,9 +162,8 @@ Feature: Testing haproxy router
     Then the step should succeed
     And the expression should be true> cb.edge_cert = @result[:response]
 
-
-  #@author bmeng@redhat.com
-  #@case_id 489261
+  # @author bmeng@redhat.com
+  # @case_id 489261
   Scenario: haproxy cookies based sticky session for unsecure routes
     #create route and service which has two endpoints
     Given I have a project
