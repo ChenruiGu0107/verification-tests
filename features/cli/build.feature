@@ -544,7 +544,13 @@ Feature: build 'apps' with CLI
   Scenario: Recreate bc when previous bc is deleting pending
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc517366/test-buildconfig.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"metadata": {"annotations": {"openshift.io/build-config.paused": "true"}}} |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | buildConfig |
@@ -552,6 +558,11 @@ Feature: build 'apps' with CLI
       | build-config.paused=true |
     And I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
+    Then the step should fail
+    And the output should match:
+      | Error from server: fatal error generating Build from BuildConfig: can't instantiate from BuildConfig <%= project.name %>/ruby-sample-build: BuildConfig is paused |
+    When I run the :start_build client command with:
+      | from_build | ruby-sample-build-1 |
     Then the step should fail
     And the output should match:
       | Error from server: fatal error generating Build from BuildConfig: can't instantiate from BuildConfig <%= project.name %>/ruby-sample-build: BuildConfig is paused |
