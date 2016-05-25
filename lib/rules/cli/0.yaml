@@ -424,6 +424,7 @@
   :cmd: oc policy add-role-to-user <role> <user_name>
   :options:
     :role_namespace: --role-namespace=<value>
+    :serviceaccount: -z=<value>
 :policy_remove_group:
   :cmd: oc policy remove-group <group_name>
 :policy_remove_role_from_group:
