@@ -241,3 +241,26 @@ Feature: buildlogic.feature
     Then the step should fail
     And the output should contain:
       | error |
+
+  # @author dyan@redhat.com
+  # @case_id 476354
+  Scenario: Failed to push image with invalid Docker secret
+    Given I have a project
+    When I run the :oc_secrets_new_dockercfg client command with:
+      | secret_name     | pushme |
+      | docker_username | dyan |
+      | docker_password | xxxxxx |
+      | docker_email    | dyan@redhat.com |
+    Then the step should succeed
+    When I run the :add_secret client command with:
+      | sa_name | builder |
+      | secret_name | pushme |
+    Then the step should succeed
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc476354/pushimage.json"
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build failed
+    When I run the :logs client command with:
+      | resource_name | build/ruby22-sample-build-1 |
+    Then the output should contain:
+      | build error |
+      | Failed to push image |
