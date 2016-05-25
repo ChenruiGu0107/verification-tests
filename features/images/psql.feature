@@ -159,10 +159,10 @@ Feature: Postgresql images test
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  | openshift/postgresql-92-centos7  | openshift3/postgresql-92-rhel7 | postgresql_replica.json |
 
   # wewang@redhat.com
-  # @case_id  508092  519475
+  # @case_id 508092  519475
   @admin
   @destructive
-  Scenario Outline:  Verify DB can be connect after change admin and user password and re-deployment for persistent storage-psql92 and psql94
+  Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for persistent storage-psql92 and psql94
     Given I have a project
     And I have a NFS service in the project
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
@@ -181,7 +181,7 @@ Feature: Postgresql images test
     """
     When I execute on the pod:
       | bash | -c | psql -U $POSTGRESQL_USER -c 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));' -d $POSTGRESQL_DATABASE |
-      Then the step should succeed
+    Then the step should succeed
     """
     And the output should contain:
       | CREATE TABLE |
@@ -196,7 +196,7 @@ Feature: Postgresql images test
     And the output should contain:
       | col1 | col2 |
       | foo1 | bar1 |
-    # Change the postgresql password 
+    # Change the postgresql password
     When I run the :env client command with:
       | resource |  dc/postgresql  |
       | e        | POSTGRESQL_PASSWORD=redhat  |
@@ -217,12 +217,12 @@ Feature: Postgresql images test
       | bash | -c | psql -U $POSTGRESQL_USER -c 'SELECT * FROM tbl;' -d $POSTGRESQL_DATABASE |
     Then the step should succeed
     """
-    And the output should contain: 
+    And the output should contain:
       | col1 | col2 |
       | foo1 | bar1 |
- 
+
     Examples:
-      | file | image| new_image | template| 
+      | file | image| new_image | template|
       | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:latest  | postgresql:9.4 | postgresql-persistent-template.json |
       | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:latest  | postgresql:9.2 | postgresql-persistent-template.json |
 

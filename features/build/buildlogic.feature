@@ -140,11 +140,11 @@ Feature: buildlogic.feature
     Then the output should contain:
       |  not allowed |
 
-  Examples:
-    | buildname                               | template                                                                                                                   |
-    | ruby-sample-build-onbuild-user0-1       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-user0.json      |
-    | ruby-sample-build-onbuild-userdefault-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-userdefault.json|
-  
+    Examples:
+      | buildname                               | template                                                                                                                   |
+      | ruby-sample-build-onbuild-user0-1       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-user0.json      |
+      | ruby-sample-build-onbuild-userdefault-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-userdefault.json|
+
   # @author haowang@redhat.com
   # @case_id 497420 497421 497460 497461
   Scenario Outline: ForcePull image for build
@@ -174,7 +174,7 @@ Feature: buildlogic.feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-dockerimage.json         |
 
   # @author haowang@redhat.com
-  # @case_id  497462 497463
+  # @case_id 497462 497463
   Scenario Outline: ForcePull image for build using ImageSteamImage
     Given I have a project
     When I run the :get client command with:
@@ -209,7 +209,7 @@ Feature: buildlogic.feature
 
   # @author yantan@redhat.com
   # @case_id 515252
-  Scenario:Build with specified Dockerfile to image with same image name via new-build 
+  Scenario: Build with specified Dockerfile to image with same image name via new-build
     Given I have a project
     When I run the :new_build client command with:
       | D | FROM centos:7\nRUN yum install -y httpd |
