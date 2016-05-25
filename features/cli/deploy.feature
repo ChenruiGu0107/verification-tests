@@ -1252,16 +1252,16 @@ Feature: deployment related features
     # @case_id 515919
     Scenario: Start new deployment when deployment running
       Given I have a project
-      When I run the :new_app client command with:
-        | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+      When I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
       Then the step should succeed
-      Given I wait until the status of deployment "deployment-example" becomes :running
-      And I replace resource "dc" named "deployment-example":
+      Given I wait until the status of deployment "hooks" becomes :running
+      And I replace resource "dc" named "hooks":
         | latestVersion: 1 | latestVersion: 2 |
       Then the step should succeed
       When I run the :deploy client command with:
-        | deployment_config | deployment-example |
-      Then the output should contain "The deployment was cancelled as a newer deployment was found running"
+        | deployment_config | hooks |
+      Then the output should contain "newer deployment was found running"
 
   # @author cryan@redhat.com
   # @case_id 515922
