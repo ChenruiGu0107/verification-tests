@@ -964,19 +964,19 @@ Feature: deployment related features
       | resource | pod |
       | resource_name | hooks-1-hook-pre    |
       | output        | yaml        |
-    And the output should contain:
-      | mountPath: /opt1empt |
-      | emptyDir: {} |
-      | name: dataem |
+    And the output should match:
+      | mountPath:\\s+/var/lib/origin |
+      | emptyDir:\\s+{} |
+      | name:\\s+dataem |
     When the pod named "hooks-1-hook-post" becomes ready
     And I run the :get client command with:
       | resource | pod |
       | resource_name | hooks-1-hook-post    |
       | output        | yaml        |
-    And the output should contain:
-      | mountPath: /opt1empt |
-      | emptyDir: {} |
-      | name: dataem |
+    And the output should match:
+      | mountPath:\\s+/var/lib/origin |
+      | emptyDir:\\s+{} |
+      | name:\\s+dataem |
 
   # @author pruan@redhat.com
   # @case_id 483177, 483178
