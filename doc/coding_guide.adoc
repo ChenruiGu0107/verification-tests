@@ -5,7 +5,7 @@
 Basically follow rules described in
 https://github.com/bbatsov/ruby-style-guide
 
-Try to make sure, when you look at your code, it looks descent.
+Try to make sure, when you look at your code, it looks descent. See link:vim.adoc[vim.adoc] for some tips.
 
 == Other conventions
 
