@@ -242,8 +242,6 @@ Feature: Testing haproxy router
       | cert | example_wildcard.pem |
       | key | example_wildcard.key |
     Then the step should succeed
-    Given I get project route as JSON
-    Then evaluation of `@result[:parsed]['items'][0]['spec']['host']` is stored in the :edge_route clipboard
 
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
@@ -259,8 +257,8 @@ Feature: Testing haproxy router
       | curl |
       | -s |
       | --resolve |
-      | <%= cb.edge_route %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= cb.edge_route %>/ |
+      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
       | -c |
@@ -274,8 +272,8 @@ Feature: Testing haproxy router
       | curl |
       | -s |
       | --resolve |
-      | <%= cb.edge_route %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= cb.edge_route %>/ |
+      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
     Then the step should succeed
@@ -289,8 +287,8 @@ Feature: Testing haproxy router
       | curl |
       | -s |
       | --resolve |
-      | <%= cb.edge_route %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= cb.edge_route %>/ |
+      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
       | -b |
