@@ -245,6 +245,46 @@ Feature: NFS Persistent Volume
     Then the output should contain:
       | created_testfile |
     And the PV status is :released
+    
+  # @author wehe@redhat.com
+  # @case_id 488981
+  @admin @destructive
+  Scenario: The default reclamation policy should be retain
+    Given I have a project
+    And I have a NFS service in the project
+
+    And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto-nfs-default-rwx.json" where:
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
+      | ["spec"]["volumeName"] | <%= pv.name %> |
+    Then the step should succeed
+    And the "nfsc" PVC becomes :bound
+
+    # Create tester pod
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
+    Then the step should succeed
+
+    Given the pod named "nfs" becomes ready
+    And I execute on the "nfs" pod:
+      | touch | /mnt/created_testfile |
+    Then the step should succeed
+
+    # Delete pod and PVC to release the PV
+    Given I run the :delete client command with:
+      | object_type       | pod |
+      | object_name_or_id | nfs |
+    And I run the :delete client command with:
+      | object_type       | pvc  |
+      | object_name_or_id | nfsc |
+
+    # After PV is released, verify the created file in nfs export is reserved.
+    When I execute on the "nfs-server" pod:
+      | ls | /mnt/data/ |
+    Then the output should contain:
+      | created_testfile |
+    And the PV status is :released
 
   # @author lxia@redhat.com
   # @case_id 519352
