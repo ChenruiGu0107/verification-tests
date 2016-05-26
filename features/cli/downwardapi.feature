@@ -37,4 +37,4 @@ Feature: Downward API
     Then the step should succeed
     And the output should contain:
       | POD_NAME=dapi-test-pod |
-      | POD_NAMESPACE |
+      | POD_NAMESPACE=<%= project.name %> |
