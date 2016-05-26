@@ -72,3 +72,49 @@ Feature: Routes related features on web console
       | project_name | <%= project.name %> |
       | route_name   | service-unsecure    |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id 511913
+  Scenario: Create route for multi-port services on web console
+    When I create a new project
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/multi-portsvc.json |
+    Then the step should succeed
+    When I perform the :goto_routes_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_empty_routes_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :create_route_dont_specify_hostname_from_routes_page web console action with:
+      | service_name | multi-portsvc       |
+      | route_name   | myroute1            |
+      | target_port  | 443                 |
+    Then the step should succeed
+    When I perform the :create_route_dont_specify_hostname_from_routes_page web console action with:
+      | project_name | <%= project.name %> |
+      | service_name | multi-portsvc       |
+      | route_name   | myroute2            |
+      | target_port  | 80                  |
+    Then the step should succeed
+    When I perform the :check_route_page_loaded_successfully web console action with:
+      | project_name | <%= project.name %> |
+      | route_name   | myroute1            |
+      | service_name | multi-portsvc       |
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should match:
+      | route to.*27443.*443 |
+    When I perform the :check_route_page_loaded_successfully web console action with:
+      | project_name | <%= project.name %> |
+      | route_name   | myroute2            |
+      | service_name | multi-portsvc       |
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should match:
+      | route to.*27017.*80 |
