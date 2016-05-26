@@ -390,8 +390,8 @@ Feature: Testing route
       | /tmp/ca.pem |
     Then the step should succeed
     When I run the :create_route_edge client command with:
-      | name | route-edge |
-      | hostname | www.edge.com |
+      | name | edge-route |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
       | service | service-unsecure |
       | cert | route_edge-www.edge.com.crt |
       | key | route_edge-www.edge.com.key |
@@ -400,16 +400,16 @@ Feature: Testing route
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | www.edge.com:443:<%= cb.router_ip[0] %> |
-      | https://www.edge.com/test/ |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/test/ |
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift-Path-Test"
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | www.edge.com:443:<%= cb.router_ip[0] %> |
-      | https://www.edge.com/ |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Application is not available"
@@ -442,7 +442,7 @@ Feature: Testing route
     Then the step should succeed
     When I run the :create_route_reencrypt client command with:
       | name | route-recrypt |
-      | hostname | reen.example.com |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
       | service | service-secure |
       | cert | route_reencrypt-reen.example.com.crt |
       | key | route_reencrypt-reen.example.com.key |
@@ -453,16 +453,16 @@ Feature: Testing route
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | reen.example.com:443:<%= cb.router_ip[0] %> |
-      | https://reen.example.com/test/ |
+      | <%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>/test/ |
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift-Path-Test"
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | reen.example.com:443:<%= cb.router_ip[0] %> |
-      | https://reen.example.com/ |
+      | <%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Application is not available"
@@ -486,15 +486,15 @@ Feature: Testing route
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     And the pod named "hello-pod" becomes ready
     When I run the :create_route_reencrypt client command with:
-      | name | route-recrypt |
-      | hostname | reen.example.com |
+      | name | no-cert |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
       | service | service-secure |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | reen.example.com:443:<%= cb.router_ip[0] %> |
-      | https://reen.example.com/ |
+      | <%= route("no-cert", service("no-cert")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("no-cert", service("no-cert")).dns(by: user) %>/ |
       | -k |
     Then the output should contain "Hello-OpenShift"
