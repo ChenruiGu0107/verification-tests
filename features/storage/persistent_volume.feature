@@ -351,3 +351,34 @@ Feature: Persistent Volume Claim binding policies
     Then the output should contain:
       | Available |
 
+  # @author chaoyang@redhat.com
+  # @case_id 522215
+  @admin @destructive
+  Scenario: PV and PVC bound and unbound many times
+    Given I have a project
+    And I have a NFS service in the project
+
+    #Create 20 pv
+    Given I run the steps 20 times:
+    """
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/tc522215/pv.json" where:
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+    Then the step should succeed
+    """
+    
+    Given 20 PVs become :available within 20 seconds with labels:
+      |usedFor=tc522215|
+
+    #Loop 5 times about pv and pvc bound and unbound
+    Given I run the steps 5 times:
+    """
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/tc522215/pvc-20.json |
+    Given 20 PVCs become :bound within 50 seconds with labels:
+      |usedFor=tc522215| 
+    Then I run the :delete client command with:
+      | object_type  | pvc  |
+      | all          | all  |
+    Given 20 PVs become :available within 500 seconds with labels:
+      |usedFor=tc522215|
+    """
