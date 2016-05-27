@@ -5,7 +5,6 @@ Feature: build related feature on web console
   Scenario: Check the build information from web console
     When I create a new project via web
     Then the step should succeed
-    Given I use the "<%= project.name %>" project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
@@ -57,15 +56,11 @@ Feature: build related feature on web console
   Scenario: Cancel the New/Pending/Running build on web console
     When I create a new project via web
     Then the step should succeed
-    Given I use the "<%= project.name %>" project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
-    Then the step should succeed
     Given I wait for the :create_app_from_image web console action to succeed with:
       | project_name | <%= project.name %> |
       | image_name   | ruby                |
       | image_tag    | 2.2                 |
-      | namespace    | <%= project.name %> |
+      | namespace    | openshift           |
       | app_name     | ruby-sample         |
       | source_url   | https://github.com/openshift/ruby-ex.git |
     When I perform the :cancel_build_from_pending_status web console action with:
@@ -90,7 +85,7 @@ Feature: build related feature on web console
       | project_name | <%= project.name %> |
       | image_name   | ruby                |
       | image_tag    | 2.2                 |
-      | namespace    | <%= project.name %> |
+      | namespace    | openshift           |
       | app_name     | ruby-sample-another |
       | source_url   | https://github.com/openshift/fakerepo.git |
     Then the step should succeed
