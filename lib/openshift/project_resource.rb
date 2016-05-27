@@ -174,30 +174,6 @@ module CucuShift
       alias list get_matching
     end
 
-    # @return [CucuShift::ResultHash] with :success true if we've eventually got
-    #   the rc in ready status; the result hash is from last executed get call
-    # @note sub-class needs to implement the `#ready?` method
-    def wait_till_ready(user, seconds)
-      res = nil
-      iterations = 0
-      start_time = monotonic_seconds
-
-      success = wait_for(seconds) {
-        res = ready?(user: user, quiet: true)
-
-        logger.info res[:command] if iterations == 0
-        iterations = iterations + 1
-
-        res[:success]
-      }
-
-      duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
-        "seconds:\n#{res[:response]}"
-
-      return res
-    end
-
     ############### take care of object comparison ###############
 
     def ==(p)
