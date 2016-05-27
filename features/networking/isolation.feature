@@ -6,53 +6,79 @@ Feature: networking isolation related scenarios
   Scenario: The pods in default namespace can communicate with all the other pods
     Given I have a project
     And evaluation of `project.name` is stored in the :u1p1 clipboard
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-      | n | <%= cb.u1p1 %> |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
-    Then evaluation of `pod.ip` is stored in the :pod1_ip clipboard
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :u1p1pod_ip clipboard
+    And evaluation of `pod.name` is stored in the :u1p1pod_name clipboard
+    And evaluation of `service("test-service").ip(user: user)` is stored in the :u1p1svc_ip clipboard
 
     Given I create a new project
     And evaluation of `project.name` is stored in the :u1p2 clipboard
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-      | n | <%= cb.u1p2 %> |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
-    Then evaluation of `pod.ip` is stored in the :pod2_ip clipboard
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :u1p2pod_ip clipboard
+    And evaluation of `pod.name` is stored in the :u1p2pod_name clipboard
+    And evaluation of `service("test-service").ip(user: user)` is stored in the :u1p2svc_ip clipboard
 
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And evaluation of `rand_str(5, :dns)` is stored in the :default_name clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" replacing paths:
-    # | ["spec"]["containers"][0]["name"] | <%= cb.default_name %> |
-      | ["metadata"]["name"]              | <%= cb.default_name %> |
+    And evaluation of `rand_str(5, :dns952)` is stored in the :default_name clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+      | ["items"][0]["metadata"]["name"] | <%= cb.default_name %> |
+      | ["items"][1]["metadata"]["name"] | <%= cb.default_name %> |
     Then the step should succeed
     And I register clean-up steps:
     """
     I run the :delete admin command with:
-      | object_type | pod |
+      | object_type | rc |
+      | object_name_or_id | <%= cb.default_name %> |
+    the step should succeed
+    I run the :delete admin command with:
+      | object_type | service |
       | object_name_or_id | <%= cb.default_name %> |
     the step should succeed
     """
-    Given the pod named "<%= cb.default_name %>" becomes ready
-    Given evaluation of `pod.ip` is stored in the :default_ip clipboard
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :defaultpod_ip clipboard
+    And evaluation of `pod.name` is stored in the :defaultpod_name clipboard
+    And evaluation of `service("<%= cb.default_name %>").ip(user: user)` is stored in the :defaultsvc_ip clipboard
 
-    When I execute on the "<%= cb.default_name %>" pod:
-      | /usr/bin/curl | <%= cb.pod1_ip %>:8080 |
+    When I execute on the "<%= cb.defaultpod_name %>" pod:
+      | /usr/bin/curl | <%= cb.u1p1pod_ip %>:8080 |
     Then the output should contain "Hello OpenShift!"
-    When I execute on the "<%= cb.default_name %>" pod:
-      | /usr/bin/curl | <%= cb.pod2_ip %>:8080 |
+    When I execute on the "<%= cb.defaultpod_name %>" pod:
+      | /usr/bin/curl | <%= cb.u1p2pod_ip %>:8080 |
     Then the output should contain "Hello OpenShift!"
+    When I execute on the "<%= cb.defaultpod_name %>" pod:
+      | /usr/bin/curl | <%= cb.u1p1svc_ip %>:27017 |
+    Then the output should contain "Hello OpenShift!"
+    When I execute on the "<%= cb.defaultpod_name %>" pod:
+      | /usr/bin/curl | <%= cb.u1p2svc_ip %>:27017 |
+    Then the output should contain "Hello OpenShift!"
+
     Given I switch to the first user
     And I use the "<%= cb.u1p1 %>" project
-    When I execute on the "hello-pod" pod:
-      | /usr/bin/curl | <%= cb.default_ip %>:8080 |
+    When I execute on the "<%= cb.u1p1pod_name %>" pod:
+      | /usr/bin/curl | <%= cb.defaultpod_ip %>:8080 |
     Then the output should contain "Hello OpenShift!"
+    When I execute on the "<%= cb.u1p1pod_name %>" pod:
+      | /usr/bin/curl | <%= cb.defaultsvc_ip %>:27017 |
+    Then the output should contain "Hello OpenShift!"
+
     Given I use the "<%= cb.u1p2 %>" project
-    When I execute on the "hello-pod" pod:
-      | /usr/bin/curl | <%= cb.default_ip %>:8080 |
+    When I execute on the "<%= cb.u1p2pod_name %>" pod:
+      | /usr/bin/curl | <%= cb.defaultpod_ip %>:8080 |
+    Then the output should contain "Hello OpenShift!"
+    When I execute on the "<%= cb.u1p2pod_name %>" pod:
+      | /usr/bin/curl | <%= cb.defaultsvc_ip %>:27017 |
     Then the output should contain "Hello OpenShift!"
 
   # @author bmeng@redhat.com
