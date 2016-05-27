@@ -128,22 +128,26 @@ Feature: buildlogic.feature
 
   # @author haowang@redhat.com
   # @case_id 499516
-  Scenario Outline: Prevent STI builder images from running as root - using onbuild image
+  Scenario: Prevent STI builder images from running as root - using onbuild image
     Given I have a project
     When I run the :create client command with:
-      | f | <template> |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-user0.json |
     Then the step should succeed
-    Given the "<buildname>" build was created
-    And the "<buildname>" build failed
+    Given the "ruby-sample-build-onbuild-user0-1" build was created
+    And the "ruby-sample-build-onbuild-user0-1" build failed
     When I run the :build_logs client command with:
-      | build_name  | <buildname> |
+      | build_name  | ruby-sample-build-onbuild-user0-1 |
     Then the output should contain:
       |  not allowed |
-
-    Examples:
-      | buildname                               | template                                                                                                                   |
-      | ruby-sample-build-onbuild-user0-1       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-user0.json      |
-      | ruby-sample-build-onbuild-userdefault-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-userdefault.json|
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499516/test-buildconfig-onbuild-userdefault.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-onbuild-userdefault-1" build was created
+    And the "ruby-sample-build-onbuild-userdefault-1" build failed
+    When I run the :build_logs client command with:
+      | build_name  | ruby-sample-build-onbuild-userdefault-1 |
+    Then the output should contain:
+      |  not allowed |
 
   # @author haowang@redhat.com
   # @case_id 497420 497421 497460 497461
