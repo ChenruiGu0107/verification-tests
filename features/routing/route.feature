@@ -193,14 +193,18 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.pem"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.key"
     When I run the :create_route_edge client command with:
       | name     | myroute      |
-      | hostname | www.edge.com |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
       | service  | service-unsecure |
+      | cert | example_wildcard.pem |
+      | key | example_wildcard.key |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource      | route              |
-      | resource_name | myroute            |
+      | resource      | route |
+      | resource_name | myroute |
       | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Abc"}}} |
     And the output should contain:
       | invalid value for InsecureEdgeTerminationPolicy option, acceptable values are None, Allow, Redirect, or empty |
@@ -497,4 +501,28 @@ Feature: Testing route
       | <%= route("no-cert", service("no-cert")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("no-cert", service("no-cert")).dns(by: user) %>/ |
       | -k |
+    Then the output should contain "Hello-OpenShift"
+
+  # @author yadu@redhat.com
+  # @case_id 470732
+  Scenario: Create a route without host named
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc470732/route_withouthost1.json |
+    Then the step should succeed
+    When I use the "service-unsecure" service
+    Then I wait for a web server to become available via the "service-unsecure1" route
+    Then the output should contain "Hello-OpenShift"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc470732/route_withouthost2.json |
+    Then the step should succeed
+    When I use the "service-unsecure" service
+    Then I wait for a web server to become available via the "service-unsecure2" route
     Then the output should contain "Hello-OpenShift"
