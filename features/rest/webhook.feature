@@ -47,3 +47,29 @@ Feature: Webhook REST Related Tests
       | type    | negative1 | negative2   | negative3 | path              | file              | header1        | header2 |
       | generic | GitHub    | ImageChange | github    | generic/fixtures/ | push-generic.json |                |         |
       | github  | Generic   | ImageChange | generic   | github/fixtures/  | pushevent.json    | X-Github-Event | push    |
+
+  # @author yantan@redhat.com
+  # @case_id 470417
+  Scenario: Webhook request check
+    Given I have a project
+    When I run the :new_app client command with:
+      | file     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | buildconfig         |
+      | name     | ruby22-sample-build |
+    Then the step should succeed
+    And the output should contain:
+      | GitHub   |
+      | Generic  |
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/fixtures/pingevent.json"
+    When I perform the HTTP request:
+    """
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby22-sample-build/webhooks/secret101/github
+    :method: post
+    :headers:
+      :Content-Type: application/json
+      :X-Github-Event: ping
+    :payload: pingevent.json
+    """
+    Then the step should succeed
