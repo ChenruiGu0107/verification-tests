@@ -35,6 +35,8 @@ module CucuShift
 
       s = pod_hash["status"]
       props[:ip] = s["podIP"]
+      # status should be retrieved on demand but we cache it for the brave
+      props[:status] = s
 
 
       return self # mainly to help ::from_api_object
@@ -42,8 +44,17 @@ module CucuShift
 
     # @return [CucuShift::ResultHash] with :success depending on status=True
     #   with type=Ready
-    def ready?(user:, quiet: false)
-      res = get(user: user, quiet: quiet)
+    def ready?(user:, quiet: false, cached: false)
+      if cached && props[:status]
+        res = { instruction: "get cached pod #{name} readiness",
+                response: {"status" => props[:status]}.to_yaml,
+                success: true,
+                exitstatus: 0,
+                parsed: {"status" => props[:status]}
+        }
+      else
+        res = get(user: user, quiet: quiet)
+      end
 
       if res[:success]
         res[:success] =

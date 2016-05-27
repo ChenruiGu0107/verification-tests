@@ -31,3 +31,42 @@ Given /^I have a NFS service in the(?: "([^ ]+?)")? project$/ do |project_name|
   # now you have NFS running, to get IP, call `service.ip` or
   #   `service("nfs-service").ip`
 end
+
+Given /^I have a ssh-git service in the(?: "([^ ]+?)")? project$/ do |project_name|
+  @result = user.cli_exec(:run, name: "git-server", image: "aosqe/ssh-git-server-openshift")
+  raise "cannot run the ssh-git-server pod" unless @result[:success]
+
+  @result = user.cli_exec(:set_probe, resource: "dc/git-server", readiness: true, open_tcp: "2022")
+  raise "cannot set dc/git-server probe" unless @result[:success]
+
+  @result = user.cli_exec(:expose, resource: "dc", resource_name: "git-server", port: "22", target_port: "2022")
+  raise "cannot create git-server service" unless @result[:success]
+
+  # wait to become available
+  @result = CucuShift::Pod.wait_for_labeled("deployment-config=git-server",
+                                            "run=git-server",
+                                            count: 1,
+                                            user: user,
+                                            project: project,
+                                            seconds: 300) do |pod, pod_hash|
+    pod_hash.dig("spec", "containers", 0, "readinessProbe", "tcpSocket") &&
+      pod.ready?(user: user, cached: true)[:success]
+  end
+  raise "git-server pod did not become ready" unless @result[:success]
+
+  # Setup SSH key
+  cache_pods *@result[:matching]
+  ssh_key = CucuShift::SSH::Helper.gen_rsa_key
+  @result = pod.exec(
+    "bash", "-c",
+    "echo '#{ssh_key.to_pub_key_string}' >> /home/git/.ssh/authorized_keys",
+    as: user
+  )
+  raise "cannot add public key to ssh-git server pod" unless @result[:success]
+
+  # to get string private key use cb.ssh_private_key.to_pem in scenario
+  cb.ssh_private_key = ssh_key
+  # put sample repo in clipboard for easy use
+  cb.git_repo_pod = "ssh://git@#{pod.ip(user: user)}:2022/repos/sample.git"
+  cb.git_repo = "git@#{service("git-server").ip(user: user)}:sample.git"
+end
