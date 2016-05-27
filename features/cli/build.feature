@@ -1354,6 +1354,8 @@ Feature: build 'apps' with CLI
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
       | n | <%= project.name %> |
+    Given the "python" image stream was created
+    And the "python" image stream becomes ready
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
