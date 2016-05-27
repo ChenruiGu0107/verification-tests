@@ -616,7 +616,7 @@ module CucuShift
 
     private def ssh(opts={})
       return @ssh if connected?(verify: true)
-      return @ssh = SSH.new(hostname, ssh_opts(opts))
+      return @ssh = SSH::Connection.new(hostname, ssh_opts(opts))
     end
 
     # @note execute commands without special setup
