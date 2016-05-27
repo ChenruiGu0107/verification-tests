@@ -108,11 +108,10 @@ Feature: projects related features via web
     Given I wait for the resource "project" named "<%= project.name %>" to disappear
     When I run the :check_project_list web console action
     Then the step should fail
-    When I perform the :new_project web console action with:
+    Given I wait for the :new_project web console action to succeed with:
       | project_name | <%= project.name %> |
       | display_name | :null               |
       | description  ||
-    Then the step should succeed
     When I perform the :check_project_overview_without_resource web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
