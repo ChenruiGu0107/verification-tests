@@ -107,24 +107,44 @@ Feature: buildlogic.feature
 
   # @author haowang@redhat.com
   # @case_id 499515
-  Scenario Outline: Prevent STI builder images from running as root
+  Scenario: Prevent STI builder images from running as root
     Given I have a project
     When I run the :create client command with:
-      | f | <template> |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499515/test-buildconfig-user0.json |
     Then the step should succeed
-    Given the "<buildname>" build was created
-    And the "<buildname>" build failed
+    Given the "ruby-sample-build-user0-1" build was created
+    And the "ruby-sample-build-user0-1" build failed
     When I run the :build_logs client command with:
-      | build_name  | <buildname> |
+      | build_name  | ruby-sample-build-user0-1 |
     Then the output should match:
       | specify.*user |
-
-    Examples:
-      | buildname                       | template                                                                                                               |
-      | ruby-sample-build-user0-1       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499515/test-buildconfig-user0.json          |
-      | ruby-sample-build-userdefault-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499515/test-buildconfig-userdefault.json    |
-      | ruby-sample-build-userroot-1    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499515/test-buildconfig-userroot.json       |
-      | ruby-sample-build-usernon-1     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499515/test-buildconfig-usernon.json        |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499515/test-buildconfig-userdefault.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-userdefault-1" build was created
+    And the "ruby-sample-build-userdefault-1" build failed
+    When I run the :build_logs client command with:
+      | build_name  | ruby-sample-build-userdefault-1 |
+    Then the output should match:
+      | specify.*user |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499515/test-buildconfig-userroot.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-userroot-1" build was created
+    And the "ruby-sample-build-userroot-1" build failed
+    When I run the :build_logs client command with:
+      | build_name  | ruby-sample-build-userroot-1 |
+    Then the output should match:
+      | specify.*user |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc499515/test-buildconfig-usernon.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-usernon-1" build was created
+    And the "ruby-sample-build-usernon-1" build failed
+    When I run the :build_logs client command with:
+      | build_name  | ruby-sample-build-usernon-1 |
+    Then the output should match:
+      | specify.*user |
 
   # @author haowang@redhat.com
   # @case_id 499516
