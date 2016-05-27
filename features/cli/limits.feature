@@ -4,9 +4,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario Outline: Limit range default request tests
     Given I have a project
-    Given the first user is cluster-admin
-    Then the step should succeed
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
     Then the step should succeed
     And I run the :describe client command with:
       |resource | namespace |
@@ -14,7 +12,7 @@ Feature: limit range related scenarios:
     And the output should match:
       | <expr1> |
       | <expr2> |
-    And I run the :delete client command with:
+    And I run the :delete admin command with:
       | object_type | LimitRange |
       | object_name_or_id | limits |
     Then the step should succeed
@@ -30,9 +28,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario Outline: Limit range invalid values tests
     Given I have a project
-    Given the first user is cluster-admin
-    Then the step should succeed
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
     And the step should fail
     And the output should match:
       | LimitRange "limits" is invalid |
@@ -51,9 +47,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario Outline: Limit range incorrect values
     Given I have a project
-    Given the first user is cluster-admin
-    Then the step should succeed
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/<path>/limit.yaml
     And the step should fail
     And the output should match:
       | min\[memory\].*<expr2> value <expr3> is greater than <expr4> value <expr5> |
@@ -68,9 +62,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario: Limit range does not allow min > defaultRequest
     Given I have a project
-    Given the first user is cluster-admin
-    Then the step should succeed
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508046/limit.yaml
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508046/limit.yaml
     Then the step should fail
     And the output should match:
       | cpu.*min value 400m is greater than default request value 200m    |
@@ -81,9 +73,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario: Limit range does not allow defaultRequest > default
     Given I have a project
-    Given the first user is cluster-admin
-    Then the step should succeed
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508042/limit.yaml
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508042/limit.yaml
     Then the step should fail
     And the output should match:
       | cpu.*default request value 400m is greater than default limit value 200m       |
@@ -94,9 +84,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario: Limit range does not allow defaultRequest > max
     Given I have a project
-    Given the first user is cluster-admin
-    Then the step should succeed
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508043/limit.yaml
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508043/limit.yaml
     Then the step should fail
     And the output should match:
       | cpu.*default request value 400m is greater than max value 200m      |
@@ -107,9 +95,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario: Limit range does not allow maxLimitRequestRatio > Limit/Request
     Given I have a project
-    Given the first user is cluster-admin
-    Then the step should succeed
-    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508044/limit.yaml
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508044/limit.yaml
     Then the step should succeed
     And I run the :describe client command with:
       |resource | namespace            |
