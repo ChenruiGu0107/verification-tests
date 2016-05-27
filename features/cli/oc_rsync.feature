@@ -122,6 +122,33 @@ Feature: oc_rsync.feature
     Given the "rsync_folder/lvl2/test1" file is present
 
   # @author cryan@redhat.com
+  # @case_id 510658
+  Scenario: Copying files from container to host using oc rsync comand with rsync-daemon strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | aosqe/scratch:tarrsync |
+    Given a pod becomes ready with labels:
+      | app=scratch |
+    Given I create the "test" directory
+    When I execute on the pod:
+      | touch | /tmp/test1 |
+    Then the step should succeed
+    When I run the :rsync client command with:
+      | source | <%= pod.name %>:/tmp/test1 |
+      | destination | ./test |
+      | loglevel | 5 |
+      | strategy | rsync-daemon |
+    Then the step should succeed
+    And the output should match "sent \d+ bytes"
+    Given the "test/test1" file is present
+    When I run the :rsync client command with:
+      | source | <%= pod.name %>:/tmp/nonexistfile |
+      | destination | ./test |
+      | loglevel | 5 |
+      | strategy | rsync-daemon |
+    Then the step should fail
+    And the output should contain "No such file or directory"
+
   # @case_id 510661
   Scenario: Copying files from host to container using oc rsync command using rsync-daemon strategy
     Given I have a project
