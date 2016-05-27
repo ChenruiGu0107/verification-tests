@@ -1883,8 +1883,8 @@ Feature: build 'apps' with CLI
     And the output should contain "must provide a value"
 
   # @author yantan@redhat.com
-  # @case_id 525736
-  Scenario: Do sti build with no inputs in buildconfig
+  # @case_id 525736 525735
+  Scenario Outline: Do sti/custom build with no inputs in buildconfig
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/nosrc-extended-test-bldr/master/nosrc-setup.json |
@@ -1892,27 +1892,32 @@ Feature: build 'apps' with CLI
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/nosrc-extended-test-bldr/master/nosrc-test.json  |
     When I run the :get client command with:
-      | resource | bc |
+      | resource  | bc |
     Then the output should contain:
-      | ruby-sample-build-ns |
+      | <bc_name> |
     When I run the :start_build client command with:
       | buildconfig | nosrc-bldr |
     Then the step should succeed
     Given the "nosrc-bldr-1" build becomes :complete
     When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build-ns |
-    Given the "ruby-sample-build-ns-1" build becomes :complete
+      | buildconfig | <bc_name> |
+    Given the "<build_name>" build becomes :complete
     When I run the :delete client command with:
-      | object_type      | bc |
-      | object_name_or_id | ruby-sample-build-ns |
+      | object_type       | bc         |
+      | object_name_or_id |  <bc_name> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525736/Nonesrc-sti.json |
+      | f | <file_name> |
     When I run the :get client command with:
-      | resource      | bc |
-      | resource_name | ruby-sample-build-ns |
+      | resource      | bc        |
+      | resource_name | <bc_name> |
     Then the step should succeed
     When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build-ns |
+      | buildconfig   | <bc_name> |
     Then the step should succeed
-    Given the "ruby-sample-build-ns-1" build becomes :complete
+    Given the "<build_name>" build becomes :complete
+
+    Examples:
+      | bc_name              | build_name             | file_name                                                                                             |
+      | ruby-sample-build-ns | ruby-sample-build-ns-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525736/Nonesrc-sti.json    |
+      | ruby-sample-build-nc | ruby-sample-build-nc-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525735/Nonesrc-docker.json |
