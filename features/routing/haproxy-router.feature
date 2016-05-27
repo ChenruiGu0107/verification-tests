@@ -231,7 +231,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     And all pods in the project are ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.pem"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.key"
@@ -289,6 +289,91 @@ Feature: Testing haproxy router
       | --resolve |
       | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+      | -b |
+      | /tmp/cookies |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access == @result[:response]
+    """
+
+  # @author bmeng@redhat.com
+  # @case_id 489259
+  Scenario: haproxy cookies based sticky session for reencrypt termination routes
+    #create route and service which has two endpoints
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.pem"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name | route-reencrypt |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
+      | service | service-secure |
+      | cert | example_wildcard.pem |
+      | key | example_wildcard.key |
+      | cacert | route_reencrypt.ca |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    And the pod named "hello-pod" becomes ready
+    When I execute on the "<%= pod.name %>" pod:
+      | wget |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
+      | -O |
+      | /tmp/ca.pem |
+    Then the step should succeed
+    #access the route without cookies
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -s |
+      | --resolve |
+      | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+      | -c |
+      | /tmp/cookies |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    Given I wait for the steps to pass:
+    """
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -s |
+      | --resolve |
+      | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access != @result[:response]
+    """
+    #access the route with cookies
+    Given I run the steps 6 times:
+    """
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -s |
+      | --resolve |
+      | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
       | -b |
