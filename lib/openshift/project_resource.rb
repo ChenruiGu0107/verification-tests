@@ -123,6 +123,13 @@ module CucuShift
       return res
     end
 
+    def self.get_labeled(*labels, user:, project:, result: {})
+      get_matching(user: user, project: project, result: result,
+                   get_opts: {l: selector_to_label_arr(*labels)}) do |r, r_hash|
+        !block_given? || yield(r, r_hash)
+      end
+    end
+
     # @yield block that selects resource items by returning true; block receives
     #   |resource, resource_hash| as parameters where resource is a reloaded
     #   [Resource] sub-type, e.g. [Pod], [Build], etc.

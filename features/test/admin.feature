@@ -48,3 +48,8 @@ Feature: Testing Admin Scenarios
     Then the step should succeed
     And the output should contain:
       | REDACTED |
+
+  @admin
+  Scenario: test registry restoration
+    Given default docker-registry deployment config is restored after scenario
+
