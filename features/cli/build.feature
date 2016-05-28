@@ -1925,17 +1925,60 @@ Feature: build 'apps' with CLI
       | ruby-sample-build-nc | ruby-sample-build-nc-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525735/Nonesrc-docker.json |
 
   # @author yantan@redhat.com
-  # @case_id 499514
+  # @case_id 499513
   @admin
   @destructive
-  Scenario: Allow STI builder images from running as root - using onbuild image
+  Scenario: Allow STI builder images from running as root
     Given I have a project
     And SCC "privileged" is added to the "system:serviceaccounts:<%= project.name %>" group
     When I run the :new_build client command with:
-      | app_repo       | aosqe/ruby-20-centos7:onbuild-user0~https://github.com/openshift/ruby-hello-world |
+      | app_repo       | aosqe/ruby-20-centos7:user0~https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     Given the "ruby-hello-world-1" build completes
     When I run the :logs client command with:
       | resource_name  | build/ruby-hello-world-1 |
+    Then the step should succeed
+    When I replace resource "bc" named "ruby-hello-world":
+      | user0          | usernon     | 
+    Then the step should succeed
+    When I replace resource "is" named "ruby-20-centos7":
+      | user0          | usernon    |
+    Then the step should succeed
+    Given the "ruby-hello-world-2" build completes  
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-2 |
+    Then the step should succeed
+    And the output should contain "Successfully pushed"
+    When I replace resource "bc" named "ruby-hello-world":
+      | usernon        | userroot    |
+    Then the step should succeed
+    When I replace resource "is" named "ruby-20-centos7":
+      | usernon        | userroot    |
+    Then the step should succeed
+    Given the "ruby-hello-world-3" build completes
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-3 |   
+    Then the step should succeed
+    Then the output should contain "Successfully pushed"
+    When I replace resource "bc" named "ruby-hello-world":
+      | userroot       | userdefault |
+    Then the step should succeed
+    When I replace resource "is" named "ruby-20-centos7":
+      | userroot       | userdefault |
+    Then the step should succeed
+    Given the "ruby-hello-world-4" build completes
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-4 |   
+    Then the step should succeed
+    Then the output should contain "Successfully pushed"
+    When I replace resource "bc" named "ruby-hello-world":
+      | userdefault    | user1001    |
+    Then the step should succeed
+    When I replace resource "is" named "ruby-20-centos7":
+      | userdefault    | user1001    |
+    Then the step should succeed
+    Given the "ruby-hello-world-5" build completes
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-5 |
     Then the step should succeed
     And the output should contain "Successfully pushed"
