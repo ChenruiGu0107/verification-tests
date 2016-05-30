@@ -1,4 +1,4 @@
---- # check browse/events page
+--- # events related feature on web console
 check_events_page:
   action: goto_events_page
   element:
@@ -8,12 +8,34 @@ check_events_page:
       text: Time
     selector:
       text: Kind
-    selector: 
+    selector:
       text: Reason
     selector:
-      xpath: //table/thead/tr/th[5]      
+      xpath: //table/thead/tr/th[5]
     selector:
       text: Pod
 goto_events_page:
   url: /console/project/<project_name>/browse/events
-
+check_event_tab_on_build_page:
+  action: goto_one_build_page
+  action: check_event_tab
+check_event_tab_on_dc_page:
+  action: goto_one_dc_page
+  action: check_event_tab
+check_event_tab_on_deployment_page:
+  action: goto_one_deployment_page
+  action: check_event_tab
+check_event_tab_on_pod_page:
+  action: goto_one_pod_page
+  action: check_event_tab
+check_event_tab_on_service_page:
+  action: goto_one_service_page
+  action: check_event_tab
+check_event_tab_on_standalone_rc_page:
+  action: goto_one_standalone_rc_page
+  action: check_event_tab
+check_event_tab:
+  elements:
+  - selector:
+      xpath: //uib-tab-heading[text()='Events']
+    op: click
