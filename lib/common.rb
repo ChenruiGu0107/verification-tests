@@ -214,11 +214,10 @@ module CucuShift
 
     module Setup
       def self.handle_signals
-        # Cucumber traps SIGINT anf SIGTERM to allow graceful shutdown,
-        #   i.e. interrupting scenario and letting After and at_exit execute.
-        #   This is safer than immediate exit. To exit quick, hit Ctrl+C twice.
-        #Signal.trap('SIGINT') { Process.exit!(255) }
-        #Signal.trap('SIGTERM') { Process.exit!(255) }
+        # Cucumber traps SIGINT anf SIGTERM to allow graceful shutdown
+        # see https://github.com/cucumber/cucumber/issues/27
+        Signal.trap('SIGINT') { exit(false) }
+        #Signal.trap('SIGTERM') { exit(false) } # it works like that already
       end
 
       def self.set_cucushift_home

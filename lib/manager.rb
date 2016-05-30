@@ -27,11 +27,12 @@ module CucuShift
     end
 
     def clean_up
+      @world.after_scenario if @world
       @environments.clean_up if @environments
       @temp_resources.each(&:clean_up)
       @temp_resources.clear
       Host.localhost.clean_up
-      @world = nil
+      @world = nil # let GC kick in as well avoid double clean-up at_exit
     end
     alias after_scenario clean_up
 
