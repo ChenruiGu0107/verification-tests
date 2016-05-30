@@ -19,13 +19,12 @@ Feature: creating 'apps' with CLI
     ## recreate project between each test because of
     #    https://bugzilla.redhat.com/show_bug.cgi?id=1233503
     ## create app with broken labels
-    # disabled for https://bugzilla.redhat.com/show_bug.cgi?id=1251601
-    #Given I have a project
-    #When I create a new application with:
-    #  | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
-    #  | name         | upperCase |
-    #Then the step should fail
-    #And the project is deleted
+    Given I have a project
+    When I create a new application with:
+      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | name         | upperCase |
+    Then the step should fail
+    And the project is deleted
 
     # https://bugzilla.redhat.com/show_bug.cgi?id=1247680
     Given I have a project
