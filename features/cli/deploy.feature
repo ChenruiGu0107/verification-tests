@@ -1353,3 +1353,80 @@ Feature: deployment related features
       | \\s+limits:\n\\s+cpu: 400m\n\\s+memory: 200Mi\n   |
       | \\s+requests:\n\\s+cpu: 400m\n\\s+memory: 200Mi\n |
     """
+
+  # @author yinzhou@redhat.com
+  # @case_id 527512
+  Scenario: Automatic set to false with ConfigChangeController on the DeploymentConfig
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    And I replace lines in "application-template-stibuild.json":
+      |"automatic": true|"automatic": false|
+    When I process and create "application-template-stibuild.json"
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    And I wait until the status of deployment "frontend" becomes :complete
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | lastTriggeredImage     |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build finishes
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | origin-ruby-sample |
+      | o             | json |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
+    And the expression should be true> cb.imagestreamitems.length == 2
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | "latestVersion": 1 |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
+    And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
+
+  # @author yinzhou@redhat.com
+  # @case_id 527514
+  Scenario: Automatic set to true with ConfigChangeController on the DeploymentConfig
+    Given I have a project
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    And I wait until the status of deployment "frontend" becomes :complete
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | lastTriggeredImage     |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build finishes
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | origin-ruby-sample |
+      | o             | json |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
+    And the expression should be true> cb.imagestreamitems.length == 2
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | "latestVersion": 2 |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
+    And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
