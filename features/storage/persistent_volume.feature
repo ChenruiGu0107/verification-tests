@@ -384,7 +384,7 @@ Feature: Persistent Volume Claim binding policies
     """
 
   # @author lxia@redhat.com
-  # @case_id 519518
+  # @case_id 519158
   @admin
   @destructive
   Scenario: [public_storage_70] Persistent volume attach should not be race when starting pods
