@@ -369,3 +369,29 @@ Feature: mysql_images.feature
       | sclname    |image                     | org_image                  | template       | file                                                                                             |
       | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
       | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
+
+  # @author wzheng@redhat.com
+  # @case_id 527284,527285
+  Scenario Outline: Check memory limits env vars when pod is set with memory limit
+    Given I have a project
+    When I run the :run client command with:
+      | name   | mysql                             | 
+      | image  | <%= product_docker_repo %><image> | 
+      | limits | memory=512Mi                      |
+      | env    | MYSQL_ROOT_PASSWORD=test          | 
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=mysql-1,deploymentconfig=mysql,run=mysql |
+    When I execute on the pod:
+      | cat | <file> |
+    Then the output should contain: 
+      | key_buffer_size = 51M          |
+      | read_buffer_size = 25M         |
+      | innodb_buffer_pool_size = 256M | 
+      | innodb_log_file_size = 76M     |
+      | innodb_log_buffer_size = 76M   |
+
+    Examples:
+      | image                     | file                                         |
+      | openshift3/mysql-55-rhel7 | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf |
+      | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     |
