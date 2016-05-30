@@ -20,6 +20,7 @@ Feature: creating 'apps' with CLI
     #    https://bugzilla.redhat.com/show_bug.cgi?id=1233503
     ## create app with broken labels
     Given I have a project
+    # test https://bugzilla.redhat.com/show_bug.cgi?id=1251601
     When I create a new application with:
       | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
       | name         | upperCase |
