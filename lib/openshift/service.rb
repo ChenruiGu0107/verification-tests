@@ -1,3 +1,4 @@
+require 'openshift/pod'
 require 'openshift/project_resource'
 
 module CucuShift
@@ -24,9 +25,29 @@ module CucuShift
       return self
     end
 
-    # @note call without parameters only when props are loaded
-    def selector(user: nil)
-      get_checked(user: user) unless props[:selector]
+    # @param cached [Boolean] does nothing, keep for compatibility
+    # @return [CucuShift::ResultHash] with :success if at least one pod by
+    #   selector is ready
+    def ready?(user:, quiet: false, cached: false)
+      if !selector(user: user, quiet: quiet) || selector.empty?
+        raise "can't tell if ready for services without pod selector"
+      end
+
+      res = {}
+      Pod.get_labeled(*selector,
+                      user: user,
+                      project: project,
+                      quiet: quiet,
+                      result: res) { |p, p_hash|
+        p.ready?(user: user, cached: true)[:success]
+      }
+
+      return res
+    end
+
+    # @note call without user only when props are loaded; get object to refresh
+    def selector(user: nil, quiet: false)
+      get_checked(user: user, quiet: quiet) unless props.has_key?(:selector)
 
       return props[:selector]
     end
