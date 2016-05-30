@@ -113,6 +113,20 @@ Given /^I have an http-git service in the(?: "([^ ]+?)")? project$/ do |project_
   cb.git_pod_ip_port = "#{pod.ip(user: user)}:8080"
 end
 
+# pod-for-ping is a pod that has curl on it
+Given /^I have a pod-for-ping in the(?: "([^ ]+?)")? project$/ do |project_name|
+  project(project_name, switch: true)
+  unless project.exists?(user: user)
+    raise "project #{project_name} does not exist"
+  end
+
+  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json")
+  raise "could not create a pod-for-ping" unless @result[:success]
+
+  @result = pod("hello-pod").wait_till_ready(user, 300)
+  raise "pod-for-ping did not become ready in time" unless @result[:success]
+end
+
 Given /^I have a Gluster service in the(?: "([^ ]+?)")? project$/ do |project_name|
   ensure_admin_tagged
 
