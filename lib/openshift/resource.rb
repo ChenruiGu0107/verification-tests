@@ -142,7 +142,8 @@ module CucuShift
       status = [ status ].flatten
       res = {
         instruction: "get #{cached ? 'cached' : ''} #{self.class::RESOURCE} #{name} status",
-        response: "matched status for #{self.class::RESOURCE} #{name}: '#{matched_status}' while expecting '#{status}'"
+        response: "matched status for #{self.class::RESOURCE} #{name}: '#{matched_status}' while expecting '#{status}'",
+        exitstatus: 0
       }
 
       #Check if the user-provided status actually exists
