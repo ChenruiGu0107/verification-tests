@@ -365,7 +365,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
     Then the step should succeed
     """
-    
+
     Given 20 PVs become :available within 20 seconds with labels:
       |usedFor=tc522215|
 
@@ -375,10 +375,52 @@ Feature: Persistent Volume Claim binding policies
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/tc522215/pvc-20.json |
     Given 20 PVCs become :bound within 50 seconds with labels:
-      |usedFor=tc522215| 
+      |usedFor=tc522215|
     Then I run the :delete client command with:
       | object_type  | pvc  |
       | all          | all  |
     Given 20 PVs become :available within 500 seconds with labels:
       |usedFor=tc522215|
+    """
+
+  # @author lxia@redhat.com
+  # @case_id 519158
+  @admin
+  @destructive
+  Scenario: [public_storage_70] Persistent volume attach should not be race when starting pods
+    Given I have a project
+    And I have a NFS service in the project
+
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+      | ["spec"]["accessModes"][0]| ReadWriteOnce                    |
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+      | ["spec"]["persistentVolumeReclaimPolicy"]| Recycle           |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]| ReadWriteOnce         |
+    Then the step should succeed
+    And the PV becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes :bound
+
+    Given I run the steps 100 times:
+    """
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+    Then the step should succeed
+    Given the pod named "mypod-<%= project.name %>" becomes ready
+    When I run the :describe client command with:
+      | resource | pod                       |
+      | name     | mypod-<%= project.name %> |
+    Then the output should not contain:
+      | rror syncing pod                |
+      | not all containers have started |
+      | 0 != 1                          |
+    When I run the :delete client command with:
+      | object_type       | pod                       |
+      | object_name_or_id | mypod-<%= project.name %> |
+    Then the step should succeed
+    And I wait for the pod named "mypod-<%= project.name %>" to die regardless of current status
     """
