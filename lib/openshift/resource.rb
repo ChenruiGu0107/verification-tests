@@ -34,7 +34,7 @@ module CucuShift
     alias exists? visible?
 
     def get_checked(user:, quiet: false)
-      res = get(user: user)
+      res = get(user: user, quiet: quiet)
       unless res[:success]
         logger.error(res[:response])
         raise "could not get self.class::RESOURCE"
@@ -65,6 +65,15 @@ module CucuShift
       return res
     end
     alias reload get
+
+
+    def get_cached_prop(prop:, user:, cached: false, quiet: false)
+      unless cached && props[prop]
+        get_checked(user: user, quiet: quiet)
+      end
+
+      return props[prop]
+    end
 
     # @return [CucuShift::ResultHash]
     def wait_to_appear(user, seconds = 30)

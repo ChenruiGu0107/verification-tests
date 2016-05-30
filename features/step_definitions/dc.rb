@@ -38,3 +38,36 @@ Given /^default (router|docker-registry) deployment config is restored after sce
     raise "#{rc_name} didn't become ready" unless @result[:success]
   }
 end
+
+Given /^default (docker-registry|router) replica count is restored after scenario$/ do |resource|
+  ensure_destructive_tagged
+  _admin = admin
+  _project = project("default", switch: false)
+  _dc = dc(resource, _project)
+  _num = _dc.replicas(user: _admin)
+  logger.info("#{resource} replicas will be restored to #{_num} after scenario")
+
+  teardown_add {
+    if _num != _dc.replicas(user: _admin, quiet: true)
+      @result = _admin.cli_exec(:scale,
+                                resource: "deploymentconfigs",
+                                name: _dc.name,
+                                replicas: _num,
+                                n: _project.name)
+      raise "could not restore #{_dc.name} replica num" unless @result[:success]
+
+      # paranoya check no bad caching takes place
+      num_replicas_restored = wait_for(60) {
+        _num == _dc.replicas(user: _admin, quiet: true)
+      }
+      unless num_replicas_restored
+        raise "#{_dc.name} replica num still not restored?!"
+      end
+
+      @result = _dc.wait_till_ready(_admin, 900)
+      raise "scale unsuccessful for #{_dc.name}" unless @result[:success]
+    else
+      logger.warn("#{resource} replica num is the same after scenario")
+    end
+  }
+end
