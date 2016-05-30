@@ -19,13 +19,13 @@ Feature: creating 'apps' with CLI
     ## recreate project between each test because of
     #    https://bugzilla.redhat.com/show_bug.cgi?id=1233503
     ## create app with broken labels
-    # disabled for https://bugzilla.redhat.com/show_bug.cgi?id=1251601
-    #Given I have a project
-    #When I create a new application with:
-    #  | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
-    #  | name         | upperCase |
-    #Then the step should fail
-    #And the project is deleted
+    Given I have a project
+    # test https://bugzilla.redhat.com/show_bug.cgi?id=1251601
+    When I create a new application with:
+      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | name         | upperCase |
+    Then the step should fail
+    And the project is deleted
 
     # https://bugzilla.redhat.com/show_bug.cgi?id=1247680
     Given I have a project
@@ -109,16 +109,14 @@ Feature: creating 'apps' with CLI
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-      | bash                       |
-      | -c                         |
-      | curl -k <%= service.url %> |
+      | curl | -ksS | <%= service.url %> |
     Then the step should succeed
     And the output should contain "Demo App"
     """
 
     # delete resources by label
     When I delete all resources by labels:
-     | app=hi |
+      | app=hi |
     Then the step should succeed
     And the project should be empty
 
@@ -144,7 +142,7 @@ Feature: creating 'apps' with CLI
     And the output should contain "xxingtest"
 
   # @author wsun@redhat.com
-  # case_id 476293
+  # @case_id 476293
   Scenario: Could not create any context in non-existent project
     Given I create a new application with:
       | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
@@ -257,29 +255,27 @@ Feature: creating 'apps' with CLI
   Scenario: Debugging a Service
     Given I have a project
     When I run the :create client command with:
-       |f| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      |f| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
     And all pods in the project are ready
     When I run the :get client command with:
-       | resource | pod |
+      | resource | pod |
     Then the step should succeed
     And the output should contain:
-       | Running |
+      | Running |
     When I run the :get client command with:
-       | resource | service |
+      | resource | service |
     Then the step should succeed
     And the output should contain:
-       | test-service |
-       | name=test-pods |
+      | test-service |
+      | name=test-pods |
     When I run the :get client command with:
-       | resource | endpoints |
+      | resource | endpoints |
     And the output should contain:
-       | test-service |
+      | test-service |
     Given I wait for the "test-service" service to become ready
     When I execute on the pod:
-       |curl|
-       |-k|
-       |<%= service.url %>|
+      | curl | -ksS | <%= service.url %> |
     Then the step should succeed
     And the output should contain "Hello OpenShift!"
 
@@ -322,7 +318,7 @@ Feature: creating 'apps' with CLI
       | c       | sti-python |
       |oc_opts_end ||
       | exec_command | curl|
-      | exec_command_arg |-s|
+      | exec_command_arg |-sS|
       | exec_command_arg | <%= service.url %>|
     Then the step should succeed
     """
@@ -344,7 +340,7 @@ Feature: creating 'apps' with CLI
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-      | curl | -s | <%= service.url %> |
+      | curl | -sS | <%= service.url %> |
     Then the step should succeed
     """
     Given the project is deleted
@@ -384,7 +380,7 @@ Feature: creating 'apps' with CLI
       | c       | sti-python |
       |oc_opts_end ||
       | exec_command | curl|
-      | exec_command_arg |-s|
+      | exec_command_arg |-sS|
       | exec_command_arg | <%= service.url %> |
     Then the step should succeed
     """
@@ -425,7 +421,7 @@ Feature: creating 'apps' with CLI
 
   # @author xiacwan@redhat.com
   # @case_id 510225
-  Scenario: [platformmanagement_public_523]Use the old version v1beta3 file to create resource 
+  Scenario: [platformmanagement_public_523]Use the old version v1beta3 file to create resource
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
@@ -610,8 +606,8 @@ Feature: creating 'apps' with CLI
     Then the output should match "Ref:\s+beta4"
     #Check non-existing docker file
     Then I run the :new_app client command with:
-     | app_repo | https://github.com/openshift-qe/sample-php |
-     | strategy | docker |
+      | app_repo | https://github.com/openshift-qe/sample-php |
+      | strategy | docker |
     Then the step should fail
     And the output should contain "No Dockerfile"
 
