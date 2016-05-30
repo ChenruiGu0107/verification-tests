@@ -52,13 +52,10 @@ Feature: remote registry related scenarios
     the step succeeded
     """
 
-    Given default docker-registry deployment config is restored after scenario
+    Given I switch to cluster admin pseudo user
+    And default docker-registry deployment config is restored after scenario
     And evaluation of `service("docker-registry", project("default")).url(user: :admin)` is stored in the :integrated_reg_ip clipboard
-    When I run the :set_env admin command with:
-      | resource | dc/docker-registry                              |
-      | e        | REGISTRY_CONFIGURATION_PATH=/config/config.yaml |
-      | n        | default                                         |
-    Then the step should succeed
+
     When I run the :set_volume admin command with:
       | resource    | dc/docker-registry |
       | action      | --add              |
@@ -69,8 +66,17 @@ Feature: remote registry related scenarios
       | overwrite   | true               |
       | n           | default            |
     Then the step should succeed
+    And I wait until replicationController "docker-registry-<%= cb.docker_registry_golden_version + 1 %>" is ready
 
-    Given I have a project
+    When I run the :set_env admin command with:
+      | resource | dc/docker-registry                              |
+      | e        | REGISTRY_CONFIGURATION_PATH=/config/config.yaml |
+      | n        | default                                         |
+    Then the step should succeed
+    And I wait until replicationController "docker-registry-<%= cb.docker_registry_golden_version + 2 %>" is ready
+
+    Given I switch to the default user
+    And I have a project
     When I run the :tag client command with:
       | source_type | docker                               |
       | source      | aosqe/sleep:preserve-for-testing     |

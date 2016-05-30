@@ -17,6 +17,8 @@ Given /^default (router|docker-registry) deployment config is restored after sce
   _admin = admin
   _project = project("default", switch: false)
   # first we need to save the current version
+
+  # TODO: maybe we just use dc status => latestVersion ?
   _rc = CucuShift::ReplicationController.get_labeled(
     resource,
     user: _admin,
@@ -29,6 +31,8 @@ Given /^default (router|docker-registry) deployment config is restored after sce
     raise "latest rc version #{version} is bad"
   end
 
+  cb["#{resource.tr("-","_")}_golden_version"] = Integer(version)
+  logger.info "#{resource} will be rolled-back to version #{version}"
   teardown_add {
     @result = _admin.cli_exec(:rollback, deployment_name: resource, to_version: version, n: _project.name)
     raise "Cannot restore #{resource}" unless @result[:success]
