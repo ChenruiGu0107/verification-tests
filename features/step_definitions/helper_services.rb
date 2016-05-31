@@ -113,7 +113,7 @@ Given /^I have an http-git service in the(?: "([^ ]+?)")? project$/ do |project_
   cb.git_pod_ip_port = "#{pod.ip(user: user)}:8080"
 end
 
-# pod-for-ping is a pod that has curl on it
+# pod-for-ping is a pod that has curl, wget, telnet and ncat
 Given /^I have a pod-for-ping in the(?: "([^ ]+?)")? project$/ do |project_name|
   project(project_name, switch: true)
   unless project.exists?(user: user)
@@ -165,4 +165,59 @@ Given /^I have a Ceph pod in the(?: "([^ ]+?)")? project$/ do |project_name|
 
   # now you have Ceph running, to get IP, call `pod.ip` or
   #   `pod("rbd-server").ip(user: user)`
+end
+
+# configure iSCSI in current environment; if already exists, skip; if pod is
+#   not ready, then delete and create it again
+Given /^I have a iSCSI setup in the environment$/ do
+  ensure_admin_tagged
+
+  _project = project("default", switch: false)
+
+  _pod = pod("iscsi-target", _project)
+  if _pod.ready?(user: admin, quiet: true)[:success]
+    logger.info "found existing iSCSI pod, skipping config"
+    next
+  elsif _pod.exists?(user: admin, quiet: true)
+    logger.warn "broken iSCSI pod, will try to recreate keeping other config"
+    pod_only = true
+    @result = admin.cli_exec(:delete, n: _project.name, object_type: "pod", object_name_or_id: _pod.name)
+    raise "could not delete broken iSCSI pod" unless @result[:success]
+  end
+
+  @result = admin.cli_exec(:create, n: _project.name, f: 'https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/iscsi-target.json')
+  raise "could not create iSCSI pod" unless @result[:success]
+
+  unless pod_only
+    @result = admin.cli_exec(:create, n: _project.name, f: 'https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/service.json')
+    raise "could not create iSCSI service" unless @result[:success]
+  end
+  _service = service("iscsi-target", _project)
+
+  # setup to work with service
+  @result = _pod.wait_till_ready(admin, 120)
+  raise "iSCSI pod did not become ready" unless @result[:success]
+  iscsi_ip = _service.ip(user: admin)
+  @result = _pod.exec("targetcli", "/iscsi/iqn.2016-04.test.com:storage.target00/tpg1/portals", "create", iscsi_ip, as: admin)
+  raise "could not create portal to iSCSI service" unless @result[:success]
+
+  next if pod_only
+
+  env.hosts.each do |host|
+    setup_commands = [
+      "echo 'InitiatorName=iqn.2016-04.test.com:test.img' > /etc/iscsi/initiatorname.iscsi",
+      "cat >> /etc/iscsi/iscsid.conf << EOF\n" +
+        "node.session.auth.authmethod = CHAP\n" +
+        "node.session.auth.username = 5f84cec2\n" +
+        "node.session.auth.password = b0d324e9\n" +
+        "EOF\n",
+      "systemctl enable iscsid",
+      "systemctl start iscsid",
+      "iscsiadm -m discovery -t sendtargets -p #{iscsi_ip}",
+      "iscsiadm -m node -p #{iscsi_ip}:3260 -T iqn.2016-04.test.com:storage.target00 -I default --login"
+    ]
+
+    res = host.exec_admin(*setup_commands)
+    raise "iSCSI initiator setup commands error" unless @result[:success]
+  end
 end
