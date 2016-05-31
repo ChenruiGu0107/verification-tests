@@ -47,3 +47,32 @@ Feature: Webhook REST Related Tests
       | type    | negative1 | negative2   | negative3 | path              | file              | header1        | header2 |
       | generic | GitHub    | ImageChange | github    | generic/fixtures/ | push-generic.json |                |         |
       | github  | Generic   | ImageChange | generic   | github/fixtures/  | pushevent.json    | X-Github-Event | push    |
+
+  # @author yantan@redhat.com
+  # @case_id 470417
+  Scenario: Webhook request check
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream    | openshift/ruby:2.2 |
+      | code            | https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | buildconfig         |
+      | name     | ruby-hello-world |
+    Then the step should succeed
+    And the output should contain:
+      | GitHub   |
+      | Generic  |
+    When I get project BuildConfig as JSON
+    And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][0]['github']['secret']` is stored in the :secret_name clipboard
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/fixtures/pingevent.json"
+    When I perform the HTTP request:
+    """
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/github
+    :method: post
+    :headers:
+      :content_type: application/json
+      :x_github_event: ping
+    :payload: pingevent.json
+    """
+    Then the step should succeed
