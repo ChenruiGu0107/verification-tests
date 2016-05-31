@@ -53,23 +53,26 @@ Feature: Webhook REST Related Tests
   Scenario: Webhook request check
     Given I have a project
     When I run the :new_app client command with:
-      | file     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | image_stream    | openshift/ruby:2.2 |
+      | code            | https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | buildconfig         |
-      | name     | ruby22-sample-build |
+      | name     | ruby-hello-world |
     Then the step should succeed
     And the output should contain:
       | GitHub   |
       | Generic  |
+    When I get project BuildConfig as JSON
+    And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][0]['github']['secret']` is stored in the :secret_name clipboard
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/fixtures/pingevent.json"
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby22-sample-build/webhooks/secret101/github
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/github
     :method: post
     :headers:
-      :Content-Type: application/json
-      :X-Github-Event: ping
+      :content_type: application/json
+      :x_github_event: ping
     :payload: pingevent.json
     """
     Then the step should succeed
