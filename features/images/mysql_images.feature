@@ -395,3 +395,56 @@ Feature: mysql_images.feature
       | image                     | file                                         |
       | openshift3/mysql-55-rhel7 | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf |
       | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     |
+
+  # @author wzheng@redhat.com
+  # @case_id 527288,527289
+  Scenario Outline: Use default values for memory limits env vars
+    Given I have a project
+    When I run the :run client command with:
+      | name   | mysql                             |
+      | image  | <%= product_docker_repo %><image> |
+      | env    | MYSQL_ROOT_PASSWORD=test          |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=mysql-1,deploymentconfig=mysql,run=mysql |
+    When I execute on the pod:
+      | cat | <file> |
+    Then the output should contain:
+      | max_allowed_packet = 200M     |
+      | table_open_cache = 400        |
+      | sort_buffer_size = 256K       |
+      | key_buffer_size = 8M          |
+      | read_buffer_size = 8M         |
+      | innodb_buffer_pool_size = 32M |
+      | innodb_log_file_size = 8M     |
+      | innodb_log_buffer_size = 8M   |
+
+    Examples:
+      | image                     | file                                         |
+      | openshift3/mysql-55-rhel7 | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf |
+      | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     |
+
+  # @author wzheng@redhat.com
+  #  @case_id 527286,527287
+  Scenario Outline: Use customized values for memory limits env vars
+    Given I have a project
+    When I run the :run client command with:
+      | name   | mysql                             | 
+      | image  | <%= product_docker_repo %><image> | 
+      | env    | MYSQL_ROOT_PASSWORD=test,MYSQL_KEY_BUFFER_SIZE=8M,MYSQL_READ_BUFFER_SIZE=8M,MYSQL_INNODB_BUFFER_POOL_SIZE=16M,MYSQL_INNODB_LOG_FILE_SIZE=4M,MYSQL_INNODB_LOG_BUFFER_SIZE=4M | 
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=mysql-1,deploymentconfig=mysql,run=mysql |
+    When I execute on the pod:
+      | cat | <file> |
+    Then the output should contain: 
+      | key_buffer_size = 8M          |
+      | read_buffer_size = 8M         |
+      | innodb_buffer_pool_size = 16M | 
+      | innodb_log_file_size = 4M     |
+      | innodb_log_buffer_size = 4M   |
+
+    Examples:
+      | image                      | file                                         |
+      | openshift3/mysql-55-rhel7  | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf |
+      | rhscl/mysql-56-rhel7       | /etc/my.cnf.d/tuning.cnf                     |
