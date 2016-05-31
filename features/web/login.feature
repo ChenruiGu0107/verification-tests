@@ -19,3 +19,17 @@ Feature: login related scenario
     And I get the html of the web page
     Then the output should contain:
       | A non-empty X-CSRF-Token header is required to receive basic-auth challenges |
+
+  # @author xxing@redhat.com
+  # @case_id 515808
+  Scenario: User could not access pages directly without login first
+    Given I have a project
+    # Disable default login
+    When I perform the :new_project_navigate web console action with:
+      | _nologin | true |
+    Then the step should succeed
+    And the expression should be true> /Login/ =~ browser.title
+    When I access the "/console/project/<%= project.name %>/create" path in the web console
+    Then the expression should be true> /Login/ =~ browser.title
+    When I access the "/console/project/<%= project.name %>/overview" path in the web console
+    Then the expression should be true> /Login/ =~ browser.title

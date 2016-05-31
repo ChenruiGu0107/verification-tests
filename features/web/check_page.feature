@@ -70,6 +70,7 @@ Feature: check page info related
     When I perform the :check_events_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+
   # @author yapei@redhat.com
   # @case_id 457796
   Scenario: Check home page to list user projects
