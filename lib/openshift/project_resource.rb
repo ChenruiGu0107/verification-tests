@@ -125,9 +125,11 @@ module CucuShift
 
     # @param labels [String, Array<String,String>] labels to filter on, read
     #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
-    def self.get_labeled(*labels, user:, project:, result: {})
+    def self.get_labeled(*labels, user:, project:, result: {}, quiet: false)
+      get_opts = {l: selector_to_label_arr(*labels)}
+      get_opts[:_quiet] = true if quiet
       get_matching(user: user, project: project, result: result,
-                   get_opts: {l: selector_to_label_arr(*labels)}) do |r, r_hash|
+                   get_opts: get_opts) do |r, r_hash|
         !block_given? || yield(r, r_hash)
       end
     end
