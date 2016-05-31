@@ -1,5 +1,5 @@
 Feature: Storage of Ceph plugin testing
-	
+
   # @author wehe@redhat.com
   # @case_id 522141
   @admin @destructive
@@ -23,12 +23,8 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
     And the PV becomes :bound
 
-    #Create the scc for the rbd pod
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_privileged.yaml"
-    And I replace lines in "scc_privileged.yaml":
-      |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
-      |scc-pri|<%= rand_str(6, :dns) %>|
-    And the following scc policy is created: scc_privileged.yaml
+    Given SCC "privileged" is added to the "default" user
+    And SCC "privileged" is added to the "system:serviceaccounts" group
 
     #Creat the pod
     And I run the :create client command with:
