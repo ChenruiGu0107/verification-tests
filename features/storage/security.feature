@@ -55,13 +55,8 @@ Feature: storage security check
   @admin @destructive
   Scenario: gitRepo volume security testing
     Given I have a project
-
-    #Create the super scc for security testing
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/scc.yml"
-    And I replace lines in "scc.yml":
-      |#ACCOUNT#|<%= user.name %>|
-      |#NAME#|<%= project.name %>|
-    And the following scc policy is created: scc.yml
+    And SCC "privileged" is added to the "default" user
+    And SCC "privileged" is added to the "system:serviceaccounts" group
 
     #Create tow pods for selinux testing
     And I run the :create client command with:
@@ -95,13 +90,8 @@ Feature: storage security check
   @admin @destructive
   Scenario: emptyDir volume security testing
     Given I have a project
-
-    #Create the super scc for security testing
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/scc.yml"
-    And I replace lines in "scc.yml":
-      |#ACCOUNT#|<%= user.name %>|
-      |#NAME#|<%= project.name %>|
-    And the following scc policy is created: scc.yml
+    And SCC "privileged" is added to the "default" user
+    And SCC "privileged" is added to the "system:serviceaccounts" group
 
     #Create tow pods for selinux testing
     And I run the :create client command with:
