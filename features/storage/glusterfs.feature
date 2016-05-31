@@ -1,5 +1,5 @@
 Feature: Storage of GlusterFS plugin testing
-	
+
   # @author wehe@redhat.com
   # @case_id 522140
   @admin @destructive
@@ -37,3 +37,63 @@ Feature: Storage of GlusterFS plugin testing
       | glusterfs: mount failed |
     """
 
+  # @author lxia@redhat.com
+  # @case_id 508054
+  @admin @destructive
+  Scenario: GlusterFS volume plugin with RWO access mode and Retain policy
+    Given I have a project
+    And I have a Gluster service in the project
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I execute on the pod:
+      | chmod | g+w | /vol |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/endpoints.json" replacing paths:
+      | ["metadata"]["name"]                 | glusterfs-cluster             |
+      | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
+      | ["subsets"][0]["ports"][0]["port"]   | 24007                         |
+    Then the step should succeed
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pv-retain-rwo.json" where:
+      | ["metadata"]["name"]                      | pv-gluster-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                | ReadWriteOnce                  |
+      | ["spec"]["glusterfs"]["endpoints"]        | glusterfs-cluster              |
+      | ["spec"]["glusterfs"]["path"]             | testvol                        |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                         |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]       | pvc-gluster-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce                   |
+      | ["spec"]["volumeName"]     | pv-gluster-<%= project.name %>  |
+    Then the step should succeed
+    And the PV becomes :bound
+    And the "pvc-gluster-<%= project.name %>" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %>        |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-gluster-<%= project.name %>  |
+    Then the step should succeed
+    Given the pod named "mypod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | id |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -ld | /mnt/gluster |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/gluster/tc508054 |
+    Then the step should succeed
+
+    When I run the :delete client command with:
+      | object_type       | pod                       |
+      | object_name_or_id | mypod-<%= project.name %> |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type       | pvc                             |
+      | object_name_or_id | pvc-gluster-<%= project.name %> |
+    Then the step should succeed
+    And the PV becomes :released
+    When I execute on the "glusterd" pod:
+      | ls | /vol/tc508054 |
+    Then the step should succeed
+    And the PV becomes :released
