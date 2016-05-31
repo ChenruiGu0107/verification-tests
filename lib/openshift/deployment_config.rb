@@ -48,7 +48,7 @@ module CucuShift
     end
 
     # @return [CucuShift::ResultHash] with :success depending on status['replicas'] == spec['replicas']
-    def ready?(user, quiet: false)
+    def ready?(user:, quiet: false)
       res = describe(user, quiet: quiet)
 
       if res[:success]
@@ -56,6 +56,12 @@ module CucuShift
         res[:success] =  res[:parsed][:pods_status][:running].to_i == 1
       end
       return res
+    end
+
+    def replicas(user:, cached: false, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user,
+                             cached: cached, quiet: quiet)
+      return spec["replicas"]
     end
   end
 end

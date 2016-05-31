@@ -123,6 +123,8 @@ module CucuShift
       return res
     end
 
+    # @param labels [String, Array<String,String>] labels to filter on, read
+    #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
     def self.get_labeled(*labels, user:, project:, result: {})
       get_matching(user: user, project: project, result: result,
                    get_opts: {l: selector_to_label_arr(*labels)}) do |r, r_hash|

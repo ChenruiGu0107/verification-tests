@@ -32,8 +32,8 @@ Given /^I have a NFS service in the(?: "([^ ]+?)")? project$/ do |project_name|
   #   `service("nfs-service").ip`
 end
 
-Given /^I have a ssh-git service in the(?: "([^ ]+?)")? project$/ do |project_name|
-  project(project_name)
+Given /^I have an ssh-git service in the(?: "([^ ]+?)")? project$/ do |project_name|
+  project(project_name, switch: true)
   unless project.exists?(user: user)
     raise "project #{project_name} does not exist"
   end
@@ -71,9 +71,60 @@ Given /^I have a ssh-git service in the(?: "([^ ]+?)")? project$/ do |project_na
 
   # to get string private key use cb.ssh_private_key.to_pem in scenario
   cb.ssh_private_key = ssh_key
+  # set some clipboards for easy access
+  cb.git_svc = "git-server"
+  cb.git_pod_ip_port = "#{pod.ip(user: user)}:2022"
+  cb.git_pod = pod
+  cb.git_svc_ip = "#{service("git-server").ip(user: user)}"
   # put sample repo in clipboard for easy use
   cb.git_repo_pod = "ssh://git@#{pod.ip(user: user)}:2022/repos/sample.git"
-  cb.git_repo = "git@#{service("git-server").ip(user: user)}:sample.git"
+  cb.git_repo_ip = "git@#{service("git-server").ip(user: user)}:sample.git"
+  cb.git_repo = "git@git-server:sample.git"
+end
+
+Given /^I have an http-git service in the(?: "([^ ]+?)")? project$/ do |project_name|
+  project(project_name, switch: true)
+  unless project.exists?(user: user)
+    raise "project #{project_name} does not exist"
+  end
+
+  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift/origin/master/examples/gitserver/gitserver-ephemeral.yaml")
+  # @result = user.cli_exec(:run, name: "gitserver", image: "openshift/origin-gitserver", env: 'GIT_HOME=/var/lib/git')
+  raise "could not create the http-git-server" unless @result[:success]
+
+  @result = user.cli_exec(:policy_add_role_to_user, role: "edit", serviceaccount: "git")
+  raise "error with git service account policy" unless @result[:success]
+
+  @result = service("git").wait_till_ready(user, 300)
+  raise "git service did not become ready" unless @result[:success]
+
+  ## we assume to get git pod in the result above, fail otherwise
+  cache_pods *@result[:matching]
+  unless pod.name.start_with? "git-server-"
+    raise("looks like underlying implementation changed and service ready" +
+      "status does not return matching pods anymore; report CucuShift bug")
+  end
+
+  # set some clipboards
+  cb.git_pod = pod
+  cb.git_route = route("git").dns(by: user)
+  cb.git_svc = "git"
+  cb.git_svc_ip = "#{service("git").ip(user: user)}"
+  cb.git_pod_ip_port = "#{pod.ip(user: user)}:8080"
+end
+
+# pod-for-ping is a pod that has curl on it
+Given /^I have a pod-for-ping in the(?: "([^ ]+?)")? project$/ do |project_name|
+  project(project_name, switch: true)
+  unless project.exists?(user: user)
+    raise "project #{project_name} does not exist"
+  end
+
+  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json")
+  raise "could not create a pod-for-ping" unless @result[:success]
+
+  @result = pod("hello-pod").wait_till_ready(user, 300)
+  raise "pod-for-ping did not become ready in time" unless @result[:success]
 end
 
 Given /^I have a Gluster service in the(?: "([^ ]+?)")? project$/ do |project_name|

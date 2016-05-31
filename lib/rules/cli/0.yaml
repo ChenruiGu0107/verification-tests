@@ -421,10 +421,11 @@
   :options:
     :role_namespace: --role-namespace=<value>
 :policy_add_role_to_user:
-  :cmd: oc policy add-role-to-user <role> <user_name>
+  :cmd: oc policy add-role-to-user <role>
   :options:
     :role_namespace: --role-namespace=<value>
     :serviceaccount: -z=<value>
+    :user_name: <value>
 :policy_remove_group:
   :cmd: oc policy remove-group <group_name>
 :policy_remove_role_from_group:
@@ -771,4 +772,4 @@
   :options:
     :project: <value>
     :selector: --selector=<value>
-        
+
