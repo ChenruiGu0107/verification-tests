@@ -41,6 +41,13 @@ Given /^the pod(?: named "(.+)")? is present$/ do |name|
   end
 end
 
+Given /^I store in the#{OPT_SYM} clipboard the pods labeled:$/ do |cbn, labels|
+  cbn ||= :pods
+  cb[cbn] = CucuShift::Pod.get_labeled(*labels.raw.flatten,
+                                       project: project,
+                                       user: user)
+end
+
 Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
   status_timeout = 15 * 60
   @result = pod(name).wait_till_status(status.to_sym, user, status_timeout)
