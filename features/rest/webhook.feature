@@ -26,7 +26,7 @@ Feature: Webhook REST Related Tests
     :headers:
       :Content-Type: application/json
       :<header1>: <header2>
-    :payload: <file>
+    :payload: <%= File.read("<file>").to_json %>
     """
     Then the step should succeed
     Given the "ruby-sample-build-2" build was created
@@ -39,7 +39,7 @@ Feature: Webhook REST Related Tests
     :method: post
     :headers:
       :Content-Type: application/json
-    :payload: <file>
+    :payload: <%= File.read("<file>").to_json %>
     """
     Then the step should fail
     Then the output should contain "not accept"
