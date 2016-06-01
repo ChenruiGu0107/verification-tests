@@ -1982,3 +1982,83 @@ Feature: build 'apps' with CLI
       | resource_name  | build/ruby-hello-world-5 |
     Then the step should succeed
     And the output should contain "Successfully pushed"
+
+  # @author cryan@redhat.com
+  # @case_id 526204
+  Scenario: Change runpolicy to SerialLatestOnly build
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
+    And I replace lines in "ruby22rhel7-template-sti.json":
+      | registry.access.redhat.com | <%= product_docker_repo %> |
+    And I process and create "ruby22rhel7-template-sti.json"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build becomes :running
+    And I get project builds
+    Then the output should contain 1 times:
+      | Running |
+    And the output should contain 3 times:
+      | New     |
+    When I run the :patch client command with:
+      | resource      | buildconfig                                  |
+      | resource_name | ruby22-sample-build                          |
+      | p             | {"spec": {"runPolicy" : "SerialLatestOnly"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build completes
+    And the "ruby22-sample-build-6" build becomes :running
+    And I get project builds
+    Then the output should contain 1 times:
+      | Complete  |
+    And the output should contain 1 times:
+      | Running   |
+    And the output should contain 4 times:
+      | Cancelled |
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    And the "ruby22-sample-build-7" build becomes :cancelled
+    Given I get project builds
+    Then the output should contain 1 times:
+      | Complete  |
+    And the output should contain 1 times:
+      | Running   |
+    And the output should contain 5 times:
+      | Cancelled |
+    And the output should contain 1 times:
+      | New       |
+    When I run the :patch client command with:
+      | resource      | buildconfig                        |
+      | resource_name | ruby22-sample-build                |
+      | p             | {"spec": {"runPolicy" : "Serial"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 1 times:
+      | Complete  |
+    And the output should contain 1 times:
+      | Running   |
+    And the output should contain 5 times:
+      | Cancelled |
+    And the output should contain 3 times:
+      | New       |
