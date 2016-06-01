@@ -94,3 +94,56 @@ Feature: Storage of GlusterFS plugin testing
       | ls | /vol/tc508054 |
     Then the step should succeed
     And the PV becomes :released
+
+  # @author chaoyang@redhat.com
+  # @case_id 510730
+  @admin @destructive
+  Scenario: Glusterfs volume security testing
+    Given I have a project
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    Given I have a Gluster service in the project
+    When I execute on the pod:
+      | chown | -R | root:123456 | /vol|
+    Then the step should succeed
+    And I execute on the pod:
+      | chmod | -R | 770 | /vol |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/endpoints.json" replacing paths:
+      | ["metadata"]["name"]                 | glusterfs-cluster             |
+      | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
+      | ["subsets"][0]["ports"][0]["port"]   | 24007                         |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/security/gluster_pod_sg.json" replacing paths:
+      | ["metadata"]["name"]                    | glusterpd-<%= project.name %>   |
+    Then the step should succeed
+
+    Given the pod named "glusterpd-<%= project.name %>" becomes ready
+    And I execute on the "glusterpd-<%= project.name %>" pod:
+      | ls | /mnt/glusterfs |
+    Then the step should succeed
+
+    And I execute on the "glusterpd-<%= project.name %>" pod:
+      | touch | /mnt/glusterfs/gluster_testfile |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/security/gluster_pod_sg.json" replacing paths:
+      | ["metadata"]["name"]                               | glusterpd-negative-<%= project.name %>   |
+      | ["spec"]["securityContext"]["supplementalGroups"]  | [123460]                                 |
+    Then the step should succeed
+    Given the pod named "glusterpd-negative-<%= project.name %>" becomes ready
+    And I execute on the "glusterpd-negative-<%= project.name %>" pod:
+      | ls | /mnt/glusterfs |
+    Then the step should fail
+    Then the outputs should contain:
+      | Permission denied  |
+
+    And I execute on the "glusterpd-negative-<%= project.name %>" pod:
+      | touch | /mnt/glusterfs/gluster_testfile |
+    Then the step should fail
+    Then the outputs should contain:
+      | Permission denied  |
+
