@@ -109,8 +109,6 @@ Given /^I have an http-git service in the(?: "([^ ]+?)")? project$/ do |project_
   @result = user.cli_exec(:policy_add_role_to_user, role: "edit", serviceaccount: "git")
   raise "error with git service account policy" unless @result[:success]
 
-  step 'I wait for the "git" service to become ready'
-
   @result = service("git").wait_till_ready(user, 300)
   raise "git service did not become ready" unless @result[:success]
 

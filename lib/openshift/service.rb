@@ -34,13 +34,15 @@ module CucuShift
       end
 
       res = {}
-      Pod.get_labeled(*selector,
+      pods = Pod.get_labeled(*selector,
                       user: user,
                       project: project,
                       quiet: quiet,
                       result: res) { |p, p_hash|
         p.ready?(user: user, cached: true)[:success]
       }
+
+      res[:success] = pods.size > 0
 
       return res
     end
