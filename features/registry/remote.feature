@@ -135,5 +135,71 @@ Feature: remote registry related scenarios
     And the output should contain:
       | Downloaded newer image |
 
+  # @author yinzhou@redhat.com
+  # @case_id 476215
+  @admin
+  Scenario: provisioned if it does not exist during 'docker push'
+    Given I have a project
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | mystream |
+      | o             | json |
+    Then the step should fail
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    When I run commands on the host:
+      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull docker.io/busybox:latest |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker tag -f docker.io/busybox:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | mystream |
+      | o             | json |
+    Then the step should succeed
 
-
+  # @author yinzhou@redhat.com
+  # @case_id 475780
+  @admin
+  Scenario: ImageStream annotations can be set
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/annotations.json |
+    Then the step should succeed
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    When I run commands on the host:
+      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull docker.io/busybox:latest |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker tag -f docker.io/busybox:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/testa:prod |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/testa:prod |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | imagestreamtag |
+      | resource_name | testa:prod |
+      | template      | {{.metadata.annotations}} |
+      | n             | <%= project.name %> |
+    Then the output should match "color:blue"
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | testa |
+      | o             | yaml |
+      | n             | <%= project.name %> |
+    And the output should match:
+      |  tags |
+      |  - annotations: |
+      | color: blue |
+      | name: prod |
