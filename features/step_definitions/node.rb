@@ -13,3 +13,7 @@ Given /^I run commands on the host:$/ do |table|
 
   @result = host.exec(*table.raw.flatten)
 end
+# use a special node in cluster
+Given /^I use the #{QUOTED} node$/ do | host |
+  @host = node(host).host
+end

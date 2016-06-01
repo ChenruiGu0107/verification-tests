@@ -42,9 +42,10 @@ module CucuShift
       @rcs = []
       @dcs = []
       @image_streams = []
-      # used to store node the user wants to run commands on
+      # used to store host the user wants to run commands on
       @host = nil
-
+      # used to store nodes in the cluster
+      @nodes = []
       # procs and lambdas to call on clean-up
       @teardown = []
     end
@@ -442,6 +443,31 @@ module CucuShift
     # add pods to list avoiding duplicates
     def cache_pods(*new_pods)
       new_pods.each {|p| @pods.delete(p); @pods << p}
+    end
+
+    # @return node by name 
+    def node(name = nil)
+      if Integer === name
+        return @nodes[name] || raise("no node with index #{name}")
+      elsif name
+        n = @nodes.find {|n| n.name == name }
+        if n && @nodes.last == n
+          return n
+        elsif n
+          @nodes << @nodes.delete(n)
+          return n
+        else
+          # create new CucuShift::Node object with specified name
+          @nodes << Node.new(name: name, env: env)
+          return @nodes.last
+        end
+      elsif @nodes.empty?
+        # we do not create a random node like with projects because that
+        #   would rarely make sense
+        raise "what node are you talking about?"
+      else
+        return @nodes.last
+      end
     end
 
     # @param procs [Proc] a proc or lambda to add to teardown

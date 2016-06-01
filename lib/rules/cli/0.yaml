@@ -343,6 +343,7 @@
     :app_repo: <value>
     :binary: --binary <value>
     :build_secret: --build-secret=<value>
+    :context_dir: --context-dir=<value>
     :code: --code=<value>
     :docker_image: --docker-image=<value>
     :D : -D <value>

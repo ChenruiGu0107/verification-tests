@@ -330,3 +330,36 @@ Feature: buildlogic.feature
       | buildconfig | ruby-hello-world |
     Then the "ruby-hello-world-3" build was created
     Then the "ruby-hello-world-3" build completed
+
+  # @author haowang@redhat.com
+  # @case_id 499639
+  @admin
+  Scenario: Check labels info in built images when do sti build in openshift
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo     | https://github.com/openshift-qe/ruby-hello-world-context |
+      | image_stream | openshift/ruby:latest                                    |
+      | context_dir  | test                                                     |
+      | name         | ruby-hello-world                                         |
+    Then the step should succeed
+    Then the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    And evaluation of `pod("ruby-hello-world-1-build").node_name(user: user)` is stored in the :build_pod_node clipboard
+    Then I use the "<%= cb.build_pod_node %>" node
+    And evaluation of `image_stream("ruby-hello-world").docker_image_repository(user: user)` is stored in the :built_image clipboard
+    And I run commands on the host:
+      | docker inspect <%= cb.built_image %> |
+    Then the step should succeed
+    And the output should match:
+      | .*io.openshift.build.commit.author.*                 |
+      | .*io.openshift.build.commit.date.*                   |
+      | .*io.openshift.build.commit.id.*                     |
+      | .*io.openshift.build.commit.message.*                |
+      | .*io.openshift.build.commit.ref.*master.*            |
+      | .*io.openshift.build.image.*ruby.*                   |
+      | .*io.openshift.build.source-context-dir.*test.*      |
+      | .*io.openshift.build.source-location.*openshift-qe.* |
+      | .*io.openshift.expose-services.*                     |
+      | .*io.openshift.s2i.scripts-url.*                     |
+      | .*io.openshift.tags.*                                |
+      | .*io.s2i.scripts-url.*                               |
