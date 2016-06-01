@@ -187,10 +187,12 @@ Given /^I have a iSCSI setup in the environment$/ do
   ensure_admin_tagged
 
   _project = project("default", switch: false)
+  _pod = cb.iscsi_pod = pod("iscsi-target", _project)
+  _service = cb.iscsi_service = service("iscsi-target", _project)
 
-  _pod = pod("iscsi-target", _project)
   if _pod.ready?(user: admin, quiet: true)[:success]
     logger.info "found existing iSCSI pod, skipping config"
+    cb.iscsi_ip = _service.ip(user: admin)
     next
   elsif _pod.exists?(user: admin, quiet: true)
     logger.warn "broken iSCSI pod, will try to recreate keeping other config"
@@ -206,12 +208,11 @@ Given /^I have a iSCSI setup in the environment$/ do
     @result = admin.cli_exec(:create, n: _project.name, f: 'https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/service.json')
     raise "could not create iSCSI service" unless @result[:success]
   end
-  _service = service("iscsi-target", _project)
 
   # setup to work with service
   @result = _pod.wait_till_ready(admin, 120)
   raise "iSCSI pod did not become ready" unless @result[:success]
-  iscsi_ip = _service.ip(user: admin)
+  iscsi_ip = cb.iscsi_ip = _service.ip(user: admin)
   @result = _pod.exec("targetcli", "/iscsi/iqn.2016-04.test.com:storage.target00/tpg1/portals", "create", iscsi_ip, as: admin)
   raise "could not create portal to iSCSI service" unless @result[:success]
 
