@@ -42,3 +42,29 @@ Given /^the #{QUOTED} file is restored on host after scenario$/ do |path|
     raise "could not restore #{path} on #{_host.hostname}" unless @result[:success]
   }
 end
+
+Given /^the node service is restarted on the host after scenario$/ do
+  _host = @host
+
+  @result = _host.exec_admin("systemctl status atomic-openshift-node")
+  unless @result[:success] && @result[:response].include?("active (running)")
+    raise "something already wrong with node service, failing early"
+  end
+
+  teardown_add {
+    @result = _host.exec_admin("systemctl restart atomic-openshift-node")
+    unless @result[:success]
+      raise "could not restart node service on #{_host.hostname}"
+    end
+
+    sleep 15 # give service some time to fail
+    @result = _host.exec_admin("systemctl status atomic-openshift-node")
+    unless @result[:success]
+      raise "node service not running on #{_host.hostname}"
+    end
+
+    # TODO: do we need `oc get node` and check status ready? We'll need a Node
+    #   object in such case. Also question is how long to wait before check,
+    #   because openshift is not so fast to react on errors.
+  }
+end
