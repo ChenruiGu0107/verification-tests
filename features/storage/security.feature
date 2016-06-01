@@ -4,50 +4,36 @@ Feature: storage security check
   @admin @destructive
   Scenario: secret volume security check
     Given I have a project
-    Given scc policy "restricted" is restored after scenario
     When I run the :create client command with:
-      |filename| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret.yaml|
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret.yaml |
     Then the step should succeed
 
-    #create a new scc restricted
-    When I run the :delete admin command with:
-      |object_type| scc|
-      |object_name_or_id|restricted|
-    Then the step should succeed
-    Then the outputs should contain "restricted"
-    Then the outputs should contain "deleted"
-
-    When I run the :create admin command with:
-      |filename|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc510760/secret_restricted.yaml |
-    Then the step should succeed
-
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
     When I run the :create client command with:
-      |filename|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret-pod-test.json|
-    And the pod named "secretpd" becomes ready
-    When I execute on the pod:
-      |id|
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/secret/secret-pod-test.json |
     Then the step should succeed
-    Then the outputs should contain "groups=123456"
+
+    Given the pod named "secretpd" becomes ready
     When I execute on the pod:
-      |ls|
-      |-lZd|
-      |/mnt/secret/|
+      | id | -G |
     Then the step should succeed
     And the outputs should contain "123456"
-    And the outputs should contain "system_u:object_r:svirt_sandbox_file_t:s0"
     When I execute on the pod:
-      |touch|
-      |/mnt/secret/file |
+      | ls | -lZd | /mnt/secret/ |
+    Then the step should succeed
+    And the outputs should contain:
+      | 123456 |
+      | system_u:object_r:svirt_sandbox_file_t:s0 |
+    When I execute on the pod:
+      | touch | /mnt/secret/file |
     Then the step should succeed
     When I execute on the pod:
-      |ls|
-      |-lZ|
-      |/mnt/secret/|
+      | ls | -lZ | /mnt/secret/file |
     Then the step should succeed
-    And the outputs should not contain "root"
-    And the outputs should contain "123456"
-    And the outputs should contain "system_u:object_r:svirt_sandbox_file_t:s0"
-    And the outputs should contain "file"
+    And the outputs should contain:
+      | 123456 |
+      | system_u:object_r:svirt_sandbox_file_t:s0 |
 
   # @author chaoyang@redhat.com
   # @author wehe@redhat.com
@@ -55,10 +41,10 @@ Feature: storage security check
   @admin @destructive
   Scenario: gitRepo volume security testing
     Given I have a project
-    And SCC "privileged" is added to the "default" user
-    And SCC "privileged" is added to the "system:serviceaccounts" group
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
 
-    #Create tow pods for selinux testing
+    #Create two pods for selinux testing
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gitrepo/gitrepo-selinux-fsgroup-auto510759.json |
     Then the step should succeed
@@ -90,10 +76,10 @@ Feature: storage security check
   @admin @destructive
   Scenario: emptyDir volume security testing
     Given I have a project
-    And SCC "privileged" is added to the "default" user
-    And SCC "privileged" is added to the "system:serviceaccounts" group
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
 
-    #Create tow pods for selinux testing
+    #Create two pods for selinux testing
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/emptydir/emptydir_pod_selinux_test.json |
     Then the step should succeed
