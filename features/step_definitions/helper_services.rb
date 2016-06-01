@@ -68,6 +68,20 @@ Given /^I have an ssh-git service in the(?: "([^ ]+?)")? project$/ do |project_n
     as: user
   )
   raise "cannot add public key to ssh-git server pod" unless @result[:success]
+  # add the private key to git server pod ,so we can make this pod also as a git client pod to pull/push code to the repo
+  @result = pod.exec(
+    "bash", "-c",
+    "echo '#{ssh_key.to_pem}' >> /home/git/.ssh/id_rsa && chmod 600 /home/git/.ssh/id_rsa && ssh-keyscan -H #{service("git-server").ip(user: user)}>> ~/.ssh/known_hosts",
+    as: user
+  )
+  raise "cannot add private key to ssh-git server pod" unless @result[:success]
+  #git config, we should have this when we git clone a repo
+  @result = pod.exec(
+    "bash", "-c",
+    "git config --global user.email \"sample@redhat.com\" &&  git config --global user.name \"sample\"",
+    as: user
+  )
+  raise "cannot set git global config" unless @result[:success]
 
   # to get string private key use cb.ssh_private_key.to_pem in scenario
   cb.ssh_private_key = ssh_key

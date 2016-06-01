@@ -288,3 +288,45 @@ Feature: buildlogic.feature
     Then the output should contain:
       | build error |
       | Failed to push image |
+
+  # @author haowang@redhat.com
+  # @case_id 482193
+  Scenario: Build from private git repo with/without ssh key
+    Given I have a project
+    And I have an ssh-git service in the project
+    And the "secret" file is created with the following lines:
+      | <%= cb.ssh_private_key.to_pem %>" |
+    And I run the :oc_secrets_new_sshauth client command with:
+      | ssh_privatekey | secret   |
+      | secret_name    | mysecret |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash                                                                                                                                                                     |
+      | -c                                                                                                                                                                       |
+      | cd /home/git/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | image_stream | openshift/ruby:2.2                            |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | name         | ruby-hello-world                              |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+    When I run the :patch client command with:
+      | resource      | buildconfig                                                                             |
+      | resource_name | ruby-hello-world                                                                        |
+      | p             | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"}}}} |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the "ruby-hello-world-2" build was created
+    Then the "ruby-hello-world-2" build failed
+    When I run the :patch client command with:
+      | resource      | buildconfig                                              |
+      | resource_name | ruby-hello-world                                         |
+      | p             | {"spec":{"source":{"sourceSecret":{"name":"mysecret"}}}} |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the "ruby-hello-world-3" build was created
+    Then the "ruby-hello-world-3" build completed
