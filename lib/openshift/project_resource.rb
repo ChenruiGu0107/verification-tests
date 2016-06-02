@@ -125,6 +125,8 @@ module CucuShift
 
     # @param labels [String, Array<String,String>] labels to filter on, read
     #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
+    # @return [Array<ProjectResource>] with :matching key being array of matched
+    #   resources
     def self.get_labeled(*labels, user:, project:, result: {}, quiet: false)
       get_opts = {l: selector_to_label_arr(*labels)}
       get_opts[:_quiet] = true if quiet
