@@ -75,9 +75,6 @@ Feature: Storage of GlusterFS plugin testing
     Then the step should succeed
     Given the pod named "mypod-<%= project.name %>" becomes ready
     When I execute on the pod:
-      | id |
-    Then the step should succeed
-    When I execute on the pod:
       | ls | -ld | /mnt/gluster |
     Then the step should succeed
     When I execute on the pod:
