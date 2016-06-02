@@ -97,3 +97,43 @@ Feature: remote registry related scenarios
     # registry config, remove image and chec again that pull not working
     # docker rmi docker.io/aosqe/sleep:latest
     # at the moment if something pulled image earlier, case would fail
+
+
+  # @author pruan@redhat.comπ
+  # @case_id 518930
+  @admin
+  Scenario: Pull image with integrated registry have stored the data
+    Given I have a project
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    # TODO: this PR should allow 'deployer' the permission to push https://github.com/openshift/origin/pull/9066
+    When I run commands on the host:
+      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    Then the step should succeed
+    # create a short hand
+    And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc518930-busybox:local"` is stored in the :my_tag clipboard
+    When I run commands on the host:
+      | docker pull busybox                 |
+      | docker tag busybox <%= cb.my_tag %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.my_tag %> |
+    Then the step should succeed
+    # remove the exiting images to make sure we are pulling
+    When I run commands on the host:
+      | docker rmi -f  <%= cb.my_tag%>  |
+      | docker rmi -f docker.io/busybox |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull <%= cb.my_tag %> |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    I run commands on the host:
+      | docker rmi -f  <%= cb.my_tag%>  |
+    """
+    And the output should contain:
+      | Downloaded newer image |
+
+
+
