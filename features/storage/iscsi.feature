@@ -52,3 +52,19 @@ Feature: ISCSI volume plugin testing
       | ls | -l | /mnt/iscsi/iscsi_testfile |
     Then the output should contain:
       | 123456 |
+
+  # @author jhou@redhat.com
+  # @case_id 510677
+  @admin @destructive
+  Scenario: ISCSI use default 3260 if port not specified
+    Given I have a iSCSI setup in the environment
+    And I have a project
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+      | ["metadata"]["name"]                            | iscsi-<%= project.name %> |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>        |
+    Then the step should succeed
+    And the pod named "iscsi-<%= project.name %>" becomes ready
