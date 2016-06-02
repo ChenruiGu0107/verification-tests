@@ -58,6 +58,22 @@ Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
   end
 end
 
+Given /^status becomes :([^\s]*?) of( exactly)? ([0-9]+) pods labeled:$/ do |status, exact_count, count, labels|
+  timeout = 15 * 60
+  labels = labels.raw.flatten
+
+  @result = CucuShift::Pod.wait_for_labeled(*labels, count: count.to_i,
+              user: user, project: project, seconds: timeout) { |p, p_hash|
+    p.status?(status: status.to_sym, user: user, cached: true, quiet: true)
+  }
+
+  count_good = !exact_count || @result[:matching].size == count.to_i
+
+  unless @result[:success] && count_good
+    raise "desired num of pods did not become #{status}"
+  end
+end
+
 # for a rc that has multiple pods, oc describe currently doesn't support json/yaml output format, so do 'oc get pod' to get the status of each pod
 # this step is deprecated due to not having clear semantics
 Given /^all pods in the project are ready$/ do
