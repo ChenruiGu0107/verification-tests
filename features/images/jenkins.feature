@@ -14,7 +14,7 @@ Feature: jenkins.feature
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-      | curl | -usS | admin:password | <%= service.url %> |
+      | curl | -sS | -u| admin:password | <%= service.url %> |
     Then the step should succeed
     """
     And the output should contain:
@@ -29,7 +29,7 @@ Feature: jenkins.feature
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-      | curl | -usS | admin:redhat | <%= service.url %> |
+      | curl | -sS | -u | admin:redhat | <%= service.url %> |
     Then the step should succeed
     """
     And the output should contain:
