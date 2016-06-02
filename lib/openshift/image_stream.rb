@@ -28,7 +28,7 @@ module CucuShift
           res[:parsed]["status"]["tags"] &&
           res[:parsed]["status"]["tags"].length > 0 &&
           res[:parsed]["status"]["tags"].all? { |c|
-            c.key?("tag")
+            c["items"] && c["items"].length > 0
           }
       end
 
