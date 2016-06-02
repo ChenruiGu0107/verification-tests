@@ -1,6 +1,5 @@
 require 'yaml'
 require 'common'
-
 module CucuShift
   # @note this class represents OpenShift environment Node API pbject and this
   #   is different from a CucuShift::Host. Underlying a Node, there always is a
@@ -61,9 +60,17 @@ module CucuShift
 
     # @return [CucuShift:Host] underlying this node
     # @note may raise depending on proper OPENSHIFT_ENV_<NAME>_HOSTS
+    # @note will return acorrding to:
+    # 1. if the node name matches hosts, then use host
+    # 2. if  any env pre-defined hosts woned node name ip, then use it.
     def host
-      env.hosts.find { |h| h.hostname == self.name } ||
-        raise("no host mapping for #{self.name}")
+      host = env.hosts.find { |h| h.hostname == self.name }
+      return host if host
+      env.hosts.each do | h|
+        hname = h.exec("hostname")[:response].gsub("\n","")
+        return h if hname == self.name
+      end
+      raise("no host mapping for #{self.name}")
     end
 
     def get(user:)
