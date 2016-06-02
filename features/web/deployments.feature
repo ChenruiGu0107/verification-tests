@@ -108,3 +108,62 @@ Feature: Check deployments function
       | dc_number    | 2                   |
       | replicas     | 2                   |
     Then the step should fail
+
+  # @author yapei@redhat.com
+  # @case_id 483174
+  Scenario: Check deployment info on web console
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    # check dc detail info
+    When I perform the :check_dc_strategy web console action with:
+      | project_name | <%= project.name %>   |
+      | dc_name      | hooks                 |
+      | dc_strategy  | <%= dc.strategy(user:user)["type"] %> |
+    Then the step should succeed
+    When I perform the :check_dc_manual_cli_trigger web console action with:
+      | project_name | <%= project.name %>   |
+      | dc_name      | hooks                 |
+      | dc_manual_trigger_cli | oc deploy hooks --latest -n <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_dc_config_trigger web console action with:
+      | project_name | <%= project.name %>   |
+      | dc_name      | hooks                 |
+      | dc_config_change | Config            |
+    Then the step should succeed
+    When I perform the :check_dc_selector web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+      | dc_selectors_key | <%= dc.selector(user:user).keys[0] %> |
+      | dc_selectors_value | <%= dc.selector(user:user).values[0] %> |
+    Then the step should succeed
+    When I perform the :check_dc_replicas web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+      | dc_replicas  | <%= dc.replicas(user:user) %>  |
+    Then the step should succeed
+    # check #1 deployment info
+    When I perform the :check_specific_deploy_selector web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+      | dc_number    | 1                      |
+      | specific_deployment_selector | deployment=hooks-1 |
+    Then the step should succeed
+    # check #2 deployment info
+    When I perform the :manually_deploy web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+    Then the step should succeed
+    When I perform the :wait_latest_deployments_to_status web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+      | status_name  | Deployed               |
+    Then the step should succeed
+    When I perform the :check_specific_deploy_selector web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+      | dc_number    | 2                      |
+      | specific_deployment_selector | deployment=hooks-2 |
+    Then the step should succeed
