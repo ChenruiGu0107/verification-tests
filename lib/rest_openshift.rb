@@ -55,6 +55,17 @@ module CucuShift
         return Http.request(**base_opts, method: "POST")
       end
 
+      def self.post_local_resource_access_reviews(base_opts, opts)
+        base_opts[:payload] = {}
+        base_opts[:payload][:apiVersion] = opts[:oapi_version]
+        base_opts[:payload][:kind] = "LocalResourceAccessReview"
+        base_opts[:payload][:verb] = opts[:verb]
+        base_opts[:payload][:resource] = opts[:resource]
+        project_name = opts[:project_name]
+        populate("/namespaces/<project_name>/localresourceaccessreviews", base_opts, opts)
+        return perform(**base_opts, method: "POST")
+      end
+
       # did not find out how to use this one yet
       def self.create_oauth_access_token(base_opts, opts)
         base_opts[:payload] = {}
