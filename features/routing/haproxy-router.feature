@@ -382,3 +382,34 @@ Feature: Testing haproxy router
     And the output should contain "Hello-OpenShift"
     And the expression should be true> cb.first_access == @result[:response]
     """
+
+  # @author zzhao@redhat.com
+  # @case_id 483530
+  @admin
+  @destructive
+  Scenario: Router stats can be accessed if just provide password
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    And an 10 characters random string of type :dns is stored into the :password clipboard
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | STATS_PASSWORD=<%= cb.password %>  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And I execute on the pod:
+      | curl |
+      |  -s  |
+      |  -w  |
+      |  %{http_code} |
+      |  -u  |
+      |  admin:<%= cb.password %> |
+      |  127.0.0.1:1936  |
+      |  -o  |
+      |  /dev/null| 
+    Then the output should match "200"
