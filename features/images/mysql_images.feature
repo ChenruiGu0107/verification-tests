@@ -448,3 +448,59 @@ Feature: mysql_images.feature
       | image                      | file                                         |
       | openshift3/mysql-55-rhel7  | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf |
       | rhscl/mysql-56-rhel7       | /etc/my.cnf.d/tuning.cnf                     |
+
+  # @author yantan@redhat.com
+  # @case_id 501042
+  @admin
+  @destructive
+  Scenario: Verify clustered mysql can be connected after password changed - mysql-56-rhel7
+    Given I have a project
+    And I have a NFS service in the project
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
+      | ["spec"]["nfs"]["server"]   | <%= service("nfs-service").ip %> |
+    Given I download a file from "https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json"
+    Given I replace lines in "mysql_replica.json":
+      | centos/mysql-56-centos7   |  <%= product_docker_repo %>rhscl/mysql-56-rhel7 |
+    And I run the :new_app client command with:
+      | file  | mysql_replica.json  |
+      | param | MYSQL_USER=user     |
+      | param | MYSQL_PASSWORD=user |
+    And a pod becomes ready with labels:
+      | name=mysql-slave          |
+    And a pod becomes ready with labels:
+      | name=mysql-master         |
+    Given I wait for the "mysql-master" service to become ready 
+    And I wait up to 200 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | mysql -h mysql-master -u user -puser -D userdb -e 'create table test (age INTEGER(32));' |
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      | bash | -c | mysql -h mysql-master -u user -puser -D userdb -e 'insert into test VALUES(10);' |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash | -c | mysql -h mysql-master -u user -puser -D userdb -e 'select * from  test;' |
+    Then the step should succeed
+    And the output should contain:
+      | 10 |
+    When I run the :env client command with:
+      | resource | dc/mysql-master        |
+      | e        | MYSQL_PASSWORD=newuser |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:  
+    """
+    When I execute on the pod:
+      | bash | -c | mysql -h mysql-master -u user -puser -D userdb -e 'select * from  test;' |
+    Then the step should fail
+    """
+    And a pod becomes ready with labels:
+      | name=mysql-master         |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | mysql -h mysql-master -u user -pnewuser -D userdb -e 'select * from  test;' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 10 |
