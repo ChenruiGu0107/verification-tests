@@ -459,9 +459,16 @@ module CucuShift
       when "wildcard_dns"
         begin
           dyn = get_dyn
+          ips = []
 
-          hosts = erb_binding.local_variable_get(:hosts)
-          ips = hosts.select {|h| h.has_any_role? task[:roles]}.map(&:ip)
+          if task[:roles]
+            hosts = erb_binding.local_variable_get(:hosts)
+            ips.concat(hosts.select{|h| h.has_any_role? task[:roles]}.map(&:ip))
+          end
+          if task[:ips]
+            ips.concat task[:ips]
+          end
+
           dns_record = "*.#{dns_component}"
           fqdn = dyn.dyn_create_a_records(dns_record, ips)
           if task[:store_in]
