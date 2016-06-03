@@ -49,6 +49,8 @@
     :container: --container=<value>
     :stdin: --stdin=<value>
     :tty: --tty=<value>
+:autoscale:
+  :cmd: oc autoscale
 :build_logs:
   :cmd: oc build-logs <build_name>
   :options:
@@ -110,6 +112,8 @@
   :options:
     :f: -f <value>
     :filename: --filename=<value>
+:create_secret:
+  :cmd: oc create secret <createservice_type>
 :create_serviceaccount:
   :cmd: oc create serviceaccount <serviceaccount_name>
 :debug:
@@ -265,6 +269,7 @@
 :help:
   :cmd: oc help
   :options:
+    :command_name: <value>
     # use global `h` and `help` options if needed
 :import_image:
   :cmd: oc import-image

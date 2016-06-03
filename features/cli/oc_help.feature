@@ -297,3 +297,181 @@ Feature: oc related features
     Then the step should succeed
     And the output should contain:
       | DEPRECATED: This command has been moved to "oc logs"  |
+
+
+  # @author chezhang@redhat.com
+  # @case_id 519918
+  Scenario: kubectl secret subcommand - help
+    Given I have a project
+    When I run the :create_secret client command with:
+      | createservice_type | |
+      | h                  | |
+    Then the step should succeed
+    And the output should contain:
+      | Available Commands:                   |
+      | docker-registry                       |
+      | generic                               |
+    When I run the :create_secret client command with:
+      | createservice_type | |
+      | help               | |
+    Then the step should succeed
+    And the output should contain:
+      | Available Commands:                   |
+      | docker-registry                       |
+      | generic                               |
+    When I run the :create_secret client command with:
+      | createservice_type | generic |
+      | h                  |         |
+    Then the step should succeed
+    And the output should contain:
+      | Options:             |
+      | --dry-run=           |
+      | --from-file=         |
+      | --from-literal=      |
+      | --generator=         |
+      | --no-headers=        |
+      | -o, --output=        |
+      | --output-version=    |
+      | --save-config=       |
+      | --schema-cache-dir=  |
+      | -a, --show-all=      |
+      | --show-labels=       |
+      | --sort-by=           |
+      | -t, --template=      |
+      | --type=              |
+      | --validate=          |
+    When I run the :create_secret client command with:
+      | createservice_type | generic |
+      | help               |         |
+    Then the step should succeed
+    And the output should contain:
+      | Options:             |
+      | --dry-run=           |
+      | --from-file=         |
+      | --from-literal=      |
+      | --generator=         |
+      | --no-headers=        |
+      | -o, --output=        |
+      | --output-version=    |
+      | --save-config=       |
+      | --schema-cache-dir=  |
+      | -a, --show-all=      |
+      | --show-labels=       |
+      | --sort-by=           |
+      | -t, --template=      |
+      | --type=              |
+      | --validate=          |
+    When I run the :create_secret client command with:
+      | createservice_type | docker-registry |
+      | h                  |                 |
+    Then the step should succeed
+    And the output should contain:
+      | Options:             |
+      | --docker-email=      |
+      | --docker-password=   |
+      | --docker-server=     |
+      | --docker-username=   |
+      | --dry-run=           |
+      | --generator=         |
+      | --no-headers=        |
+      | -o, --output=        |
+      | --output-version=    |
+      | --save-config=       |
+      | --schema-cache-dir=  |
+      | -a, --show-all=      |
+      | --show-labels=       |
+      | --sort-by=           |
+      | -t, --template=      |
+      | --validate=          |
+    When I run the :create_secret client command with:
+      | createservice_type | docker-registry |
+      | help               |                 |
+    Then the step should succeed
+    And the output should contain:
+      | Options:             |
+      | --docker-email=      |
+      | --docker-password=   |
+      | --docker-server=     |
+      | --docker-username=   |
+      | --dry-run=           |
+      | --generator=         |
+      | --no-headers=        |
+      | -o, --output=        |
+      | --output-version=    |
+      | --save-config=       |
+      | --schema-cache-dir=  |
+      | -a, --show-all=      |
+      | --show-labels=       |
+      | --sort-by=           |
+      | -t, --template=      |
+      | --validate=          |
+
+
+  # @author chezhang@redhat.com
+  # @case_id 521542
+  Scenario: Check `oc autoscale` help info
+    Given I have a project
+    When I run the :autoscale client command with:
+      | h     | |
+    Then the step should succeed
+    And the output should contain:
+      | Options:             |
+      | --cpu-percent=       |
+      | --dry-run=           |
+      | -f, --filename=      |
+      | --generator=         |
+      | --max=               |
+      | --min=               |
+      | --name=              |
+      | --no-headers=        |
+      | -o, --output=        |
+      | --output-version=    |
+      | --record=            |
+      | --save-config=       |
+      | -a, --show-all=      |
+      | --show-labels=       |
+      | --sort-by=           |
+      | -t, --template=      |
+    When I run the :autoscale client command with:
+      | help  | |
+    Then the step should succeed
+    And the output should contain:
+      | Options:             |
+      | --cpu-percent=       |
+      | --dry-run=           |
+      | -f, --filename=      |
+      | --generator=         |
+      | --max=               |
+      | --min=               |
+      | --name=              |
+      | --no-headers=        |
+      | -o, --output=        |
+      | --output-version=    |
+      | --record=            |
+      | --save-config=       |
+      | -a, --show-all=      |
+      | --show-labels=       |
+      | --sort-by=           |
+      | -t, --template=      |
+    When I run the :help client command with:
+      | command_name | autoscale |
+    Then the step should succeed
+    And the output should contain:
+      | Options:             |
+      | --cpu-percent=       |
+      | --dry-run=           |
+      | -f, --filename=      |
+      | --generator=         |
+      | --max=               |
+      | --min=               |
+      | --name=              |
+      | --no-headers=        |
+      | -o, --output=        |
+      | --output-version=    |
+      | --record=            |
+      | --save-config=       |
+      | -a, --show-all=      |
+      | --show-labels=       |
+      | --sort-by=           |
+      | -t, --template=      |
+
