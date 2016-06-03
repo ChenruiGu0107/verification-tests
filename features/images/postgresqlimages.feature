@@ -98,3 +98,26 @@ Feature: Postgresql images test
       | Hello |
       | 0.10  |
       | 9.2   |
+
+  # @author cryan@redhat.com
+  # @case_id 528404 528405
+  Scenario Outline: Check memory limits env vars when pod is set with memory limit - postgresql
+    Given I have a project
+    When I run the :run client command with:
+      | name   | psql                                                                         |
+      | image  | <%= product_docker_repo %><image>                                            |
+      | limits | memory=256Mi                                                                 |
+      | env    | POSTGRESQL_USER=user,POSTGRESQL_PASSWORD=redhat,POSTGRESQL_DATABASE=sampledb |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=psql-1 |
+    And I execute on the pod:
+      | grep | shared_buffers | /var/lib/pgsql/openshift-custom-postgresql.conf |
+    Then the output should contain "shared_buffers = 64MB"
+    Given I execute on the pod:
+      | grep | effective_cache_size | /var/lib/pgsql/openshift-custom-postgresql.conf |
+    Then the output should contain "effective_cache_size = 128MB"
+    Examples:
+      | image                          |
+      | openshift3/postgresql-92-rhel7 |
+      | rhscl/postgresql-94-rhel7      |
