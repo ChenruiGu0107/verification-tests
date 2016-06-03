@@ -2,7 +2,8 @@ Feature: Storage of Ceph plugin testing
 
   # @author wehe@redhat.com
   # @case_id 522141
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Ceph persistant volume with invalid monitors
     Given I have a project
 
@@ -42,7 +43,8 @@ Feature: Storage of Ceph plugin testing
 
   # @author jhou@redhat.com
   # @case_id 510566
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Ceph rbd security testing
     # Prepare Ceph rbd server
     Given I have a project

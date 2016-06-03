@@ -206,7 +206,8 @@ Feature: NFS Persistent Volume
 
   # @author jhou@redhat.com
   # @case_id 488980
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Retain NFS Persistent Volume on release
     Given I have a project
     And I have a NFS service in the project
@@ -248,7 +249,8 @@ Feature: NFS Persistent Volume
     
   # @author wehe@redhat.com
   # @case_id 488981
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: The default reclamation policy should be retain
     Given I have a project
     And I have a NFS service in the project
@@ -322,7 +324,8 @@ Feature: NFS Persistent Volume
 
   # @author jhou@redhat.com
   # @case_id 497695
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Share NFS with multiple pods with ReadWriteMany mode
     Given I have a project
     And I have a NFS service in the project

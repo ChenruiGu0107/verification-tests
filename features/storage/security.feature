@@ -1,7 +1,8 @@
 Feature: storage security check
   # @author chaoyang@redhat.com
   # @case_id 510760
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: secret volume security check
     Given I have a project
     When I run the :create client command with:
@@ -38,7 +39,8 @@ Feature: storage security check
   # @author chaoyang@redhat.com
   # @author wehe@redhat.com
   # @case_id 510759
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: gitRepo volume security testing
     Given I have a project
     And I switch to cluster admin pseudo user
@@ -73,7 +75,8 @@ Feature: storage security check
 
   # @author wehe@redhat.com
   # @case_id 510562
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: emptyDir volume security testing
     Given I have a project
     And I switch to cluster admin pseudo user

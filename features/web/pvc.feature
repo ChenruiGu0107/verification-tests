@@ -1,7 +1,8 @@
 Feature: Add pvc to pod from web related
   # @author yanpzhan@redhat.com
   # @case_id 515688
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Attach pvc to pod with multiple containers from web console
     When I create a new project via web
     Then the step should succeed
@@ -83,7 +84,8 @@ Feature: Add pvc to pod from web related
 
   # @author yanpzhan@redhat.com
   # @case_id 515690
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Display and attach PVC to pod from web console
     Given I have a project
     And I have a NFS service in the project
