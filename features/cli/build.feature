@@ -2062,3 +2062,30 @@ Feature: build 'apps' with CLI
       | Cancelled |
     And the output should contain 3 times:
       | New       |
+
+  # @author cryan@redhat.com
+  # @case_id 528380
+  Scenario: Show basic info about build reason when trigger build manually
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | build                 |
+      | name     | ruby22-sample-build-1 |
+    Then the step should succeed
+    And the output should contain "Build configuration change"
+    When I run the :start_build client command with:
+      | from_build | ruby22-sample-build-1 |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | build                 |
+      | name     | ruby22-sample-build-2 |
+    Then the step should succeed
+    And the output should contain "Manually triggered"
+    When I run the :get client command with:
+      | resource      | builds                |
+      | resource_name | ruby22-sample-build-2 |
+      | o             | yaml                  |
+    Then the step should succeed
+    And the output should contain "Manually triggered"
