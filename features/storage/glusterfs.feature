@@ -2,7 +2,8 @@ Feature: Storage of GlusterFS plugin testing
 
   # @author wehe@redhat.com
   # @case_id 522140
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Gluster storage testing with Invalid gluster endpoint
     Given I have a project
 
@@ -39,7 +40,8 @@ Feature: Storage of GlusterFS plugin testing
 
   # @author lxia@redhat.com
   # @case_id 508054
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: GlusterFS volume plugin with RWO access mode and Retain policy
     Given I have a project
     And I have a Gluster service in the project

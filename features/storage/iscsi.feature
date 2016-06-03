@@ -2,7 +2,8 @@ Feature: ISCSI volume plugin testing
 
   # @author jhou@redhat.com
   # @case_id 507686
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: ISCCI volume security test
     Given I have a iSCSI setup in the environment
     And I have a project
@@ -55,7 +56,8 @@ Feature: ISCSI volume plugin testing
 
   # @author jhou@redhat.com
   # @case_id 510677
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: ISCSI use default 3260 if port not specified
     Given I have a iSCSI setup in the environment
     And I have a project

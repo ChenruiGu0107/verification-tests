@@ -2,7 +2,8 @@ Feature: admin deployment related features
 
   # @author xxia@redhat.com
   # @case_id 481683
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Prune old deployments by admin command
     Given I have a project
     When I run the :run client command with:

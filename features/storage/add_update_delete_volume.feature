@@ -3,7 +3,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   # @author jialiu@redhat.com
   # @author jhou@redhat.com
   # @case_id 491430
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Add/Remove persistentVolumeClaim to dc and rc and '--overwrite' option
     # Preparations
     Given I have a project
@@ -280,7 +281,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
   # @author jialiu@redhat.com
   # @case_id 491429
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Add/Remove hostPath volume to dc and rc
     # Preparations
     Given I have a project
@@ -415,7 +417,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
   # @author chaoyang@redhat.com
   # @case_id 499636
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Create a claim when adding volumes to dc/rc
     Given I have a project
     Given I have a NFS service in the project

@@ -2,7 +2,8 @@ Feature: Persistent Volume Claim binding policies
 
   # @author jhou@redhat.com
   # @case_id 510615
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: PVC with accessMode RWO could bound PV with accessMode RWO
     # Preparations
     Given I have a project
@@ -32,7 +33,8 @@ Feature: Persistent Volume Claim binding policies
 
   # @author jhou@redhat.com
   # @case_id 510616
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: PVC with accessMode RWX could bound PV with accessMode RWX
     # Preparations
     Given I have a project
@@ -63,7 +65,8 @@ Feature: Persistent Volume Claim binding policies
 
   # @author yinzhou@redhat.com
   # @case_id 510610
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: deployment hook volume inheritance -- with persistentvolumeclaim Volume
     Given I have a project
     And I have a NFS service in the project
@@ -94,7 +97,8 @@ Feature: Persistent Volume Claim binding policies
 
   # @author wehe@redhat.com
   # @case_id 522131
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: PVCs with size more than PV or access mode not supported by existing PV and expect pending
     Given I have a project
     And I have a NFS service in the project
@@ -244,7 +248,8 @@ Feature: Persistent Volume Claim binding policies
 
   # @author wehe@redhat.com
   # @case_id 501013
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: PVCs with accessmode ROX could bound to PV accessmode contanis ROX
     Given I have a project
     And I have a NFS service in the project
@@ -305,7 +310,8 @@ Feature: Persistent Volume Claim binding policies
 
   # @author chaoyang@redhat.com
   # @case_id 501012
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: PV and PVC bound with accessmod rwx
     Given I have a project
     And I have a NFS service in the project
@@ -327,7 +333,8 @@ Feature: Persistent Volume Claim binding policies
 
   # @author chaoyang@redhat.com
   # @case_id 501014
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: PV and PVC does not bound due to mismatched accessmode
     Given I have a project
     And I have a NFS service in the project
@@ -353,7 +360,8 @@ Feature: Persistent Volume Claim binding policies
 
   # @author chaoyang@redhat.com
   # @case_id 522215
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: PV and PVC bound and unbound many times
     Given I have a project
     And I have a NFS service in the project
