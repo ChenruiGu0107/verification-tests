@@ -147,3 +147,22 @@ Feature: Storage of GlusterFS plugin testing
     Then the outputs should contain:
       | Permission denied  |
 
+  # @author jhou@redhat.com
+  # @case_id 484932
+  @admin
+  @destructive
+  Scenario: Pod references GlusterFS volume directly from its template
+    Given I have a project
+    And I have a Gluster service in the project
+
+    # Create endpoint
+    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-gluster/master/endpoints.json" replacing paths:
+      | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
+
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/docker-gluster/master/pod-direct.json |
+    Then the step should succeed
+    And the pod named "gluster" becomes ready

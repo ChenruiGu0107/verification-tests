@@ -94,3 +94,18 @@ Feature: Storage of Ceph plugin testing
       | ls | -l | /mnt/rbd/rbd_testfile |
     Then the output should contain:
       | 123456 |
+
+  # @author jhou@redhat.com
+  # @case_id 507419
+  @admin
+  @destructive
+  Scenario: Create Ceph rbd pod which reference the rbd server directly from pod template
+    Given I have a project
+    And I have a Ceph pod in the project
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pod-direct.json" replacing paths:
+      | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= pod("rbd-server").ip(user: user) %>:6789 |
+    Then the step should succeed
+    And the pod named "rbd" becomes ready
