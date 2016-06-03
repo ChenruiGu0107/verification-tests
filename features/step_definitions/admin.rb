@@ -15,6 +15,7 @@ end
 Given /^default registry service ip is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
   # save the orignial project name
   org_proj_name = project.name
+  cb_name ||= :registry_ip
   cb[cb_name] = service("docker-registry", project('default')).url(user: :admin)
   project(org_proj_name)
 end
