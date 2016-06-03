@@ -132,3 +132,27 @@ Feature: quickstarts.feature
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
 
+  # @author cryan@redhat.com
+  # @case_id 528401 528402 528403 492613
+  Scenario Outline: Django quickstart test
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift/django-ex/master/openshift/templates/<template>"
+    And I replace lines in "<template>":
+      | python:3.4       | <py_version>     |
+      | <pg_version_old> | <pg_version_new> |
+    When I run the :new_app client command with:
+      | file  | <template>                                                   |
+      | param | SOURCE_REPOSITORY_URL=https://github.com/openshift/django-ex |
+    Then the step should succeed
+    Given the "<name>-1" build completes
+    And a pod becomes ready with labels:
+      | app=<name> |
+    And I wait for the "<name>" service to become ready
+    And I wait for a web server to become available via the "<name>" route
+    Then the output should contain "Welcome to your Django application on OpenShift"
+    Examples:
+      | py_version | pg_version_old | pg_version_new | template               | name                |
+      | python:2.7 |                |                | django.json            | django-example      |
+      | python:3.3 |                |                | django.json            | django-example      |
+      | python:2.7 | postgresql:9.4 | postgresql:9.2 | django-postgresql.json | django-psql-example |
+      | python:3.3 | postgresql:9.4 | postgresql:9.2 | django-postgresql.json | django-psql-example |
