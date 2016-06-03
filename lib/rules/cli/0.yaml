@@ -266,6 +266,13 @@
   :cmd: oc help
   :options:
     # use global `h` and `help` options if needed
+:import:
+  :cmd: oc import <command>
+  :options:
+    :as_template: --as-template=<value>
+    :dry_run: --dry-run=<value>
+    :f: -f <value>
+    :o: -o <value>
 :import_image:
   :cmd: oc import-image
   :options:
@@ -787,4 +794,3 @@
   :options:
     :project: <value>
     :selector: --selector=<value>
-

@@ -2089,3 +2089,59 @@ Feature: build 'apps' with CLI
       | o             | yaml                  |
     Then the step should succeed
     And the output should contain "Manually triggered"
+
+  # @author cryan@redhat.com
+  # @case_id 527313
+  Scenario: Generate new applications from docker compose via oc import docker-compose
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/docker-compose-nodejs-examples/master/05-nginx-express-redis-nodemon/docker-compose.yml"
+    When I git clone the repo "https://github.com/openshift-qe/docker-compose-nodejs-examples.git"
+    Then the step should succeed
+    Given I replace lines in "docker-compose.yml":
+      |./app | ./docker-compose-nodejs-examples/05-nginx-express-redis-nodemon/app |
+    Given I replace lines in "docker-compose.yml":
+      |./nginx | ./docker-compose-nodejs-examples/05-nginx-express-redis-nodemon/nginx |
+    When I run the :import client command with:
+      | command | docker-compose     |
+      | f       | docker-compose.yml |
+    Then the step should succeed
+    Given the "web-1" build becomes :running
+    Given I get project pods
+    And the output should contain:
+      | web-1   |
+      | nginx-1 |
+      | db-1    |
+    When I run the :delete client command with:
+      | all_no_dash |  |
+      | all         |  |
+    Then the step should succeed
+    When I run the :import client command with:
+      | command | docker-compose                                                             |
+      | f       | docker-compose-nodejs-examples/02-express-redis-nodemon/docker-compose.yml |
+    Then the step should succeed
+    Given the "web-1" build becomes :running
+    Given I get project pods
+    And the output should contain:
+      | web-1   |
+      | db-1    |
+    When I run the :import client command with:
+      | command     | docker-compose                                                             |
+      | f           | docker-compose-nodejs-examples/02-express-redis-nodemon/docker-compose.yml |
+      | o           | json                                                                       |
+      | as_template | test.json                                                                  |
+    Then the step should succeed
+    Given I save the output to file> test.json
+    When I run the :delete client command with:
+      | all_no_dash |  |
+      | all         |  |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | test.json |
+    Then the step should succeed
+    Given the "web-1" build completes
+    When I run the :import client command with:
+      | command | docker-compose                                                             |
+      | f       | docker-compose-nodejs-examples/02-express-redis-nodemon/docker-compose.yml |
+      | dry_run | true                                                                       |
+    Then the step should succeed
+    And the output should contain "Success (DRY RUN)"
