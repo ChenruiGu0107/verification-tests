@@ -31,3 +31,24 @@ Feature: Diagnostics system and clients
     | the registry will fail |
     | Apps will not be externally accessible |
     | Errors seen:\s+[1-9]\d* |
+
+  # @author chunchen@redhat.com
+  # @case_id 501020
+  Scenario: Diagnose openshift client
+    Given I have a project
+    When I run the :oadm_diagnostics client command with:
+      | images | openshift3/ose-${component}:${version} |
+      | latest-images | false |
+      | loglevel | 5 |
+      | diaglevel | 0 |
+    Then the output should match:
+      | debug: |
+      | I\d+\s+\d{2}:\d{2}:\d{2}\.\d+\s+\d+ |
+    And the output should not match "Errors seen:\s+[1-9]\d*"
+    When I run the :oadm_diagnostics client command with:
+      | images | openshift3/ose-${component}:${version} |
+      | latest-images | false |
+      | config | /path/to/non-existed-file |
+    Then the output should match:
+      | not find config file |
+      | Errors seen:\s+[1-9]\d* |
