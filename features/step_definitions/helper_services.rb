@@ -137,6 +137,7 @@ Given /^I have a pod-for-ping in the(?: "([^ ]+?)")? project$/ do |project_name|
   @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json")
   raise "could not create a pod-for-ping" unless @result[:success]
 
+  cb.ping_pod = pod("hello-pod")
   @result = pod("hello-pod").wait_till_ready(user, 300)
   raise "pod-for-ping did not become ready in time" unless @result[:success]
 end
