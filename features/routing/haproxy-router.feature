@@ -413,3 +413,107 @@ Feature: Testing haproxy router
       |  -o  |
       |  /dev/null| 
     Then the output should match "200"
+
+  # @author zzhao@redhat.com
+  # @case_id 528266
+  @admin
+  @destructive
+  Scenario: router should be able to skip invalid cert route
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | EXTENDED_VALIDATION=true |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
+
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    And the pod named "hello-pod" becomes ready
+    Given I execute on the "<%= pod.name %>" pod:
+      | wget |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
+      | -O |
+      | /tmp/ca.pem |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name | edge-route |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
+      | service | service-unsecure |
+      | cert | route_edge-www.edge.com.crt |
+      | key | route_edge-www.edge.com.key |
+      | cacert | ca.pem |
+    Then the step should succeed
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Hello-OpenShift"
+    
+    #create some invalid route
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_expire.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_invalid_ca.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_invalid_key.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_invalid_cert.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_noca.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/reen/route_reencrypt_invalid_ca.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/reen/route_reencrypt_invalid_cert.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/reen/route_reencrypt_invalid_key.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/reen/route_reencrypt_invalid_desca.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/reen/route_reencry.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | route |
+    Then the output should contain 10 times:
+      | ExtendedValidationFailed |
+    
+    #create one normal reencyption route to check if it can work after those invalid route
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+
+    When I run the :create_route_reencrypt client command with:
+      | name | route-recrypt |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
+      | service | service-secure |
+      | cert | route_reencrypt-reen.example.com.crt |
+      | key | route_reencrypt-reen.example.com.key |
+      | cacert | route_reencrypt.ca |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | <%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Hello-OpenShift"
