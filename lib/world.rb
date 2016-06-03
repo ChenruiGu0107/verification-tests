@@ -331,7 +331,7 @@ module CucuShift
         #   would rarely make sense
         raise "what dc are you talking about?"
       else
-        return @dc.last
+        return @dcs.last
       end
     end
 

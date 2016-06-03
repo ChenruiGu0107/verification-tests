@@ -63,5 +63,15 @@ module CucuShift
                              cached: cached, quiet: quiet)
       return spec["replicas"]
     end
+
+    def strategy(user:, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec['strategy']
+    end
+
+    def selector(user:, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec['selector']
+    end
   end
 end
