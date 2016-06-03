@@ -28,6 +28,9 @@ create_route_dont_specify_hostname_from_routes_page:
   action: set_route_name
   action: select_target_port
   action: submit_create_route
+select_tls_termination_type:
+  action: show_options_for_secure_route
+  action: set_tls_termination
 choose_service_to_add_route:
   elements:
   - selector:
@@ -53,6 +56,16 @@ select_target_port:
   elements:
   - selector:
       xpath: //select[@id="routeTargetPort"]/option[contains(.,'<target_port>')]
+    op: click
+show_options_for_secure_route:
+  elements:
+  - selector:
+      xpath: //a[contains(.,'Show options for secured routes')]
+    op: click
+set_tls_termination:
+  elements:
+  - selector:
+      xpath: //select[@ng-model="route.tls.termination"]/option[contains(.,'<tls_termination_type>')]
     op: click
 submit_create_route:
   elements:
