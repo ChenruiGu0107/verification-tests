@@ -29,3 +29,14 @@ Given /^([0-9]+) PVCs become #{SYM}(?: within (\d+) seconds)? with labels:$/ do 
     raise "See log, waiting for labeled PVCs futile: #{labels.join(',')}"
   end
 end
+
+Given /^the "([^"]*)" PVC becomes bound to the "([^"]*)" PV(?: within (\d+) seconds)?$/ do |pvc_name, pv_name, timeout|
+  timeout = timeout ? timeout.to_i : 30
+
+  @result = pvc(pvc_name).wait_till_status(:bound, user, timeout)
+  raise "PVC #{pvc_name} never became: #{status}" unless @result[:success]
+
+  unless pvc(pvc_name).volume_name(user: user, cached: true) == pv_name
+    raise "PVC bound to #{pvc(pvc_name).volume_name(cached: true)}"
+  end
+end

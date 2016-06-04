@@ -23,5 +23,10 @@ module CucuShift
     def ready?(user, quiet: false, cached: false)
       status?(user: user, status: :bound, quiet: quiet, cached: cached)
     end
+
+    def volume_name(user: nil, cached: false, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec['volumeName']
+    end
   end
 end

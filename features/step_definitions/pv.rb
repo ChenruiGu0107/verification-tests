@@ -1,19 +1,5 @@
 require 'yaml'
 
-Given /^the "([^"]*)" PV becomes bound to the "([^"]*)" PVC(?: within (\d+) seconds)?$/ do |pv_name, pvc_name, timeout|
-  timeout = timeout ? timeout.to_i : 30
-
-  step %Q/the "#{pv_name}" PV becomes :bound within #{timeout} seconds/
-  step %Q/the "#{pvc_name}" PVC becomes :bound within #{timeout} seconds/
-  step %Q/I run the :get admin command with:/, table(%{
-    | resource      | pv         |
-    | resource_name | #{pv_name} |
-  })
-  step %Q/the output should contain:/, table(%{
-    | #{pvc_name} |
-  })
-end
-
 Given /^the#{OPT_QUOTED} PV becomes #{SYM}(?: within (\d+) seconds)?$/ do |pv_name, status, timeout|
   timeout = timeout ? timeout.to_i : 30
   @result = pv(pv_name).wait_till_status(status.to_sym, admin, timeout)

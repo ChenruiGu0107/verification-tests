@@ -69,6 +69,7 @@ module CucuShift
 
     def get_cached_prop(prop:, user:, cached: false, quiet: false)
       unless cached && props[prop]
+        raise "provide user to get API object as" unless user
         get_checked(user: user, quiet: quiet)
       end
 
