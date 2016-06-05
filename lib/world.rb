@@ -3,6 +3,7 @@ require 'common'
 require 'collections'
 
 require 'openshift/project'
+require 'openshift/job'
 require 'openshift/service'
 require 'openshift/service_account'
 require 'openshift/route'
@@ -411,32 +412,47 @@ module CucuShift
       @browsers << browser
     end
 
-    # @return pod by name from scenario cache; with no params given,
-    #   returns last requested pod; otherwise creates a [Pod] object
-    # @note you need the project already created
     def pod(name = nil, project = nil)
+      project_resource(Pod, name, project)
+    end
+
+    def job(name = nil, project = nil)
+      project_resource(Job, name, project)
+    end
+
+    # @param clazz [Class] class of project resource
+    # @return [ProjectResource] by name from scenario cache; with no params
+    # given returns last requested PR; otherwise creates a new object
+    # @note you need the project already created
+    def project_resource(clazz, name = nil, project = nil)
       project ||= self.project
 
+      varname = "@#{clazz::RESOURCE}"
+      var = instance_variable_get(varname) ||
+              instance_variable_set(varname, [])
+
       if Integer === name
-        return @pods[name] || raise("no pod with index #{name}")
+        # using integer index does not trigger reorder of list
+        return var[name] || raise("no project resource with index #{name}")
       elsif name
-        p = @pods.find {|p| p.name == name && p.project == project}
-        if p && @pods.last == p
-          return p
-        elsif p
-          @pods << @pods.delete(p)
-          return p
+        # using a string name, moves found resource to top of the list
+        r = var.find {|r| r.name == name && r.project == project}
+        if r && var.last == r
+          return r
+        elsif r
+          var << var.delete(r)
+          return r
         else
-          # create new CucuShift::Pod object with specified name
-          @pods << Pod.new(name: name, project: project)
-          return @pods.last
+          # create new CucuShift::ProjectResource object with specified name
+          var << clazz.new(name: name, project: project)
+          return var.last
         end
-      elsif @pods.empty?
-        # we do not create a random pod like with projects because that
+      elsif var.empty?
+        # do not create random project resource like with projects because that
         #   would rarely make sense
-        raise "what pod are you talking about?"
+        raise "what project resource are you talking about?"
       else
-        return @pods.last
+        return var.last
       end
     end
 
@@ -445,7 +461,7 @@ module CucuShift
       new_pods.each {|p| @pods.delete(p); @pods << p}
     end
 
-    # @return node by name 
+    # @return node by name
     def node(name = nil)
       if Integer === name
         return @nodes[name] || raise("no node with index #{name}")
