@@ -1430,3 +1430,78 @@ Feature: deployment related features
     Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
+
+  # @author yinzhou@redhat.com
+  # @case_id 487928
+  Scenario: app deploy successfully with correct registry credentials
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo        | centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    Given the "ruby-hello-world-1" build was created
+    Given the "ruby-hello-world-1" build completed
+    Given I wait for the "ruby-hello-world" service to become ready
+    When I expose the "ruby-hello-world" service
+    Then I wait for a web server to become available via the "ruby-hello-world" route
+    And the output should contain "Demo App!"
+    When I git clone the repo "https://github.com/openshift/ruby-hello-world" to "dummy"
+    Given I replace lines in "dummy/views/main.erb":
+      | Demo App | zhouying |
+    Then the step should succeed
+    And I commit all changes in repo "dummy" with message "test"
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | from_dir    | dummy |
+    Then the step should succeed
+    Given the "ruby-hello-world-2" build completed
+    And I wait until the status of deployment "ruby-hello-world" becomes :complete
+    Then I wait for a web server to become available via the "ruby-hello-world" route
+    And the output should contain "zhouying"
+    When I run the :rollback client command with:
+      | deployment_name | ruby-hello-world |
+      | to_version | 1 |
+    Then the step should succeed
+    And I wait until the status of deployment "ruby-hello-world" becomes :complete
+    Then I wait for a web server to become available via the "ruby-hello-world" route
+    And the output should contain "Demo App!"
+
+  # @author yinzhou@redhat.com
+  # @case_id 527515
+  Scenario: Automatic set to true without ConfigChangeController on the DeploymentConfig
+    Given I have a project
+    Given I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/build-deploy-without-configchange.json"
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | lastTriggeredImage     |
+    And the output should not contain:
+      | "latestVersion": 1 |
+    """
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build finishes
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | origin-ruby-sample |
+      | o             | json |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
+    And the expression should be true> cb.imagestreamitems.length == 2
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should not contain:
+      | "latestVersion": 1 |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
+    And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
