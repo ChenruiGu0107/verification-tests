@@ -53,3 +53,9 @@ Feature: Testing Admin Scenarios
   Scenario: test registry restoration
     Given default docker-registry deployment config is restored after scenario
 
+  @admin
+  Scenario: admin use the specific project
+    Given I have a project
+    Given admin uses the "<%= project.name %>" project
+    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508038/limit.yaml
+    Then the step should succeed
