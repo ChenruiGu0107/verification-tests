@@ -424,6 +424,71 @@ Feature: secrets related scenarios
       | name          | newdc-1-  |
     Then the step should succeed
     And the output should match "no.*credentials"
+
+  # @author cryan@redhat.com
+  # @case_id 507415
+  @admin
+  Scenario: Add an arbitrary list of secrets to custom builds
+    Given I have a project
+    Given an 8 characters random string of type :dns is stored into the :pass1 clipboard
+    Given an 8 characters random string of type :dns is stored into the :pass2 clipboard
+    When I run the :secrets client command with:
+      | action | new-basicauth |
+      | name | secret1 |
+      | username | testuser1 |
+      | password | <%= cb.pass1 %> |
+    Then the step should succeed
+    When I run the :secrets client command with:
+      | action | new-basicauth |
+      | name | secret2 |
+      | username | testuser2 |
+      | password | <%= cb.pass2 %> |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc507415/application-template-custombuild.json |
+    Then the step should succeed
+    Given the pod named "ruby-sample-build-1-build" status becomes :running
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | o | json |
+    Then the step should succeed
+    And the output should contain:
+      | secret1 |
+      | secret2 |
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-1-build |
+      | n | <%= project.name %> |
+      | exec_command | ls |
+      | exec_command_arg | /tmp |
+    Then the output should contain:
+      | secret1 |
+      | secret2 |
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-1-build |
+      | n | <%= project.name %> |
+      | exec_command | cat |
+      | exec_command_arg | /tmp/secret1/username |
+    Then the output should contain "testuser1"
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-1-build |
+      | n | <%= project.name %> |
+      | exec_command | cat |
+      | exec_command_arg | /tmp/secret1/password |
+    Then the output should contain "<%= cb.pass1 %>"
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-1-build |
+      | n | <%= project.name %> |
+      | exec_command | cat |
+      | exec_command_arg | /tmp/secret2/username |
+    Then the output should contain "testuser2"
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-1-build |
+      | n | <%= project.name %> |
+      | exec_command | cat |
+      | exec_command_arg | /tmp/secret2/password |
+    Then the output should contain "<%= cb.pass2 %>"
+
   # @author yantan@redhat.com
   # @case_id 519261 519260
   Scenario Outline: Insert secret to builder container via oc new-build - source/docker build
