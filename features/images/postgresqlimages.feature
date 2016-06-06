@@ -121,3 +121,50 @@ Feature: Postgresql images test
       | image                          |
       | openshift3/postgresql-92-rhel7 |
       | rhscl/postgresql-94-rhel7      |
+   
+  # @author wewang@redhat.com
+  # @case_id 528407 528406
+  Scenario Outline: Use customized values for memory limits env vars - postgresql 
+    Given I have a project
+    When I run the :run client command with:
+      | name   | psql                                                                         |
+      | image  | <%= product_docker_repo %><image>                                            |
+      | env    | POSTGRESQL_USER=user,POSTGRESQL_PASSWORD=redhat,POSTGRESQL_DATABASE=sampledb,POSTGRESQL_SHARED_BUFFERS=16MB,POSTGRESQL_EFFECTIVE_CACHE_SIZE=64MB |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=psql-1 |
+    And I execute on the pod:
+      | grep | -i | shared_buffers | /var/lib/pgsql/openshift-custom-postgresql.conf |
+    Then the output should contain "shared_buffers = 16MB"
+    Given I execute on the pod:
+      | grep | -i | effective_cache_size | /var/lib/pgsql/openshift-custom-postgresql.conf |
+    Then the output should contain "effective_cache_size = 64MB"
+
+    Examples:
+      | image                          |
+      | openshift3/postgresql-92-rhel7 |
+      | rhscl/postgresql-94-rhel7      |
+
+  # @author wewang@redhat.com
+  # @case_id 528408 528409
+  Scenario Outline: Use default values for memory limits env vars - postgresql
+    Given I have a project
+    When I run the :run client command with:
+      | name   | psql                                                                         |
+      | image  | <%= product_docker_repo %><image>                                            |
+      | env    | POSTGRESQL_USER=user,POSTGRESQL_PASSWORD=redhat,POSTGRESQL_DATABASE=sampledb |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=psql-1 |
+    And I execute on the pod:
+      | grep | -i | shared_buffers | /var/lib/pgsql/openshift-custom-postgresql.conf |
+    Then the output should contain "shared_buffers = 32MB"
+    Given I execute on the pod:
+      | grep | -i | effective_cache_size | var/lib/pgsql/openshift-custom-postgresql.conf |
+    Then the output should contain "effective_cache_size = 128MB"
+ 
+    Examples:
+      | image                          |
+      | openshift3/postgresql-92-rhel7 |
+      | rhscl/postgresql-94-rhel7      | 
+
