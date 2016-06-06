@@ -235,3 +235,23 @@ Feature: oc import-image related feature
     When I get project is as YAML
     Then the output should match:
       | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
+
+  # @author xiaocwan@redhat.com
+  # @case_id 474369
+  Scenario: Tags should be added to ImageStream if image repository is from an external docker registry
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/external.json |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    ## istag will not show promtly as soon as is create, need wait for a few seconds
+    """
+    When I run the :get client command with:
+      | resource | imageStreams |
+      | o        | yaml         |
+    Then the step should succeed
+    And the output should match:
+      | tag:\\s+None    |
+      | tag:\\s+latest  |
+      | tag:\\s+busybox |
+    """
