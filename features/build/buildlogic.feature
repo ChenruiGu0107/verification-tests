@@ -363,3 +363,54 @@ Feature: buildlogic.feature
       | .*io.openshift.s2i.scripts-url.*                     |
       | .*io.openshift.tags.*                                |
       | .*io.s2i.scripts-url.*                               |
+
+  # @author yantan@redhat.com
+  # case_id 482195
+  Scenario: Trigger build from webhook against external git provider - gitlab
+    Given I have a project
+    And I have an ssh-git service in the project
+    And the "secret" file is created with the following lines:
+      | <%= cb.ssh_private_key.to_pem %>" |
+    And I run the :oc_secrets_new_sshauth client command with:
+      | ssh_privatekey | secret           |
+      | secret_name    | mysecret         |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash           |
+      | -c             |
+      | cd /home/git/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | image_stream   | openshift/ruby:2.2                            |
+      | code           | https://github.com/openshift/ruby-hello-world |
+      | name           | ruby-hello-world                              |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completes
+    When I run the :patch client command with:
+      | resource       | buildconfig                                                   |
+      | resource_name  | ruby-hello-world                                              |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"}}}}   |
+      | p              | {"spec":{"source":{"git":{"ref":"master"}}}}                  |
+      | p              | {"spec":{"source":{"sourceSecret":{"name":"mysecret"}}}}      |
+   Then the step should succeed
+   And I run the :start_build client command with:
+      | buildconfig    | ruby-hello-world   |
+   Then the "ruby-hello-world-2" build was created
+   Then the "ruby-hello-world-2" build completes
+   When I get project BuildConfig as JSON
+   And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
+   Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/generic/fixtures/push-gitlab.json"
+   When I replace lines in "push-gitlab.json":
+     | git@gitlab.com:jondoe/repo.git   | git@gitlab.com:openshift/ruby-hello-world.git |
+   When I perform the HTTP request:
+   """
+   :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
+   :method: post
+   :headers:
+     :content_type: application/json
+   :payload: push-gitlab.json
+   """
+   Then the step should succeed
+   Then the "ruby-hello-world-3" build was created
+   Then the "ruby-hello-world-3" build completes
