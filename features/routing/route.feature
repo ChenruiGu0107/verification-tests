@@ -526,3 +526,61 @@ Feature: Testing route
     When I use the "service-unsecure" service
     Then I wait for a web server to become available via the "service-unsecure2" route
     Then the output should contain "Hello-OpenShift"
+
+  # @author yadu@redhat.com
+  # @case_id 508649
+  Scenario: Config insecureEdgeTerminationPolicy to Redirect for route
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    # Create edge termination route
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.pem"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.key"
+    When I run the :create_route_edge client command with:
+      | name     | myroute |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
+      | service  | service-unsecure     |
+      | cert     | example_wildcard.pem |
+      | key      | example_wildcard.key |
+    Then the step should succeed
+    # Set insecureEdgeTerminationPolicy to Redirect
+    When I run the :patch client command with:
+      | resource      | route              |
+      | resource_name | myroute            |
+      | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Redirect"}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | route |
+    Then the step should succeed
+    And the output should contain:
+      | Redirect |
+    Given I have a pod-for-ping in the project 
+    When I execute on the "<%= pod.name %>" pod:
+      | wget |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
+      | -O |
+      | /tmp/ca.pem |
+    Then the step should succeed
+    # Acess the route
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -v |
+      | --resolve |
+      | <%= route("myroute", service("service-unsecure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | --resolve |
+      | <%= route("myroute", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |
+      | http://<%= route("myroute", service("service-unsecure")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+      | -L |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+      | HTTP/1.1 302 Found |
+      | Location: https:// |
