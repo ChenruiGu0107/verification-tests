@@ -432,3 +432,55 @@ Feature: Persistent Volume Claim binding policies
     Then the step should succeed
     And I wait for the pod named "mypod-<%= project.name %>" to die regardless of current status
     """
+
+  # @author lxia@redhat.com
+  # @case_id 522127
+  @admin
+  @destructive
+  Scenario: PVC should bound the PV with most appropriate access mode and size
+    Given I have a project
+    And I have a NFS service in the project
+    And I register clean-up steps:
+      | I run the :delete admin command with: |
+      |   ! object_type ! pv               !  |
+      |   ! l           ! usedFor=tc522127 !  |
+      | the step should succeed               |
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-template.json"
+    Then I replace lines in "pv-template.json":
+      | #NS#             | <%= project.name %>              |
+      | #NFS-Service-IP# | <%= service("nfs-service").ip %> |
+    Then I run the :new_app admin command with:
+      | file | pv-template.json |
+    Then the step should succeed
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pvc-template.json"
+    Then I replace lines in "pvc-template.json":
+      | #NS# | <%= project.name %> |
+    Then I run the :new_app client command with:
+      | file | pvc-template.json |
+    Then the step should succeed
+
+    Given the "pvcname-1m-rox-<%= project.name %>" PVC becomes bound to the "pvname-127m-rox-<%= project.name %>" PV
+    And the "pvcname-128m-rox-<%= project.name %>" PVC becomes bound to the "pvname-128m-rox-<%= project.name %>" PV
+    And the "pvcname-130m-rox-<%= project.name %>" PVC becomes bound to the "pvname-255m-rox-<%= project.name %>" PV
+    And the "pvname-129m-rox-<%= project.name %>" PV status is :available
+    And the "pvname-256m-rox-<%= project.name %>" PV status is :available
+    And the "pvname-257m-rox-<%= project.name %>" PV status is :available
+    And the "pvcname-258m-rox-<%= project.name %>" PVC becomes :pending
+
+    Given the "pvcname-1m-rwo-<%= project.name %>" PVC becomes bound to the "pvname-127m-rwo-<%= project.name %>" PV
+    And the "pvcname-128m-rwo-<%= project.name %>" PVC becomes bound to the "pvname-128m-rwo-<%= project.name %>" PV
+    And the "pvcname-130m-rwo-<%= project.name %>" PVC becomes bound to the "pvname-255m-rwo-<%= project.name %>" PV
+    And the "pvname-129m-rwo-<%= project.name %>" PV status is :available
+    And the "pvname-256m-rwo-<%= project.name %>" PV status is :available
+    And the "pvname-257m-rwo-<%= project.name %>" PV status is :available
+    And the "pvcname-258m-rwo-<%= project.name %>" PVC becomes :pending
+
+    Given the "pvcname-1m-rwx-<%= project.name %>" PVC becomes bound to the "pvname-127m-rwx-<%= project.name %>" PV
+    And the "pvcname-128m-rwx-<%= project.name %>" PVC becomes bound to the "pvname-128m-rwx-<%= project.name %>" PV
+    And the "pvcname-130m-rwx-<%= project.name %>" PVC becomes bound to the "pvname-255m-rwx-<%= project.name %>" PV
+    And the "pvname-129m-rwx-<%= project.name %>" PV status is :available
+    And the "pvname-256m-rwx-<%= project.name %>" PV status is :available
+    And the "pvname-257m-rwx-<%= project.name %>" PV status is :available
+    And the "pvcname-258m-rwx-<%= project.name %>" PVC becomes :pending
