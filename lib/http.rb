@@ -59,7 +59,6 @@ module CucuShift
       response = RestClient::Request.new(rc_opts).execute &block
     rescue => e
       # REST request unsuccessful
-      raise e if raise_on_error
       if e.respond_to?(:response) and e.response.respond_to?(:code) and e.response.code.kind_of? Integer
         # server replied with non-success HTTP status, that's ok
         response = e.response
@@ -73,6 +72,8 @@ module CucuShift
         response = exception_to_string(e)
       end
     ensure
+      raise e if raise_on_error && Exception === e
+
       total_time = monotonic_seconds - started
       if block && !result[:error]
         logger.info("HTTP #{method.upcase} took #{'%.3f' % total_time} sec: #{response} bytes of data passed to block") unless quiet
