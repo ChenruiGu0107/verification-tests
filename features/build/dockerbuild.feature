@@ -268,7 +268,7 @@ Feature: dockerbuild.feature
     And the output should contain "build strategy Docker is not allowed"
 
   # @author wewang@redhat.com
-  # @case_id 517672
+  # @case_id 497659
   @admin
   @destructive
   Scenario: Allowing only certain users in a specific project to create builds with a particular strategy
