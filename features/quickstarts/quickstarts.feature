@@ -134,6 +134,7 @@ Feature: quickstarts.feature
 
   # @author cryan@redhat.com
   # @case_id 528401 528402 528403 492613 508743 508973
+  # @bug_id 1343184
   Scenario Outline: quickstart version test
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/<repo>/master/openshift/templates/<template>"
