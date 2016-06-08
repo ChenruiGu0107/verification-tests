@@ -215,6 +215,7 @@
   :options:
     :generator: --generator=<value>
     :external_ip: --external-ip=<value>
+    :path: --path=<value>
     :port: --port=<value>
     :protocol: --protocol=<value>
     :template: --template=<value>

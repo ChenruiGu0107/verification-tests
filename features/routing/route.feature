@@ -180,10 +180,8 @@ Feature: Testing route
     When I wait for a web server to become available via the route
     Then the output should contain ";host=<%= route.dns(by: user) %>;proto=http"
 
-
-
   # @author: yadu@redhat.com
-  # @case_id: 511645 
+  # @case_id: 511645
   Scenario: Config insecureEdgeTerminationPolicy to an invalid value for route
     Given I have a project
     When I run the :create client command with:
@@ -349,24 +347,42 @@ Feature: Testing route
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
 
-  # @author zzhao@redhat.com
+
+  # @author zzhao@redhat.com cryan@redhat.com
   # @case_id 470736
   Scenario: The path specified in route can work well for unsecure
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :expose client command with:
-      | resource     | svc |
-      | resource_name| service-unsecure |
-      | path         | /test |
-    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/test/" url
+      | resource      | service          |
+      | resource_name | service-unsecure |
+      | path          | /test            |
+    Then the step should succeed
+    Given evaluation of `route("service-unsecure", service("service-unsecure")).dns(by: user)` is stored in the :unsecure clipboard
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= cb.unsecure %>/test/" url
     Then the output should contain "Hello-OpenShift-Path-Test"
-    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    """
+    When I open web server via the "http://<%= cb.unsecure %>/" url
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json"
+    And I replace lines in "route_unsecure.json":
+      | unsecure.example.com | <%= cb.unsecure %> |
+    When I run the :create client command with:
+      | f | route_unsecure.json |
+    Then the step should succeed
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= route("route", service("service-unsecure")).dns(by: user) %>/test/" url
+    Then the output should contain "Hello-OpenShift-Path-Test"
+    """
+    When I open web server via the "http://<%= route("route", service("service-unsecure")).dns(by: user) %>/" url
     Then the step should fail
 
   # @author zzhao@redhat.com
