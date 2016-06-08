@@ -117,6 +117,16 @@ module CucuShift
       return res
     end
 
+    # login should actually perform login only if needed (no session or expired)
+    # @return [String, Nokogiri::XML::NodeSet, Nokogiri::XML::Node] that is
+    #   only SessionID header so far
+    def login
+      # TODO: check if session expired if possible
+      @auth_header ||= do_login
+    end
+
+    ############ REQUEST HELPERS BELOW ############
+
     # execute login unconditionally and set session header if successful
     # @return [String, Nokogiri::XML::NodeSet, Nokogiri::XML::Node] that is
     #   only SessionID header so far
@@ -128,22 +138,40 @@ module CucuShift
       @auth_header = res.doc.xpath("//*[local-name()='sessionID']")[0]
     end
 
-    # login should actually perform login only if needed (no session or expired)
-    # @return [String, Nokogiri::XML::NodeSet, Nokogiri::XML::Node] that is
-    #   only SessionID header so far
-    def login
-      # TODO: check if session expired if possible
-      @auth_header ||= do_login
-    end
-
     def get_user(username)
       do_request(PROJECT, 'getUser') do |b|
-        b.userID 'akostadi'
+        b.userID username
       end
     end
 
     def get_self
       get_user(opts[:user])
+    end
+
+    def logout
+      res = do_request(SESSION, 'endSession') {}
+      @auth_header = nil
+      return res
+    end
+
+    def begin_transaction
+      do_request(SESSION, 'beginTransaction') {}
+    end
+
+    # Check if there is a explicit transaction (started with beginTransaction)
+    #   for the current session.
+    # @return [Hash] s.body_hash["transactionExistsReturn"] == Boolean
+    # @raise RestClient::InternalServerError: 500 Internal Server Error when
+    #   current session has no transaction started
+    def transaction_exists
+      do_request(SESSION, "transactionExists") {}
+    end
+
+    # param rollback [Boolean]
+    def end_transaction(rollback)
+      do_request(SESSION, 'endTransaction') do |b|
+        b.rollback rollback
+      end
     end
   end
 end
