@@ -431,3 +431,40 @@ Feature: create app on web console related
       | target_port  | 5858/TCP |
       | service_name | nodejs-test |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id 518662
+  Scenario: Create resource from template contains different api groups
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/test-api.yaml |
+    Then the step should succeed
+    When I perform the :create_app_from_template web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | test-api               |
+      | namespace     | <%= project.name %>    |
+      | param_one     | :null  |
+      | param_two     | :null  |
+      | param_three   | :null  |
+      | param_four    | :null  |
+      | param_five    | :null  |
+      | label_key     | label1 |
+      | label_value   | test   |
+    Then the step should succeed
+    # check resources are created
+    When I run the :get client command with:
+      | resource | dc |
+    Then the step should succeed
+    And the output should contain:
+      | php-apache |
+    When I run the :get client command with:
+      | resource | hpa |
+    Then the step should succeed
+    And the output should contain:
+      | php-apache |
+      | test-autoscaler |
+    When I run the :get client command with:
+      | resource | job |
+    Then the step should succeed
+    And the output should contain:
+      | simplev1 |
