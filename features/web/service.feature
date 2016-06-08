@@ -13,56 +13,60 @@ Feature: services related feature on web console
       | service_name | hello-service       |
     Then the step should succeed
     When I perform the :check_one_service_page web console action with:
-      | project_name | <%= project.name %> |
-      | service_name | hello-service       |
-      | selectors    | name=hello-pod      |
-      | type         | ClusterIP           |
-      | routes       | www.hello.com       |
-      | target_port  | 5555                |
+      | project_name | <%= project.name %>        |
+      | service_name | hello-service              |
+      | selectors    | name=hello-pod             |
+      | type         | ClusterIP                  |
+      | routes       | http://www.hello.com       |
+      | target_port  | 5555                       |
     Then the step should succeed
     When I replace resource "route" named "hello-route":
       | www.hello.com | www.hello2.com |
     Then the step should succeed
     When I perform the :check_one_service_page web console action with:
-      | project_name | <%= project.name %> |
-      | service_name | hello-service       |
-      | selectors    | name=hello-pod      |
-      | type         | ClusterIP           |
-      | routes       | www.hello2.com      |
-      | target_port  | 5555                |
+      | project_name | <%= project.name %>        |
+      | service_name | hello-service              |
+      | selectors    | name=hello-pod             |
+      | type         | ClusterIP                  |
+      | routes       | http://www.hello2.com      |
+      | target_port  | 5555                       |
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc477695/new_route.json |
       | n | <%= project.name %> |
     Then the step should succeed
     When I perform the :check_one_service_page web console action with:
-      | project_name | <%= project.name %> |
-      | service_name | hello-service       |
-      | selectors    | name=hello-pod      |
-      | type         | ClusterIP           |
-      | routes       | www.hello1.com      |
-      | target_port  | 5555                |
+      | project_name | <%= project.name %>        |
+      | service_name | hello-service              |
+      | selectors    | name=hello-pod             |
+      | type         | ClusterIP                  |
+      | routes       | http://www.hello1.com      |
+      | target_port  | 5555                       |
+    Then the step should succeed
     When I run the :delete client command with:
       | object_type | route             |
       | object_name_or_id | hello-route |
       | n | <%= project.name %> |
     Then the step should succeed
     When I perform the :check_one_service_page web console action with:
-      | project_name | <%= project.name %> |
-      | service_name | hello-service       |
-      | selectors    | name=hello-pod      |
-      | type         | ClusterIP           |
-      | routes       | none                |
-      | target_port  | 5555                |
+      | project_name | <%= project.name %>   |
+      | service_name | hello-service         |
+      | selectors    | name=hello-pod        |
+      | type         | ClusterIP             |
+      | routes       | http://www.hello1.com |
+      | target_port  | 5555                  |
+    Then the step should succeed
     When I replace resource "service" named "hello-service":
       | 5555 | 5556 |
     Then the step should succeed
     When I perform the :check_one_service_page web console action with:
-      | project_name | <%= project.name %> |
-      | service_name | hello-service       |
-      | selectors    | name=hello-pod      |
-      | type         | ClusterIP           |
-      | routes       | none                |
-      | target_port  | 5556                |
+      | project_name | <%= project.name %>     |
+      | service_name | hello-service           |
+      | selectors    | name=hello-pod          |
+      | type         | ClusterIP               |
+      | routes       | http://www.hello1.com   |
+      | target_port  | 5556                    |
+    Then the step should succeed
     When I run the :delete client command with:
       | object_type | service             |
       | object_name_or_id | hello-service |
