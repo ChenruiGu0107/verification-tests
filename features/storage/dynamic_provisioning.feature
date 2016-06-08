@@ -92,5 +92,5 @@ Feature: Dynamic provisioning
 
     Given I switch to cluster admin pseudo user
     Then I wait for the resource "pv" named "<%= cb.pv_name1 %>" to disappear within 1200 seconds
-    And I wait for the resource "pv" named "<%= cb.pv_name2 %>" to disappear
-    And I wait for the resource "pv" named "<%= cb.pv_name3 %>" to disappear
+    And I wait for the resource "pv" named "<%= cb.pv_name2 %>" to disappear within 1200 seconds
+    And I wait for the resource "pv" named "<%= cb.pv_name3 %>" to disappear within 1200 seconds
