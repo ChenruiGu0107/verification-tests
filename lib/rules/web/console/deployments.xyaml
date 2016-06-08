@@ -146,3 +146,33 @@ check_dc_loaded_completely:
       text: Template
 goto_one_deployment_page:
   url: /console/project/<project_name>/browse/deployments/<dc_name>/<dc_name>-<dc_number>
+check_dc_strategy:
+  action: check_dc_loaded_completely
+  elements:
+  - selector:
+      xpath: //div[@ng-if="deploymentConfig.spec.strategy.type"]/dd[contains(.,'<dc_strategy>')]
+check_dc_manual_cli_trigger:
+  action: check_dc_loaded_completely
+  elements:
+  - selector:
+      xpath: //h3[contains(.,'Triggers')]//following::dd[contains(.,'<dc_manual_trigger_cli>')]
+check_dc_config_trigger:
+  action: check_dc_loaded_completely
+  elements:
+  - selector:
+      xpath: //dt[contains(.,"Change of")]/following-sibling::dd[contains(.,'<dc_config_change>')]
+check_dc_selector:
+  action: check_dc_loaded_completely
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Selectors')]/following-sibling::dd[contains(.,'<dc_selectors_key>=<dc_selectors_value>')]
+check_dc_replicas:
+  action: check_dc_loaded_completely
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Replicas')]/following-sibling::dd//span[contains(.,'<dc_replicas>')]
+check_specific_deploy_selector:
+  action: goto_one_deployment_page
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Selectors')]/following-sibling::dd[contains(.,'<specific_deployment_selector>')]
