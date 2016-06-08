@@ -167,8 +167,8 @@ Feature: oc_delete.feature
     Then the output should not contain:
       | database |
       | frontend |
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins-master/jenkins-master-template.json"
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins-master/jenkins-slave-template.json"
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/master-slave/jenkins-master-template.json"
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/master-slave/jenkins-slave-template.json"
     When I run the :create client command with:
       | f | . |
     Then the step should succeed
