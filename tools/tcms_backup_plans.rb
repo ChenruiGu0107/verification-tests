@@ -81,10 +81,10 @@ module CucuShift
       end
 
       command :tags do |c|
-        c.syntax = "#{$0} tags <backup_file.gz>"
+        c.syntax = "#{$0} tags -b <backup_file.gz>"
         c.description = 'reports discrepancies between scenario and TCMS tags'
         c.option('-p', '--plan-ids PLAN_IDS', 'comma separated list of plans to restore')
-        c.option('-b', '--backup BACKUP_ARCHIVE', 'backup archive to restore from')
+        c.option('-b', '--backup BACKUP_ARCHIVE', 'backup archive to operate on')
         c.action do |args, options|
           compare_tcms_to_code(options)
         end
@@ -540,7 +540,7 @@ module CucuShift
             begin
               #Use the Gherkin parser to collect all feature scenarios
               gparser = CucuShift::GherkinParse.new
-              file_contents = gparser.parse_feature(File.join("#{ENV['CUCUSHIFT_HOME']}/features", feature_file))
+              file_contents = gparser.parse_feature(File.join("#{HOME}/features", feature_file))
             rescue => e
               puts "\e[0;31mError in case #: #{case_id}, #{e.message}\e[0m"
               next
