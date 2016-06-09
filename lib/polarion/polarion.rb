@@ -135,7 +135,8 @@ module CucuShift
         b.userName opts[:user]
         b.password opts[:password]
       end
-      @auth_header = res.doc.xpath("//*[local-name()='sessionID']")[0]
+      # dup because of https://github.com/sparklemotion/nokogiri/issues/1200
+      @auth_header = res.doc.xpath("//*[local-name()='sessionID']")[0].dup
     end
 
     def get_user(username)
