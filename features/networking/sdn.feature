@@ -5,29 +5,38 @@ Feature: SDN related networking scenarios
   @destructive
   Scenario: set MTU on vovsbr and vlinuxbr
     Given I select a random node's host
+    And system verification steps are used:
+    """
     When I run commands on the host:
       | ovs-ofctl dump-flows br0 -O openflow13 \| grep "table=253" |
     Then the step should succeed
     And the output should contain "actions=note"
     When I run commands on the host:
-      | grep -i mtu /etc/origin/node/node-config.yaml \| sed 's/[^0-9]*//g' \| tr -d '\n' |
+      | grep -i mtu /etc/origin/node/node-config.yaml \| sed 's/[^0-9]*//g' |
     Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :mtu clipboard
+    And evaluation of `@result[:response].chomp` is stored in the :mtu clipboard
+    Given the expression should be true> cb.mtu != "3450"
     When I run commands on the host:
       | ip link show lbr0 |
-    Then the output should contain "<%= cb.mtu %>"
+    Then the expression should be true> @result[:response].include?(cb.mtu)
     When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O openflow13 \| grep "table=253" |
-    Then the step should succeed
-    And the output should contain "actions=note"
+      | ip link show vovsbr |
+    Then the expression should be true> @result[:response].include?(cb.mtu)
+    When I run commands on the host:
+      | ip link show vlinuxbr |
+    Then the expression should be true> @result[:response].include?(cb.mtu)
+    When I run commands on the host:
+      | ip link show tun0 |
+    Then the expression should be true> @result[:response].include?(cb.mtu)
+    """
     Given the node service is restarted on the host after scenario
-    And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
-    Given I register clean-up steps:
+    And I register clean-up steps:
     """
-    I run commands on the host:
+    When I run commands on the host:
       | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
-    the step should succeed
+    Then the step should succeed
     """
+    And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
     When I run commands on the host:
       | sed -i 's/mtu:.*/mtu: 3450/g' /etc/origin/node/node-config.yaml |
     Then the step should succeed
