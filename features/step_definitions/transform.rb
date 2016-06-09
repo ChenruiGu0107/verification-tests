@@ -1,6 +1,6 @@
 # we should not touch the original table!
 # - especially for iteration over ScenarioOutline
-Transform /.*/ do |arg|
+Transform /.+/ do |arg|
 
   # @param [String] str to be expanded
   # @return string with expanded evaluation of expressions
