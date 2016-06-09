@@ -281,3 +281,35 @@ Feature: oc_rsync.feature
       | ls | -ltr | /tmp |
     Then the step should succeed
     And the output should contain "test1"
+
+  # @author cryan@redhat.com
+  # @case_id 510659
+  Scenario: Copying files from container to host using oc rsync comand with tar strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | aosqe/scratch:tarrsync |
+    Given a pod becomes ready with labels:
+      | app=scratch |
+    Given I create the "test" directory
+    When I execute on the pod:
+      | touch | /tmp/test1 |
+    Then the step should succeed
+    When I run the :rsync client command with:
+      | source      | <%= pod.name %>:/tmp/test1          |
+      | destination | <%= localhost.absolutize("test") %> |
+      | loglevel    | 5                                   |
+      | strategy    | tar                                 |
+    Then the step should succeed
+    And the output should contain "Extracting/writing"
+    Given the "test/test1" file is present
+    When I execute on the pod:
+      | touch | /tmp/test2 |
+    Then the step should succeed
+    When I run the :rsync client command with:
+      | source      | <%= pod.name %>:/tmp/test2 |
+      | destination | ./test                     |
+      | loglevel    | 5                          |
+      | strategy    | tar                        |
+    Then the step should succeed
+    And the output should match "Extracting/writing"
+    Given the "test/test2" file is present
