@@ -5,7 +5,7 @@ Feature: Webhook REST Related Tests
   Scenario Outline: Trigger build with webhook
     Given I have a project
     And I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
-    Given the "ruby-sample-build-1" build was created
+    Given the "ruby-sample-build-1" build completes
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby-sample-build |
