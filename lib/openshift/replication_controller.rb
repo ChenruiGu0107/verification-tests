@@ -73,11 +73,11 @@ module CucuShift
         return res unless res[:success]
         current_replicas = res[:parsed]["status"]["replicas"]
         expected_replicas = res[:parsed]["spec"]["replicas"]
-        deployment_phase = res[:parsed]['metadata']['annotations']["openshift.io/deployment.phase"]
+        deployment_phase = res[:parsed].dig('metadata', 'annotations', "openshift.io/deployment.phase")
       end
       res[:success] = expected_replicas.to_i > 0 &&
                       current_replicas == expected_replicas &&
-                      deployment_phase == 'Complete'
+                      (deployment_phase == 'Complete' || deployment_phase.nil?)
       return res
     end
 
