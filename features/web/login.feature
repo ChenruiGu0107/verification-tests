@@ -33,3 +33,19 @@ Feature: login related scenario
     Then the expression should be true> /Login/ =~ browser.title
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
     Then the expression should be true> /Login/ =~ browser.title
+
+  # @author xxing@redhat.com
+  # @case_id 467930
+  Scenario: The page should reflect to login page when access session protected pages after failed log in
+    Given I have a project
+    When I perform the :login web console action with:
+      | username | <%= rand_str(6, :dns) %> |
+      | password | <%= rand_str(6, :dns) %> |
+      | _nologin | true                     |
+    Then the step should fail
+    When I get the html of the web page
+    Then the output should contain:
+      | Invalid login or password. Please try again |
+    When I access the "/console/project/<%= project.name %>/overview" path in the web console
+    Then the expression should be true> /Login/ =~ browser.title
+    And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']") == nil
