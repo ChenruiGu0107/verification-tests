@@ -45,8 +45,8 @@ Feature: Webhook REST Related Tests
     Then the output should contain "not accept"
     Examples:
       | type    | negative1 | negative2   | negative3 | path              | file              | header1        | header2 |
-      | generic | GitHub    | ImageChange | github    | generic/fixtures/ | push-generic.json |                |         |
-      | github  | Generic   | ImageChange | generic   | github/fixtures/  | pushevent.json    | X-Github-Event | push    |
+      | generic | GitHub    | ImageChange | github    | generic/testdata/ | push-generic.json |                |         |
+      | github  | Generic   | ImageChange | generic   | github/testdata/  | pushevent.json    | X-Github-Event | push    |
 
   # @author yantan@redhat.com
   # @case_id 470417
@@ -65,7 +65,7 @@ Feature: Webhook REST Related Tests
       | Generic  |
     When I get project BuildConfig as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][0]['github']['secret']` is stored in the :secret_name clipboard
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/fixtures/pingevent.json"
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/testdata/pingevent.json"
     When I perform the HTTP request:
     """
     :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/github
@@ -88,7 +88,7 @@ Feature: Webhook REST Related Tests
     Given the "ruby-ex-1" build completes
     When I get project BuildConfig as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][0]['github']['secret']` is stored in the :secret_name clipboard
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/fixtures/pushevent.json"
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/testdata/pushevent.json"
     And I replace lines in "pushevent.json":
       | refs/heads/master | refs/heads/test123 |
     Then the step should succeed
@@ -142,7 +142,7 @@ Feature: Webhook REST Related Tests
     Given the "ruby-ex-1" build completes
     When I get project BuildConfig as JSON
     And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][0]['github']['secret']` is stored in the :secret_name clipboard
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/fixtures/pushevent.json"
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/testdata/pushevent.json"
     And I replace lines in "pushevent.json":
       | refs/heads/master                       | refs/heads/test-tcms438840               | 
       | 9bdc3a26ff933b32f3e558636b58aea86a69f051| 89af0dd3183f71b9ec848d5cc2b55599244de867 |
@@ -206,7 +206,7 @@ Feature: Webhook REST Related Tests
     When I run the :cancel_build client command with:
       | build_name | ruby22-sample-build-1 |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/generic/fixtures/push-generic-envs.json"
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/generic/testdata/push-generic-envs.json"
     And I replace lines in "push-generic-envs.json":
       | 9bdc3a26ff933b32f3e558636b58aea86a69f051 ||
       | sample-app | sample2-app |
