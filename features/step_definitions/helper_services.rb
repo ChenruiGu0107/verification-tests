@@ -182,6 +182,27 @@ Given /^I have a Ceph pod in the(?: "([^ ]+?)")? project$/ do |project_name|
   #   `pod("rbd-server").ip(user: user)`
 end
 
+# Configure CephFS server in current environment
+Given /^I have a CephFS pod in the(?: "([^ ]+?)")? project$/ do |project_name|
+  ensure_admin_tagged
+
+  project(project_name)
+  unless project.exists?(user: user)
+    raise "project #{project_name} does not exist"
+  end
+
+  @result = admin.cli_exec(:create, n: project.name, f: 'https://raw.githubusercontent.com/openshift-qe/docker-ceph/master/cephfs-server.json')
+  raise "could not create CephFS pod" unless @result[:success]
+
+  @result = user.cli_exec(:create, n: project.name, f: 'https://raw.githubusercontent.com/openshift-qe/docker-ceph/master/cephfs-secret.yaml')
+  raise "could not create CephFS secret" unless @result[:success]
+
+  step 'the pod named "cephfs-server" becomes ready'
+
+  # now you have CephFS running, to get IP, call `pod.ip` or
+  #   `pod("cephfs-server").ip(user: user)`
+end
+
 # configure iSCSI in current environment; if already exists, skip; if pod is
 #   not ready, then delete and create it again
 Given /^I have a iSCSI setup in the environment$/ do
