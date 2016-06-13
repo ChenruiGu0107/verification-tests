@@ -150,3 +150,49 @@ Feature: Routes related features on web console
     When I get the "disabled" attribute of the "button" web element:
       | text | Create |
     Then the output should contain "true"
+
+  # @author yapei@redhat.com
+  # @case_id 511911
+  Scenario: Create passthrough terminated route on web console
+    Given I create a new project
+    And I store default router IPs in the :router_ip clipboard
+    # create pod, service and pod used for curl command
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    When I execute on the "<%= pod.name %>" pod:
+      | wget |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
+      | -O |
+      | /tmp/ca.pem |
+    Then the step should succeed
+    # create passthrough route on web console
+    When I perform the :open_create_route_page_from_overview_page web console action with:
+      | project_name | <%= project.name%> |
+      | service_name | service-secure     |
+    Then the step should succeed
+    When I perform the :set_hostname web console action with:
+      | hostname | passthrough-<%= rand_str(5, :dns) %>.example.com |
+    Then the step should succeed
+    When I perform the :select_tls_termination_type web console action with:
+      | tls_termination_type | Passthrough |
+    Then the step should succeed
+    When I run the :submit_create_route web console action
+    Then the step should succeed
+    # check route is accessible
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | <%= route("service-secure", service("service-secure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("service-secure", service("service-secure")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Hello-OpenShift"
