@@ -43,6 +43,26 @@ Given /^the #{QUOTED} file is restored on host after scenario$/ do |path|
   }
 end
 
+# restore particular file after scenario
+Given /^the #{QUOTED} path is( recursively)? removed on the host after scenario$/ do |path, recurse|
+  _host = @host
+  path = _host.absolutize(path)
+
+  # check path sanity
+  if ["'", "\n", "\\"].find {|c| path.include? c}
+    raise "please specify path with sane characters"
+  end
+  # lame check for not removing root directories
+  unless path =~ %r{^/\.?[^/.]+.*/\.?[^/.]+.*}
+    raise "path must be at least 2 levels deep"
+  end
+
+  teardown_add {
+    @result = _host.delete(path, r: !!recurse)
+    raise "can't remove #{path} on #{_host.hostname}" unless @result[:success]
+  }
+end
+
 Given /^the node service is restarted on the host after scenario$/ do
   _host = @host
 
