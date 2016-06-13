@@ -343,11 +343,10 @@ Feature: ServiceAccount and Policy Managerment
     Given I use the "<%= cb.project1 %>" project
     Given I find a bearer token of the system:serviceaccount:<%= cb.project1 %>:test1 service account
     Given I switch to the system:serviceaccount:<%= cb.project1 %>:test1 service account
-    And I use the "<%= project.name %>" project
+    And I use the "<%= cb.project2 %>" project
     When I run the :get client command with:
       | resource | pod |
     Then the step should succeed
-    Given I use the "<%= cb.project2 %>" project
     When I run the :deploy client command with:
       | deployment_config | database |
       | cancel             ||
