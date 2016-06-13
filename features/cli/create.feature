@@ -704,3 +704,102 @@ Feature: creating 'apps' with CLI
       | buildconfig | ruby-sample-build |
     Then the step should succeed
     Given the "ruby-sample-build-2" build completes
+
+  # @author pruan@redhat.com
+  # @case_id 510541
+  @admin
+  @destructive
+  Scenario: Process with default or manually defined supplemental groups in the range can be ran when using MustRunAs as the RunAsGroupStrategy
+    Given I have a project
+    Given scc policy "restricted" is restored after scenario
+    Given as admin I replace resource "scc" named "restricted":
+      | RunAsAny | MustRunAs |
+    When I run the :get client command with:
+      | resource      | project             |
+      | resource_name | <%= project.name %> |
+    And evaluation of `project.props[:scc_uid_range].split('/')[0]` is stored in the :scc_limit clipboard
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/510541/scc_rules.json
+    Then the step should succeed
+    When the pod named "hello-pod" status becomes :running
+
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | pods             |
+      | resource_name | hello-pod        |
+    Then the expression should be true> pod.supplemental_groups[0].to_s == cb.scc_limit
+
+  # @author pruan@redhat.com
+  # @case_id 510543
+  @admin
+  Scenario: Process with special FSGroup id can be ran when using custom defined rule of MustRunAs as the RunAsGroupStrategy
+    Given I have a project
+    When I run the :get client command with:
+      | resource      | project             |
+      | resource_name | <%= project.name %> |
+    # create and save the invalide supplemental_group_id
+    And evaluation of `project.supplemental_groups(user:user).split('/')[0].to_i - 1000` is stored in the :invalid_sgid clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/special_fs_groupid.json"
+    And I replace lines in "special_fs_groupid.json":
+      | 1000 | <%= cb.invalid_sgid %> |
+      | 1001 | <%= cb.invalid_sgid %> |
+    Then I run the :create client command with:
+      | f | special_fs_groupid.json |
+    Then the step should not succeed
+    And the output should contain:
+      | unable to validate against any security context constraint |
+      | <%= cb.invalid_sgid %> is not an allowed group             |
+    # step 3 create new scc rule as cluster admin and add user to the new scc
+    Given the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/scc_tc510543.yaml
+    Then the step should succeed
+    Given SCC "scc-tc510543" is added to the "first" user
+    # step 4. create the pod again and it should succeed now with the new scc rule
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/special_fs_groupid.json |
+    Then the step should succeed
+    And the pod named "hello-pod" status becomes :running
+    When I run the :exec client command with:
+      | pod          | hello-pod |
+      | exec_command | id        |
+    Then the step should succeed
+    And the output should contain:
+      | uid=1000         |
+      | groups=1000,1001 |
+
+  # @author pruan@redhat.com
+  # @case_id 510546
+  @admin
+  @destructive
+  Scenario: Process with supplemental groups out of the default range when using custom defined MustRunAs as the RunAsGroupStrategy
+    Given I have a project
+    When I run the :get client command with:
+      | resource      | project             |
+      | resource_name | <%= project.name %> |
+    Given scc policy "restricted" is restored after scenario
+    Given as admin I replace resource "scc" named "restricted":
+      | RunAsAny | MustRunAs |
+    Then I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510546/tc510546_pod.json |
+    Then the step should fail
+    And the output should contain:
+      | unable to validate against any security context constraint |
+      | 1000 is not an allowed group                               |
+    # step 3 create new scc rule as cluster admin and add user to the new scc
+    Given the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510546/scc_tc510546.yaml
+    Then the step should succeed
+    Given SCC "scc-tc510546" is added to the "first" user
+    # step 4. create the pod again and it should succeed now with the new scc rule
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510546/tc510546_pod.json |
+    Then the step should succeed
+    And the pod named "hello-pod" status becomes :running
+    When I run the :exec client command with:
+      | pod          | hello-pod |
+      | exec_command | id        |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | pods             |
+      | resource_name | hello-pod        |
+
+    Then the expression should be true> pod.supplemental_groups(user:user)[0] == 1000
