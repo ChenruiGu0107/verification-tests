@@ -2174,3 +2174,43 @@ Feature: build 'apps' with CLI
       | dry_run | true                                                                       |
     Then the step should succeed
     And the output should contain "Success (DRY RUN)"
+
+  # @author cryan@redhat.com
+  # @case_id 503326
+  # @bug_id 1255502
+  Scenario: Docker build with pulling image from internal docker registry
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift-qe/docker-build |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | app=docker-build |
+    When I run the :get client command with:
+      | resource      | pod                                  |
+      | resource_name | <%= pod.name %>                      |
+      | template      | {{(index .spec.containers 0).image}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :imgid clipboard
+    Given I create the "app2" directory
+    And a "app2/Dockerfile" file is created with the following lines:
+    """
+    FROM <%= cb.imgid %>
+    ENTRYPOINT ["sh", "/bin/hack_init.sh"]
+    """
+    #There is no 'success' check after this step, as the new-app command will
+    #return Failed, as the docker-build imagestream already exists
+    When I run the :new_app client command with:
+      | app_repo          | app2          |
+      | name              | app2          |
+      | insecure_registry | true          |
+    When I run the :start_build client command with:
+      | buildconfig | app2            |
+      | from_file   | app2/Dockerfile |
+    Then the step should succeed
+    Given the "app2-1" build completes
+    When I run the :logs client command with:
+      | resource_name | build/app2-1 |
+    #Check output from original bz:
+    And the output should not contain "reference failed"
+    Given a pod becomes ready with labels:
+      | app=app2 |
