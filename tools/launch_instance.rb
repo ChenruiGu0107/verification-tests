@@ -523,6 +523,18 @@ module CucuShift
       end
       # wait each host to become accessible
       hosts.each {|h| h.wait_to_become_accessible(600)}
+      hosts_spec = hosts.map{|h| "#{h.hostname}:#{h.roles.join(':')}"}.join(',')
+
+      ## help users persist home info
+      logger.info "HOSTS SPECIFICATION: #{hosts_spec}"
+      host_spec_out = ENV["CUCUSHIFT_HOSTS_SPEC_FILE"]
+      if host_spec_out && !File.exist?(host_spec_out)
+        begin
+          File.write(host_spec_out, hosts_spec)
+        rescue => e
+          logger.error("could not save host specification: #{e}")
+        end
+      end
 
       ## perform provisioning steps
       template[:install_sequence].each do |task|
