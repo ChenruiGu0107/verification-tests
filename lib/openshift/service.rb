@@ -48,24 +48,21 @@ module CucuShift
     end
 
     # @note call without user only when props are loaded; get object to refresh
-    def selector(user: nil, quiet: false)
-      get_checked(user: user, quiet: quiet) unless props.has_key?(:selector)
-
-      return props[:selector]
+    def selector(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :selector, user: user, cached: cached, quiet: quiet)
     end
 
     # @note call without parameters only when props are loaded
-    def url(user: nil)
-      get_checked(user: user) if !props[:ip] || !props[:ports]
+    def url(user: nil, cached: true, quiet: false)
+      ip = get_cached_prop(prop: :ip, user: user, cached: cached, quiet: quiet)
+      ports = get_cached_prop(prop: :ports, user: user, cached: cached, quiet: quiet)
 
-      return "#{props[:ip]}:#{props[:ports][0]["port"]}"
+      return "#{ip}:#{ports[0]["port"]}"
     end
 
     # @note call without parameters only when props are loaded
-    def ip(user: nil)
-      get_checked(user: user) if !props[:ip]
-
-      return props[:ip]
+    def ip(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :ip, user: user, cached: cached, quiet: quiet)
     end
   end
 end

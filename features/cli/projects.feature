@@ -515,4 +515,4 @@ Feature: projects related features via cli
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=hello-openshift |
-    Then the expression should be true> project.uid_range.split("/")[0] == pod.fs_group
+    Then the expression should be true> project.uid_range(user:user).split("/")[0] == pod.fs_group(user:user)

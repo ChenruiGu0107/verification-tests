@@ -35,10 +35,8 @@ module CucuShift
       return res
     end
 
-    def docker_image_repository(user:)
-      get_checked(user: user) if !props[:docker_image_repository]
-
-      return props[:docker_image_repository]
+    def docker_image_repository(user:, cached: true, quiet: false)
+      return get_cached_prop(prop: :docker_image_repository, user: user, cached: cached, quiet: quiet)
     end
   end
 end
