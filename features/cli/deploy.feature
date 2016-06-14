@@ -1505,3 +1505,47 @@ Feature: deployment related features
     Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
+
+  # @author yinzhou@redhat.com
+  # @case_id 527513
+  Scenario: Automatic set to false without ConfigChangeController on the DeploymentConfig
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/build-deploy-without-configchange.json"
+    And I replace lines in "build-deploy-without-configchange.json":
+      |"automatic": true|"automatic": false|
+    When I process and create "build-deploy-without-configchange.json"
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | lastTriggeredImage     |
+    And the output should not contain:
+      | "latestVersion": 1 |
+    """
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build finishes
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | origin-ruby-sample |
+      | o             | json |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
+    And the expression should be true> cb.imagestreamitems.length == 2
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should not contain:
+      | "latestVersion": 1 |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
+    And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
