@@ -400,7 +400,7 @@ Feature: buildlogic.feature
    Then the "ruby-hello-world-2" build completes
    When I get project BuildConfig as JSON
    And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
-   Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/generic/fixtures/push-gitlab.json"
+   Given I download a file from "https://raw.githubusercontent.com/openshift/origin/801af5be5efa079876dd5fd258932de177491249/pkg/build/webhook/generic/testdata/push-gitlab.json"
    When I replace lines in "push-gitlab.json":
      | git@gitlab.com:jondoe/repo.git   | git@gitlab.com:openshift/ruby-hello-world.git |
    When I perform the HTTP request:
