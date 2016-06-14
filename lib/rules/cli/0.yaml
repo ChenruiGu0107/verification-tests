@@ -728,6 +728,20 @@
     :master-config: --master-config=<value>
     :node-config: --node-config=<value>
     :prevent-modification: --prevent-modification=<value>
+:oadm_groups_add_users:
+  :cmd: oadm groups add-users
+  :options:
+    :group_name: <value>
+    :user_name:  <value>
+:oadm_groups_new:
+  :cmd: oadm groups new
+  :options:
+    :group_name: <value>
+:oadm_groups_remove_users:
+  :cmd: oadm groups remove-users
+  :options:
+    :group_name: <value>
+    :user_name:  <value>
 :oadm_new_project:
   :cmd: oadm new-project <project_name>
   :expected:
