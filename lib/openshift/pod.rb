@@ -69,17 +69,14 @@ module CucuShift
     end
 
     # @note call without parameters only when props are loaded
-    def ip(user: nil)
-      get_checked(user: user) if !props[:ip]
-
-      return props[:ip]
+    def ip(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :ip, user: user, cached: cached, quiet: quiet)
     end
 
     # @note call without parameters only when props are loaded
-    def fs_group(user: nil)
-      get_checked(user: user) if !props[:securityContext]
-
-      return props[:securityContext]['fsGroup'].to_s
+    def fs_group(user:, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :securityContext, user: user, cached: cached, quiet: quiet)
+      return spec["fsGroup"].to_s
     end
 
     def supplemental_groups(user:, cached: true, quiet: false)
@@ -89,17 +86,13 @@ module CucuShift
     end
 
     # @note call without parameters only when props are loaded
-    def node_hostname(user: nil)
-      get_checked(user: user) if !props[:node_hostname]
-
-      return props[:node_hostname]
+    def node_hostname(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :node_hostname, user: user, cached: cached, quiet: quiet)
     end
 
     # @note call without parameters only when props are loaded
-    def node_name(user: nil)
-      get_checked(user: user) if !props[:node_name]
-
-      return props[:node_name]
+    def node_name(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :node_name, user: user, cached: cached, quiet: quiet)
     end
 
     # this useful if you wait for a pod to die

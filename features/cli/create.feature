@@ -717,7 +717,7 @@ Feature: creating 'apps' with CLI
     When I run the :get client command with:
       | resource      | project             |
       | resource_name | <%= project.name %> |
-    And evaluation of `project.props[:scc_uid_range].split('/')[0]` is stored in the :scc_limit clipboard
+    And evaluation of `project.uid_range(user:user).split("/")[0]` is stored in the :scc_limit clipboard
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/510541/scc_rules.json
     Then the step should succeed
     When the pod named "hello-pod" status becomes :running
@@ -728,7 +728,7 @@ Feature: creating 'apps' with CLI
     When I run the :get client command with:
       | resource      | pods             |
       | resource_name | hello-pod        |
-    Then the expression should be true> pod.supplemental_groups[0].to_s == cb.scc_limit
+    Then the expression should be true> pod.supplemental_groups(user:user)[0].to_s == cb.scc_limit
 
   # @author pruan@redhat.com
   # @case_id 510543
