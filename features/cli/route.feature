@@ -66,7 +66,7 @@ Feature: route related features via cli
       | name | myapp |
     Then the step should succeed
     And the output should match "Labels:\s+app=test-perl"
-    When I open web server via the "myapp" route
+    When I wait for a web server to become available via the "myapp" route
     Then the output should contain "Everything is fine"
 
   # @author cryan@redhat.com
