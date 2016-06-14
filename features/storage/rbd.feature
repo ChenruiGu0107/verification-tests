@@ -111,3 +111,55 @@ Feature: Storage of Ceph plugin testing
       | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= pod("rbd-server").ip(user: user) %>:6789 |
     Then the step should succeed
     And the pod named "rbd" becomes ready
+
+  # @author lxia@redhat.com
+  # @case_id 510534
+  @admin
+  Scenario: [storage_201] Only one pod with rbd volume can be scheduled when NoDiskConflicts policy is enabled
+    Given I store the schedulable nodes in the :nodes clipboard
+    And I register clean-up steps:
+      | I run the :label admin command with:   |
+      | ! resource ! node                    ! |
+      | ! name     ! <%= cb.nodes[0].name %> ! |
+      | ! key_val  ! labelForTC510534-       ! |
+      | the step should succeed                |
+    When I run the :label admin command with:
+      | resource  | node                    |
+      | name      | <%= cb.nodes[0].name %> |
+      | key_val   | labelForTC510534=1      |
+      | overwrite | true                    |
+    Then the step should succeed
+
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    When I run the :oadm_new_project admin command with:
+      | project_name  | <%= cb.proj_name %> |
+      | node_selector | labelForTC510534=1  |
+      | admin         | <%= user.name %>    |
+    Then the step should succeed
+    And I switch to cluster admin pseudo user
+    And I use the "<%= cb.proj_name %>" project
+    And I have a Ceph pod in the project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pod-direct.json" replacing paths:
+      | ["metadata"]["name"]                         | rbd-pod1-<%= project.name %>                 |
+      | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= pod("rbd-server").ip(user: user) %>:6789 |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pod-direct.json" replacing paths:
+      | ["metadata"]["name"]                         | rbd-pod2-<%= project.name %>                 |
+      | ["spec"]["volumes"][0]["rbd"]["monitors"][0] | <%= pod("rbd-server").ip(user: user) %>:6789 |
+    Then the step should succeed
+
+    When I run the :describe client command with:
+      | resource | pod                       |
+      | name     | rbd-pod2-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | Pending          |
+      | FailedScheduling |
+      | NoDiskConflict   |
+    When I run the :get client command with:
+      | resource | events |
+    Then the step should succeed
+    And the output should contain:
+      | FailedScheduling |
+      | NoDiskConflict   |

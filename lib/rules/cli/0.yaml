@@ -258,15 +258,16 @@
   :cmd: oc get <resource>
   :options:
     :a: --show-all=<value>
-    :resource_name: <value>
-    :output: --output=<value>
+    :all_namespace: --all-namespaces=<value>
+    :L: -L <value>
+    :l: -l <value>
     :no_headers: --no-headers=<value>
     :o: -o <value>
-    :l: -l <value>
-    :L: -L <value>
-    :w: --watch=<value>
+    :output: --output=<value>
+    :resource_name: <value>
+    :sort_by: --sort-by=<value>
     :template: --template=<value>
-    :all_namespace: --all-namespaces=<value>
+    :w: --watch=<value>
 :help:
   :cmd: oc help
   :options:
