@@ -303,7 +303,7 @@ Feature: buildlogic.feature
     When I execute on the pod:
       | bash                                                                                                                                                                     |
       | -c                                                                                                                                                                       |
-      | cd /home/git/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
       | image_stream | openshift/ruby:2.2                            |
@@ -378,7 +378,7 @@ Feature: buildlogic.feature
     When I execute on the pod:
       | bash           |
       | -c             |
-      | cd /home/git/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
       | image_stream   | openshift/ruby:2.2                            |
@@ -414,3 +414,37 @@ Feature: buildlogic.feature
    Then the step should succeed
    Then the "ruby-hello-world-3" build was created
    Then the "ruby-hello-world-3" build completes
+
+  # @author yantan@redhat.com
+  # @case_id 482194
+  Scenario: Create new-app from private git repo with ssh key
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream   | openshift/perl:5.20       |
+      | code           | https://github.com/openshift/sti-perl.git |
+      | context_dir    | 5.20/test/sample-test-app/|
+    Then the step should succeed
+    Given the "sti-perl-1" build completes
+    And I have an ssh-git service in the project
+    And the "secret" file is created with the following lines:
+      | "<%= cb.ssh_private_key.to_pem %>"         |
+    And I run the :oc_secrets_new_sshauth client command with:
+      | ssh_privatekey | secret      |
+      | secret_name    | mysecret    |
+    When I execute on the pod:
+      | bash           |
+      | -c             |
+      | cd /repos && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource       | buildconfig |
+      | resource_name  | sti-perl    |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"}}}} |
+      | p              | {"spec":{"source":{"sourceSecret":{"name":"mysecret"}}}}    |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig    | sti-perl    |
+    Then the "sti-perl-2" build was created
+    Then the "sti-perl-2" build completes
+    When I expose the "sti-perl" service
+    Then I wait for a web server to become available via the "sti-perl" route
