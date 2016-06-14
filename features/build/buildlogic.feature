@@ -303,7 +303,7 @@ Feature: buildlogic.feature
     When I execute on the pod:
       | bash                                                                                                                                                                     |
       | -c                                                                                                                                                                       |
-      | cd /home/git/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
       | image_stream | openshift/ruby:2.2                            |
@@ -378,7 +378,7 @@ Feature: buildlogic.feature
     When I execute on the pod:
       | bash           |
       | -c             |
-      | cd /home/git/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
       | image_stream   | openshift/ruby:2.2                            |
@@ -434,7 +434,7 @@ Feature: buildlogic.feature
     When I execute on the pod:
       | bash           |
       | -c             |
-      | cd /home/git/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+      | cd /repos && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :patch client command with:
       | resource       | buildconfig |
