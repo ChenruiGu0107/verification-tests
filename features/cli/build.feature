@@ -2214,3 +2214,19 @@ Feature: build 'apps' with CLI
     And the output should not contain "reference failed"
     Given a pod becomes ready with labels:
       | app=app2 |
+
+  # @author yantan@redhat.com
+  # @case_id 499514
+  @admin
+  @destructive
+  Scenario: Allow STI builder images from running as root - using onbuild image
+    Given I have a project
+    And SCC "privileged" is added to the "system:serviceaccounts:<%= project.name %>" group
+    When I run the :new_build client command with:
+      | app_repo       | aosqe/ruby-20-centos7:onbuild-user0~https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    Given the "ruby-hello-world-1" build completes
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-1 |
+    Then the step should succeed
+    And the output should contain "Successfully pushed"
