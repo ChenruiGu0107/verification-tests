@@ -75,3 +75,31 @@ Feature: Add env variables to image feature
       | template |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-55-env-var-test.json |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-56-env-var-test.json |
+
+  # @author cryan@redhat.com
+  # @case_id 497480
+  Scenario: Add env variables to mongodb-24-centos7 image
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mongodb-24-centos7-env-test.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=database |
+    When I execute on the pod:
+      | bash | -c| env \| grep MONGO |
+    Then the output should match:
+      | MONGODB_NOPREALLOC=false                  |
+      | MONGODB_QUIET=false                       |
+      | MONGODB_PREFIX=/opt/rh/mongodb24/root/usr |
+      | MONGODB_ADMIN_PASSWORD=r00t               |
+      | MONGODB_DATABASE=root                     |
+      | MONGODB_PASSWORD=fpBt72kI                 |
+      | MONGODB_VERSION=2.4                       |
+      | MONGODB_SMALLFILES=false                  |
+      | MONGODB_USER=user7BE                      |
+    When I execute on the pod:
+      | bash | -c| cat /etc/mongod.conf |
+    Then the output should match:
+      | noprealloc = false |
+      | smallfiles = false |
+      | quiet = false      |
