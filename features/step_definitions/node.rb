@@ -5,6 +5,12 @@ Given /^I select a random node's host$/ do
   @host = env.node_hosts.sample
 end
 
+Given /^I store the schedulable nodes in the#{OPT_SYM} clipboard$/ do |cbname|
+  cbname = 'nodes' unless cbname
+  cb[cbname] =
+    CucuShift::Node.get_matching(user: admin) { |n, n_hash| n.schedulable? }
+end
+
 # @host from World will be used.
 Given /^I run commands on the host:$/ do |table|
   ensure_admin_tagged
