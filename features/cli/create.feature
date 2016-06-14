@@ -507,7 +507,7 @@ Feature: creating 'apps' with CLI
     #The json file below contains several labels
     #that are specific to this testcase
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/test/fixtures/template-with-app-label.json |
+      | f | https://raw.githubusercontent.com/openshift/origin/master/test/testdata/template-with-app-label.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | app_repo | ruby-helloworld-sample |
