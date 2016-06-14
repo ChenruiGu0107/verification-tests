@@ -161,27 +161,28 @@ Feature: project permissions
   @admin
   Scenario: Pod creation should fail when pod's node selector conflicts with project node selector
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    Given I register clean-up steps:
-      | admin deletes the "<%= @clipboard[:proj_name] %>" project |
-      | the step should succeed                         |
-    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/node-selector.json" replacing paths:
-      | ["metadata"]["name"] | <%= @clipboard[:proj_name] %>|
-      | ["metadata"]["labels"]["name"] | <%= @clipboard[:proj_name] %>|
+    When I run the :oadm_new_project admin command with:
+      | project_name  | <%= cb.proj_name %> |
+      | node_selector | region=west         |
+      | admin         | <%= user.name %>    |
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/selector-east.json |
-      | n | <%= @clipboard[:proj_name] %> |
+      | n | <%= cb.proj_name %> |
     Then the step should fail
-    Then the output should contain:
-      | pods "east" is forbidden: pod node label selector conflicts with its project node label selector |
+    And the output should match:
+      | pod node label selector conflicts with its project node label selector |
 
   # @author chaoyang@redhat.com
   # @case_id 481696
   @admin
   Scenario: Could not create a project with invalid node-selector
-    When I run the :create admin command with:
-      |filename| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/prj_with_invalid_node-selector.json |
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    When I run the :oadm_new_project admin command with:
+      | project_name  | <%= cb.proj_name %> |
+      | node_selector | env,qa              |
+      | admin         | <%= user.name %>    |
     Then the step should fail
     And the output should match:
-      | nvalid value.*env,qa |
+      | [Ii]nvalid value.*env,qa |
 
