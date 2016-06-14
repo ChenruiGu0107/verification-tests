@@ -67,6 +67,8 @@ Given /^status becomes :([^\s]*?) of( exactly)? ([0-9]+) pods labeled:$/ do |sta
     p.status?(status: status.to_sym, user: user, cached: true, quiet: true)
   }
 
+  cache_pods(*@result[:items], *@result[:matching])
+
   count_good = !exact_count || @result[:matching].size == count.to_i
 
   unless @result[:success] && count_good
