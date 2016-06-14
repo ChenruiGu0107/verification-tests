@@ -64,8 +64,8 @@ Given /^the #{QUOTED} path is( recursively)? removed on the host after scenario$
   end
 
   teardown_add {
-    @result = _host.delete(path, r: !!recurse)
-    raise "can't remove #{path} on #{_host.hostname}" unless @result[:success]
+    success = _host.delete(path, r: !!recurse)
+    raise "can't remove #{path} on #{_host.hostname}" unless success
   }
 end
 
