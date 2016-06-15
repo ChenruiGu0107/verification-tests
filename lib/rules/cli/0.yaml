@@ -691,7 +691,6 @@
     :-c: --context=<value>
     :-t: --token=<value>
 #################### admin commands section
-
 :oadm_add_cluster_role_to_user:
   :cmd: oadm policy add-cluster-role-to-user <role_name> <user_name>
 :oadm_add_cluster_role_to_group:
@@ -743,6 +742,10 @@
   :options:
     :group_name: <value>
     :user_name:  <value>
+:oadm_manage_node:
+  :cmd: oadm manage-node <node_name>
+  :options:
+    :schedulable: --schedulable=<value>
 :oadm_new_project:
   :cmd: oadm new-project <project_name>
   :expected:
