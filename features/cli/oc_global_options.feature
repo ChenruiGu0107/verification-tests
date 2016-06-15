@@ -128,3 +128,54 @@ Feature: oc global options (oc options) related scenarios
       | resource       | dc    |
       | context        | no-this-context |
     Then the step should fail
+
+  # @author xxia@redhat.com
+  # @case_id 509018
+  Scenario: Check the secure/insecure connection option for oc command - negative
+    Given I have a project
+    # Get master ca.crt
+    When I run the :run client command with:
+      | name      | mypod         |
+      | image     | <%= project_docker_repo %>openshift/origin-base        |
+      | generator | run-pod/v1    |
+      | command   | true          |
+      | cmd       | sleep         |
+      | cmd       | 3600          |
+    Then the step should succeed
+    Given the pod named "mypod" becomes ready
+    # ca.crt (https://docs.openshift.org/latest/dev_guide/service_accounts.html#using-a-service-accounts-credentials-inside-a-container)
+    When I execute on the pod:
+      | cat  | /var/run/secrets/kubernetes.io/serviceaccount/ca.crt |
+    Then the step should succeed
+    And I save the output to file> ca.crt
+
+    Given I find a bearer token of the default service account
+    And I switch to the default service account
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %>         |
+      | token    | <%= user.get_bearer_token.token %>  |
+      | ca       | ca.crt      |
+      | insecure | true        |
+      | config   | new.config  |
+    Then the step should succeed
+    When I run the :config_view client command with:
+      | config   | new.config  |
+    Then the step should succeed
+    And the output should match "certificate-authority: .*ca.crt"
+
+    When I run the :whoami client command with:
+      | insecure | true        |
+      | config   | new.config  |
+    Then the step should succeed
+
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %>         |
+      | token    | <%= user.get_bearer_token.token %>  |
+      | insecure | true        |
+      | config   | 2.config    |
+    Then the step should succeed
+
+    When I run the :whoami client command with:
+      | ca       | ca.crt      |
+      | config   | 2.config    |
+    Then the step should succeed
