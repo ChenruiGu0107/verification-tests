@@ -528,9 +528,12 @@ Feature: creating 'apps' with CLI
     Given the "<%= cb.appname %>-1" build completes
     Given 1 pods become ready with labels:
       | deployment=<%= cb.appname %>-1 |
+    And I wait for the steps to pass:
+    """
     When I execute on the "<%= pod.name %>" pod:
       | curl | localhost:8080 |
     Then the step should succeed
+    """
     And the output should contain "Hello"
     #Check https github url
     Given an 8 character random string of type :dns952 is stored into the :appname1 clipboard
@@ -542,9 +545,12 @@ Feature: creating 'apps' with CLI
     Given the "<%= cb.appname1 %>-1" build completes
     Given 1 pods become ready with labels:
       | deployment=<%= cb.appname1 %>-1 |
+    And I wait for the steps to pass:
+    """
     When I execute on the "<%= pod.name %>" pod:
       | curl | localhost:8080 |
     Then the step should succeed
+    """
     And the output should contain "Hello"
     #Check http github url
     Given an 8 character random string of type :dns952 is stored into the :appname2 clipboard
@@ -556,9 +562,12 @@ Feature: creating 'apps' with CLI
     Given the "<%= cb.appname2 %>-1" build completes
     Given 1 pods become ready with labels:
       | deployment=<%= cb.appname2 %>-1 |
+    And I wait for the steps to pass:
+    """
     When I execute on the "<%= pod.name %>" pod:
       | curl | localhost:8080 |
     Then the step should succeed
+    """
     And the output should contain "Hello"
     #Check git github url
     Given an 8 character random string of type :dns952 is stored into the :appname3 clipboard
@@ -570,9 +579,12 @@ Feature: creating 'apps' with CLI
     Given the "<%= cb.appname3 %>-1" build completes
     Given 1 pods become ready with labels:
       | deployment=<%= cb.appname3 %>-1 |
+    And I wait for the steps to pass:
+    """
     When I execute on the "<%= pod.name %>" pod:
       | curl | localhost:8080 |
     Then the step should succeed
+    """
     And the output should contain "Hello"
     #Check master branch
     Given an 8 character random string of type :dns952 is stored into the :appname4 clipboard
