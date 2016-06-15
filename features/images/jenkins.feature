@@ -1,15 +1,17 @@
 Feature: jenkins.feature
   # @author xiuwang@redhat.com
   # @case_id 498668
-  @admin
-  @destructive
   Scenario: Could change password for jenkins server--jenkins-1-rhel7
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :new_app client command with:
       | template | jenkins-persistent |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | jenkins                                                                         |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "jenkins" PVC becomes :bound within 300 seconds
     Given I wait for the "jenkins" service to become ready
     And I wait for the steps to pass:
     """

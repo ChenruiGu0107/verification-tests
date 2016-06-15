@@ -653,16 +653,18 @@ Feature: secrets related scenarios
 
   # @author xiuwang@redhat.com
   # @case_id 528228
-  @admin
-  @destructive
-  Scenario: Build from private repo with/without secret of token --persistent gitserver 
+  Scenario: Build from private repo with/without secret of token --persistent gitserver
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/gitserver/gitserver-persistent.yaml |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | git                                                                             |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "git" PVC becomes :bound within 300 seconds
+
     When I run the :run client command with:
       | name  | gitserver                  |
       | image | openshift/origin-gitserver |

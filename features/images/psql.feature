@@ -58,19 +58,20 @@ Feature: Postgresql images test
 
   # @author wewang@redhat.com
   # @case_id 501057  508089
-  @admin
-  @destructive
   Scenario Outline: Verify clustered postgresql can be connect after change admin and user password and redeployment with persistent storage-psql92 and psql94
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     And I download a file from "<file>"
     And I replace lines in "postgresql_replica.json":
       | <org_image> | <%= product_docker_repo %><new_image> |
     And I run the :new_app client command with:
       | file     | <template>                   |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | postgresql-data-claim                                                           |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "postgresql-data-claim" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | name=postgresql-slave|
       | deployment=postgresql-slave-1|
@@ -160,19 +161,20 @@ Feature: Postgresql images test
 
   # wewang@redhat.com
   # @case_id 508092  519475
-  @admin
-  @destructive
   Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for persistent storage-psql92 and psql94
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     And I download a file from "<file>"
     And I replace lines in "postgresql-persistent-template.json":
       | <image> | <new_image> |
     And I run the :new_app client command with:
       | file     | <template>                   |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | postgresql                                                                      |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "postgresql" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       |name=postgresql|
       |deployment=postgresql-1|

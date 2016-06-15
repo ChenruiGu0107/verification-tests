@@ -121,10 +121,10 @@ Feature: Postgresql images test
       | image                          |
       | openshift3/postgresql-92-rhel7 |
       | rhscl/postgresql-94-rhel7      |
-   
+
   # @author wewang@redhat.com
   # @case_id 528407 528406
-  Scenario Outline: Use customized values for memory limits env vars - postgresql 
+  Scenario Outline: Use customized values for memory limits env vars - postgresql
     Given I have a project
     When I run the :run client command with:
       | name   | psql                                                                         |
@@ -162,9 +162,9 @@ Feature: Postgresql images test
     Given I execute on the pod:
       | grep | -i | effective_cache_size | var/lib/pgsql/openshift-custom-postgresql.conf |
     Then the output should contain "effective_cache_size = 128MB"
- 
+
     Examples:
       | image                          |
       | openshift3/postgresql-92-rhel7 |
-      | rhscl/postgresql-94-rhel7      | 
+      | rhscl/postgresql-94-rhel7      |
 
