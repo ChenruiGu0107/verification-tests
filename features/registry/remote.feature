@@ -203,3 +203,42 @@ Feature: remote registry related scenarios
       |  - annotations: |
       | color: blue |
       | name: prod |
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 487926
+  @admin
+  Scenario: User should be denied pushing when it does not have 'admin' role
+    Given I have a project
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    When I give project view role to the second user
+    Given I switch to the second user
+    When I run commands on the host:
+      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    Then the step should succeed
+    And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc518930-busybox:local"` is stored in the :my_tag clipboard
+    When I run commands on the host:
+      | docker pull busybox                 |
+      | docker tag busybox <%= cb.my_tag %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.my_tag %> |
+    Then the step should fail
+    And the output should contain "unauthorized: access"
+    When I give project edit role to the third user
+    Given I switch to the third user
+    When I run commands on the host:
+      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.my_tag %> |
+    Then the step should fail
+    And the output should contain "unauthorized: access"
+    Given I switch to the first user
+    When I run commands on the host:
+      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.my_tag %> |
+    Then the step should succeed
