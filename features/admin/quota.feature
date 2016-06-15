@@ -211,7 +211,7 @@ Feature: Quota related scenarios
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/xiaocwan/v3-testfiles/master/pods/hello-pod.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should fail
     And the output should match:
       | specify.*memory |
@@ -221,7 +221,7 @@ Feature: Quota related scenarios
       | n        | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/xiaocwan/v3-testfiles/master/pods/hello-pod.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
     When I run the :get client command with:
       |resource | pod  |
@@ -237,7 +237,7 @@ Feature: Quota related scenarios
       | cpu\\s*100m      |
       | memory\\s*100Mi  |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/xiaocwan/v3-testfiles/master/pods/hello-pod.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should fail
     And the output should match:
       | xceeded quota |

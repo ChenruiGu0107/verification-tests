@@ -108,7 +108,7 @@ Feature: oc import-image related feature
   Scenario: Import image when pointing to non-existing docker image
     Given I have a project
     When I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/wsun1/v3-testfiles/master/image-streams/tc510524.json |
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510524.json |
     Then the step should succeed
     When I run the :import_image client command with:
       | image_name | tc510524 |
@@ -205,7 +205,7 @@ Feature: oc import-image related feature
   Scenario: Import Image without tags and spec.DockerImageRepository set
     Given I have a project
     When I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/wsun1/v3-testfiles/master/image-streams/tc510529.json |
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510529.json |
     Then the step should succeed
     When I run the :import_image client command with:
       | image_name | tc510529 |
