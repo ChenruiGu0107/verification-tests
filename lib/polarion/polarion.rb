@@ -1,3 +1,4 @@
+require 'base_helper'
 require 'http'
 require 'lolsoap'
 
@@ -14,8 +15,17 @@ module CucuShift
     TEST     = "TestManagementWebService"
 
     def initialize(options={})
-      raise "No default options detected, please makse sure the PRIVATE_REPO is cloned into your repo or ENV CUCUSHIFT_PRIVATE_DIR is defined" if default_opts.nil?
-      @options = default_opts.merge options
+      svc_name = options[:service_name] ||
+                 ENV['POLARION_SERVICE_NAME'] ||
+                 :polarion
+
+      unless conf[:services, svc_name.to_sym]
+        raise "No default options detected, please makse sure the " +
+          "PRIVATE_REPO is cloned into your repo or ENV CUCUSHIFT_PRIVATE_DIR" +
+          " is defined"
+      end
+
+      @options = conf[:services, svc_name.to_sym].merge options
 
       ## try to obtain user/password in all possible ways
       @options[:user] = ENV['POLARION_USER'] if ENV['POLARION_USER']
@@ -45,20 +55,16 @@ module CucuShift
       login # can be removed but prefer to fail early if cannot login
     end
 
-    private def default_opts
-      return  conf[:services, :polarion]
-    end
-
     # convert headers hash to header names suitable for rest-client
     private def headers_sym(hash)
       Collections.map_hash(hash) { |k, v| [k.tr('-','_').downcase.to_sym, v] }
     end
 
-    def opts
+    private def opts
       @options
     end
 
-    def ssl_opts
+    private def ssl_opts
       res_opts = {verify_ssl: OpenSSL::SSL::VERIFY_PEER}
       if opts[:ca_file]
         res_opts[:ssl_ca_file] = opts[:ca_file]
@@ -70,7 +76,7 @@ module CucuShift
     end
 
     # @return [String] wsdl XML for particular type of requests
-    def wsdl(type)
+    private def wsdl(type)
       return @wsdl_cache[type] if (@wsdl_cache ||= {})[type]
 
       @wsdl_cache[type] = CucuShift::Http.request(
@@ -82,7 +88,7 @@ module CucuShift
     end
 
     # @return [LolSoap::Client]
-    def client(type)
+    private def client(type)
       return @client_cache[type] if (@client_cache ||= {})[type]
 
       @client_cache[type] = LolSoap::Client.new(wsdl(type))
@@ -92,7 +98,7 @@ module CucuShift
     # @return [LolSoap::Response] with monkey patched #raw method
     # @yield [body_builder] to set request params as with request.body.do |b|
     # @note all SOAP requests use the POST method
-    def do_request(type, op, login: true)
+    private def do_request(type, op, login: true)
       raise "you need to supply block" unless block_given?
 
       cl = client(type)
@@ -139,14 +145,8 @@ module CucuShift
       @auth_header = res.doc.xpath("//*[local-name()='sessionID']")[0].dup
     end
 
-    def get_user(username)
-      do_request(PROJECT, 'getUser') do |b|
-        b.userID username
-      end
-    end
-
     def get_self
-      get_user(opts[:user])
+      project.get_user(user_id: opts[:user])
     end
 
     def logout
@@ -172,6 +172,77 @@ module CucuShift
     def end_transaction(rollback)
       do_request(SESSION, 'endTransaction') do |b|
         b.rollback rollback
+      end
+    end
+
+    ################### GENERATE ALL METHODS #####################
+    module Generated
+      def test
+        @test_methods ||= MethodHolder.new(self, self.class.const_get(__method__.upcase))
+      end
+      def planning
+        @planning_methods ||= MethodHolder.new(self, self.class.const_get(__method__.upcase))
+      end
+      def security
+        @security_methods ||= MethodHolder.new(self, self.class.const_get(__method__.upcase))
+      end
+      def builder
+        @builder_methods ||= MethodHolder.new(self, self.class.const_get(__method__.upcase))
+      end
+      def tracker
+        @tracker_methods ||= MethodHolder.new(self, self.class.const_get(__method__.upcase))
+      end
+      def project
+        @project_methods ||= MethodHolder.new(self, self.class.const_get(__method__.upcase))
+      end
+    end
+
+    include Generated
+
+    class MethodHolder
+      include Common::BaseHelper
+      def initialize(mother, type)
+        # generate a method for each supported operation with the accepted
+        #   parameters as a hash or keyword arguments; some consistency checks
+        @op_map = {}
+        mother.send(:client, type).wsdl.operations.each do |op_name, op|
+          elements = op.input.body.type.elements
+          if elements.size != 1
+            raise "#{type}::#{op_name} doesn't have exactly one body element"
+          end
+          unless elements[op_name]
+            ## do we need to ensure op_name == element_name at all?
+            raise "#{type}::#{op_name} no body element named #{op_name}"
+          end
+
+          body_params = {}
+          elements.values[0].type.elements.keys.each do |key|
+            body_params[camel_to_snake_case(key).to_sym] = key
+          end
+          op_snake = camel_to_snake_case(op_name).to_sym
+          @op_map[op_snake] = body_params.keys
+
+          # define method in the singleton class
+          (class << self; self; end).class_eval do
+            define_method(op_snake) do |**params|
+              extra_params = params.keys - body_params.keys
+              unless extra_params.empty?
+                raise "unknown polarion #{op_snake} parameters #{extra_params}"
+              end
+
+              return mother.send(:do_request, type, op_name) do |builder|
+                params.each do |param, value|
+                  # using internal api method as #send and #method are removed
+                  builder.__tag__(body_params[param], value)
+                end
+              end
+            end
+          end
+        end
+
+        (class << self; self; end).class_eval do
+          define_method(:_op_map) { @op_map }
+        end
       end
     end
   end
