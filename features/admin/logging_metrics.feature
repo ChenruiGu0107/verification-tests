@@ -172,3 +172,50 @@ Feature: Logging and Metrics
     Then the output should match:
       | \[<%= project.name %>\.\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\.\d{4}\.\d{2}\.\d{2}\] |
     """
+
+  # @author xiazhao@redhat.com
+  # @case_id 518907
+  @admin
+  @smoke
+  Scenario: Deploy metrics stack with persistent storage
+    Given I have a project
+    And I have a NFS service in the project
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_pv.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    And I store default router subdomain in the :subdomain clipboard
+    When I run the :create_serviceaccount client command with:
+      | serviceaccount_name | metrics-deployer |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role            |   edit |
+      | user_name       |   system:serviceaccount:<%=project.name%>:metrics-deployer |
+    Then the step should succeed
+    Given cluster role "cluster-reader" is added to the "heapster" service account
+    Given the "empty" file is created with the following lines:
+    """
+    """
+    When I run the :new_secret client command with:
+      | secret_name | metrics-deployer |
+      | credential_file | empty |
+    Then the step should succeed
+    When I create a new application with:
+      | template | metrics-deployer-template |
+      | param | HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.<%= cb.subdomain%> |
+      | param | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/,USE_PERSISTENT_STORAGE=true,CASSANDRA_PV_SIZE=5Gi,IMAGE_VERSION=3.2.1 |
+      | param | MASTER_URL=<%= env.api_endpoint_url %> |
+    Then the step should succeed
+    And all pods in the project are ready
+    And I wait for the "hawkular-cassandra" service to become ready
+    And I wait for the "hawkular-metrics" service to become ready
+    And I wait for the "heapster" service to become ready
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-cassandra |
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource         | pod |
+      | resource_name    | <%= pod.name %> |
+      | o                | yaml |
+    Then the output should contain:
+      | persistentVolumeClaim |
+    """
