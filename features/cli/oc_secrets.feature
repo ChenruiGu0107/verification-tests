@@ -116,7 +116,7 @@ Feature: oc_secrets.feature
     Then the step should succeed
     And the output should not contain "second-secret"
 
-  # @author xiacwan@redhat.com
+  # @author xiaocwan@redhat.com
   # @case_id 484330
   Scenario: [origin_platformexp_391] Operation should fail when lost argument for bundle secret
     When I run the :secrets client command with:
@@ -132,7 +132,7 @@ Feature: oc_secrets.feature
     And the output should contain:
       |  error: |
 
-  # @author xiacwan@redhat.com
+  # @author xiaocwan@redhat.com
   # @case_id 484325
   Scenario: [origin_platformexp_391] Project admin can process local directory or files and convert it to kubernetes secret
     Given I have a project

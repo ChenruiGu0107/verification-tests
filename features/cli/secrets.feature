@@ -29,7 +29,7 @@ Feature: secrets related scenarios
     And the output should contain:
       |kubernetes.io/dockercfg|
 
-  # @author xiacwan@redhat.com
+  # @author xiaocwan@redhat.com
   # @case_id 484337
   @admin
   Scenario: [origin_platformexp_403] The number of created secrets can not exceed the limitation

@@ -487,7 +487,7 @@ Feature: Testing route
       | /tmp/ca.pem |
     Then the output should contain "Application is not available"
 
-  # @author zzhaoe@redhat.com
+  # @author zzhao@redhat.com
   # @case_id 483186
   Scenario: Re-encrypting route with no cert if a router is configured with a default wildcard cert
     Given I have a project
