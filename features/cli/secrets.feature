@@ -760,3 +760,70 @@ Feature: secrets related scenarios
     Given I get project builds
     Then the output should contain "ruby-hello-world-2"
     Given the "ruby-hello-world-2" build completes
+  
+  # @author chezhang@redhat.com
+  # @case_id 521547
+  Scenario: Consume the same Secrets as environment variables in multiple pods
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret   |
+      | name     | test-secret |
+    Then the output should match:
+      | data-1:\\s+9\\s+bytes  |
+      | data-2:\\s+11\\s+bytes |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job-secret-env.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should contain 3 times:
+      |  secret-env- |
+    Given status becomes :succeeded of exactly 3 pods labeled:
+      | app=test |
+    Then the step should succeed
+    And I wait until job "secret-env" completes
+    When I run the :logs client command with:
+      | resource_name | <%= pod(-3).name %> |
+    Then the step should succeed
+    And the output should contain:
+      | MY_SECRET_DATA_1=value-1 |
+      | MY_SECRET_DATA_2=value-2 |
+    When I run the :logs client command with:
+      | resource_name | <%= pod(-2).name %> |
+    Then the step should succeed
+    And the output should contain:
+      | MY_SECRET_DATA_1=value-1 |
+      | MY_SECRET_DATA_2=value-2 |
+    When I run the :logs client command with:
+      | resource_name | <%= pod(-1).name %> |
+    Then the step should succeed
+    And the output should contain:
+      | MY_SECRET_DATA_1=value-1 |
+      | MY_SECRET_DATA_2=value-2 |
+
+  # @author chezhang@redhat.com
+  # @case_id 521548
+  Scenario: Using Secrets as Environment Variables
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret   |
+      | name     | test-secret |
+    Then the output should match:
+      | data-1:\\s+9\\s+bytes  |
+      | data-2:\\s+11\\s+bytes |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-env-pod.yaml |
+    Then the step should succeed
+    And the pod named "secret-env-pod" status becomes :succeeded
+    When I run the :logs client command with:
+      | resource_name | secret-env-pod |
+    Then the step should succeed
+    And the output should contain:
+      | MY_SECRET_DATA=value-1 |
