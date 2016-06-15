@@ -390,7 +390,9 @@ Feature: buildlogic.feature
     When I run the :patch client command with:
       | resource       | buildconfig                                                   |
       | resource_name  | ruby-hello-world                                              |
-      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>","ref":"master"},"sourceSecret":{"name":"mysecret"}}}} |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"}}}}   |
+      | p              | {"spec":{"source":{"git":{"ref":"master"}}}}                  |
+      | p              | {"spec":{"source":{"sourceSecret":{"name":"mysecret"}}}}      |
    Then the step should succeed
    And I run the :start_build client command with:
       | buildconfig    | ruby-hello-world   |
@@ -435,9 +437,10 @@ Feature: buildlogic.feature
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource       | buildconfig |
-      | resource_name  | sti-perl    |
-      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"},"sourceSecret":{"name":"mysecret"}}}} |
+      | resource       | buildconfig                                                 |
+      | resource_name  | sti-perl                                                    |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"}}}} |
+      | p              | {"spec":{"source":{"sourceSecret":{"name":"mysecret"}}}}    |
     Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig    | sti-perl    |
