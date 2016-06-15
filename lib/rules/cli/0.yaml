@@ -506,6 +506,7 @@
   #Please reference TC 510666 in features/cli/oc_rsync.feature for an example.
   :cmd: oc rsync <source> <destination>
   :options:
+    :c: --container=<value>
     :delete: --delete=<value>
     :strategy: --strategy=<value>
 :run:

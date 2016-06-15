@@ -142,3 +142,41 @@ Feature: oc_rsync.feature
       | tar          |
       | rsync        |
       | rsync-daemon |
+
+  # @author cryan@redhat.com
+  # @case_id 510664
+  Scenario: Copying files from host to one of multi-containers using oc rsync comand --container option
+    Given I have a project
+    Given I create the "test" directory
+    Given a "test/testfile1" file is created with the following lines:
+    """
+    Hello, World! 1
+    """
+    And a "test/testfile2" file is created with the following lines:
+    """
+    Hello, World! 2
+    """
+    When I run the :new_app client command with:
+      | docker_image | aosqe/scratch:tarrsync                      |
+      | docker_image | aosqe/scratch:latest                        |
+      | group        | aosqe/scratch:tarrsync+aosqe/scratch:latest |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | app=scratch |
+    When I run the :rsync client command with:
+      | source      | <%= localhost.workdir %>/test |
+      | destination | <%= pod.name %>:/tmp          |
+      | c           | scratch                       |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -ltr | /tmp/test |
+    Then the step should succeed
+    And the output should contain:
+      | testfile1 |
+      | testfile2 |
+    When I execute on the pod:
+      | cat | /tmp/test/testfile1 | /tmp/test/testfile2 |
+    Then the step should succeed
+    And the output should contain:
+      | Hello, World! 1 |
+      | Hello, World! 2 |
