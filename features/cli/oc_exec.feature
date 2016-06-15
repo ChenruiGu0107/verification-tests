@@ -127,7 +127,7 @@ Feature: containers related features
     Then the output should contain:
       |Error from server: container hello-openshift-notexist is not valid for pod hello-openshift|
 
-  # @author xiacwan@redhat.com
+  # @author xiaocwan@redhat.com
   # @case_id 472857
   Scenario: [origin_infra_311] Executing a command in container
     Given I have a project

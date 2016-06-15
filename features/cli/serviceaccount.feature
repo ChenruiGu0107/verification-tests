@@ -616,7 +616,7 @@ Feature: ServiceAccount and Policy Managerment
       | serviceAccountName: myserviceaccount |
       | secretName: myserviceaccount-token   |
 
-  # @author xiacowan@redhat.com
+  # @author xiaocwan@redhat.com
   # @case_id 483279
   Scenario: Check project service accounts and API tokens associated with the accounts
     Given I have a project

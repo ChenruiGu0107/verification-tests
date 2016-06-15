@@ -1,5 +1,5 @@
 Feature: SCC policy related scenarios
-  # @author xiacwan@redhat.com
+  # @author xiaocwan@redhat.com
   # @case_id 511817
   @admin
   Scenario: Cluster-admin can add & remove user or group to from scc

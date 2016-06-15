@@ -99,7 +99,7 @@ Feature: remote registry related scenarios
     # at the moment if something pulled image earlier, case would fail
 
 
-  # @author pruan@redhat.comπ
+  # @author pruan@redhat.com
   # @case_id 518930
   @admin
   Scenario: Pull image with integrated registry have stored the data

@@ -419,7 +419,7 @@ Feature: creating 'apps' with CLI
     And the output should contain:
       | ruby-22-rhel7 |
 
-  # @author xiacwan@redhat.com
+  # @author xiaocwan@redhat.com
   # @case_id 510225
   Scenario: [platformmanagement_public_523]Use the old version v1beta3 file to create resource
     Given I switch to the first user
