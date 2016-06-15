@@ -30,7 +30,7 @@ Feature: Openshift build and configuration of enviroment variables check
   Scenario: Openshift build and configuration of enviroment variables check - python-33-rhel7
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/wewang58/v3-testfiles/master/image/language-image-templates/python-33-rhel7-var.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/python-33-rhel7-var.json |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
     And I wait for the steps to pass:
