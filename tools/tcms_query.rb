@@ -160,6 +160,15 @@ def report_auto_testcases(options)
 
         end
         ruby_cases.push(testcase['case_id'])
+        if script['ruby'].starts_with? 'features/'
+          if options.correct_script
+            # udpate the script
+            script['ruby'] = script['ruby'][9..-1]
+            tcms.update_testcases(testcase['case_id'], {"script"=> script})
+          else
+            print "#{testcase['case_id']} has malform script field\n"
+          end
+        end
       end
     end
   end
@@ -522,6 +531,9 @@ if __FILE__ == $0
     end
     opts.on('-a', '--autocases', "query for all cases that has 'Script' entry and have 'ruby' as key") do
       options.get_auto=true
+    end
+    opts.on('-x', '--correct_script', "Correct testcases with incorrectly features/ included") do
+      options.correct_script=true
     end
     opts.on('-b', '--by_author', "query for all cases that has is CONFIRMED, and report it by author name") do
       options.by_author=true
