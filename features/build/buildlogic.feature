@@ -434,11 +434,11 @@ Feature: buildlogic.feature
     When I execute on the pod:
       | bash           |
       | -c             |
-      | cd /repos && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource       | buildconfig |
-      | resource_name  | sti-perl    |
+      | resource       | buildconfig                                                 |
+      | resource_name  | sti-perl                                                    |
       | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"}}}} |
       | p              | {"spec":{"source":{"sourceSecret":{"name":"mysecret"}}}}    |
     Then the step should succeed
@@ -448,3 +448,42 @@ Feature: buildlogic.feature
     Then the "sti-perl-2" build completes
     When I expose the "sti-perl" service
     Then I wait for a web server to become available via the "sti-perl" route
+
+  # @author yantan@redhat.com
+  # @case_id 482192
+  Scenario: Build from private git repo with wrong auth method 
+    Given I have a project
+    When I run the :new_build client command with:
+      | image_stream   | openshift/ruby:2.2                            |
+      | code           | https://github.com/openshift/ruby-hello-world |
+      | name           | ruby-hello-world                              |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    Given I have an ssh-git service in the project
+    When I execute on the pod:
+      | bash           |
+      | -c             |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+    Then the step should succeed
+    Given a 20 characters random string of type :dns is stored into the :ssh_secret clipboard
+    And the "secret" file is created with the following lines:
+      | "<%= cb.ssh_secret %> "   |
+    When I run the :oc_secrets_new_sshauth client command with:
+      | ssh_privatekey | secret   |
+      | secret_name    | mysecret |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource       | buildconfig              |
+      | resource_name  | ruby-hello-world         |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"},"sourceSecret":{"name":"mysecret"}}}} |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig    | ruby-hello-world         |
+    Then the step should succeed
+    Given the "ruby-hello-world-2" build was created
+    Given the "ruby-hello-world-2" build failed
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-2 |
+    Then the step should succeed
+    And the output should contain:
+      | Permission denied                         |
