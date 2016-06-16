@@ -55,3 +55,45 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | ip link show tun0 |
     Then the output should contain "mtu 3450"
+
+  # @author bmeng@redhat.com
+  # @case_id 528291
+  @admin
+  @destructive
+  Scenario: It should not block the node gets started when /etc/hosts has 127.0.0.1 equal to hostname
+    Given I select a random node's host
+    And system verification steps are used:
+    """
+    When I run commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 |
+    Then the step should succeed
+    And the output match "table=253.*actions=note"
+    When I run commands on the host:
+      | grep 127.0.0.1.*$(hostname) /etc/hosts |
+    Then the step should fail
+    """
+    Given the node service is restarted on the host after scenario
+    And I register clean-up steps:
+    """
+    When I run commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+    Then the step should succeed
+    """
+    And the "/etc/hosts" file is restored on host after scenario
+    When I run commands on the host:
+      | echo "127.0.0.1  $(hostname)" >> /etc/hosts |
+    Then the step should succeed
+    When I run commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+    Then the step should succeed
+    When I run commands on the host:
+      | systemctl restart atomic-openshift-node |
+    Then the step should succeed
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep common.go |
+    Then the step should succeed
+    And the output should contain "Failed to determine node address from hostname"
+    And the output should contain "using default interface"
+    When I run commands on the host:
+      | systemctl status atomic-openshift-node |
+    Then the output should contain "active (running)"
