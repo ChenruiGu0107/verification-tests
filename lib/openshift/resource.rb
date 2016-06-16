@@ -153,6 +153,7 @@ module CucuShift
       res = {
         instruction: "get #{cached ? 'cached' : ''} #{self.class::RESOURCE} #{name} status",
         response: "matched status for #{self.class::RESOURCE} #{name}: '#{matched_status}' while expecting '#{status}'",
+        matched_status: matched_status,
         exitstatus: 0
       }
 
