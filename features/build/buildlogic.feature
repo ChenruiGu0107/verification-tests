@@ -434,13 +434,12 @@ Feature: buildlogic.feature
     When I execute on the pod:
       | bash           |
       | -c             |
-      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/sti-perl sample.git |
     Then the step should succeed
     When I run the :patch client command with:
       | resource       | buildconfig                                                 |
       | resource_name  | sti-perl                                                    |
-      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"}}}} |
-      | p              | {"spec":{"source":{"sourceSecret":{"name":"mysecret"}}}}    |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"},"sourceSecret":{"name":"mysecret"}}}} |
     Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig    | sti-perl    |
