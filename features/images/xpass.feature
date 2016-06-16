@@ -248,39 +248,35 @@ Feature: xpass.feature
       |  jws30-tomcat8-mysql-s2i |
   # @author haowang@redhat.com
   # @case_id 498016 514971 514967 514972
-  @admin
-  @destructive
   Scenario Outline: jbosseap templates with pv
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | template |  <template> |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | <pvc>                                                                           |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "<pvc>" PVC becomes :bound within 300 seconds
     And the "eap-app-1" build was created
     And the "eap-app-1" build completed
     And <podno> pods become ready with labels:
       |application=eap-app|
 
     Examples: OS Type
-      | template                           | podno |
-      | eap64-amq-persistent-s2i           | 2     |
-      | eap64-mongodb-persistent-s2i       | 2     |
-      | eap64-mysql-persistent-s2i         | 2     |
-      | eap64-postgresql-persistent-s2i    | 2     |
+      | template                        | podno | pvc                      |
+      | eap64-amq-persistent-s2i        | 2     | eap-app-amq-claim        |
+      | eap64-mongodb-persistent-s2i    | 2     | eap-app-mongodb-claim    |
+      | eap64-mysql-persistent-s2i      | 2     | eap-app-mysql-claim      |
+      | eap64-postgresql-persistent-s2i | 2     | eap-app-postgresql-claim |
   # @author haowang@redhat.com
   # @case_id 514966
-  @admin
-  @destructive
   Scenario: Create amq application from pre-installed templates : amq62-persistent-ssl
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/amq-app-secret.json |
     Then the step should succeed
@@ -288,41 +284,50 @@ Feature: xpass.feature
       | template | amq62-persistent-ssl |
       | param    | AMQ_TRUSTSTORE_PASSWORD=password,AMQ_KEYSTORE_PASSWORD=password |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | broker-amq-claim                                                                |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "broker-amq-claim" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | application=broker |
+
   # @author haowang@redhat.com
   # @case_id 498015
-  @admin
-  @destructive
   Scenario: Create amq application from pre-installed templates: amq62-persistent
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/amq-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | template | amq62-persistent |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | broker-amq-claim                                                                |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "broker-amq-claim" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | application=broker |
 
   # @author dyan@redhat.com
   # @case_id 484485 508757
-  @admin
-  @destructive
   Scenario Outline: Create tomcat7/tomcat8 with mongodb with persistent volume application via installed template
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | template |  <template> |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | jws-app-mongodb-claim                                                           |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "jws-app-mongodb-claim" PVC becomes :bound within 300 seconds
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
     Given I wait for the "jws-app" service to become ready
@@ -351,19 +356,20 @@ Feature: xpass.feature
 
   # @author dyan@redhat.com
   # @case_id 477323 484486
-  @admin
-  @destructive
   Scenario Outline: Create tomcat7/tomcat8 with postgresql with persistent volume application via installed template
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | template |  <template> |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | jws-app-postgresql-claim                                                        |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "jws-app-postgresql-claim" PVC becomes :bound within 300 seconds
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
     Given I wait for the "jws-app" service to become ready
@@ -392,19 +398,20 @@ Feature: xpass.feature
 
   # @author dyan@redhat.com
   # @case_id 508763 508764
-  @admin
-  @destructive
   Scenario Outline: Create tomcat7/tomcat8 with mysql with persistent volume application via installed template
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | template |  <template> |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | jws-app-mysql-claim                                                        |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "jws-app-mysql-claim" PVC becomes :bound within 300 seconds
     And the "jws-app-1" build was created
     And the "jws-app-1" build completed
     Given I wait for the "jws-app" service to become ready

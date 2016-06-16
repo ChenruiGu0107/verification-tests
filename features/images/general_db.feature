@@ -153,16 +153,18 @@ Feature: general_db.feature
 
   # @author haowang@redhat.com
   # @case_id 498006
-  @admin
-  @destructive
   Scenario: mongodb persistent template
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     Then I run the :new_app client command with:
       | template | mongodb-persistent |
       | param    | MONGODB_ADMIN_PASSWORD=admin |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | mongodb                                                                         |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "mongodb" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | name=mongodb          |
       | deployment=mongodb-1  |
@@ -176,16 +178,18 @@ Feature: general_db.feature
       | 2.6 |
   # @author haowang@redhat.com
   # @case_id 519474
-  @admin
-  @destructive
   Scenario: mongodb 24 with persistent volume
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     Then I run the :new_app client command with:
       | file     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mongodb24-persistent-template.json |
       | param    | MONGODB_ADMIN_PASSWORD=admin |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | mongodb                                                                         |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "mongodb" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | name=mongodb          |
       | deployment=mongodb-1  |
