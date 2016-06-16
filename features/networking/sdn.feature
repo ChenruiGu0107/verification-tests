@@ -67,7 +67,7 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | ovs-ofctl dump-flows br0 -O openflow13 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 |
     Then the step should succeed
-    And the output match "table=253.*actions=note"
+    And the output should match "table=253.*actions=note"
     When I run commands on the host:
       | grep 127.0.0.1.*$(hostname) /etc/hosts |
     Then the step should fail
