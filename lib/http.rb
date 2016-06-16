@@ -58,6 +58,7 @@ module CucuShift
       started = monotonic_seconds
       response = RestClient::Request.new(rc_opts).execute &block
     rescue => e
+      result[:error] = e
       # REST request unsuccessful
       if e.respond_to?(:response) and e.response.respond_to?(:code) and e.response.code.kind_of? Integer
         # server replied with non-success HTTP status, that's ok
@@ -65,7 +66,6 @@ module CucuShift
       else
         # request failed badly, server/network issue?
         result[:exitstatus] = -1
-        result[:error] = e
         result[:cookies] = HTTP::CookieJar.new # empty cookies
         result[:headers] = {}
         result[:size] = 0
