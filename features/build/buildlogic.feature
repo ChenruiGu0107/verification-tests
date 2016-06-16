@@ -209,7 +209,7 @@ Feature: buildlogic.feature
     Then the step should succeed
     Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['image']['metadata']['name']` is stored in the :imagestreamimage clipboard
-    When I run oc create over "<template>" URL replacing paths:
+    When I run oc create over "<template>" replacing paths:
       | ['spec']['strategy']['<strategy>']['from']['name'] | ruby@<%= cb.imagestreamimage %> |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
