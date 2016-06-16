@@ -390,9 +390,7 @@ Feature: buildlogic.feature
     When I run the :patch client command with:
       | resource       | buildconfig                                                   |
       | resource_name  | ruby-hello-world                                              |
-      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"}}}}   |
-      | p              | {"spec":{"source":{"git":{"ref":"master"}}}}                  |
-      | p              | {"spec":{"source":{"sourceSecret":{"name":"mysecret"}}}}      |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>","ref":"master"},"sourceSecret":{"name":"mysecret"}}}} |
    Then the step should succeed
    And I run the :start_build client command with:
       | buildconfig    | ruby-hello-world   |
