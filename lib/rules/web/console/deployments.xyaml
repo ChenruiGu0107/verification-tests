@@ -135,6 +135,14 @@ goto_deployments_page:
   url: /console/project/<project_name>/browse/deployments
 goto_one_dc_page:
   url: /console/project/<project_name>/browse/deployments/<dc_name>
+goto_set_resource_limit_page:
+  elements:
+  - selector:
+      xpath: //button[contains(text(), 'Actions')]
+    op: click
+  - selector:
+      xpath: //a[contains(text(), 'Set Resource Limits')]
+    op: click
 check_dc_loaded_completely:
   action: goto_one_dc_page
   elements:
