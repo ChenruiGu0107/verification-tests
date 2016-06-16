@@ -222,6 +222,13 @@ module CucuShift
           return v
         end
       end
+
+      # supports only sane camel case strings
+      def camel_to_snake_case(str)
+        str.gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
+          gsub(/([a-z])([A-Z])/, '\1_\2').
+          downcase
+      end
     end
   end
 end
