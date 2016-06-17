@@ -3,27 +3,17 @@ Feature: GCE Persistent Volume
   # @case_id 522125
   @admin
   Scenario: [storage_201] Only one pod with GCE PD can be scheduled when NoDiskConflicts policy is enabled
-    Given I store the schedulable nodes in the :nodes clipboard
-    And I register clean-up steps:
-      | I run the :label admin command with:   |
-      | ! resource ! node                    ! |
-      | ! name     ! <%= cb.nodes[0].name %> ! |
-      | ! key_val  ! labelForTC522125-       ! |
-      | the step should succeed                |
-    When I run the :label admin command with:
-      | resource  | node                    |
-      | name      | <%= cb.nodes[0].name %> |
-      | key_val   | labelForTC522125=1      |
-      | overwrite | true                    |
-    Then the step should succeed
-
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :oadm_new_project admin command with:
-      | project_name  | <%= cb.proj_name %> |
-      | node_selector | labelForTC522125=1  |
-      | admin         | <%= user.name %>    |
+      | project_name  | <%= cb.proj_name %>                   |
+      | node_selector | labelForTC522125=<%= cb.proj_name %>  |
+      | admin         | <%= user.name %>                      |
     Then the step should succeed
-    And I switch to cluster admin pseudo user
+
+    Given I store the schedulable nodes in the :nodes clipboard
+    And label "labelForTC522125=<%= cb.proj_name %>" is added to the "<%= cb.nodes[0].name %>" node
+
+    Given I switch to cluster admin pseudo user
     And I use the "<%= cb.proj_name %>" project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod-NoDiskConflict-1.json" replacing paths:

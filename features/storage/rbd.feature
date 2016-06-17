@@ -116,27 +116,17 @@ Feature: Storage of Ceph plugin testing
   # @case_id 510534
   @admin
   Scenario: [storage_201] Only one pod with rbd volume can be scheduled when NoDiskConflicts policy is enabled
-    Given I store the schedulable nodes in the :nodes clipboard
-    And I register clean-up steps:
-      | I run the :label admin command with:   |
-      | ! resource ! node                    ! |
-      | ! name     ! <%= cb.nodes[0].name %> ! |
-      | ! key_val  ! labelForTC510534-       ! |
-      | the step should succeed                |
-    When I run the :label admin command with:
-      | resource  | node                    |
-      | name      | <%= cb.nodes[0].name %> |
-      | key_val   | labelForTC510534=1      |
-      | overwrite | true                    |
-    Then the step should succeed
-
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :oadm_new_project admin command with:
-      | project_name  | <%= cb.proj_name %> |
-      | node_selector | labelForTC510534=1  |
-      | admin         | <%= user.name %>    |
+      | project_name  | <%= cb.proj_name %>                   |
+      | node_selector | labelForTC510534=<%= cb.proj_name %>  |
+      | admin         | <%= user.name %>                      |
     Then the step should succeed
-    And I switch to cluster admin pseudo user
+
+    Given I store the schedulable nodes in the :nodes clipboard
+    And label "labelForTC510534=<%= cb.proj_name %>" is added to the "<%= cb.nodes[0].name %>" node
+
+    Given I switch to cluster admin pseudo user
     And I use the "<%= cb.proj_name %>" project
     And I have a Ceph pod in the project
 
@@ -150,7 +140,7 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
 
     When I run the :describe client command with:
-      | resource | pod                       |
+      | resource | pod                          |
       | name     | rbd-pod2-<%= project.name %> |
     Then the step should succeed
     And the output should contain:
