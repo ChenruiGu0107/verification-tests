@@ -246,7 +246,7 @@ Feature: NFS Persistent Volume
     Then the output should contain:
       | created_testfile |
     And the PV status is :released
-    
+
   # @author wehe@redhat.com
   # @case_id 488981
   @admin
@@ -491,3 +491,35 @@ Feature: NFS Persistent Volume
       | pod1 |
     And the output should not contain:
       | pod2 |
+
+  # @author lxia@redhat.com
+  # @case_id 528441
+  # @bug_id 1332707
+  @admin
+  @destructive
+  Scenario: PVC shows LOST after pv deleted and can be bound again for new pv
+    Given I have a project
+    And I have a NFS service in the project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]      | pv-nfs-<%= project.name %>       |
+      | ["spec"]["accessModes"][0]| ReadWriteMany                    |
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | pvc-nfs-<%= project.name %> |
+      | ["spec"]["volumeName"] | pv-nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]| ReadWriteMany            |
+    Then the step should succeed
+    And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
+    When I run the :delete admin command with:
+      | object_type       | pv                         |
+      | object_name_or_id | pv-nfs-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-nfs-<%= project.name %>" PVC becomes :lost within 300 seconds
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]      | pv-nfs-<%= project.name %>       |
+      | ["spec"]["accessModes"][0]| ReadWriteMany                    |
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    Then the step should succeed
+    And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
