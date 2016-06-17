@@ -295,7 +295,7 @@ Feature: buildlogic.feature
     Given I have a project
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
-      | <%= cb.ssh_private_key.to_pem %>" |
+      | <%= cb.ssh_private_key.to_pem %> |
     And I run the :oc_secrets_new_sshauth client command with:
       | ssh_privatekey | secret   |
       | secret_name    | mysecret |
@@ -315,7 +315,7 @@ Feature: buildlogic.feature
     When I run the :patch client command with:
       | resource      | buildconfig                                                                             |
       | resource_name | ruby-hello-world                                                                        |
-      | p             | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"}}}} |
+      | p             | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>"}}}} |
     Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
@@ -370,7 +370,7 @@ Feature: buildlogic.feature
     Given I have a project
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
-      | <%= cb.ssh_private_key.to_pem %>" |
+      | <%= cb.ssh_private_key.to_pem %>  |
     And I run the :oc_secrets_new_sshauth client command with:
       | ssh_privatekey | secret           |
       | secret_name    | mysecret         |
@@ -390,7 +390,7 @@ Feature: buildlogic.feature
     When I run the :patch client command with:
       | resource       | buildconfig                                                   |
       | resource_name  | ruby-hello-world                                              |
-      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>","ref":"master"},"sourceSecret":{"name":"mysecret"}}}} |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>","ref":"master"},"sourceSecret":{"name":"mysecret"}}}} |
    Then the step should succeed
    And I run the :start_build client command with:
       | buildconfig    | ruby-hello-world   |
@@ -437,7 +437,7 @@ Feature: buildlogic.feature
     When I run the :patch client command with:
       | resource       | buildconfig                                                 |
       | resource_name  | sti-perl                                                    |
-      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"},"sourceSecret":{"name":"mysecret"}}}} |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>"},"sourceSecret":{"name":"mysecret"}}}} |
     Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig    | sti-perl    |
@@ -464,7 +464,7 @@ Feature: buildlogic.feature
     Then the step should succeed
     Given a 20 characters random string of type :dns is stored into the :ssh_secret clipboard
     And the "secret" file is created with the following lines:
-      | "<%= cb.ssh_secret %> "   |
+      | <%= cb.ssh_secret %>      |
     When I run the :oc_secrets_new_sshauth client command with:
       | ssh_privatekey | secret   |
       | secret_name    | mysecret |
@@ -472,7 +472,7 @@ Feature: buildlogic.feature
     When I run the :patch client command with:
       | resource       | buildconfig              |
       | resource_name  | ruby-hello-world         |
-      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo_ip %>"},"sourceSecret":{"name":"mysecret"}}}} |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>"},"sourceSecret":{"name":"mysecret"}}}} |
     Then the step should succeed
     And I run the :start_build client command with:
       | buildconfig    | ruby-hello-world         |
