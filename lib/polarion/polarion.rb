@@ -110,10 +110,19 @@ module CucuShift
                           url: req.url,
                           headers: headers_sym(req.headers),
                           payload: req.content,
-                          raise_on_error: true,
+                          raise_on_error: false,
                           **ssl_opts
                         )
-      res = cl.response(req, raw[:response])
+
+      if raw[:success]
+        res = cl.response(req, raw[:response])
+      elsif raw[:exitstatus] == 500 && raw[:response].include?(">Not authorized.<") && login && !session_safe?
+        ## possibly session has expired, try to login again
+        do_login
+        return do_request(type, op, login: true) { |b| yield(b) }
+      else
+        raise raw[:error]
+      end
 
       res.instance_variable_set(:@raw, raw[:response])
       def res.raw
@@ -121,6 +130,23 @@ module CucuShift
       end
 
       return res
+    end
+
+    def session_checkpoint!
+      @session_checkpoint = monotonic_seconds
+    end
+
+    def session_checkpoint
+      @session_checkpoint ||= 0
+    end
+
+    def session_safe_seconds
+      opts[:session_safe_seconds] || 900
+    end
+
+    # @return [Boolean] true if session is safe to assume not expired
+    def session_safe?
+      monotonic_seconds - session_checkpoint < session_safe_seconds
     end
 
     # login should actually perform login only if needed (no session or expired)
@@ -141,6 +167,7 @@ module CucuShift
         b.userName opts[:user]
         b.password opts[:password]
       end
+      session_checkpoint!
       # dup because of https://github.com/sparklemotion/nokogiri/issues/1200
       @auth_header = res.doc.xpath("//*[local-name()='sessionID']")[0].dup
     end
