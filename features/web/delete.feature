@@ -50,6 +50,7 @@ Feature: Delete the resources via web console
       | image_warning    | The image stream details could not be loaded. |
       | dc_number        | 1                     |
       | rc_warning       | The deployment details could not be loaded. |
+    Then the step should succeed
 
   # @author wsun@redhat.com
   # @case_id 512253
