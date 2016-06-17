@@ -94,3 +94,24 @@ Given /^the node service is restarted on the host after scenario$/ do
     #   because openshift is not so fast to react on errors.
   }
 end
+
+Given /^label #{QUOTED} is added to the#{OPT_QUOTED} node$/ do |label, node_name|
+  ensure_admin_tagged
+
+  _admin = admin
+  _node = node(node_name)
+
+  _opts = {resource: :node, name: _node.name}
+  label_now = {key_val: label}
+  label_clean = {key_val: label.sub(/^(.*?)=.*$/, "\\1") + "-"}
+
+  @result = _admin.cli_exec(:label, **_opts, **label_now)
+  raise "cannot add label to node" unless @result[:success]
+
+  teardown_add {
+    @result = _admin.cli_exec(:label, **_opts, **label_clean)
+    unless @result[:success]
+      raise "cannot remove label #{label} from node #{_node.name}"
+    end
+  }
+end
