@@ -515,3 +515,79 @@ Feature: Testing haproxy router
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
+
+  # @author bmeng@redhat.com
+  # @case_id 526539
+  @admin
+  @destructive
+  Scenario: Router with specific ROUTE_LABELS will only work for specific routes
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTE_LABELS=router=router1 |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
+    When I run the :create_route_edge client command with:
+      | name | route-edge |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
+      | service | service-unsecure |
+      | cert | route_edge-www.edge.com.crt |
+      | key | route_edge-www.edge.com.key |
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    Then the output should not contain "Hello-OpenShift"
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -s |
+      | --resolve |
+      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -k |
+    Then the step should succeed
+    And the output should not contain "Hello-OpenShift"
+
+    When I run the :label client command with:
+      | resource | route |
+      | name | service-unsecure |
+      | key_val | router=router1 |
+    Then the step should succeed
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    Then the output should contain "Hello-OpenShift"
+    When I run the :label client command with:
+      | resource | route |
+      | name | route-edge |
+      | key_val | router=router1 |
+    Then the step should succeed
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -s |
+      | --resolve |
+      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
