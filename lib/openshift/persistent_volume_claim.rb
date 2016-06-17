@@ -3,7 +3,7 @@ require 'openshift/project_resource'
 module CucuShift
   # represents an OpenShift PersistentVolumeClaim (pvc for short)
   class PersistentVolumeClaim < ProjectResource
-    STATUSES = [:bound, :failed, :pending]
+    STATUSES = [:bound, :failed, :pending, :lost]
     RESOURCE = "persistentvolumeclaims"
 
     # cache some usualy immutable properties for later fast use; do not cache
