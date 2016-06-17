@@ -187,7 +187,7 @@ module CucuShift
           end
         }
       }
-      get_props.call(rules[:props] || [], false)
+      get_props.call(rules[:properties] || [], false)
       get_props.call(rules[:optional_properties] || [], true)
 
       result[:success] = success
