@@ -834,3 +834,47 @@ Feature: Quota related scenarios
       | secrets\\s+9\\s+15                |
       | services\\s+0\\s+10               |
     """
+
+  # @author qwang@redhat.com
+  # @case_id 519920
+  @admin
+  Scenario: The current quota usage is calculated ASAP when adding a quota
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    When  I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu\\s+0\\s+30                    |
+      | memory\\s+0\\s+16Gi               |
+      | persistentvolumeclaims\\s+0\\s+20 |
+      | pods\\s+0\\s+20                   |
+      | replicationcontrollers\\s+0\\s+30 |
+      | resourcequotas\\s+1\\s+1          |
+      | secrets\\s+9\\s+15                |
+      | services\\s+0\\s+10               |
+    # Add correct quota
+    When I run the :patch admin command with:
+      | resource      | quota                          |
+      | resource_name | myquota                        |
+      | namespace     | <%= project.name %>            |
+      | p             | {"spec":{"hard":{"cpu":"31","memory":"20Gi","persistentvolumeclaims":"30","pods":"50","replicationcontrollers":"10","resourcequotas":"2","secrets":"20","services":"30"}}} |
+    Then the step should succeed
+    And I wait up to 5 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu\\s+0\\s+31                    |
+      | memory\\s+0\\s+20Gi               |
+      | persistentvolumeclaims\\s+0\\s+30 |
+      | pods\\s+0\\s+50                   |
+      | replicationcontrollers\\s+0\\s+10 |
+      | resourcequotas\\s+1\\s+2          |
+      | secrets\\s+9\\s+20                |
+      | services\\s+0\\s+30               |
+    """
