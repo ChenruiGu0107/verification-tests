@@ -142,3 +142,20 @@ Feature: Dynamic provisioning
 
     Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 1200 seconds
+
+  # @author lxia@redhat.com
+  # @case_id 519501
+  @admin
+  Scenario: Check only one pv created for one pvc for dynamic provisioner
+    Given I have a project
+    And I run the steps 100 times:
+    """
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-ERB.json
+    Then the step should succeed
+    """
+    Given 100 PVCs become :bound within 600 seconds with labels:
+      | name=dynamic-pvc-<%= project.name %> |
+    When I run the :get admin command with:
+      | resource | pv |
+    Then the output should contain 100 times:
+      | <%= project.name %> |
