@@ -155,6 +155,7 @@ Feature: quickstarts.feature
       | lang_old   | lang_new   | db_version_old | db_version_new | template               | name                     | repo      |
       | python:3.4 | python:2.7 |                |                | django.json            | django-example           | django-ex |
       | python:3.4 | python:3.3 |                |                | django.json            | django-example           | django-ex |
+      | python:3.4 | python:3.5 |                |                | django.json            | django-example           | django-ex |
       | python:3.4 | python:2.7 | postgresql:9.4 | postgresql:9.2 | django-postgresql.json | django-psql-example      | django-ex |
       | python:3.4 | python:3.3 | postgresql:9.4 | postgresql:9.2 | django-postgresql.json | django-psql-example      | django-ex |
       | python:3.4 | python:3.5 | postgresql:9.4 | postgresql:9.5 | django-postgresql.json | django-psql-example      | django-ex |
