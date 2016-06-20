@@ -119,7 +119,7 @@ Feature: Configuration of environment variables check
       | test8=\$\$\$\$\$\$\$\(zzhao\)   |
 
   # @author cryan@redhat.com haowang@redhat.com
-  # @case_id 521464 521463
+  # @case_id 521464 521463 529329
   Scenario Outline: Users can override the the env tuned by ruby base image
     Given I have a project
     When I run the :new_app client command with:
@@ -138,8 +138,8 @@ Feature: Configuration of environment variables check
       | Min threads: 1     |
       | max threads: 14    |
       | Process workers: 5 |
-
     Examples:
-      | imagestream |
+      | imagestream        |
       | openshift/ruby:2.0 |
       | openshift/ruby:2.2 |
+      | openshift/ruby:2.3 |
