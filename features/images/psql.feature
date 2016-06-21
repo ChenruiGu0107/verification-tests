@@ -1,7 +1,7 @@
 Feature: Postgresql images test
 
   # @author wewang@redhat.com
-  # @case_id 508090 501060
+  # @case_id 508090 501060 529317
   Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for ephemeral storage - psql92 and psql94
     Given I have a project
     When I run the :new_app client command with:
@@ -53,11 +53,12 @@ Feature: Postgresql images test
       | relation "tbl" does not exist |
     Examples:
       | file_name                     |
-      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-ephemeral-template.json  |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-92-ephemeral-template.json  |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-94-ephemeral-template.json  |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-95-ephemeral-template.json  |
 
   # @author wewang@redhat.com
-  # @case_id 501057  508089
+  # @case_id 501057  508089 529331
   Scenario Outline: Verify clustered postgresql can be connect after change admin and user password and redeployment with persistent storage-psql92 and psql94
     Given I have a project
     And I download a file from "<file>"
@@ -158,9 +159,10 @@ Feature: Postgresql images test
       | file                     |   org_image    |  new_image | template|
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  | openshift/postgresql-92-centos7  | rhscl/postgresql-94-rhel7 | postgresql_replica.json |
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  | openshift/postgresql-92-centos7  | openshift3/postgresql-92-rhel7 | postgresql_replica.json |
+      |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  | openshift/postgresql-92-centos7  | rhscl/postgresql-95-rhel7 | postgresql_replica.json |
 
   # wewang@redhat.com
-  # @case_id 508092  519475
+  # @case_id 508092  519475  529319
   Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for persistent storage-psql92 and psql94
     Given I have a project
     And I download a file from "<file>"
@@ -227,4 +229,5 @@ Feature: Postgresql images test
       | file | image| new_image | template|
       | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:latest  | postgresql:9.4 | postgresql-persistent-template.json |
       | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:latest  | postgresql:9.2 | postgresql-persistent-template.json |
+      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:latest  | postgresql:9.5 | postgresql-persistent-template.json |
 
