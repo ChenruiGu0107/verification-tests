@@ -45,19 +45,7 @@ Feature: GCE Persistent Volume
   @admin
   Scenario: GCE persistent disk with RWO access mode and Default policy
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany                   |
-      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
-    Then the step should succeed
-    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['gcePersistentDisk']['pdName']` is stored in the :gcepd clipboard
+    And I have a 1 GB volume and save volume id in the :gcepd clipboard
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-default-rwo.json" where:
       | ["metadata"]["name"]                      | pv-gce-<%= project.name %> |
@@ -98,19 +86,7 @@ Feature: GCE Persistent Volume
   @admin
   Scenario: Create an GCE PD volume with RWO accessmode and Delete policy
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany                   |
-      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
-    Then the step should succeed
-    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['gcePersistentDisk']['pdName']` is stored in the :gcepd clipboard
+    And I have a 1 GB volume and save volume id in the :gcepd clipboard
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-default-rwo.json" where:
       | ["metadata"]["name"]                      | gce-<%= project.name %> |
@@ -153,19 +129,7 @@ Feature: GCE Persistent Volume
   @destructive
   Scenario: [origin_infra_20] gce pd volume security testing
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany                   |
-      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
-    Then the step should succeed
-    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['gcePersistentDisk']['pdName']` is stored in the :gcepd clipboard
+    And I have a 1 GB volume and save volume id in the :gcepd clipboard
 
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
