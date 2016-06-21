@@ -24,19 +24,42 @@ Feature: Regression testing cases
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
-    Given the pod named "mypod-<%= project.name %>" becomes ready
+    And the pod named "mypod-<%= project.name %>" becomes ready
 
     # Now delete PVC
-    Given I run the :delete client command with:
+    When I run the :delete client command with:
       | object_type       | pvc                      |
       | object_name_or_id | nfsc-<%= project.name %> |
-    When I run the :get client command with:
-      | resource | pod/mypod-<%= project.name %> |
-    Then the output should contain:
-      | Running |
+    Then the step should succeed
+
+    # Test deleting dynamic PVC
+    Given I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce                   |
+      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
+    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
+      | ["metadata"]["name"]                                         | dynamic-<%= project.name %>     |
+    Then the step should succeed
+    And the pod named "dynamic-<%= project.name %>" becomes ready
+
+    When I run the :delete client command with:
+      | object_type       | pvc                             |
+      | object_name_or_id | dynamic-pvc-<%= project.name %> |
+    Then the step should succeed
 
     # New pods should be scheduled and ready
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
     And the pod named "hello-openshift" becomes ready
+
+    # Verify all pods are running
+    When I run the :get client command with:
+      | resource | pods |
+
+    # Counting nfs-server pod, should match 4 times
+    Then the output should contain 4 times:
+      | Running |
