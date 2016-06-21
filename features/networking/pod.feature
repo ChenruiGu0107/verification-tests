@@ -1,4 +1,4 @@
-Feature: Service related networking scenarios
+Feature: Pod related networking scenarios
   # @author bmeng@redhat.com
   # @case_id 514976
   @admin
@@ -31,3 +31,22 @@ Feature: Service related networking scenarios
       | docker exec test-container curl -sIL www.redhat.com |
     Then the step should succeed
     And the output should contain "HTTP/1.1 200 OK"
+
+  # @author bmeng@redhat.com
+  # @case_id 528320
+  Scenario: The Completed/Failed pod should not run into TeardownNetworkError
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/completed-pod.json |
+    Then the step should succeed
+    Given the pod named "completed-pod" status becomes :succeeded
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/failed-pod.json |
+    Then the step should succeed
+    Given the pod named "fail-pod" status becomes :failed
+    When I run the :describe client command with:
+      | resource | pod |
+      | name | completed-pod |
+      | name | fail-pod |
+    Then the step should succeed
+    And the output should not contain "TeardownNetworkError"
