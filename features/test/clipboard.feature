@@ -5,3 +5,8 @@ Feature: Clipboard testing scenarios
     Given a random string of type :dns is stored into the :dns_rand clipboard
     Then the expression should be true> cb.tmp.size == 5
     Then the expression should be true> cb.dns_rand.size == 8
+
+  @admin
+  Scenario: create volume and save id into clipboard
+    Given I have a project
+    And I have a 1 GB volume and save volume id in the :volume_id clipboard

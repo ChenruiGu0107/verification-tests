@@ -4,30 +4,16 @@ Feature: Cinder Persistent Volume
   @admin
   Scenario: Persistent Volume with cinder volume plugin
     Given I have a project
-
-    #Create a dynamic volume to obtain the volume id
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | cinder-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                        |
-    Then the step should succeed
-    Given the "cinder-<%= project.name %>" PVC becomes :bound
-
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['cinder']['volumeID']` is stored in the :vid clipboard
+    And I have a 1 GB volume and save volume id in the :vid clipboard
 
     #create test pod
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/cinder-pod.yaml" replacing paths:
-      | ['spec']['volumes'][0]['cinder']['volumeID'] | <%= cb.vid %> | 
+      | ['spec']['volumes'][0]['cinder']['volumeID'] | <%= cb.vid %> |
     Then the step should succeed
     And the pod named "cinder" becomes ready
-    
+
     #create test file
     Given I execute on the "cinder" pod:
       | touch | /mnt/cinderfile |
@@ -35,36 +21,22 @@ Feature: Cinder Persistent Volume
     When I execute on the "cinder" pod:
       | ls | -l | /mnt/cinderfile |
     Then the step should succeed
-    
+
   # @author wehe@redhat.com
-  # @case_id 511819 
+  # @case_id 511819
   @admin
-  Scenario: Cinder volume security testing 
+  Scenario: Cinder volume security testing
     Given I have a project
-
-    #Create a dynamic volume to obtain the volume id
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | cinder-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                        |
-    Then the step should succeed
-    Given the "cinder-<%= project.name %>" PVC becomes :bound
-
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['cinder']['volumeID']` is stored in the :vid clipboard
+    And I have a 1 GB volume and save volume id in the :vid clipboard
 
     #create test pod
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/security/cinder-selinux-fsgroup-test.json" replacing paths:
-      | ['spec']['volumes'][0]['cinder']['volumeID'] | <%= cb.vid %> | 
+      | ['spec']['volumes'][0]['cinder']['volumeID'] | <%= cb.vid %> |
     Then the step should succeed
     And the pod named "cinderpd" becomes ready
-    
+
     # Verify uid and gid are correct
     When I execute on the "cinderpd" pod:
       | id | -u |
@@ -91,14 +63,14 @@ Feature: Cinder Persistent Volume
       | ls | -l | /mnt/cinder/cindertestf1 |
     Then the output should contain:
       | 123456 |
-    
-    #Recreate a pod with 
+
+    #Recreate a pod with
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/security/cinder-privileged.json" replacing paths:
       | ["metadata"]["name"]                         | cinderpd1     |
-      | ['spec']['volumes'][0]['cinder']['volumeID'] | <%= cb.vid %> | 
+      | ['spec']['volumes'][0]['cinder']['volumeID'] | <%= cb.vid %> |
     Then the step should succeed
     And the pod named "cinderpd1" becomes ready
-    
+
     # Verify uid and gid are correct
     When I execute on the "cinderpd1" pod:
       | id | -G |
@@ -123,26 +95,12 @@ Feature: Cinder Persistent Volume
       | 123456 |
 
   # @author wehe@redhat.com
-  # @case_id 522393 
+  # @case_id 522393
   @admin
   Scenario: Create a cinder volume with RWO access mode and Delete policy
     Given I have a project
+    And I have a 1 GB volume and save volume id in the :vid clipboard
 
-    #Create a dynamic volume to obtain the volume id
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | cinder-<%= project.name %> |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                        |
-    Then the step should succeed
-    Given the "cinder-<%= project.name %>" PVC becomes :bound
-
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['cinder']['volumeID']` is stored in the :vid clipboard
-    
     #Creat the pv using the volume id
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pv-rwo-delete.json" where:
       | ["metadata"]["name"]                      | cin-<%= project.name %> |
