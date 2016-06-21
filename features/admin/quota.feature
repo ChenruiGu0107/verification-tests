@@ -85,13 +85,15 @@ Feature: Quota related scenarios
     And the output should contain:
       | spec.containers[0].resources.limits[cpu]: Invalid value: "500m": must be greater than or equal to request     |
       | spec.containers[0].resources.limits[memory]: Invalid value: "256Mi": must be greater than or equal to request |
-    And I wait for the steps to pass
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :describe client command with:
       | resource | quota   |
       | name     | myquota |
     Then the output should match:
       | cpu\\s+0\\s+30      |
       | memory\\s+0\\s+16Gi |
+    """
 
   # @author qwang@redhat.com
   # @case_id 509094
