@@ -10,3 +10,14 @@ Feature: Clipboard testing scenarios
   Scenario: create volume and save id into clipboard
     Given I have a project
     And I have a 1 GB volume and save volume id in the :volume_id clipboard
+
+  @admin
+  Scenario: save volumed id from resource to clipboard
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | dynamic-pvc1-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce                    |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                              |
+    Then the step should succeed
+    And the "dynamic-pvc1-<%= project.name %>" PVC becomes :bound
+    And I save volume id from PV named "<%= pvc.volume_name(user: admin, cached: true) %>" in the :volumeID clipboard

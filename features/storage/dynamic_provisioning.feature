@@ -3,7 +3,19 @@ Feature: Dynamic provisioning
   # @case_id 510362 508987 510359
   @admin
   Scenario: dynamic provisioning
-    Given I have a project
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    When I run the :oadm_new_project admin command with:
+      | project_name  | <%= cb.proj_name %>         |
+      | node_selector | <%= cb.proj_name %>=dynamic |
+      | admin         | <%= user.name %>            |
+    Then the step should succeed
+
+    Given I store the schedulable nodes in the :nodes clipboard
+    And label "<%= cb.proj_name %>=dynamic" is added to the "<%= cb.nodes[0].name %>" node
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= cb.proj_name %>" project
+
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce                    |
@@ -56,6 +68,10 @@ Feature: Dynamic provisioning
     And the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name3 clipboard
 
+    And I save volume id from PV named "<%= cb.pv_name1 %>" in the :volumeID1 clipboard
+    And I save volume id from PV named "<%= cb.pv_name2 %>" in the :volumeID2 clipboard
+    And I save volume id from PV named "<%= cb.pv_name3 %>" in the :volumeID3 clipboard
+
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc1-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod1-<%= project.name %>       |
@@ -94,6 +110,18 @@ Feature: Dynamic provisioning
     Then I wait for the resource "pv" named "<%= cb.pv_name1 %>" to disappear within 1200 seconds
     And I wait for the resource "pv" named "<%= cb.pv_name2 %>" to disappear within 1200 seconds
     And I wait for the resource "pv" named "<%= cb.pv_name3 %>" to disappear within 1200 seconds
+
+    Given I use the "<%= cb.nodes[0].name %>" node
+    When I run commands on the host:
+      | mount |
+    Then the step should succeed
+    And the output should not contain:
+      | <%= cb.pv_name1 %> |
+      | <%= cb.pv_name2 %> |
+      | <%= cb.pv_name3 %> |
+      | <%= cb.volumeID1 %> |
+      | <%= cb.volumeID2 %> |
+      | <%= cb.volumeID3 %> |
 
   # @author lxia@redhat.com
   # @case_id 528853
