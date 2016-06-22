@@ -97,3 +97,48 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | systemctl status atomic-openshift-node |
     Then the output should contain "active (running)"
+
+
+  # @author yadu@redhat.com
+  # @case_id 517334
+  @admin
+  @destructive
+  Scenario:  bridge-nf-call-iptables should be disable on node
+    Given I select a random node's host
+    And system verification steps are used:
+    """
+    When I run commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 |
+    Then the step should succeed
+    And the output should contain "actions=note"
+    When I run commands on the host:
+      | sysctl -a \| grep bridge.*iptables |
+    Then the step should succeed
+    Then the output should contain "net.bridge.bridge-nf-call-iptables = 0"
+    """
+    Given the node service is restarted on the host after scenario
+    And I register clean-up steps:
+    """
+    When I run commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+    Then the step should succeed
+    """
+    When I run commands on the host:
+      | systemctl stop atomic-openshift-node |
+    Then the step should succeed
+    When I run commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+    Then the step should succeed
+    When I run commands on the host:
+      | sysctl -w net.bridge.bridge-nf-call-iptables=1 |
+    Then the step should succeed
+    When I run commands on the host:
+      | systemctl start atomic-openshift-node |
+    Then the step should succeed
+    When I run commands on the host:
+      | systemctl status atomic-openshift-node |
+    Then the output should contain "active (running)"
+    And I run commands on the host: 
+      | sysctl -a \| grep bridge.*iptables |
+    Then the step should succeed
+    Then the output should contain "net.bridge.bridge-nf-call-iptables = 0"
