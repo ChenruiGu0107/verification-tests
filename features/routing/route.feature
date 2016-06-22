@@ -263,8 +263,14 @@ Feature: Testing route
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
+      | -c | 
+      | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
-
+    When I execute on the "<%= pod.name %>" pod:
+      | cat |
+      | /tmp/cookie.txt |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
 
   # @author bmeng@redhat.com
   # @case_id 470716
@@ -345,8 +351,14 @@ Feature: Testing route
       | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
+      | -c |
+      | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
-
+    When I execute on the "<%= pod.name %>" pod:
+      | cat |
+      | /tmp/cookie.txt |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
 
   # @author zzhao@redhat.com cryan@redhat.com
   # @case_id 470736
@@ -389,7 +401,6 @@ Feature: Testing route
   # @case_id 470735
   Scenario: The path specified in route can work well for edge terminated
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -397,42 +408,30 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
 
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
-    Given I execute on the "<%= pod.name %>" pod:
-      | wget |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | -O |
-      | /tmp/ca.pem |
-    Then the step should succeed
+    Given I have a pod-for-ping in the project
     When I run the :create_route_edge client command with:
       | name | edge-route |
-      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
       | service | service-unsecure |
-      | cert | route_edge-www.edge.com.crt |
-      | key | route_edge-www.edge.com.key |
       | path| /test |
     Then the step should succeed
     When I execute on the "<%= pod.name %>" pod:
       | curl |
-      | --resolve |
-      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/test/ |
-      | --cacert |
-      | /tmp/ca.pem |
+      | -c |
+      | /tmp/cookie.txt |
+      | -k |
     Then the output should contain "Hello-OpenShift-Path-Test"
     When I execute on the "<%= pod.name %>" pod:
       | curl |
-      | --resolve |
-      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
-      | --cacert |
-      | /tmp/ca.pem |
+      | -k |
     Then the output should contain "Application is not available"
+    When I execute on the "<%= pod.name %>" pod:
+      | cat | 
+      | /tmp/cookie.txt |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
 
   # @author zzhao@redhat.com
   # @case_id 498581
@@ -600,3 +599,30 @@ Feature: Testing route
       | Hello-OpenShift |
       | HTTP/1.1 302 Found |
       | Location: https:// |
+
+
+  # @author zzhao@redhat.com
+  # @case_id 520311
+  Scenario: Cookie name should not use openshift prefix
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | <%= route.dns(by: user) %> |
+      | -c |
+      | /tmp/cookie |
+    Then the output should contain "Hello-OpenShift"
+    And I execute on the "<%= pod.name %>" pod:
+      | cat | 
+      | /tmp/cookie |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
