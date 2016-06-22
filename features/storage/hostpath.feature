@@ -28,8 +28,8 @@ Feature: Storage of Hostpath plugin testing
     And I use the "<%= cb.proj_name %>" project
     #Create PV with RWO accessmode and Retain Policy
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/local-retain.yaml" where:
-      | ["metadata"]["name"]         | local-<%= cb.proj_name %> |
-      | ["spec"]["hostPath"]["path"] | /etc/origin/<%= cb.hostpath %>  |
+      | ["metadata"]["name"]         | local-<%= cb.proj_name %>      |
+      | ["spec"]["hostPath"]["path"] | /etc/origin/<%= cb.hostpath %> |
     Then the step should succeed
 
     When I use the "<%= cb.proj_name %>" project
@@ -40,8 +40,8 @@ Feature: Storage of Hostpath plugin testing
     And the "localc-<%= cb.proj_name %>" PVC becomes bound to the "local-<%= cb.proj_name %>" PV
 
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                    | localpd-<%= cb.proj_name %> |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | localc-<%= cb.proj_name %> |
+      | ["metadata"]["name"]                                         | localpd-<%= cb.proj_name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | localc-<%= cb.proj_name %>  |
     Then the step should succeed
 
     Given the pod named "localpd-<%= cb.proj_name %>" becomes ready
@@ -50,19 +50,19 @@ Feature: Storage of Hostpath plugin testing
     Then the step should succeed
 
     When I run the :delete client command with:
-      | object_type | pods |
-      | object_name_or_id     | localpd-<%= cb.proj_name %> |
+      | object_type       | pods                        |
+      | object_name_or_id | localpd-<%= cb.proj_name %> |
     Then the step should succeed
 
     Then I run the :delete client command with:
-      | object_type | pvc |
-      | object_name_or_id     | localc-<%= cb.proj_name %> |
+      | object_type       | pvc                        |
+      | object_name_or_id | localc-<%= cb.proj_name %> |
     Then the step should succeed
     And the "local-<%= cb.proj_name %>" PV becomes :released
 
     Given I use the "<%= cb.nodes[0].name %>" node
     Given I run commands on the host:
-      | ls | /etc/origin/<%= cb.hostpath %> |
+      | ls /etc/origin/<%= cb.hostpath %> |
     Then the outputs should contain:
       | test |
 
@@ -94,8 +94,8 @@ Feature: Storage of Hostpath plugin testing
 
     #Create PV with ROX accessmode and Default Policy
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/local.yaml" where:
-      | ["metadata"]["name"]    | local-<%= cb.proj_name %>      |
-      | ["spec"]["hostPath"]["path"]    |  /etc/origin/<%= cb.hostpath %> |
+      | ["metadata"]["name"]         | local-<%= cb.proj_name %>      |
+      | ["spec"]["hostPath"]["path"] | /etc/origin/<%= cb.hostpath %> |
     Then the step should succeed
 
     When I use the "<%= cb.proj_name %>" project
@@ -106,8 +106,8 @@ Feature: Storage of Hostpath plugin testing
     And the "localc-<%= cb.proj_name %>" PVC becomes bound to the "local-<%= cb.proj_name %>" PV
 
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                    | localpd-<%= cb.proj_name %> |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | localc-<%= cb.proj_name %> |
+      | ["metadata"]["name"]                                         | localpd-<%= cb.proj_name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | localc-<%= cb.proj_name %>  |
     Then the step should succeed
 
     Given the pod named "localpd-<%= cb.proj_name %>" becomes ready
@@ -128,7 +128,7 @@ Feature: Storage of Hostpath plugin testing
 
     Given I use the "<%= cb.nodes[0].name %>" node
     Given I run commands on the host:
-      | ls | /etc/origin/<%= cb.hostpath %> |
+      | ls /etc/origin/<%= cb.hostpath %> |
     Then the outputs should contain:
       | test |
 
@@ -159,8 +159,8 @@ Feature: Storage of Hostpath plugin testing
 
     #Create PV with RWX accessmode and Recycle Policy
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/pv-rwx-recycle.yaml" where:
-      | ["metadata"]["name"]         | local-<%= cb.proj_name %> |
-      | ["spec"]["hostPath"]["path"] | /etc/origin/<%= cb.hostpath %>  |
+      | ["metadata"]["name"]         | local-<%= cb.proj_name %>      |
+      | ["spec"]["hostPath"]["path"] | /etc/origin/<%= cb.hostpath %> |
     Then the step should succeed
 
     When I use the "<%= cb.proj_name %>" project
@@ -171,8 +171,8 @@ Feature: Storage of Hostpath plugin testing
     And the "localc-<%= cb.proj_name %>" PVC becomes bound to the "local-<%= cb.proj_name %>" PV
 
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                    | localpd-<%= cb.proj_name %> |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | localc-<%= cb.proj_name %> |
+      | ["metadata"]["name"]                                         | localpd-<%= cb.proj_name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | localc-<%= cb.proj_name %>  |
     Then the step should succeed
 
     Given the pod named "localpd-<%= cb.proj_name %>" becomes ready
@@ -193,5 +193,5 @@ Feature: Storage of Hostpath plugin testing
 
     Given I use the "<%= cb.nodes[0].name %>" node
     Given I run commands on the host:
-      | ls | /etc/origin/<%= cb.hostpath %>/test |
+      | ls /etc/origin/<%= cb.hostpath %>/test |
     Then the step should fail
