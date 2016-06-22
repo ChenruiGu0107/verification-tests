@@ -169,3 +169,42 @@ Feature: oc patch related scenarios
     Then the step should succeed
     And the output should contain "xxia/origin-ruby-sample"
     """
+
+  # @author xiaocwan@redhat.com
+  # @case_id 519480
+  # @bug_id 1297910
+  @admin
+  Scenario: patch operation should use patched object to check admission control
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/limits.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+
+    Given the pod named "hello-openshift" status becomes :running
+    When I run the :patch client command with:
+      | resource      | pod             |
+      | resource_name | hello-openshift |
+      | p             | {"spec":{"containers":[{"name":"hello-openshift","image":"aosqe/hello-openshift"}]}} |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource   | pod                |
+      | name       | hello-openshift    |
+    Then the step should succeed
+    And the output should match:
+      | [Ii]mage.*aosqe/hello-openshift |
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the step should succeed
+    And the output should match:
+      | STATUS\\s+RESTARTS  |
+      | [Rr]unning\\s+1     |
+    """
