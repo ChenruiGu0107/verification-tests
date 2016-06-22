@@ -222,7 +222,6 @@ Feature: Testing haproxy router
   Scenario: haproxy cookies based sticky session for edge termination routes
     #create route and service which has two endpoints
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -233,34 +232,18 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.pem"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.key"
     When I run the :create_route_edge client command with:
       | name | route-edge |
-      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
       | service | service-unsecure |
-      | cert | example_wildcard.pem |
-      | key | example_wildcard.key |
     Then the step should succeed
 
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
-    When I execute on the "<%= pod.name %>" pod:
-      | wget |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | -O |
-      | /tmp/ca.pem |
-    Then the step should succeed
+    Given I have a pod-for-ping in the project
     #access the route without cookies
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | -s |
-      | --resolve |
-      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
-      | --cacert |
-      | /tmp/ca.pem |
+      | -k |
       | -c |
       | /tmp/cookies |
     Then the step should succeed
@@ -271,11 +254,8 @@ Feature: Testing haproxy router
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | -s |
-      | --resolve |
-      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
-      | --cacert |
-      | /tmp/ca.pem |
+      | -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the expression should be true> cb.first_access != @result[:response]
@@ -286,11 +266,8 @@ Feature: Testing haproxy router
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | -s |
-      | --resolve |
-      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
-      | --cacert |
-      | /tmp/ca.pem |
+      | -k |
       | -b |
       | /tmp/cookies |
     Then the step should succeed
