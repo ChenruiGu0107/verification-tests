@@ -263,8 +263,14 @@ Feature: Testing route
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
+      | -c | 
+      | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
-
+    When I execute on the "<%= pod.name %>" pod:
+      | cat |
+      | /tmp/cookie.txt |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
 
   # @author bmeng@redhat.com
   # @case_id 470716
@@ -345,8 +351,14 @@ Feature: Testing route
       | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
+      | -c |
+      | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
-
+    When I execute on the "<%= pod.name %>" pod:
+      | cat |
+      | /tmp/cookie.txt |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
 
   # @author zzhao@redhat.com cryan@redhat.com
   # @case_id 470736
@@ -600,3 +612,30 @@ Feature: Testing route
       | Hello-OpenShift |
       | HTTP/1.1 302 Found |
       | Location: https:// |
+
+
+  # @author zzhao@redhat.com
+  # @case_id 520311
+  Scenario: Cookie name should not use openshift prefix
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | <%= route.dns(by: user) %> |
+      | -c |
+      | /tmp/cookie |
+    Then the output should contain "Hello-OpenShift"
+    And I execute on the "<%= pod.name %>" pod:
+      | cat | 
+      | /tmp/cookie |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
