@@ -150,15 +150,15 @@ Feature: AWS Persistent Volume
   # @case_id 522129
   @admin
   Scenario: [storage_201]Only one pod with AWS ebs volume can be scheduled when NoDiskConflicts policy is enabled
-    Given I store the schedulable nodes in the :nodes clipboard
-    And label "labelForTC522129=1" is added to the "<%= cb.nodes[0].name %>" node
-
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :oadm_new_project admin command with:
-      | project_name  | <%= cb.proj_name %> |
-      | node_selector | labelForTC522129=1  |
-      | admin         | <%= user.name %>    |
+      | project_name  | <%= cb.proj_name %>                   |
+      | node_selector | <%= cb.proj_name %>=labelForTC522129  |
+      | admin         | <%= user.name %>                      |
     Then the step should succeed
+
+    Given I store the schedulable nodes in the :nodes clipboard
+    And label "<%= cb.proj_name %>=labelForTC522129" is added to the "<%= cb.nodes[0].name %>" node
 
     Given I switch to cluster admin pseudo user
     And I use the "<%= cb.proj_name %>" project
