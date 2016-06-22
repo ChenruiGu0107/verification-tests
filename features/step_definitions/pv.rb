@@ -9,7 +9,7 @@ Given /^I have a(?: (\d+) GB)? volume and save volume id in the#{OPT_SYM} clipbo
     raise "No project exist"
   end
 
-  step %Q/a 8 characters random string of type :dns is stored into the :dynamic_pvc_name clipboard/
+  cb.dynamic_pvc_name = rand_str(8, :dns)
   step %Q{I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:}, table(%{
     | ["metadata"]["name"]                         | <%= project.name %>-<%= cb.dynamic_pvc_name %> |
     | ["spec"]["resources"]["requests"]["storage"] | #{size}                                        |
