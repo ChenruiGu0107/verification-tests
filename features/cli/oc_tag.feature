@@ -168,3 +168,67 @@ Feature: oc tag related scenarios
     Then the step should succeed
     Then a pod becomes ready with labels:
       | app=myapp |
+
+  # @author yanpzhan@redhat.com
+  # @case_id 528866
+  Scenario: Delete spec tags
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type  | docker                     |
+      | source       | docker.io/library/busybox:latest |
+      | dest         | mystream:v1     |
+      | dest         | mystream:latest |
+    Then the step should succeed
+
+    # Cucumber runs steps fast. Need wait for the istag so that it really can be referenced by following steps
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | istag       |
+      | resource_name | mystream:v1 |
+      | resource_name | mystream:latest |
+    Then the step should succeed
+    """
+
+    When I run the :get client command with:
+      | resource      | is   |
+      | resource_name | mystream |
+      | template      | "{{range .spec.tags}} name: {{.name}} {{end}};{{range .status.tags}} tag: {{.tag}} {{end}}" |
+    Then the step should succeed
+    And the output should contain "name: latest  name: v1 ; tag: latest  tag: v1"
+
+    When I run the :tag client command with:
+      | source | mystream:v1 |
+      | dest   | mystream:latest |
+      | d      | true      |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is   |
+      | resource_name | mystream |
+      | template      | "{{.spec}};{{range .status.tags}} tag: {{.tag}} {{end}}" |
+    Then the step should succeed
+    And the output should contain "map[]; tag: latest  tag: v1"
+
+    When I run the :tag client command with:
+      | source | mystream |
+      | dest   | mystream:v1 |
+      | dest   | mystream:latest |
+    Then the step should succeed
+    When I run the :tag client command with:
+      | source | mystream:latest |
+      | d      | true      |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is   |
+      | resource_name | mystream |
+      | template      | "{{range .spec.tags}} name: {{.name}} {{end}};{{range .status.tags}} tag: {{.tag}} {{end}}" |
+    Then the step should succeed
+    And the output should contain "name: v1 ; tag: latest  tag: v1"
+    And the output should not contain "name: latest"
+
+    When I run the :tag client command with:
+      | source | mystream:nonexist |
+      | d      | true      |
+    Then the step should fail
+    And the output should contain:
+      | error: destination tag <%= project.name%>/mystream:nonexist does not exist |
