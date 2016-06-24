@@ -1,0 +1,68 @@
+#---------check log feature--------------
+check_log_tab_on_pod_page:
+  elements:
+  - selector:
+      xpath: //uib-tab-heading[text()='Logs']
+    op: click
+  - selector:
+      xpath: //div[@class='log-status']//span[@class='ng-binding' and contains(text(),'<status>')]
+    timeout: 300
+check_log_tab_on_deployment_page:
+  elements:
+  - selector:
+      xpath: //uib-tab-heading[text()='Logs']
+    op: click
+  - selector:
+      xpath: //div[@class='log-status']/span[contains(.,'<status>')]
+    timeout: 300
+check_log_tab_on_build_page:
+  elements:
+  - selector:
+      xpath: //uib-tab-heading[text()='Logs']
+    op: click
+  - selector:
+      xpath: //div[@class='log-status']/span[contains(text(),'<status>')]
+    timeout: 300
+check_log_context:
+  elements:
+  - selector:
+      xpath: //tbody[@id='logContent']//td[contains(text(),'<log_context>')]
+    timeout: 180
+
+open_in_new_window:
+  elements:
+  - selector:
+      text: Expand
+    type: a
+    op: click
+select_a_container:
+  elements:
+  - selector:
+      xpath: //select[@id='selectLogContainer']//option[contains(text(),'<container_name>')]
+    op: click
+follow_log:
+  elements:
+  - selector:
+      xpath: //div[@class='log-view']//a/span[text()='Follow']
+    op: click
+go_to_top_log:
+  elements:
+  - selector:
+      xpath: //div[@class='log-view']//a[text()='Go to top']
+    op: click
+go_to_end_log:
+  elements:
+  - selector:
+      xpath: //div[@class='log-view']//a[text()='Go to end']
+    op: click
+open_full_view_log:
+  action: open_in_new_window
+  action: check_log_context
+check_log_context_on_deployment_page:
+  action: goto_one_deployment_page
+  action: check_log_tab_on_deployment_page
+  action: check_log_context
+check_log_context_on_pod_page:
+  action: goto_one_pod_page
+  action: check_log_tab_on_pod_page
+  action: check_log_context

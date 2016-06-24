@@ -167,3 +167,70 @@ Feature: Check deployments function
       | dc_number    | 2                      |
       | specific_deployment_selector | deployment=hooks-2 |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id 510377
+  Scenario: View deployments streaming logs
+    When I create a new project via web
+    Then the step should succeed
+
+    When I run the :run client command with:
+      | name  | mytest             |
+      | image | openshift/mysql-55-centos7:latest |
+      | env   | MYSQL_USER=test,MYSQL_PASSWORD=redhat,MYSQL_DATABASE=testdb |
+    Then the step should succeed
+
+    # Check deploy pod log
+    When I perform the :check_log_context_on_pod_page web console action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | mytest-1-deploy |
+      | status       | Running |
+      | log_context  | Deploying |
+    Then the step should succeed
+
+    And I wait until the status of deployment "mytest" becomes :complete
+    When I perform the :manually_deploy web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | mytest       |
+    Then the step should succeed
+
+    # Check deployment log
+    When I perform the :check_log_context_on_deployment_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | mytest    |
+      | dc_number    | 2         |
+      | status       | Running   |
+      | log_context  | Deploying |
+    Then the step should succeed
+
+    And I wait until the status of deployment "mytest" becomes :complete
+    Given 1 pods become ready with labels:
+      | run=mytest |
+
+    When I perform the :check_log_context_on_deployment_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | mytest    |
+      | dc_number    | 2         |
+      | status       | Deployed |
+      | log_context  | PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER |
+    Then the step should succeed
+
+    When I run the :follow_log web console action
+    Then the step should succeed
+
+    When I run the :go_to_top_log web console action
+    Then the step should succeed
+
+    When I perform the :open_full_view_log web console action with:
+      | log_context | PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER |
+    Then the step should succeed
+
+    #Compare the latest deployment log with the running pod log
+    When I run the :logs client command with:
+      | resource_name    | dc/mytest |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :output clipboard
+    When I run the :logs client command with:
+      | resource_name    | <%= pod.name %> |
+    Then the step should succeed
+    And the output should equal "<%= cb.output %>"
