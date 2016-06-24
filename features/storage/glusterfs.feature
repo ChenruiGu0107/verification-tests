@@ -68,8 +68,7 @@ Feature: Storage of GlusterFS plugin testing
       | ["spec"]["accessModes"][0] | ReadWriteOnce                   |
       | ["spec"]["volumeName"]     | pv-gluster-<%= project.name %>  |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "pvc-gluster-<%= project.name %>" PVC becomes :bound
+    And the "pvc-gluster-<%= project.name %>" PVC becomes bound to the "pv-gluster-<%= project.name %>" PV
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pod.json" replacing paths:
       | ["metadata"]["name"]                                         | mypod-<%= project.name %>        |

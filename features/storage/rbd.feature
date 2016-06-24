@@ -58,8 +58,7 @@ Feature: Storage of Ceph plugin testing
       | ["metadata"]["name"]   | pvc-rbd-<%= project.name %>       |
       | ["spec"]["volumeName"] | pv-rbd-server-<%= project.name %> |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "pvc-rbd-<%= project.name %>" PVC becomes :bound
+    And the "pvc-rbd-<%= project.name %>" PVC becomes bound to the "pv-rbd-server-<%= project.name %>" PV
 
     # Create tester pod
     Given I switch to cluster admin pseudo user

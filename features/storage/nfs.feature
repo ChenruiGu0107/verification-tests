@@ -20,8 +20,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0]| ReadWriteMany         |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "nfsc-<%= project.name %>" PVC becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
@@ -65,8 +64,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0]| ReadWriteOnce         |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "nfsc-<%= project.name %>" PVC becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
@@ -119,8 +117,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0]| ReadOnlyMany          |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "nfsc-<%= project.name %>" PVC becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
@@ -173,8 +170,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0]| ReadWriteMany         |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "nfsc-<%= project.name %>" PVC becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
@@ -303,8 +299,7 @@ Feature: NFS Persistent Volume
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "nfsc-<%= project.name %>" PVC becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
     When I run the :delete client command with:
       | object_type       | pvc                      |
