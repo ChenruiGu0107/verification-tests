@@ -258,4 +258,4 @@ Feature: Webhook REST Related Tests
     And the "ruby-hello-world-1" build finished
     When I run the :logs client command with:
       | resource_name | pod/ruby-hello-world-1-build |
-    And the output should contain "sh: No such file or directory" 
+    And the output should contain "/bin/sh: No such file or directory" 
