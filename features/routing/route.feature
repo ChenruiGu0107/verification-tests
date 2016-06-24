@@ -271,7 +271,7 @@ Feature: Testing route
       | /tmp/cookie.txt |
     Then the step should succeed
     And the output should not contain "OPENSHIFT"
-    And the output should not match "d+\.\d+\.\d+\.\d+"
+    And the output should not match "\d+\.\d+\.\d+\.\d+"
 
   # @author bmeng@redhat.com
   # @case_id 470716
@@ -360,7 +360,7 @@ Feature: Testing route
       | /tmp/cookie.txt |
     Then the step should succeed
     And the output should not contain "OPENSHIFT"
-    And the output should not match "d+\.\d+\.\d+\.\d+"
+    And the output should not match "\d+\.\d+\.\d+\.\d+"
 
   # @author zzhao@redhat.com cryan@redhat.com
   # @case_id 470736
@@ -434,7 +434,7 @@ Feature: Testing route
       | /tmp/cookie.txt |
     Then the step should succeed
     And the output should not contain "OPENSHIFT"
-    And the output should not match "d+\.\d+\.\d+\.\d+"
+    And the output should not match "\d+\.\d+\.\d+\.\d+"
 
   # @author zzhao@redhat.com
   # @case_id 498581
@@ -629,4 +629,4 @@ Feature: Testing route
       | /tmp/cookie |
     Then the step should succeed
     And the output should not contain "OPENSHIFT"
-    And the output should not match "d+\.\d+\.\d+\.\d+"
+    And the output should not match "\d+\.\d+\.\d+\.\d+"
