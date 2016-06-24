@@ -279,3 +279,31 @@ Feature: remote registry related scenarios
       |              |
 
 
+  # @author yinzhou@redhat.com
+  # @case_id 481699
+  @admin
+  Scenario: Tracking tags with imageStream spec.tag
+    Given I have a project
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/busybox.json |
+    Then the step should succeed
+    And the "busybox" image stream was created
+    When I run commands on the host:
+      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    Then the step should succeed
+    And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/busybox:2.0"` is stored in the :my_tag clipboard
+    When I run commands on the host:
+      | docker pull busybox                 |
+      | docker tag busybox <%= cb.my_tag %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.my_tag %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is |
+      | resource_name | busybox |
+      | o             | yaml |
+    And the output is parsed as YAML
+    Then the expression should be true> @result[:parsed]['status']['tags'][0]['items'][0]['dockerImageReference'] == @result[:parsed]['status']['tags'][1]['items'][0]['dockerImageReference']
