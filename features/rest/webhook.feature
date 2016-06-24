@@ -243,7 +243,7 @@ Feature: Webhook REST Related Tests
   Scenario: Do sti build using image without tar and onbuild instruction should build successfully
     Given I have a project
     When I run the :new_app client command with:
-      | docker image | docker.io/uptoknow/ruby-20-centos7:notar~https://github.com/openshift/ruby-hello-world.git |
+      | docker image | docker.io/aosqe/rubyonbuild:notar~https://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
@@ -253,7 +253,7 @@ Feature: Webhook REST Related Tests
   Scenario: Do sti build using image with onbuild instructions and without sh should build failed
     Given I have a project
     When I run the :new_app client command with:
-      | docker image | docker.io/dyan/rubyonbuild:nosh~https://github.com/openshift/ruby-hello-world.git |
+      | docker image | docker.io/aosqe/rubyonbuild:nosh~https://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
     And I run the :logs client command with:
       | resource_name | pod/ruby-hello-world-1-build |
