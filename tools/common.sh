@@ -13,39 +13,41 @@ function setup_git()
 
 function install_rvm_ruby()
 {
-  echo "not implemented, please install ruby 2.2.2+ manually"
-  # see http://10.66.129.213/index.php/archives/372/ for RHEL notes
-  return 1
+    # see http://10.66.129.213/index.php/archives/372/ for RHEL notes
+    gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+    curl -sSL https://get.rvm.io | bash -s stable --ruby
+    source /usr/local/rvm/scripts/rvm
 }
 #################################################
 ############ system-wide functions ##############
 #################################################
 
-# Prints operating system 
+# Prints operating system
 function os_type()
 {
-    if [ -f /etc/issue ]; then
-        if cat /etc/issue | grep -iq 'fedora'; then
-          version=`sed -rn 's/^.*edora release ([0-9]+) .*$/\1/p' < /etc/issue`
+    if [ -f /etc/os-release ]; then
+       if cat /etc/os-release | grep -iq 'ID=fedora'; then
+          version=`sed -rn 's/^VERSION_ID=([0-9]+)$/\1/p' < /etc/os-release`
           if [ $version -ge 22 ]; then
-            echo fedora22 ; return 0
+            echo fedora_dnf; return 0
           else
             echo fedora ; return 0
           fi
         fi
-        cat /etc/issue | grep -i 'debian' >/dev/null && { echo "debian"; return 0; }
-        cat /etc/issue | grep -i 'ubuntu' >/dev/null && { echo "ubuntu"; return 0; }
-        cat /etc/issue | grep -i 'Red Hat Enterprise Linux Server release 7' >/dev/null && { echo "rhel7"; return 0; }
-        cat /etc/issue | grep -i 'Red Hat Enterprise Linux Server release 6' >/dev/null && { echo "rhel6"; return 0; }
-        cat /etc/issue | grep -i 'mint' >/dev/null && { echo "mint"; return 0; }
+        cat /etc/os-release | grep -i -q 'debian' && { echo "debian"; return 0; }
+        cat /etc/os-release | grep -i -q 'ubuntu' && { echo "ubuntu"; return 0; }
+        cat /etc/os-release | grep -i -q "Red Hat .* 7" && { echo "rhel7"; return 0; }
+        cat /etc/os-release | grep -i -q "Red Hat .* 6" && { echo "rhel6"; return 0; }
+        cat /etc/os-release | grep -i -q 'mint' && { echo "mint"; return 0; }
     fi
     echo 'ERROR: Unsupported OS type'
+    return 1
 }
 
 # Will return the method of installing system packages: DEB/YUM
 function os_pkg_method()
 {
-  if [ "$(os_type)" == "fedora22" ]; then
+  if [ "$(os_type)" == "fedora_dnf" ]; then
     echo DNF
   elif [ "$(os_type)" == "fedora" ] || [[ "$(os_type)" =~ "rhel" ]]; then
     echo "YUM"
