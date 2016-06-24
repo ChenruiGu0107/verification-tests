@@ -255,6 +255,7 @@ Feature: Webhook REST Related Tests
     When I run the :new_app client command with:
       | docker image | docker.io/aosqe/rubyonbuild:nosh~https://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
-    And I run the :logs client command with:
+    And the "ruby-hello-world-1" build finished
+    When I run the :logs client command with:
       | resource_name | pod/ruby-hello-world-1-build |
     And the output should contain "sh: No such file or directory" 
