@@ -226,3 +226,35 @@ Feature: Webhook REST Related Tests
       | name     | ruby22-sample-build-2-build |
     Then the step should succeed
     And the output should contain "sample2-app"
+
+  # @author shiywang@redhat.com
+  # @case_id 525739
+  Scenario: Builder images with onbuild instructions and tar should build success
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo     | https://github.com/openshift/ruby-hello-world |
+      | docker image | docker.io/ruby:2.1-onbuild |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build finished
+
+  # @author shiywang@redhat.com
+  # @case_id 525740
+  Scenario: Do sti build using image without tar and onbuild instruction should build successfully
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker image | docker.io/uptoknow/ruby-20-centos7:notar~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completed
+
+  # @author shiywang@redhat.com
+  # @case_id 526524
+  Scenario: Do sti build using image with onbuild instructions and without sh should build failed
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker image | docker.io/dyan/rubyonbuild:nosh~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And I run the :logs client command with:
+      | resource_name | pod/ruby-hello-world-1-build |
+    And the output should contain "/bin/sh: No such file or directory" 
