@@ -241,3 +241,41 @@ Feature: remote registry related scenarios
     When I run commands on the host:
       | docker push <%= cb.my_tag %> |
     Then the step should succeed
+
+  # @author pruan@redhat.com
+  # @case_id 487929 487930
+  @admin
+  Scenario Outline: fail when retrieving an image manifest with wrong/missing credentials
+    Given I store the default registry scheme to the :registry_scheme clipboard
+    Given the etcd version is stored in the :etcd_ver clipboard
+    Given I have a project
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    When I run commands on the host:
+      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    Then the step should succeed
+    # create a short hand
+    And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/tc487929-busybox:local"` is stored in the :my_tag clipboard
+    When I run commands on the host:
+      | docker pull busybox                 |
+      | docker tag busybox <%= cb.my_tag %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.my_tag %> |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | Imagestream |
+    Then the step should succeed
+    And the output should contain:
+      | tc487929-busybox |
+    # this bug prevents us from using docker pull https://bugzilla.redhat.com/show_bug.cgi?id=1347805
+    And I run commands on the host:
+       | curl -k -u <%=user.name %>:<token>  <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v<%= cb.etcd_ver.split('.')[0] %>/<%= project.name %>/tc487929-busybox/tags/list |
+    Then the output should contain:
+      | authentication required |
+    Examples:
+      | token        |
+      | wrong_token  |
+      |              |
+
+
