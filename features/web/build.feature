@@ -125,7 +125,7 @@ Feature: build related feature on web console
     When I perform the :wait_latest_build_to_status web console action with:
       | project_name  | <%= project.name %>  |
       | bc_name       | ruby-sample-build    |
-      | build_status  | complete             |
+      | build_status  | running              |
     Then the step should succeed
     # check source repo on Configuration tab
     When I perform the :check_buildconfig_source_repo web console action with:
