@@ -236,7 +236,7 @@ Feature: Webhook REST Related Tests
       | docker image | docker.io/ruby:2.1-onbuild |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
-    And the "ruby-hello-world-1" build finished
+    And the "ruby-hello-world-1" build completed
 
   # @author shiywang@redhat.com
   # @case_id 525740
