@@ -1195,9 +1195,9 @@ Feature: build 'apps' with CLI
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
     When I execute on the "<%= pod.name %>" pod:
-      | ls |
+      | ls | -al | xiuwangs2i-2 |
     Then the step should succeed
-    And the output should contain "xiuwangs2i-2"
+    And the output should contain "tmp"
 
   # @author cryan@redhat.com
   # @case_id 521602
@@ -1444,7 +1444,7 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | source_image_path | src/:/destination-dir |
       | name | app1 |
     Then the step should fail
@@ -1452,7 +1452,7 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | source_image_path | /non-existing-source/:destination-dir  |
       | name | app2 |
     Then the step should succeed
@@ -1463,8 +1463,8 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
-      | source_image_path | /opt/openshift:Dockerfile |
+      | source_image | openshift/python:latest |
+      | source_image_path | /tmp:Dockerfile |
       | name | app3 |
     Then the step should succeed
     Given the "app3-1" build finishes
@@ -1481,14 +1481,14 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | name | app5 |
     Then the step should fail
     And the output should contain "source-image-path must be specified"
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | source_image_path ||
       | name | app6 |
     Then the step should fail
@@ -1628,9 +1628,9 @@ Feature: build 'apps' with CLI
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
     When I execute on the "<%= pod.name %>" pod:
-      | ls |
+      | ls | -al | xiuwangtest |
     Then the step should succeed
-    And the output should contain "xiuwangtest"
+    And the output should contain "tmp"
 
   # @author xiuwang@redhat.com
   # @case_id 519265
