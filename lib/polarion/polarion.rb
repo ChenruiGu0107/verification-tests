@@ -113,12 +113,11 @@ module CucuShift
                           raise_on_error: false,
                           **ssl_opts
                         )
-
       if raw[:success]
         res = cl.response(req, raw[:response])
       elsif raw[:exitstatus] == 500 && raw[:response].include?(">Not authorized.<") && login && !session_safe?
         ## possibly session has expired, try to login again
-        do_login
+        logout
         return do_request(type, op, login: true) { |b| yield(b) }
       else
         raise raw[:error]
@@ -132,22 +131,36 @@ module CucuShift
       return res
     end
 
-    def session_checkpoint!
+    private def session_checkpoint!
       @session_checkpoint = monotonic_seconds
     end
 
-    def session_checkpoint
+    private def session_checkpoint
       @session_checkpoint ||= 0
     end
 
-    def session_safe_seconds
+    private def session_safe_seconds
       opts[:session_safe_seconds] || 900
     end
 
     # @return [Boolean] true if session is safe to assume not expired
-    def session_safe?
+    private def session_safe?
       monotonic_seconds - session_checkpoint < session_safe_seconds
     end
+
+    # when API endpoint server changed by load balancer, we want to reset
+    # have to investigate when that can be an issue
+    # I never saw issues when getting WSDL files close after one another
+    #   but saw issues after some time of inactivity and then login again
+    # I guess one solution would be to download all WSDLs after login
+    # Another solution might be to save endpoint server on login and override
+    #   it on every new WSDL download.
+    # For the time being, I'll just reset cache on login and see how it goes.
+    private def reset_state
+      @wsdl_cache = nil
+      @client_cache = nil
+    end
+
 
     # login should actually perform login only if needed (no session or expired)
     # @return [String, Nokogiri::XML::NodeSet, Nokogiri::XML::Node] that is
@@ -163,6 +176,7 @@ module CucuShift
     # @return [String, Nokogiri::XML::NodeSet, Nokogiri::XML::Node] that is
     #   only SessionID header so far
     def do_login
+      reset_state
       res = do_request(SESSION, 'logIn', login: false) do |b|
         b.userName opts[:user]
         b.password opts[:password]
@@ -176,10 +190,17 @@ module CucuShift
       project.get_user(user_id: opts[:user])
     end
 
-    def logout
-      res = do_request(SESSION, 'endSession') {}
+    def self_uri
+      user_uri(opts[:user])
+    end
+
+    def logout(raise_on_error: false)
+      session_checkpoint! # make sure we don't relogin just to logout
+      return do_request(SESSION, 'endSession') {}
+    rescue
+      raise if raise_on_error
+    ensure
       @auth_header = nil
-      return res
     end
 
     def begin_transaction
@@ -201,6 +222,23 @@ module CucuShift
         b.rollback rollback
       end
     end
+
+    module UriHelpers
+      def user_uri(username)
+        "subterra:data-service:objects:/default/${User}#{username}"
+      end
+      def workitem_uri(workitem_id)
+        "subterra:data-service:objects:/default/OSE${WorkItem}#{workitem_id}"
+      end
+      def testrun_uri(testrun_id)
+        "subterra:data-service:objects:/default/OSE${TestRun}#{testrun_id}"
+      end
+      def testrun_template_uri(template_id)
+        testrun_uri(template_id)
+      end
+    end
+
+    include UriHelpers
 
     ################### GENERATE ALL METHODS #####################
     module Generated
@@ -232,6 +270,7 @@ module CucuShift
         # generate a method for each supported operation with the accepted
         #   parameters as a hash or keyword arguments; some consistency checks
         @op_map = {}
+        @snake_map = {}
         mother.send(:client, type).wsdl.operations.each do |op_name, op|
           elements = op.input.body.type.elements
           if elements.size != 1
@@ -242,26 +281,39 @@ module CucuShift
             raise "#{type}::#{op_name} no body element named #{op_name}"
           end
 
-          body_params = {}
-          elements.values[0].type.elements.keys.each do |key|
-            body_params[camel_to_snake_case(key).to_sym] = key
-          end
-          op_snake = camel_to_snake_case(op_name).to_sym
-          @op_map[op_snake] = body_params.keys
+          build_mappings(@op_map, @snake_map, elements.values[0])
+          op_snake = @snake_map.keys.last # used inside dyn.defined method proc
 
           # define method in the singleton class
           (class << self; self; end).class_eval do
             define_method(op_snake) do |**params|
-              extra_params = params.keys - body_params.keys
-              unless extra_params.empty?
-                raise "unknown polarion #{op_snake} parameters #{extra_params}"
+              do_build = proc do |builder, snake_map, params|
+                extra_params = params.keys - snake_map.keys
+                unless extra_params.empty?
+                  raise "unknown polarion param in op=#{op_snake}, subelement=#{snake_map[:camel]}, extra parameters=#{extra_params}"
+                end
+
+                params.each do |param, value|
+                  case value
+                  when Hash
+                    # untested
+                    builder.__tag__(snake_map[param][:camel]) do |b|
+                      do_build.call(b, snake_map[param][:sub], value)
+                    end
+                  when Array
+                    # untested
+                    value.each do |v|
+                      do_build.call(builder, snake_map, {param => v})
+                    end
+                  else
+                    # using internal api method as #send and #method are removed
+                    builder.__tag__(snake_map[param][:camel], value)
+                  end
+                end
               end
 
               return mother.send(:do_request, type, op_name) do |builder|
-                params.each do |param, value|
-                  # using internal api method as #send and #method are removed
-                  builder.__tag__(body_params[param], value)
-                end
+                do_build.call(builder, @snake_map[op_snake][:sub], params)
               end
             end
           end
@@ -269,6 +321,35 @@ module CucuShift
 
         (class << self; self; end).class_eval do
           define_method(:_op_map) { @op_map }
+        end
+      end
+
+      # builds element tree and operation/element snake/camel mapping
+      # @param element [LolSoap::WSDL::Element]
+      # @param type_rec [Hash] yes, we have recursive WSDL types, at least
+      #   `document` that has a `branched_from` el. from same type
+      # @return undefined
+      private def build_mappings(el_tree, snake_map, element, type_rec = {})
+        el_snake = camel_to_snake_case(element.name).to_sym
+        subelements = element.type.elements
+
+        if subelements.empty?
+          type_name = element.type.name rescue "Unknown"
+          el_tree[el_snake] = type_name
+          snake_map[el_snake] = {camel: element.name}
+        elsif type_rec.keys.include? element.type
+          el_tree[el_snake] = type_rec[element.type][:tree]
+          snake_map[el_snake] = type_rec[element.type][:snake_map]
+        else
+          el_tree[el_snake] = {}
+          snake_map[el_snake] = {camel: element.name, sub: {}}
+          type_rec[element.type] = {tree: el_tree[el_snake],
+                                    snake_map: snake_map[el_snake]}
+          subelements.keys.each do |key|
+            build_mappings(el_tree[el_snake], snake_map[el_snake][:sub], subelements[key], type_rec)
+          end
+
+          type_rec.delete(element.type)
         end
       end
     end
