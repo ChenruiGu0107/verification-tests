@@ -23,8 +23,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "nfsc-<%= project.name %>" PVC becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
     # add pvc to dc
     When I run the :volume client command with:
       | resource      | dc/mydb                 |
