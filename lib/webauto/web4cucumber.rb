@@ -434,7 +434,12 @@ require 'watir-webdriver'
 
     # return title of current page
     def title
-       browser.title
+      browser.title
+    end
+
+    # return visible text of html body
+    def text
+      browser.text
     end
 
     # @param element_list [Array] list of parametrized element type/selector
