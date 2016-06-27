@@ -63,6 +63,17 @@ module CucuShift
         # for foreground execution process command result right away
         rules_execution_result_processor.call
       end
+      # add the :parsed automatically if a user specify the output option in
+      # the the command line
+      fmt = nil
+      cmd_options.each do | k, v |
+        fmt = v if [:output, :o].include? k
+      end
+      # JSON is subset of YAML, so we cna just use YAML parser to address both
+      if ['json', 'yaml'].include? fmt
+        res[:parsed] = YAML.load(res[:response])
+      end
+
       return res
     end
 
