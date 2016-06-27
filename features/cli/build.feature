@@ -2411,3 +2411,191 @@ Feature: build 'apps' with CLI
       | cmd       |
       | new_build |
       | new_app   |
+
+  # @author haowang@redhat.com
+  # @case_id 526203
+  Scenario: Change runpolicy to parallel build
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby~https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-3" build was created
+    When the "ruby-hello-world-1" build becomes :running
+    Then the "ruby-hello-world-2" build is :new
+    Then the "ruby-hello-world-3" build is :new
+    When I run the :patch client command with:
+      | resource      | bc                                |
+      | resource_name | ruby-hello-world                  |
+      | p             | {"spec":{"runPolicy":"Parallel"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-4" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-5" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-6" build was created
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+    Then the step should succeed
+    Then the "ruby-hello-world-2" build becomes :running
+    And the "ruby-hello-world-3" build is :new
+    And the "ruby-hello-world-4" build is :new
+    And the "ruby-hello-world-5" build is :new
+    And the "ruby-hello-world-6" build is :new
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-2 |
+    Then the step should succeed
+    And the "ruby-hello-world-3" build becomes :running
+    And the "ruby-hello-world-4" build is :new
+    And the "ruby-hello-world-5" build is :new
+    And the "ruby-hello-world-6" build is :new
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-3 |
+    Then the step should succeed
+    Then the "ruby-hello-world-4" build becomes :running
+    Then the "ruby-hello-world-4" build completes
+    #Then the "ruby-hello-world-5" build becomes :running
+    Then the "ruby-hello-world-5" build status is any of:
+      | pending |
+      | running |
+    #Then the "ruby-hello-world-6" build becomes :running
+    Then the "ruby-hello-world-6" build status is any of:
+      | pending |
+      | running |
+    When I run the :patch client command with:
+      | resource      | bc                              |
+      | resource_name | ruby-hello-world                |
+      | p             | {"spec":{"runPolicy":"Serial"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-7" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-8" build was created
+    And the "ruby-hello-world-7" build is :new
+    And the "ruby-hello-world-8" build is :new
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-5 |
+    Then the step should succeed
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-6 |
+    Then the step should succeed
+    #And the "ruby-hello-world-7" build becomes :running
+    And the "ruby-hello-world-7" build status is any of:
+      | pending |
+      | running |
+    Then the "ruby-hello-world-8" build is :new
+
+  # @author haowang@redhat.com
+  # @case_id 526205
+  Scenario: Serial runPolicy for Binary builds
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby   |
+      | binary   |                  |
+      | name     | ruby-hello-world |
+    Then the step should succeed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.tar"
+    Given evaluation of `@result[:response]` is stored in the :tarfile clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | from_dir    | -                |
+      | _stdin      | <%= cb.tarfile%> |
+      | _binmode    |                  |
+    Then the step succeeded
+    And the "ruby-hello-world-1" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | from_dir    | -                |
+      | _stdin      | <%= cb.tarfile%> |
+      | _binmode    |                  |
+    Then the step succeeded
+    And the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-1" build is :complete
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | from_dir    | -                |
+      | _stdin      | <%= cb.tarfile%> |
+      | _binmode    |                  |
+    Then the step succeeded
+    And the "ruby-hello-world-3" build was created
+    And the "ruby-hello-world-2" build is :complete
+  # @author haowang@redhat.com
+  # @case_id 526202
+  Scenario: Change Parallel runpolicy to SerialLatestOnly build
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc526202/bc.json |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-2" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-3" build was created
+    And the "ruby-ex-1" build status is any of:
+      | pending |
+      | running |
+    And the "ruby-ex-2" build status is any of:
+      | pending |
+      | running |
+    And the "ruby-ex-3" build status is any of:
+      | pending |
+      | running |
+    When I run the :patch client command with:
+      | resource      | bc                                        |
+      | resource_name | ruby-ex                                   |
+      | p             | {"spec":{"runPolicy":"SerialLatestOnly"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-4" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-5" build was created
+    And the "ruby-ex-4" build was cancelled
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-6" build was created
+    And the "ruby-ex-5" build was cancelled
+    When the "ruby-ex-6" build completes
+    When I run the :patch client command with:
+      | resource      | bc                                |
+      | resource_name | ruby-ex                           |
+      | p             | {"spec":{"runPolicy":"Parallel"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-7" build status is any of:
+      | pending |
+      | running |
+    And the "ruby-ex-8" build status is any of:
+      | pending |
+      | running |

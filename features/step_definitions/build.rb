@@ -60,7 +60,15 @@ Given /^the "([^"]*)" build (becomes|is) #{SYM}$/ do |build_name, mode, status|
     end
   end
 end
-
+# the build can be any of the status in the table
+Given /^the "([^"]*)" build status is any of:$/ do |build_name, table|
+  status = table.raw.flatten
+  status.map! {|x| x.to_sym }
+  @result = build(build_name).status?(user: user, status: status)
+  unless @result[:success]
+    raise "build #{build_name} current status is not any of: #{status}"
+  end
+end
 Then(/^I save pruned builds in the "([^"]*)" project into the :([^\s]*?) clipboard$/) do |project_name, cb_name|
   project = self.project(project_name)
   # lookbehind does not support quantifiers and jruby no support of \K
