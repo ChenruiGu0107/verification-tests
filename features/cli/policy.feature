@@ -25,7 +25,7 @@ Feature: change the policy of user/service account
       | cannot list pods in project "default" |
 
   # @author xxing@redhat.com
-  # @case_id 467925
+  # @case_id 467925, 470316
   Scenario: User can view ,add, remove and modify roleBinding via admin role user
     Given I have a project
     When I run the :describe client command with:
@@ -44,6 +44,14 @@ Feature: change the policy of user/service account
     Then the output should match:
       | Role:\\s+admin                                                  |
       | Users:\\s+<%= @user.name %>, <%= user(1, switch: false).name %> |
+    Given I switch to the second user
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | projects |
+    Then the output should contain "<%= project.name %>"
+    """
+    Given I switch to the first user
     When I run the :oadm_remove_role_from_user client command with:
       | role_name | admin            |
       | user_name | <%= user(1, switch: false).name %> |
@@ -54,6 +62,13 @@ Feature: change the policy of user/service account
     Then the output should match:
       | Role:\\s+admin              |
       | Users:\\s+<%= @user.name %> |
+    Given I switch to the second user
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | projects |
+    Then the output should not contain "<%= project.name %>"
+    """
 
   # @author wyue@redhat.com
   # @case_id 470304
