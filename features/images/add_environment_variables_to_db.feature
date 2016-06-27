@@ -122,8 +122,9 @@ Feature: Add env variables to image feature
       | max_allowed_packet = 400M |
     When I run the :delete client command with:
       | all_no_dash |  |
-      | all          |  |
+      | all         |  |
     Then the step should succeed
+    Given I wait for the pod to die regardless of current status
     When I run the :run client command with:
       | name  | mysql                    |
       | image | <image>                  |
