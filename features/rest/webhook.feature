@@ -77,9 +77,9 @@ Feature: Webhook REST Related Tests
     """
     Then the step should succeed
 
-  # @author yantan@redhat.com
-  # @case_id 438841
-  Scenario: Trigger build manually with github webhook contained invalid/blank commit ID or branch name 
+  # @author yantan@redhat.com dyan@redhat.com
+  # @case_id 438841 438853
+  Scenario Outline: Trigger build manually with webhook contained invalid/blank commit ID or branch name 
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/ruby:2.2 |
@@ -87,37 +87,38 @@ Feature: Webhook REST Related Tests
     Then the step should succeed
     Given the "ruby-ex-1" build completes
     When I get project BuildConfig as JSON
-    And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][0]['github']['secret']` is stored in the :secret_name clipboard
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/testdata/pushevent.json"
-    And I replace lines in "pushevent.json":
+    And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][<row>]['<type>']['secret']` is stored in the :secret_name clipboard
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/<path><file>"
+    And I replace lines in "<file>":
       | refs/heads/master | refs/heads/test123 |
+      | <url_before>      | <url_after>        |
     Then the step should succeed
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/github
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
     :method: post
     :headers:
       :content-type: application/json
-      :x-github-event: push
-    :payload: <%= File.read("pushevent.json").to_json %>
+      :<header1>: <header2>
+    :payload: <%= File.read("<file>").to_json %>
     """
     Then the step should succeed
     When I run the :get client command with:
       | resource | build |
     Then the step should succeed
     And the output should not contain "ruby-ex-2"
-    When I replace lines in "pushevent.json":
+    When I replace lines in "<file>":
       | refs/heads/test123                        | refs/heads/test-tcms438840 |
       | 9bdc3a26ff933b32f3e558636b58aea86a69f051  | 123456 |
     Then the step should succeed
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/github
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
     :method: post
     :headers:
       :content-type: application/json
-      :x-github-event: push
-    :payload: <%= File.read("pushevent.json").to_json %>
+      :<header1>: <header2>
+    :payload: <%= File.read("<file>").to_json %>
     """
     Then the step should succeed
     When I run the :get client command with:
@@ -130,10 +131,14 @@ Feature: Webhook REST Related Tests
     And the output should contain:
       | error  |
       | 123456 |
+    Examples:
+      | type    | row | path              | file              | header1        | header2 | url_before                   | url_after |
+      | generic | 1   | generic/testdata/ | push-generic.json |                |         | git://mygitserver/myrepo.git | https://github.com/openshift-qe/ruby-ex |
+      | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         |
 
-  # @author yantan@redhat.com
-  # @case_id 438840
-  Scenario: Trigger build manually with github webhook contained specified branch and commit
+  # @author yantan@redhat.com dyan@redhat.com
+  # @case_id 438840 438851
+  Scenario Outline: Trigger build manually with webhook contained specified branch and commit
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/ruby:2.2 |
@@ -141,20 +146,21 @@ Feature: Webhook REST Related Tests
     Then the step should succeed
     Given the "ruby-ex-1" build completes
     When I get project BuildConfig as JSON
-    And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][0]['github']['secret']` is stored in the :secret_name clipboard
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/github/testdata/pushevent.json"
-    And I replace lines in "pushevent.json":
-      | refs/heads/master                       | refs/heads/test-tcms438840               | 
-      | 9bdc3a26ff933b32f3e558636b58aea86a69f051| 89af0dd3183f71b9ec848d5cc2b55599244de867 |
+    And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][<row>]['<type>']['secret']` is stored in the :secret_name clipboard
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/<path><file>"
+    And I replace lines in "<file>":
+      | refs/heads/master                        | refs/heads/test-tcms438840               | 
+      | 9bdc3a26ff933b32f3e558636b58aea86a69f051 | 89af0dd3183f71b9ec848d5cc2b55599244de867 |
+      | <url_before>                             | <url_after>                              |
     Then the step should succeed
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/github
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
     :method: post
     :headers:
       :content-type: application/json
-      :x-github-event: push
-    :payload: <%= File.read("pushevent.json").to_json %>
+      :<header1>: <header2>
+    :payload: <%= File.read("<file>").to_json %>
     """
     Then the step should succeed
     Given the "ruby-ex-2" build completes
@@ -170,16 +176,16 @@ Feature: Webhook REST Related Tests
       | name          | ruby-ex-2 |
     Then the output should contain:
       | 89af0dd       |
-    And I replace lines in "pushevent.json":
+    And I replace lines in "<file>":
       | 89af0dd3183f71b9ec848d5cc2b55599244de867 | |
     When I perform the HTTP request:
     """
-    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/github
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-ex/webhooks/<%= cb.secret_name %>/<type>
     :method: post
     :headers:
       :content-type: application/json
-      :x-github-event: push
-    :payload: <%= File.read("pushevent.json").to_json %>
+      :<header1>: <header2>
+    :payload: <%= File.read("<file>").to_json %>
     """ 
     Then the step should succeed
     Given the "ruby-ex-3" build completes
@@ -188,6 +194,10 @@ Feature: Webhook REST Related Tests
     Then the step should succeed
     And the output should not contain:
       | "commit"      |
+    Examples:
+      | type    | row | path              | file              | header1        | header2 | url_before                   | url_after |
+      | generic | 1   | generic/testdata/ | push-generic.json |                |         | git://mygitserver/myrepo.git | https://github.com/openshift-qe/ruby-ex | 
+      | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         |
 
   # @author cryan@redhat.com
   # @case_id 525850
