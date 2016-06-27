@@ -719,6 +719,7 @@
 :oadm_diagnostics:
   :cmd: oadm diagnostics
   :options:
+    :diagnostics_name: <value>
     :cluster-context: --cluster-context=<value>
     :config: --config=<value>
     :context: --context=<value>
