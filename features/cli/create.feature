@@ -470,20 +470,27 @@ Feature: creating 'apps' with CLI
 
   # @author yinzhou@redhat.com
   # @case_id 510544
+  @admin
   Scenario: Process with special FSGroup id can be ran when using RunAsAny as the RunAsGroupStrategy
     Given I have a project
     When I run the :create client command with:
-      | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_fsGroup.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_fsGroup.json |
+    Then the step should fail
+    Given the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc-runasany.yaml
+    Then the step should succeed
+    Given SCC "scc-runasany" is added to the "first" user
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_fsGroup.json |
     Then the step should succeed
 
     When the pod named "hello-openshift" becomes ready
     When I run the :get client command with:
-      | resource | pod             |
+      | resource      | pod             |
       | resource_name | hello-openshift |
-      | output       | yaml        |
+      | output        | yaml            |
     Then the output by order should match:
-      | securityContext:|
-      | fsGroup: 0 |
+      | securityContext: |
+      | fsGroup: 0       |
 
   # @author cryan@redhat.com
   # @case_id 467937
