@@ -215,3 +215,32 @@ Feature: SCC policy related scenarios
       |-c|
       |kill -9 1 && if [[ `ls /proc/\|grep ^1$` == "" ]]; then echo ok;else echo "not ok"; fi;|
     Then the output should match "not ok"
+
+  # @author pruan@redhat.com
+  # @case_id 510609
+  @admin
+  Scenario: deployment hook volume inheritance with hostPath volume
+    Given I have a project
+    # Create hostdir pod again with new SCC
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc510609/scc_hostdir.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc510609/tc_dc.json |
+    And I register clean-up steps:
+    """
+    I run the :delete admin command with:
+      | object_type       | scc         |
+      | object_name_or_id | scc-hostdir |
+    the step should succeed
+    """
+    And the pod named "hooks-1-deploy" status becomes :running
+    And the pod named "hooks-1-hook-pre" status becomes :running
+    # step 2, check the pre-hook pod
+    And I run the :get client command with:
+      | resource      | pod              |
+      | resource_name | hooks-1-hook-pre |
+      | o             | yaml             |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['spec']['volumes'].any? {|p| p['name'] == "data"} && @result[:parsed]['spec']['volumes'].any? {|p| p['hostPath']['path'] == "/usr"}
+

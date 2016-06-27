@@ -23,8 +23,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "nfsc-<%= project.name %>" PVC becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
     # add pvc to dc
     When I run the :volume client command with:
       | resource      | dc/mydb                 |
@@ -473,18 +472,9 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
   # @author lxia@redhat.com
   # @case_id 519349
-  @admin
-  @destructive
   Scenario: Pod should be able to mount multiple PVCs
     # Preparations
     Given I have a project
-    And I have a NFS service in the project
-    When I execute on the pod:
-      | bash |
-      | -c   |
-      | mkdir -p /mnt/mydata ; echo '/mnt/mydata *(rw,sync,no_root_squash,insecure)' >> /etc/exports ; exportfs -a |
-    Then the step should succeed
-
     When I run the :new_app client command with:
       | image_stream | openshift/mongodb |
       | env | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
@@ -493,26 +483,19 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
 
-    # create 2 PVs and PVCs
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
+    # create 2 pvc
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "nfsc-<%= project.name %>" PVC becomes :bound
-
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-      | ["metadata"]["name"]      | nfs1-<%= project.name %>         |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc1-<%= project.name %> |
-      | ["spec"]["volumeName"] | nfs1-<%= project.name %>  |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc2-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteMany            |
+      | ["spec"]["resources"]["requests"]["storage"] | 2Gi                      |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "nfsc1-<%= project.name %>" PVC becomes :bound
+    And the "pvc1-<%= project.name %>" PVC becomes :bound
+    And the "pvc2-<%= project.name %>" PVC becomes :bound
 
     # add pvc to dc
     When I run the :volume client command with:
@@ -521,7 +504,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | type       | persistentVolumeClaim |
       | mount-path | /opt1                 |
       | name       | volume1               |
-      | claim-name | nfsc-<%= project.name %> |
+      | claim-name | pvc1-<%= project.name %> |
     Then the step should succeed
     And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
@@ -532,7 +515,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | type       | persistentVolumeClaim |
       | mount-path | /opt2                 |
       | name       | volume2               |
-      | claim-name | nfsc1-<%= project.name %> |
+      | claim-name | pvc2-<%= project.name %> |
     Then the step should succeed
     And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
@@ -549,19 +532,19 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name: volume1          |
       | name: volume2          |
       | persistentVolumeClaim: |
-      | claimName: nfsc-<%= project.name %>  |
-      | claimName: nfsc1-<%= project.name %> |
+      | claimName: pvc1-<%= project.name %> |
+      | claimName: pvc2-<%= project.name %> |
 
     When I execute on the pod:
       | df |
     Then the step should succeed
     And the output should contain:
-      | <%= service("nfs-service").ip %>:/ |
+      | /opt1 |
+      | /opt2 |
     When I execute on the pod:
       | mount |
     Then the step should succeed
     And the output should contain:
-      | <%= service("nfs-service").ip %>:/ |
       | /opt1 |
       | /opt2 |
 
@@ -575,5 +558,5 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name: volume1          |
       | name: volume2          |
       | persistentVolumeClaim: |
-      | claimName: nfsc-<%= project.name %>  |
-      | claimName: nfsc1-<%= project.name %> |
+      | claimName: pvc1-<%= project.name %> |
+      | claimName: pvc2-<%= project.name %> |

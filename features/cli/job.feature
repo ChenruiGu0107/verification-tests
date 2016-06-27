@@ -47,3 +47,45 @@ Feature: job.feature
       | f | job.yaml |
     Then the step should fail
     And the output should contain "fractional integer"
+
+  # @author chezhang@redhat.com
+  # @case_id 511600
+  Scenario: Go through the job example
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | pods   |
+    Then the output should contain 5 times:
+      | pi-      |
+    Given status becomes :succeeded of exactly 5 pods labeled:
+      | app=pi   |
+    Then the step should succeed
+    And I wait until job "pi" completes
+    When I run the :get client command with:
+      | resource | jobs   |
+    Then the output should match:
+      | pi.*5 |
+    When I run the :describe client command with:
+      | resource | jobs   |
+      | name     | pi     |
+    Then the output should match:
+      | Name:\\s+pi                               |
+      | Image\(s\):\\s+openshift/perl-516-centos7 |
+      | Selector:\\s+app=pi                       |
+      | Parallelism:\\s+5                         |
+      | Completions:\\s+<unset>                   |
+      | Labels:\\s+app=pi                         |
+      | Pods\\s+Statuses:\\s+0\\s+Running.*5\\s+Succeeded.*0\\s+Failed  |
+    And the output should contain 5 times:
+      | SuccessfulCreate  |
+    When I run the :get client command with:
+      | resource | pods   |
+    Then the output should contain 5 times:
+      | Completed         |
+    When I run the :logs client command with:
+      | resource_name     | <%= pod(-5).name %>   |
+    Then the step should succeed
+    And the output should contain:
+      |  3.14159265       |

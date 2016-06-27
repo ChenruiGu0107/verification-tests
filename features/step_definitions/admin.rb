@@ -19,3 +19,21 @@ Given /^default registry service ip is stored in the#{OPT_SYM} clipboard$/ do |c
   cb[cb_name] = service("docker-registry", project('default')).url(user: :admin)
   project(org_proj_name)
 end
+
+Given /^the etcd version is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
+  ensure_admin_tagged
+  cb_name ||= :etcd_version
+  @result = env.master_hosts.first.exec("openshift version")
+  etcd_version = @result[:response].match(/etcd (.+)$/)[1]
+  raise "Can not retrieve the etcd version" if etcd_version.nil?
+  cb[cb_name] = etcd_version
+end
+
+# store the default registry scheme type by doing 'oc get dc/docker-registry -o yaml'
+Given /^I store the default registry scheme to the#{OPT_SYM} clipboard$/ do |cb_name|
+  ensure_admin_tagged
+  cb_name ||= :registry_scheme
+  @result = admin.cli_exec(:get, resource: 'dc', resource_name: 'docker-registry', o: 'yaml')
+  @result[:parsed] = YAML.load(@result[:response])
+  cb[cb_name] = @result[:parsed].dig('spec', 'template', 'spec', 'containers')[0].dig('livenessProbe','httpGet','scheme').downcase
+end

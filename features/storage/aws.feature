@@ -5,19 +5,7 @@ Feature: AWS Persistent Volume
   @destructive
   Scenario: Creating aws ebs persistent volume with RWO access mode and Default Policy
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany                   |
-      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
-    Then the step should succeed
-    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['awsElasticBlockStore']['volumeID']` is stored in the :volumeID clipboard
+    And I have a 1 GB volume and save volume id in the :volumeID clipboard
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pv-rwo.yaml" where:
       | ["metadata"]["name"]                         | pv-aws-<%= project.name %> |
@@ -59,19 +47,7 @@ Feature: AWS Persistent Volume
   @destructive
   Scenario: Create an ebs volume with RWO accessmode and Delete policy
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany                   |
-      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
-    Then the step should succeed
-    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['awsElasticBlockStore']['volumeID']` is stored in the :volumeID clipboard
+    And I have a 1 GB volume and save volume id in the :volumeID clipboard
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pv-rwo.yaml" where:
       | ["metadata"]["name"]                         | pv-aws-<%= project.name %> |
@@ -113,19 +89,7 @@ Feature: AWS Persistent Volume
   @admin
   Scenario: [origin_infra_20] aws ebs volume security testing
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany                   |
-      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
-    Then the step should succeed
-    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['awsElasticBlockStore']['volumeID']` is stored in the :volumeID clipboard
+    And I have a 1 GB volume and save volume id in the :volumeID clipboard
 
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
@@ -181,57 +145,3 @@ Feature: AWS Persistent Volume
       | ls | -lZ | /mnt/aws/tc510564 |
     Then the output should contain:
       | 24680 |
-
-  # @author lxia@redhat.com
-  # @case_id 522129
-  @admin
-  Scenario: [storage_201]Only one pod with AWS ebs volume can be scheduled when NoDiskConflicts policy is enabled
-    Given I store the schedulable nodes in the :nodes clipboard
-    And label "labelForTC522129=1" is added to the "<%= cb.nodes[0].name %>" node
-
-    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    When I run the :oadm_new_project admin command with:
-      | project_name  | <%= cb.proj_name %> |
-      | node_selector | labelForTC522129=1  |
-      | admin         | <%= user.name %>    |
-    Then the step should succeed
-
-    Given I switch to cluster admin pseudo user
-    And I use the "<%= cb.proj_name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc-<%= cb.proj_name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany                   |
-      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
-    Then the step should succeed
-    And the "dynamic-pvc-<%= cb.proj_name %>" PVC becomes :bound
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['awsElasticBlockStore']['volumeID']` is stored in the :volumeID clipboard
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/security/aws-selinux-fsgroup-test.json" replacing paths:
-      | ["metadata"]["name"]                                       | aws-pod1-<%= cb.proj_name %> |
-      | ["spec"]["volumes"][0]["awsElasticBlockStore"]["volumeID"] | <%= cb.volumeID %>           |
-    Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/security/aws-selinux-fsgroup-test.json" replacing paths:
-      | ["metadata"]["name"]                                       | aws-pod2-<%= cb.proj_name %> |
-      | ["spec"]["volumes"][0]["awsElasticBlockStore"]["volumeID"] | <%= cb.volumeID %>           |
-    Then the step should succeed
-
-    When I run the :describe client command with:
-      | resource | pod                          |
-      | name     | aws-pod2-<%= cb.proj_name %> |
-    Then the step should succeed
-    And the output should contain:
-      | Pending          |
-      | FailedScheduling |
-      | NoDiskConflict   |
-    When I run the :get client command with:
-      | resource | events |
-    Then the step should succeed
-    And the output should contain:
-      | FailedScheduling |
-      | NoDiskConflict   |

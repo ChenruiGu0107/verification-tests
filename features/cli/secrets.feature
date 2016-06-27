@@ -675,6 +675,13 @@ Feature: secrets related scenarios
       | serviceaccount| git     |
       | serviceaccount| default |
     Then the step should succeed
+    When I run the :set_volume client command with:
+      | resource    | dc/gitserver |
+      | type        | emptyDir     |
+      | action      | --add        |
+      | mount-path  | /var/lib/git |
+      | name        | 528228pv     |
+    Then the step should succeed
     And evaluation of `route("git", service("git")).dns(by: user)` is stored in the :git_route clipboard
     When I run the :env client command with:
       | resource | dc/git                |
@@ -688,6 +695,7 @@ Feature: secrets related scenarios
       | deployment=git-2     |
     And a pod becomes ready with labels:
       | run=gitserver|
+      | deployment=gitserver-2|
     And I wait for the steps to pass:
     """
     When I execute on the pod:
@@ -749,6 +757,7 @@ Feature: secrets related scenarios
       | deployment=git-3     |
     And a pod becomes ready with labels:
       | run=gitserver|
+      | deployment=gitserver-2|
     And I wait for the steps to pass:
     """
     When I execute on the pod:

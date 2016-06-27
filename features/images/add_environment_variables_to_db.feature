@@ -141,3 +141,48 @@ Feature: Add env variables to image feature
       | image                                                      |
       | <%= product_docker_repo %>openshift3/mysql-55-rhel7:latest |
       | <%= product_docker_repo %>rhscl/mysql-56-rhel7:latest      |
+
+  # @author cryan@redhat.com
+  # @case_id 529325 529362
+  Scenario Outline: mem based auto-tuning mariadb
+    Given I have a project
+    When I run the :run client command with:
+      | name  | mariadb                                        |
+      | image | <%= product_docker_repo %>rhscl/<image>:latest |
+      | env   | MYSQL_ROOT_PASSWORD=test                       |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | run=mariadb |
+    When I execute on the pod:
+      | bash | -c | cat /etc/my.cnf.d/tuning.cnf |
+    Then the output should contain:
+      | key_buffer_size = 32M         |
+      | read_buffer_size = 8M         |
+      | innodb_buffer_pool_size = 32M |
+      | innodb_log_file_size = 8M     |
+      | innodb_log_buffer_size = 8M   |
+    When I run the :delete client command with:
+      | all_no_dash |  |
+      | all         |  |
+    Then the step should succeed
+    Given I wait for the pod to die regardless of current status
+    When I run the :run client command with:
+      | name   | mariadb                                        |
+      | image  | <%= product_docker_repo %>rhscl/<image>:latest |
+      | env    | MYSQL_ROOT_PASSWORD=test                       |
+      | limits | memory=512Mi                                   |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | run=mariadb |
+    When I execute on the pod:
+      | bash | -c | cat /etc/my.cnf.d/tuning.cnf |
+    Then the output should contain:
+      | key_buffer_size = 51M          |
+      | read_buffer_size = 25M         |
+      | innodb_buffer_pool_size = 256M |
+      | innodb_log_file_size = 76M     |
+      | innodb_log_buffer_size = 76M   |
+    Examples:
+      | image             |
+      | mariadb-100-rhel7 |
+      | mariadb-101-rhel7 |

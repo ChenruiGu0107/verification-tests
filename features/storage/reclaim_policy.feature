@@ -15,8 +15,7 @@ Feature: Persistent Volume reclaim policy tests
       | ["metadata"]["name"]   | pvc-nfs-<%= project.name %> |
       | ["spec"]["volumeName"] | pv-nfs-<%= project.name %>  |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "pvc-nfs-<%= project.name %>" PVC becomes :bound
+    And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-nfs-<%= project.name %>   |

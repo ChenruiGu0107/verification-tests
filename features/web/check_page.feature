@@ -118,3 +118,59 @@ Feature: check page info related
       | pvc_name     | <%= cb.pvc_name %> |
     Then the step should succeed
 
+  # @author xxing@redhat.com
+  # @case_id 521541
+  Scenario: Check volumes info on pod page
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-dapi-volume.yaml |
+    Then the step should succeed
+    When I perform the :goto_one_pod_page web console action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | pod-dapi-volume     |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should match:
+      | ^podinfo$                                                                      |
+      | Type:\sdownward API                                                            |
+      | Volume file:\smetadata.labels → labels                                         |
+      | Volume file:\smetadata.annotations → annotations                               |
+      | Volume file:\smetadata.name → name                                             |
+      | Volume file:\smetadata.namespace → namespace                                   |
+      | ^<%= service_account("default").get_secret_names(by: user)[0] %>$              |
+      | Type:\ssecret                                                                  |
+      | Secret name:\s<%= service_account("default").get_secret_names(by: user)[0] %>  |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-volume1.yaml |
+    Then the step should succeed
+    When I perform the :goto_one_pod_page web console action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | dapi-test-pod-1     |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should match:
+      | ^config-volume$                                                               |
+      | Type:\sconfig map                                                             |
+      | Name:\sspecial-config                                                         |
+      | ^<%= service_account("default").get_secret_names(by: user)[0] %>$             |
+      | Type:\ssecret                                                                 |
+      | Secret name:\s<%= service_account("default").get_secret_names(by: user)[0] %> |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-volume2.yaml |
+    Then the step should succeed
+    When I perform the :goto_one_pod_page web console action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | dapi-test-pod-2     |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should match:
+      | ^config-volume$                                                               |
+      | Type:\sconfig map                                                             |
+      | Name:\sspecial-config                                                         |
+      | Key to file:\sspecial.type → path/to/special-key                              |
+      | ^<%= service_account("default").get_secret_names(by: user)[0] %>$             |
+      | Type:\ssecret                                                                 |
+      | Secret name:\s<%= service_account("default").get_secret_names(by: user)[0] %> |

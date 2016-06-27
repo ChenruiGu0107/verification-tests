@@ -1195,9 +1195,9 @@ Feature: build 'apps' with CLI
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
     When I execute on the "<%= pod.name %>" pod:
-      | ls |
+      | ls | -al | xiuwangs2i-2 |
     Then the step should succeed
-    And the output should contain "xiuwangs2i-2"
+    And the output should contain "tmp"
 
   # @author cryan@redhat.com
   # @case_id 521602
@@ -1444,7 +1444,7 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | source_image_path | src/:/destination-dir |
       | name | app1 |
     Then the step should fail
@@ -1452,7 +1452,7 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | source_image_path | /non-existing-source/:destination-dir  |
       | name | app2 |
     Then the step should succeed
@@ -1463,8 +1463,8 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
-      | source_image_path | /opt/openshift:Dockerfile |
+      | source_image | openshift/python:latest |
+      | source_image_path | /tmp:Dockerfile |
       | name | app3 |
     Then the step should succeed
     Given the "app3-1" build finishes
@@ -1481,14 +1481,14 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | name | app5 |
     Then the step should fail
     And the output should contain "source-image-path must be specified"
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | source_image_path ||
       | name | app6 |
     Then the step should fail
@@ -1628,9 +1628,9 @@ Feature: build 'apps' with CLI
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
     When I execute on the "<%= pod.name %>" pod:
-      | ls |
+      | ls | -al | xiuwangtest |
     Then the step should succeed
-    And the output should contain "xiuwangtest"
+    And the output should contain "tmp"
 
   # @author xiuwang@redhat.com
   # @case_id 519265
@@ -1968,12 +1968,12 @@ Feature: build 'apps' with CLI
       | resource_name  | build/ruby-hello-world-1 |
     Then the step should succeed
     When I replace resource "bc" named "ruby-hello-world":
-      | user0          | usernon     | 
+      | user0          | usernon     |
     Then the step should succeed
     When I replace resource "is" named "ruby-20-centos7":
       | user0          | usernon    |
     Then the step should succeed
-    Given the "ruby-hello-world-2" build completes  
+    Given the "ruby-hello-world-2" build completes
     When I run the :logs client command with:
       | resource_name  | build/ruby-hello-world-2 |
     Then the step should succeed
@@ -1986,7 +1986,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given the "ruby-hello-world-3" build completes
     When I run the :logs client command with:
-      | resource_name  | build/ruby-hello-world-3 |   
+      | resource_name  | build/ruby-hello-world-3 |
     Then the step should succeed
     Then the output should contain "Successfully pushed"
     When I replace resource "bc" named "ruby-hello-world":
@@ -1997,7 +1997,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given the "ruby-hello-world-4" build completes
     When I run the :logs client command with:
-      | resource_name  | build/ruby-hello-world-4 |   
+      | resource_name  | build/ruby-hello-world-4 |
     Then the step should succeed
     Then the output should contain "Successfully pushed"
     When I replace resource "bc" named "ruby-hello-world":
@@ -2230,3 +2230,68 @@ Feature: build 'apps' with CLI
       | resource_name  | build/ruby-hello-world-1 |
     Then the step should succeed
     And the output should contain "Successfully pushed"
+
+  # @author haowang@redhat.com
+  # @case_id 526207 526206
+  Scenario Outline: The default runpolicy is Serial build -- new-build/new-app command
+    Given I have a project
+    When I run the :<cmd> client command with:
+      | app_repo | openshift/ruby:latest~http://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build becomes :running
+    And the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-2" build becomes :new
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-3" build was created
+    And the "ruby-hello-world-3" build becomes :new
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-4" build was created
+    And the "ruby-hello-world-4" build becomes :new
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-5" build was created
+    And the "ruby-hello-world-5" build becomes :new
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-2 |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build becomes :cancelled
+    Given the "ruby-hello-world-1" build completes
+    And the "ruby-hello-world-3" build becomes :running
+    And the "ruby-hello-world-4" build is :new
+    And the "ruby-hello-world-5" build is :new
+    When I run the :cancel_build client command with:
+      | bc_name | bc/ruby-hello-world |
+      | state   | new                 |
+    Then the step should succeed
+    And the "ruby-hello-world-4" build was cancelled
+    And the "ruby-hello-world-5" build was cancelled
+    And the "ruby-hello-world-3" build is :running
+    Given I run the :patch client command with:
+      | resource      | bc                                                                                |
+      | resource_name | ruby-hello-world                                                                  |
+      | p             | {"spec":{"source":{"git":{"uri":"https://xxxgithub.com/openshift/ruby-ex.git"}}}} |
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-6" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-7" build was created
+    Given the "ruby-hello-world-3" build completes
+    Then the "ruby-hello-world-6" build becomes :failed
+    Then the "ruby-hello-world-7" build becomes :failed
+
+    Examples:
+      | cmd       |
+      | new_build |
+      | new_app   |

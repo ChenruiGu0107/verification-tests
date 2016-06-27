@@ -191,6 +191,7 @@ module CucuShift
 
     def hosts
       if @hosts.empty?
+        hlist = []
         # generate hosts based on spec like: hostname1:role1:role2,hostname2:r3
         opts[:hosts].split(",").each do |host|
           # TODO: might do convenience type to class conversion
@@ -198,13 +199,15 @@ module CucuShift
           host_type = opts[:hosts_type]
           hostname, garbage, roles = host.partition(":")
           roles = roles.split(":").map(&:to_sym)
-          @hosts << CucuShift.const_get(host_type).new(hostname, **opts, roles: roles)
+          hlist << CucuShift.const_get(host_type).new(hostname, **opts, roles: roles)
         end
 
-        unless OPENSHIFT_ROLES.all? {|r| @hosts.find {|h| h.has_role?(r)}}
+        unless OPENSHIFT_ROLES.all? {|r| hlist.find {|h| h.has_role?(r)}}
           raise "environment does not have hosts with roles: " +
-            "#{OPENSHIFT_ROLES.select{|r| @hosts.find {|h| h.has_role?(r)}}}"
+            "#{OPENSHIFT_ROLES.select{|r| hlist.find {|h| h.has_role?(r)}}}"
         end
+
+        @hosts.concat hlist
       end
       return @hosts
     end

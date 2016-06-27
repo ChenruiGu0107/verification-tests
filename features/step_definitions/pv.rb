@@ -1,5 +1,46 @@
 require 'yaml'
 
+Given /^I save volume id from PV named "([^"]*)" in the#{OPT_SYM} clipboard$/ do |resource_name, cbname|
+  cbname = 'volume' unless cbname
+  ensure_admin_tagged
+  step %Q/I run the :get admin command with:/, table(%{
+    | resource      | pv               |
+    | resource_name | #{resource_name} |
+    | o             | yaml             |
+  })
+  step %Q/the step should succeed/
+  @result[:parsed] = YAML.load @result[:response]
+  case
+  when @result[:parsed]['spec']['gcePersistentDisk']
+    cb[cbname] = @result[:parsed]['spec']['gcePersistentDisk']['pdName']
+  when @result[:parsed]['spec']['awsElasticBlockStore']
+    cb[cbname] = @result[:parsed]['spec']['awsElasticBlockStore']['volumeID']
+  when @result[:parsed]['spec']['cinder']
+    cb[cbname] = @result[:parsed]['spec']['cinder']['volumeID']
+  else
+    raise "Unknown persistent volume type."
+  end
+end
+
+Given /^I have a(?: (\d+) GB)? volume and save volume id in the#{OPT_SYM} clipboard$/ do |size, cbname|
+  timeout = 60
+  size = size ? size.to_i : 1
+  cbname = 'volume_id' unless cbname
+  ensure_admin_tagged
+  unless project.exists?(user: user)
+    raise "No project exist"
+  end
+
+  cb.dynamic_pvc_name = rand_str(8, :dns)
+  step %Q{I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:}, table(%{
+    | ["metadata"]["name"]                         | <%= project.name %>-<%= cb.dynamic_pvc_name %> |
+    | ["spec"]["resources"]["requests"]["storage"] | #{size}                                        |
+    })
+  step %Q/the step should succeed/
+  step %Q/the "<%= project.name %>-<%= cb.dynamic_pvc_name %>" PVC becomes :bound within #{timeout} seconds/
+  step %Q/I save volume id from PV named "<%= pvc.volume_name(user: admin, cached: true) %>" in the :#{cbname} clipboard/
+end
+
 Given /^the#{OPT_QUOTED} PV becomes #{SYM}(?: within (\d+) seconds)?$/ do |pv_name, status, timeout|
   timeout = timeout ? timeout.to_i : 30
   @result = pv(pv_name).wait_till_status(status.to_sym, admin, timeout)

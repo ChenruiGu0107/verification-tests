@@ -15,8 +15,7 @@ Feature: ISCSI volume plugin testing
       | ["metadata"]["name"]   | pvc-iscsi-<%= project.name %> |
       | ["spec"]["volumeName"] | pv-iscsi-<%= project.name %>  |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "pvc-iscsi-<%= project.name %>" PVC becomes :bound
+    And the "pvc-iscsi-<%= project.name %>" PVC becomes bound to the "pv-iscsi-<%= project.name %>" PV
 
     # Create tester pod
     Given I switch to cluster admin pseudo user

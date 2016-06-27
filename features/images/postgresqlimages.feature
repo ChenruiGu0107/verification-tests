@@ -100,7 +100,7 @@ Feature: Postgresql images test
       | 9.2   |
 
   # @author cryan@redhat.com
-  # @case_id 528404 528405
+  # @case_id 528404 528405 529315
   Scenario Outline: Check memory limits env vars when pod is set with memory limit - postgresql
     Given I have a project
     When I run the :run client command with:
@@ -117,13 +117,15 @@ Feature: Postgresql images test
     Given I execute on the pod:
       | grep | effective_cache_size | /var/lib/pgsql/openshift-custom-postgresql.conf |
     Then the output should contain "effective_cache_size = 128MB"
+    
     Examples:
       | image                          |
       | openshift3/postgresql-92-rhel7 |
       | rhscl/postgresql-94-rhel7      |
+      | rhscl/postgresql-95-rhel7      |
 
   # @author wewang@redhat.com
-  # @case_id 528407 528406
+  # @case_id 528407 528406 529327
   Scenario Outline: Use customized values for memory limits env vars - postgresql
     Given I have a project
     When I run the :run client command with:
@@ -144,9 +146,10 @@ Feature: Postgresql images test
       | image                          |
       | openshift3/postgresql-92-rhel7 |
       | rhscl/postgresql-94-rhel7      |
-
+      | rhscl/postgresql-95-rhel7      |
+   
   # @author wewang@redhat.com
-  # @case_id 528408 528409
+  # @case_id 528408 528409 529328
   Scenario Outline: Use default values for memory limits env vars - postgresql
     Given I have a project
     When I run the :run client command with:
@@ -167,4 +170,6 @@ Feature: Postgresql images test
       | image                          |
       | openshift3/postgresql-92-rhel7 |
       | rhscl/postgresql-94-rhel7      |
+      | rhscl/postgresql-95-rhel7      |
+
 

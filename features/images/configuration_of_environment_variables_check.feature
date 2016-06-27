@@ -44,11 +44,11 @@ Feature: Configuration of environment variables check
       | CPAN_MIRROR=        |
 
   # @author wzheng@redhat.com
-  # @case_id 499485
-  Scenario: Configuration of enviroment variables check - php-55-rhel7
+  # @case_id 499484 499485
+  Scenario Outline: Configuration of enviroment variables check
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/php-55-rhel7-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/<template> |
     Then the step should succeed
     Given the "php-sample-build-1" build was created
     Given the "php-sample-build-1" build completed
@@ -67,6 +67,10 @@ Feature: Configuration of environment variables check
       | OPCACHE_MEMORY_CONSUMPTION=16M |
       | PHPRC=/opt/rh/php55/root/etc/ |
       | PHP_INI_SCAN_DIR=/opt/rh/php55/root/etc/ |
+    Examples:
+      | template                     |
+      | php-55-rhel7-stibuild.json   |
+      | php-55-centos7-stibuild.json |
 
   # @author cryan@redhat.com
   # @case_id 493677
@@ -119,7 +123,7 @@ Feature: Configuration of environment variables check
       | test8=\$\$\$\$\$\$\$\(zzhao\)   |
 
   # @author cryan@redhat.com haowang@redhat.com
-  # @case_id 521464 521463
+  # @case_id 521464 521463 529329
   Scenario Outline: Users can override the the env tuned by ruby base image
     Given I have a project
     When I run the :new_app client command with:
@@ -138,8 +142,8 @@ Feature: Configuration of environment variables check
       | Min threads: 1     |
       | max threads: 14    |
       | Process workers: 5 |
-
     Examples:
-      | imagestream |
+      | imagestream        |
       | openshift/ruby:2.0 |
       | openshift/ruby:2.2 |
+      | openshift/ruby:2.3 |

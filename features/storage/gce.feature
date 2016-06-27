@@ -1,63 +1,10 @@
 Feature: GCE Persistent Volume
   # @author lxia@redhat.com
-  # @case_id 522125
-  @admin
-  Scenario: [storage_201] Only one pod with GCE PD can be scheduled when NoDiskConflicts policy is enabled
-    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    When I run the :oadm_new_project admin command with:
-      | project_name  | <%= cb.proj_name %>                   |
-      | node_selector | labelForTC522125=<%= cb.proj_name %>  |
-      | admin         | <%= user.name %>                      |
-    Then the step should succeed
-
-    Given I store the schedulable nodes in the :nodes clipboard
-    And label "labelForTC522125=<%= cb.proj_name %>" is added to the "<%= cb.nodes[0].name %>" node
-
-    Given I switch to cluster admin pseudo user
-    And I use the "<%= cb.proj_name %>" project
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod-NoDiskConflict-1.json" replacing paths:
-      | ["metadata"]["name"]                                       | gce-pod1-<%= project.name %> |
-      | ["spec"]["containers"][0]["securityContext"]["privileged"] | true                      |
-    Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod-NoDiskConflict-2.json" replacing paths:
-      | ["metadata"]["name"]                                       | gce-pod2-<%= project.name %> |
-      | ["spec"]["containers"][0]["securityContext"]["privileged"] | true                      |
-    Then the step should succeed
-
-    When I run the :describe client command with:
-      | resource | pod                       |
-      | name     | gce-pod2-<%= project.name %> |
-    Then the step should succeed
-    And the output should contain:
-      | Pending          |
-      | FailedScheduling |
-      | NoDiskConflict   |
-    When I run the :get client command with:
-      | resource | events |
-    Then the step should succeed
-    And the output should contain:
-      | FailedScheduling |
-      | NoDiskConflict   |
-
-  # @author lxia@redhat.com
   # @case_id 508057
   @admin
   Scenario: GCE persistent disk with RWO access mode and Default policy
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany                   |
-      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
-    Then the step should succeed
-    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['gcePersistentDisk']['pdName']` is stored in the :gcepd clipboard
+    And I have a 1 GB volume and save volume id in the :gcepd clipboard
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-default-rwo.json" where:
       | ["metadata"]["name"]                      | pv-gce-<%= project.name %> |
@@ -98,19 +45,7 @@ Feature: GCE Persistent Volume
   @admin
   Scenario: Create an GCE PD volume with RWO accessmode and Delete policy
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany                   |
-      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
-    Then the step should succeed
-    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['gcePersistentDisk']['pdName']` is stored in the :gcepd clipboard
+    And I have a 1 GB volume and save volume id in the :gcepd clipboard
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-default-rwo.json" where:
       | ["metadata"]["name"]                      | gce-<%= project.name %> |
@@ -153,19 +88,7 @@ Feature: GCE Persistent Volume
   @destructive
   Scenario: [origin_infra_20] gce pd volume security testing
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany                   |
-      | ["spec"]["resources"]["requests"]["storage"] | 1                               |
-    Then the step should succeed
-    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | yaml                                              |
-    Then the step should succeed
-    Given the output is parsed as YAML
-    And evaluation of `@result[:parsed]['spec']['gcePersistentDisk']['pdName']` is stored in the :gcepd clipboard
+    And I have a 1 GB volume and save volume id in the :gcepd clipboard
 
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project

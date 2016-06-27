@@ -409,8 +409,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0]| ReadWriteOnce         |
     Then the step should succeed
-    And the PV becomes :bound
-    And the "nfsc-<%= project.name %>" PVC becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
     Given I run the steps 100 times:
     """

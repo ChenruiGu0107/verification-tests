@@ -23,7 +23,7 @@ Given /^the "([^"]*)" build complete(?:d|s)$/ do |build_name|
     if [:failed, :error].include? @result[:matched_status]
       user.cli_exec(:logs, resource_name: "build/#{build_name}")
       raise "build #{build_name} failed"
-    end 
+    end
     raise "build #{build_name} never completed"
   end
 end
@@ -46,12 +46,18 @@ Given /^the "([^"]*)" build was cancelled$/ do |build_name|
   end
 end
 
-Given /^the "([^"]*)" build becomes #{SYM}$/ do |build_name, status|
-  wait_time_out = 10 * 60
-  @result = build(build_name).wait_till_status(status.to_sym, user, wait_time_out)
-
-  unless @result[:success]
-    raise "build #{build_name} never became #{status}"
+Given /^the "([^"]*)" build (becomes|is) #{SYM}$/ do |build_name, mode, status|
+  if mode == "becomes"
+    wait_time_out = 10 * 60
+    @result = build(build_name).wait_till_status(status.to_sym, user, wait_time_out)
+    unless @result[:success]
+      raise "build #{build_name} never became #{status}"
+    end
+  elsif mode == "is"
+    @result = build(build_name).status?(user: user, status: status.to_sym)
+    unless @result[:success]
+      raise "build #{build_name} current status is not  #{status}"
+    end
   end
 end
 

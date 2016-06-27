@@ -22,8 +22,8 @@ Feature: Pod related features on web console
     Then the step should succeed
 
     #Check on log tab
-    When I perform the :check_log_tab web console action with:
-      | pod_status | Running |
+    When I perform the :check_log_tab_on_pod_page web console action with:
+      | status | Running |
     Then the step should succeed
     #Check log
     When I perform the :check_log_context web console action with:
@@ -45,8 +45,8 @@ Feature: Pod related features on web console
       | pod_name     | doublecontainers    |
     Then the step should succeed
 
-    When I perform the :check_log_tab web console action with:
-      | pod_status | Running |
+    When I perform the :check_log_tab_on_pod_page web console action with:
+      | status | Running |
     Then the step should succeed
 
     #Select one of the containers

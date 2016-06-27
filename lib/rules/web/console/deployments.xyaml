@@ -135,6 +135,8 @@ goto_deployments_page:
   url: /console/project/<project_name>/browse/deployments
 goto_one_dc_page:
   url: /console/project/<project_name>/browse/deployments/<dc_name>
+goto_one_standalone_rc_page:
+  url: /console/project/<project_name>/browse/deployments-replicationcontrollers/<rc_name>
 goto_set_resource_limit_page:
   elements:
   - selector:
