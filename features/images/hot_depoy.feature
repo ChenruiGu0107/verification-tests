@@ -1,7 +1,7 @@
 Feature: hotdeploy.feature
 
   # @author wzheng@redhat.com
-  # @case_id 508723,508727,508729,508731,508733,508725
+  # @case_id 508723,508727,508729,508731,508733,508725,529324
   Scenario Outline: Hot deploy test
     Given I have a project
     When I create a new application with:
@@ -26,6 +26,7 @@ Feature: hotdeploy.feature
       | https://github.com/openshift-qe/django-ex.git        | openshift/python:2.7 | APP_CONFIG=gunicorn.conf.py | django-ex  | s/Welcome/hotdeploy_test/g | /opt/app-root/src/welcome/templates/welcome/index.html |
       | https://github.com/openshift-qe/django-ex.git        | openshift/python:3.3 | APP_CONFIG=gunicorn.conf.py | django-ex  | s/Welcome/hotdeploy_test/g | /opt/app-root/src/welcome/templates/welcome/index.html |
       | https://github.com/openshift-qe/django-ex.git        | openshift/python:3.4 | APP_CONFIG=gunicorn.conf.py | django-ex  | s/Welcome/hotdeploy_test/g | /opt/app-root/src/welcome/templates/welcome/index.html |
+      | https://github.com/openshift-qe/django-ex.git        | openshift/python:3.5 | APP_CONFIG=gunicorn.conf.py | django-ex  | s/Welcome/hotdeploy_test/g | /opt/app-root/src/welcome/templates/welcome/index.html |
       | https://github.com/openshift-qe/sinatra-hot-deploy.git | openshift/ruby:2.0 | RACK_ENV=development       | sinatra-hot-deploy | s/legen/hotdeploy_test/g | config.ru |
 
   # @author wzheng@redhat.com

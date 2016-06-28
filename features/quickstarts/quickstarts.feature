@@ -133,7 +133,7 @@ Feature: quickstarts.feature
     And the "ruby-sample-build-1" build completed
 
   # @author cryan@redhat.com
-  # @case_id 528401 528402 528403 492613 508743 508973 528857
+  # @case_id 528401 528402 528403 492613 508743 508973 529322 529323
   # @bug_id 1343184
   Scenario Outline: quickstart version test
     Given I have a project
@@ -151,6 +151,7 @@ Feature: quickstarts.feature
     And I wait for the "<name>" service to become ready
     And I wait for a web server to become available via the "<name>" route
     Then the output should match "Welcome to your \w+ application on OpenShift"
+
     Examples:
       | lang_old   | lang_new   | db_version_old | db_version_new | template               | name                     | repo      |
       | python:3.4 | python:2.7 |                |                | django.json            | django-example           | django-ex |
