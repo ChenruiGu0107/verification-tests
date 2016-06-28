@@ -92,7 +92,7 @@ Feature: GCE Persistent Volume
 
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/security/gce_selinux_fsgroup_test.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/security/gce-selinux-fsgroup-test.json" replacing paths:
       | ["metadata"]["name"]                                   | mypod-<%= project.name %> |
       | ["spec"]["securityContext"]["seLinuxOptions"]["level"] | s0:c13,c2       |
       | ["spec"]["securityContext"]["fsGroup"]                 | 24680           |
