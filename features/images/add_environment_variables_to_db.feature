@@ -116,7 +116,7 @@ Feature: Add env variables to image feature
     Given a pod becomes ready with labels:
       | run=mysql |
     When I execute on the pod:
-      | bash | -c| cat /etc/my.cnf.d/tuning.cnf |
+      | cat | /etc/my.cnf.d/tuning.cnf |
     Then the step should succeed
     And the output should contain:
       | max_allowed_packet = 400M |
@@ -133,7 +133,7 @@ Feature: Add env variables to image feature
     Given a pod becomes ready with labels:
       | run=mysql |
     When I execute on the pod:
-      | bash | -c| cat /etc/my.cnf.d/tuning.cnf |
+      | cat | /etc/my.cnf.d/tuning.cnf |
     Then the step should succeed
     And the output should contain:
       | max_allowed_packet = 200M |
@@ -154,7 +154,7 @@ Feature: Add env variables to image feature
     Given a pod becomes ready with labels:
       | run=mariadb |
     When I execute on the pod:
-      | bash | -c | cat /etc/my.cnf.d/tuning.cnf |
+      | cat | /etc/my.cnf.d/tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 32M         |
       | read_buffer_size = 8M         |
@@ -175,7 +175,7 @@ Feature: Add env variables to image feature
     Given a pod becomes ready with labels:
       | run=mariadb |
     When I execute on the pod:
-      | bash | -c | cat /etc/my.cnf.d/tuning.cnf |
+      | cat | /etc/my.cnf.d/tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 51M          |
       | read_buffer_size = 25M         |
