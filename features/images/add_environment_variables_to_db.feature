@@ -76,6 +76,49 @@ Feature: Add env variables to image feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-55-env-var-test.json |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-56-env-var-test.json |
 
+  # @author wewang@redhat.com cryan@redhat.com
+  # @case_id 473391 508068 529314
+  Scenario Outline: Add env variables to postgresql image
+    Given I have a project
+    When I run the :run client command with:
+      | name  | psql                                                                                                                                      |
+      | image | <image>                                                                                                                                   |
+      | env   | POSTGRESQL_USER=user,POSTGRESQL_PASSWORD=redhat,POSTGRESQL_DATABASE=sampledb,POSTGRESQL_MAX_CONNECTIONS=42,POSTGRESQL_SHARED_BUFFERS=64MB |
+    And a pod becomes ready with labels:
+      | run=psql |
+    When I execute on the pod:
+      | env |
+    Then the output should contain:
+      | POSTGRESQL_SHARED_BUFFERS=64MB |
+      | POSTGRESQL_MAX_CONNECTIONS=42  |
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash                           |
+      | -c                             |
+      | psql -c 'show shared_buffers;' |
+    Then the step should succeed
+    """
+    Then the output should contain:
+      | shared_buffers |
+      | 64MB           |
+    And I wait for the steps to pass:
+    """
+    And I execute on the pod:
+      | bash                            |
+      | -c                              |
+      | psql -c 'show max_connections;' |
+    """
+    Then the step should succeed
+    Then the outputs should contain:
+      | max_connections |
+      | 42              |
+    Examples:
+      | image |
+      | <%= product_docker_repo %>openshift3/postgresql-92-rhel7 |
+      | <%= product_docker_repo %>rhscl/postgresql-94-rhel7      |
+      | <%= product_docker_repo %>rhscl/postgresql-95-rhel7      |
+
   # @author cryan@redhat.com
   # @case_id 497480
   Scenario: Add env variables to mongodb-24-centos7 image
