@@ -656,6 +656,7 @@
     :dest: <value>
     :source_type: --source=<value>
     :alias: --alias=<value>
+    :d: --delete=<value>
 :types:
   :cmd: oc types
 :version:
