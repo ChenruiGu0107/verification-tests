@@ -184,3 +184,28 @@ Feature: scaling related scenarios
       | curl <%= cb.pod1_ip %>:8080/status -vv|
     Then the step should succeed
     And the expression should be true> @result[:response].include?("200 OK")
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 515918
+  Scenario: Scale up the active latest rc will update the deploymentconfig replicas
+    Given I have a project
+    And I run the :run client command with:
+      | name         | test |
+      | image        | openshift/deployment-example |
+    Then the step should succeed
+    And I wait until the status of deployment "test" becomes :complete
+    Then I run the :scale client command with:
+      | resource | ReplicationController |
+      | name     | test-1     |
+      | replicas | 2                |
+    Given I wait until number of replicas match "2" for replicationController "test-1"
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | test |
+      | o             | json |
+    Then the output should contain:
+      | "replicas": 2          |
+    """
