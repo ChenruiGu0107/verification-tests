@@ -1,4 +1,92 @@
 Feature: storage security check
+  # @author lxia@redhat.com
+  # @case_id 510565 510564 511819
+  @admin
+  Scenario Outline: [origin_infra_20] volume security testing
+    Given I have a project
+    And I have a 1 GB volume and save volume id in the :vid clipboard
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/<type>/security/<type>-selinux-fsgroup-test.json" replacing paths:
+      | ["metadata"]["name"]                                      | pod-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"] | /mnt                    |
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]    | s0:c13,c2               |
+      | ["spec"]["securityContext"]["fsGroup"]                    | 24680                   |
+      | ["spec"]["securityContext"]["runAsUser"]                  | 1000160000              |
+      | ["spec"]["volumes"][0]["<storage_type>"]["<volume_name>"] | <%= cb.vid %>           |
+    Then the step should succeed
+    And the pod named "pod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | id | -u |
+    Then the step should succeed
+    And the output should contain:
+      | 1000160000 |
+    When I execute on the pod:
+      | id | -G |
+    Then the step should succeed
+    And the output should contain:
+      | 24680 |
+    When I execute on the pod:
+      | ls | -lZd | /mnt |
+    Then the step should succeed
+    And the output should contain:
+      | 24680                |
+      | svirt_sandbox_file_t |
+      | s0:c2,c13            |
+    When I execute on the pod:
+      | touch | /mnt/testfile |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -lZ | /mnt/testfile |
+    Then the step should succeed
+    And the output should contain:
+      | 24680 |
+    When I run the :delete client command with:
+      | object_type       | pod                     |
+      | object_name_or_id | pod-<%= project.name %> |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/<type>/security/<type>-privileged-test.json" replacing paths:
+      | ["metadata"]["name"]                                      | pod2-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"] | /mnt                     |
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]    | s0:c13,c2                |
+      | ["spec"]["securityContext"]["fsGroup"]                    | 24680                    |
+      | ["spec"]["volumes"][0]["<storage_type>"]["<volume_name>"] | <%= cb.vid %>            |
+    Then the step should succeed
+    And the pod named "pod2-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | id |
+    Then the step should succeed
+    And the output should contain:
+      | uid=0 |
+    When I execute on the pod:
+      | id | -G |
+    Then the step should succeed
+    And the output should contain:
+      | 24680 |
+    When I execute on the pod:
+      | ls | -lZd | /mnt |
+    Then the step should succeed
+    And the output should contain:
+      | 24680 |
+    When I execute on the pod:
+      | touch | /mnt/testfile |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -lZ | /mnt/testfile |
+    Then the step should succeed
+    And the output should contain:
+      | 24680                |
+      | svirt_sandbox_file_t |
+      | s0:c2,c13            |
+
+    Examples:
+      | storage_type         | volume_name | type   |
+      | gcePersistentDisk    | pdName      | gce    |
+      | awsElasticBlockStore | volumeID    | ebs    |
+      | cinder               | volumeID    | cinder |
+
   # @author chaoyang@redhat.com
   # @case_id 510760
   @admin
@@ -156,4 +244,3 @@ Feature: storage security check
       | 1000160200 123456 |
       | svirt_sandbox_file_t:s0:c2,c13 |
       | file2 |
-
