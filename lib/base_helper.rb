@@ -78,7 +78,7 @@ module CucuShift
           (length - 2).times { result << array[rand(array.length)] }
           result << array[rand(36)] # end with non-hyphen
         when :num
-          "%0#{length}d" % rand(10 ** length)
+          result << "%0#{length}d" % rand(10 ** length)
         else # :nospace_sane
           for c in 'a'..'z' do array.push(c) end
           for c in 'A'..'Z' do array.push(c) end

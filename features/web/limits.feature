@@ -167,3 +167,51 @@ Feature: functions about resource limits on pod
       | cpu_range      | 110 millicores to 130 millicores |
       | memory_range   | 97 MiB to 120 MiB                |
     Then the step should succeed
+
+  # @author xxing@redhat.com
+  # @case_id 518640
+  Scenario: Specify resource constraints when creating new app in web console with project limits not set
+    When I create a new project via web
+    Then the step should succeed
+    When I perform the :create_app_from_image_set_resource_limit web console action with:
+      | project_name   | <%= project.name %>                        |
+      | image_name     | python                                     |
+      | image_tag      | latest                                     |
+      | namespace      | openshift                                  |
+      | app_name       | python-limit-demo                          |
+      | source_url     | https://github.com/openshift/django-ex.git |
+      | cpu_request    | <%= rand_str(3, :dns) %>                   |
+      | cpu_limit      | -<%= rand_str(3, :num) %>                  |
+      | memory_request | -<%= rand_str(3, :num) %>                  |
+      | memory_limit   | <%= rand_str(3) %>                         |
+    Then the step should fail
+    When I get the visible text on web html page
+    Then the output should contain 2 times:
+      | Must be a number  |
+      | Can't be negative |
+    When I get the "disabled" attribute of the "button" web element:
+      | text  | Create      |
+      | class | btn-primary |
+    Then the output should contain "true"
+    When I perform the :create_app_from_image_set_resource_limit web console action with:
+      | project_name   | <%= project.name %>                        |
+      | image_name     | python                                     |
+      | image_tag      | latest                                     |
+      | namespace      | openshift                                  |
+      | app_name       | python-limit-demo                          |
+      | source_url     | https://github.com/openshift/django-ex.git |
+      | cpu_request    | 130                                        |
+      | cpu_limit      | 500                                        |
+      | memory_request | 120                                        |
+      | memory_limit   | 750                                        |
+    Then the step should succeed
+    Given the "python-limit-demo-1" build was created
+    Given the "python-limit-demo-1" build completed
+    Given I wait for the "python-limit-demo" service to become ready
+    When I perform the :check_limits_on_pod_page web console action with:
+      | project_name   | <%= project.name %>              |
+      | pod_name       | <%= pod.name %>                  |
+      | container_name | python-limit-demo                |
+      | cpu_range      | 130 millicores to 500 millicores |
+      | memory_range   | 120 MiB to 750 MiB               |
+    Then the step should succeed
