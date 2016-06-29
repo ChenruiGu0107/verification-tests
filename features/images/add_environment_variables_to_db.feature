@@ -148,6 +148,44 @@ Feature: Add env variables to image feature
       | quiet = false      |
 
   # @author cryan@redhat.com
+  # @case_id 527301 527302
+  Scenario Outline: Add env var to mysql 55 and 56
+    Given I have a project
+    When I run the :run client command with:
+      | name  | mysql                                                  |
+      | image | <image>                                                |
+      | env   | MYSQL_ROOT_PASSWORD=test,MYSQL_MAX_ALLOWED_PACKET=400M |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | run=mysql |
+    When I execute on the pod:
+      | cat | /etc/my.cnf.d/tuning.cnf |
+    Then the step should succeed
+    And the output should contain:
+      | max_allowed_packet = 400M |
+    When I run the :delete client command with:
+      | all_no_dash |  |
+      | all         |  |
+    Then the step should succeed
+    Given I wait for the pod to die regardless of current status
+    When I run the :run client command with:
+      | name  | mysql                    |
+      | image | <image>                  |
+      | env   | MYSQL_ROOT_PASSWORD=test |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | run=mysql |
+    When I execute on the pod:
+      | cat | /etc/my.cnf.d/tuning.cnf |
+    Then the step should succeed
+    And the output should contain:
+      | max_allowed_packet = 200M |
+    Examples:
+      | image                                                      |
+      | <%= product_docker_repo %>openshift3/mysql-55-rhel7:latest |
+      | <%= product_docker_repo %>rhscl/mysql-56-rhel7:latest      |
+
+  # @author cryan@redhat.com
   # @case_id 529325 529362
   Scenario Outline: mem based auto-tuning mariadb
     Given I have a project
@@ -159,7 +197,7 @@ Feature: Add env variables to image feature
     Given a pod becomes ready with labels:
       | run=mariadb |
     When I execute on the pod:
-      | bash | -c | cat /etc/my.cnf.d/tuning.cnf |
+      | cat | /etc/my.cnf.d/tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 32M         |
       | read_buffer_size = 8M         |
@@ -180,7 +218,7 @@ Feature: Add env variables to image feature
     Given a pod becomes ready with labels:
       | run=mariadb |
     When I execute on the pod:
-      | bash | -c | cat /etc/my.cnf.d/tuning.cnf |
+      | cat | /etc/my.cnf.d/tuning.cnf |
     Then the output should contain:
       | key_buffer_size = 51M          |
       | read_buffer_size = 25M         |
