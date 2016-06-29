@@ -478,11 +478,10 @@ Feature: creating 'apps' with CLI
     Then the step should fail
     Given the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc-runasany.yaml
     Then the step should succeed
-    Given SCC "scc-runasany" is added to the "first" user
-    When I run the :create client command with:
+    When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_fsGroup.json |
+      | n | <%= project.name %>                                                                                   |
     Then the step should succeed
-
     When the pod named "hello-openshift" becomes ready
     When I run the :get client command with:
       | resource      | pod             |
