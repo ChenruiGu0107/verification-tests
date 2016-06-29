@@ -510,3 +510,91 @@ Feature: buildlogic.feature
       | .*io.openshift.s2i.scripts-url.*                     |
       | .*io.openshift.tags.*                                |
       | .*io.s2i.scripts-url.*                               |
+
+  # @author shiywang@redhat.com
+  # @case_id 528295 528296
+  Scenario Outline: Tune perl image to autoconfigure based on available memory
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | <repo> |
+    Then the step should succeed
+    And I run the :patch client command with:
+      | resource      | dc                                                                                                             |
+      | resource_name | dancer-ex                                                                                                      |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"dancer-ex","resources":{"limits":{"memory":"100Mi"}}}]}}}} |
+    Then the step should succeed
+    And the "dancer-ex-1" build was created
+    And the "dancer-ex-1" build completed
+    Given a pod becomes ready with labels:
+      | deployment=dancer-ex-1 |
+    And I execute on the pod:
+      | scl | enable | httpd24 | cat /opt/app-root/etc/httpd.d/50-mpm.conf |
+    Then the step should succeed
+    And the output should match:
+      | StartServers\\s*8       |
+      | MinSpareServers\\s*8    |
+      | MaxSpareServers\\s*18   |
+      | MaxRequestWorkers\\s*10 |
+      | ServerLimit\\s*10       |
+    When I run the :env client command with:
+      | resource | dc/dancer-ex                |
+      | e        | HTTPD_MAX_REQUEST_WORKERS=5 |
+      | e        | HTTPD_START_SERVERS=1       |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=dancer-ex-2 |
+    And I execute on the pod:
+      | scl | enable | httpd24 | cat /opt/app-root/etc/httpd.d/50-mpm.conf |
+    Then the step should succeed
+    And the output should match:
+      | StartServers\\s*1       |
+      | MinSpareServers\\s*1    |
+      | MaxRequestWorkers\\s*5  |
+      | ServerLimit\\s*5        |
+    When I wait for the "dancer-ex" service to become ready
+    Then the step should succeed
+    When I execute on the pod:
+      | bash                                                                          |
+      | -c                                                                            |
+      | /opt/rh/httpd24/root/usr/bin/ab -c 20 -n 1000 http://<%= service.ip %>:8080/  |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash                                                                          |
+      | -c                                                                            |
+      | ps -ef \|grep httpd \|grep -v grep \|awk '{print $2}'\|grep -v ^1$ \|wc -l    |
+    Then the step should succeed
+    And the output should contain "5"
+    Examples:
+      | repo                                                       |
+      | openshift/perl:5.16~https://github.com/openshift/dancer-ex |
+      | openshift/perl:5.20~https://github.com/openshift/dancer-ex |
+
+  # @author shiywang@redhat.com
+  # @case_id 526208
+  Scenario: Cancel builds with --state negative test
+    Given I have a project
+    When I run the :new_build client command with:
+      | image_stream | openshift/ruby:latest                            |
+      | code         | http://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+      | state      | completed          |
+    And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+      | state      | failed             |
+    And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
+    And the "ruby-hello-world-1" build becomes :running
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+      | state      | running            |
+    Then the step should succeed
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+      | state      | cancelled          |
+    And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+      | state      | invaild            |
+    And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
