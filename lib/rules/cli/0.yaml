@@ -744,6 +744,16 @@
   :options:
     :group_name: <value>
     :user_name:  <value>
+:oadm_groups_sync:
+  :cmd: oadm groups sync
+  :options:
+    :group_names: <value>
+    :sync_config: --sync-config=<value>
+    :white_list: --white-list=<value>
+    :black_list: --black-list=<value>
+    :confirm: --confirm
+    :type: --type=<value>
+    :sort_by: --sort-by=<value>
 :oadm_manage_node:
   :cmd: oadm manage-node <node_name>
   :options:
