@@ -29,11 +29,11 @@ Feature: Configuration of environment variables check
     #| centos7 | docker.io/openshift/ruby-20-centos7 |
 
   # @author xiuwang@redhat.com
-  # @case_id 499491
-  Scenario: Check environment variables of perl-516-rhel7 image
+  # @case_id 499491 499492
+  Scenario Outline: Check environment variables of perl image
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/perl516rhel7-env-sti.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/<template> |
     Then the step should succeed
     Given I wait for the "frontend" service to become ready
     When I execute on the pod:
@@ -42,6 +42,10 @@ Feature: Configuration of environment variables check
     And the output should contain:
       | ENABLE_CPAN_TEST=on |
       | CPAN_MIRROR=        |
+    Examples:
+      | template                       |
+      | perl516rhel7-env-sti.json      |
+      | perl-516-centos7-stibuild.json |
 
   # @author wzheng@redhat.com
   # @case_id 499484 499485
@@ -71,6 +75,39 @@ Feature: Configuration of environment variables check
       | template                     |
       | php-55-rhel7-stibuild.json   |
       | php-55-centos7-stibuild.json |
+
+  # @author wewang@redhat.com
+  # @case_id 499501 499502 499503
+  Scenario Outline: Openshift build and configuration of enviroment variables check - python
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/<template> |
+    Then the step should succeed
+    Given I wait for the "frontend" service to become ready
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -s | <%= service.url %> |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | Hello World |
+    Given a pod becomes ready with labels:
+      | deployment=frontend-1 |
+    When I execute on the pod:
+      | env |
+    Then the step should succeed
+    And the output should contain:
+      | APP_FILE=app.py                       |
+      | APP_MODULE=testapp:application        |
+      | DISABLE_COLLECTSTATIC=false           |
+      | DISABLE_MIGRATE=false                 |
+      | APP_CONFIG=<conf>/test/setup-test-app |
+    Examples:
+      | template                   | conf |
+      | python-27-rhel7-var.json   | 2.7  |
+      | python-27-centos7-var.json | 2.7  |
+      | python-33-rhel7-var.json   | 3.3  |
 
   # @author cryan@redhat.com
   # @case_id 493677
