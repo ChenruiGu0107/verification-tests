@@ -559,6 +559,8 @@
   :options:
     :post_commit: --post-commit=<value>
     :command: --command -- <value>
+    :script: --script=<value>
+    :args: -- <value>
 :set_env:
   :cmd: oc set env
   :options:
