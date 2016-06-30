@@ -2176,6 +2176,122 @@ Feature: build 'apps' with CLI
     And the output should contain "Success (DRY RUN)"
 
   # @author cryan@redhat.com
+  # @case_id 526209
+  Scenario: Cancel multiple new/pending/running builds
+    Given I have a project
+    When I run the :new_build client command with:
+      | image    | openshift/ruby:latest                            |
+      | app_repo | http://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    Given I run the steps 9 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    Given I get project builds
+    Then the output should contain 10 times:
+      | ruby-hello-world- |
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+      | build_name | ruby-hello-world-2 |
+      | build_name | ruby-hello-world-3 |
+      | build_name | ruby-hello-world-4 |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 4 times:
+      | Cancelled |
+    #This prevents a timing issue with the 5th build not being cancelled/started:
+    Given the "ruby-hello-world-5" build becomes :pending
+    When I run the :cancel_build client command with:
+      | bc_name | bc/ruby-hello-world |
+      | state   | new                 |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 9 times:
+      | Cancelled |
+    And the output should not contain "New"
+    #This prevents a timing issue with the 5th build as above:
+    Given the "ruby-hello-world-5" build completes
+    When I run the :patch client command with:
+      | resource      | buildconfig                              |
+      | resource_name | ruby-hello-world                         |
+      | p             | {"spec": {"runPolicy": "Parallel"}} |
+    Then the step should succeed
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    Given the "ruby-hello-world-13" build becomes :pending
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-11 |
+      | build_name | ruby-hello-world-12 |
+      | build_name | ruby-hello-world-13 |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 12 times:
+      | Cancelled |
+    And the output should not contain "New"
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    When I run the :cancel_build client command with:
+      | bc_name | bc/ruby-hello-world |
+      | state   | pending             |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 15 times:
+      | Cancelled |
+    And the output should not contain "New"
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    Given I get project builds
+    Given the "ruby-hello-world-19" build becomes :running
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-17 |
+      | build_name | ruby-hello-world-18 |
+      | build_name | ruby-hello-world-19 |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 18 times:
+      | Cancelled |
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    Given the "ruby-hello-world-22" build becomes :running
+    When I run the :cancel_build client command with:
+      | bc_name | bc/ruby-hello-world |
+      | state   | running             |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 21 times:
+      | Cancelled |
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    When I run the :cancel_build client command with:
+      | bc_name | bc/ruby-hello-world |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 24 times:
+      | Cancelled |
+
+  # @author cryan@redhat.com
   # @case_id 503326
   # @bug_id 1255502
   Scenario: Docker build with pulling image from internal docker registry
