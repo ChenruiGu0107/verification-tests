@@ -85,3 +85,42 @@ Feature: REST policy related features
       | resource             | pods                      |
       | user                 | <%= user(2).name  %>      |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id 476291
+  Scenario: Subresource are distinct from parent resource
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+    Given all pods in the project are ready
+    # project admin could update image
+    When I replace resource "pod" named "hello-openshift":
+      | openshift/hello-openshift | openshift/hello-openshift-fedora |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod             |
+      | name     | hello-openshift |
+    Then the step should succeed
+    And the output should match:
+      | Image:\\s+openshift/hello-openshift-fedora |
+    # could not update pod/status using curl
+    When I run the :get client command with:
+      | resource      | pod             |
+      | resource_name | hello-openshift |
+      | o             | json            |
+    Then the step should succeed
+    And I save the output to file> hello-openshift.json
+    When I replace lines in "hello-openshift.json":
+      | openshift/hello-openshift-fedora | openshift/hello-openshift-fedora-update |
+    Then the step should succeed
+    When I perform the HTTP request:
+    """
+    :url: <%= env.api_endpoint_url %>/api/v1/namespaces/<%= project.name %>/pod/hello-openshift/status
+    :method: put
+    :headers:
+      :content_type: application/json
+      :payload: hello-openshift.json
+    """
+    Then the step should fail
+    And the expression should be true> @result[:exitstatus] == 403
