@@ -437,3 +437,18 @@ Feature: xpass.feature
       |  jws30-tomcat7-mysql-persistent-s2i |
       |  jws30-tomcat8-mysql-persistent-s2i |
 
+  # @author haowang@redhat.com
+  # @case_id 469047
+  Scenario: Customize MAVEN_ARGS during maven build
+    Given I have a project
+    When I run the :new_build client command with:
+      | code         | https://github.com/jboss-developer/jboss-eap-quickstarts#6.4.x              |
+      | context_dir  | helloworld                                                                  |
+      | image_stream | jboss-eap64-openshift                                                       |
+      | e            | MAVEN_ARGS=-Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga package |
+    Then the step should succeed
+    And the "jboss-eap-quickstarts-1" build completed
+    When I run the :logs client command with:
+      | resource_name | jboss-eap-quickstarts-1-build |
+    Then the output should contain:
+      | -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga packagee |
