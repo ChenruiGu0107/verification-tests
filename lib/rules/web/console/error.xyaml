@@ -23,3 +23,7 @@ check_error_list_project_resources:
          xpath: //div[text()='Failed to list imagestreams/v1 (403)']    
     - selector:
          xpath: //div[text()='Failed to list services/v1 (403)']      
+check_error_notification_on_page:
+  elements:
+  - selector:
+      xpath: //div[contains(.,'<error_message>')]

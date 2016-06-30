@@ -11,6 +11,12 @@ check_specific_project:
   - selector:
       xpath: //a[contains(@href,'<project_name>')]
     type: a
+check_help_info_on_projects_page:
+  elements:
+  #- selector:
+  #     xpath: //span[contains(.,'<general_message>')]
+  - selector:
+      xpath: //code[contains(.,'<openshift_command>')]
 delete_project:
   action: check_project_list
   elements:

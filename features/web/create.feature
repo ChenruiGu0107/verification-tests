@@ -468,3 +468,33 @@ Feature: create app on web console related
     Then the step should succeed
     And the output should contain:
       | simplev1 |
+  
+  # @author yapei@redhat.com
+  # @case_id 478984
+  @admin
+  @destructive
+  Scenario: Prompt info telling user to create a new project on console
+    Given I create a new project
+    When I run the :get client command with:
+      | resource | project |
+    Then the step should succeed
+    And the output should contain:
+      | <%= project.name %> |
+      | Active              |
+    Given cluster role "self-provisioner" is removed from the "system:authenticated:oauth" group
+    When I perform the :check_help_info_on_projects_page web console action with:
+      | openshift_command | oadm new-project <projectname> --admin=<%= user.name %> |
+    Then the step should succeed
+    When I perform the :check_help_info_on_projects_page web console action with:
+      | openshift_command | oc policy add-role-to-user <role> <%= user.name %> -n <projectname> |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should not contain:
+      | New Project |
+    When I perform the :new_project web console action with:
+      | project_name | <%= rand_str(5, :dns) %> |
+      | display_name | :null                    |
+      | description  ||
+    Then the step should fail
+    When I perform the :check_error_notification_on_page web console action with:
+      | error_message | You may not request a new project via this API |
