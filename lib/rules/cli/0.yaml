@@ -831,6 +831,12 @@
   :options:
     :project: <value>
     :selector: --selector=<value>
+:oadm_router:
+  :cmd: oadm router <name>
+  :options:
+    :images: --images=<value>
+    :stats_port: --stats-port=<value>
+    :service_account: --service-account=<value>
 :openshift_version:
   :cmd: openshift version
   :expected:

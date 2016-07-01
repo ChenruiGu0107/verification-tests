@@ -568,3 +568,44 @@ Feature: Testing haproxy router
       | -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
+
+
+  # @author zzhao@redhat.com
+  # @case_id 516834
+  @admin
+  @destructive
+  Scenario: Haproxy router health check via stats port specified by user
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And evaluation of `rand(1000..2000)` is stored in the :stats_port clipboard
+    And an 8 characters random string of type :dns is stored into the :router_name clipboard
+    Given default router replica count is restored after scenario
+    When I run the :scale client command with:
+      | resource | dc |
+      | name | router |
+      | replicas | 0 |
+    Then the step should succeed
+    Given I register clean-up steps:
+    """
+    When I run the :delete client command with:
+      | object_type | dc |
+      | object_name_or_id | <%= cb.router_name %> |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | svc |
+      | object_name_or_id | <%= cb.router_name %> |
+    Then the step should succeed
+    """
+    When I run the :oadm_router admin command with:
+      | name | <%= cb.router_name %> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+      | stats_port | <%= cb.stats_port %> |
+      | service_account | router |
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.router_name %>|
+    When I execute on the pod:
+      | /usr/bin/curl |  127.0.0.1:<%= cb.stats_port %>/healthz |
+    Then the output should contain "Service ready"
+
