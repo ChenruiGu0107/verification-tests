@@ -67,7 +67,7 @@ Feature: general_db.feature
     And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | scl | enable | rh-mongodb26 | mongo admin -u admin -padmin  --eval 'printjson(db.serverStatus())' |
+      | bash | -lc | mongo admin -u admin -padmin  --eval 'printjson(db.serverStatus())' |
     Then the step should succeed
     """
     And the output should contain:
@@ -156,9 +156,12 @@ Feature: general_db.feature
   # @case_id 498006
   Scenario: mongodb persistent template
     Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-persistent-template.json" 
+    And I replace lines in "mongodb-persistent-template.json":
+      |mongodb:latest|mongodb:2.6|
     Then I run the :new_app client command with:
-      | template | mongodb-persistent |
-      | param    | MONGODB_ADMIN_PASSWORD=admin |
+      | file  |mongodb-persistent-template.json| 
+      | param | MONGODB_ADMIN_PASSWORD=admin   |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | pvc                                                                             |
@@ -172,11 +175,12 @@ Feature: general_db.feature
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | scl | enable | rh-mongodb26 | mongo admin -u admin -padmin  --eval 'db.version()' |
+      | bash | -lc | mongo admin -u admin -padmin --eval 'db.version()' |
     Then the step should succeed
     """
     And the output should contain:
       | 2.6 |
+
   # @author haowang@redhat.com
   # @case_id 519474
   Scenario: mongodb 24 with persistent volume
@@ -237,20 +241,10 @@ Feature: general_db.feature
   # @case_id 529316
   Scenario: Create mongo resources with persistent template for mongodb-32-rhel7 images
     Given I have a project
-    When I run the :import_image client command with:
-      | image_name | mongodb:3.2 |
-      | from | <%= product_docker_repo %>rhscl/mongodb-32-rhel7 |
-      | confirm  | true |
-      | insecure | true |
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-persistent-template.json" 
-    And I replace lines in "mongodb-persistent-template.json":
-      |mongodb:latest|mongodb:3.2|
-      |${NAMESPACE}|<%= project.name %>|
     Then I run the :new_app client command with:
-      | file  |mongodb-persistent-template.json| 
-      | param | MONGODB_ADMIN_PASSWORD=admin   |
-    Then the step should succeed
+      | template | mongodb-persistent |
+      | param    | MONGODB_ADMIN_PASSWORD=admin |
     When I run the :patch client command with:
       | resource      | pvc                                                                             |
       | resource_name | mongodb                                                                         |
@@ -302,15 +296,8 @@ Feature: general_db.feature
   Scenario: Verify mongodb can be connect after change admin and user password or re-deployment for ephemeral storage - mongodb-32-rhel7
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-ephemeral-template.json"
-    When I run the :import_image client command with:
-      | image_name | mongodb:3.2 |
-      | from | <%= product_docker_repo %>rhscl/mongodb-32-rhel7 |
-      | confirm  | true |
-      | insecure | true |
-    Then the step should succeed
     And I replace lines in "mongodb-ephemeral-template.json":
       |mongodb:latest|mongodb:3.2|
-      |${NAMESPACE}|<%= project.name %>|
     When I run the :new_app client command with:
       | file  | mongodb-ephemeral-template.json |
       | param | MONGODB_ADMIN_PASSWORD=admin    |

@@ -96,14 +96,8 @@ Feature:Create apps using new_app cmd feature
   # @case_id 529321
   Scenario: create resource from imagestream via oc new-app nodejs-4-rhel7
     Given I have a project
-    When I run the :import_image client command with:
-      | image_name | nodejs:4 |
-      | from | <%= product_docker_repo %>rhscl/nodejs-4-rhel7 |
-      | confirm  | true |
-      | insecure | true |
-    Then the step should succeed
     When I run the :new_app client command with:
-      | image_stream | <%= project.name %>/nodejs:4 |
+      | image_stream | openshift/nodejs:4 |
       | code         | https://github.com/openshift/nodejs-ex.git |
     Then the step should succeed
     And the "nodejs-ex-1" build was created
@@ -119,15 +113,8 @@ Feature:Create apps using new_app cmd feature
   Scenario Outline: Nodejs-ex quickstart test with nodejs-4-rhel7
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/nodejs-ex/master/openshift/templates/<template>" 
-    When I run the :import_image client command with:
-      | image_name | nodejs:4 |
-      | from | <%= product_docker_repo %>rhscl/nodejs-4-rhel7 |
-      | confirm  | true |
-      | insecure | true |
-    Then the step should succeed
     And I replace lines in "<template>":
       |nodejs:0.10|nodejs:4|
-      |${NAMESPACE}|<%= project.name %>|
     When I run the :new_app client command with:
       | file  | <template> |
     Then the step should succeed
