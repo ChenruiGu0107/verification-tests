@@ -5,12 +5,9 @@ Feature: SDN related networking scenarios
   @destructive
   Scenario: set MTU on vovsbr and vlinuxbr
     Given I select a random node's host
+    And the node network is verified
     And system verification steps are used:
     """
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O openflow13 \| grep "table=253" |
-    Then the step should succeed
-    And the output should contain "actions=note"
     When I run commands on the host:
       | grep -i mtu /etc/origin/node/node-config.yaml \| sed 's/[^0-9]*//g' |
     Then the step should succeed
@@ -62,12 +59,10 @@ Feature: SDN related networking scenarios
   @destructive
   Scenario: It should not block the node gets started when /etc/hosts has 127.0.0.1 equal to hostname
     Given I select a random node's host
+    And the node network is verified
+    And the node service is verified
     And system verification steps are used:
     """
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O openflow13 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 |
-    Then the step should succeed
-    And the output should match "table=253.*actions=note"
     When I run commands on the host:
       | grep 127.0.0.1.*$(hostname) /etc/hosts |
     Then the step should fail
@@ -105,12 +100,10 @@ Feature: SDN related networking scenarios
   @destructive
   Scenario:  bridge-nf-call-iptables should be disable on node
     Given I select a random node's host
+    And the node network is verified
+    And the node service is verified
     And system verification steps are used:
     """
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O openflow13 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 |
-    Then the step should succeed
-    And the output should contain "actions=note"
     When I run commands on the host:
       | sysctl -a \| grep bridge.*iptables |
     Then the step should succeed
@@ -142,3 +135,26 @@ Feature: SDN related networking scenarios
       | sysctl -a \| grep bridge.*iptables |
     Then the step should succeed
     Then the output should contain "net.bridge.bridge-nf-call-iptables = 0"
+
+  # @author bmeng@redhat.com
+  # @case_id 521640
+  @admin
+  @destructive
+  Scenario: SDN will be re-initialized when the version in openflow does not match the one in controller
+    Given I select a random node's host
+    And the node network is verified
+    And the node service is verified
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) \| sed -n -e 's/^.*note://p' \| cut -c 1,2 |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :plugin_type clipboard
+    When I run commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:<%= cb.plugin_type.chomp %>.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:<%= cb.plugin_type.chomp %>.ff" -O openflow13 |
+    Then the step should succeed
+    When I run commands on the host:
+      | systemctl restart atomic-openshift-node |
+    Then the step should succeed
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep controller.go |
+    Then the step should succeed
+    And the output should contain "[SDN setup] full SDN setup required"
