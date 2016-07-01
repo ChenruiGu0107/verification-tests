@@ -554,6 +554,13 @@
   :options:
     :labels: --labels=<labels>
     :timeout: --timeout=<timeout_seconds>
+:set_build_hook:
+  :cmd: oc set build-hook <buildconfig> <global_options> <options>
+  :options:
+    :post_commit: --post-commit=<value>
+    :command: --command -- <value>
+    :script: --script=<value>
+    :args: -- <value>
 :set_env:
   :cmd: oc set env
   :options:
