@@ -43,6 +43,15 @@ check_port_on_create_page:
   action: create_app_from_image_navigate
   action: create_app_from_image_show_advanced_param
   action: check_port_in_list
+create_app_from_image_check_default_resource_limit:
+  action: create_app_from_image_base_action
+  action: create_app_from_image_show_advanced_param
+  action: create_app_from_image_check_cpu_limit_range
+  action: create_app_from_image_check_cpu_default_request
+  action: create_app_from_image_check_cpu_default_limit
+  action: create_app_from_image_check_memory_limit_range
+  action: create_app_from_image_check_memory_default_request
+  action: create_app_from_image_check_memory_default_limit
 create_app_from_image_set_resource_limit:
   action: create_app_from_image_base_action
   action: create_app_from_image_show_advanced_param
@@ -158,28 +167,56 @@ create_app_from_image_add_labels:
       xpath: //label-editor//div[@ng-show='expand']//a[@role="button"]
     op: click
     type: a
+create_app_from_image_check_cpu_limit_range:
+  element:
+    selector:
+      xpath: //h3[contains(text(),'CPU')]/small[contains(text(),"<cpu_limit_range>")]
+create_app_from_image_check_cpu_default_request:
+  element:
+    selector:
+      xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Request"]/descendant::input[@placeholder="<default_cpu_req>"]
+    type: input
 create_app_from_image_set_cpu_resource_request:
   element:
     selector:
-      xpath: //edit-request-limit[@type="cpu"]//descendant::compute-resource[@label="Request"]//descendant::input
+      xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Request"]/descendant::input
     op: send_keys <cpu_request>
+    type: input
+create_app_from_image_check_cpu_default_limit:
+  element:
+    selector:
+      xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Limit"]/descendant::input[@placeholder="<default_cpu_lim>"]
     type: input
 create_app_from_image_set_cpu_resource_limit:
   element:
     selector:
-      xpath: //edit-request-limit[@type="cpu"]//descendant::compute-resource[@label="Limit"]//descendant::input
+      xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Limit"]/descendant::input
     op: send_keys <cpu_limit>
+    type: input
+create_app_from_image_check_memory_limit_range:
+  element:
+    selector:
+      xpath: //h3[contains(text(),'Memory')]/small[contains(text(),"<memory_limit_range>")]
+create_app_from_image_check_memory_default_request:
+  element:
+    selector:
+      xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Request"]/descendant::input[@placeholder="<default_memory_req>"]
     type: input
 create_app_from_image_set_memory_resource_request:
   element:
     selector:
-      xpath: //edit-request-limit[@type="memory"]//descendant::compute-resource[@label="Request"]//descendant::input
+      xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Request"]/descendant::input
     op: send_keys <memory_request>
+    type: input
+create_app_from_image_check_memory_default_limit:
+  element:
+    selector:
+      xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Limit"]/descendant::input[@placeholder="<default_memory_lim>"]
     type: input
 create_app_from_image_set_memory_resource_limit:
   element:
     selector:
-      xpath: //edit-request-limit[@type="memory"]//descendant::compute-resource[@label="Limit"]//descendant::input
+      xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Limit"]/descendant::input
     op: send_keys <memory_limit>
     type: input
 create_app_from_image_submit:
