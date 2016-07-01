@@ -419,6 +419,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
     # Creating PV
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
+      | ["metadata"]["name"]      | pv-<%= project.name %>           |
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     Then the step should succeed
 
@@ -454,11 +455,19 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | nfsc-<%= project.name %> |
       | mounted at /opt111       |
 
-    #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
     And I wait for the pod to die regardless of current status
     And a pod becomes ready with labels:
       | app=mydb |
-    And the "nfsc-<%= project.name %>" PVC becomes :bound
+    #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+    When I run the :get client command with:
+      | resource      | pvc                      |
+      | resource_name | nfsc-<%= project.name %> |
+      | output        | yaml                     |
+    Then the step should succeed
+    And the output should contain:
+      | ReadWriteMany |
+      | 5Gi           |
 
     #Verify the pod has mounted the nfs
     When I execute on the pod:
