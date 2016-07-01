@@ -2,13 +2,20 @@
 
 # select a random node from a cluster.
 Given /^I select a random node's host$/ do
-  @host = env.node_hosts.sample
+  ensure_admin_tagged
+  nodes = CucuShift::Node.get_matching(user: admin) { |n, hash| n.schedulable? }
+  @nodes.reject! {|n| nodes.include? n}
+  @nodes.concat nodes.shuffle
+  @host = node.host
 end
 
 Given /^I store the schedulable nodes in the#{OPT_SYM} clipboard$/ do |cbname|
+  ensure_admin_tagged
   cbname = 'nodes' unless cbname
   cb[cbname] =
     CucuShift::Node.get_matching(user: admin) { |n, n_hash| n.schedulable? }
+  @nodes.reject! {|n| nodes.include? n}
+  @nodes.concat nodes.shuffle
 end
 
 # @host from World will be used.
@@ -114,4 +121,80 @@ Given /^label #{QUOTED} is added to the#{OPT_QUOTED} node$/ do |label, node_name
       raise "cannot remove label #{label} from node #{_node.name}"
     end
   }
+end
+
+Given /^the#{OPT_QUOTED} node network is verified$/ do |node_name|
+  ensure_admin_tagged
+
+  _node = node(node_name)
+  _host = _node.host
+
+  net_verify = proc {
+    @result = _host.exec('ovs-ofctl dump-flows br0 -O openflow13 || docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13')
+    unless @result[:success] || @result[:response] =~ /table=253.*actions=note/
+      raise "unexpected network setup, see log"
+    end
+  }
+
+  net_verify.call
+  teardown_add net_verify
+end
+
+Given /^the#{OPT_QUOTED} node service is verified$/ do |node_name|
+  ensure_admin_tagged
+
+  _node = node(node_name)
+  _host = _node.host
+  _pod_name = "hostname-pod-" + rand_str(5, :dns)
+  _pod_obj = <<-eof
+    {
+      "apiVersion":"v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "#{_pod_name}",
+        "labels": {
+          "puspose": "testing-node-validity",
+          "name": "hostname-pod"
+        }
+      },
+      "spec": {
+        "containers": [{
+          "name": "hostname-pod",
+          "image": "openshift/hello-openshift",
+          "ports": [{
+            "containerPort": 8080,
+            "protocol": "TCP"
+          }]
+        }],
+        "host" : "#{_node.name}"
+      }
+    }
+  eof
+
+  svc_verify = proc {
+    # node service running
+    @result = _host.exec_admin('systemctl status atomic-openshift-node')
+    unless @result[:success] || @result[:response].include?("active (running)")
+      raise "node service not running, see log"
+    end
+    # pod can be scheduled on node
+    step 'I have a project'
+    @result = admin.cli_exec(:create, f: "-", _stdin: _pod_obj, n: project.name)
+    raise "cannot create verification pod, see log" unless @result[:success]
+    step %Q{the pod named "#{_pod_name}" becomes ready}
+    unless _node.name == pod(_pod_name).node_name(user: admin, quiet: true)
+      raise "verification node not running on correct node"
+    end
+    ## thought it would be good enough check but we can switch to creating
+    #    a route and then accessing it in case this proves not stable enough
+    @result = _host.exec("curl -sS #{pod.ip(user: user)}:8080")
+    unless @result[:success] || @result[:response].include?("Hello OpenShift!")
+      raise "verification pod doesn't serve properly, see log"
+    end
+    @result = pod(_pod_name).delete(by: user)
+    raise "can't delete verification pod" unless @result[:success]
+  }
+
+  svc_verify.call
+  teardown_add svc_verify
 end
