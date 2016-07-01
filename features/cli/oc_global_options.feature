@@ -179,3 +179,60 @@ Feature: oc global options (oc options) related scenarios
       | ca       | ca.crt      |
       | config   | 2.config    |
     Then the step should succeed
+
+  # @author xxia@redhat.com
+  # @case_id 509020
+  Scenario: Use global options to choose kubeconfig for any oc commands
+    Given I have a project
+    When I run the :create client command with:
+      | f        | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %>         |
+      | token    | <%= user.get_bearer_token.token %>  |
+      | insecure | true        |
+      | config   | new.config  |
+    Then the step should succeed
+
+    When I run the :config client command with:
+      | subcommand  | view        |
+      | config      | new.config  |
+    Then the step should succeed
+    Given the output is parsed as YAML
+    # Cache the context as 'previous' context
+    And evaluation of `@result[:parsed]['contexts'].find { |c| c['name'] == @result[:parsed]['current-context'] }` is stored in the :prev_c clipboard
+
+    Given I switch to the second user
+    And I create a new project
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %>         |
+      | token    | <%= user.get_bearer_token.token %>  |
+      | insecure | true        |
+      | config   | new.config  |
+    Then the step should succeed
+    # The current context is replaced, i.e., is not 'previous' context any more
+
+    When I run the :get client command with:
+      | resource | pod/hello-openshift                      |
+      | user     | <%= cb.prev_c['context']['user'] %>      |
+      | cluster  | <%= cb.prev_c['context']['cluster'] %>   |
+      | n        | <%= cb.prev_c['context']['namespace'] %> |
+      | config   | new.config  |
+    Then the step should succeed
+
+    # Without -n
+    When I run the :get client command with:
+      | resource | pod/hello-openshift                      |
+      | user     | <%= cb.prev_c['context']['user'] %>      |
+      | cluster  | <%= cb.prev_c['context']['cluster'] %>   |
+      | config   | new.config  |
+    Then the step should fail
+    And the output should contain "cannot get pods in project "<%= project.name %>""
+
+    # --context
+    When I run the :get client command with:
+      | resource | pod/hello-openshift      |
+      | context  | <%= cb.prev_c['name'] %> |
+      | config   | new.config  |
+    Then the step should succeed
