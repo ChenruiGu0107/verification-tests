@@ -255,48 +255,34 @@ Feature: Persistent Volume Claim binding policies
     And I have a NFS service in the project
 
     #Create RWXRWOROX pv
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-RWXRWOROX.json"
-    And I replace lines in "pv-template-RWXRWOROX.json":
-      |#NFS-Service-IP#|<%= service.ip %>|
-    When admin creates a PV from "pv-template-RWXRWOROX.json" where:
-      | ["metadata"]["name"] | nfs-<%= project.name %> |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]       | nfs-<%= project.name %>          |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce                    |
+      | ["spec"]["accessModes"][1] | ReadWriteMany                    |
+      | ["spec"]["accessModes"][2] | ReadOnlyMany                     |
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
     Then the step should succeed
 
     #Create RWXRWO pv
-    And I replace lines in "pv-template-RWXRWOROX.json":
-      |,"ReadOnlyMany"||
-    When admin creates a PV from "pv-template-RWXRWOROX.json" where:
-      | ["metadata"]["name"] | nfs1-<%= project.name %> |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]       | nfs1-<%= project.name %>         |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce                    |
+      | ["spec"]["accessModes"][1] | ReadWriteMany                    |
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
     Then the step should succeed
 
     #Create rox pvc
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json"
-    And I replace lines in "claim-rox.json":
-      |nfsc|pvc-<%= project.name %>|
-    And I run the :create client command with:
-      | f | claim-rox.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
 
-    #To verify the test point in 3 ways
-    When I run the :get client command with:
-      | resource | pvc |
-    Then the output should contain:
-      | Bound |
-    When I run the :get admin command with:
-      | resource | pv/nfs-<%= project.name %> |
-    Then the output should contain:
-      | Bound |
-    When I run the :get admin command with:
-      | resource | pv/nfs1-<%= project.name %> |
-    Then the output should not contain:
-      | pvc-<%= project.name %> |
+    #To verify the test point
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
+    And the "nfs1-<%= project.name %>" PV status is :available
 
     #Create the pod using the pvc
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json"
-    And I replace lines in "web-pod.json":
-      |nfsc|pvc-<%= project.name %>|
-    And I run the :create client command with:
-      | f | web-pod.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
     Then the step should succeed
     Given the pod named "nfs" becomes ready
 
