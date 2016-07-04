@@ -191,7 +191,7 @@ Given /^the#{OPT_QUOTED} node service is verified$/ do |node_name|
     unless @result[:success] || @result[:response].include?("Hello OpenShift!")
       raise "verification pod doesn't serve properly, see log"
     end
-    @result = pod(_pod_name).delete(by: user)
+    @result = pod(_pod_name).delete(by: user, grace_period: 0)
     raise "can't delete verification pod" unless @result[:success]
   }
 
