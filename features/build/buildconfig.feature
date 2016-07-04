@@ -195,3 +195,41 @@ Feature: buildconfig.feature
     Then the output should contain:
       | HTTPError Could not fetch specs from https://rubygems.org/  |
 
+  # @author haowang@redhat.com
+  # @case_id 498843
+  Scenario: Rebuild image when the underlying image changed for Docker build
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    Then the "ruby-20-centos7" image stream was created
+    And the "ruby-hello-world-1" build was created
+    When I run the :tag client command with:
+      | source_type | docker                 |
+      | source      | centos/ruby-22-centos7 |
+      | dest        | ruby-20-centos7:latest |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build was created
+
+  # @author haowang@redhat.com
+  # @case_id 470323
+  Scenario: Trigger multiple builds from a single image update
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    Then the "ruby-20-centos7" image stream was created
+    And the "ruby-hello-world-1" build was created
+    When I run the :new_build client command with:
+      | image_stream | ruby-20-centos7                      |
+      | code         | https://github.com/openshift/ruby-ex |
+      | name         | ruby-ex                              |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    When I run the :tag client command with:
+      | source_type | docker                 |
+      | source      | centos/ruby-22-centos7 |
+      | dest        | ruby-20-centos7:latest |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build was created
+    And the "ruby-ex-2" build was created
