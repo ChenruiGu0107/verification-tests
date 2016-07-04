@@ -744,3 +744,88 @@ Feature: build related feature on web console
       | bc_output      | None                    |
     Then the step should fail
     And the output should contain "element not found"
+
+  # @author yanpzhan@redhat.com
+  # @case_id 521466
+  Scenario: View build logs when build status are pending/running/complete/failed/cancelled from web console
+    When I create a new project via web
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | code           | https://github.com/openshift/ruby-hello-world |
+      | image_stream   | openshift/ruby                                |
+    Then the step should succeed
+    
+    When I perform the :check_build_log_tab web console action with:
+      | project_name      | <%= project.name %> |
+      | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
+      | build_status_name | Pending             |
+    Then the step should succeed
+
+    Given the "ruby-hello-world-1" build becomes :running
+    When I perform the :check_build_log_tab web console action with:
+      | project_name   | <%= project.name %> |
+      | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
+      | build_status_name | Running             |
+    Then the step should succeed
+    When I perform the :check_build_log_content web console action with:
+      | build_log_context | Running build with cgroup limits |
+    Then the step should succeed
+
+    When I run the :follow_log web console action
+    Then the step should succeed
+    When I run the :stop_follow_log web console action
+    Then the step should succeed
+    When I run the :follow_log web console action
+    Then the step should succeed
+    When I run the :go_to_top_log web console action
+    Then the step should succeed
+
+    Given the "ruby-hello-world-1" build becomes :complete
+    When I perform the :check_build_log_tab web console action with:
+      | project_name   | <%= project.name %> |
+      | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
+      | build_status_name | Complete             |
+    Then the step should succeed
+    When I perform the :check_build_log_content web console action with:
+      | build_log_context | Successfully pushed |
+    Then the step should succeed
+    When I run the :go_to_end_log web console action
+    Then the step should succeed
+    When I run the :go_to_top_log web console action
+    Then the step should succeed
+    When I perform the :open_full_view_log web console action with:
+      | log_context | Successfully pushed |
+    Then the step should succeed
+
+    When I run the :start_build client command with:
+       | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-2 |
+    Then the step should succeed
+    Given the "ruby-hello-world-2" build becomes :cancelled
+    When I perform the :check_build_log_tab web console action with:
+      | project_name   | <%= project.name %> |
+      | bc_and_build_name | ruby-hello-world/ruby-hello-world-2 |
+      | build_status_name | Cancelled             |
+    Then the step should succeed
+    When I perform the :check_no_log_info web console action with:
+      | no_log_one | Logs are not available |
+      | no_log_two | The logs are no longer available or could not be loaded |
+    Then the step should succeed
+
+    When I replace resource "bc" named "ruby-hello-world":
+      | https://github.com/openshift/ruby-hello-world | https://github.com/openshift/nonexist |
+    Then the step should succeed
+    When I run the :start_build client command with:
+       | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    Given the "ruby-hello-world-3" build becomes :failed
+    When I perform the :check_build_log_tab web console action with:
+      | project_name   | <%= project.name %> |
+      | bc_and_build_name | ruby-hello-world/ruby-hello-world-3 |
+      | build_status_name | Failed             |
+    Then the step should succeed
+    When I perform the :check_build_log_content web console action with:
+      | build_log_context |  Error: build error: failed to fetch requested repository "https://github.com/openshift/nonexist" |
+    Then the step should succeed
