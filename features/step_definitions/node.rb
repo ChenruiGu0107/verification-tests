@@ -14,8 +14,8 @@ Given /^I store the schedulable nodes in the#{OPT_SYM} clipboard$/ do |cbname|
   cbname = 'nodes' unless cbname
   cb[cbname] =
     CucuShift::Node.get_matching(user: admin) { |n, n_hash| n.schedulable? }
-  @nodes.reject! {|n| nodes.include? n}
-  @nodes.concat nodes.shuffle
+  @nodes.reject! {|n| cb[cbname].include? n}
+  @nodes.concat cb[cbname].shuffle
 end
 
 # @host from World will be used.
