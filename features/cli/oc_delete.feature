@@ -15,7 +15,7 @@ Feature: oc_delete.feature
     When I run the :delete client command with:
       | object_type | pod |
       | l | name=graceful |
-      | grace-period | 20 |
+      | grace_period | 20 |
     Then the step should succeed
     Given 15 seconds have passed
     When I get project pods
@@ -38,7 +38,7 @@ Feature: oc_delete.feature
     When I run the :delete client command with:
       | object_type | pod |
       | l | name=graceful |
-      | grace-period | 0 |
+      | grace_period | 0 |
     Then the step should succeed
     When I get project pods
     Then the step should succeed
