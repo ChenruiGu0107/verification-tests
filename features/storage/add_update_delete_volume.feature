@@ -7,7 +7,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Preparations
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb                                                                           |
+      | image_stream | openshift/mongodb:2.6                                                                       |
       | env          | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
       | name         | mydb                                                                                        |
     Then the step should succeed
@@ -166,7 +166,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Preparations
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb                                                                           |
+      | image_stream | openshift/mongodb:2.6                                                                       |
       | env          | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
       | name         | mydb                                                                                        |
     Then the step should succeed
@@ -283,7 +283,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And SCC "privileged" is added to the "default" user
     And SCC "privileged" is added to the "system:serviceaccounts" group
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb                                                                           |
+      | image_stream | openshift/mongodb:2.6                                                                       |
       | env          | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
       | name         | mydb                                                                                        |
     Then the step should succeed
@@ -425,7 +425,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
     # new-app
     When I run the :new_app client command with:
-      | image_stream | openshift/postgresql       |
+      | image_stream | openshift/postgresql:9.4   |
       | env          | POSTGRESQL_USER=tester     |
       | env          | POSTGRESQL_PASSWORD=xxx    |
       | env          | POSTGRESQL_DATABASE=testdb |
@@ -465,9 +465,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | resource_name | nfsc-<%= project.name %> |
       | output        | yaml                     |
     Then the step should succeed
-    And the output should contain:
-      | ReadWriteMany |
-      | 5Gi           |
+    And the expression should be true> @result[:parsed]['status']['accessModes'][0] == "ReadWriteMany"
+    And the expression should be true> @result[:parsed]['status']['capacity']['storage'] == "5Gi"
 
     #Verify the pod has mounted the nfs
     When I execute on the pod:
@@ -480,7 +479,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Preparations
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb                                                                           |
+      | image_stream | openshift/mongodb:2.6                                                                       |
       | env          | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
       | name         | mydb                                                                                        |
     Then the step should succeed
