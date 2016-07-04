@@ -73,9 +73,12 @@ module CucuShift
                                 update_from_api_object(resource_hash)
     end
 
-    def delete(by:)
+    def delete(by:, grace_period: nil)
+      del_opts = {}
+      del_opts[:grace_period] = grace_period unless grace_period.nil?
       cli_exec(as: by, key: :delete, object_type: self.class::RESOURCE,
-               object_name_or_id: name, namespace: project.name)
+               object_name_or_id: name, namespace: project.name,
+               **del_opts)
     end
 
     # @param labels [String, Array<String,String>] labels to filter on, read

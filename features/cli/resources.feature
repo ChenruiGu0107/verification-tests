@@ -109,7 +109,7 @@ Feature: resouces related scenarios
     And I run the :replace client command with:
       | f            | pod.yaml |
       | force        |          |
-      | grace-period | 100      |
+      | grace_period | 100      |
     # Currently, there is a bug https://bugzilla.redhat.com/show_bug.cgi?id=1285702 that makes the step *fail*
     Then the step should succeed
 
