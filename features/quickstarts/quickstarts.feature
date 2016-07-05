@@ -133,7 +133,7 @@ Feature: quickstarts.feature
     And the "ruby-sample-build-1" build completed
 
   # @author cryan@redhat.com
-  # @case_id 528401 528402 528403 492613 508743 508973 529322 529323
+  # @case_id 528401 528402 528403 492613 508743 508973 529322 529323 529372
   # @bug_id 1343184
   Scenario Outline: quickstart version test
     Given I have a project
@@ -161,5 +161,6 @@ Feature: quickstarts.feature
       | python:3.4 | python:3.3 | postgresql:9.4 | postgresql:9.2 | django-postgresql.json | django-psql-example      | django-ex |
       | python:3.4 | python:3.5 | postgresql:9.4 | postgresql:9.5 | django-postgresql.json | django-psql-example      | django-ex |
       | ruby:2.2   | ruby:2.0   |                |                | rails-postgresql.json  | rails-postgresql-example | rails-ex  |
+      | ruby:2.2   | ruby:2.3   |                |                | rails-postgresql.json  | rails-postgresql-example | rails-ex  |
       | perl:5.20  | perl:5.16  |                |                | dancer.json            | dancer-example           | dancer-ex |
       | perl:5.20  | perl:5.16  |                |                | dancer-mysql.json      | dancer-mysql-example     | dancer-ex |
