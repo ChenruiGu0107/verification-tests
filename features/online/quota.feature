@@ -11,7 +11,6 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | resource      | pod       |
       | resource_name | <podname> |
       | o             | json      |
-    And the output is parsed as JSON
     Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources']['limits']['cpu'] == "<expr1>"
     Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources']['limits']['memory'] == "<expr2>"
     Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources']['requests']['cpu'] == "<expr3>"

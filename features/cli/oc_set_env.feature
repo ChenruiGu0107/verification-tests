@@ -140,7 +140,6 @@ Feature: oc_set_env.feature
       | resource | dc   |
       | o        | json |
     Then the step succeeded
-    And the output is parsed as JSON
     Given evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :dc_one clipboard
     Given evaluation of `@result[:parsed]['items'][1]['metadata']['name']` is stored in the :dc_two clipboard
     # set environment variables

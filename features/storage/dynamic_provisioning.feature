@@ -49,7 +49,6 @@ Feature: Dynamic provisioning
       | resource_name | dynamic-pvc1-<%= project.name %> |
       | o             | json                             |
     Then the step should succeed
-    And the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name1 clipboard
 
     When I run the :get client command with:
@@ -57,7 +56,6 @@ Feature: Dynamic provisioning
       | resource_name | dynamic-pvc2-<%= project.name %> |
       | o             | json                             |
     Then the step should succeed
-    And the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name2 clipboard
 
     When I run the :get client command with:
@@ -65,7 +63,6 @@ Feature: Dynamic provisioning
       | resource_name | dynamic-pvc3-<%= project.name %> |
       | o             | json                             |
     Then the step should succeed
-    And the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name3 clipboard
 
     And I save volume id from PV named "<%= cb.pv_name1 %>" in the :volumeID1 clipboard

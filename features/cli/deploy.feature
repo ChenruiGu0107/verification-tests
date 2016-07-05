@@ -347,7 +347,6 @@ Feature: deployment related features
       | resource      | deploymentConfig |
       | resource_name | hooks            |
       | o             | json             |
-    And the output is parsed as JSON
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 1
     When I get project deploymentconfig as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :dc_name clipboard
@@ -370,7 +369,6 @@ Feature: deployment related features
       | resource      | deploymentConfig |
       | resource_name | hooks |
       | o             | json  |
-    And the output is parsed as JSON
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 2
 
   # @author pruan@redhat.com
@@ -993,7 +991,6 @@ Feature: deployment related features
         | resource | pod  |
         | resource_name | <pod_name> |
         |  o        | json |
-      And the output is parsed as JSON
       Then the expression should be true> @result[:parsed]['status']['containerStatuses'][0]['restartCount'] > 1
     """
     Examples:
@@ -1079,7 +1076,6 @@ Feature: deployment related features
     And I run the :get client command with:
       | resource | rc |
       | o | json |
-    And the output is parsed as JSON
     Then the expression should be true> @result[:parsed]['items'][0]['status']['replicas'] == 3
 
   # @author pruan@redhat.com
@@ -1098,7 +1094,6 @@ Feature: deployment related features
       | resource      | dc    |
       | resource_name | hooks |
       | o             | json  |
-    And the output is parsed as JSON
     Then the expression should be true> @result[:parsed]['spec']['replicas'] == 10
 
     When I run the :deploy client command with:
@@ -1371,7 +1366,6 @@ Feature: deployment related features
       | o             | json |
     Then the output should contain:
       | lastTriggeredImage     |
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
@@ -1381,7 +1375,6 @@ Feature: deployment related features
       | resource      | imagestream |
       | resource_name | origin-ruby-sample |
       | o             | json |
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
     When I run the :get client command with:
@@ -1390,7 +1383,6 @@ Feature: deployment related features
       | o             | json |
     Then the output should contain:
       | "latestVersion": 1 |
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
 
@@ -1408,7 +1400,6 @@ Feature: deployment related features
       | o             | json |
     Then the output should contain:
       | lastTriggeredImage     |
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
@@ -1418,7 +1409,6 @@ Feature: deployment related features
       | resource      | imagestream |
       | resource_name | origin-ruby-sample |
       | o             | json |
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
     When I run the :get client command with:
@@ -1427,7 +1417,6 @@ Feature: deployment related features
       | o             | json |
     Then the output should contain:
       | "latestVersion": 2 |
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
 
@@ -1483,7 +1472,6 @@ Feature: deployment related features
     And the output should not contain:
       | "latestVersion": 1 |
     """
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
@@ -1493,7 +1481,6 @@ Feature: deployment related features
       | resource      | imagestream |
       | resource_name | origin-ruby-sample |
       | o             | json |
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
     When I run the :get client command with:
@@ -1502,7 +1489,6 @@ Feature: deployment related features
       | o             | json |
     Then the output should not contain:
       | "latestVersion": 1 |
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
 
@@ -1527,7 +1513,6 @@ Feature: deployment related features
     And the output should not contain:
       | "latestVersion": 1 |
     """
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
@@ -1537,7 +1522,6 @@ Feature: deployment related features
       | resource      | imagestream |
       | resource_name | origin-ruby-sample |
       | o             | json |
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
     When I run the :get client command with:
@@ -1546,6 +1530,5 @@ Feature: deployment related features
       | o             | json |
     Then the output should not contain:
       | "latestVersion": 1 |
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage

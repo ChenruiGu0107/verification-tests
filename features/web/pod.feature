@@ -84,7 +84,6 @@ Feature: Pod related features on web console
       | resource_name | <%= pod.name %>  |
       | o             | json             |
     Then the step succeeded
-    And the output is parsed as JSON
     Given evaluation of `@result[:parsed]['metadata']['labels']` is stored in the :label_from_ui clipboard
     # check labels via cli
     Given I create a new project
@@ -99,6 +98,5 @@ Feature: Pod related features on web console
       | resource_name | <%= pod.name %>  |
       | o             | json             |
     Then the step succeeded
-    And the output is parsed as JSON
     Given evaluation of `@result[:parsed]['metadata']['labels']` is stored in the :label_from_cli clipboard
     Then the expression should be true> cb.label_from_ui == cb.label_from_cli

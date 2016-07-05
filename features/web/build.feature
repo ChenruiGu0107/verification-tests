@@ -215,14 +215,12 @@ Feature: build related feature on web console
     | resource_name | imagedockerbuild |
     | o             | json             |
   Then the step should succeed
-  And the output is parsed as JSON
   Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 1
   When I run the :get client command with:
     | resource      | bc |
     | resource_name | imagesourcebuild |
     | o             | json             |
   Then the step should succeed
-  And the output is parsed as JSON
   Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 2
   # check bc on web console
   When I perform the :count_buildconfig_image_paths web console action with:
@@ -263,7 +261,6 @@ Feature: build related feature on web console
     | resource_name | imagedockerbuild |
     | o             | json             |
   Then the step should succeed
-  And the output is parsed as JSON
   Then the expression should be true> @result[:parsed]['spec']['source']['images'][0]['paths'].length == 2
 
   # @author yapei@redhat.com
@@ -325,7 +322,6 @@ Feature: build related feature on web console
       | resource_name | myapp | 
       | o             | json  |
     Then the step should succeed
-    And the output is parsed as JSON
     Then the expression should be true> @result[:parsed]['spec']['strategy']['dockerStrategy']['env'].include?({"name"=>"dockertest", "value"=>"docker1234"})
     Then the expression should be true> @result[:parsed]['spec']['strategy']['dockerStrategy']['env'].include?({"name"=>"testname", "value"=>"testvalue"})
     # remove env vars

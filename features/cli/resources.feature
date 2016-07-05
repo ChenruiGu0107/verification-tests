@@ -16,12 +16,10 @@ Feature: resouces related scenarios
     When I run the :get client command with:
       | resource | pods |
       | o        | json |
-    And the output is parsed as JSON
     Then the expression should be true> @result[:parsed]['items'].any? {|p| p['metadata']['name'].include? 'mysql-55-centos7-1-deploy'}
     When I run the :get client command with:
       | resource | pods |
       | o        | yaml |
-    And the output is parsed as YAML
     Then the expression should be true> @result[:parsed]['items'].any? {|p| p['metadata']['name'].include? 'mysql-55-centos7-1-deploy'}
     When I run the :get client command with:
       | resource | pods |

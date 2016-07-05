@@ -202,7 +202,6 @@ Feature: buildlogic.feature
       | o             | json           |
       | n             | openshift      |
     Then the step should succeed
-    Given the output is parsed as JSON
     And evaluation of `@result[:parsed]['image']['metadata']['name']` is stored in the :imagestreamimage clipboard
     When I run oc create over "<template>" replacing paths:
       | ['spec']['strategy']['<strategy>']['from']['name'] | ruby@<%= cb.imagestreamimage %> |
