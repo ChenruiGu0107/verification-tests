@@ -1,7 +1,3 @@
-require 'json'
-require 'yaml'
-require 'tempfile'
-
 require 'openshift/cluster_resource'
 
 module CucuShift
