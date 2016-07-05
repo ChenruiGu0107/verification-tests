@@ -137,6 +137,11 @@ module CucuShift
       alias list get_matching
     end
 
+    def delete(by:)
+      cli_exec(as: by, key: :delete, object_type: self.class::RESOURCE,
+               object_name_or_id: name)
+    end
+
     ############### take care of object comparison ###############
     def ==(p)
       p.kind_of?(self.class) && name == p.name && env == p.env

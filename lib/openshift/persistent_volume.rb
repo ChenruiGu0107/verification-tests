@@ -28,10 +28,6 @@ module CucuShift
       return self # mainly to help ::from_api_object
     end
 
-    def delete(by:)
-      cli_exec(as: by, key: :delete, object_type: "pv", object_name_or_id: name)
-    end
-
     # @param from_status [Symbol] the status we currently see
     # @param to_status [Array, Symbol] the status(es) we check whether current
     #   status can change to

@@ -163,6 +163,7 @@ Given /^I wait for the resource "(.+)" named "(.+)" to disappear(?: within (\d+)
   res = {}
   # just put a timeout so we don't hang there indefintely
   timeout = timeout ? timeout.to_i : 15 * 60
+  # TODO: update to use the new World#resource method
   success = wait_for(timeout) {
     res = user.cli_exec(:get, **opts)
     case res[:response]
@@ -176,5 +177,30 @@ Given /^I wait for the resource "(.+)" named "(.+)" to disappear(?: within (\d+)
   unless @result[:success]
     logger.error(@result[:response])
     raise "#{resource_name} #{resource_type} did not terminate"
+  end
+end
+
+# tries to delete resource if it exists and make sure it disappears
+# example: I ensure "hello-openshift" pod is deleted
+Given /^(I|admin) ensures? #{QUOTED} (\w+) is deleted(?: from the#{OPT_QUOTED} project)?( after scenario)?$/ do |by, name, type, project_name, after|
+  _user = by == "admin" ? admin : user
+  _resource = resource(name, type, project_name: project_name)
+  _seconds = 60
+  p = proc {
+    if _resource.visible?(user: _user, quiet: true)
+      @result = _resource.delete(by: _user)
+      raise "cannot delete #{type} #{name}" unless @result[:success]
+      unless _resource.disappeared?(_user, _seconds)
+        raise "#{type} #{name} did not disappear within #{_seconds} seconds"
+      end
+    else
+      logger.info "#{type} #{name} seems to be gone already"
+    end
+  }
+
+  if after
+    teardown_add p
+  else
+    p.call
   end
 end
