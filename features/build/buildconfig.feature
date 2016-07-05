@@ -162,6 +162,72 @@ Feature: buildconfig.feature
     Then the step should fail
     And the output should contain "char"
 
+  # @author cryan@redhat.com
+  # @case_id 479016
+  Scenario: STI build with imageStreamImage in buildConfig
+    Given I have a project
+    When I run the :import_image client command with:
+      | image_name | ruby                   |
+      | from       | centos/ruby-22-centos7 |
+      | confirm    | true                   |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is   |
+      | resource_name | ruby |
+      | o             | yaml |
+    Then the output should match "name:\s+ruby"
+    And evaluation of `@result[:parsed]["status"]["tags"][0]["items"][0]["image"]` is stored in the :imagesha clipboard
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig                                                                                              |
+      | resource_name | ruby22-sample-build                                                                                      |
+        | p | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@<%= cb.imagesha %>"}},"type":"Docker","sourceStrategy":null}}} |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | buildconfig           |
+      | name     | ruby22-sample-build   |
+    Then the step should succeed
+    And the output should match:
+      | ImageStreamImage\s+ruby@<%= cb.imagesha %> |
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    Given the "ruby22-sample-build-2" build completes
+    When I run the :describe client command with:
+      | resource | build                 |
+      | name     | ruby22-sample-build-2 |
+    Then the step should succeed
+    And the output should match:
+      | DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %> |
+    When I run the :patch client command with:
+        | resource      | buildconfig                                                                                                                                                 |
+        | resource_name | ruby22-sample-build                                                                                                                                         |
+        | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@<%= cb.imagesha[0..15] %>"}},"type":"Docker","sourceStrategy":null}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    Given the "ruby22-sample-build-3" build was created
+    When I run the :patch client command with:
+        | resource      | buildconfig                                                                                                                               |
+        | resource_name | ruby22-sample-build                                                                                                                       |
+        | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@123456" }},"type":"Docker","sourceStrategy":null}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should fail
+    And the output should contain "not found"
+    When I run the :patch client command with:
+        | resource      | buildconfig                                                                                                                        |
+        | resource_name | ruby22-sample-build                                                                                                                |
+        | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@"}},"type":"Docker","sourceStrategy":null}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should fail
+    And the output should contain "must be retrieved"
+
   # @author wewang@redhat.com
   # @case_id 507556
   Scenario: Add ENV to DockerStrategy buildConfig and Dockerfile when do docker build
