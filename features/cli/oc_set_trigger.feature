@@ -85,7 +85,6 @@ Feature: oc set triggers tests
       | resource      | bc               |
       | resource_name | ruby-hello-world |
       | o             | yaml             |
-    And the output is parsed as YAML
     Then the expression should be true> @result[:parsed]['spec']['triggers'].count == 0
     # 4. add triggers one at a time for now the triggers array will be in the order of FIFO
     When I run the :set_triggers client command with:
@@ -118,7 +117,6 @@ Feature: oc set triggers tests
       | resource      | bc               |
       | resource_name | ruby-hello-world |
       | o             | yaml             |
-    And the output is parsed as YAML
     # just create a shorthand to save from typing long variables
     And evaluation of `@result[:parsed]['spec']['triggers']` is stored in the :triggers clipboard
     Then the expression should be true> cb.triggers[0]['type'] == 'ConfigChange'
@@ -165,7 +163,6 @@ Feature: oc set triggers tests
     When I run the :get client command with:
       | resource | dc/dctest |
       | o        | yaml      |
-    And the output is parsed as YAML
     Then the expression should be true> !@result[:parsed]['spec']['triggers'].inspect.include? 'ConfigChange'
     #remove all triggers
     And I run the :set_triggers client command with:
@@ -176,7 +173,6 @@ Feature: oc set triggers tests
       | resource | dc/dctest |
       | o        | yaml      |
     Then the step should succeed
-    And the output is parsed as YAML
     # empty triggers array mean all triggers are removed
     Then the expression should be true> @result[:parsed]['spec']['triggers'].count == 0
     # negative tests

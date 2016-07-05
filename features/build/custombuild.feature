@@ -20,13 +20,11 @@ Feature: custombuild.feature
       | resource_name | frontend |
       | o             | json     |
     Then the step should succeed
-    And the output is parsed as JSON
     And evaluation of `@result[:parsed]['spec']['clusterIP']` is stored in the :service_ip clipboard
     When I run the :get client command with:
       | resource | pods  |
       | o        | json  |
     Then the step should succeed
-    And the output is parsed as JSON
     Given evaluation of `@result[:parsed]['items'][1]['metadata']['name']` is stored in the :pod_name clipboard
     Given I wait up to 120 seconds for the steps to pass:
     """
