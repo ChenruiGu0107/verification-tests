@@ -34,7 +34,7 @@ module CucuShift
     alias exists? visible?
 
     def get_checked(user:, quiet: false)
-      res = get(user: user)
+      res = get(user: user, quiet: quiet)
       unless res[:success]
         logger.error(res[:response])
         raise "could not get self.class::RESOURCE"
@@ -65,6 +65,16 @@ module CucuShift
       return res
     end
     alias reload get
+
+
+    def get_cached_prop(prop:, user:, cached: false, quiet: false)
+      unless cached && props[prop]
+        raise "provide user to get API object as" unless user
+        get_checked(user: user, quiet: quiet)
+      end
+
+      return props[prop]
+    end
 
     # @return [CucuShift::ResultHash]
     def wait_to_appear(user, seconds = 30)
@@ -112,19 +122,51 @@ module CucuShift
     end
     alias wait_to_disappear disappeared?
 
-    def status_raw(user:, cached: false)
+    # @return [Hash] the raw status of resource as returned by API
+    def status_raw(user:, cached: false, quiet: false)
       if cached && props[:status]
         return props[:status]
       else
-        get(user: user)
-        raise("#{self.class}} does not handle status") unless props[:status]
-        return props[:status]
+        res = get(user: user, quiet: quiet)
+        if cached && !props[:status]
+          logger.warn("#{self.class}} does not cache status")
+        end
+        if res[:success]
+          return props[:status] || res[:parsed]["status"]
+        elsif res[:stderr] && res[:stderr].include?('not found')
+          return {"phase" => "Missing"}
+        else
+          raise "cannot get #{self.class::RESOURCE} #{name}: #{res[:response]}"
+        end
       end
     end
 
-    def phase(user: , cached: false)
-      return status_raw(user: user, cached: cached)["phase"].downcase.to_sym
-      # TODO: implement `missing` phase?
+    def phase(user:, cached: false, quiet: false)
+      return status_raw(user: user, cached: cached, quiet: quiet)["phase"].downcase.to_sym
+    end
+
+    # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
+    # @return [Boolean] if resource status is what's expected
+    def status?(user:, status:, quiet: false, cached: false)
+      matched_status = phase(user: user, quiet: quiet, cached: cached)
+      status = [ status ].flatten
+      res = {
+        instruction: "get #{cached ? 'cached' : ''} #{self.class::RESOURCE} #{name} status",
+        response: "matched status for #{self.class::RESOURCE} #{name}: '#{matched_status}' while expecting '#{status}'",
+        matched_status: matched_status,
+        exitstatus: 0
+      }
+
+      #Check if the user-provided status actually exists
+      if defined?(self.class::STATUSES)
+        unknown_statuses = status - [:missing] - self.class::STATUSES
+        unless unknown_statuses.empty?
+          raise "some requested statuses are unknown: #{unknown_statuses}"
+        end
+      end
+
+      res[:success] = status.include? matched_status
+      return res
     end
 
     # @return [CucuShift::ResultHash] with :success true if we've eventually got

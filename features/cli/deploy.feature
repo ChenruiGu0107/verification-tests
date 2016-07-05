@@ -868,7 +868,7 @@ Feature: deployment related features
       | selector      | ab-example=true |
     Then the step should succeed
     When I expose the "ab-example" service
-    Then I wait for a server to become available via the "ab-example" route
+    Then I wait for a web server to become available via the "ab-example" route
     And the output should contain "shardA"
     When I run the :new_app client command with:
       | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
@@ -882,7 +882,7 @@ Feature: deployment related features
       | replicas | 0                |
     Given I wait until number of replicas match "0" for replicationController "ab-example-a-1"
     When I use the "ab-example" service
-    Then I wait for a server to become available via the "ab-example" route
+    Then I wait for a web server to become available via the "ab-example" route
     And the output should contain "shardB"
     Then I run the :scale client command with:
       | resource | deploymentconfig |
@@ -894,7 +894,7 @@ Feature: deployment related features
       | replicas | 1                |
     Given I wait until number of replicas match "0" for replicationController "ab-example-b-1"
     When I use the "ab-example" service
-    Then I wait for a server to become available via the "ab-example" route
+    Then I wait for a web server to become available via the "ab-example" route
     And the output should contain "shardA"
 
   # @author yinzhou@redhat.com
@@ -915,9 +915,9 @@ Feature: deployment related features
       | resource_name | bluegreen-example-old |
       | name     | bluegreen-example |
     Then the step should succeed
-    #And I wait for a server to become available via the route
+    #And I wait for a web server to become available via the route
     When I use the "bluegreen-example-old" service
-    And I wait for a server to become available via the "bluegreen-example" route
+    And I wait for a web server to become available via the "bluegreen-example" route
     And the output should contain "v1"
     And I replace resource "route" named "bluegreen-example":
       | name: bluegreen-example-old | name: bluegreen-example-new |
@@ -925,7 +925,7 @@ Feature: deployment related features
     When I use the "bluegreen-example-new" service
     And I wait for the steps to pass:
     """
-    And I wait for a server to become available via the "bluegreen-example" route
+    And I wait for a web server to become available via the "bluegreen-example" route
     And the output should contain "v2"
     """
 
@@ -964,19 +964,19 @@ Feature: deployment related features
       | resource | pod |
       | resource_name | hooks-1-hook-pre    |
       | output        | yaml        |
-    And the output should contain:
-      | mountPath: /opt1empt |
-      | emptyDir: {} |
-      | name: dataem |
+    And the output should match:
+      | mountPath:\\s+/var/lib/origin |
+      | emptyDir:\\s+{} |
+      | name:\\s+dataem |
     When the pod named "hooks-1-hook-post" becomes ready
     And I run the :get client command with:
       | resource | pod |
       | resource_name | hooks-1-hook-post    |
       | output        | yaml        |
-    And the output should contain:
-      | mountPath: /opt1empt |
-      | emptyDir: {} |
-      | name: dataem |
+    And the output should match:
+      | mountPath:\\s+/var/lib/origin |
+      | emptyDir:\\s+{} |
+      | name:\\s+dataem |
 
   # @author pruan@redhat.com
   # @case_id 483177, 483178
@@ -1051,7 +1051,7 @@ Feature: deployment related features
     Then the step should succeed
     And I wait until the status of deployment "recreate-example" becomes :complete
     When I use the "recreate-example" service
-    And I wait for a server to become available via the "recreate-example" route
+    And I wait for a web server to become available via the "recreate-example" route
     Then the output should contain:
       | v1 |
     When I run the :tag client command with:
@@ -1060,7 +1060,7 @@ Feature: deployment related features
     Then the step should succeed
     And I wait until the status of deployment "recreate-example" becomes :complete
     When I use the "recreate-example" service
-    And I wait for a server to become available via the "recreate-example" route
+    And I wait for a web server to become available via the "recreate-example" route
     Then the output should contain:
       | v2 |
 
@@ -1252,16 +1252,16 @@ Feature: deployment related features
     # @case_id 515919
     Scenario: Start new deployment when deployment running
       Given I have a project
-      When I run the :new_app client command with:
-        | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+      When I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
       Then the step should succeed
-      Given I wait until the status of deployment "deployment-example" becomes :running
-      And I replace resource "dc" named "deployment-example":
+      Given I wait until the status of deployment "hooks" becomes :running
+      And I replace resource "dc" named "hooks":
         | latestVersion: 1 | latestVersion: 2 |
       Then the step should succeed
       When I run the :deploy client command with:
-        | deployment_config | deployment-example |
-      Then the output should contain "The deployment was cancelled as a newer deployment was found running"
+        | deployment_config | hooks |
+      Then the output should contain "newer deployment was found running"
 
   # @author cryan@redhat.com
   # @case_id 515922
@@ -1353,3 +1353,199 @@ Feature: deployment related features
       | \\s+limits:\n\\s+cpu: 400m\n\\s+memory: 200Mi\n   |
       | \\s+requests:\n\\s+cpu: 400m\n\\s+memory: 200Mi\n |
     """
+
+  # @author yinzhou@redhat.com
+  # @case_id 527512
+  Scenario: Automatic set to false with ConfigChangeController on the DeploymentConfig
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    And I replace lines in "application-template-stibuild.json":
+      |"automatic": true|"automatic": false|
+    When I process and create "application-template-stibuild.json"
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    And I wait until the status of deployment "frontend" becomes :complete
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | lastTriggeredImage     |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build finishes
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | origin-ruby-sample |
+      | o             | json |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
+    And the expression should be true> cb.imagestreamitems.length == 2
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | "latestVersion": 1 |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
+    And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
+
+  # @author yinzhou@redhat.com
+  # @case_id 527514
+  Scenario: Automatic set to true with ConfigChangeController on the DeploymentConfig
+    Given I have a project
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    And I wait until the status of deployment "frontend" becomes :complete
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | lastTriggeredImage     |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build finishes
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | origin-ruby-sample |
+      | o             | json |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
+    And the expression should be true> cb.imagestreamitems.length == 2
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | "latestVersion": 2 |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
+    And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
+
+  # @author yinzhou@redhat.com
+  # @case_id 487928
+  Scenario: app deploy successfully with correct registry credentials
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo        | centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    Given the "ruby-hello-world-1" build was created
+    Given the "ruby-hello-world-1" build completed
+    Given I wait for the "ruby-hello-world" service to become ready
+    When I expose the "ruby-hello-world" service
+    Then I wait for a web server to become available via the "ruby-hello-world" route
+    And the output should contain "Demo App!"
+    When I git clone the repo "https://github.com/openshift/ruby-hello-world" to "dummy"
+    Given I replace lines in "dummy/views/main.erb":
+      | Demo App | zhouying |
+    Then the step should succeed
+    And I commit all changes in repo "dummy" with message "test"
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | from_dir    | dummy |
+    Then the step should succeed
+    Given the "ruby-hello-world-2" build completed
+    And I wait until the status of deployment "ruby-hello-world" becomes :complete
+    Then I wait for a web server to become available via the "ruby-hello-world" route
+    And the output should contain "zhouying"
+    When I run the :rollback client command with:
+      | deployment_name | ruby-hello-world |
+      | to_version | 1 |
+    Then the step should succeed
+    And I wait until the status of deployment "ruby-hello-world" becomes :complete
+    Then I wait for a web server to become available via the "ruby-hello-world" route
+    And the output should contain "Demo App!"
+
+  # @author yinzhou@redhat.com
+  # @case_id 527515
+  Scenario: Automatic set to true without ConfigChangeController on the DeploymentConfig
+    Given I have a project
+    Given I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/build-deploy-without-configchange.json"
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | lastTriggeredImage     |
+    And the output should not contain:
+      | "latestVersion": 1 |
+    """
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build finishes
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | origin-ruby-sample |
+      | o             | json |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
+    And the expression should be true> cb.imagestreamitems.length == 2
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should not contain:
+      | "latestVersion": 1 |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
+    And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
+
+  # @author yinzhou@redhat.com
+  # @case_id 527513
+  Scenario: Automatic set to false without ConfigChangeController on the DeploymentConfig
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/build-deploy-without-configchange.json"
+    And I replace lines in "build-deploy-without-configchange.json":
+      |"automatic": true|"automatic": false|
+    When I process and create "build-deploy-without-configchange.json"
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should contain:
+      | lastTriggeredImage     |
+    And the output should not contain:
+      | "latestVersion": 1 |
+    """
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build finishes
+    When I run the :get client command with:
+      | resource      | imagestream |
+      | resource_name | origin-ruby-sample |
+      | o             | json |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
+    And the expression should be true> cb.imagestreamitems.length == 2
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | frontend |
+      | o             | json |
+    Then the output should not contain:
+      | "latestVersion": 1 |
+    Given the output is parsed as JSON
+    And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
+    And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage

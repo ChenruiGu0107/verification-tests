@@ -41,13 +41,38 @@ Given /^the pod(?: named "(.+)")? is present$/ do |name|
   end
 end
 
+Given /^I store in the#{OPT_SYM} clipboard the pods labeled:$/ do |cbn, labels|
+  cbn ||= :pods
+  cb[cbn] = CucuShift::Pod.get_labeled(*labels.raw.flatten,
+                                       project: project,
+                                       user: user)
+end
+
 Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
   status_timeout = 15 * 60
-  @result = pod(name).wait_till_status(status, user, status_timeout)
+  @result = pod(name).wait_till_status(status.to_sym, user, status_timeout)
 
   unless @result[:success]
     logger.error(@result[:response])
     raise "#{pod.name} pod did not become #{status}"
+  end
+end
+
+Given /^status becomes :([^\s]*?) of( exactly)? ([0-9]+) pods labeled:$/ do |status, exact_count, count, labels|
+  timeout = 15 * 60
+  labels = labels.raw.flatten
+
+  @result = CucuShift::Pod.wait_for_labeled(*labels, count: count.to_i,
+              user: user, project: project, seconds: timeout) { |p, p_hash|
+    p.status?(status: status.to_sym, user: user, cached: true, quiet: true)
+  }
+
+  cache_pods(*@result[:items], *@result[:matching])
+
+  count_good = !exact_count || @result[:matching].size == count.to_i
+
+  unless @result[:success] && count_good
+    raise "desired num of pods did not become #{status}"
   end
 end
 
@@ -72,11 +97,12 @@ Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
   ready_timeout = 15 * 60
   num = Integer(count)
 
+  # TODO: make waiting a single step like for PVs and PVCs
   @result = CucuShift::Pod.wait_for_labeled(*labels, count: num,
                        user: user, project: project, seconds: pod_timeout)
 
   if !@result[:success] || @result[:matching].size < num
-    logger.error("Wanted #{num} but only got #{@result[:matching].size} pods labeled: #{labels.join(",")}")
+    logger.error("Wanted #{num} but only got '#{@result[:matching].size}' pods labeled: #{labels.join(",")}")
     raise "See log, waiting for labeled pods futile: #{labels.join(',')}"
   end
 
@@ -160,3 +186,4 @@ Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |po
   res_cache[:success] = success
   @result  = res_cache
 end
+

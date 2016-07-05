@@ -4,6 +4,7 @@ module CucuShift
   # represents an OpenShift DeploymentConfig (dc for short) used for scaling pods
   class DeploymentConfig < ProjectResource
     RESOURCE = "deploymentconfigs"
+    STATUSES = [:waiting, :running, :succeeded, :failed, :complete]
 
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that can change at any time like status and spec
@@ -30,7 +31,8 @@ module CucuShift
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [Boolean] if pod status is what's expected
-    def status?(user:, status:, quiet: false)
+    # @note TODO: can we just remove method and use [Resource#status?]
+    def status?(user:, status:, quiet: false, cached: false)
       statuses = {
         waiting: "Waiting",
         running: "Running",
@@ -46,7 +48,7 @@ module CucuShift
     end
 
     # @return [CucuShift::ResultHash] with :success depending on status['replicas'] == spec['replicas']
-    def ready?(user, quiet: false)
+    def ready?(user:, quiet: false)
       res = describe(user, quiet: quiet)
 
       if res[:success]
@@ -54,6 +56,22 @@ module CucuShift
         res[:success] =  res[:parsed][:pods_status][:running].to_i == 1
       end
       return res
+    end
+
+    def replicas(user:, cached: false, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user,
+                             cached: cached, quiet: quiet)
+      return spec["replicas"]
+    end
+
+    def strategy(user:, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec['strategy']
+    end
+
+    def selector(user:, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec['selector']
     end
   end
 end

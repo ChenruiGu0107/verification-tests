@@ -23,7 +23,7 @@ Feature: general_db.feature
       | file | jws-tomcat7-mysql-sti.json |
     Then the step should succeed
     When I use the "jws-http-service" service
-    Then I wait for a server to become available via the "jws-http-route" route
+    Then I wait for a web server to become available via the "jws-http-route" route
 
   # @author haowang@redhat.com
   # @case_id 473389 508066
@@ -111,7 +111,7 @@ Feature: general_db.feature
       | 2.6 |
 
   # @author haowang@redhat.com
-  # @case_id 500991 508085
+  # @case_id 500991 508085 529330
   Scenario Outline: Verify cluster mongodb can be connect after change admin and user password or redeployment for ephemeral storage - mongodb-24-rhel7 mongodb-26-rhel7
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/mongodb/master/2.4/examples/replica/mongodb-clustered.json"
@@ -150,19 +150,22 @@ Feature: general_db.feature
       | image                       | sclname      | output |
       | openshift3/mongodb-24-rhel7 | mongodb24    | 2.4    |
       | rhscl/mongodb-26-rhel7      | rh-mongodb26 | 2.6    |
+      | rhscl/mongodb-32-rhel7      | rh-mongodb32 | 3.2    |
 
   # @author haowang@redhat.com
   # @case_id 498006
-  @admin
-  @destructive
   Scenario: mongodb persistent template
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     Then I run the :new_app client command with:
       | template | mongodb-persistent |
       | param    | MONGODB_ADMIN_PASSWORD=admin |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | mongodb                                                                         |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "mongodb" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | name=mongodb          |
       | deployment=mongodb-1  |
@@ -176,16 +179,18 @@ Feature: general_db.feature
       | 2.6 |
   # @author haowang@redhat.com
   # @case_id 519474
-  @admin
-  @destructive
   Scenario: mongodb 24 with persistent volume
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     Then I run the :new_app client command with:
       | file     | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mongodb24-persistent-template.json |
       | param    | MONGODB_ADMIN_PASSWORD=admin |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | mongodb                                                                         |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "mongodb" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | name=mongodb          |
       | deployment=mongodb-1  |
@@ -228,3 +233,110 @@ Feature: general_db.feature
     And the output should contain:
       | 10 |
 
+  # @author xiuwang@redhat.com
+  # @case_id 529316
+  Scenario: Create mongo resources with persistent template for mongodb-32-rhel7 images
+    Given I have a project
+    When I run the :import_image client command with:
+      | image_name | mongodb:3.2 |
+      | from | <%= product_docker_repo %>rhscl/mongodb-32-rhel7 |
+      | confirm  | true |
+      | insecure | true |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-persistent-template.json" 
+    And I replace lines in "mongodb-persistent-template.json":
+      |mongodb:latest|mongodb:3.2|
+      |${NAMESPACE}|<%= project.name %>|
+    Then I run the :new_app client command with:
+      | file  |mongodb-persistent-template.json| 
+      | param | MONGODB_ADMIN_PASSWORD=admin   |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | mongodb                                                                         |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "mongodb" PVC becomes :bound within 300 seconds
+    And a pod becomes ready with labels:
+      | name=mongodb         |
+      | deployment=mongodb-1 |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mongo admin -u admin -padmin --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 3.2 |
+
+  # @author xiuwang@redhat.com
+  # @case_id 529320
+  Scenario: create resource via oc new-app mongodb-32-rhel7
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image      | <%= product_docker_repo %>rhscl/mongodb-32-rhel7 |
+      | insecure_registry | true      |
+      | name              | mongodb32 |
+      | env               | MONGODB_USER=user,MONGODB_PASSWORD=pass,MONGODB_DATABASE=db,MONGODB_ADMIN_PASSWORD=pass |
+    Then the step should succeed
+    Given I wait for the "mongodb32" service to become ready
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | mongo db -uuser -ppass --eval "db.db.insert({'name':'openshift'})" |
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | mongo db -uuser -ppass --eval "printjson(db.db.findOne())" |
+    Then the step should succeed
+    And the output should contain:
+      | name |
+      | openshift |
+
+  # @author xiuwang@redhat.com
+  # @case_id 529333
+  Scenario: Verify mongodb can be connect after change admin and user password or re-deployment for ephemeral storage - mongodb-32-rhel7
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-ephemeral-template.json"
+    When I run the :import_image client command with:
+      | image_name | mongodb:3.2 |
+      | from | <%= product_docker_repo %>rhscl/mongodb-32-rhel7 |
+      | confirm  | true |
+      | insecure | true |
+    Then the step should succeed
+    And I replace lines in "mongodb-ephemeral-template.json":
+      |mongodb:latest|mongodb:3.2|
+      |${NAMESPACE}|<%= project.name %>|
+    When I run the :new_app client command with:
+      | file  | mongodb-ephemeral-template.json |
+      | param | MONGODB_ADMIN_PASSWORD=admin    |
+    And a pod becomes ready with labels:
+      | name=mongodb         |
+      | deployment=mongodb-1 |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mongo admin -u admin -padmin --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 3.2 |
+    When I run the :env client command with:
+      | resource | dc/mongodb |
+      | e        | MONGODB_ADMIN_PASSWORD=newadmin |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=mongodb         |
+      | deployment=mongodb-2 |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mongo admin -u admin -padmin --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 3.2 |

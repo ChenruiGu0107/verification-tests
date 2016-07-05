@@ -108,3 +108,129 @@ Feature: Check deployments function
       | dc_number    | 2                   |
       | replicas     | 2                   |
     Then the step should fail
+
+  # @author yapei@redhat.com
+  # @case_id 483174
+  Scenario: Check deployment info on web console
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    # check dc detail info
+    When I perform the :check_dc_strategy web console action with:
+      | project_name | <%= project.name %>   |
+      | dc_name      | hooks                 |
+      | dc_strategy  | <%= dc.strategy(user:user)["type"] %> |
+    Then the step should succeed
+    When I perform the :check_dc_manual_cli_trigger web console action with:
+      | project_name | <%= project.name %>   |
+      | dc_name      | hooks                 |
+      | dc_manual_trigger_cli | oc deploy hooks --latest -n <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_dc_config_trigger web console action with:
+      | project_name | <%= project.name %>   |
+      | dc_name      | hooks                 |
+      | dc_config_change | Config            |
+    Then the step should succeed
+    When I perform the :check_dc_selector web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+      | dc_selectors_key | <%= dc.selector(user:user).keys[0] %> |
+      | dc_selectors_value | <%= dc.selector(user:user).values[0] %> |
+    Then the step should succeed
+    When I perform the :check_dc_replicas web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+      | dc_replicas  | <%= dc.replicas(user:user) %>  |
+    Then the step should succeed
+    # check #1 deployment info
+    When I perform the :check_specific_deploy_selector web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+      | dc_number    | 1                      |
+      | specific_deployment_selector | deployment=hooks-1 |
+    Then the step should succeed
+    # check #2 deployment info
+    When I perform the :manually_deploy web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+    Then the step should succeed
+    When I perform the :wait_latest_deployments_to_status web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+      | status_name  | Deployed               |
+    Then the step should succeed
+    When I perform the :check_specific_deploy_selector web console action with:
+      | project_name | <%= project.name %>    |
+      | dc_name      | hooks                  |
+      | dc_number    | 2                      |
+      | specific_deployment_selector | deployment=hooks-2 |
+    Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id 510377
+  Scenario: View deployments streaming logs
+    When I create a new project via web
+    Then the step should succeed
+
+    When I run the :run client command with:
+      | name  | mytest             |
+      | image | openshift/mysql-55-centos7:latest |
+      | env   | MYSQL_USER=test,MYSQL_PASSWORD=redhat,MYSQL_DATABASE=testdb |
+    Then the step should succeed
+
+    # Check deploy pod log
+    When I perform the :check_log_context_on_pod_page web console action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | mytest-1-deploy |
+      | status       | Running |
+      | log_context  | Deploying |
+    Then the step should succeed
+
+    And I wait until the status of deployment "mytest" becomes :complete
+    When I perform the :manually_deploy web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | mytest       |
+    Then the step should succeed
+
+    # Check deployment log
+    When I perform the :check_log_context_on_deployment_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | mytest    |
+      | dc_number    | 2         |
+      | status       | Running   |
+      | log_context  | Deploying |
+    Then the step should succeed
+
+    And I wait until the status of deployment "mytest" becomes :complete
+    Given 1 pods become ready with labels:
+      | run=mytest |
+
+    When I perform the :check_log_context_on_deployment_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | mytest    |
+      | dc_number    | 2         |
+      | status       | Deployed |
+      | log_context  | PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER |
+    Then the step should succeed
+
+    When I run the :follow_log web console action
+    Then the step should succeed
+
+    When I run the :go_to_top_log web console action
+    Then the step should succeed
+
+    When I perform the :open_full_view_log web console action with:
+      | log_context | PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER |
+    Then the step should succeed
+
+    #Compare the latest deployment log with the running pod log
+    When I run the :logs client command with:
+      | resource_name    | dc/mytest |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :output clipboard
+    When I run the :logs client command with:
+      | resource_name    | <%= pod.name %> |
+    Then the step should succeed
+    And the output should equal "<%= cb.output %>"

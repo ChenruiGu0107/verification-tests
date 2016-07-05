@@ -37,4 +37,61 @@ Feature: Downward API
     Then the step should succeed
     And the output should contain:
       | POD_NAME=dapi-test-pod |
-      | POD_NAMESPACE |
+      | POD_NAMESPACE=<%= project.name %> |
+
+
+  # @author qwang@redhat.com
+  # @case_id 509098
+  Scenario: Container consume infomation from the downward API using a volume plugin
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/pod-dapi-volume.yaml |
+    Then the step should succeed
+    Given the pod named "pod-dapi-volume" becomes ready
+    When I execute on the pod:
+      | ls | -laR | /var/tmp/podinfo |
+    Then the output should contain:
+      | annotations -> ..downwardapi/annotations |
+      | labels -> ..downwardapi/labels           |
+      | name -> ..downwardapi/name               |
+      | namespace -> ..downwardapi/namespace     |
+    When I execute on the pod:
+      | cat | /var/tmp/podinfo/name |
+    Then the output should contain:
+      | pod-dapi-volume |
+    And I execute on the pod:
+      | cat | /var/tmp/podinfo/namespace |
+    Then the output should contain:
+      | <%= project.name %> |
+    And I execute on the pod:
+      | cat | /var/tmp/podinfo/labels |
+    Then the output should contain:
+      | rack="a111" |
+      | region="r1" |
+      | zone="z11"  |
+    And I execute on the pod:
+      | cat | /var/tmp/podinfo/annotations |
+    Then the output should contain:
+      | build="one"      |
+      | builder="qe-one" |
+    # Change the value of annotations
+    When I run the :patch client command with:
+      | resource      | pod |
+      | resource_name | pod-dapi-volume |
+      | p             | {"metadata":{"annotations":{"build":"two"}}} |
+    And I execute on the pod:
+      | cat | /var/tmp/podinfo/annotations |
+    Then the output should contain:
+      | build="two" |
+    # Delete one of labels
+    When I run the :patch client command with:
+      | resource      | pod                                   |
+      | resource_name | pod-dapi-volume                       |
+      | p             | {"metadata":{"labels":{"rack":null}}} |
+    And I execute on the pod:
+      | cat | /var/tmp/podinfo/labels |
+    Then the output should not contain:
+      | rack="a111" |
+    And the output should contain:
+      | region="r1" |
+      | zone="z11"  | 

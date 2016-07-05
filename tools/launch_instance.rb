@@ -459,9 +459,16 @@ module CucuShift
       when "wildcard_dns"
         begin
           dyn = get_dyn
+          ips = []
 
-          hosts = erb_binding.local_variable_get(:hosts)
-          ips = hosts.select {|h| h.has_any_role? task[:roles]}.map(&:ip)
+          if task[:roles]
+            hosts = erb_binding.local_variable_get(:hosts)
+            ips.concat(hosts.select{|h| h.has_any_role? task[:roles]}.map(&:ip))
+          end
+          if task[:ips]
+            ips.concat task[:ips]
+          end
+
           dns_record = "*.#{dns_component}"
           fqdn = dyn.dyn_create_a_records(dns_record, ips)
           if task[:store_in]
@@ -516,6 +523,18 @@ module CucuShift
       end
       # wait each host to become accessible
       hosts.each {|h| h.wait_to_become_accessible(600)}
+      hosts_spec = hosts.map{|h| "#{h.hostname}:#{h.roles.join(':')}"}.join(',')
+
+      ## help users persist home info
+      logger.info "HOSTS SPECIFICATION: #{hosts_spec}"
+      host_spec_out = ENV["CUCUSHIFT_HOSTS_SPEC_FILE"]
+      if host_spec_out && !File.exist?(host_spec_out)
+        begin
+          File.write(host_spec_out, hosts_spec)
+        rescue => e
+          logger.error("could not save host specification: #{e}")
+        end
+      end
 
       ## perform provisioning steps
       template[:install_sequence].each do |task|

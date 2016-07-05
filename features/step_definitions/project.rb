@@ -79,7 +79,20 @@ Given /^I use the "(.+?)" project$/ do |project_name|
   project(project_name)
 
   # setup cli to have it as default project
-  user.cli_exec(:project, project_name: project_name)
+  @result = user.cli_exec(:project, project_name: project_name)
+  unless @result[:success]
+    raise "can not switch to project #{project.name}"
+  end
+end
+
+Given /^admin uses the "(.+?)" project$/ do |project_name|
+  ensure_admin_tagged
+
+  project(project_name)
+  @result = admin.cli_exec(:project, project_name: project_name)
+  unless @result[:success]
+    raise "can not switch to project #{project.name}"
+  end
 end
 
 Given /^I imagine a project$/ do

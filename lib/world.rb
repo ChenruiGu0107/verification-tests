@@ -3,6 +3,7 @@ require 'common'
 require 'collections'
 
 require 'openshift/project'
+require 'openshift/job'
 require 'openshift/service'
 require 'openshift/service_account'
 require 'openshift/route'
@@ -42,9 +43,10 @@ module CucuShift
       @rcs = []
       @dcs = []
       @image_streams = []
-      # used to store node the user wants to run commands on
+      # used to store host the user wants to run commands on
       @host = nil
-
+      # used to store nodes in the cluster
+      @nodes = []
       # procs and lambdas to call on clean-up
       @teardown = []
     end
@@ -330,7 +332,7 @@ module CucuShift
         #   would rarely make sense
         raise "what dc are you talking about?"
       else
-        return @dc.last
+        return @dcs.last
       end
     end
 
@@ -410,38 +412,78 @@ module CucuShift
       @browsers << browser
     end
 
-    # @return pod by name from scenario cache; with no params given,
-    #   returns last requested pod; otherwise creates a [Pod] object
-    # @note you need the project already created
     def pod(name = nil, project = nil)
+      project_resource(Pod, name, project)
+    end
+
+    def job(name = nil, project = nil)
+      project_resource(Job, name, project)
+    end
+
+    # @param clazz [Class] class of project resource
+    # @return [ProjectResource] by name from scenario cache; with no params
+    # given returns last requested PR; otherwise creates a new object
+    # @note you need the project already created
+    def project_resource(clazz, name = nil, project = nil)
       project ||= self.project
 
+      varname = "@#{clazz::RESOURCE}"
+      var = instance_variable_get(varname) ||
+              instance_variable_set(varname, [])
+
       if Integer === name
-        return @pods[name] || raise("no pod with index #{name}")
+        # using integer index does not trigger reorder of list
+        return var[name] || raise("no project resource with index #{name}")
       elsif name
-        p = @pods.find {|p| p.name == name && p.project == project}
-        if p && @pods.last == p
-          return p
-        elsif p
-          @pods << @pods.delete(p)
-          return p
+        # using a string name, moves found resource to top of the list
+        r = var.find {|r| r.name == name && r.project == project}
+        if r && var.last == r
+          return r
+        elsif r
+          var << var.delete(r)
+          return r
         else
-          # create new CucuShift::Pod object with specified name
-          @pods << Pod.new(name: name, project: project)
-          return @pods.last
+          # create new CucuShift::ProjectResource object with specified name
+          var << clazz.new(name: name, project: project)
+          return var.last
         end
-      elsif @pods.empty?
-        # we do not create a random pod like with projects because that
+      elsif var.empty?
+        # do not create random project resource like with projects because that
         #   would rarely make sense
-        raise "what pod are you talking about?"
+        raise "what project resource are you talking about?"
       else
-        return @pods.last
+        return var.last
       end
     end
 
     # add pods to list avoiding duplicates
     def cache_pods(*new_pods)
       new_pods.each {|p| @pods.delete(p); @pods << p}
+    end
+
+    # @return node by name
+    def node(name = nil)
+      if Integer === name
+        return @nodes[name] || raise("no node with index #{name}")
+      elsif name
+        n = @nodes.find {|n| n.name == name }
+        if n && @nodes.last == n
+          return n
+        elsif n
+          @nodes << @nodes.delete(n)
+          return n
+        else
+          # create new CucuShift::Node object with specified name
+          @nodes << Node.new(name: name, env: env)
+          return @nodes.last
+        end
+      elsif @nodes.empty?
+        # we do not create a random node like with projects because that
+        #   would rarely make sense
+        raise "what node are you talking about?"
+      else
+        return @nodes.last
+      end
     end
 
     # @param procs [Proc] a proc or lambda to add to teardown
@@ -471,6 +513,73 @@ module CucuShift
         quit_cucumber
         raise err
       end
+    end
+
+    # Embedded table delimiter is '!' if '|' not used
+    # Gherkin more recent than 3.1.2 does support escaping new lines by `\n`.
+    #   Also these two escapes are supported: `\|` amd `\\`. This means two
+    #   things. First it is now possible to escape `|` in tables. And second is
+    #   that clean-up steps with `\n` will most likely fail if written inside
+    #   a table. To support `\n` in clean-up steps, I believe the table syntax
+    #   should be used and table should be generated as `table(Array)`
+    #   instead of table(String)
+    # @param step_spec [#lines, #raw] steps string lines should be obtained
+    #   by calling #lines method over spec or calling #raw.flatten; that is
+    #   usually a multiline string or Cucumber::MultilineArgument::DataTable
+    def to_step_procs(steps_spec)
+      if steps_spec.respond_to? :lines
+        # multi-line string
+        data = steps_spec.lines
+      else
+        # Cucumber Table
+        data = steps_spec.raw.flatten
+      end
+      data.reject! {|l| l.empty? || l =~ /^.s*#/}
+
+      step_list = []
+      step_name = ''
+      params = []
+      data.each_with_index do |line, index|
+        if line.strip.start_with?('!')
+          params << [line.gsub('!','|')]
+        elsif line.strip.start_with?('|')
+          # with multiline string we can use '|'
+          params << line
+        else
+          step_name = line.gsub(/^\s*(?:Given|When|Then|And) /,"")
+        end
+        next_is_not_param = data[index+1].nil? ||
+                            !data[index+1].strip.start_with?('!','|')
+        if next_is_not_param
+          raise "step not specified" if step_name.strip.empty?
+
+          # then we should add the step to tierdown
+          # But do it within a proc to have separately scoped variable for each step
+          #   otherwise we end up with all lambdas using the same `step_name` and
+          #   `params` variables. That means all lambdas defined within this step
+          #   invocation, because lambdas and procs inherit binding context.
+          #
+          proc {
+            _step_name = step_name
+            if params.empty?
+              step_list.unshift proc {
+                logger.info("Step: " << _step_name)
+                step _step_name
+              }
+            else
+              _params = params.join("\n")
+              step_list.unshift proc {
+                logger.info("Step: #{_step_name}\n#{_params}")
+                step _step_name, table(_params)
+              }
+            end
+          }.call
+          params = []
+          step_name = ''
+        end
+      end
+
+      return step_list
     end
   end
 end

@@ -3,8 +3,10 @@ require 'openshift/project_resource'
 module CucuShift
   # represents an OpenShift build
   class Build < ProjectResource
-
     RESOURCE = "builds"
+    # https://github.com/openshift/origin/blob/master/pkg/build/api/v1/types.go
+    #  (look for `const` definition)
+    STATUSES = [:complete, :running, :pending, :new, :failed, :error, :cancelled]
     TERMINAL_STATUSES = [:complete, :failed, :cancelled, :error]
 
     # creates new Build object from an OpenShift API Pod object
@@ -33,41 +35,6 @@ module CucuShift
       props[:spec] = s
 
       return self # mainly to help ::from_api_object
-    end
-
-    # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
-    # @return [Boolean] if build status is what's expected
-    def status?(user:, status:, quiet: false)
-
-      # see https://github.com/openshift/origin/blob/master/pkg/build/api/v1/types.go (look for `const` definition)
-      statuses = {
-        complete: "Complete",
-        running: "Running",
-        pending: "Pending",
-        new: "New",
-        failed: "Failed",
-        error: "Error",
-        cancelled: "Cancelled"
-      }
-
-      res = get(user: user, quiet: quiet)
-
-      if res[:success]
-        status = status.respond_to?(:map) ?
-          status.map{ |s| statuses[s] } :
-          [ statuses[status] ]
-
-        res[:success] =
-          res[:parsed]["status"] &&
-          res[:parsed]["status"]["phase"] &&
-          status.include?(res[:parsed]["status"]["phase"])
-
-        res[:matched_status], garbage = statuses.find { |sym, str|
-          str == res[:parsed]["status"]["phase"]
-        }
-      end
-
-      return res
     end
 
     # @return [CucuShift::ResultHash] :success if build completes regardless of

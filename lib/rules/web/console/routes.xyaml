@@ -24,9 +24,7 @@ check_route_to:
 check_routes_page:
   action: check_route_name
   action: check_route_to
-
-check_a_route_detail_page:
-  action: goto_one_route_page
+check_basic_content_on_route_page:
   elements:
   - selector:
       xpath: //h1[contains(text(),'<route_name>')]
@@ -38,6 +36,10 @@ check_a_route_detail_page:
       xpath: //dt[contains(.,'Service')]
   - selector:
       xpath: //dt[contains(.,'Target Port')]
+check_a_route_detail_page:
+  action: goto_one_route_page
+  action: check_basic_content_on_route_page
+  elements:
   - selector:
       text: Show annotations
     type: a
@@ -56,7 +58,7 @@ check_a_route_detail_page:
 access_route_hostname_from_table:
   action: goto_routes_page
   elements:
-  - selector: 
+  - selector:
       xpath: //td[@data-title='Hostname']//a[contains(text(),'<service_url>')]
     op: click
 access_route_hostname_from_detail_page:
@@ -79,3 +81,6 @@ goto_routes_page:
   url: /console/project/<project_name>/browse/routes
 goto_one_route_page:
   url: /console/project/<project_name>/browse/routes/<route_name>
+check_route_page_loaded_successfully:
+  action: goto_one_route_page
+  action: check_basic_content_on_route_page

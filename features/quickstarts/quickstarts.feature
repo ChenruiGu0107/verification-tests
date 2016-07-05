@@ -12,7 +12,7 @@ Feature: quickstarts.feature
     And <podno> pods become ready with labels:
       |app=<template>|
     When I use the "<buildcfg>" service
-    Then I wait for a server to become available via the "<buildcfg>" route
+    Then I wait for a web server to become available via the "<buildcfg>" route
     Then the output should contain "<output>"
 
     Examples: OS Type
@@ -73,14 +73,14 @@ Feature: quickstarts.feature
       | file | cakephp.json |
     Then the step should succeed
     When I use the "cakephp-example" service
-    Then I wait for a server to become available via the "cakephp-example" route
+    Then I wait for a web server to become available via the "cakephp-example" route
     Then the output should contain "Welcome to OpenShift"
     Given I wait for the "cakephp-example" service to become ready
     When I execute on the pod:
       | sed | -i | s/Welcome/hotdeploy_test/g | /opt/app-root/src/app/View/Layouts/default.ctp |
     Then the step should succeed
     When I use the "cakephp-example" service
-    Then I wait for a server to become available via the "cakephp-example" route
+    Then I wait for a web server to become available via the "cakephp-example" route
     Then the output should contain "hotdeploy_test"
 
   # @author wzheng@redhat.com
@@ -132,3 +132,34 @@ Feature: quickstarts.feature
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
 
+  # @author cryan@redhat.com
+  # @case_id 528401 528402 528403 492613 508743 508973 529322 529323
+  # @bug_id 1343184
+  Scenario Outline: quickstart version test
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift/<repo>/master/openshift/templates/<template>"
+    And I replace lines in "<template>":
+      | <lang_old>       | <lang_new>       |
+      | <db_version_old> | <db_version_new> |
+    When I run the :new_app client command with:
+      | file  | <template>                                                |
+      | param | SOURCE_REPOSITORY_URL=https://github.com/openshift/<repo> |
+    Then the step should succeed
+    Given the "<name>-1" build completes
+    And a pod becomes ready with labels:
+      | app=<name> |
+    And I wait for the "<name>" service to become ready
+    And I wait for a web server to become available via the "<name>" route
+    Then the output should match "Welcome to your \w+ application on OpenShift"
+
+    Examples:
+      | lang_old   | lang_new   | db_version_old | db_version_new | template               | name                     | repo      |
+      | python:3.4 | python:2.7 |                |                | django.json            | django-example           | django-ex |
+      | python:3.4 | python:3.3 |                |                | django.json            | django-example           | django-ex |
+      | python:3.4 | python:3.5 |                |                | django.json            | django-example           | django-ex |
+      | python:3.4 | python:2.7 | postgresql:9.4 | postgresql:9.2 | django-postgresql.json | django-psql-example      | django-ex |
+      | python:3.4 | python:3.3 | postgresql:9.4 | postgresql:9.2 | django-postgresql.json | django-psql-example      | django-ex |
+      | python:3.4 | python:3.5 | postgresql:9.4 | postgresql:9.5 | django-postgresql.json | django-psql-example      | django-ex |
+      | ruby:2.2   | ruby:2.0   |                |                | rails-postgresql.json  | rails-postgresql-example | rails-ex  |
+      | perl:5.20  | perl:5.16  |                |                | dancer.json            | dancer-example           | dancer-ex |
+      | perl:5.20  | perl:5.16  |                |                | dancer-mysql.json      | dancer-mysql-example     | dancer-ex |

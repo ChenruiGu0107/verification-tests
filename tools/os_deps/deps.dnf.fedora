@@ -3,6 +3,7 @@ git
 ruby
 ruby-devel
 rubygem-bundler
+rubygem-nokogiri
 
 gcc-c++
 openssl

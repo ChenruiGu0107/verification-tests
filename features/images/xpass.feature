@@ -35,7 +35,7 @@ Feature: xpass.feature
     And the "eap-app-1" build was created
     And the "eap-app-1" build completed
     And <podno> pods become ready with labels:
-     |application=eap-app|
+      |application=eap-app|
 
     Examples: OS Type
       | template             | podno |
@@ -71,7 +71,7 @@ Feature: xpass.feature
     And a pod becomes ready with labels:
       |app=jboss-eap-quickstarts|
     When I expose the "jboss-eap-quickstarts" service
-    Then I wait for a server to become available via the "jboss-eap-quickstarts" route
+    Then I wait for a web server to become available via the "jboss-eap-quickstarts" route
     And  the output should contain "JBoss"
 
   # @author haowang@redhat.com
@@ -89,7 +89,7 @@ Feature: xpass.feature
     And 1 pods become ready with labels:
       |application=eap-app|
     And I use the "eap-app" service
-    Then I wait for a server to become available via the "eap-app" route
+    Then I wait for a web server to become available via the "eap-app" route
     And  the output should contain "JBoss"
     When I get project replicationcontroller as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :rc_name clipboard
@@ -101,7 +101,7 @@ Feature: xpass.feature
     And 2 pods become ready with labels:
       |application=eap-app|
     And I use the "eap-app" service
-    Then I wait for a server to become available via the "eap-app" route
+    Then I wait for a web server to become available via the "eap-app" route
     And  the output should contain "JBoss"
     Then I run the :scale client command with:
       | resource | replicationcontrollers |
@@ -109,12 +109,12 @@ Feature: xpass.feature
       | replicas | 1                      |
     And 1 pods become ready with labels:
       |application=eap-app|
-    Then I wait for a server to become available via the "eap-app" route
+    Then I wait for a web server to become available via the "eap-app" route
     And  the output should contain "JBoss"
 
   # @author xiuwang@redhat.com
   # @case_id 498007 498009 517526 517527
-  Scenario Outline: Create tomcat7/tomcat8 application via installed template 
+  Scenario Outline: Create tomcat7/tomcat8 application via installed template
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
@@ -142,7 +142,7 @@ Feature: xpass.feature
 
   # @author xiuwang@redhat.com
   # @case_id 498011 498018
-  Scenario Outline: Create tomcat7/tomcat8 with mongodb application via installed template 
+  Scenario Outline: Create tomcat7/tomcat8 with mongodb application via installed template
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
@@ -178,7 +178,7 @@ Feature: xpass.feature
 
   # @author xiuwang@redhat.com
   # @case_id 498023 498024
-  Scenario Outline: Create tomcat7/tomcat8 with postgresql application via installed template 
+  Scenario Outline: Create tomcat7/tomcat8 with postgresql application via installed template
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
@@ -202,7 +202,7 @@ Feature: xpass.feature
     """
     When I execute on the pod:
       | bash | -c | psql -U $POSTGRESQL_USER -c 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));' -d $POSTGRESQL_DATABASE |
-      Then the step should succeed
+    Then the step should succeed
     """
     And the output should contain:
       | CREATE TABLE |
@@ -212,10 +212,9 @@ Feature: xpass.feature
       |  jws30-tomcat7-postgresql-s2i |
       |  jws30-tomcat8-postgresql-s2i |
 
-
   # @author xiuwang@redhat.com
   # @case_id 498020 498022
-  Scenario Outline: Create tomcat7/tomcat8 with mysql application via installed template 
+  Scenario Outline: Create tomcat7/tomcat8 with mysql application via installed template
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
@@ -235,13 +234,13 @@ Feature: xpass.feature
     And the output should contain "TODO list"
     Given 1 pods become ready with labels:
       | deploymentconfig=jws-app-mysql |
-   And I wait up to 120 seconds for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     When I execute on the pod:
       | bash | -c | mysql  -h $JWS_APP_MYSQL_SERVICE_HOST -u $MYSQL_USER -p$MYSQL_PASSWORD -e "show databases" |
     Then the step should succeed
     """
-   And the output should contain "root"
+    And the output should contain "root"
 
     Examples:
       | template                 |
@@ -249,39 +248,35 @@ Feature: xpass.feature
       |  jws30-tomcat8-mysql-s2i |
   # @author haowang@redhat.com
   # @case_id 498016 514971 514967 514972
-  @admin
-  @destructive
   Scenario Outline: jbosseap templates with pv
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/eap-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | template |  <template> |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | <pvc>                                                                           |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "<pvc>" PVC becomes :bound within 300 seconds
     And the "eap-app-1" build was created
     And the "eap-app-1" build completed
     And <podno> pods become ready with labels:
-     |application=eap-app|
+      |application=eap-app|
 
     Examples: OS Type
-      | template                           | podno |
-      | eap64-amq-persistent-s2i           | 2     |
-      | eap64-mongodb-persistent-s2i       | 2     |
-      | eap64-mysql-persistent-s2i         | 2     |
-      | eap64-postgresql-persistent-s2i    | 2     |
+      | template                        | podno | pvc                      |
+      | eap64-amq-persistent-s2i        | 2     | eap-app-amq-claim        |
+      | eap64-mongodb-persistent-s2i    | 2     | eap-app-mongodb-claim    |
+      | eap64-mysql-persistent-s2i      | 2     | eap-app-mysql-claim      |
+      | eap64-postgresql-persistent-s2i | 2     | eap-app-postgresql-claim |
   # @author haowang@redhat.com
   # @case_id 514966
-  @admin
-  @destructive
   Scenario: Create amq application from pre-installed templates : amq62-persistent-ssl
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/amq-app-secret.json |
     Then the step should succeed
@@ -289,22 +284,171 @@ Feature: xpass.feature
       | template | amq62-persistent-ssl |
       | param    | AMQ_TRUSTSTORE_PASSWORD=password,AMQ_KEYSTORE_PASSWORD=password |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | broker-amq-claim                                                                |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "broker-amq-claim" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | application=broker |
+
   # @author haowang@redhat.com
   # @case_id 498015
-  @admin
-  @destructive
   Scenario: Create amq application from pre-installed templates: amq62-persistent
     Given I have a project
-    And I have a NFS service in the project
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/amq-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | template | amq62-persistent |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | broker-amq-claim                                                                |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "broker-amq-claim" PVC becomes :bound within 300 seconds
     And a pod becomes ready with labels:
       | application=broker |
+
+  # @author dyan@redhat.com
+  # @case_id 484485 508757
+  Scenario Outline: Create tomcat7/tomcat8 with mongodb with persistent volume application via installed template
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template |  <template> |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | jws-app-mongodb-claim                                                           |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "jws-app-mongodb-claim" PVC becomes :bound within 300 seconds
+    And the "jws-app-1" build was created
+    And the "jws-app-1" build completed
+    Given I wait for the "jws-app" service to become ready
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -ksS | <%= service.url %> |
+    Then the step should succeed
+    """
+    And the output should contain "TODO list"
+    Given 1 pods become ready with labels:
+      | deploymentconfig=jws-app-mongodb |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mongo $MONGODB_DATABASE -u $MONGODB_USER -p $MONGODB_PASSWORD  --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 2.6 |
+
+    Examples:
+      | template                  |
+      | jws30-tomcat7-mongodb-persistent-s2i |
+      | jws30-tomcat8-mongodb-persistent-s2i |
+
+  # @author dyan@redhat.com
+  # @case_id 477323 484486
+  Scenario Outline: Create tomcat7/tomcat8 with postgresql with persistent volume application via installed template
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template |  <template> |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | jws-app-postgresql-claim                                                        |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "jws-app-postgresql-claim" PVC becomes :bound within 300 seconds
+    And the "jws-app-1" build was created
+    And the "jws-app-1" build completed
+    Given I wait for the "jws-app" service to become ready
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -ksS | <%= service.url %> |
+    Then the step should succeed
+    """
+    And the output should contain "TODO list"
+    Given 1 pods become ready with labels:
+      | deploymentconfig=jws-app-postgresql |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | psql -U $POSTGRESQL_USER -c 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));' -d $POSTGRESQL_DATABASE |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | CREATE TABLE |
+
+    Examples:
+      | template                      |
+      |  jws30-tomcat7-postgresql-persistent-s2i |
+      |  jws30-tomcat8-postgresql-persistent-s2i |
+
+  # @author dyan@redhat.com
+  # @case_id 508763 508764
+  Scenario Outline: Create tomcat7/tomcat8 with mysql with persistent volume application via installed template
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/jws-app-secret.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template |  <template> |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | jws-app-mysql-claim                                                        |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "jws-app-mysql-claim" PVC becomes :bound within 300 seconds
+    And the "jws-app-1" build was created
+    And the "jws-app-1" build completed
+    Given I wait for the "jws-app" service to become ready
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -ksS | <%= service.url %> |
+    Then the step should succeed
+    """
+    And the output should contain "TODO list"
+    Given 1 pods become ready with labels:
+      | deploymentconfig=jws-app-mysql |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mysql  -h $JWS_APP_MYSQL_SERVICE_HOST -u $MYSQL_USER -p$MYSQL_PASSWORD -e "show databases" |
+    Then the step should succeed
+    """
+    And the output should contain "root"
+
+    Examples:
+      | template                 |
+      |  jws30-tomcat7-mysql-persistent-s2i |
+      |  jws30-tomcat8-mysql-persistent-s2i |
+
+  # @author haowang@redhat.com
+  # @case_id 469047
+  Scenario: Customize MAVEN_ARGS during maven build
+    Given I have a project
+    When I run the :new_build client command with:
+      | code         | https://github.com/jboss-developer/jboss-eap-quickstarts#6.4.x              |
+      | context_dir  | helloworld                                                                  |
+      | image_stream | jboss-eap64-openshift                                                       |
+      | e            | MAVEN_ARGS=-Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga package |
+    Then the step should succeed
+    And the "jboss-eap-quickstarts-1" build completed
+    When I run the :logs client command with:
+      | resource_name | jboss-eap-quickstarts-1-build |
+    Then the output should contain:
+      | -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga packagee |

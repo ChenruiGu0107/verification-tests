@@ -29,7 +29,7 @@ Feature: secrets related scenarios
     And the output should contain:
       |kubernetes.io/dockercfg|
 
-  # @author xiacwan@redhat.com
+  # @author xiaocwan@redhat.com
   # @case_id 484337
   @admin
   Scenario: [origin_platformexp_403] The number of created secrets can not exceed the limitation
@@ -424,6 +424,71 @@ Feature: secrets related scenarios
       | name          | newdc-1-  |
     Then the step should succeed
     And the output should match "no.*credentials"
+
+  # @author cryan@redhat.com
+  # @case_id 507415
+  @admin
+  Scenario: Add an arbitrary list of secrets to custom builds
+    Given I have a project
+    Given an 8 characters random string of type :dns is stored into the :pass1 clipboard
+    Given an 8 characters random string of type :dns is stored into the :pass2 clipboard
+    When I run the :secrets client command with:
+      | action | new-basicauth |
+      | name | secret1 |
+      | username | testuser1 |
+      | password | <%= cb.pass1 %> |
+    Then the step should succeed
+    When I run the :secrets client command with:
+      | action | new-basicauth |
+      | name | secret2 |
+      | username | testuser2 |
+      | password | <%= cb.pass2 %> |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc507415/application-template-custombuild.json |
+    Then the step should succeed
+    Given the pod named "ruby-sample-build-1-build" status becomes :running
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | o | json |
+    Then the step should succeed
+    And the output should contain:
+      | secret1 |
+      | secret2 |
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-1-build |
+      | n | <%= project.name %> |
+      | exec_command | ls |
+      | exec_command_arg | /tmp |
+    Then the output should contain:
+      | secret1 |
+      | secret2 |
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-1-build |
+      | n | <%= project.name %> |
+      | exec_command | cat |
+      | exec_command_arg | /tmp/secret1/username |
+    Then the output should contain "testuser1"
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-1-build |
+      | n | <%= project.name %> |
+      | exec_command | cat |
+      | exec_command_arg | /tmp/secret1/password |
+    Then the output should contain "<%= cb.pass1 %>"
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-1-build |
+      | n | <%= project.name %> |
+      | exec_command | cat |
+      | exec_command_arg | /tmp/secret2/username |
+    Then the output should contain "testuser2"
+    When I run the :exec admin command with:
+      | pod | ruby-sample-build-1-build |
+      | n | <%= project.name %> |
+      | exec_command | cat |
+      | exec_command_arg | /tmp/secret2/password |
+    Then the output should contain "<%= cb.pass2 %>"
+
   # @author yantan@redhat.com
   # @case_id 519261 519260
   Scenario Outline: Insert secret to builder container via oc new-build - source/docker build
@@ -464,3 +529,608 @@ Feature: secrets related scenarios
       | type   | build_secret         | path      | command | expression               |
       | source | testsecret1:/tmp     | /tmp      | cat     | @result[:response] == "" |
       | docker | testsecret1:mysecret1| mysecret1 | ls      | true                     |
+
+  # @author xiuwang@redhat.com
+  # @case_id 508962
+  Scenario: Build from private repo with/without secret of token --ephemeral gitserver 
+    Given I have a project
+    And I have an http-git service in the project
+    When I run the :run client command with:
+      | name  | gitserver                  |
+      | image | openshift/origin-gitserver |
+      | env   | GIT_HOME=/var/lib/git      |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role          | edit             |
+      | serviceaccount| default          |
+    Then the step should succeed
+
+    #Create app when push code to initial repo
+    And a pod becomes ready with labels:
+      | run=gitserver|
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |sed -i '1,2d' /var/lib/gitconfig/.gitconfig|
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.get_bearer_token.token %>"; }; f'|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ ;git clone https://github.com/openshift/ruby-hello-world.git|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;git remote add openshift http://<%= cb.git_route%>/ruby-hello-world.git|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |buildconfig "ruby-hello-world" created|
+    Then I run the :delete client command with:
+      | object_type       | builds             |
+      | object_name_or_id | ruby-hello-world-1 |
+    Then the step should succeed
+
+    #Disable anonymous cloning
+    When I run the :env client command with:
+      | resource | dc/git                    |
+      | e        | ALLOW_ANON_GIT_PULL=false |
+    Then the step should succeed
+    When I run the :oc_secrets_new_basicauth client command with:
+      |secret_name |mysecret                          |
+      |password    |<%= user.get_bearer_token.token %>|
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | p | {"spec": {"source": {"sourceSecret": {"name": "mysecret"}}}} |
+    Then the step should succeed
+
+    #Trigger second build automaticlly with secret
+    And a pod becomes ready with labels:
+      | deploymentconfig=git |
+      | deployment=git-2     |
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |sed -i '1,2d' /var/lib/gitconfig/.gitconfig|
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/;git clone http://<%= cb.git_route%>/ruby-hello-world.git|
+    Then the step should fail
+    And the output should contain:
+      |fatal: could not read Username|
+    And a pod becomes ready with labels:
+      | run=gitserver|
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;touch testfile;git add .;git commit -amp;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |started on build configuration 'ruby-hello-world'|
+    Given I get project builds
+    Then the output should contain "ruby-hello-world-2"
+    Given the "ruby-hello-world-2" build completes
+
+    #Trigger third build automaticlly with incorrect secret
+    When I run the :oc_secrets_new_basicauth client command with:
+      |secret_name |mysecret2     |
+      |password    |incorrecttoken|
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | p | {"spec": {"source": {"sourceSecret": {"name": "mysecret2"}}}} |
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;touch testfile1;git add .;git commit -amp;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |started on build configuration 'ruby-hello-world'|
+    Given I get project builds
+    Then the output should contain "ruby-hello-world-3"
+    Given the "ruby-hello-world-3" build fails
+
+  # @author xiuwang@redhat.com
+  # @case_id 528228
+  Scenario: Build from private repo with/without secret of token --persistent gitserver
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/gitserver/gitserver-persistent.yaml |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | git                                                                             |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "git" PVC becomes :bound within 300 seconds
+
+    When I run the :run client command with:
+      | name  | gitserver                  |
+      | image | openshift/origin-gitserver |
+      | env   | GIT_HOME=/var/lib/git      |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role          | edit    |
+      | serviceaccount| git     |
+      | serviceaccount| default |
+    Then the step should succeed
+    When I run the :set_volume client command with:
+      | resource    | dc/gitserver |
+      | type        | emptyDir     |
+      | action      | --add        |
+      | mount-path  | /var/lib/git |
+      | name        | 528228pv     |
+    Then the step should succeed
+    And evaluation of `route("git", service("git")).dns(by: user)` is stored in the :git_route clipboard
+    When I run the :env client command with:
+      | resource | dc/git                |
+      | e        | BUILD_STRATEGY=source |
+    Then the step should succeed
+
+
+    #Create app when push code to initial repo
+    Given a pod becomes ready with labels:
+      | deploymentconfig=git |
+      | deployment=git-2     |
+    And a pod becomes ready with labels:
+      | run=gitserver|
+      | deployment=gitserver-2|
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |sed -i '1,2d' /var/lib/gitconfig/.gitconfig|
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.get_bearer_token.token %>"; }; f'|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ ;git clone https://github.com/openshift/ruby-hello-world.git|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;git remote add openshift http://<%= cb.git_route%>/ruby-hello-world.git|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |buildconfig "ruby-hello-world" created|
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-hello-world |
+      | o | json |
+    Then the output should contain "sourceStrategy"
+    Then I run the :delete client command with:
+      | object_type       | builds             |
+      | object_name_or_id | ruby-hello-world-1 |
+    Then the step should succeed
+
+    #Disable anonymous cloning
+    When I run the :env client command with:
+      | resource | dc/git                    |
+      | e        | ALLOW_ANON_GIT_PULL=false |
+    Then the step should succeed
+    When I run the :oc_secrets_new_basicauth client command with:
+      |secret_name |mysecret                          |
+      |password    |<%= user.get_bearer_token.token %>|
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | p | {"spec": {"source": {"sourceSecret": {"name": "mysecret"}}}} |
+    Then the step should succeed
+
+    #Trigger second build automaticlly with secret
+    And a pod becomes ready with labels:
+      | deploymentconfig=git |
+      | deployment=git-3     |
+    And a pod becomes ready with labels:
+      | run=gitserver|
+      | deployment=gitserver-2|
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;touch testfile;git add .;git commit -amp;git push openshift master|
+    """
+    Then the step should succeed
+    And the output should contain:
+      |started on build configuration 'ruby-hello-world'|
+    Given I get project builds
+    Then the output should contain "ruby-hello-world-2"
+    Given the "ruby-hello-world-2" build completes
+  
+  # @author chezhang@redhat.com
+  # @case_id 521547
+  Scenario: Consume the same Secrets as environment variables in multiple pods
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret   |
+      | name     | test-secret |
+    Then the output should match:
+      | data-1:\\s+9\\s+bytes  |
+      | data-2:\\s+11\\s+bytes |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job-secret-env.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should contain 3 times:
+      |  secret-env- |
+    Given status becomes :succeeded of exactly 3 pods labeled:
+      | app=test |
+    Then the step should succeed
+    And I wait until job "secret-env" completes
+    When I run the :logs client command with:
+      | resource_name | <%= pod(-3).name %> |
+    Then the step should succeed
+    And the output should contain:
+      | MY_SECRET_DATA_1=value-1 |
+      | MY_SECRET_DATA_2=value-2 |
+    When I run the :logs client command with:
+      | resource_name | <%= pod(-2).name %> |
+    Then the step should succeed
+    And the output should contain:
+      | MY_SECRET_DATA_1=value-1 |
+      | MY_SECRET_DATA_2=value-2 |
+    When I run the :logs client command with:
+      | resource_name | <%= pod(-1).name %> |
+    Then the step should succeed
+    And the output should contain:
+      | MY_SECRET_DATA_1=value-1 |
+      | MY_SECRET_DATA_2=value-2 |
+
+  # @author chezhang@redhat.com
+  # @case_id 521548
+  Scenario: Using Secrets as Environment Variables
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret   |
+      | name     | test-secret |
+    Then the output should match:
+      | data-1:\\s+9\\s+bytes  |
+      | data-2:\\s+11\\s+bytes |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-env-pod.yaml |
+    Then the step should succeed
+    And the pod named "secret-env-pod" status becomes :succeeded
+    When I run the :logs client command with:
+      | resource_name | secret-env-pod |
+    Then the step should succeed
+    And the output should contain:
+      | MY_SECRET_DATA=value-1 |
+
+  # @author xiuwang@redhat.com
+  # @case_id 508964
+  Scenario: Build from private repo with/without secret of gitconfig auth method
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508964/.gitconfig"
+    When I run the :new_secret client command with:
+      |secret_name     |mysecret  |
+      |credential_file |.gitconfig|
+    Then the step should succeed
+    And I replace lines in ".gitconfig":
+      |redhat|<%= user.get_bearer_token.token %>|
+    When I run the :new_secret client command with:
+      |secret_name     |mysecret1  |
+      |credential_file |.gitconfig|
+    Then the step should succeed
+    And I have an http-git service in the project
+    When I run the :run client command with:
+      | name  | gitserver                  |
+      | image | openshift/origin-gitserver |
+      | env   | GIT_HOME=/var/lib/git      |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role          | edit    |
+      | serviceaccount| default |
+    Then the step should succeed
+
+    #Create app when push code to initial repo
+    And a pod becomes ready with labels:
+      | run=gitserver|
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |sed -i '1,2d' /var/lib/gitconfig/.gitconfig|
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=<%= @user.name %>"; echo "password=<%= user.get_bearer_token.token %>"; }; f'|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ ;git clone https://github.com/openshift/ruby-hello-world.git|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;git remote add openshift http://<%= cb.git_route%>/ruby-hello-world.git|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |buildconfig "ruby-hello-world" created|
+    Then I run the :delete client command with:
+      | object_type       | builds             |
+      | object_name_or_id | ruby-hello-world-1 |
+    Then the step should succeed
+
+    #Trigger second build automaticlly with secret
+    When I run the :env client command with:
+      | resource | dc/git                    |
+      | e        | ALLOW_ANON_GIT_PULL=false |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | p | {"spec": {"source": {"sourceSecret": {"name": "mysecret1"}}}} |
+    Then the step should succeed
+
+    And a pod becomes ready with labels:
+      | deploymentconfig=git |
+      | deployment=git-2     |
+    And a pod becomes ready with labels:
+      | run=gitserver|
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;touch testfile;git add .;git commit -amp;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |started on build configuration 'ruby-hello-world'|
+    Given I get project builds
+    Then the output should contain "ruby-hello-world-2"
+    Given the "ruby-hello-world-2" build completes
+
+    When I run the :env client command with:
+      | resource | dc/git                |
+      | e        | REQUIRE_SERVER_AUTH=  |
+      | e        | REQUIRE_GIT_AUTH=openshift:redhat |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deploymentconfig=git |
+      | deployment=git-3     |
+    When I run the :patch client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | p | {"spec": {"source": {"sourceSecret": {"name": "mysecret"}}}} |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | run=gitserver|
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=openshift"; echo "password=redhat"; }; f'|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;touch testfile1;git add .;git commit -amp;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |started on build configuration 'ruby-hello-world'|
+    Given I get project builds
+    Then the output should contain "ruby-hello-world-3"
+    Given the "ruby-hello-world-3" build completes
+
+  # @author xiuwang@redhat.com
+  # @case_id 508965
+  Scenario: Build from private repo with/without secret of password with http --gitserver
+    Given I have a project
+    And I have an http-git service in the project
+    When I run the :run client command with:
+      | name  | gitserver                  |
+      | image | openshift/origin-gitserver |
+      | env   | GIT_HOME=/var/lib/git      |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role          | edit    |
+      | serviceaccount| default |
+    Then the step should succeed
+    When I run the :env client command with:
+      | resource | dc/git                |
+      | e        | REQUIRE_SERVER_AUTH=  |
+      | e        | REQUIRE_GIT_AUTH=openshift:redhat |
+      | e        | BUILD_STRATEGY=source |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deploymentconfig=git |
+      | deployment=git-2     |
+
+    #Create app when push code to initial repo
+    And a pod becomes ready with labels:
+      | run=gitserver|
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |sed -i '1,2d' /var/lib/gitconfig/.gitconfig|
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |git config --global credential.http://<%= cb.git_route%>.helper '!f() { echo "username=openshift"; echo "password=redhat"; }; f'|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ ;git clone https://github.com/openshift/ruby-hello-world.git|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;git remote add openshift http://<%= cb.git_route%>/ruby-hello-world.git|
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |buildconfig "ruby-hello-world" created|
+    Then I run the :delete client command with:
+      | object_type       | builds             |
+      | object_name_or_id | ruby-hello-world-1 |
+    Then the step should succeed
+
+    #Disable anonymous cloning
+    When I run the :env client command with:
+      | resource | dc/git                    |
+      | e        | ALLOW_ANON_GIT_PULL=false |
+    Then the step should succeed
+    When I run the :oc_secrets_new_basicauth client command with:
+      |secret_name |mysecret |
+      |username    |openshift|
+      |password    |redhat   |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | p | {"spec": {"source": {"sourceSecret": {"name": "mysecret"}}}} |
+    Then the step should succeed
+
+    #Trigger second build automaticlly with secret
+    And a pod becomes ready with labels:
+      | deploymentconfig=git |
+      | deployment=git-3     |
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |sed -i '1,2d' /var/lib/gitconfig/.gitconfig|
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/;git clone http://<%= cb.git_route%>/ruby-hello-world.git|
+    Then the step should fail
+    And the output should contain:
+      |fatal: could not read Username|
+    And a pod becomes ready with labels:
+      | run=gitserver|
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;touch testfile;git add .;git commit -amp;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |started on build configuration 'ruby-hello-world'|
+    Given I get project builds
+    Then the output should contain "ruby-hello-world-2"
+    Given the "ruby-hello-world-2" build completes
+
+    #Trigger third build automaticlly with password alone
+    When I run the :oc_secrets_new_basicauth client command with:
+      |secret_name |mysecret2 |
+      |password    |redhat    |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | p | {"spec": {"source": {"git": {"uri": "http://openshift@git:8080/ruby-hello-world.git"},"sourceSecret": {"name": "mysecret2"}}}} |
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;touch testfile2;git add .;git commit -amp;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |started on build configuration 'ruby-hello-world'|
+    Given I get project builds
+    Then the output should contain "ruby-hello-world-3"
+    Given the "ruby-hello-world-3" build completes
+
+    #Trigger build automaticlly with username alone
+    When I run the :oc_secrets_new_basicauth client command with:
+      |secret_name |mysecret3 |
+      |username    |openshift |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | p | {"spec": {"source": {"git": {"uri": "http://git:8080/ruby-hello-world.git"},"sourceSecret": {"name": "mysecret3"}}}} |
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;touch testfile3;git add .;git commit -amp;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |started on build configuration 'ruby-hello-world'|
+    Given I get project builds
+    Then the output should contain "ruby-hello-world-4"
+    Given the "ruby-hello-world-4" build fails
+
+    #Trigger build automaticlly with invaild password
+    When I run the :oc_secrets_new_basicauth client command with:
+      |secret_name |mysecret4 |
+      |username    |openshift |
+      |password    |invaild   |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | p | {"spec": {"source": {"sourceSecret": {"name": "mysecret4"}}}} |
+    Then the step should succeed
+    When I execute on the pod:
+      |bash|
+      |-c  |
+      |cd /tmp/ruby-hello-world/;touch testfile4;git add .;git commit -amp;git push openshift master|
+    Then the step should succeed
+    And the output should contain:
+      |started on build configuration 'ruby-hello-world'|
+    Given I get project builds
+    Then the output should contain "ruby-hello-world-5"
+    Given the "ruby-hello-world-5" build fails

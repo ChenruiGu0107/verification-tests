@@ -158,14 +158,16 @@ end
 
 # When applying "oc delete" on one resource, the resource may take some time to
 # terminate, so use this step to wait for its dispapearing.
-Given /^I wait for the resource "(.+)" named "(.+)" to disappear$/ do |resource_type, resource_name|
+Given /^I wait for the resource "(.+)" named "(.+)" to disappear(?: within (\d+) seconds)?$/ do |resource_type, resource_name, timeout|
   opts = {resource_name: resource_name, resource: resource_type}
   res = {}
-  seconds = 15 * 60   # just put a timeout so we don't hang there indefintely
-  success = wait_for(seconds) {
+  # just put a timeout so we don't hang there indefintely
+  timeout = timeout ? timeout.to_i : 15 * 60
+  success = wait_for(timeout) {
     res = user.cli_exec(:get, **opts)
-    if res[:response].include? 'not found'
-      # the resource has terminated which means we are done waiting.
+    case res[:response]
+    # the resource has terminated which means we are done waiting.
+    when /cannot get projects in project/, /not found/
       break true
     end
   }

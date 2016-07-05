@@ -4,7 +4,7 @@ Feature: filter on create page
   Scenario: search and filter for things on the create page
     When I create a new project via web
     Then the step should succeed
-    
+
     # filter by tag instant-app
     When I perform the :filter_by_tags web console action with:
       | tag_name | instant-app |
@@ -272,7 +272,7 @@ Feature: filter on create page
     Then the output should not contain:
       | All builder images and templates are hidden by the current filter |
     """
-    # filter by keyword and tag 
+    # filter by keyword and tag
     When I perform the :filter_by_keywords web console action with:
       | keyword | quickstart |
     Then the step should succeed
@@ -302,7 +302,7 @@ Feature: filter on create page
   # @author yanpzhan@redhat.com
   # @case_id 470358
   Scenario: Filter resources by labels under Browse page
-    When I create a new project via web 
+    When I create a new project via web
     Then the step should succeed
 
     When I perform the :create_app_from_image_with_label_options web console action with:
@@ -327,8 +327,8 @@ Feature: filter on create page
       | label_value  | test2                                      |
     Then the step should succeed
     Given the "nodejs-sample-1" build was created
-   
-    #Filter on Browse->Builds page 
+
+    #Filter on Browse->Builds page
     When I perform the :goto_builds_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
@@ -344,7 +344,7 @@ Feature: filter on create page
     And the output should not contain:
       | nodejs-sample |
 
-    #Filter on Browse->Deployments page 
+    #Filter on Browse->Deployments page
     When I perform the :goto_deployments_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
@@ -361,7 +361,7 @@ Feature: filter on create page
     And the output should not contain:
       | nodejs-sample |
 
-    #Filter on Browse->Image Streams page 
+    #Filter on Browse->Image Streams page
     When I perform the :goto_image_streams_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
@@ -378,7 +378,7 @@ Feature: filter on create page
     And the output should not contain:
       | nodejs-sample |
 
-    #Filter on Browse->Pods page 
+    #Filter on Browse->Pods page
     When I perform the :goto_pods_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
@@ -395,7 +395,7 @@ Feature: filter on create page
     And the output should not contain:
       | python-sample-1-build |
 
-    #Filter on Browse->Routes page 
+    #Filter on Browse->Routes page
     When I perform the :goto_routes_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
@@ -412,7 +412,7 @@ Feature: filter on create page
     And the output should not contain:
       | nodejs-sample |
 
-    #Filter on Browse->Services page 
+    #Filter on Browse->Services page
     When I perform the :goto_services_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
@@ -449,7 +449,7 @@ Feature: filter on create page
       | python-sample |
     And the output should not contain:
       | The active filters are hiding all |
-    
+
     When I perform the :filter_resources_with_non_existing_label web console action with:
       | label_key     | i*s#$$% |
       | press_enter   | :enter  |
@@ -468,7 +468,7 @@ Feature: filter on create page
       | python-sample  |
       | nodejs-sample  |
 
-     #Filter with other operator actions 
+     #Filter with other operator actions
     When I perform the :filter_resources web console action with:
       | label_key     | label1 |
       | label_value   | test1  |
@@ -495,3 +495,105 @@ Feature: filter on create page
     And the output should not contain:
       | nodejs-sample |
 
+  # @author: yanpzhan@redhat.com
+  # @case_id: 470360
+  Scenario: Display existing labels in label suggestion list according to different resources
+    When I create a new project via web
+    Then the step should succeed
+
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | python                                     |
+      | image_tag    | latest                                     |
+      | namespace    | openshift                                  |
+      | app_name     | python-sample                              |
+      | source_url   | https://github.com/openshift/django-ex.git |
+    Then the step should succeed
+    Given the "python-sample-1" build was created
+
+    # Check suggested labels on overview page.
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+    When I run the :click_filter_box web console action
+    Then the step should succeed
+    When I perform the :check_suggested_label web console action with:
+      | label | app |
+    Then the step should succeed
+
+    # Check suggested labels on builds page.
+    When I perform the :goto_builds_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+    When I run the :click_filter_box web console action 
+    Then the step should succeed
+    When I perform the :check_suggested_label web console action with:
+      | label | app |
+    Then the step should succeed
+
+    # Check suggested labels on bc page.
+    When I perform the :goto_one_buildconfig_page web console action with:
+      | project_name | <%= project.name%> |
+      | bc_name | python-sample |
+    Then the step should succeed
+    When I run the :click_filter_box web console action
+    Then the step should succeed
+    When I perform the :check_suggested_label web console action with:
+      | label | app |
+    Then the step should succeed
+    When I perform the :check_suggested_label web console action with:
+      | label | buildconfig |
+    Then the step should succeed
+    When I perform the :check_suggested_label web console action with:
+      | label | openshift.io/build-config.name |
+    Then the step should succeed
+
+    # Check suggested labels on deployments page.
+    When I perform the :goto_deployments_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+    When I run the :click_filter_box web console action
+    Then the step should succeed
+    When I perform the :check_suggested_label web console action with:
+      | label | app |
+    Then the step should succeed
+
+    # Check suggested labels on imagestreams page.
+    When I perform the :goto_image_streams_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+    When I run the :click_filter_box web console action
+    Then the step should succeed
+    When I perform the :check_suggested_label web console action with:
+      | label | app |
+    Then the step should succeed
+
+    # Check suggested labels on pods page.
+    When I perform the :goto_pods_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+    When I run the :click_filter_box web console action
+    Then the step should succeed
+    When I perform the :check_suggested_label web console action with:
+      | label | openshift.io/build.name |
+    Then the step should succeed
+
+    # Check suggested labels on routes page.
+    When I perform the :goto_routes_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+    When I run the :click_filter_box web console action
+    Then the step should succeed
+    When I perform the :check_suggested_label web console action with:
+      | label | app |
+    Then the step should succeed
+
+    # Check suggested labels on services page.
+    When I perform the :goto_services_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+    When I run the :click_filter_box web console action
+    Then the step should succeed
+    When I perform the :check_suggested_label web console action with:
+      | label | app |
+    Then the step should succeed

@@ -1,7 +1,8 @@
 Feature: Add pvc to pod from web related
   # @author yanpzhan@redhat.com
   # @case_id 515688
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Attach pvc to pod with multiple containers from web console
     When I create a new project via web
     Then the step should succeed
@@ -16,7 +17,7 @@ Feature: Add pvc to pod from web related
       | ["metadata"]["name"]   | nfsc-1-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-1-<%= project.name %>  |
     Then the step should succeed
-    Given the PV becomes :bound
+    And the "nfsc-1-<%= project.name %>" PVC becomes bound to the "nfs-1-<%= project.name %>" PV
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
@@ -27,7 +28,7 @@ Feature: Add pvc to pod from web related
       | ["metadata"]["name"]   | nfsc-2-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-2-<%= project.name %>  |
     Then the step should succeed
-    Given the PV becomes :bound
+    And the "nfsc-2-<%= project.name %>" PVC becomes bound to the "nfs-2-<%= project.name %>" PV
 
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
@@ -83,7 +84,8 @@ Feature: Add pvc to pod from web related
 
   # @author yanpzhan@redhat.com
   # @case_id 515690
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Display and attach PVC to pod from web console
     Given I have a project
     And I have a NFS service in the project
@@ -98,7 +100,7 @@ Feature: Add pvc to pod from web related
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
 
-    Given the PV becomes :bound
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
     When I run the :run client command with:
       | name         | mytest                    |

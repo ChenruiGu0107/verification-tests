@@ -12,7 +12,7 @@ Feature: Testing route
     Then the step should succeed
     When I expose the "header-test-insecure" service
     Then the step should succeed
-    And I wait for a server to become available via the route
+    And I wait for a web server to become available via the route
     When I run the :get client command with:
       | resource      | route |
       | resource_name | header-test-insecure |
@@ -28,7 +28,7 @@ Feature: Testing route
       | resource      | route                                           |
       | resource_name | header-test-insecure-dup                        |
       | p             | {"spec":{"to":{"name":"header-test-insecure"}}} |
-    Then I wait for a server to become available via the "header-test-insecure-dup" route
+    Then I wait for a web server to become available via the "header-test-insecure-dup" route
 
   # @author: zzhao@redhat.com
   # @case_id: 470700
@@ -42,7 +42,7 @@ Feature: Testing route
     Then the step should succeed
     When I expose the "header-test-insecure" service
     Then the step should succeed
-    Then I wait for a server to become available via the "header-test-insecure" route
+    Then I wait for a web server to become available via the "header-test-insecure" route
     When I run the :delete client command with:
       | object_type | route |
       | object_name_or_id | header-test-insecure |
@@ -177,13 +177,11 @@ Feature: Testing route
     Then the step should succeed
     When I expose the "header-test-insecure" service
     Then the step should succeed
-    When I wait for a server to become available via the route
+    When I wait for a web server to become available via the route
     Then the output should contain ";host=<%= route.dns(by: user) %>;proto=http"
 
-
-
   # @author: yadu@redhat.com
-  # @case_id: 511645 
+  # @case_id: 511645
   Scenario: Config insecureEdgeTerminationPolicy to an invalid value for route
     Given I have a project
     When I run the :create client command with:
@@ -195,12 +193,11 @@ Feature: Testing route
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name     | myroute      |
-      | hostname | www.edge.com |
       | service  | service-unsecure |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource      | route              |
-      | resource_name | myroute            |
+      | resource      | route |
+      | resource_name | myroute |
       | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Abc"}}} |
     And the output should contain:
       | invalid value for InsecureEdgeTerminationPolicy option, acceptable values are None, Allow, Redirect, or empty |
@@ -249,7 +246,7 @@ Feature: Testing route
     Then the step should succeed
     When I run the :create_route_edge client command with:
       | name | route-edge |
-      | hostname | www.edge.com |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
       | service | service-unsecure |
       | cert | route_edge-www.edge.com.crt |
       | key | route_edge-www.edge.com.key |
@@ -257,12 +254,19 @@ Feature: Testing route
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | www.edge.com:443:<%= cb.router_ip[0] %> |
-      | https://www.edge.com/ |
+      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
+      | -c | 
+      | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
-
+    When I execute on the "<%= pod.name %>" pod:
+      | cat |
+      | /tmp/cookie.txt |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
+    And the output should not match "\d+\.\d+\.\d+\.\d+"
 
   # @author bmeng@redhat.com
   # @case_id 470716
@@ -288,14 +292,14 @@ Feature: Testing route
     Then the step should succeed
     When I run the :create_route_passthrough client command with:
       | name | passthrough-route |
-      | hostname | www.example.com |
+      | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
       | service | service-secure |
     Then the step should succeed
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | www.example.com:443:<%= cb.router_ip[0] %> |
-      | https://www.example.com/ |
+      | <%= route("passthrough-route", service("passthrough-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("passthrough-route", service("passthrough-route")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
@@ -328,8 +332,8 @@ Feature: Testing route
       | /tmp/ca.pem |
     Then the step should succeed 
     When I run the :create_route_reencrypt client command with:
-      | name | route-recrypt |
-      | hostname | reen.example.com |
+      | name | route-reencrypt |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
       | service | service-secure |
       | cert | route_reencrypt-reen.example.com.crt |
       | key | route_reencrypt-reen.example.com.key |
@@ -339,37 +343,61 @@ Feature: Testing route
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | reen.example.com:443:<%= cb.router_ip[0] %> |
-      | https://reen.example.com/ |
+      | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
+      | -c |
+      | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
+    When I execute on the "<%= pod.name %>" pod:
+      | cat |
+      | /tmp/cookie.txt |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
+    And the output should not match "\d+\.\d+\.\d+\.\d+"
 
-  # @author zzhao@redhat.com
+  # @author zzhao@redhat.com cryan@redhat.com
   # @case_id 470736
   Scenario: The path specified in route can work well for unsecure
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
-    And all pods in the project are ready
+    Given the pod named "caddy-docker" becomes ready
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
     When I run the :expose client command with:
-      | resource     | svc |
-      | resource_name| service-unsecure |
-      | path         | /test |
-    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/test/" url
+      | resource      | service          |
+      | resource_name | service-unsecure |
+      | path          | /test            |
+    Then the step should succeed
+    Given evaluation of `route("service-unsecure", service("service-unsecure")).dns(by: user)` is stored in the :unsecure clipboard
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= cb.unsecure %>/test/" url
     Then the output should contain "Hello-OpenShift-Path-Test"
-    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    """
+    When I open web server via the "http://<%= cb.unsecure %>/" url
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json"
+    And I replace lines in "route_unsecure.json":
+      | unsecure.example.com | <%= cb.unsecure %> |
+    When I run the :create client command with:
+      | f | route_unsecure.json |
+    Then the step should succeed
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= route("route", service("service-unsecure")).dns(by: user) %>/test/" url
+    Then the output should contain "Hello-OpenShift-Path-Test"
+    """
+    When I open web server via the "http://<%= route("route", service("service-unsecure")).dns(by: user) %>/" url
     Then the step should fail
 
   # @author zzhao@redhat.com
   # @case_id 470735
   Scenario: The path specified in route can work well for edge terminated
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -377,42 +405,31 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
 
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
-    Given I execute on the "<%= pod.name %>" pod:
-      | wget |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | -O |
-      | /tmp/ca.pem |
-    Then the step should succeed
+    Given I have a pod-for-ping in the project
     When I run the :create_route_edge client command with:
-      | name | route-edge |
-      | hostname | www.edge.com |
+      | name | edge-route |
       | service | service-unsecure |
-      | cert | route_edge-www.edge.com.crt |
-      | key | route_edge-www.edge.com.key |
       | path| /test |
     Then the step should succeed
     When I execute on the "<%= pod.name %>" pod:
       | curl |
-      | --resolve |
-      | www.edge.com:443:<%= cb.router_ip[0] %> |
-      | https://www.edge.com/test/ |
-      | --cacert |
-      | /tmp/ca.pem |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/test/ |
+      | -c |
+      | /tmp/cookie.txt |
+      | -k |
     Then the output should contain "Hello-OpenShift-Path-Test"
     When I execute on the "<%= pod.name %>" pod:
       | curl |
-      | --resolve |
-      | www.edge.com:443:<%= cb.router_ip[0] %> |
-      | https://www.edge.com/ |
-      | --cacert |
-      | /tmp/ca.pem |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+      | -k |
     Then the output should contain "Application is not available"
+    When I execute on the "<%= pod.name %>" pod:
+      | cat | 
+      | /tmp/cookie.txt |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
+    And the output should not match "\d+\.\d+\.\d+\.\d+"
 
   # @author zzhao@redhat.com
   # @case_id 498581
@@ -442,7 +459,7 @@ Feature: Testing route
     Then the step should succeed
     When I run the :create_route_reencrypt client command with:
       | name | route-recrypt |
-      | hostname | reen.example.com |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
       | service | service-secure |
       | cert | route_reencrypt-reen.example.com.crt |
       | key | route_reencrypt-reen.example.com.key |
@@ -453,21 +470,21 @@ Feature: Testing route
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | reen.example.com:443:<%= cb.router_ip[0] %> |
-      | https://reen.example.com/test/ |
+      | <%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>/test/ |
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift-Path-Test"
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | reen.example.com:443:<%= cb.router_ip[0] %> |
-      | https://reen.example.com/ |
+      | <%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Application is not available"
 
-  # @author zzhaoe@redhat.com
+  # @author zzhao@redhat.com
   # @case_id 483186
   Scenario: Re-encrypting route with no cert if a router is configured with a default wildcard cert
     Given I have a project
@@ -486,15 +503,109 @@ Feature: Testing route
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     And the pod named "hello-pod" becomes ready
     When I run the :create_route_reencrypt client command with:
-      | name | route-recrypt |
-      | hostname | reen.example.com |
+      | name | no-cert |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
       | service | service-secure |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
     When I execute on the "<%= pod.name %>" pod:
       | curl |
       | --resolve |
-      | reen.example.com:443:<%= cb.router_ip[0] %> |
-      | https://reen.example.com/ |
+      | <%= route("no-cert", service("no-cert")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("no-cert", service("no-cert")).dns(by: user) %>/ |
       | -k |
     Then the output should contain "Hello-OpenShift"
+
+  # @author yadu@redhat.com
+  # @case_id 470732
+  Scenario: Create a route without host named
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc470732/route_withouthost1.json |
+    Then the step should succeed
+    When I use the "service-unsecure" service
+    Then I wait for a web server to become available via the "service-unsecure1" route
+    Then the output should contain "Hello-OpenShift"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc470732/route_withouthost2.json |
+    Then the step should succeed
+    When I use the "service-unsecure" service
+    Then I wait for a web server to become available via the "service-unsecure2" route
+    Then the output should contain "Hello-OpenShift"
+
+  # @author yadu@redhat.com
+  # @case_id 508649
+  Scenario: Config insecureEdgeTerminationPolicy to Redirect for route
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    # Create edge termination route
+    When I run the :create_route_edge client command with:
+      | name     | myroute |
+      | service  | service-unsecure     |
+    Then the step should succeed
+    # Set insecureEdgeTerminationPolicy to Redirect
+    When I run the :patch client command with:
+      | resource      | route              |
+      | resource_name | myroute            |
+      | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Redirect"}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | route |
+    Then the step should succeed
+    And the output should contain:
+      | Redirect |
+    # Acess the route
+    Given I have a pod-for-ping in the project 
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -v |
+      | -L |
+      | http://<%= route("myroute", service("service-unsecure")).dns(by: user) %>/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+      | HTTP/1.1 302 Found |
+      | Location: https:// |
+
+
+  # @author zzhao@redhat.com
+  # @case_id 520311
+  Scenario: Cookie name should not use openshift prefix
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | <%= route.dns(by: user) %> |
+      | -c |
+      | /tmp/cookie |
+    Then the output should contain "Hello-OpenShift"
+    And I execute on the "<%= pod.name %>" pod:
+      | cat | 
+      | /tmp/cookie |
+    Then the step should succeed
+    And the output should not contain "OPENSHIFT"
+    And the output should not match "\d+\.\d+\.\d+\.\d+"

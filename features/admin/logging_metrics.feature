@@ -1,7 +1,7 @@
 Feature: Logging and Metrics
 
   # @author chunchen@redhat.com
-  # @case_id 509065
+  # @case_id 509065,521419
   # @author xiazhao@redhat.com
   # @case_id 521420
   @admin
@@ -9,6 +9,7 @@ Feature: Logging and Metrics
   Scenario: Access heapster interface,Check jboss wildfly version from hawkular-metrics pod logs
     Given I have a project
     And I store default router subdomain in the :subdomain clipboard
+    And I store master major version in the :master_version clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin-metrics/master/metrics-deployer-setup.yaml |
     Then the step should succeed
@@ -24,7 +25,7 @@ Feature: Logging and Metrics
     When I create a new application with:
       | template | metrics-deployer-template |
       | param | HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.<%= cb.subdomain%> |
-      | param | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/,USE_PERSISTENT_STORAGE=false,IMAGE_VERSION=latest |
+      | param | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/,USE_PERSISTENT_STORAGE=false,IMAGE_VERSION=<%= cb.master_version%>|
       | param | MASTER_URL=<%= env.api_endpoint_url %> |
     Then the step should succeed
     And all pods in the project are ready
@@ -48,6 +49,16 @@ Feature: Logging and Metrics
       | project_name | <%=project.name%> |
     Then the step should succeed
     """
+    When I perform the :access_pod_network_metrics rest request with:
+      | project_name | <%=project.name%> |
+      | pod_name | <%=pod.name%> |
+      | type | tx |
+    Then the step should succeed
+    When I perform the :access_pod_network_metrics rest request with:
+      | project_name | <%=project.name%> |
+      | pod_name | <%=pod.name%> |
+      | type | rx |
+    Then the step should succeed
 
   # @author chunchen@redhat.com
   # @case_id 509059,522124
@@ -57,6 +68,7 @@ Feature: Logging and Metrics
   Scenario: Scale up kibana and elasticsearch pods
     Given I have a project
     And I store default router subdomain in the :subdomain clipboard
+    And I store master major version in the :master_version clipboard
     When I run the :new_secret client command with:
       | secret_name | logging-deployer |
       | credential_file | nothing=/dev/null |
@@ -82,7 +94,7 @@ Feature: Logging and Metrics
     """
     When I create a new application with:
       | template | logging-deployer-template|
-      | param | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/,KIBANA_HOSTNAME=kibana.<%= cb.subdomain%>,PUBLIC_MASTER_URL=<%= env.api_endpoint_url %>,ES_INSTANCE_RAM=1024M,ES_CLUSTER_SIZE=1,IMAGE_VERSION=latest,MASTER_URL=<%= env.api_endpoint_url %> |
+      | param | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/,KIBANA_HOSTNAME=kibana.<%= cb.subdomain%>,PUBLIC_MASTER_URL=<%= env.api_endpoint_url %>,ES_INSTANCE_RAM=1024M,ES_CLUSTER_SIZE=1,IMAGE_VERSION=<%= cb.master_version%>,MASTER_URL=<%= env.api_endpoint_url %> |
     Then the step should succeed
     Given I wait for the steps to pass:
     """
@@ -111,8 +123,8 @@ Feature: Logging and Metrics
       | p             | {"metadata": {"annotations": {"openshift.io/image.insecureRepository": "true"}}} |
     Then the step should succeed
     When I run the :import_image client command with:
-      | image_name | logging-fluentd:latest  |
-      | from       | <%= product_docker_repo %>openshift3/logging-fluentd:latest |
+      | image_name | logging-fluentd:<%= cb.master_version%>  |
+      | from       | <%= product_docker_repo %>openshift3/logging-fluentd:<%= cb.master_version%> |
       | insecure   | true             |
     Then the step should succeed
     When I run the :patch client command with:
@@ -121,8 +133,8 @@ Feature: Logging and Metrics
       | p             | {"metadata": {"annotations": {"openshift.io/image.insecureRepository": "true"}}} |
     Then the step should succeed
     When I run the :import_image client command with:
-      | image_name | logging-elasticsearch:latest |
-      | from       |  <%= product_docker_repo %>openshift3/logging-elasticsearch:latest |
+      | image_name | logging-elasticsearch:<%= cb.master_version%> |
+      | from       |  <%= product_docker_repo %>openshift3/logging-elasticsearch:<%= cb.master_version%> |
       | insecure   | true             |
     Then the step should succeed
     When I run the :patch client command with:
@@ -131,8 +143,8 @@ Feature: Logging and Metrics
       | p             | {"metadata": {"annotations": {"openshift.io/image.insecureRepository": "true"}}} |
     Then the step should succeed
     When I run the :import_image client command with:
-      | image_name | logging-auth-proxy:latest |
-      | from       | <%= product_docker_repo %>openshift3/logging-auth-proxy:latest |
+      | image_name | logging-auth-proxy:<%= cb.master_version%> |
+      | from       | <%= product_docker_repo %>openshift3/logging-auth-proxy:<%= cb.master_version%> |
       | insecure   | true             |
     Then the step should succeed
     When I run the :patch client command with:
@@ -141,8 +153,8 @@ Feature: Logging and Metrics
       | p             | {"metadata": {"annotations": {"openshift.io/image.insecureRepository": "true"}}} |
     Then the step should succeed
     When I run the :import_image client command with:
-      | image_name | logging-kibana:latest |
-      | from       | <%= product_docker_repo %>openshift3/logging-kibana:latest |
+      | image_name | logging-kibana:<%= cb.master_version%> |
+      | from       | <%= product_docker_repo %>openshift3/logging-kibana:<%= cb.master_version%> |
       | insecure   | true             |
     Then the step should succeed
     And I wait for the steps to pass:
@@ -171,4 +183,51 @@ Feature: Logging and Metrics
       | resource_name    | pods/<%= pod.name %>|
     Then the output should match:
       | \[<%= project.name %>\.\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\.\d{4}\.\d{2}\.\d{2}\] |
+    """
+
+  # @author xiazhao@redhat.com
+  # @case_id 518907
+  @admin
+  @smoke
+  Scenario: Deploy metrics stack with persistent storage
+    Given I have a project
+    And I have a NFS service in the project
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_pv.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    And I store default router subdomain in the :subdomain clipboard
+    When I run the :create_serviceaccount client command with:
+      | serviceaccount_name | metrics-deployer |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role            |   edit |
+      | user_name       |   system:serviceaccount:<%=project.name%>:metrics-deployer |
+    Then the step should succeed
+    Given cluster role "cluster-reader" is added to the "heapster" service account
+    Given the "empty" file is created with the following lines:
+    """
+    """
+    When I run the :new_secret client command with:
+      | secret_name | metrics-deployer |
+      | credential_file | empty |
+    Then the step should succeed
+    When I create a new application with:
+      | template | metrics-deployer-template |
+      | param | HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.<%= cb.subdomain%> |
+      | param | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/,USE_PERSISTENT_STORAGE=true,CASSANDRA_PV_SIZE=5Gi,IMAGE_VERSION=3.2.1 |
+      | param | MASTER_URL=<%= env.api_endpoint_url %> |
+    Then the step should succeed
+    And all pods in the project are ready
+    And I wait for the "hawkular-cassandra" service to become ready
+    And I wait for the "hawkular-metrics" service to become ready
+    And I wait for the "heapster" service to become ready
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-cassandra |
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource         | pod |
+      | resource_name    | <%= pod.name %> |
+      | o                | yaml |
+    Then the output should contain:
+      | persistentVolumeClaim |
     """

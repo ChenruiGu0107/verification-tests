@@ -506,3 +506,13 @@ Feature: projects related features via cli
       |   name: .+/.+/<%= user(0, switch: false).name %> |
       | current-context: /.+/<%= user.name %>            |
 
+  # @author yinzhou@redhat.com
+  # @case_id 510542
+  Scenario: Process with default FSGroup id can be ran when using the default MustRunAs as the RunAsGroupStrategy
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=hello-openshift |
+    Then the expression should be true> project.uid_range(user:user).split("/")[0] == pod.fs_group(user:user)

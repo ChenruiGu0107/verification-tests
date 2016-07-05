@@ -25,7 +25,7 @@ Feature: change the policy of user/service account
       | cannot list pods in project "default" |
 
   # @author xxing@redhat.com
-  # @case_id 467925
+  # @case_id 467925, 470316
   Scenario: User can view ,add, remove and modify roleBinding via admin role user
     Given I have a project
     When I run the :describe client command with:
@@ -44,6 +44,14 @@ Feature: change the policy of user/service account
     Then the output should match:
       | Role:\\s+admin                                                  |
       | Users:\\s+<%= @user.name %>, <%= user(1, switch: false).name %> |
+    Given I switch to the second user
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | projects |
+    Then the output should contain "<%= project.name %>"
+    """
+    Given I switch to the first user
     When I run the :oadm_remove_role_from_user client command with:
       | role_name | admin            |
       | user_name | <%= user(1, switch: false).name %> |
@@ -54,6 +62,13 @@ Feature: change the policy of user/service account
     Then the output should match:
       | Role:\\s+admin              |
       | Users:\\s+<%= @user.name %> |
+    Given I switch to the second user
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | projects |
+    Then the output should not contain "<%= project.name %>"
+    """
 
   # @author wyue@redhat.com
   # @case_id 470304
@@ -399,3 +414,80 @@ Feature: change the policy of user/service account
       | role  | admin     |
       | user_name |  <%= user(1, switch: false).name %> |
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id 520732
+  Scenario: Check registry-viewer permission
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role        | registry-viewer      |
+      | user_name   |  <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    When I run the :policy_who_can client command with:
+      | verb         | get                 |
+      | resource     | imagestreamimages   |
+    Then the output should contain:
+      | <%= user(1).name %> |
+    When I run the :policy_who_can client command with:
+      | verb         | list                |
+      | resource     | imagestreamimports  |
+    Then the output should contain:
+      | <%= user(1).name %> |
+    When I run the :policy_who_can client command with:
+      | verb         | get                 |
+      | resource     | imagestreamtags     |
+    Then the output should contain:
+      | <%= user(1).name %> |
+    When I run the :create client command with:
+      | f |https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json|
+    Then the step should fail
+    When I run the :policy_add_role_to_user client command with:
+      | role        | registry-viewer      |
+      | user_name   |  <%= user(2, switch: false).name %> |
+    Then the step should fail
+
+  # @author xiaocwan@redhat.com
+  # @case_id 520734
+  Scenario: Check the registry-editor permission
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role        |  registry-editor     |
+      | user_name   |  <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    When I run the :policy_who_can client command with:
+      | verb         | create              |
+      | resource     | imagestreamimages   |
+    Then the output should contain:
+      | <%= user(1).name %> |
+    When I run the :policy_who_can client command with:
+      | verb         | delete              |
+      | resource     | imagestreamimports  |
+    Then the output should contain:
+      | <%= user(1).name %> |
+    When I run the :policy_who_can client command with:
+      | verb         | deletecollection    |
+      | resource     | imagestreammappings |
+    Then the output should contain:
+      | <%= user(1).name %> |
+    When I run the :policy_who_can client command with:
+      | verb         | list                 |
+      | resource     | imagestreams/secrets |
+    Then the output should contain:
+      | <%= user(1).name %> |
+    When I run the :policy_who_can client command with:
+      | verb         | patch               |
+      | resource     | imagestreamtags     |
+    Then the output should contain:
+      | <%= user(1).name %> |
+    When I run the :policy_who_can client command with:
+      | verb         | get                 |
+      | resource     | imagestreams/layers |
+    Then the output should contain:
+      | <%= user(1).name %> |
+    When I run the :create client command with:
+      | f |https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json|
+    Then the step should fail
+    When I run the :policy_add_role_to_user client command with:
+      | role        | registry-viewer      |
+      | user_name   |  <%= user(2, switch: false).name %> |
+    Then the step should fail

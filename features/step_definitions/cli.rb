@@ -124,9 +124,14 @@ end
 #       | f      | hooks.yaml |
 #  So the output file name will be hard-coded to 'tmp_out.yaml', we still need to
 #  supply the resouce_name and the lines we are replacing
-Given /^I replace resource "([^"]+)" named "([^"]+)"(?: saving edit to "([^"]+)")?:$/ do |resource, resource_name, filename,table |
+Given /^(?:(as admin) )?I replace resource "([^"]+)" named "([^"]+)"(?: saving edit to "([^"]+)")?:$/ do |as_admin, resource, resource_name, filename, table |
   filename = "edit_resource.yaml" if filename.nil?
-  step %Q/I run the :get client command with:/, table(%{
+  if as_admin.nil?
+    as_user = "client"
+  else
+    as_user = "admin"
+  end
+  step %Q/I run the :get #{as_user} command with:/, table(%{
     | resource | #{resource} |
     | resource_name |  #{resource_name} |
     | o | yaml |
@@ -134,7 +139,7 @@ Given /^I replace resource "([^"]+)" named "([^"]+)"(?: saving edit to "([^"]+)"
   step %Q/the step should succeed/
   step %Q/I save the output to file>#{filename}/
   step %Q/I replace content in "#{filename}":/, table
-  step %Q/I run the :replace client command with:/, table(%{
+  step %Q/I run the :replace #{as_user} command with:/, table(%{
     | f | #{filename} |
     })
 end

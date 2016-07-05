@@ -2,6 +2,8 @@ git
 
 gcc-c++
 openssl
+rubygem-bundler
+rubygem-nokogiri
 
 firefox
 which

@@ -39,12 +39,13 @@ module CucuShift
     end
 
     # @note call without parameters only when props are loaded
-    def uid_range(user: nil)
-      get_checked(user: user) if !props[:scc_uid_range]
-
-      return props[:scc_uid_range]
+    def uid_range(user:, cached: true, quiet: false)
+      return get_cached_prop(prop: :scc_uid_range, user: user, cached: cached, quiet: quiet)
     end
 
+    def supplemental_groups(user:, cached: true, quiet: false)
+      return get_cached_prop(prop: :scc_supplemental_groups, user: user, cached: cached, quiet: quiet)
+    end
     # creates a new project
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create project as
     # @param name [String] the name of the project
@@ -66,6 +67,7 @@ module CucuShift
       props[:description] = h["annotations"]["openshift.io/description"]
       props[:display_name] = h["annotations"]["openshift.io/display-name"]
       props[:scc_uid_range] = h["annotations"]["openshift.io/sa.scc.uid-range"]
+      props[:scc_supplemental_groups] = h["annotations"]["openshift.io/sa.scc.supplemental-groups"]
       props[:status] = project_hash["status"]
 
       return self # mainly to help ::from_api_object

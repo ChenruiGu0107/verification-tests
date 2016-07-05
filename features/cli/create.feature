@@ -13,19 +13,19 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     When I expose the "myapp" service
     Then the step should succeed
-    And I wait for a server to become available via the route
+    And I wait for a web server to become available via the route
     And the project is deleted
 
     ## recreate project between each test because of
     #    https://bugzilla.redhat.com/show_bug.cgi?id=1233503
     ## create app with broken labels
-    # disabled for https://bugzilla.redhat.com/show_bug.cgi?id=1251601
-    #Given I have a project
-    #When I create a new application with:
-    #  | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
-    #  | name         | upperCase |
-    #Then the step should fail
-    #And the project is deleted
+    Given I have a project
+    # test https://bugzilla.redhat.com/show_bug.cgi?id=1251601
+    When I create a new application with:
+      | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
+      | name         | upperCase |
+    Then the step should fail
+    And the project is deleted
 
     # https://bugzilla.redhat.com/show_bug.cgi?id=1247680
     Given I have a project
@@ -109,16 +109,14 @@ Feature: creating 'apps' with CLI
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-      | bash                       |
-      | -c                         |
-      | curl -k <%= service.url %> |
+      | curl | -ksS | <%= service.url %> |
     Then the step should succeed
     And the output should contain "Demo App"
     """
 
     # delete resources by label
     When I delete all resources by labels:
-     | app=hi |
+      | app=hi |
     Then the step should succeed
     And the project should be empty
 
@@ -133,7 +131,7 @@ Feature: creating 'apps' with CLI
       |param   |MYSQL_USER=admin,MYSQL_PASSWORD=admin,MYSQL_DATABASE=xxingtest|
     Then the step should succeed
     When I expose the "frontend" service
-    Then I wait for a server to become available via the "frontend" route
+    Then I wait for a web server to become available via the "frontend" route
     And the output should contain "Demo App"
     Given I wait for the "database" service to become ready
     When I execute on the pod:
@@ -144,7 +142,7 @@ Feature: creating 'apps' with CLI
     And the output should contain "xxingtest"
 
   # @author wsun@redhat.com
-  # case_id 476293
+  # @case_id 476293
   Scenario: Could not create any context in non-existent project
     Given I create a new application with:
       | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
@@ -257,29 +255,27 @@ Feature: creating 'apps' with CLI
   Scenario: Debugging a Service
     Given I have a project
     When I run the :create client command with:
-       |f| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+      |f| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
     And all pods in the project are ready
     When I run the :get client command with:
-       | resource | pod |
+      | resource | pod |
     Then the step should succeed
     And the output should contain:
-       | Running |
+      | Running |
     When I run the :get client command with:
-       | resource | service |
+      | resource | service |
     Then the step should succeed
     And the output should contain:
-       | test-service |
-       | name=test-pods |
+      | test-service |
+      | name=test-pods |
     When I run the :get client command with:
-       | resource | endpoints |
+      | resource | endpoints |
     And the output should contain:
-       | test-service |
+      | test-service |
     Given I wait for the "test-service" service to become ready
     When I execute on the pod:
-       |curl|
-       |-k|
-       |<%= service.url %>|
+      | curl | -ksS | <%= service.url %> |
     Then the step should succeed
     And the output should contain "Hello OpenShift!"
 
@@ -322,7 +318,7 @@ Feature: creating 'apps' with CLI
       | c       | sti-python |
       |oc_opts_end ||
       | exec_command | curl|
-      | exec_command_arg |-s|
+      | exec_command_arg |-sS|
       | exec_command_arg | <%= service.url %>|
     Then the step should succeed
     """
@@ -344,7 +340,7 @@ Feature: creating 'apps' with CLI
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-      | curl | -s | <%= service.url %> |
+      | curl | -sS | <%= service.url %> |
     Then the step should succeed
     """
     Given the project is deleted
@@ -384,7 +380,7 @@ Feature: creating 'apps' with CLI
       | c       | sti-python |
       |oc_opts_end ||
       | exec_command | curl|
-      | exec_command_arg |-s|
+      | exec_command_arg |-sS|
       | exec_command_arg | <%= service.url %> |
     Then the step should succeed
     """
@@ -423,9 +419,9 @@ Feature: creating 'apps' with CLI
     And the output should contain:
       | ruby-22-rhel7 |
 
-  # @author xiacwan@redhat.com
+  # @author xiaocwan@redhat.com
   # @case_id 510225
-  Scenario: [platformmanagement_public_523]Use the old version v1beta3 file to create resource 
+  Scenario: [platformmanagement_public_523]Use the old version v1beta3 file to create resource
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
@@ -474,20 +470,26 @@ Feature: creating 'apps' with CLI
 
   # @author yinzhou@redhat.com
   # @case_id 510544
+  @admin
   Scenario: Process with special FSGroup id can be ran when using RunAsAny as the RunAsGroupStrategy
     Given I have a project
     When I run the :create client command with:
-      | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_fsGroup.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_fsGroup.json |
+    Then the step should fail
+    Given the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc-runasany.yaml
     Then the step should succeed
-
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_fsGroup.json |
+      | n | <%= project.name %>                                                                                   |
+    Then the step should succeed
     When the pod named "hello-openshift" becomes ready
     When I run the :get client command with:
-      | resource | pod             |
+      | resource      | pod             |
       | resource_name | hello-openshift |
-      | output       | yaml        |
+      | output        | yaml            |
     Then the output by order should match:
-      | securityContext:|
-      | fsGroup: 0 |
+      | securityContext: |
+      | fsGroup: 0       |
 
   # @author cryan@redhat.com
   # @case_id 467937
@@ -511,7 +513,7 @@ Feature: creating 'apps' with CLI
     #The json file below contains several labels
     #that are specific to this testcase
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/test/fixtures/template-with-app-label.json |
+      | f | https://raw.githubusercontent.com/openshift/origin/master/test/testdata/template-with-app-label.json |
     Then the step should succeed
     When I run the :new_app client command with:
       | app_repo | ruby-helloworld-sample |
@@ -526,58 +528,75 @@ Feature: creating 'apps' with CLI
     Given an 8 character random string of type :dns952 is stored into the :appname clipboard
     When I run the :new_app client command with:
       | app_repo | ruby-hello-world |
+      | image_stream | openshift/ruby:latest |
       | name | <%= cb.appname %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Given the "<%= cb.appname %>-1" build completes
     Given 1 pods become ready with labels:
       | deployment=<%= cb.appname %>-1 |
+    And I wait for the steps to pass:
+    """
     When I execute on the "<%= pod.name %>" pod:
       | curl | localhost:8080 |
     Then the step should succeed
+    """
     And the output should contain "Hello"
     #Check https github url
     Given an 8 character random string of type :dns952 is stored into the :appname1 clipboard
     When I run the :new_app client command with:
       | code | https://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:2.2 |
       | name | <%= cb.appname1 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Given the "<%= cb.appname1 %>-1" build completes
     Given 1 pods become ready with labels:
       | deployment=<%= cb.appname1 %>-1 |
+    And I wait for the steps to pass:
+    """
     When I execute on the "<%= pod.name %>" pod:
       | curl | localhost:8080 |
     Then the step should succeed
+    """
     And the output should contain "Hello"
     #Check http github url
     Given an 8 character random string of type :dns952 is stored into the :appname2 clipboard
     When I run the :new_app client command with:
       | code | http://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby:2.0 |
       | name | <%= cb.appname2 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Given the "<%= cb.appname2 %>-1" build completes
     Given 1 pods become ready with labels:
       | deployment=<%= cb.appname2 %>-1 |
+    And I wait for the steps to pass:
+    """
     When I execute on the "<%= pod.name %>" pod:
       | curl | localhost:8080 |
     Then the step should succeed
+    """
     And the output should contain "Hello"
     #Check git github url
     Given an 8 character random string of type :dns952 is stored into the :appname3 clipboard
     When I run the :new_app client command with:
       | code | git://github.com/openshift/ruby-hello-world |
+      | image_stream | openshift/ruby |
       | name | <%= cb.appname3 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Given the "<%= cb.appname3 %>-1" build completes
     Given 1 pods become ready with labels:
       | deployment=<%= cb.appname3 %>-1 |
+    And I wait for the steps to pass:
+    """
     When I execute on the "<%= pod.name %>" pod:
       | curl | localhost:8080 |
     Then the step should succeed
+    """
     And the output should contain "Hello"
     #Check master branch
     Given an 8 character random string of type :dns952 is stored into the :appname4 clipboard
     When I run the :new_app client command with:
       | code | https://github.com/openshift/ruby-hello-world#master |
+      | image_stream | openshift/ruby |
       | name | <%= cb.appname4 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     When I run the :describe client command with:
@@ -588,6 +607,7 @@ Feature: creating 'apps' with CLI
     Given an 8 character random string of type :dns952 is stored into the :appname5 clipboard
     When I run the :new_app client command with:
       | code | https://github.com/openshift/ruby-hello-world#invalid |
+      | image_stream | openshift/ruby |
       | name | <%= cb.appname5 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Then the output should contain "error"
@@ -595,6 +615,7 @@ Feature: creating 'apps' with CLI
     Given an 8 character random string of type :dns952 is stored into the :appname6 clipboard
     When I run the :new_app client command with:
       | code | https://github.com/openshift/ruby-hello-world#beta4 |
+      | image_stream | openshift/ruby |
       | name | <%= cb.appname6 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     When I run the :describe client command with:
@@ -603,8 +624,8 @@ Feature: creating 'apps' with CLI
     Then the output should match "Ref:\s+beta4"
     #Check non-existing docker file
     Then I run the :new_app client command with:
-     | app_repo | https://github.com/openshift-qe/sample-php |
-     | strategy | docker |
+      | app_repo | https://github.com/openshift-qe/sample-php |
+      | strategy | docker |
     Then the step should fail
     And the output should contain "No Dockerfile"
 
@@ -701,3 +722,102 @@ Feature: creating 'apps' with CLI
       | buildconfig | ruby-sample-build |
     Then the step should succeed
     Given the "ruby-sample-build-2" build completes
+
+  # @author pruan@redhat.com
+  # @case_id 510541
+  @admin
+  @destructive
+  Scenario: Process with default or manually defined supplemental groups in the range can be ran when using MustRunAs as the RunAsGroupStrategy
+    Given I have a project
+    Given scc policy "restricted" is restored after scenario
+    Given as admin I replace resource "scc" named "restricted":
+      | RunAsAny | MustRunAs |
+    When I run the :get client command with:
+      | resource      | project             |
+      | resource_name | <%= project.name %> |
+    And evaluation of `project.uid_range(user:user).split("/")[0]` is stored in the :scc_limit clipboard
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/510541/scc_rules.json
+    Then the step should succeed
+    When the pod named "hello-pod" status becomes :running
+
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | pods             |
+      | resource_name | hello-pod        |
+    Then the expression should be true> pod.supplemental_groups(user:user)[0].to_s == cb.scc_limit
+
+  # @author pruan@redhat.com
+  # @case_id 510543
+  @admin
+  Scenario: Process with special FSGroup id can be ran when using custom defined rule of MustRunAs as the RunAsGroupStrategy
+    Given I have a project
+    When I run the :get client command with:
+      | resource      | project             |
+      | resource_name | <%= project.name %> |
+    # create and save the invalide supplemental_group_id
+    And evaluation of `project.supplemental_groups(user:user).split('/')[0].to_i - 1000` is stored in the :invalid_sgid clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/special_fs_groupid.json"
+    And I replace lines in "special_fs_groupid.json":
+      | 1000 | <%= cb.invalid_sgid %> |
+      | 1001 | <%= cb.invalid_sgid %> |
+    Then I run the :create client command with:
+      | f | special_fs_groupid.json |
+    Then the step should not succeed
+    And the output should contain:
+      | unable to validate against any security context constraint |
+      | <%= cb.invalid_sgid %> is not an allowed group             |
+    # step 3 create new scc rule as cluster admin and add user to the new scc
+    Given the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/scc_tc510543.yaml
+    Then the step should succeed
+    Given SCC "scc-tc510543" is added to the "first" user
+    # step 4. create the pod again and it should succeed now with the new scc rule
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/special_fs_groupid.json |
+    Then the step should succeed
+    And the pod named "hello-pod" status becomes :running
+    When I run the :exec client command with:
+      | pod          | hello-pod |
+      | exec_command | id        |
+    Then the step should succeed
+    And the output should contain:
+      | uid=1000         |
+      | groups=1000,1001 |
+
+  # @author pruan@redhat.com
+  # @case_id 510546
+  @admin
+  @destructive
+  Scenario: Process with supplemental groups out of the default range when using custom defined MustRunAs as the RunAsGroupStrategy
+    Given I have a project
+    When I run the :get client command with:
+      | resource      | project             |
+      | resource_name | <%= project.name %> |
+    Given scc policy "restricted" is restored after scenario
+    Given as admin I replace resource "scc" named "restricted":
+      | RunAsAny | MustRunAs |
+    Then I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510546/tc510546_pod.json |
+    Then the step should fail
+    And the output should contain:
+      | unable to validate against any security context constraint |
+      | 1000 is not an allowed group                               |
+    # step 3 create new scc rule as cluster admin and add user to the new scc
+    Given the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510546/scc_tc510546.yaml
+    Then the step should succeed
+    Given SCC "scc-tc510546" is added to the "first" user
+    # step 4. create the pod again and it should succeed now with the new scc rule
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510546/tc510546_pod.json |
+    Then the step should succeed
+    And the pod named "hello-pod" status becomes :running
+    When I run the :exec client command with:
+      | pod          | hello-pod |
+      | exec_command | id        |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | pods             |
+      | resource_name | hello-pod        |
+
+    Then the expression should be true> pod.supplemental_groups(user:user)[0] == 1000

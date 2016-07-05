@@ -73,18 +73,23 @@ module CucuShift
                                 update_from_api_object(resource_hash)
     end
 
-    def delete(by:)
+    def delete(by:, grace_period: nil)
+      del_opts = {}
+      del_opts[:grace_period] = grace_period unless grace_period.nil?
       cli_exec(as: by, key: :delete, object_type: self.class::RESOURCE,
-               object_name_or_id: name, namespace: project.name)
+               object_name_or_id: name, namespace: project.name,
+               **del_opts)
     end
 
     # @param labels [String, Array<String,String>] labels to filter on, read
     #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
-    # @param count [Integer] minimum number of pods to wait for
+    # @param count [Integer] minimum number of resources to wait for
     def self.wait_for_labeled(*labels, count: 1, user:, project:, seconds:)
       wait_for_matching(user: user, project: project, seconds: seconds,
                         get_opts: {l: selector_to_label_arr(*labels)},
-                        count: count) { true }
+                        count: count)  do |item, item_hash|
+                          !block_given? || yield(item, item_hash)
+      end
     end
 
     # @param count [Integer] minimum number of items to wait for
@@ -92,27 +97,46 @@ module CucuShift
     # @return [CucuShift::ResultHash] with :matching key being array of matched
     #   resource items;
     def self.wait_for_matching(count: 1, user:, project:, seconds:,
-                                                                  get_opts: {})
+                                                                  get_opts: [])
       res = {}
 
-      unless get_opts.has_key? :_quiet
-        get_opts[:_quiet] = true
+      quiet = get_opts.find {|k,v| k == :_quiet}
+      if quiet
+        # TODO: we may think about `:false` string value if passed by a step
+        quiet = quiet[1]
+      else
+        quiet = true
+        get_opts = get_opts.to_a << [:_quiet, true]
       end
 
-      wait_for(seconds) {
+      stats = {}
+      wait_for(seconds, interval: 3, stats: stats) {
         get_matching(user: user, project: project, result: res, get_opts: get_opts) { |resource, resource_hash|
           yield resource, resource_hash
         }
-        res[:matching].size >= count
+        res[:success] = res[:matching].size >= count
       }
 
-      if get_opts[:_quiet]
+      if quiet
         # user didn't see any output, lets print used command
         user.env.logger.info res[:command]
       end
-      user.env.logger.info "returned #{res[:items].size} #{self::RESOURCE}, #{res[:matching].size} matching"
+      user.env.logger.info "#{stats[:iterations]} iterations for #{stats[:full_seconds]} sec, returned #{res[:items].size} #{self::RESOURCE}, #{res[:matching].size} matching"
 
       return res
+    end
+
+    # @param labels [String, Array<String,String>] labels to filter on, read
+    #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
+    # @return [Array<ProjectResource>] with :matching key being array of matched
+    #   resources
+    def self.get_labeled(*labels, user:, project:, result: {}, quiet: false)
+      get_opts = {l: selector_to_label_arr(*labels)}
+      get_opts[:_quiet] = true if quiet
+      get_matching(user: user, project: project, result: result,
+                   get_opts: get_opts) do |r, r_hash|
+        !block_given? || yield(r, r_hash)
+      end
     end
 
     # @yield block that selects resource items by returning true; block receives
@@ -120,11 +144,23 @@ module CucuShift
     #   [Resource] sub-type, e.g. [Pod], [Build], etc.
     # @return [Array<ProjectResource>] with :matching key being array of matched
     #   resources
-    def self.get_matching(user:, project:, result: {}, get_opts: {})
+    def self.get_matching(user:, project:, result: {}, get_opts: [])
+      # construct options
+      opts = [ [:resource, self::RESOURCE],
+               [:output, "yaml"],
+               [:n, project.name]
+      ]
+      get_opts.each { |k,v|
+        if [:resource, :output, :o, :n, :namespace, :resource_name,
+            :w, :watch, :watch_only].include?(k)
+          raise "incompatible option #{k} provided in get_opts"
+        else
+          opts << [k, v]
+        end
+      }
+
       res = result
-      opts = {resource: self::RESOURCE, n: project.name, o: 'yaml'}
-      opts.merge! get_opts
-      res.merge! user.cli_exec(:get, **opts)
+      res.merge! user.cli_exec(:get, opts)
 
       if res[:success]
         res[:parsed] = YAML.load(res[:response])
@@ -145,30 +181,6 @@ module CucuShift
     end
     class << self
       alias list get_matching
-    end
-
-    # @return [CucuShift::ResultHash] with :success true if we've eventually got
-    #   the rc in ready status; the result hash is from last executed get call
-    # @note sub-class needs to implement the `#ready?` method
-    def wait_till_ready(user, seconds)
-      res = nil
-      iterations = 0
-      start_time = monotonic_seconds
-
-      success = wait_for(seconds) {
-        res = ready?(user: user, quiet: true)
-
-        logger.info res[:command] if iterations == 0
-        iterations = iterations + 1
-
-        res[:success]
-      }
-
-      duration = monotonic_seconds - start_time
-      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
-        "seconds:\n#{res[:response]}"
-
-      return res
     end
 
     ############### take care of object comparison ###############

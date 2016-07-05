@@ -152,3 +152,27 @@ Feature: limit range related scenarios:
       | \\s+limits:\n\\s+cpu: 300m\n\\s+memory: 300Mi\n   |
       | \\s+requests:\n\\s+cpu: 100m\n\\s+memory: 100Mi\n |
     """
+  # @author xiaocwan@redhat.com
+  # @case_id 484336
+  @admin
+  Scenario: The number of created persistent volume claims can not exceed the limitation
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/kubernetes/kubernetes/master/docs/admin/resourcequota/quota.yaml"
+    And I replace lines in "quota.yaml":
+      | persistentvolumeclaims: "10" | persistentvolumeclaims: "1"        |
+    When I run the :create admin command with:
+      | f |  quota.yaml         |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    And the output should match:
+      | [Rr]esourcequota.*quota.*created |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/kubernetes/kubernetes/master/docs/user-guide/persistent-volumes/claims/claim-01.yaml |
+    Then the step should succeed
+    And the output should match:    
+      | [Pp]ersistentvolumeclaim.*myclaim-1.*created | 
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/kubernetes/kubernetes/master/docs/user-guide/persistent-volumes/claims/claim-01.yaml |
+    Then the step should fail
+    And the output should match: 
+      | [Ee]rror.*when creat.*myclaim-1.*forbidden.*[Ee]xceeded quota |

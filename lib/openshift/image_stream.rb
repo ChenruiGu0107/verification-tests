@@ -28,17 +28,15 @@ module CucuShift
           res[:parsed]["status"]["tags"] &&
           res[:parsed]["status"]["tags"].length > 0 &&
           res[:parsed]["status"]["tags"].all? { |c|
-            c.key?("tag")
+            c["items"] && c["items"].length > 0
           }
       end
 
       return res
     end
 
-    def docker_image_repository(user:)
-      get_checked(user: user) if !props[:docker_image_repository]
-
-      return props[:docker_image_repository]
+    def docker_image_repository(user:, cached: true, quiet: false)
+      return get_cached_prop(prop: :docker_image_repository, user: user, cached: cached, quiet: quiet)
     end
   end
 end

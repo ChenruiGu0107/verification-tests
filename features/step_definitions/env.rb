@@ -17,3 +17,20 @@ Given /^I store default router IPs in the#{OPT_SYM} clipboard$/ do |cb_name|
   cb[cb_name] = env.router_ips(user: user, project: project(generate: false))
   logger.info cb[cb_name]
 end
+
+Given /^I store master major version in the#{OPT_SYM} clipboard$/ do |cb_name|
+  ensure_admin_tagged
+
+  hosts = CucuShift::Node.get_matching(user: admin) { |n, n_hash| n.schedulable? }
+  res = node(hosts[0].name).host.exec_as(nil, "docker images", quiet: false)
+
+  cb_name = 'master_version' unless cb_name 
+  cb[cb_name] = res[:response].match(/\w*[origin|ose]-docker-registry\s+v(\d+.\d+.\d+)/).captures[0]
+
+  # for origin, return the :latest as image tag version
+  if cb[cb_name].start_with?('1')
+    cb[cb_name] = "latest"
+  end
+
+  logger.info "Master Version: " + cb[cb_name]
+end

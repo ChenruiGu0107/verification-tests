@@ -85,12 +85,30 @@ Feature: oc import-image related feature
       | The import completed successfully           |
       | latest.+aosqe/hello-openshift@sha256:       |
 
+
+  # @author wjiang@redhat.com
+  # @case_id 510523
+  Scenario: Could not import the tag when reference is true
+    Given I have a project
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510523.json |
+    Then the step should succeed
+    Given I wait up to 15 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | imagestreamtags |
+    Then the step should succeed
+    And the output should not contain:
+      | aosqeruby:3.3 |
+    """
+
+
   # @author wsun@redhat.com
   # @case_id 510524
   Scenario: Import image when pointing to non-existing docker image
     Given I have a project
     When I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/wsun1/v3-testfiles/master/image-streams/tc510524.json |
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510524.json |
     Then the step should succeed
     When I run the :import_image client command with:
       | image_name | tc510524 |
@@ -98,12 +116,96 @@ Feature: oc import-image related feature
     And the output should match:
       | the repository "aosqe/non-existen-image" was not found, tag "latest" has not been set on repository "aosqe/non-existen-image" |
 
+
+  # @author wjiang@redhat.com
+  # @case_id 510525
+  Scenario: Import image when spec.DockerImageRepository defined without any tags
+    Given I have a project
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510525.json |
+    Then the step should succeed
+    Given I wait up to 15 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | imagestreamtags |
+    Then the step should succeed
+    And the output should match:
+      | aosqeruby:latest |
+    """
+
+
+  # @author wjiang@redhat.com
+  # @case_id 510526
+  Scenario: Import Image when spec.DockerImageRepository not defined
+    Given I have a project
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510526.json |
+    Then the step should succeed
+    Given I wait up to 15 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | imagestreamtags |
+    Then the step should succeed
+    And the output should contain:
+      | aosqeruby:3.3 |
+    And the output should not contain:
+      | aosqeruby:latest |
+    """
+
+
+  # @author wjiang@redhat.com
+  # @case_id 510527
+  Scenario: Import image when spec.DockerImageRepository with some tags defined when Kind!=DockerImage
+    Given I have a project
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510525.json |
+    Then the step should succeed 
+    Given I wait up to 15 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | imagestreamtags |
+    Then the step should succeed
+    And the output should contain:
+      | aosqeruby:latest |
+    """
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510527.json |
+    Then the step should succeed
+    Given I wait up to 15 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | imagestreamtags |
+    Then the step should succeed
+    And the output should contain:
+      | aosqeruby33:3.3 |
+    And the output should contain 2 times:
+      | aosqe/ruby-20-centos7@sha256:093405d5f541b8526a008f4a249f9bb8583a3cffd1d8e301c205228d1260150a |
+    """
+
+
+  # @author wjiang@redhat.com
+  # @case_id 510528
+  Scenario: Import image when spec.DockerImageRepository with some tags defined when Kind==DockerImage
+    Given I have a project
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510528.json |
+    Then the step should succeed
+    Given I wait up to 15 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | imagestreamtags |
+    Then the step should succeed
+    And the output should contain:
+      | aosqeruby:3.3 |
+    """
+
+
   # @author wsun@redhat.com
   # @case_id 510529
   Scenario: Import Image without tags and spec.DockerImageRepository set
     Given I have a project
     When I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/wsun1/v3-testfiles/master/image-streams/tc510529.json |
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510529.json |
     Then the step should succeed
     When I run the :import_image client command with:
       | image_name | tc510529 |
@@ -133,3 +235,23 @@ Feature: oc import-image related feature
     When I get project is as YAML
     Then the output should match:
       | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
+
+  # @author xiaocwan@redhat.com
+  # @case_id 474369
+  Scenario: Tags should be added to ImageStream if image repository is from an external docker registry
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/external.json |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    ## istag will not show promtly as soon as is create, need wait for a few seconds
+    """
+    When I run the :get client command with:
+      | resource | imageStreams |
+      | o        | yaml         |
+    Then the step should succeed
+    And the output should match:
+      | tag:\\s+None    |
+      | tag:\\s+latest  |
+      | tag:\\s+busybox |
+    """

@@ -1,3 +1,4 @@
+require 'openshift/pod'
 require 'openshift/project_resource'
 
 module CucuShift
@@ -24,25 +25,44 @@ module CucuShift
       return self
     end
 
-    # @note call without parameters only when props are loaded
-    def selector(user: nil)
-      get_checked(user: user) unless props[:selector]
+    # @param cached [Boolean] does nothing, keep for compatibility
+    # @return [CucuShift::ResultHash] with :success if at least one pod by
+    #   selector is ready
+    def ready?(user:, quiet: false, cached: false)
+      if !selector(user: user, quiet: quiet) || selector.empty?
+        raise "can't tell if ready for services without pod selector"
+      end
 
-      return props[:selector]
+      res = {}
+      pods = Pod.get_labeled(*selector,
+                      user: user,
+                      project: project,
+                      quiet: quiet,
+                      result: res) { |p, p_hash|
+        p.ready?(user: user, cached: true)[:success]
+      }
+
+      res[:success] = pods.size > 0
+
+      return res
+    end
+
+    # @note call without user only when props are loaded; get object to refresh
+    def selector(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :selector, user: user, cached: cached, quiet: quiet)
     end
 
     # @note call without parameters only when props are loaded
-    def url(user: nil)
-      get_checked(user: user) if !props[:ip] || !props[:ports]
+    def url(user: nil, cached: true, quiet: false)
+      ip = get_cached_prop(prop: :ip, user: user, cached: cached, quiet: quiet)
+      ports = get_cached_prop(prop: :ports, user: user, cached: cached, quiet: quiet)
 
-      return "#{props[:ip]}:#{props[:ports][0]["port"]}"
+      return "#{ip}:#{ports[0]["port"]}"
     end
 
     # @note call without parameters only when props are loaded
-    def ip(user: nil)
-      get_checked(user: user) if !props[:ip]
-
-      return props[:ip]
+    def ip(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :ip, user: user, cached: cached, quiet: quiet)
     end
   end
 end

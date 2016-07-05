@@ -101,6 +101,16 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+  online:
+    hosts: api.preview.openshift.com:etcd:master:node
+    web_console_url: https://console.preview.openshift.com
+    hosts_type: Host # we can't basically access that host so this should work
+    type: StaticEnvironment
+    user_manager: StaticUserManager
+    #set OPENSHIFT_ENV_ONLINE_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #user_manage_users:
+    cli: SharedLocalCliExecutor
+    admin_cli: false
 optional_classes:
   tcms_tc_manager:
     include_path: tcms/tcms_manager

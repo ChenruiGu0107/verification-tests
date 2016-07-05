@@ -544,7 +544,13 @@ Feature: build 'apps' with CLI
   Scenario: Recreate bc when previous bc is deleting pending
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc517366/test-buildconfig.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby-sample-build |
+      | p | {"metadata": {"annotations": {"openshift.io/build-config.paused": "true"}}} |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | buildConfig |
@@ -552,6 +558,11 @@ Feature: build 'apps' with CLI
       | build-config.paused=true |
     And I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
+    Then the step should fail
+    And the output should match:
+      | Error from server: fatal error generating Build from BuildConfig: can't instantiate from BuildConfig <%= project.name %>/ruby-sample-build: BuildConfig is paused |
+    When I run the :start_build client command with:
+      | from_build | ruby-sample-build-1 |
     Then the step should fail
     And the output should match:
       | Error from server: fatal error generating Build from BuildConfig: can't instantiate from BuildConfig <%= project.name %>/ruby-sample-build: BuildConfig is paused |
@@ -588,7 +599,7 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | app_repo | https://github.com/openshift/nodejs-ex |
     Then the step should succeed
-    And the "sti-nodejs-1" build completed
+    And the "nodejs-ex-1" build completed
     And I git clone the repo "https://github.com/openshift/nodejs-ex"
     And I run the :start_build client command with:
       | buildconfig | nodejs-ex |
@@ -811,7 +822,7 @@ Feature: build 'apps' with CLI
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby22-sample-build |
-      | p | {"spec":{"postCommit":{"command": ["/bin/bash", "-c", "bundle exec rake test --verbose"]}}} |
+      | p | {"spec":{"postCommit":{"command": ["/bin/bash", "-c", "bundle exec rake test --verbose"], "args": null, "script":null}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
@@ -827,7 +838,7 @@ Feature: build 'apps' with CLI
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby22-sample-build |
-      | p | {"spec":{"postCommit": {"args": ["--verbose"],"script": "bundle exec rake test $1"}}} |
+      | p | {"spec":{"postCommit": {"args": ["--verbose"],"command":null, "script": "bundle exec rake test $1"}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
@@ -1184,9 +1195,9 @@ Feature: build 'apps' with CLI
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
     When I execute on the "<%= pod.name %>" pod:
-      | ls |
+      | ls | -al | xiuwangs2i-2 |
     Then the step should succeed
-    And the output should contain "xiuwangs2i-2"
+    And the output should contain "tmp"
 
   # @author cryan@redhat.com
   # @case_id 521602
@@ -1343,6 +1354,8 @@ Feature: build 'apps' with CLI
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
       | n | <%= project.name %> |
+    Given the "python" image stream was created
+    And the "python" image stream becomes ready
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
@@ -1360,7 +1373,7 @@ Feature: build 'apps' with CLI
       | name:\s+python:latest |
       | destinationDir:\s+xiuwangtest |
       | sourcePath:\s+/tmp |
-    Given the "final-app-2" build completes
+    Given the "final-app-1" build completes
     Given I get project builds
     #Create a deploymentconfig to generate pods to test on,
     #Avoids the use of direct docker commands.
@@ -1396,7 +1409,7 @@ Feature: build 'apps' with CLI
       | n | <%= project.name %> |
     Then the step should succeed
     Given I get project builds
-    Then the output should contain "final-app-4"
+    Then the output should contain "final-app-3"
 
   # @author cryan@redhat.com
   # @case_id 519259
@@ -1431,7 +1444,7 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | source_image_path | src/:/destination-dir |
       | name | app1 |
     Then the step should fail
@@ -1439,7 +1452,7 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | source_image_path | /non-existing-source/:destination-dir  |
       | name | app2 |
     Then the step should succeed
@@ -1450,8 +1463,8 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
-      | source_image_path | /opt/openshift:Dockerfile |
+      | source_image | openshift/python:latest |
+      | source_image_path | /tmp:Dockerfile |
       | name | app3 |
     Then the step should succeed
     Given the "app3-1" build finishes
@@ -1468,14 +1481,14 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | name | app5 |
     Then the step should fail
     And the output should contain "source-image-path must be specified"
     When I run the :new_build client command with:
       | app_repo | openshift/ruby:latest |
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | source_image | openshift/jenkins:latest |
+      | source_image | openshift/python:latest |
       | source_image_path ||
       | name | app6 |
     Then the step should fail
@@ -1522,6 +1535,35 @@ Feature: build 'apps' with CLI
       | buildconfig | ruby-sample-build |
     Then the step should succeed
     Given the "ruby-sample-build-2" build completes
+
+  # @author cryan@redhat.com
+  # @case_id 497658
+  @admin
+  @destructive
+  Scenario: Disabling a build strategy globally
+    Given I have a project
+    Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
+    When I run the :new_app client command with:
+        | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completes
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all||
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Then the step should fail
+    And the output should contain "Docker is not allowed"
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all||
+    Then the step should succeed
+    Given cluster role "system:build-strategy-custom" is removed from the "system:authenticated" group
+    When I run the :new_app client command with:
+        | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
+    Then the step should fail
+    And the output should contain "Custom is not allowed"
 
   # @author xiuwang@redhat.com
   # @case_id 519264
@@ -1586,9 +1628,9 @@ Feature: build 'apps' with CLI
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
     When I execute on the "<%= pod.name %>" pod:
-      | ls |
+      | ls | -al | xiuwangtest |
     Then the step should succeed
-    And the output should contain "xiuwangtest"
+    And the output should contain "tmp"
 
   # @author xiuwang@redhat.com
   # @case_id 519265
@@ -1627,7 +1669,7 @@ Feature: build 'apps' with CLI
     And the "nodejs-ex-1" build completed
     Given I wait for the "nodejs-ex" service to become ready
     When I expose the "nodejs-ex" service
-    Then I wait for a server to become available via the "nodejs-ex" route
+    Then I wait for a web server to become available via the "nodejs-ex" route
     And the output should contain "Welcome to OpenShift"
     And I git clone the repo "https://github.com/openshift/nodejs-ex"
     And I run the :start_build client command with:
@@ -1638,7 +1680,7 @@ Feature: build 'apps' with CLI
     Given 1 pods become ready with labels:
       | app=nodejs-ex              |
       | deployment=nodejs-ex-2     |
-    Then I wait for a server to become available via the "nodejs-ex" route
+    Then I wait for a web server to become available via the "nodejs-ex" route
     And the output should contain "Welcome to OpenShift"
     Given I replace lines in "nodejs-ex/views/index.html":
       | Welcome to OpenShift | Welcome all to OpenShift |
@@ -1683,7 +1725,7 @@ Feature: build 'apps' with CLI
     And the "sti-nodejs-1" build completed
     Given I wait for the "sti-nodejs" service to become ready
     When I expose the "sti-nodejs" service
-    Then I wait for a server to become available via the "sti-nodejs" route
+    Then I wait for a web server to become available via the "sti-nodejs" route
     And the output should contain "This is a node.js echo service"
     And I git clone the repo "https://github.com/openshift/sti-nodejs"
     And I run the :start_build client command with:
@@ -1694,7 +1736,7 @@ Feature: build 'apps' with CLI
     Given 1 pods become ready with labels:
       | app=sti-nodejs              |
       | deployment=sti-nodejs-2     |
-    Then I wait for a server to become available via the "sti-nodejs" route
+    Then I wait for a web server to become available via the "sti-nodejs" route
     And the output should contain "This is a node.js echo service"
     Given I replace lines in "sti-nodejs/0.10/test/test-app/server.js":
       | This is a node.js echo service | Welcome to OpenShift  |
@@ -1739,7 +1781,7 @@ Feature: build 'apps' with CLI
     And the "ruby-hello-world-1" build completed
     Given I wait for the "ruby-hello-world" service to become ready
     When I expose the "ruby-hello-world" service
-    Then I wait for a server to become available via the "ruby-hello-world" route
+    Then I wait for a web server to become available via the "ruby-hello-world" route
     And the output should contain "Welcome to an OpenShift v3 Demo App!"
     And I git clone the repo "https://github.com/openshift/ruby-hello-world"
     And I run the :start_build client command with:
@@ -1750,7 +1792,7 @@ Feature: build 'apps' with CLI
     Given 1 pods become ready with labels:
       | app=ruby-hello-world              |
       | deployment=ruby-hello-world-2     |
-    Then I wait for a server to become available via the "ruby-hello-world" route
+    Then I wait for a web server to become available via the "ruby-hello-world" route
     And the output should contain "Welcome to an OpenShift v3 Demo App!"
     Given I replace lines in "ruby-hello-world/views/main.erb":
       | Welcome to an OpenShift v3 Demo App! | Welcome all to an OpenShift v3 Demo App!  |
@@ -1854,3 +1896,706 @@ Feature: build 'apps' with CLI
     When I get project pods
     Then the output should not contain "php"
     """
+
+  # @author cryan@redhat.com
+  # @case_id 525734
+  Scenario: Cannot docker build with no inputs in buildconfig
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/nosrc-extended-test-bldr/master/nosrc-test.json"
+    When I run the :create client command with:
+      | f | nosrc-test.json |
+    Then the step should fail
+    And the output should contain "must provide a value"
+    Given I replace lines in "nosrc-test.json":
+      | "source": {}, | "source": { "type": "None" }, |
+    When I run the :create client command with:
+      | f | nosrc-test.json |
+    Then the step should fail
+    And the output should contain "must provide a value"
+
+  # @author yantan@redhat.com
+  # @case_id 525736 525735
+  Scenario Outline: Do sti/custom build with no inputs in buildconfig
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/nosrc-extended-test-bldr/master/nosrc-setup.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/nosrc-extended-test-bldr/master/nosrc-test.json  |
+    When I run the :get client command with:
+      | resource  | bc |
+    Then the output should contain:
+      | <bc_name> |
+    When I run the :start_build client command with:
+      | buildconfig | nosrc-bldr |
+    Then the step should succeed
+    Given the "nosrc-bldr-1" build becomes :complete
+    When I run the :start_build client command with:
+      | buildconfig | <bc_name> |
+    Given the "<build_name>" build becomes :complete
+    When I run the :delete client command with:
+      | object_type       | bc         |
+      | object_name_or_id |  <bc_name> |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | <file_name> |
+    When I run the :get client command with:
+      | resource      | bc        |
+      | resource_name | <bc_name> |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig   | <bc_name> |
+    Then the step should succeed
+    Given the "<build_name>" build becomes :complete
+
+    Examples:
+      | bc_name              | build_name             | file_name                                                                                             |
+      | ruby-sample-build-ns | ruby-sample-build-ns-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525736/Nonesrc-sti.json    |
+      | ruby-sample-build-nc | ruby-sample-build-nc-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525735/Nonesrc-docker.json |
+
+  # @author yantan@redhat.com
+  # @case_id 499513
+  @admin
+  @destructive
+  Scenario: Allow STI builder images from running as root
+    Given I have a project
+    And SCC "privileged" is added to the "system:serviceaccounts:<%= project.name %>" group
+    When I run the :new_build client command with:
+      | app_repo       | aosqe/ruby-20-centos7:user0~https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    Given the "ruby-hello-world-1" build completes
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-1 |
+    Then the step should succeed
+    When I replace resource "bc" named "ruby-hello-world":
+      | user0          | usernon     |
+    Then the step should succeed
+    When I replace resource "is" named "ruby-20-centos7":
+      | user0          | usernon    |
+    Then the step should succeed
+    Given the "ruby-hello-world-2" build completes
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-2 |
+    Then the step should succeed
+    And the output should contain "Successfully pushed"
+    When I replace resource "bc" named "ruby-hello-world":
+      | usernon        | userroot    |
+    Then the step should succeed
+    When I replace resource "is" named "ruby-20-centos7":
+      | usernon        | userroot    |
+    Then the step should succeed
+    Given the "ruby-hello-world-3" build completes
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-3 |
+    Then the step should succeed
+    Then the output should contain "Successfully pushed"
+    When I replace resource "bc" named "ruby-hello-world":
+      | userroot       | userdefault |
+    Then the step should succeed
+    When I replace resource "is" named "ruby-20-centos7":
+      | userroot       | userdefault |
+    Then the step should succeed
+    Given the "ruby-hello-world-4" build completes
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-4 |
+    Then the step should succeed
+    Then the output should contain "Successfully pushed"
+    When I replace resource "bc" named "ruby-hello-world":
+      | userdefault    | user1001    |
+    Then the step should succeed
+    When I replace resource "is" named "ruby-20-centos7":
+      | userdefault    | user1001    |
+    Then the step should succeed
+    Given the "ruby-hello-world-5" build completes
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-5 |
+    Then the step should succeed
+    And the output should contain "Successfully pushed"
+
+  # @author cryan@redhat.com
+  # @case_id 526204
+  Scenario: Change runpolicy to SerialLatestOnly build
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
+    And I replace lines in "ruby22rhel7-template-sti.json":
+      | registry.access.redhat.com | <%= product_docker_repo %> |
+    And I process and create "ruby22rhel7-template-sti.json"
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build becomes :running
+    And I get project builds
+    Then the output should contain 1 times:
+      | Running |
+    And the output should contain 3 times:
+      | New     |
+    When I run the :patch client command with:
+      | resource      | buildconfig                                  |
+      | resource_name | ruby22-sample-build                          |
+      | p             | {"spec": {"runPolicy" : "SerialLatestOnly"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build completes
+    And the "ruby22-sample-build-6" build becomes :running
+    And I get project builds
+    Then the output should contain 1 times:
+      | Complete  |
+    And the output should contain 1 times:
+      | Running   |
+    And the output should contain 4 times:
+      | Cancelled |
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    And the "ruby22-sample-build-7" build becomes :cancelled
+    Given I get project builds
+    Then the output should contain 1 times:
+      | Complete  |
+    And the output should contain 1 times:
+      | Running   |
+    And the output should contain 5 times:
+      | Cancelled |
+    And the output should contain 1 times:
+      | New       |
+    When I run the :patch client command with:
+      | resource      | buildconfig                        |
+      | resource_name | ruby22-sample-build                |
+      | p             | {"spec": {"runPolicy" : "Serial"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 1 times:
+      | Complete  |
+    And the output should contain 1 times:
+      | Running   |
+    And the output should contain 5 times:
+      | Cancelled |
+    And the output should contain 3 times:
+      | New       |
+
+  # @author cryan@redhat.com
+  # @case_id 528380
+  Scenario: Show basic info about build reason when trigger build manually
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | build                 |
+      | name     | ruby22-sample-build-1 |
+    Then the step should succeed
+    And the output should contain "Build configuration change"
+    When I run the :start_build client command with:
+      | from_build | ruby22-sample-build-1 |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | build                 |
+      | name     | ruby22-sample-build-2 |
+    Then the step should succeed
+    And the output should contain "Manually triggered"
+    When I run the :get client command with:
+      | resource      | builds                |
+      | resource_name | ruby22-sample-build-2 |
+      | o             | yaml                  |
+    Then the step should succeed
+    And the output should contain "Manually triggered"
+
+  # @author cryan@redhat.com
+  # @case_id 527313
+  Scenario: Generate new applications from docker compose via oc import docker-compose
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/docker-compose-nodejs-examples/master/05-nginx-express-redis-nodemon/docker-compose.yml"
+    When I git clone the repo "https://github.com/openshift-qe/docker-compose-nodejs-examples.git"
+    Then the step should succeed
+    Given I replace lines in "docker-compose.yml":
+      |./app | ./docker-compose-nodejs-examples/05-nginx-express-redis-nodemon/app |
+    Given I replace lines in "docker-compose.yml":
+      |./nginx | ./docker-compose-nodejs-examples/05-nginx-express-redis-nodemon/nginx |
+    When I run the :import client command with:
+      | command | docker-compose     |
+      | f       | docker-compose.yml |
+    Then the step should succeed
+    Given the "web-1" build becomes :running
+    Given I get project pods
+    And the output should contain:
+      | web-1   |
+      | nginx-1 |
+      | db-1    |
+    When I run the :delete client command with:
+      | all_no_dash |  |
+      | all         |  |
+    Then the step should succeed
+    When I run the :import client command with:
+      | command | docker-compose                                                             |
+      | f       | docker-compose-nodejs-examples/02-express-redis-nodemon/docker-compose.yml |
+    Then the step should succeed
+    Given the "web-1" build becomes :running
+    Given I get project pods
+    And the output should contain:
+      | web-1   |
+      | db-1    |
+    When I run the :import client command with:
+      | command     | docker-compose                                                             |
+      | f           | docker-compose-nodejs-examples/02-express-redis-nodemon/docker-compose.yml |
+      | o           | json                                                                       |
+      | as_template | test.json                                                                  |
+    Then the step should succeed
+    Given I save the output to file> test.json
+    When I run the :delete client command with:
+      | all_no_dash |  |
+      | all         |  |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | test.json |
+    Then the step should succeed
+    Given the "web-1" build completes
+    When I run the :import client command with:
+      | command | docker-compose                                                             |
+      | f       | docker-compose-nodejs-examples/02-express-redis-nodemon/docker-compose.yml |
+      | dry_run | true                                                                       |
+    Then the step should succeed
+    And the output should contain "Success (DRY RUN)"
+
+  # @author cryan@redhat.com
+  # @case_id 526209
+  Scenario: Cancel multiple new/pending/running builds
+    Given I have a project
+    When I run the :new_build client command with:
+      | image    | openshift/ruby:latest                            |
+      | app_repo | http://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    Given I run the steps 9 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    Given I get project builds
+    Then the output should contain 10 times:
+      | ruby-hello-world- |
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+      | build_name | ruby-hello-world-2 |
+      | build_name | ruby-hello-world-3 |
+      | build_name | ruby-hello-world-4 |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 4 times:
+      | Cancelled |
+    #This prevents a timing issue with the 5th build not being cancelled/started:
+    Given the "ruby-hello-world-5" build becomes :pending
+    When I run the :cancel_build client command with:
+      | bc_name | bc/ruby-hello-world |
+      | state   | new                 |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 9 times:
+      | Cancelled |
+    And the output should not contain "New"
+    #This prevents a timing issue with the 5th build as above:
+    Given the "ruby-hello-world-5" build completes
+    When I run the :patch client command with:
+      | resource      | buildconfig                              |
+      | resource_name | ruby-hello-world                         |
+      | p             | {"spec": {"runPolicy": "Parallel"}} |
+    Then the step should succeed
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    Given the "ruby-hello-world-13" build becomes :pending
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-11 |
+      | build_name | ruby-hello-world-12 |
+      | build_name | ruby-hello-world-13 |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 12 times:
+      | Cancelled |
+    And the output should not contain "New"
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    When I run the :cancel_build client command with:
+      | bc_name | bc/ruby-hello-world |
+      | state   | pending             |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 15 times:
+      | Cancelled |
+    And the output should not contain "New"
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    Given I get project builds
+    Given the "ruby-hello-world-19" build becomes :running
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-17 |
+      | build_name | ruby-hello-world-18 |
+      | build_name | ruby-hello-world-19 |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 18 times:
+      | Cancelled |
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    Given the "ruby-hello-world-22" build becomes :running
+    When I run the :cancel_build client command with:
+      | bc_name | bc/ruby-hello-world |
+      | state   | running             |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 21 times:
+      | Cancelled |
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    When I run the :cancel_build client command with:
+      | bc_name | bc/ruby-hello-world |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain 24 times:
+      | Cancelled |
+
+  # @author cryan@redhat.com
+  # @case_id 503326
+  # @bug_id 1255502
+  Scenario: Docker build with pulling image from internal docker registry
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift-qe/docker-build |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | app=docker-build |
+    When I run the :get client command with:
+      | resource      | pod                                  |
+      | resource_name | <%= pod.name %>                      |
+      | template      | {{(index .spec.containers 0).image}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :imgid clipboard
+    Given I create the "app2" directory
+    And a "app2/Dockerfile" file is created with the following lines:
+    """
+    FROM <%= cb.imgid %>
+    ENTRYPOINT ["sh", "/bin/hack_init.sh"]
+    """
+    #There is no 'success' check after this step, as the new-app command will
+    #return Failed, as the docker-build imagestream already exists
+    When I run the :new_app client command with:
+      | app_repo          | app2          |
+      | name              | app2          |
+      | insecure_registry | true          |
+    When I run the :start_build client command with:
+      | buildconfig | app2            |
+      | from_file   | app2/Dockerfile |
+    Then the step should succeed
+    Given the "app2-1" build completes
+    When I run the :logs client command with:
+      | resource_name | build/app2-1 |
+    #Check output from original bz:
+    And the output should not contain "reference failed"
+    Given a pod becomes ready with labels:
+      | app=app2 |
+
+  # @author yantan@redhat.com
+  # @case_id 499514
+  @admin
+  @destructive
+  Scenario: Allow STI builder images from running as root - using onbuild image
+    Given I have a project
+    And SCC "privileged" is added to the "system:serviceaccounts:<%= project.name %>" group
+    When I run the :new_build client command with:
+      | app_repo       | aosqe/ruby-20-centos7:onbuild-user0~https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    Given the "ruby-hello-world-1" build completes
+    When I run the :logs client command with:
+      | resource_name  | build/ruby-hello-world-1 |
+    Then the step should succeed
+    And the output should contain "Successfully pushed"
+
+  # @author haowang@redhat.com
+  # @case_id 526207 526206
+  Scenario Outline: The default runpolicy is Serial build -- new-build/new-app command
+    Given I have a project
+    When I run the :<cmd> client command with:
+      | app_repo | openshift/ruby:latest~http://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build becomes :running
+    And the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-2" build becomes :new
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-3" build was created
+    And the "ruby-hello-world-3" build becomes :new
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-4" build was created
+    And the "ruby-hello-world-4" build becomes :new
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-5" build was created
+    And the "ruby-hello-world-5" build becomes :new
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-2 |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build becomes :cancelled
+    Given the "ruby-hello-world-1" build completes
+    And the "ruby-hello-world-3" build becomes :running
+    And the "ruby-hello-world-4" build is :new
+    And the "ruby-hello-world-5" build is :new
+    When I run the :cancel_build client command with:
+      | bc_name | bc/ruby-hello-world |
+      | state   | new                 |
+    Then the step should succeed
+    And the "ruby-hello-world-4" build was cancelled
+    And the "ruby-hello-world-5" build was cancelled
+    And the "ruby-hello-world-3" build is :running
+    Given I run the :patch client command with:
+      | resource      | bc                                                                                |
+      | resource_name | ruby-hello-world                                                                  |
+      | p             | {"spec":{"source":{"git":{"uri":"https://xxxgithub.com/openshift/ruby-ex.git"}}}} |
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-6" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-7" build was created
+    Given the "ruby-hello-world-3" build completes
+    Then the "ruby-hello-world-6" build becomes :failed
+    Then the "ruby-hello-world-7" build becomes :failed
+
+    Examples:
+      | cmd       |
+      | new_build |
+      | new_app   |
+
+  # @author haowang@redhat.com
+  # @case_id 526203
+  Scenario: Change runpolicy to parallel build
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby~https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-3" build was created
+    When the "ruby-hello-world-1" build becomes :running
+    Then the "ruby-hello-world-2" build is :new
+    Then the "ruby-hello-world-3" build is :new
+    When I run the :patch client command with:
+      | resource      | bc                                |
+      | resource_name | ruby-hello-world                  |
+      | p             | {"spec":{"runPolicy":"Parallel"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-4" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-5" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-6" build was created
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+    Then the step should succeed
+    Then the "ruby-hello-world-2" build becomes :running
+    And the "ruby-hello-world-3" build is :new
+    And the "ruby-hello-world-4" build is :new
+    And the "ruby-hello-world-5" build is :new
+    And the "ruby-hello-world-6" build is :new
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-2 |
+    Then the step should succeed
+    And the "ruby-hello-world-3" build becomes :running
+    And the "ruby-hello-world-4" build is :new
+    And the "ruby-hello-world-5" build is :new
+    And the "ruby-hello-world-6" build is :new
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-3 |
+    Then the step should succeed
+    Then the "ruby-hello-world-4" build becomes :running
+    Then the "ruby-hello-world-4" build completes
+    #Then the "ruby-hello-world-5" build becomes :running
+    Then the "ruby-hello-world-5" build status is any of:
+      | pending |
+      | running |
+    #Then the "ruby-hello-world-6" build becomes :running
+    Then the "ruby-hello-world-6" build status is any of:
+      | pending |
+      | running |
+    When I run the :patch client command with:
+      | resource      | bc                              |
+      | resource_name | ruby-hello-world                |
+      | p             | {"spec":{"runPolicy":"Serial"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-7" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-8" build was created
+    And the "ruby-hello-world-7" build is :new
+    And the "ruby-hello-world-8" build is :new
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-5 |
+    Then the step should succeed
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-6 |
+    Then the step should succeed
+    #And the "ruby-hello-world-7" build becomes :running
+    And the "ruby-hello-world-7" build status is any of:
+      | pending |
+      | running |
+    Then the "ruby-hello-world-8" build is :new
+
+  # @author haowang@redhat.com
+  # @case_id 526205
+  Scenario: Serial runPolicy for Binary builds
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby   |
+      | binary   |                  |
+      | name     | ruby-hello-world |
+    Then the step should succeed
+    And I download a file from "https://github.com/openshift-qe/v3-testfiles/raw/master/build/shared_compressed_files/ruby-hello-world.tar"
+    Given evaluation of `@result[:response]` is stored in the :tarfile clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | from_dir    | -                |
+      | _stdin      | <%= cb.tarfile%> |
+      | _binmode    |                  |
+    Then the step succeeded
+    And the "ruby-hello-world-1" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | from_dir    | -                |
+      | _stdin      | <%= cb.tarfile%> |
+      | _binmode    |                  |
+    Then the step succeeded
+    And the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-1" build is :complete
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | from_dir    | -                |
+      | _stdin      | <%= cb.tarfile%> |
+      | _binmode    |                  |
+    Then the step succeeded
+    And the "ruby-hello-world-3" build was created
+    And the "ruby-hello-world-2" build is :complete
+  # @author haowang@redhat.com
+  # @case_id 526202
+  Scenario: Change Parallel runpolicy to SerialLatestOnly build
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc526202/bc.json |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-2" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-3" build was created
+    And the "ruby-ex-1" build status is any of:
+      | pending |
+      | running |
+    And the "ruby-ex-2" build status is any of:
+      | pending |
+      | running |
+    And the "ruby-ex-3" build status is any of:
+      | pending |
+      | running |
+    When I run the :patch client command with:
+      | resource      | bc                                        |
+      | resource_name | ruby-ex                                   |
+      | p             | {"spec":{"runPolicy":"SerialLatestOnly"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-4" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-5" build was created
+    And the "ruby-ex-4" build was cancelled
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-6" build was created
+    And the "ruby-ex-5" build was cancelled
+    When the "ruby-ex-6" build completes
+    When I run the :patch client command with:
+      | resource      | bc                                |
+      | resource_name | ruby-ex                           |
+      | p             | {"spec":{"runPolicy":"Parallel"}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-7" build status is any of:
+      | pending |
+      | running |
+    And the "ruby-ex-8" build status is any of:
+      | pending |
+      | running |

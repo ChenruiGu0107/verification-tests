@@ -219,3 +219,79 @@ Feature: dockerbuild.feature
       | resource_name | build/ruby-sample-build6-1 |
     Then the output should contain:
       | bundler: command not found: rake1 |
+
+  # @author wewang@redhat.com
+  # @case_id 517672
+  @admin
+  @destructive
+  Scenario: Edit bc with an allowed strategy to use a restricted strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    Given I switch to the second user
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build was created
+    Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | o | json |
+    Then the step should succeed
+    Given I save the output to file>bc.json
+    And I replace lines in "bc.json":
+      | Docker | Source |
+      |dockerStrategy|sourceStrategy|
+    When I run the :replace client command with:
+      | f | bc.json |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the "ruby22-sample-build-2" build was created
+
+    Given I switch to the first user
+    When I run the :get client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | o | json |
+    Then the step should succeed
+    Given I save the output to file>bc1.json
+    And I replace lines in "bc1.json":
+      | Source | Docker  |
+      | sourceStrategy|dockerStrategy|
+    When I run the :replace client command with:
+      | f | bc1.json |
+    Then the step should fail
+    And the output should contain "build strategy Docker is not allowed"
+
+  # @author wewang@redhat.com
+  # @case_id 497659
+  @admin
+  @destructive
+  Scenario: Allowing only certain users in a specific project to create builds with a particular strategy
+    Given I have a project
+    Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should fail
+    And the output should contain "build strategy Docker is not allowed"
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    When I run the :policy_add_role_to_user admin command with:
+      | role            |   system:build-strategy-docker |
+      | user name       |   <%= user.name %>    |
+      | n               |   <%= cb.proj_name %> |
+    Then the step should succeed
+    And I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build was created
+    Given I create a new project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
+    Then the step should fail
+    And the output should contain "build strategy Docker is not allowed"
+

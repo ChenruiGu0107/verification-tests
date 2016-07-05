@@ -19,7 +19,8 @@ module CucuShift
     attr_reader :opts
 
     # :master represents register, scheduler, etc.
-    OPENSHIFT_ROLES = [:node, :etcd, :master]
+    MANDATORY_OPENSHIFT_ROLES = [:node, :etcd, :master]
+    OPENSHIFT_ROLES = MANDATORY_OPENSHIFT_ROLES + [:lb]
 
     # e.g. you call `#node_hosts to get hosts with the node service`
     OPENSHIFT_ROLES.each do |role|
@@ -91,7 +92,7 @@ module CucuShift
     end
 
     def api_host
-      opts[:api_host] || master_hosts.first
+      opts[:api_host] || ((lb_hosts.empty?) ? master_hosts.first : lb_hosts.first)
     end
 
     def api_endpoint_url
@@ -191,6 +192,7 @@ module CucuShift
 
     def hosts
       if @hosts.empty?
+        hlist = []
         # generate hosts based on spec like: hostname1:role1:role2,hostname2:r3
         opts[:hosts].split(",").each do |host|
           # TODO: might do convenience type to class conversion
@@ -198,13 +200,15 @@ module CucuShift
           host_type = opts[:hosts_type]
           hostname, garbage, roles = host.partition(":")
           roles = roles.split(":").map(&:to_sym)
-          @hosts << CucuShift.const_get(host_type).new(hostname, **opts, roles: roles)
+          hlist << CucuShift.const_get(host_type).new(hostname, **opts, roles: roles)
         end
 
-        unless OPENSHIFT_ROLES.all? {|r| @hosts.find {|h| h.has_role?(r)}}
+        unless MANDATORY_OPENSHIFT_ROLES.all? {|r| hlist.find {|h| h.has_role?(r)}}
           raise "environment does not have hosts with roles: " +
-            "#{OPENSHIFT_ROLES.select{|r| @hosts.find {|h| h.has_role?(r)}}}"
+            "#{MANDATORY_OPENSHIFT_ROLES.select{|r| hlist.find {|h| h.has_role?(r)}}}"
         end
+
+        @hosts.concat hlist
       end
       return @hosts
     end

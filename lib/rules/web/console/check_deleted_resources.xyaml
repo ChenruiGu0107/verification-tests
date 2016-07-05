@@ -9,7 +9,7 @@ check_deleted_resources:
   action: check_deleted_route
   action: check_deleted_imagestream
 check_deleted_pod:
-  action: goto_one_pod_page
+  url: /console/project/<project_name>/browse/pods/<pod_name>
   elements:
   - selector:
       xpath: //strong[contains(text(),'<pod_warning>')]
@@ -19,22 +19,22 @@ check_deleted_service:
   - selector:
       xpath: //strong[contains(text(),'<service_warning>')]
 check_deleted_buildconfig:
-  url: /console/project/<project_name>/browse/builds/<build_name>/<buildconfig_name>
+  action: goto_one_buildconfig_page
   elements:
   - selector:
       xpath: //strong[contains(text(),'<bc_warning>')]
 check_deleted_deploymentconfig:
-  url: /console/project/<project_name>/browse/deployments/<deployment_name>
+  action: goto_one_dc_page
   elements:
   - selector:
       xpath: //strong[contains(text(),'<dc_warning>')]
 check_deleted_rc:
-  url: /console/project/<project_name>/browse/deployments/<deployment_name>/<rc_name>
+  action: goto_one_deployment_page
   elements:
   - selector:
       xpath: //strong[contains(text(),'<rc_warning>')]
 check_deleted_build:
-  url: /console/project/<project_name>/browse/builds/<build_name>
+  url: /console/project/<project_name>/browse/builds/<bc_name>/<build_name>
   elements:
   - selector:
       xpath: //strong[contains(text(),'<build_warning>')]

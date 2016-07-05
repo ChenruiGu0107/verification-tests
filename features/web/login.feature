@@ -19,3 +19,46 @@ Feature: login related scenario
     And I get the html of the web page
     Then the output should contain:
       | A non-empty X-CSRF-Token header is required to receive basic-auth challenges |
+
+  # @author xxing@redhat.com
+  # @case_id 515808
+  Scenario: User could not access pages directly without login first
+    Given I have a project
+    # Disable default login
+    When I perform the :new_project_navigate web console action with:
+      | _nologin | true |
+    Then the step should succeed
+    And the expression should be true> /Login/ =~ browser.title
+    When I access the "/console/project/<%= project.name %>/create" path in the web console
+    Then the expression should be true> /Login/ =~ browser.title
+    When I access the "/console/project/<%= project.name %>/overview" path in the web console
+    Then the expression should be true> /Login/ =~ browser.title
+
+  # @author xxing@redhat.com
+  # @case_id 467930
+  Scenario: The page should reflect to login page when access session protected pages after failed log in
+    Given I have a project
+    When I perform the :login web console action with:
+      | username | <%= rand_str(6, :dns) %> |
+      | password | <%= rand_str(6, :dns) %> |
+      | _nologin | true                     |
+    Then the step should fail
+    When I get the html of the web page
+    Then the output should contain:
+      | Invalid login or password. Please try again |
+    When I access the "/console/project/<%= project.name %>/overview" path in the web console
+    Then the expression should be true> /Login/ =~ browser.title
+    And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']") == nil
+
+  # @author xxing@redhat.com
+  # @case_id 467931
+  Scenario: The page should redirect to login page when access session protected pages after session expired
+    When I create a new project via web
+    Then the step should succeed
+    #make token expired
+    And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']='<%= rand_str(32, :dns) %>';")
+    When I access the "/console/project/<%= project.name %>/overview" path in the web console
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    Then the expression should be true> /Login/ =~ browser.title
+    """

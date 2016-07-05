@@ -427,6 +427,21 @@ require 'watir-webdriver'
       return browser.html
     end
 
+    # return URL of current page
+    def url
+      browser.url
+    end
+
+    # return title of current page
+    def title
+      browser.title
+    end
+
+    # return visible text of html body
+    def text
+      browser.text
+    end
+
     # @param element_list [Array] list of parametrized element type/selector
     #   pairs where selectors may contain `<param>` strings
     # @param params [Hash] params to replace within selectors

@@ -80,6 +80,17 @@ When /^I click the following "([^"]*)" element:$/ do |element_type, table|
   @result = browser.handle_element({type: element_type, selector: selector, op: "click"})
 end
 
+# @precondition a `browser` object
+# return the text of html body
+When /^I get the visible text on web html page$/ do
+  @result = {
+    response: browser.text,
+    success: true,
+    instruction: "read the visible body TEXT of the currently opened web page",
+    exitstatus: -1
+  }
+end
+
 # repeat doing web action until success,useful for waiting resource to become visible and available on web
 Given /^I wait(?: (\d+) seconds)? for the :(.+?) web console action to succeed with:$/ do |time, web_action, table|
   time = time ? time.to_i : 15 * 60

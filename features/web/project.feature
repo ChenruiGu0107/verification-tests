@@ -96,6 +96,7 @@ Feature: projects related features via web
       | app_name     | php-sample            |
       | source_url   | https://github.com/openshift/cakephp-ex.git |
     Then the step should succeed
+    Given the "php-sample-1" build was created
     When I perform the :cancel_delete_project web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
@@ -104,19 +105,20 @@ Feature: projects related features via web
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+    Given I wait for the resource "project" named "<%= project.name %>" to disappear
     When I run the :check_project_list web console action
     Then the step should fail
-    When I perform the :new_project web console action with:
+    Given I wait for the :new_project web console action to succeed with:
       | project_name | <%= project.name %> |
       | display_name | :null               |
       | description  ||
-    Then the step should succeed
     When I perform the :check_project_overview_without_resource web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+    Given I wait for the resource "project" named "<%= project.name %>" to disappear
     When I run the :check_project_list web console action
     Then the step should fail
     Given I create a new project

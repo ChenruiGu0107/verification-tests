@@ -13,7 +13,7 @@ Feature: builderimage.feature
     And a pod becomes ready with labels:
       |name=database|
     When I expose the "frontend" service
-    Then I wait for a server to become available via the "frontend" route
+    Then I wait for a web server to become available via the "frontend" route
     And  the output should contain "nodejs"
     And  the output should contain "postgresql"
 
@@ -30,7 +30,7 @@ Feature: builderimage.feature
     Then the step should succeed
     And the "php-sample-build-1" build completed
     When I expose the "frontend" service
-    Then I wait for a server to become available via the "frontend" route
+    Then I wait for a web server to become available via the "frontend" route
     And  the output should contain "Mail_sendmail Object"
     And  the output should contain "Database connection is successful"
 

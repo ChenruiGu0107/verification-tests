@@ -28,7 +28,7 @@ module CucuShift
     #   response when a block is passed
     # @return [CucuShift::ResultHash] standard cucushift result hash;
     #   there is :headers populated as a [Hash] where headers are lower-cased
-    def self.http_request(url:, cookies: nil, headers: {}, params: nil, payload: nil, method:, user: nil, password: nil, max_redirects: 10, verify_ssl: OpenSSL::SSL::VERIFY_NONE, proxy: ENV['http_proxy'], read_timeout: 30, open_timeout: 10, quiet: false, result: nil, raise_on_error: false, &block)
+    def self.http_request(url:, cookies: nil, headers: {}, params: nil, payload: nil, method:, user: nil, password: nil, max_redirects: 10, verify_ssl: OpenSSL::SSL::VERIFY_NONE, ssl_ca_path: nil, ssl_ca_file: nil, proxy: ENV['http_proxy'], read_timeout: 30, open_timeout: 10, quiet: false, result: nil, raise_on_error: false, &block)
       rc_opts = {}
       rc_opts[:url] = url
       rc_opts[:cookies] = cookies if cookies
@@ -40,6 +40,8 @@ module CucuShift
       rc_opts[:method] = method
       rc_opts[:user] = user if user
       rc_opts[:password] = password if password
+      rc_opts[:ssl_ca_file] = ssl_ca_file if ssl_ca_file
+      rc_opts[:ssl_ca_path] = ssl_ca_path if ssl_ca_path
       rc_opts[:read_timeout] = read_timeout
       rc_opts[:open_timeout] = open_timeout
 
@@ -56,21 +58,22 @@ module CucuShift
       started = monotonic_seconds
       response = RestClient::Request.new(rc_opts).execute &block
     rescue => e
+      result[:error] = e
       # REST request unsuccessful
-      raise e if raise_on_error
       if e.respond_to?(:response) and e.response.respond_to?(:code) and e.response.code.kind_of? Integer
         # server replied with non-success HTTP status, that's ok
         response = e.response
       else
         # request failed badly, server/network issue?
         result[:exitstatus] = -1
-        result[:error] = e
         result[:cookies] = HTTP::CookieJar.new # empty cookies
         result[:headers] = {}
         result[:size] = 0
         response = exception_to_string(e)
       end
     ensure
+      raise e if raise_on_error && Exception === e
+
       total_time = monotonic_seconds - started
       if block && !result[:error]
         logger.info("HTTP #{method.upcase} took #{'%.3f' % total_time} sec: #{response} bytes of data passed to block") unless quiet
