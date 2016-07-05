@@ -158,3 +158,34 @@ Feature: SDN related networking scenarios
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep controller.go |
     Then the step should succeed
     And the output should contain "[SDN setup] full SDN setup required"
+
+  # @author yadu@redhat.com
+  # @case_id 528378
+  @admin
+  @destructive
+  Scenario: [Bug 1308701] kubelet proxy could change to userspace mode
+    Given I select a random node's host  
+    And the node network is verified
+    And the node service is verified
+    And system verification steps are used:
+    """
+    When I run commands on the host:
+      | grep -A 1 proxy-mode /etc/origin/node/node-config.yaml |
+    Then the step should succeed
+    Then the output should contain "- iptables"
+    """
+    Given the node service is restarted on the host after scenario
+    And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
+    When I run commands on the host:
+      | sed -i "/proxy-mode/{n;s/iptables/userspace/g}" /etc/origin/node/node-config.yaml |
+    Then the step should succeed
+    When I run commands on the host:
+      | systemctl restart atomic-openshift-node |
+    Then the step should succeed
+    When I run commands on the host:
+      | systemctl status atomic-openshift-node |
+    Then the output should contain "active (running)"
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep node.go |
+    Then the step should succeed
+    And the output should contain "Using userspace Proxier"
