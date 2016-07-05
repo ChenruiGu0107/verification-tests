@@ -129,7 +129,7 @@ Feature: build 'apps' with CLI
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
-    Given the "ruby" image stream was created 
+    Given the "ruby" image stream was created
     And the "ruby" image stream becomes ready
     When I run the :new_app client command with:
       | image_stream | openshift/ruby:latest |
@@ -279,22 +279,22 @@ Feature: build 'apps' with CLI
     Given the "postgresql" image stream was created
     And the "postgresql" image stream becomes ready
     When I run the :new_app client command with:
-      | image_stream | openshift/ruby |
-      | image_stream | <%= project.name %>/ruby:2.2 |
-      | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
-      | image_stream | openshift/mysql |
-      | image_stream | <%= project.name %>/mysql:5.5 |
-      | docker_image | <%= product_docker_repo %>rhscl/mysql-56-rhel7 |
-      | image_stream | openshift/postgresql |
-      | image_stream | <%= project.name %>/postgresql:9.2 |
-      | docker_image | <%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
-      | group        | openshift/ruby+openshift/mysql+openshift/postgresql |
-      | group        | <%= project.name %>/ruby:2.2+<%= project.name %>/mysql:5.5+<%= project.name %>/postgresql:9.2 |
-      | group        | <%= product_docker_repo %>rhscl/ruby-22-rhel7+<%= product_docker_repo %>rhscl/mysql-56-rhel7+<%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
-      | code         | https://github.com/openshift/ruby-hello-world |
-      | env          | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test,MYSQL_ROOT_PASSWORD=test |
-      | l            | app=testapps    |
-      | insecure_registry | true |
+      | image_stream      | openshift/ruby                                                                                                                                   |
+      | image_stream      | <%= project.name %>/ruby:2.2                                                                                                                     |
+      | docker_image      | <%= product_docker_repo %>rhscl/ruby-22-rhel7                                                                                                    |
+      | image_stream      | openshift/mysql                                                                                                                                  |
+      | image_stream      | <%= project.name %>/mysql:5.6                                                                                                                    |
+      | docker_image      | <%= product_docker_repo %>rhscl/mysql-56-rhel7                                                                                                   |
+      | image_stream      | openshift/postgresql:9.4                                                                                                                         |
+      | image_stream      | <%= project.name %>/postgresql:9.4                                                                                                               |
+      | docker_image      | <%= product_docker_repo %>rhscl/postgresql-94-rhel7                                                                                              |
+      | group             | openshift/ruby+openshift/mysql+openshift/postgresql                                                                                              |
+      | group             | <%= project.name %>/ruby:2.2+<%= project.name %>/mysql:5.6+<%= project.name %>/postgresql:9.4                                                    |
+      | group             | <%= product_docker_repo %>rhscl/ruby-22-rhel7+<%= product_docker_repo %>rhscl/mysql-56-rhel7+<%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
+      | code              | https://github.com/openshift/ruby-hello-world                                                                                                    |
+      | env               | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test,MYSQL_ROOT_PASSWORD=test                                                    |
+      | l                 | app=testapps                                                                                                                                     |
+      | insecure_registry | true                                                                                                                                             |
     Then the step should succeed
     When I run the :get client command with:
       |resource| buildConfig |
@@ -470,7 +470,7 @@ Feature: build 'apps' with CLI
     Given I have a project
     And I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-    Given the "ruby-22-centos7" image stream was created 
+    Given the "ruby-22-centos7" image stream was created
     And the "ruby-22-centos7" image stream becomes ready
     And I run the :start_build client command with:
       | buildconfig |  ruby-sample-build |
@@ -924,14 +924,14 @@ Feature: build 'apps' with CLI
   Scenario: Create applications only with multiple db images
     Given I create a new project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb |
-      | image_stream | openshift/mysql   |
-      | docker_image | <%= product_docker_repo %>rhscl/postgresql-94-rhel7 |
-      | env          | MONGODB_USER=test,MONGODB_PASSWORD=test,MONGODB_DATABASE=test,MONGODB_ADMIN_PASSWORD=test |
-      | env          | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test |
-      | env          | MYSQL_ROOT_PASSWORD=test |
-      | l            | app=testapps      |
-      | insecure_registry | true         |
+      | image_stream      | openshift/mongodb:2.6                                                                     |
+      | image_stream      | openshift/mysql                                                                           |
+      | docker_image      | <%= product_docker_repo %>rhscl/postgresql-94-rhel7                                       |
+      | env               | MONGODB_USER=test,MONGODB_PASSWORD=test,MONGODB_DATABASE=test,MONGODB_ADMIN_PASSWORD=test |
+      | env               | POSTGRESQL_USER=user,POSTGRESQL_DATABASE=db,POSTGRESQL_PASSWORD=test                      |
+      | env               | MYSQL_ROOT_PASSWORD=test                                                                  |
+      | l                 | app=testapps                                                                              |
+      | insecure_registry | true                                                                                      |
     Then the step should succeed
 
     Given I wait for the "mysql" service to become ready
@@ -1637,7 +1637,7 @@ Feature: build 'apps' with CLI
   Scenario: Check cgroup info in container which builder pod launched for docker build
     Given I have a project
     When I run the :new_app client command with:
-      | code | https://github.com/openshift-qe/ruby-cgroup-test | 
+      | code | https://github.com/openshift-qe/ruby-cgroup-test |
     Then the step should succeed
     And the "ruby-cgroup-test-1" build was created
     Given the "ruby-cgroup-test-1" build completed
