@@ -219,14 +219,15 @@ Feature: Webhook REST Related Tests
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/generic/testdata/push-generic-envs.json"
     And I replace lines in "push-generic-envs.json":
       | 9bdc3a26ff933b32f3e558636b58aea86a69f051 ||
-      | sample-app | sample2-app |
+      | EXAMPLE    | TEST  |
+      | sample-app | valid |
     When I perform the HTTP request:
     """
     :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby22-sample-build/webhooks/secret101/generic
     :method: post
     :headers:
-      :Content-Type: application/json
-      :Openshift: generic
+      :content-type: application/json
+      :openshift: generic
     :payload: <%= File.read("push-generic-envs.json").to_json %>
     """
     Then the step should succeed
@@ -235,7 +236,49 @@ Feature: Webhook REST Related Tests
       | resource | pod                         |
       | name     | ruby22-sample-build-2-build |
     Then the step should succeed
-    And the output should contain "sample2-app"
+    And the output should contain:
+      | TEST  |
+      | valid |
+      | EXAMPLE    |
+      | sample-app |
+
+  # @author dyan@redhat.com
+  # @case_id 525849
+  Scenario: Existing parameter can be overlapped via generic webhook
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource | buildconfig |
+      | resource_name | ruby22-sample-build |
+      | p | {"spec": {"triggers": [{"type": "Generic","generic": {"secret": "secret101","allowEnv": true}}]}} |
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build becomes :running
+    When I run the :cancel_build client command with:
+      | build_name | ruby22-sample-build-1 |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/generic/testdata/push-generic-envs.json"
+    And I replace lines in "push-generic-envs.json":
+      | 9bdc3a26ff933b32f3e558636b58aea86a69f051 ||
+      | sample-app | sample-php-app |
+    When I perform the HTTP request:
+    """
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby22-sample-build/webhooks/secret101/generic
+    :method: post
+    :headers:
+      :content_type: application/json
+      :openshift: generic
+    :payload: <%= File.read("push-generic-envs.json").to_json %>
+    """
+    Then the step should succeed
+    Given the "ruby22-sample-build-2" build becomes :running
+    When I run the :describe client command with:
+      | resource | pod                         |
+      | name     | ruby22-sample-build-2-build |
+    Then the step should succeed
+    And the output should contain "sample-php-app"
+    And the output should not contain "sample-app"
 
   # @author shiywang@redhat.com
   # @case_id 525739
