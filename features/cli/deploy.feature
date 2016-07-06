@@ -727,11 +727,8 @@ Feature: deployment related features
   @admin
   Scenario: Check the default option value for command oadm prune deployments
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-    Then the step should succeed
     When I run the :new_app client command with:
-      | template | ruby-helloworld-sample|
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
     Given I wait for the pod named "database-1-deploy" to die
     When I run the :deploy client command with:
