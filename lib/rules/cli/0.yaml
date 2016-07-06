@@ -431,6 +431,7 @@
   :options:
     :resource_name: <value>
     :p: -p <value>
+    :type: --type=<value>
 :policy_add_role_to_group:
   :cmd: oc policy add-role-to-group <role> <group_name>
   :options:
