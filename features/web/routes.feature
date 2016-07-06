@@ -196,3 +196,140 @@ Feature: Routes related features on web console
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
+
+  # @author yapei@redhat.com
+  # @case_id 511906
+  Scenario: Add path when creating edge terminated route on web cosnole
+    Given I create a new project
+    
+    # create pod, service and pod used for curl command
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    
+    # create edge route with path on web console
+    When I perform the :open_create_route_page_from_overview_page web console action with:
+      | project_name | <%= project.name%> |
+      | service_name | service-unsecure   |
+    Then the step should succeed
+    When I perform the :create_route_with_path_and_policy_for_insecure_traffic web console action with:
+      | route_name              | edgepathroute   |
+      | hostname                | :null           |
+      | path                    | /test           |
+      | target_port             | 8080            | 
+      | tls_termination_type    | Edge            |
+      | insecure_traffic_policy | None            |
+    Then the step should succeed
+    
+    # check route function
+    Given I have a pod-for-ping in the project
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/test/ |
+      | -c |
+      | /tmp/cookie.txt |
+      | -k |
+    Then the output should contain "Hello-OpenShift-Path-Test"
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/ |
+      | -k |
+    Then the output should contain "Application is not available"
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/none/ |
+      | -k |
+    Then the output should contain "Application is not available"
+
+  # @author yapei@redhat.com
+  # @case_id 511907
+  Scenario: Create edge termianted route with redirect insecure traffic policy on web console
+    Given I create a new project
+    
+    # create pod, service and pod used for curl command
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    # create edge route with policy for insecure traffic set to redirect
+    When I perform the :open_create_route_page_from_overview_page web console action with:
+      | project_name | <%= project.name%> |
+      | service_name | service-unsecure   |
+    Then the step should succeed
+    When I perform the :create_unsecure_route_without_path web console action with:
+      | route_name              | edgerouteredirect   |
+      | hostname                | :null               |
+      | target_port             | 8080                |
+      | tls_termination_type    | Edge                |
+      | insecure_traffic_policy | Redirect            |
+    Then the step should succeed
+
+    # check route function
+    Given I have a pod-for-ping in the project
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -v   |
+      | -L   |
+      | http://<%= route("edgerouteredirect", service("service-unsecure")).dns(by: user) %>/ |
+      | -k   |
+    Then the step should succeed
+    And the output by order should contain:
+      | 302 Found          |
+      | Location: https://<%= route("edgerouteredirect", service("service-unsecure")).dns(by: user) %>/ |
+      | Hello-OpenShift    |
+
+  # @author yapei@redhat.com
+  # @case_id 511909
+  Scenario: Create edge terminated route with allow insecure traffic policies on web console
+    Given I create a new project
+
+    # create pod, service and pod used for curl command
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    # create edge route with policy for insecure traffic set to allow
+    When I perform the :open_create_route_page_from_overview_page web console action with:
+      | project_name | <%= project.name%> |
+      | service_name | service-unsecure   |
+    Then the step should succeed
+    When I perform the :create_unsecure_route_without_path web console action with:
+      | route_name              | edgerouteallow      |
+      | hostname                | :null               |
+      | target_port             | 8080                |
+      | tls_termination_type    | Edge                |
+      | insecure_traffic_policy | Allow               |
+    Then the step should succeed
+
+    # check route function
+    Given I have a pod-for-ping in the project
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -v   |
+      | -L   |
+      | http://<%= route("edgerouteallow", service("service-unsecure")).dns(by: user) %>/ |
+      | -k   |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | -v   |
+      | -L   |
+      | https://<%= route("edgerouteallow", service("service-unsecure")).dns(by: user) %>/ |
+      | -k   |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |

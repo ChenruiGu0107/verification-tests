@@ -28,6 +28,21 @@ create_route_dont_specify_hostname_from_routes_page:
   action: set_route_name
   action: select_target_port
   action: submit_create_route
+create_route_with_path_and_policy_for_insecure_traffic:
+  action: set_route_name
+  action: set_hostname
+  action: set_path
+  action: select_target_port
+  action: select_tls_termination_type
+  action: set_policy_for_insecure_traffic
+  action: submit_create_route
+create_unsecure_route_without_path:
+  action: set_route_name
+  action: set_hostname
+  action: select_target_port
+  action: select_tls_termination_type
+  action: set_policy_for_insecure_traffic
+  action: submit_create_route
 select_tls_termination_type:
   action: show_options_for_secure_route
   action: set_tls_termination
@@ -52,6 +67,12 @@ set_hostname:
       id: host
     op: send_keys <hostname>
     type: input
+set_path:
+  elements:
+  - selector:
+      id: path
+    op: send_keys <path>
+    type: input
 select_target_port:
   elements:
   - selector:
@@ -66,6 +87,11 @@ set_tls_termination:
   elements:
   - selector:
       xpath: //select[@ng-model="route.tls.termination"]/option[contains(.,'<tls_termination_type>')]
+    op: click
+set_policy_for_insecure_traffic:
+  elements:
+  - selector:
+      xpath: //select[@ng-model="route.tls.insecureEdgeTerminationPolicy"]/option[contains(.,"<insecure_traffic_policy>")]
     op: click
 submit_create_route:
   elements:
