@@ -18,6 +18,21 @@ Given /^I store the schedulable nodes in the#{OPT_SYM} clipboard$/ do |cbname|
   @nodes.concat cb[cbname].shuffle
 end
 
+Given /^environment has( at least| at most) (\d+) schedulable nodes?$/ do |cmp, num|
+  ensure_admin_tagged
+  nodes = CucuShift::Node.get_matching(user: admin) { |n, hash| n.schedulable? }
+  @nodes.concat (nodes.shuffle - @nodes)
+
+  case cmp
+  when /at least/
+    raise "nodes are #{nodes.size}" unless nodes.size >= num.to_i
+  when /at most/
+    raise "nodes are #{nodes.size}" unless nodes.size <= num.to_i
+  else
+    raise "nodes are #{nodes.size}" unless nodes.size == num.to_i
+  end
+end
+
 # @host from World will be used.
 Given /^I run commands on the host:$/ do |table|
   ensure_admin_tagged
