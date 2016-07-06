@@ -287,10 +287,9 @@ Feature: ServiceAccount and Policy Managerment
       | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
     Then the step should succeed
 
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-    And I run the :new_app client command with:
-      | template | ruby-helloworld-sample|
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
     # TODO: anli, , this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "database" service to be created
     Given I use the "<%= cb.project1 %>" project
@@ -334,10 +333,9 @@ Feature: ServiceAccount and Policy Managerment
       | user_name | system:serviceaccount:<%= cb.project1 %>:test1 |
     Then the step should succeed
 
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-    And I run the :new_app client command with:
-      | template | ruby-helloworld-sample|
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
     # TODO: anli, this is a work around for AEP, please add step `the step should succeed` according to latest good solution
     Then I wait for the "database" service to be created
     Given I use the "<%= cb.project1 %>" project

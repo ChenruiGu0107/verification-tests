@@ -6,11 +6,8 @@ Feature: admin build related features
   @admin
   Scenario: Check the default option value for command oadm prune builds
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-    Then the step should succeed
     When I run the :new_app client command with:
-      | template | ruby-helloworld-sample|
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
 
     #Generate enough builds for the oadm command to clean
@@ -99,11 +96,8 @@ Feature: admin build related features
   @destructive
   Scenario: Prune old builds by admin command
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-    Then the step should succeed
     When I run the :new_app client command with:
-      | template | ruby-helloworld-sample|
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
 
     #Generate enough builds for the oadm command to clean
