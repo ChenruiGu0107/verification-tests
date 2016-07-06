@@ -3,7 +3,9 @@ require 'common'
 require 'collections'
 
 require 'openshift/project'
+require 'openshift/group'
 require 'openshift/job'
+require 'openshift/image_stream'
 require 'openshift/service'
 require 'openshift/service_account'
 require 'openshift/route'
@@ -483,6 +485,35 @@ module CucuShift
         raise "what node are you talking about?"
       else
         return @nodes.last
+      end
+    end
+
+    # tries to create resource off string name and type as used in REST API
+    # e.g. resource("hello-openshift", "pod")
+    def resource(name, type, project_name: nil)
+      shorthands = {
+        is: "imagestreams",
+        dc: "deploymentconfigs",
+        rc: "replicationcontrollers",
+        pv: "persistentvolumes",
+        svc: "service"
+      }
+      type = shorthands[type.to_sym] if shorthands[type.to_sym]
+
+      classes = ObjectSpace.each_object(CucuShift::Resource.singleton_class)
+      clazz = classes.find do |c|
+        defined?(c::RESOURCE) && [type, type + "s"].include?(c::RESOURCE)
+      end
+      raise "cannot find class for type #{type}" unless clazz
+
+      subclass_of = proc {|parent, child| parent >= child}
+      return case clazz
+      when subclass_of.curry[ProjectResource]
+        clazz.new(name: name, project: project(project_name))
+      when subclass_of.curry[ClusterResource]
+        clazz.new(name: name, env: env)
+      else
+        raise "unhandled class #{clazz}"
       end
     end
 

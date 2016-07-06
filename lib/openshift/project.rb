@@ -77,10 +77,6 @@ module CucuShift
       phase(user: user, cached: cached) == :active
     end
 
-    def delete(by:)
-      cli_exec(as: by, key: :delete, object_type: "project", object_name_or_id: name)
-    end
-
     # creates project as defined in this object
     def create(by:, **opts)
       # note that search for users is only done inside the set of users
