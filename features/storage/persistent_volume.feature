@@ -19,17 +19,9 @@ Feature: Persistent Volume Claim binding policies
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
 
     # First PV can bound because it has RWO
-    When I run the :get admin command with:
-      | resource | pv/nfs-<%= project.name %> |
-    Then the output should contain:
-      | Bound |
-      | nfsc  | # The PVC name it bounds to
-
+    And the "nfsc" PVC becomes bound to the "nfs-<%= project.name %>" PV
     # Second PV can not bound because it does not have RWO
-    When I run the :get admin command with:
-      | resource | pv/nfs1-<%= project.name %> |
-    Then the output should contain:
-      | Available |
+    And the "nfs1-<%= project.name %>" PV status is :available
 
   # @author jhou@redhat.com
   # @case_id 510616
@@ -49,19 +41,10 @@ Feature: Persistent Volume Claim binding policies
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json |
 
-    # First PV can bound because it has RWO
-    When I run the :get admin command with:
-      | resource | pv/nfs-<%= project.name %> |
-    Then the output should contain:
-      | Bound |
-      | nfsc  | # The PVC name it bounds to
-
-    # Second PV can not bound because it does not have RWO
-    When I run the :get admin command with:
-      | resource | pv/nfs1-<%= project.name %> |
-    Then the output should contain:
-      | Available |
-
+    # First PV can bound because it has RWX
+    And the "nfsc" PVC becomes bound to the "nfs-<%= project.name %>" PV
+    # Second PV can not bound because it does not have RWX
+    And the "nfs1-<%= project.name %>" PV status is :available
 
   # @author yinzhou@redhat.com
   # @case_id 510610
@@ -312,10 +295,7 @@ Feature: Persistent Volume Claim binding policies
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json |
 
-    When I run the :get client command with:
-      | resource | pvc/nfsc |
-    Then the output should contain:
-      |Bound|
+    And the "nfsc" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
   # @author chaoyang@redhat.com
   # @case_id 501014
@@ -334,15 +314,8 @@ Feature: Persistent Volume Claim binding policies
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
 
-    When I run the :get client command with:
-      | resource | pvc/nfsc |
-    Then the output should contain:
-      | Pending |
-
-    And I run the :get admin command with:
-      | resource | pv/nfs-<%= project.name %> |
-    Then the output should contain:
-      | Available |
+    And the "nfsc" PVC becomes :pending
+    And the "nfs-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
   # @case_id 522215
