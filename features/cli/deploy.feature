@@ -1532,3 +1532,28 @@ Feature: deployment related features
       | "latestVersion": 1 |
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 515917
+  Scenario: Scale up when deployment running
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    Then the step should succeed
+    And I wait until the status of deployment "deployment-example" becomes :complete
+    Then I run the :scale client command with:
+      | resource | deploymentconfig   |
+      | name     | deployment-example |
+      | replicas | 3                  |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | deployment-example |
+      | latest            ||
+    Then the step should succeed
+    And I wait until the status of deployment "deployment-example" becomes :complete
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | deployment-example |
+      | o             | json |
+    Then the expression should be true> @result[:parsed]['spec']['replicas'] == 3
