@@ -101,14 +101,27 @@ Feature:Create apps using new_app cmd feature
       | env | JENKINS_PASSWORD=test123 |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=jenkins-2 |
+      | app=jenkins |
     When I expose the "jenkins" service
     Then the step should succeed
-    Given I wait for the steps to pass:
+    #Checking for 'ready to work' to disappear; this shows that
+    #jenkins is ready to accept user/pass
+    Given I wait up to 60 seconds for the steps to pass:
     """
-    When I open web server via the "http://<%= route("jenkins", service("jenkins")).dns(by: user) %>/" url
-    """
+    When I open web server via the "http://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
     Then the output should contain "Jenkins"
+    And the output should not contain "ready to work"
+    """
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/ |
+      | base_url | <%= route.dns(by: user) %>    |
+    Given I login to jenkins with:
+      | username | admin   |
+      | password | test123 |
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    Then the expression should be true> /Dashboard \[Jenkins\]/ =~ browser.title
+    """
 
   # @author xiuwang@redhat.com
   # @case_id 529321

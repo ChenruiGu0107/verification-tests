@@ -1,0 +1,24 @@
+---
+login:
+  url: /login
+  elements:
+    - selector:
+        id: j_username
+      op: send_keys admin
+      type: input
+    - selector:
+        name: j_password
+      op: send_keys test123
+      type: input
+  scripts:
+  - command: return document.getElementsByName("csrf").length > 0
+    expect_result: true
+  cookies:
+  - name: csrf
+    expect_result: true
+  elements:
+    - selector:
+        text: log in
+      op: click
+      type: button
+  action: verify_logged_in

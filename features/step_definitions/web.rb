@@ -33,6 +33,26 @@ Given /^I login via web console$/ do
   end
 end
 
+# @author cryan@redhat.com
+# @params the table is to be populated with values from the initialization
+# method in the web4cucumber.rb file. Below, you will see samples from rules
+# and base_url, but other values can be added also.
+# @notes this creates a separate browser instance, different from the console
+# browser previously used. Use this step for non-console cases.
+Given /^I have a browser with:$/ do |table|
+  init_params = opts_array_to_hash(table.raw)
+  browser = Web4Cucumber.new(
+    rules: expand_path(init_params[:rules]),
+    base_url: "http://#{init_params[:base_url]}"
+  )
+  cache_browser(browser)
+  teardown_add { @result = browser.finalize }
+end
+
+Given /^I login to jenkins with:$/ do |table|
+  step "I perform the :login web action with:",table
+end
+
 # @precondition a `browser` object
 # get element html or attribute value
 # Provide element selector in the step table using key/value pairs, e.g.
@@ -114,7 +134,7 @@ When /^I perform the :(.*?) web( console)? action in "([^"]+)" window with:$/ do
     webexecutor = user.webconsole_executor
   else
     webexecutor = browser
-  end  
+  end
   if webexecutor.browser.window(window_selector).exists?
     webexecutor.browser.window(window_selector).use do
       @result = webexecutor.run_action(action.to_sym, opts_array_to_hash(table.raw))
