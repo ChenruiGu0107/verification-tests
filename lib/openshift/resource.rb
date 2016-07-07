@@ -67,10 +67,17 @@ module CucuShift
     alias reload get
 
 
-    def get_cached_prop(prop:, user:, cached: false, quiet: false)
+    # @param res [Hash] if caller wants to see result from the get call;
+    #   note that it might not be updated if property returned from cache
+    def get_cached_prop(prop:, user:, cached: false, quiet: false, res: nil)
+      if res && cached
+        raise "result cannot be returned with cached requests"
+      end
+
       unless cached && props[prop]
         raise "provide user to get API object as" unless user
-        get_checked(user: user, quiet: quiet)
+        res ||= {}
+        res.merge! get_checked(user: user, quiet: quiet)
       end
 
       return props[prop]
@@ -133,8 +140,8 @@ module CucuShift
         end
         if res[:success]
           return props[:status] || res[:parsed]["status"]
-        elsif res[:stderr] && res[:stderr].include?('not found')
-          return {"phase" => "Missing"}
+        elsif res[:response].include?('not found')
+          return props[:status] = {"phase" => "Missing"}
         else
           raise "cannot get #{self.class::RESOURCE} #{name}: #{res[:response]}"
         end
@@ -146,7 +153,7 @@ module CucuShift
     end
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
-    # @return [Boolean] if resource status is what's expected
+    # @return [ResultHash]
     def status?(user:, status:, quiet: false, cached: false)
       matched_status = phase(user: user, quiet: quiet, cached: cached)
       status = [ status ].flatten
@@ -170,7 +177,8 @@ module CucuShift
     end
 
     # @return [CucuShift::ResultHash] with :success true if we've eventually got
-    #   the rc in ready status; the result hash is from last executed get call
+    #   the resource in ready status; the result hash is from last executed
+    #   get call
     # @note sub-class needs to implement the `#ready?` method
     def wait_till_ready(user, seconds)
       res = nil
