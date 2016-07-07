@@ -844,6 +844,8 @@
     :images: --images=<value>
     :stats_port: --stats-port=<value>
     :service_account: --service-account=<value>
+    :force_subdomain: --force-subdomain=<value>
+    :ports: --ports=<value>
 :openshift_version:
   :cmd: openshift version
   :expected:

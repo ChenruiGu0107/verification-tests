@@ -609,3 +609,92 @@ Feature: Testing haproxy router
       | /usr/bin/curl |  127.0.0.1:<%= cb.stats_port %>/healthz |
     Then the output should contain "Service ready"
 
+  # @author bmeng@redhat.com
+  # @case_id 519390
+  @admin
+  @destructive
+  Scenario: The correct route info should be reported back to user when there are multiple routers
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given environment has at least 2 schedulable nodes
+    And default router replica count is restored after scenario
+    When I run the :scale client command with:
+      | resource | dc |
+      | name | router |
+      | replicas | 0 |
+    Then the step should succeed
+    Given an 8 characters random string of type :dns952 is stored into the :router1_name clipboard
+    And an 8 characters random string of type :dns952 is stored into the :router2_name clipboard
+    And admin ensures "<%= cb.router1_name %>" dc is deleted after scenario
+    And admin ensures "<%= cb.router1_name %>" service is deleted after scenario
+    And admin ensures "<%= cb.router2_name %>" dc is deleted after scenario
+    And admin ensures "<%= cb.router2_name %>" service is deleted after scenario
+    When I run the :oadm_router admin command with:
+      | name | <%= cb.router1_name %> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+      | force_subdomain | ${name}-${namespace}.apps.aaa.com |
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.router1_name %> |
+    And evaluation of `pod.ip` is stored in the :router1_ip clipboard
+    When I run the :oadm_router admin command with:
+      | name | <%= cb.router2_name %> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+      | force_subdomain | ${name}-${namespace}.apps.zzz.com |
+    And a pod becomes ready with labels:
+      | deploymentconfig=<%= cb.router2_name %> |
+    And evaluation of `pod.ip` is stored in the :router2_ip clipboard
+
+    Given I switch to the first user
+    And I have a project
+    And evaluation of `project.name` is stored in the :project clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | route |
+      | name | service-unsecure |
+    Then the output should contain "service-unsecure-<%= cb.project %>.apps.aaa.com exposed on router <%= cb.router1_name %>"
+    And the output should contain "service-unsecure-<%= cb.project %>.apps.zzz.com exposed on router <%= cb.router2_name %>"
+    And the output should match "Endpoints:.*\d+.\d+.\d+.\d+:\d"
+    """
+    When I run the :get client command with:
+      | resource | route |
+      | resource_name | service-unsecure |
+    Then the step should succeed
+    And the output should match "apps.[az][az][az].com.*more"
+    Given I have a pod-for-ping in the project
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | service-unsecure-<%= cb.project %>.apps.aaa.com:80:<%= cb.router1_ip %> |
+      | http://service-unsecure-<%= cb.project %>.apps.aaa.com/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | service-unsecure-<%= cb.project %>.apps.zzz.com:80:<%= cb.router1_ip %> |
+      | http://service-unsecure-<%= cb.project %>.apps.zzz.com/ |
+    Then the step should succeed
+    And the output should not contain "Hello-OpenShift"
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | service-unsecure-<%= cb.project %>.apps.aaa.com:80:<%= cb.router2_ip %> |
+      | http://service-unsecure-<%= cb.project %>.apps.aaa.com:80/ |
+    Then the step should succeed
+    And the output should not contain "Hello-OpenShift"
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | service-unsecure-<%= cb.project %>.apps.zzz.com:80:<%= cb.router2_ip %> |
+      | http://service-unsecure-<%= cb.project %>.apps.zzz.com:80/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
