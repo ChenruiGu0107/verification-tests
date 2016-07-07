@@ -123,8 +123,7 @@ Feature: project permissions
       | resource | project |
     Then the output should contain:
       | <%= project.name %> |
-    And the output should contain:
-      | default |
+      | default             |
 
   # @author pruan@redhat.com
   # @case_id 481692

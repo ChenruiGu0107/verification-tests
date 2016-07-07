@@ -116,8 +116,6 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       | myrun-1 |
-    And the output should contain:
-      | myrun |
     When I run the :get client command with:
       | resource | pod |
     Then the step should succeed
