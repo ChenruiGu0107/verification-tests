@@ -87,8 +87,9 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep common.go |
     Then the step should succeed
-    And the output should contain "Failed to determine node address from hostname"
-    And the output should contain "using default interface"
+    And the output should contain:
+      | Failed to determine node address from hostname |
+      | using default interface                        |
     When I run commands on the host:
       | systemctl status atomic-openshift-node |
     Then the output should contain "active (running)"
@@ -131,7 +132,7 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | systemctl status atomic-openshift-node |
     Then the output should contain "active (running)"
-    And I run commands on the host: 
+    And I run commands on the host:
       | sysctl -a \| grep bridge.*iptables |
     Then the step should succeed
     Then the output should contain "net.bridge.bridge-nf-call-iptables = 0"
