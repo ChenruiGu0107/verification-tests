@@ -430,9 +430,7 @@ Feature: Quota related scenarios
       | name     | quota-besteffort |
     Then the output should match:
       | pods\\s+1\\s+2 |
-    When I run the :delete client command with:
-      | object_type       | pod            |
-      | object_name_or_id | pod-besteffort |
+    When I ensure "pod-besteffort" pod is deleted
     Then the step should succeed
     # Because quota optimation is under way, leave time gap to wait for operation completed
     And I wait for the steps to pass:
@@ -458,9 +456,7 @@ Feature: Quota related scenarios
       | name     | quota-besteffort |
     Then the output should match:
       | pods\\s+0\\s+2 |
-    When I run the :delete client command with:
-      | object_type       | pod               |
-      | object_name_or_id | pod-notbesteffort |
+    When I ensure "pod-notbesteffort" pod is deleted
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota            |
@@ -507,9 +503,7 @@ Feature: Quota related scenarios
       | pods\\s+1\\s+2                  |
       | requests.cpu\\s+200m\\s+2       |
       | requests.memory\\s+256Mi\\s+1Gi |
-    When I run the :delete client command with:
-      | object_type       | pod               |
-      | object_name_or_id | pod-notbesteffort |
+    When I ensure "pod-notbesteffort" pod is deleted
     Then the step should succeed
     # Because quota optimation is under way, leave time gap to wait for operation completed
     And I wait for the steps to pass:
@@ -543,9 +537,7 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+2              |
       | requests.cpu\\s+0\\s+2      |
       | requests.memory\\s+0\\s+1Gi |
-    When I run the :delete client command with:
-      | object_type       | pod            |
-      | object_name_or_id | pod-besteffort |
+    When I ensure "pod-besteffort" pod is deleted
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota               |
@@ -590,9 +582,7 @@ Feature: Quota related scenarios
       | pods\\s+1\\s+2                  |
       | requests.cpu\\s+200m\\s+2       |
       | requests.memory\\s+256Mi\\s+1Gi |
-    When I run the :delete client command with:
-      | object_type       | pod                |
-      | object_name_or_id | pod-notterminating |
+    When I ensure "pod-notterminating" pod is deleted
     Then the step should succeed
     # Because quota optimation is under way, leave time gap to wait for operation completed
     And I wait for the steps to pass:
@@ -620,9 +610,7 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+2              |
       | requests.cpu\\s+0\\s+2      |
       | requests.memory\\s+0\\s+1Gi |
-    When I run the :delete client command with:
-      | object_type       | pod             |
-      | object_name_or_id | pod-terminating |
+    When I ensure "pod-terminating" pod is deleted
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota                |
@@ -678,9 +666,7 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+4              |
       | requests.cpu\\s+0\\s+1      |
       | requests.memory\\s+0\\s+1Gi |
-    When I run the :delete client command with:
-      | object_type       | pod             |
-      | object_name_or_id | pod-terminating |
+    When I ensure "pod-terminating" pod is deleted
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota             |
@@ -704,9 +690,7 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+4              |
       | requests.cpu\\s+0\\s+1      |
       | requests.memory\\s+0\\s+1Gi |
-    When I run the :delete client command with:
-      | object_type       | pod                |
-      | object_name_or_id | pod-notterminating |
+    When I ensure "pod-notterminating" pod is deleted
     Then the step should succeed
     When I run the :describe client command with:
       | resource | quota             |
@@ -817,9 +801,7 @@ Feature: Quota related scenarios
       | resourcequotas\\s+1\\s+1          |
       | secrets\\s+9\\s+15                |
       | services\\s+0\\s+10               |
-    When I run the :delete client command with:
-      | object_type | pod         |
-      | object_name_or_id | pod-request-limit-valid-4 |
+    When I ensure "pod-request-limit-valid-4" pod is deleted
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
