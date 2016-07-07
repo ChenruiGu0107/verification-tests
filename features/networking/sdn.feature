@@ -106,9 +106,9 @@ Feature: SDN related networking scenarios
     And system verification steps are used:
     """
     When I run commands on the host:
-      | sysctl -a \| grep bridge.*iptables |
+      | sysctl --all --pattern 'bridge.*iptables' |
     Then the step should succeed
-    Then the output should contain "net.bridge.bridge-nf-call-iptables = 0"
+    And the output should contain "net.bridge.bridge-nf-call-iptables = 0"
     """
     Given the node service is restarted on the host after scenario
     And I register clean-up steps:
@@ -132,10 +132,10 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | systemctl status atomic-openshift-node |
     Then the output should contain "active (running)"
-    And I run commands on the host:
-      | sysctl -a \| grep bridge.*iptables |
+    When I run commands on the host:
+      | sysctl --all --pattern 'bridge.*iptables' |
     Then the step should succeed
-    Then the output should contain "net.bridge.bridge-nf-call-iptables = 0"
+    And the output should contain "net.bridge.bridge-nf-call-iptables = 0"
 
   # @author bmeng@redhat.com
   # @case_id 521640
