@@ -165,6 +165,55 @@ Given /^I have an http-git service in the(?: "([^ ]+?)")? project$/ do |project_
   cb.git_pod_ip_port = "#{pod.ip(user: user)}:8080"
 end
 
+Given /^I have a git client pod in the#{OPT_QUOTED} project$/ do |project_name|
+  project(project_name, switch: true)
+  unless project.exists?(user: user)
+    raise "project #{project_name} does not exist"
+  end
+
+  #@result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift/origin/master/examples/gitserver/gitserver-ephemeral.yaml")
+  @result = user.cli_exec(:run, name: "git-client", image: "openshift/origin-gitserver", env: 'GIT_HOME=/var/lib/git')
+  raise "could not create the git client pod" unless @result[:success]
+
+  @result = CucuShift::Pod.wait_for_labeled("run=git-client", count: 1,
+                                            user: user, project: project, seconds: 300)
+  raise "#{pod.name} pod did not become ready" unless @result[:success]
+
+  cache_pods(*@result[:matching])
+
+  @result = pod.wait_till_ready(user, 300)
+
+  unless @result[:success]
+    logger.error(@result[:response])
+    raise "#{pod.name} pod did not become ready"
+  end
+
+  # for ssh-git : only need to add private key on git-client pod
+  unless cb.ssh_private_key.nil? then
+    @result = pod.exec(
+        "bash", "-c",
+        "echo '#{cb.ssh_private_key.to_pem}' >> /home/git/.ssh/id_rsa && chmod 600 /home/git/.ssh/id_rsa && ssh-keyscan -H #{cb.git_svc_ip}>> ~/.ssh/known_hosts",
+        as: user
+    )
+    raise "cannot add private key to git client server pod" unless @result[:success]
+  end
+
+  # for http-git : only need to config credential
+  # due to this bug: https://bugzilla.redhat.com/show_bug.cgi?id=1353407
+  # currently we use user token instead of service account
+  if cb.ssh_private_key.nil? then
+    @result = pod.exec(
+        "bash", "-c",
+        "git config --global credential.http://#{cb.git_svc_ip}:8080.helper '!f() { echo \"username=#{user.name}\"; echo \"password=#{user.get_bearer_token.token}\"; }; f'",
+        as: user
+    )
+    raise "cannot set git client pod global config" unless @result[:success]
+  end
+
+  # only set pod name to clipboards
+  cb.git_client_pod = pod
+end
+
 # pod-for-ping is a pod that has curl, wget, telnet and ncat
 Given /^I have a pod-for-ping in the(?: "([^ ]+?)")? project$/ do |project_name|
   project(project_name, switch: true)
