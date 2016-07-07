@@ -113,11 +113,12 @@ Feature:Create apps using new_app cmd feature
     And the output should not contain "ready to work"
     """
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/ |
-      | base_url | <%= route.dns(by: user) %>    |
-    Given I login to jenkins with:
+      | rules    | lib/rules/web/images/jenkins/     |
+      | base_url | http://<%= route.dns(by: user) %> |
+    When I perform the :login web action with:
       | username | admin   |
       | password | test123 |
+    Then the step should succeed
     Given I wait up to 60 seconds for the steps to pass:
     """
     Then the expression should be true> /Dashboard \[Jenkins\]/ =~ browser.title

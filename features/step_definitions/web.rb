@@ -39,18 +39,16 @@ end
 # and base_url, but other values can be added also.
 # @notes this creates a separate browser instance, different from the console
 # browser previously used. Use this step for non-console cases.
+# *NOTE* be sure to include the protocol before the base URL in your table,
+# for example, http:// or https://, otherwise this will generate a URI error.
 Given /^I have a browser with:$/ do |table|
   init_params = opts_array_to_hash(table.raw)
   browser = Web4Cucumber.new(
     rules: expand_path(init_params[:rules]),
-    base_url: "http://#{init_params[:base_url]}"
+    base_url: init_params[:base_url]
   )
   cache_browser(browser)
   teardown_add { @result = browser.finalize }
-end
-
-Given /^I login to jenkins with:$/ do |table|
-  step "I perform the :login web action with:",table
 end
 
 # @precondition a `browser` object
