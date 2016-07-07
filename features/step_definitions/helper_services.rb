@@ -42,29 +42,30 @@ Given /^I have LDAP service in my project$/ do
     # So take the second one since this one can be implemented currently
     ###
     step %Q/I run the :run client command with:/, table(%{
-      |name	|ldapserver				|
-      |image	|openshift/openldap-2441-centos7:latest	|
+      | name  |ldapserver                             |
+      | image |openshift/openldap-2441-centos7:latest |
       })
     step %Q/the step should succeed/
     step %Q/I wait until replicationController "ldapserver-1" is ready/
     step %Q/I run the :get client command with:/, table(%{
-      |resource	|pods	|
-      |o 	|yaml	|
+      | resource |pods	  |
+      | o        |yaml	  |
       })
     step %Q/the step should succeed/
     step %Q/the output is parsed as YAML/
     step %Q/evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :ldap_pod_name clipboard/
     # Init the test data in ldap server.
     step %Q/I run the :rsh client command with:/, table(%{
-      |pod	| <%= cb.ldap_pod_name %>																								|
-      |_stdin	| curl -s https://raw.githubusercontent.com/openshift/origin/master/images/openldap/contrib/init.ldif > /tmp/init.ldif && ldapadd -x -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin -f /tmp/init.ldif	|
+      | pod    | <%= cb.ldap_pod_name %>                                                                                                                                                                                            |
+      | _stdin | curl -Ss https://raw.githubusercontent.com/openshift/origin/master/images/openldap/contrib/init.ldif > /tmp/init.ldif && ldapadd -x -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin -f /tmp/init.ldif |
       })
     step %Q/the step should succeed/
 
     # Port forword ldapserver to local
+    step %Q/evaluation of `rand(32000...65536)` is stored in the :ldap_port clipboard/
     step %Q/I run the :port_forward background client command with:/, table(%{
-      |pod	|<%= cb.ldap_pod_name %>	|
-      |port_spec| 3389:389			|
+      | pod       | <%= cb.ldap_pod_name %> |
+      | port_spec | <%= cb.ldap_port %>:389 |
       })
     step %Q/the step should succeed/
 end

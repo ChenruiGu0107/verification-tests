@@ -757,8 +757,8 @@
   :options:
     :group_names: <value>
     :sync_config: --sync-config=<value>
-    :white_list: --white-list=<value>
-    :black_list: --black-list=<value>
+    :whitelist: --whitelist=<value>
+    :blacklist: --blacklist=<value>
     :confirm: --confirm
     :type: --type=<value>
     :sort_by: --sort-by=<value>
