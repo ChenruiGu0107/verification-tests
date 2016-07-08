@@ -92,6 +92,38 @@ Feature:Create apps using new_app cmd feature
     Then the output should contain "ruby-hello-world"
     And the output should not contain "ruby-hello-world-1"
 
+  # @author cryan@redhat.com
+  # @case_id 509050
+  Scenario: Create jenkins resources with oc new-app from imagestream -jenkins-1-rhel7
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | jenkins |
+      | env | JENKINS_PASSWORD=test123 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | app=jenkins |
+    When I expose the "jenkins" service
+    Then the step should succeed
+    #Checking for 'ready to work' to disappear; this shows that
+    #jenkins is ready to accept user/pass
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
+    Then the output should contain "Jenkins"
+    And the output should not contain "ready to work"
+    """
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/     |
+      | base_url | http://<%= route.dns(by: user) %> |
+    When I perform the :login web action with:
+      | username | admin   |
+      | password | test123 |
+    Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    Then the expression should be true> /Dashboard \[Jenkins\]/ =~ browser.title
+    """
+
   # @author xiuwang@redhat.com
   # @case_id 529321
   Scenario: create resource from imagestream via oc new-app nodejs-4-rhel7
