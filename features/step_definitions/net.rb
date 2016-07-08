@@ -98,3 +98,21 @@ When /^I perform (\d+) HTTP GET requests with concurrency (\d+) to: (.+)$/ do |n
     :method: :get
     """
 end
+
+# Example: I wait for the "www.ruby-lang.org:80" TCP server to start accepting connections
+When /^I wait for the #{QUOTED} TCP server to start accepting connections$/ do |hostport|
+  seconds = 60
+
+  # TODO: IPv6 support
+  host, garbage, port = hostport.rpartition(":")
+  port = Integer(port)
+
+  @result = CucuShift::Common::Net.wait_for_tcp(host: host,
+                                                port: port,
+                                                timeout: seconds)
+
+  stats = @result[:props][:stats]
+  logger.info "after #{stats[:seconds]} seconds and #{stats[:iterations]} " <<
+    "iterations, #{hostport} is: " <<
+    "#{@result[:success] ? "accessible" : @result[:error].inspect}"
+end
