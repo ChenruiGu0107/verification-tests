@@ -821,3 +821,24 @@ Feature: creating 'apps' with CLI
       | resource_name | hello-pod        |
 
     Then the expression should be true> pod.supplemental_groups(user:user)[0] == 1000
+
+  # @author mcurlej@redhat.com
+  # @case_id 519471
+  Scenario: Create and update the docker images tag from remote repositories via api
+    Given I have a project
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag.json
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | imagestreamtag |
+    Then the step should succeed
+    And the output should contain:
+      |<%= product_docker_repo %>rhel7.2|
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag-update.json
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | imagestreamtag |
+    Then the step should succeed
+    And the output should contain:
+      | <%= product_docker_repo %>rhel7.1 |
+      | <%= product_docker_repo %>rhel7.2 |
+
