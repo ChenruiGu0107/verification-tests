@@ -13,7 +13,7 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/pv-retain.json"
     And I replace content in "pv-retain.json":
-      |/\d{3}/|000|
+      | /\d{3}/ | 000 |
     When admin creates a PV from "pv-retain.json" where:
       | ["metadata"]["name"] | rbd-<%= project.name %> |
     Then the step should succeed
@@ -34,10 +34,10 @@ Feature: Storage of Ceph plugin testing
     And I wait up to 500 seconds for the steps to pass:
     """
     When I run the :describe client command with:
-      | resource | pods |
-      | name | rbdpd |
+      | resource | pods  |
+      | name     | rbdpd |
     Then the output should contain:
-      | FailedMount |
+      | FailedMount     |
       | rbd: map failed |
     """
 

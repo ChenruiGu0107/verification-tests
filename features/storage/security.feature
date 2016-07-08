@@ -42,8 +42,7 @@ Feature: storage security check
     Then the step should succeed
     And the output should contain:
       | 24680 |
-    When I ensure "pod-<%= project.name %>" pod is deleted
-    Then the step should succeed
+    Given I ensure "pod-<%= project.name %>" pod is deleted
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/<type>/security/<type>-privileged-test.json" replacing paths:
       | ["metadata"]["name"]                                      | pod2-<%= project.name %> |

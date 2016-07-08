@@ -27,8 +27,7 @@ Feature: Regression testing cases
     And the pod named "mypod-<%= project.name %>" becomes ready
 
     # Now delete PVC
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
 
     # Test deleting dynamic PVC
     Given I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
@@ -43,8 +42,7 @@ Feature: Regression testing cases
     Then the step should succeed
     And the pod named "dynamic-<%= project.name %>" becomes ready
 
-    When I ensure "dynamic-pvc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "dynamic-pvc-<%= project.name %>" pvc is deleted
 
     # New pods should be scheduled and ready
     When I run the :create client command with:

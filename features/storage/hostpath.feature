@@ -49,11 +49,8 @@ Feature: Storage of Hostpath plugin testing
       | touch | /mnt/local/test |
     Then the step should succeed
 
-    When I ensure "localpd-<%= cb.proj_name %>" pod is deleted
-    Then the step should succeed
-    When I ensure "localc-<%= cb.proj_name %>" pvc is deleted
-    Then the step should succeed
-
+    Given I ensure "localpd-<%= cb.proj_name %>" pod is deleted
+    And I ensure "localc-<%= cb.proj_name %>" pvc is deleted
     And the "local-<%= cb.proj_name %>" PV becomes :released
 
     Given I use the "<%= cb.nodes[0].name %>" node
@@ -111,11 +108,8 @@ Feature: Storage of Hostpath plugin testing
       | touch | /mnt/local/test |
     Then the step should succeed
 
-    When I ensure "localpd-<%= cb.proj_name %>" pod is deleted
-    Then the step should succeed
-
-    When I ensure "localc-<%= cb.proj_name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "localpd-<%= cb.proj_name %>" pod is deleted
+    And I ensure "localc-<%= cb.proj_name %>" pvc is deleted
     And the "local-<%= cb.proj_name %>" PV becomes :released
 
     Given I use the "<%= cb.nodes[0].name %>" node
@@ -172,11 +166,8 @@ Feature: Storage of Hostpath plugin testing
       | touch | /mnt/local/test |
     Then the step should succeed
 
-    When I ensure "localpd-<%= cb.proj_name %>" pod is deleted
-    Then the step should succeed
-
-    When I ensure "localc-<%= cb.proj_name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "localpd-<%= cb.proj_name %>" pod is deleted
+    And I ensure "localc-<%= cb.proj_name %>" pvc is deleted
     And the PV becomes :available within 300 seconds
 
     Given I use the "<%= cb.nodes[0].name %>" node

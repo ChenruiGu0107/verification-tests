@@ -10,7 +10,7 @@ Feature: Storage of GlusterFS plugin testing
     #Create a invlid endpoint
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/endpoints.json"
     And I replace content in "endpoints.json":
-      |/\d{2}/|11|
+      | /\d{2}/ | 11 |
     And I run the :create client command with:
       | f | endpoints.json |
     Then the step should succeed
@@ -31,10 +31,10 @@ Feature: Storage of GlusterFS plugin testing
     And I wait up to 500 seconds for the steps to pass:
     """
     When I run the :describe client command with:
-      | resource | pods |
-      | name | gluster |
+      | resource | pods    |
+      | name     | gluster |
     Then the output should contain:
-      | FailedMount |
+      | FailedMount             |
       | glusterfs: mount failed |
     """
 
@@ -82,10 +82,8 @@ Feature: Storage of GlusterFS plugin testing
       | touch | /mnt/gluster/tc508054 |
     Then the step should succeed
 
-    When I ensure "mypod-<%= project.name %>" pod is deleted
-    Then the step should succeed
-    When I ensure "pvc-gluster-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "mypod-<%= project.name %>" pod is deleted
+    And I ensure "pvc-gluster-<%= project.name %>" pvc is deleted
     And the PV becomes :released
     When I execute on the "glusterd" pod:
       | ls | /vol/tc508054 |
@@ -102,7 +100,7 @@ Feature: Storage of GlusterFS plugin testing
 
     Given I have a Gluster service in the project
     When I execute on the pod:
-      | chown | -R | root:123456 | /vol|
+      | chown | -R | root:123456 | /vol |
     Then the step should succeed
     And I execute on the pod:
       | chmod | -R | 770 | /vol |
@@ -115,7 +113,7 @@ Feature: Storage of GlusterFS plugin testing
     Then the step should succeed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/security/gluster_pod_sg.json" replacing paths:
-      | ["metadata"]["name"]                    | glusterpd-<%= project.name %>   |
+      | ["metadata"]["name"] | glusterpd-<%= project.name %> |
     Then the step should succeed
 
     Given the pod named "glusterpd-<%= project.name %>" becomes ready
@@ -128,8 +126,8 @@ Feature: Storage of GlusterFS plugin testing
     Then the step should succeed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/security/gluster_pod_sg.json" replacing paths:
-      | ["metadata"]["name"]                               | glusterpd-negative-<%= project.name %>   |
-      | ["spec"]["securityContext"]["supplementalGroups"]  | [123460]                                 |
+      | ["metadata"]["name"]                              | glusterpd-negative-<%= project.name %> |
+      | ["spec"]["securityContext"]["supplementalGroups"] | [123460]                               |
     Then the step should succeed
     Given the pod named "glusterpd-negative-<%= project.name %>" becomes ready
     And I execute on the "glusterpd-negative-<%= project.name %>" pod:

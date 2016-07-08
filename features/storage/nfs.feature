@@ -11,14 +11,14 @@ Feature: NFS Persistent Volume
 
     # Creating PV and PVC
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-      | ["spec"]["nfs"]["path"]   | /non-exist-path                  |
-      | ["spec"]["accessModes"][0]| ReadWriteMany                    |
-      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+      | ["spec"]["nfs"]["path"]    | /non-exist-path                  |
+      | ["spec"]["accessModes"][0] | ReadWriteMany                    |
+      | ["metadata"]["name"]       | nfs-<%= project.name %>          |
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]| ReadWriteMany         |
+      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0] | ReadWriteMany            |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -55,14 +55,14 @@ Feature: NFS Persistent Volume
 
     # Creating PV and PVC
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]| ReadWriteOnce                    |
-      | ["spec"]["persistentVolumeReclaimPolicy"]| Recycle           |
-      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
+      | ["spec"]["accessModes"][0]                | ReadWriteOnce                    |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                          |
+      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]| ReadWriteOnce         |
+      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -82,10 +82,8 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the output should not contain "Permission denied"
 
-    When I ensure "mypod-<%= project.name %>" pod is deleted
-    Then the step should succeed
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "mypod-<%= project.name %>" pod is deleted
+    And I ensure "nfsc-<%= project.name %>" pvc is deleted
     And the PV becomes :available within 300 seconds
     When I execute on the "nfs-server" pod:
       | ls | /mnt/data/tc508049 |
@@ -105,14 +103,14 @@ Feature: NFS Persistent Volume
 
     # Creating PV and PVC
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]| ReadOnlyMany                     |
-      | ["spec"]["persistentVolumeReclaimPolicy"]| Retain            |
-      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
+      | ["spec"]["accessModes"][0]                | ReadOnlyMany                     |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                           |
+      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]| ReadOnlyMany          |
+      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0] | ReadOnlyMany             |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -132,10 +130,8 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the output should not contain "Permission denied"
 
-    When I ensure "mypod-<%= project.name %>" pod is deleted
-    Then the step should succeed
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "mypod-<%= project.name %>" pod is deleted
+    And I ensure "nfsc-<%= project.name %>" pvc is deleted
     And the PV becomes :released
     When I execute on the "nfs-server" pod:
       | ls | /mnt/data/tc508050 |
@@ -155,14 +151,14 @@ Feature: NFS Persistent Volume
 
     # Creating PV and PVC
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]| ReadWriteMany                    |
-      | ["spec"]["persistentVolumeReclaimPolicy"]| Default           |
-      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
+      | ["spec"]["accessModes"][0]                | ReadWriteMany                    |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Default                          |
+      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]| ReadWriteMany         |
+      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0] | ReadWriteMany            |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -182,10 +178,8 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the output should not contain "Permission denied"
 
-    When I ensure "mypod-<%= project.name %>" pod is deleted
-    Then the step should succeed
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "mypod-<%= project.name %>" pod is deleted
+    And I ensure "nfsc-<%= project.name %>" pvc is deleted
     And the PV becomes :released
     When I execute on the "nfs-server" pod:
       | ls | /mnt/data/tc508051 |
@@ -219,10 +213,8 @@ Feature: NFS Persistent Volume
     Then the step should succeed
 
     # Delete pod and PVC to release the PV
-    When I ensure "nfs" pod is deleted
-    Then the step should succeed
-    When I ensure "nfsc" pvc is deleted
-    Then the step should succeed
+    Given I ensure "nfs" pod is deleted
+    And I ensure "nfsc" pvc is deleted
     And the PV becomes :released
 
     # After PV is released, verify the created file in nfs export is reserved.
@@ -259,10 +251,8 @@ Feature: NFS Persistent Volume
     Then the step should succeed
 
     # Delete pod and PVC to release the PV
-    When I ensure "nfs" pod is deleted
-    Then the step should succeed
-    When I ensure "nfsc" pvc is deleted
-    Then the step should succeed
+    Given I ensure "nfs" pod is deleted
+    And I ensure "nfsc" pvc is deleted
 
     # After PV is released, verify the created file in nfs export is reserved.
     When I execute on the "nfs-server" pod:
@@ -288,8 +278,7 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
     When I run the :get admin command with:
       | resource | pv/nfs-<%= project.name %> |
     Then the output should not contain:
@@ -482,22 +471,21 @@ Feature: NFS Persistent Volume
     And I have a NFS service in the project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"]      | pv-nfs-<%= project.name %>       |
-      | ["spec"]["accessModes"][0]| ReadWriteMany                    |
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]       | pv-nfs-<%= project.name %>       |
+      | ["spec"]["accessModes"][0] | ReadWriteMany                    |
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | pvc-nfs-<%= project.name %> |
-      | ["spec"]["volumeName"] | pv-nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]| ReadWriteMany            |
+      | ["metadata"]["name"]       | pvc-nfs-<%= project.name %> |
+      | ["spec"]["volumeName"]     | pv-nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0] | ReadWriteMany               |
     Then the step should succeed
     And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
-    When admin ensure "pv-nfs-<%= project.name %>" pv is deleted
-    Then the step should succeed
+    Given admin ensures "pv-nfs-<%= project.name %>" pv is deleted
     And the "pvc-nfs-<%= project.name %>" PVC becomes :lost within 300 seconds
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"]      | pv-nfs-<%= project.name %>       |
-      | ["spec"]["accessModes"][0]| ReadWriteMany                    |
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]       | pv-nfs-<%= project.name %>       |
+      | ["spec"]["accessModes"][0] | ReadWriteMany                    |
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
     Then the step should succeed
     And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
