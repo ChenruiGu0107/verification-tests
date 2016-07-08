@@ -299,3 +299,22 @@ Feature: buildconfig.feature
     Then the step should succeed
     And the "ruby-hello-world-2" build was created
     And the "ruby-ex-2" build was created
+
+  # @author haowang@redhat.com
+  # @case_id 479540 479541
+  Scenario Outline: Build with images pulled from private repositories
+    Given I have a project
+    When I run the :new_secret client command with:
+      | secret_name     | pull                                                                                   |
+      | credential_file | .dockerconfigjson=<%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | <template> |
+    Then the step should succeed
+    And the "ruby-sample-build-1" build was created
+    Then the "ruby-sample-build-1" build completes
+
+    Examples:
+      | template                                                                                                       |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479540/test-buildconfig-docker.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479541/test-buildconfig-s2i.json    |
