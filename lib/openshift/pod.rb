@@ -8,6 +8,7 @@ module CucuShift
     STATUSES = [:pending, :running, :succeeded, :failed, :unknown]
     # statuses that indicate pod running or completed successfully
     SUCCESS_STATUSES = [:running, :succeeded, :missing]
+    TERMINAL_STATUSES = [:failed, :unknown, :succeeded, :missing]
 
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that ca nchange at any time like status and spec
@@ -17,6 +18,8 @@ module CucuShift
       props[:generateName] = m["generateName"]
       props[:labels] = m["labels"]
       props[:created] = m["creationTimestamp"] # already [Time]
+      props[:deleted] = m["deletionTimestamp"] # during grace period
+      props[:grace_period] = m["deletionGracePeriodSeconds"] # might be nil
       props[:annotations] = m["annotations"]
       props[:deployment_config_version] = m["annotations"]["openshift.io/deployment-config.latest-version"]
       props[:deployment_config_name] = m["annotations"]["openshift.io/deployment-config.name"]
@@ -68,9 +71,44 @@ module CucuShift
       return res
     end
 
+    # @return [CucuShift::ResultHash] with :success true if we've eventually got
+    #   the pod in terminating state; the result hash is from last executed
+    #   get call
+    def wait_till_terminating(user, seconds)
+      stats = {}
+      res = {
+        instruction: "wait till pod #{name} reach terminating state",
+        exitstatus: -1,
+        success: false
+      }
+
+      res[:success] = !!wait_for(seconds, stats: stats) {
+        t = terminating?(user: user, quiet: true)
+
+        break if status?(user: user, status: TERMINAL_STATUSES,
+                                 cached: true, quiet: true)[:success]
+
+        t
+      }
+
+      res[:response] = "After #{stats[:iterations]} iterations and " <<
+        "#{stats[:full_seconds]} seconds: " <<
+        "#{res[:success] || phase(user: user, cached: true, quiet: true)}"
+      logger.info res[:response]
+
+      return res
+    end
+
     # @note call without parameters only when props are loaded
     def ip(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :ip, user: user, cached: cached, quiet: quiet)
+    end
+
+    # @note call without parameters only when props are loaded
+    def terminating?(user: nil, cached: false, quiet: false)
+      status?(user: user, status: :running,
+              quiet: quiet, cached: cached)[:success] &&
+        get_cached_prop(prop: :deleted, user: user, cached: true, quiet: true)
     end
 
     # @note call without parameters only when props are loaded

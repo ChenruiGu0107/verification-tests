@@ -137,13 +137,14 @@ module CucuShift
           sleep interval
         end
 
+        return success
+
+      ensure
         if stats
           stats[:seconds] = monotonic_seconds - start
           stats[:full_seconds] = stats[:seconds].to_i
           stats[:iterations] = iterations
         end
-
-        return success
       end
 
       # converts known label selectors to a [Array<String>] for use with cli
