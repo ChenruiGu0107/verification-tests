@@ -27,9 +27,7 @@ Feature: Regression testing cases
     And the pod named "mypod-<%= project.name %>" becomes ready
 
     # Now delete PVC
-    When I run the :delete client command with:
-      | object_type       | pvc                      |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
 
     # Test deleting dynamic PVC
@@ -45,9 +43,7 @@ Feature: Regression testing cases
     Then the step should succeed
     And the pod named "dynamic-<%= project.name %>" becomes ready
 
-    When I run the :delete client command with:
-      | object_type       | pvc                             |
-      | object_name_or_id | dynamic-pvc-<%= project.name %> |
+    When I ensure "dynamic-pvc-<%= project.name %>" pvc is deleted
     Then the step should succeed
 
     # New pods should be scheduled and ready
@@ -57,9 +53,7 @@ Feature: Regression testing cases
     And the pod named "hello-openshift" becomes ready
 
     # Verify all pods are running
-    When I run the :get client command with:
-      | resource | pods |
-
+    When I get project pods
     # Counting nfs-server pod, should match 4 times
     Then the output should contain 4 times:
       | Running |

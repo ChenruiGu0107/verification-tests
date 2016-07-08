@@ -82,12 +82,9 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the output should not contain "Permission denied"
 
-    When I run the :delete client command with:
-      | object_type       | pod                       |
-      | object_name_or_id | mypod-<%= project.name %> |
-    And I run the :delete client command with:
-      | object_type       | pvc                      |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "mypod-<%= project.name %>" pod is deleted
+    Then the step should succeed
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
     And the PV becomes :available within 300 seconds
     When I execute on the "nfs-server" pod:
@@ -135,12 +132,9 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the output should not contain "Permission denied"
 
-    When I run the :delete client command with:
-      | object_type       | pod                       |
-      | object_name_or_id | mypod-<%= project.name %> |
-    And I run the :delete client command with:
-      | object_type       | pvc                      |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "mypod-<%= project.name %>" pod is deleted
+    Then the step should succeed
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
     And the PV becomes :released
     When I execute on the "nfs-server" pod:
@@ -188,12 +182,9 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the output should not contain "Permission denied"
 
-    When I run the :delete client command with:
-      | object_type       | pod                       |
-      | object_name_or_id | mypod-<%= project.name %> |
-    And I run the :delete client command with:
-      | object_type       | pvc                      |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "mypod-<%= project.name %>" pod is deleted
+    Then the step should succeed
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
     And the PV becomes :released
     When I execute on the "nfs-server" pod:
@@ -228,12 +219,10 @@ Feature: NFS Persistent Volume
     Then the step should succeed
 
     # Delete pod and PVC to release the PV
-    Given I run the :delete client command with:
-      | object_type       | pod |
-      | object_name_or_id | nfs |
-    And I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc |
+    When I ensure "nfs" pod is deleted
+    Then the step should succeed
+    When I ensure "nfsc" pvc is deleted
+    Then the step should succeed
     And the PV becomes :released
 
     # After PV is released, verify the created file in nfs export is reserved.
@@ -270,12 +259,10 @@ Feature: NFS Persistent Volume
     Then the step should succeed
 
     # Delete pod and PVC to release the PV
-    Given I run the :delete client command with:
-      | object_type       | pod |
-      | object_name_or_id | nfs |
-    And I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc |
+    When I ensure "nfs" pod is deleted
+    Then the step should succeed
+    When I ensure "nfsc" pvc is deleted
+    Then the step should succeed
 
     # After PV is released, verify the created file in nfs export is reserved.
     When I execute on the "nfs-server" pod:
@@ -301,9 +288,7 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
-    When I run the :delete client command with:
-      | object_type       | pvc                      |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
     When I run the :get admin command with:
       | resource | pv/nfs-<%= project.name %> |
@@ -507,9 +492,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["accessModes"][0]| ReadWriteMany            |
     Then the step should succeed
     And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
-    When I run the :delete admin command with:
-      | object_type       | pv                         |
-      | object_name_or_id | pv-nfs-<%= project.name %> |
+    When admin ensure "pv-nfs-<%= project.name %>" pv is deleted
     Then the step should succeed
     And the "pvc-nfs-<%= project.name %>" PVC becomes :lost within 300 seconds
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:

@@ -35,8 +35,7 @@ Feature: NoDiskConflict
       | Pending          |
       | FailedScheduling |
       | NoDiskConflict   |
-    When I run the :get client command with:
-      | resource | events |
+    When I get project events
     Then the step should succeed
     And the output should contain:
       | FailedScheduling |

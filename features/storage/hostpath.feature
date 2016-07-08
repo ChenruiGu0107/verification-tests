@@ -49,15 +49,11 @@ Feature: Storage of Hostpath plugin testing
       | touch | /mnt/local/test |
     Then the step should succeed
 
-    When I run the :delete client command with:
-      | object_type       | pods                        |
-      | object_name_or_id | localpd-<%= cb.proj_name %> |
+    When I ensure "localpd-<%= cb.proj_name %>" pod is deleted
+    Then the step should succeed
+    When I ensure "localc-<%= cb.proj_name %>" pvc is deleted
     Then the step should succeed
 
-    Then I run the :delete client command with:
-      | object_type       | pvc                        |
-      | object_name_or_id | localc-<%= cb.proj_name %> |
-    Then the step should succeed
     And the "local-<%= cb.proj_name %>" PV becomes :released
 
     Given I use the "<%= cb.nodes[0].name %>" node
@@ -115,14 +111,10 @@ Feature: Storage of Hostpath plugin testing
       | touch | /mnt/local/test |
     Then the step should succeed
 
-    When I run the :delete client command with:
-      | object_type       | pods                        |
-      | object_name_or_id | localpd-<%= cb.proj_name %> |
+    When I ensure "localpd-<%= cb.proj_name %>" pod is deleted
     Then the step should succeed
 
-    Then I run the :delete client command with:
-      | object_type       | pvc                        |
-      | object_name_or_id | localc-<%= cb.proj_name %> |
+    When I ensure "localc-<%= cb.proj_name %>" pvc is deleted
     Then the step should succeed
     And the "local-<%= cb.proj_name %>" PV becomes :released
 
@@ -180,14 +172,10 @@ Feature: Storage of Hostpath plugin testing
       | touch | /mnt/local/test |
     Then the step should succeed
 
-    When I run the :delete client command with:
-      | object_type       | pods                        |
-      | object_name_or_id | localpd-<%= cb.proj_name %> |
+    When I ensure "localpd-<%= cb.proj_name %>" pod is deleted
     Then the step should succeed
 
-    Then I run the :delete client command with:
-      | object_type       | pvc                        |
-      | object_name_or_id | localc-<%= cb.proj_name %> |
+    When I ensure "localc-<%= cb.proj_name %>" pvc is deleted
     Then the step should succeed
     And the PV becomes :available within 300 seconds
 

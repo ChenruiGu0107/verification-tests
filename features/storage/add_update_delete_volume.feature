@@ -525,9 +525,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | app=mydb |
 
     # check after add pvc to dc
-    When I run the :get client command with:
-      | resource | dc   |
-      | output   | yaml |
+    When I get project deploymentconfig as YAML
     Then the step should succeed
     And the output should contain:
       | mountPath: /opt1                    |
@@ -551,9 +549,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | /opt1 |
       | /opt2 |
 
-    When I run the :get client command with:
-      | resource | pods |
-      | output   | yaml |
+    When I get project pods as YAML
     Then the step should succeed
     And the output should contain:
       | mountPath: /opt1                    |

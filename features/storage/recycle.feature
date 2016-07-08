@@ -39,13 +39,9 @@ Feature: Persistent Volume Recycling
       | mkdir | -p | /mnt/.folder1 | /mnt/folder2 | /mnt/.folder3/.folder33 | /mnt/folder4/folder44 | /mnt/.folder5/folder55 | /mnt/folder6/.folder66 |
     Then the step should succeed
 
-    When I run the :delete client command with:
-      | object_type       | pod                       |
-      | object_name_or_id | mypod-<%= project.name %> |
+    When I ensure "mypod-<%= project.name %>" pod is deleted
     Then the step should succeed
-    When I run the :delete client command with:
-      | object_type       | pvc                      |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
     And the PV becomes :available within 300 seconds
     When I execute on the "nfs-server" pod:
