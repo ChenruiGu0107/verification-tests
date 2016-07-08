@@ -847,6 +847,8 @@
   :options:
     :images: --images=<value>
     :stats_port: --stats-port=<value>
+    :stats_user: --stats-user=<value>
+    :stats_passwd: --stats-password=<value>
     :service_account: --service-account=<value>
     :force_subdomain: --force-subdomain=<value>
     :ports: --ports=<value>

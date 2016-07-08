@@ -579,32 +579,22 @@ Feature: Testing haproxy router
     And I use the "default" project
     And a pod becomes ready with labels:
       | deploymentconfig=router |
-    And evaluation of `rand(1000..2000)` is stored in the :stats_port clipboard
-    And an 8 characters random string of type :dns is stored into the :router_name clipboard
+    And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
     Given default router replica count is restored after scenario
+    And admin ensures "tc-516834" dc is deleted after scenario
+    And admin ensures "tc-516834" service is deleted after scenario
     When I run the :scale client command with:
       | resource | dc |
       | name | router |
       | replicas | 0 |
     Then the step should succeed
-    Given I register clean-up steps:
-    """
-    When I run the :delete client command with:
-      | object_type | dc |
-      | object_name_or_id | <%= cb.router_name %> |
-    Then the step should succeed
-    When I run the :delete client command with:
-      | object_type | svc |
-      | object_name_or_id | <%= cb.router_name %> |
-    Then the step should succeed
-    """
     When I run the :oadm_router admin command with:
-      | name | <%= cb.router_name %> |
+      | name | tc-516834 |
       | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
       | stats_port | <%= cb.stats_port %> |
       | service_account | router |
     And a pod becomes ready with labels:
-      | deploymentconfig=<%= cb.router_name %>|
+      | deploymentconfig=tc-516834 |
     When I execute on the pod:
       | /usr/bin/curl |  127.0.0.1:<%= cb.stats_port %>/healthz |
     Then the output should contain "Service ready"
@@ -698,3 +688,129 @@ Feature: Testing haproxy router
       | http://service-unsecure-<%= cb.project %>.apps.zzz.com:80/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
+
+
+  # @author zzhao@redhat.com
+  # @case_id 516836
+  @admin
+  @destructive
+  Scenario: Haproxy router health check will use 1936 port if user disable the stats port
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Given default router replica count is restored after scenario
+    And admin ensures "tc-516836" dc is deleted after scenario
+    And admin ensures "tc-516836" service is deleted after scenario
+    When I run the :scale client command with:
+      | resource | dc |
+      | name | router |
+      | replicas | 0 |
+    Then the step should succeed
+    When I run the :oadm_router admin command with:
+      | name | tc-516836 |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+      | stats_port | 0 |
+      | service_account | router |
+    And a pod becomes ready with labels:
+      | deploymentconfig=tc-516836 |
+    When I execute on the pod:
+      | /usr/bin/curl |  127.0.0.1:1936/healthz |
+    Then the output should contain "Service ready"
+
+  # @author zzhao@redhat.com
+  # @case_id 483532
+  @admin
+  @destructive
+  Scenario: User can access router stats using the specified port and username/pass
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
+    Given default router replica count is restored after scenario
+    And admin ensures "tc-483532" dc is deleted after scenario
+    And admin ensures "tc-483532" service is deleted after scenario
+    When I run the :scale client command with:
+      | resource | dc |
+      | name | router |
+      | replicas | 0 |
+    Then the step should succeed
+    When I run the :oadm_router admin command with:
+      | name | tc-483532 |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+      | stats_port | <%= cb.stats_port %> |
+      | stats_user | tc483532 |
+      | stats_passwd | 483532tc |
+      | service_account | router |
+    And a pod becomes ready with labels:
+      | deploymentconfig=tc-483532 |
+    When I execute on the pod:
+      | /usr/bin/curl |
+      |  -sS  |
+      |  -w  |
+      |  %{http_code} |
+      |  -u  |
+      |  tc483532:483532tc |
+      |  127.0.0.1:<%= cb.stats_port %> |
+      |  -o  |
+      |  /dev/null|
+    Then the output should match "200"
+    When I execute on the pod:
+      | /usr/bin/curl |
+      |  -sS  |
+      |  -w  |
+      |  %{http_code} |
+      |  -u  |
+      |  tc483532:wrong |
+      |  127.0.0.1:<%= cb.stats_port %> |
+      |  -o  |
+      |  /dev/null|
+    Then the output should match "401"
+
+
+  # @author zzhao@redhat.com
+  # @case_id 483529
+  @admin
+  @destructive
+  Scenario: router stats's password will be shown if creating router without providing stats password
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
+    Given default router replica count is restored after scenario
+    And admin ensures "tc-483529" dc is deleted after scenario
+    And admin ensures "tc-483529" service is deleted after scenario
+    When I run the :scale client command with:
+      | resource | dc |
+      | name | router |
+      | replicas | 0 |
+    Then the step should succeed
+    When I run the :oadm_router admin command with:
+      | name | tc-483529 |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+      | stats_port | <%= cb.stats_port %> |
+      | stats_user | tc483529|
+      | service_account | router |
+    And evaluation of `@result[:response]` is stored in the :router_output clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=tc-483529|
+    When I execute on the pod:
+      | bash |
+      | -c |
+      | echo -n "$STATS_PASSWORD" |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :stats_password clipboard
+    Then the expression should be true> cb.router_output.include?(cb.stats_password)
+    When I execute on the pod:
+      | /usr/bin/curl |
+      |  -sS  |
+      |  -w  |
+      |  %{http_code} |
+      |  -u  |
+      |  tc483529:<%= cb.stats_password %> |
+      |  127.0.0.1:<%= cb.stats_port %> |
+      |  -o  |
+      |  /dev/null|
+    Then the output should match "200"
