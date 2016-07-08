@@ -109,9 +109,7 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    Given I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
 
     #Create unmathed pvc of rox
@@ -128,9 +126,7 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    Given I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
 
     #Create rwo pvc
@@ -147,15 +143,11 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    Given I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
 
     #Delete the pv by myself
-    Given I run the :delete admin command with:
-      | object_type       | pv   |
-      | object_name_or_id | <%= pv.name %> |
+    When admin ensure "<%= pv.name %>" pv is deleted
     Then the step should succeed
 
     #Replace the access mode to RWO and then create pv
@@ -174,9 +166,7 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    Given I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
 
     #Create rox pvc
@@ -188,15 +178,11 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    Given I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
 
     #Delete pv and recreate the pv with ROX with the method in pv.rb to delete the pv at the clean up step
-    Given I run the :delete admin command with:
-      | object_type       | pv   |
-      | object_name_or_id | <%= pv.name %> |
+    When admin ensure "<%= pv.name %>" pv is deleted
     Then the step should succeed
     And I replace lines in "pv-template.json":
       |ReadWriteOnce|ReadOnlyMany|
@@ -213,9 +199,7 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | nfs-<%= project.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    Given I run the :delete client command with:
-      | object_type       | pvc  |
-      | object_name_or_id | nfsc-<%= project.name %> |
+    When I ensure "nfsc-<%= project.name %>" pvc is deleted
     Then the step should succeed
 
     #Create rwo pvc
@@ -384,9 +368,7 @@ Feature: Persistent Volume Claim binding policies
       | rror syncing pod                |
       | not all containers have started |
       | 0 != 1                          |
-    When I run the :delete client command with:
-      | object_type       | pod                       |
-      | object_name_or_id | mypod-<%= project.name %> |
+    When I ensure "mypod-<%= project.name %>" pod is deleted
     Then the step should succeed
     And I wait for the pod named "mypod-<%= project.name %>" to die regardless of current status
     """

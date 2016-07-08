@@ -82,13 +82,9 @@ Feature: Storage of GlusterFS plugin testing
       | touch | /mnt/gluster/tc508054 |
     Then the step should succeed
 
-    When I run the :delete client command with:
-      | object_type       | pod                       |
-      | object_name_or_id | mypod-<%= project.name %> |
+    When I ensure "mypod-<%= project.name %>" pod is deleted
     Then the step should succeed
-    When I run the :delete client command with:
-      | object_type       | pvc                             |
-      | object_name_or_id | pvc-gluster-<%= project.name %> |
+    When I ensure "pvc-gluster-<%= project.name %>" pvc is deleted
     Then the step should succeed
     And the PV becomes :released
     When I execute on the "glusterd" pod:

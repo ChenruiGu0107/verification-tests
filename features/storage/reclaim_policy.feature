@@ -22,13 +22,9 @@ Feature: Persistent Volume reclaim policy tests
       | ["metadata"]["name"]                                         | pod488979-<%= project.name %> |
     Then the step should succeed
     Given the pod named "pod488979-<%= project.name %>" becomes ready
-    When I run the :delete client command with:
-      | object_type       | pod                           |
-      | object_name_or_id | pod488979-<%= project.name %> |
+    When I ensure "pod488979-<%= project.name %>" pod is deleted
     Then the step should succeed
-    When I run the :delete client command with:
-      | object_type       | pvc                         |
-      | object_name_or_id | pvc-nfs-<%= project.name %> |
+    When I ensure "pvc-nfs-<%= project.name %>" pvc is deleted
     Then the step should succeed
     And the PV becomes :available within 300 seconds
 
@@ -65,13 +61,9 @@ Feature: Persistent Volume reclaim policy tests
       | touch | /mnt/testfile |
     Then the step should succeed
 
-    When I run the :delete client command with:
-      | object_type       | pod                     |
-      | object_name_or_id | pod-<%= project.name %> |
+    When I ensure "pod-<%= project.name %>" pod is deleted
     Then the step should succeed
-    When I run the :delete client command with:
-      | object_type       | pvc                     |
-      | object_name_or_id | pvc-<%= project.name %> |
+    When I ensure "pvc-<%= project.name %>" pvc is deleted
     Then the step should succeed
     And the PV becomes :released
 
@@ -114,13 +106,9 @@ Feature: Persistent Volume reclaim policy tests
       | touch | /mnt/testfile |
     Then the step should succeed
 
-    When I run the :delete client command with:
-      | object_type       | pod                     |
-      | object_name_or_id | pod-<%= project.name %> |
+    When I ensure "pod-<%= project.name %>" pod is deleted
     Then the step should succeed
-    When I run the :delete client command with:
-      | object_type       | pvc                     |
-      | object_name_or_id | pvc-<%= project.name %> |
+    When I ensure "pvc-<%= project.name %>" pvc is deleted
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pv.name %>" to disappear within 1200 seconds
