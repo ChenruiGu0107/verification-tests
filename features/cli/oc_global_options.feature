@@ -236,3 +236,54 @@ Feature: oc global options (oc options) related scenarios
       | context  | <%= cb.prev_c['name'] %> |
       | config   | new.config  |
     Then the step should succeed
+
+  # @author xxia@redhat.com
+  # @case_id 509016
+  Scenario: Check server version to match client version
+    Given I have a project
+
+    # The following steps are workaround that can provide client oc with different version from server.
+    # "different" is ensured, because in regular test run, server is ose, while this workaround's client oc is origin oc.
+    When I run the :run client command with:
+      | name      | mydc   |
+      | image     | <%= project_docker_repo %>openshift/origin  |
+      | dry_run   |        |
+      | -o        | yaml   |
+      | command   | true   |
+      | cmd       | sleep  |
+      | cmd       | 3600   |
+    Then the step should succeed
+    And I save the output to file> dc.yaml
+
+    # The following oc set volume is to make sure the openshift/origin image pod
+    # can be running in Online test due to Online limitation (https://bugzilla.redhat.com/show_bug.cgi?id=1336318#c1)
+    When I run the :set_volume client command with:
+      | f         | dc.yaml   |
+      | action    | --add     |
+      | mount-path| /var/lib/origin |
+      | o         | yaml      |
+    Then the step should succeed
+    And I save the output to file> dc_volume.yaml
+
+    When I run the :create client command with:
+      | f         | dc_volume.yaml   |
+    Then the step should succeed
+
+    When I run the :policy_add_role_to_user client command with:
+      | role           | view        |
+      | serviceaccount | default     |
+    Then the step should succeed
+    # So far, the above steps are preparation steps
+
+    Given a pod becomes ready with labels:
+      | deploymentconfig=mydc |
+    # Kubernets resource
+    When I execute on the pod:
+      | oc  | get | pod | --match-server-version |
+    Then the step should fail
+    And the output should match "server version.*differs from client version"
+    # OpenShift resource
+    When I execute on the pod:
+      | oc  | get | dc  | --match-server-version |
+    Then the step should succeed
+
