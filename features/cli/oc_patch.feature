@@ -208,3 +208,110 @@ Feature: oc patch related scenarios
       | STATUS\\s+RESTARTS  |
       | [Rr]unning\\s+1     |
     """
+
+  # @author yanpzhan@redhat.com
+  # @case_id 531246
+  Scenario: oc patch resource with different values for --type
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/multi-portsvc.json |
+    Then the step should succeed
+
+    # check "json" type
+    When I run the :patch client command with:
+      | resource      | svc           |
+      | resource_name | multi-portsvc |
+      | type          | json          |
+      | p             | [{"op": "replace", "path": "/spec/ports/0/targetPort", "value": 444}] |
+    Then the step should succeed
+
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | svc           |
+      | resource_name | multi-portsvc |
+      | template      | {{.spec.ports}} |
+    Then the step should succeed
+    And the output should contain:
+      | name:https |
+      | protocol:TCP |
+      | port:27443 |
+      | targetPort:444 |
+    And the output should not contain "targetPort:443"
+    """
+
+    # check "strategic" type
+    When I run the :patch client command with:
+      | resource      | svc           |
+      | resource_name | multi-portsvc |
+      | type          | strategic     |
+      | p             | spec:\n  ports:\n  - port: 27443\n    targetPort: 445 |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | svc           |
+      | resource_name | multi-portsvc |
+      | template      | {{.spec.ports}} |
+    Then the step should succeed
+    And the output should contain:
+      | name:https |
+      | protocol:TCP |
+      | port:27443 |
+      | targetPort:445 |
+      | name:http |
+      | port:27017 |
+      | targetPort:80 |
+    And the output should not contain "targetPort:444"
+    """
+
+    # check "merge" type
+    When I run the :patch client command with:
+      | resource      | svc           |
+      | resource_name | multi-portsvc |
+      | type          | merge         |
+      | p             | spec:\n  ports:\n  - port: 27443\n    targetPort: 446 |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | svc           |
+      | resource_name | multi-portsvc |
+      | template      | {{.spec.ports}} |
+    Then the step should succeed
+    And the output should contain:
+      | port:27443 |
+      | targetPort:446 |
+      | protocol:TCP |
+    And the output should not contain:
+      | name:https |
+      | name:http |
+      | port:27017 |
+      | targetPort:80 |
+    """
+
+    When I run the :patch client command with:
+      | resource      | svc           |
+      | resource_name | multi-portsvc |
+      | type          | json          |
+      | p             | [{"op": "delete", "path": "/spec/ports/0/targetPort", "value": 444}] |
+    Then the step should fail
+    And the output should match:
+      | Unexpected kind:\\s+delete |
+
+    When I run the :patch client command with:
+      | resource      | svc           |
+      | resource_name | multi-portsvc |
+      | type          | jso          |
+    Then the step should fail
+    And the output should match:
+      | type must be one of .*json merge strategic.*|
+
+    When I run the :patch client command with:
+      | resource      | svc           |
+      | resource_name | multi-portsvc |
+      | type          | strategic     |
+      | p             | spec:\n  ports:\n  -\n    targetPort: 446 |
+    Then the step should fail
+     And the output should match:
+      | does not contain declared merge key |
