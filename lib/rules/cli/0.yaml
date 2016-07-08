@@ -509,6 +509,8 @@
     :c: --container=<value>
     :delete: --delete=<value>
     :strategy: --strategy=<value>
+    :w: --watch=<value>
+    :delete: --delete=<value>
 :run:
   :cmd: oc run <name>
   :options:
