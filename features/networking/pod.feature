@@ -9,9 +9,12 @@ Feature: Pod related networking scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod_with_udp_port_4789.json |
     Then the step should succeed
     Given the pod named "hello-pod" status becomes :pending
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I run the :describe client command with:
       | resource      | pod   |
     Then the output should contain "address already in use"
+    """
 
   # @author bmeng@redhat.com
   # @case_id 516869
