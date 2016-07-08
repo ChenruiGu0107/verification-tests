@@ -10,9 +10,9 @@ Feature: Persistent Volume Claim binding policies
 
     # Create 2 PVs
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-all-access-modes.json" where:
-      | ["metadata"]["name"]      | nfs-<%= project.name %> |
+      | ["metadata"]["name"] | nfs-<%= project.name %> |
     And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-rox-rwx.json" where:
-      | ["metadata"]["name"]      | nfs1-<%= project.name %> |
+      | ["metadata"]["name"] | nfs1-<%= project.name %> |
 
     # Create 1 PVC
     And I run the :create client command with:
@@ -33,9 +33,9 @@ Feature: Persistent Volume Claim binding policies
 
     # Create 2 PVs
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-all-access-modes.json" where:
-      | ["metadata"]["name"]      | nfs-<%= project.name %> |
+      | ["metadata"]["name"] | nfs-<%= project.name %> |
     And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-rwo-rox.json" where:
-      | ["metadata"]["name"]      | nfs1-<%= project.name %> |
+      | ["metadata"]["name"] | nfs1-<%= project.name %> |
 
     # Create 1 PVC
     And I run the :create client command with:
@@ -68,9 +68,9 @@ Feature: Persistent Volume Claim binding policies
     And I wait for the steps to pass:
     """
     When I run the :get client command with:
-      | resource  | pod  |
+      | resource      | pod              |
       | resource_name | hooks-1-hook-pre |
-      |  o        | yaml |
+      |  o            | yaml             |
     Then the output by order should match:
       | - mountPath: /opt1     |
       | name: v1               |
@@ -89,7 +89,7 @@ Feature: Persistent Volume Claim binding policies
     #Create PV by using create admin method to avoid the second time delete at pv.rb
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json"
     And I replace lines in "pv-template.json":
-      |#NFS-Service-IP#|<%= service.ip %>|
+      | #NFS-Service-IP# | <%= service.ip %> |
     When admin creates a PV from "pv-template.json" where:
       | ["metadata"]["name"] | nfs-<%= project.name %> |
     Then the step should succeed
@@ -97,15 +97,15 @@ Feature: Persistent Volume Claim binding policies
     #Create a bigger size pvc
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json"
     And I replace lines in "claim-rwx.json":
-      |nfsc|nfsc-<%= project.name %>|
-      |5Gi|10Gi|
+      | nfsc | nfsc-<%= project.name %> |
+      | 5Gi  | 10Gi                     |
     And I run the :create client command with:
       | f | claim-rwx.json |
     Then the step should succeed
 
     #Tricky method here, to avoid conflicting with other pv/pvc
     When I run the :get admin command with:
-      | resource | pv |
+      | resource      | pv             |
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
@@ -115,14 +115,14 @@ Feature: Persistent Volume Claim binding policies
     #Create unmathed pvc of rox
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json"
     And I replace lines in "claim-rox.json":
-      |nfsc|nfsc-<%= project.name %>|
+      | nfsc | nfsc-<%= project.name %> |
     And I run the :create client command with:
       | f | claim-rox.json |
     Then the step should succeed
 
     #Verify the pv does not bind the pvc I created
     When I run the :get admin command with:
-      | resource | pv |
+      | resource      | pv             |
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
@@ -132,14 +132,14 @@ Feature: Persistent Volume Claim binding policies
     #Create rwo pvc
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json"
     And I replace lines in "claim-rwo.json":
-      |nfsc|nfsc-<%= project.name %>|
+      | nfsc | nfsc-<%= project.name %> |
     And I run the :create client command with:
       | f | claim-rwo.json |
     Then the step should succeed
 
     #Verify unbound here
     When I run the :get admin command with:
-      | resource | pv |
+      | resource      | pv             |
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
@@ -152,7 +152,7 @@ Feature: Persistent Volume Claim binding policies
 
     #Replace the access mode to RWO and then create pv
     And I replace lines in "pv-template.json":
-      |ReadWriteMany|ReadWriteOnce|
+      | ReadWriteMany | ReadWriteOnce |
     When admin creates a PV from "pv-template.json" where:
       | ["metadata"]["name"] | nfs-<%= project.name %> |
     Then the step should succeed
@@ -162,7 +162,7 @@ Feature: Persistent Volume Claim binding policies
       | f | claim-rwx.json |
     Then the step should succeed
     When I run the :get admin command with:
-      | resource | pv |
+      | resource      | pv             |
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
@@ -174,7 +174,7 @@ Feature: Persistent Volume Claim binding policies
       | f | claim-rox.json |
     Then the step should succeed
     When I run the :get admin command with:
-      | resource | pv |
+      | resource      | pv             |
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
@@ -185,7 +185,7 @@ Feature: Persistent Volume Claim binding policies
     When admin ensure "<%= pv.name %>" pv is deleted
     Then the step should succeed
     And I replace lines in "pv-template.json":
-      |ReadWriteOnce|ReadOnlyMany|
+      | ReadWriteOnce | ReadOnlyMany |
     When admin creates a PV from "pv-template.json" where:
       | ["metadata"]["name"] | nfs-<%= project.name %> |
     Then the step should succeed
@@ -195,7 +195,7 @@ Feature: Persistent Volume Claim binding policies
       | f | claim-rwx.json |
     Then the step should succeed
     When I run the :get admin command with:
-      | resource | pv |
+      | resource      | pv                      |
       | resource_name | nfs-<%= project.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
@@ -207,11 +207,10 @@ Feature: Persistent Volume Claim binding policies
       | f | claim-rwo.json |
     Then the step should succeed
     When I run the :get admin command with:
-      | resource | pv |
+      | resource      | pv                      |
       | resource_name | nfs-<%= project.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-
 
   # @author wehe@redhat.com
   # @case_id 501013
@@ -290,7 +289,7 @@ Feature: Persistent Volume Claim binding policies
     And I have a NFS service in the project
 
     And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
-      | ["metadata"]["name"]       | nfs-<%= project.name %>  |
+      | ["metadata"]["name"]       | nfs-<%= project.name %>          |
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0] | ReadWriteMany                    |
       | ["spec"]["accessModes"][1] | ReadOnlyMany                     |
@@ -318,7 +317,7 @@ Feature: Persistent Volume Claim binding policies
     """
 
     Given 20 PVs become :available within 20 seconds with labels:
-      |usedFor=tc522215|
+      | usedFor=tc522215 |
 
     #Loop 5 times about pv and pvc bound and unbound
     Given I run the steps 5 times:
@@ -326,12 +325,12 @@ Feature: Persistent Volume Claim binding policies
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/tc522215/pvc-20.json |
     Given 20 PVCs become :bound within 50 seconds with labels:
-      |usedFor=tc522215|
+      | usedFor=tc522215 |
     Then I run the :delete client command with:
       | object_type  | pvc  |
       | all          | all  |
     Given 20 PVs become :available within 500 seconds with labels:
-      |usedFor=tc522215|
+      | usedFor=tc522215 |
     """
 
   # @author lxia@redhat.com
@@ -343,14 +342,14 @@ Feature: Persistent Volume Claim binding policies
     And I have a NFS service in the project
 
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
-      | ["spec"]["accessModes"][0]| ReadWriteOnce                    |
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-      | ["spec"]["persistentVolumeReclaimPolicy"]| Recycle           |
+      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
+      | ["spec"]["accessModes"][0]                | ReadWriteOnce                    |
+      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                          |
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]| ReadWriteOnce         |
+      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
