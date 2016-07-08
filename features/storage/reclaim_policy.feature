@@ -22,10 +22,8 @@ Feature: Persistent Volume reclaim policy tests
       | ["metadata"]["name"]                                         | pod488979-<%= project.name %> |
     Then the step should succeed
     Given the pod named "pod488979-<%= project.name %>" becomes ready
-    When I ensure "pod488979-<%= project.name %>" pod is deleted
-    Then the step should succeed
-    When I ensure "pvc-nfs-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "pod488979-<%= project.name %>" pod is deleted
+    And I ensure "pvc-nfs-<%= project.name %>" pvc is deleted
     And the PV becomes :available within 300 seconds
 
   # @author lxia@redhat.com
@@ -61,10 +59,8 @@ Feature: Persistent Volume reclaim policy tests
       | touch | /mnt/testfile |
     Then the step should succeed
 
-    When I ensure "pod-<%= project.name %>" pod is deleted
-    Then the step should succeed
-    When I ensure "pvc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "pod-<%= project.name %>" pod is deleted
+    And I ensure "pvc-<%= project.name %>" pvc is deleted
     And the PV becomes :released
 
     Examples:
@@ -106,10 +102,8 @@ Feature: Persistent Volume reclaim policy tests
       | touch | /mnt/testfile |
     Then the step should succeed
 
-    When I ensure "pod-<%= project.name %>" pod is deleted
-    Then the step should succeed
-    When I ensure "pvc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "pod-<%= project.name %>" pod is deleted
+    And I ensure "pvc-<%= project.name %>" pvc is deleted
     Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pv.name %>" to disappear within 1200 seconds
 

@@ -82,10 +82,8 @@ Feature: Storage of GlusterFS plugin testing
       | touch | /mnt/gluster/tc508054 |
     Then the step should succeed
 
-    When I ensure "mypod-<%= project.name %>" pod is deleted
-    Then the step should succeed
-    When I ensure "pvc-gluster-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "mypod-<%= project.name %>" pod is deleted
+    And I ensure "pvc-gluster-<%= project.name %>" pvc is deleted
     And the PV becomes :released
     When I execute on the "glusterd" pod:
       | ls | /vol/tc508054 |

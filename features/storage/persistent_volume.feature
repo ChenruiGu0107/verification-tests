@@ -109,8 +109,7 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
 
     #Create unmathed pvc of rox
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json"
@@ -126,8 +125,7 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
 
     #Create rwo pvc
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json"
@@ -143,12 +141,10 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
 
     #Delete the pv by myself
-    When admin ensure "<%= pv.name %>" pv is deleted
-    Then the step should succeed
+    Given admin ensures "<%= pv.name %>" pv is deleted
 
     #Replace the access mode to RWO and then create pv
     And I replace lines in "pv-template.json":
@@ -166,8 +162,7 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
 
     #Create rox pvc
     And I run the :create client command with:
@@ -178,12 +173,10 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | <%= pv.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
 
     #Delete pv and recreate the pv with ROX with the method in pv.rb to delete the pv at the clean up step
-    When admin ensure "<%= pv.name %>" pv is deleted
-    Then the step should succeed
+    Given admin ensures "<%= pv.name %>" pv is deleted
     And I replace lines in "pv-template.json":
       | ReadWriteOnce | ReadOnlyMany |
     When admin creates a PV from "pv-template.json" where:
@@ -199,8 +192,7 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | nfs-<%= project.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-    When I ensure "nfsc-<%= project.name %>" pvc is deleted
-    Then the step should succeed
+    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
 
     #Create rwo pvc
     And I run the :create client command with:
@@ -367,8 +359,7 @@ Feature: Persistent Volume Claim binding policies
       | rror syncing pod                |
       | not all containers have started |
       | 0 != 1                          |
-    When I ensure "mypod-<%= project.name %>" pod is deleted
-    Then the step should succeed
+    Given I ensure "mypod-<%= project.name %>" pod is deleted
     And I wait for the pod named "mypod-<%= project.name %>" to die regardless of current status
     """
 
