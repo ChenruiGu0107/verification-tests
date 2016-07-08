@@ -60,3 +60,35 @@ Feature:policy related features on web console
     Then the step should succeed
     And the output should not contain:
       | <%= project.name %> |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 478982
+  @admin
+  @destructive
+  Scenario: Cluster-admin can completely disable access to request project.
+    Given cluster roles are restored after scenario
+    Given as admin I replace resource "clusterrole" named "basic-user":
+      | projectrequests\n  verbs:\n  - list\n | projectrequests\n  verbs:\n |
+    Then the step should succeed
+
+    When I run the :describe admin command with:
+      | resource         | clusterrole     |
+      | name             | basic-user      |
+    Then the output should not match:
+      | list.*projectrequests              |
+    ## bug 1293791
+    Given I login via web console
+    When I get the html of the web page
+    Then the output should match:
+      | cluster admin can create a project for you    |
+    And the output should not contain:
+      | oadm new-project                              |
+    ## bug 1262696
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %>        |
+      | token    | <%= user.get_bearer_token.token %> |
+      | insecure | true                               |
+      | config   | new.config                         |
+    Then the step should succeed
+    And the output should not contain:
+      | oc new-project                                |

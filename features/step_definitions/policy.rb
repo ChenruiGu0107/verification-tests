@@ -92,3 +92,20 @@ Given /^cluster role #{QUOTED} is (added to|removed from) the #{QUOTED} (user|gr
     raise "could not give #{which} #{type} the #{role} role"
   end
 end
+
+Given /^cluster roles are restored after scenario$/ do
+  ensure_admin_tagged
+  _admin = admin
+
+  @result = _admin.cli_exec(:get, resource: 'clusterrole', o: 'yaml')
+  if @result[:success]
+    orig_policy = @result[:response]
+    logger.info "clusterrole restore tear_down could be registered:\n"
+  else
+    raise "could not get clusterrole\n"
+  end
+
+  teardown_add {
+    _admin.cli_exec(:oadm_policy_reconcile_cluster_roles, {confirm: 'true'})
+  }
+end

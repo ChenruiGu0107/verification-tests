@@ -787,6 +787,10 @@
     :serviceaccount: --serviceaccount=<value>
 :oadm_policy_add_scc_to_group:
   :cmd: oadm policy add-scc-to-group <scc> <group_name>
+:oadm_policy_reconcile_cluster_roles:
+  :cmd: oadm policy reconcile-cluster-roles
+  :options:
+    :confirm: --confirm=<value>
 :oadm_policy_remove_scc_from_group:
   :cmd: oadm policy remove-scc-from-group <scc> <group_name>
 :oadm_policy_who_can:
