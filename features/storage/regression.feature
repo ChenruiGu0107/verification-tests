@@ -53,9 +53,7 @@ Feature: Regression testing cases
     And the pod named "hello-openshift" becomes ready
 
     # Verify all pods are running
-    When I run the :get client command with:
-      | resource | pods |
-
+    When I get project pods
     # Counting nfs-server pod, should match 4 times
     Then the output should contain 4 times:
       | Running |
