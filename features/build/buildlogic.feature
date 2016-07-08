@@ -365,14 +365,14 @@ Feature: buildlogic.feature
     And I have an ssh-git service in the project
     And the "secret" file is created with the following lines:
       | <%= cb.ssh_private_key.to_pem %>  |
-    And I run the :oc_secrets_new_sshauth client command with:
+    When I run the :oc_secrets_new_sshauth client command with:
       | ssh_privatekey | secret           |
       | secret_name    | mysecret         |
     Then the step should succeed
     When I execute on the pod:
       | bash           |
       | -c             |
-      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift-qe/ruby-ex sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
       | image_stream   | openshift/ruby:2.2                            |
@@ -384,28 +384,110 @@ Feature: buildlogic.feature
     When I run the :patch client command with:
       | resource       | buildconfig                                                   |
       | resource_name  | ruby-hello-world                                              |
-      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>","ref":"master"},"sourceSecret":{"name":"mysecret"}}}} |
-   Then the step should succeed
-   And I run the :start_build client command with:
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>","ref":"test-tcms438840"},"sourceSecret":{"name":"mysecret"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
       | buildconfig    | ruby-hello-world   |
-   Then the "ruby-hello-world-2" build was created
-   Then the "ruby-hello-world-2" build completes
-   When I get project BuildConfig as JSON
-   And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
-   Given I download a file from "https://raw.githubusercontent.com/openshift/origin/801af5be5efa079876dd5fd258932de177491249/pkg/build/webhook/generic/testdata/push-gitlab.json"
-   When I replace lines in "push-gitlab.json":
-     | git@gitlab.com:jondoe/repo.git   | git@gitlab.com:openshift/ruby-hello-world.git |
-   When I perform the HTTP request:
-   """
-   :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
-   :method: post
-   :headers:
-     :content_type: application/json
-   :payload: push-gitlab.json
-   """
-   Then the step should succeed
-   Then the "ruby-hello-world-3" build was created
-   Then the "ruby-hello-world-3" build completes
+    Then the step should succeed
+    And the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-2" build completes
+    When I get project BuildConfig as JSON
+    And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/generic/testdata/push-generic.json"
+    When I replace lines in "push-generic.json":
+      | refs/heads/master                        | refs/heads/test-tcms438840               |
+      | git://mygitserver/myrepo.git             | git@git-server:sample.git                |
+      | 9bdc3a26ff933b32f3e558636b58aea86a69f051 | 89af0dd3183f71b9ec848d5cc2b55599244de867 |
+    And I perform the HTTP request:
+    """
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
+    :method: post
+    :headers:
+      :content_type: application/json
+    :payload: push-generic.json
+    """
+    Then the step should succeed
+    And the "ruby-hello-world-3" build was created
+    And the "ruby-hello-world-3" build completes
+
+  # @author dyan@redhat.com
+  # case_id 482196
+  Scenario: Trigger generic webhooks with invalid branch or commit ID for external private git solutions - gitlab
+    Given I have a project
+    And I have an ssh-git service in the project
+    And the "secret" file is created with the following lines:
+      | <%= cb.ssh_private_key.to_pem %>  |
+    When I run the :oc_secrets_new_sshauth client command with:
+      | ssh_privatekey | secret           |
+      | secret_name    | mysecret         |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash           |
+      | -c             |
+      | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift-qe/ruby-ex sample.git |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | image_stream   | openshift/ruby:2.2                            |
+      | code           | https://github.com/openshift/ruby-hello-world |
+      | name           | ruby-hello-world                              |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build completes
+    When I run the :patch client command with:
+      | resource       | buildconfig                                                   |
+      | resource_name  | ruby-hello-world                                              |
+      | p              | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>","ref":"test-tcms438840"},"sourceSecret":{"name":"mysecret"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig    | ruby-hello-world   |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-2" build completes
+    When I get project BuildConfig as JSON
+    And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/generic/testdata/push-generic.json"
+    When I replace lines in "push-generic.json":
+      | refs/heads/master                        | refs/heads/test123                       |
+      | git://mygitserver/myrepo.git             | git@git-server:sample.git                |
+      | 9bdc3a26ff933b32f3e558636b58aea86a69f051 | 89af0dd3183f71b9ec848d5cc2b55599244de867 |
+    Then the step should succeed
+    When I perform the HTTP request:
+    """
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
+    :method: post
+    :headers:
+      :content_type: application/json
+    :payload: <%= File.read("push-generic.json").to_json %>
+    """
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | build |
+    Then the step should succeed
+    And the output should not contain "ruby-hello-world-3"
+    When I replace lines in "push-generic.json":
+      | refs/heads/test123                        | refs/heads/test-tcms438840 |
+      | 89af0dd3183f71b9ec848d5cc2b55599244de867  | 123456 |
+    Then the step should succeed
+    When I perform the HTTP request:
+    """
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
+    :method: post
+    :headers:
+      :content_type: application/json
+    :payload: <%= File.read("push-generic.json").to_json %>
+    """
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | build |
+    Then the step should succeed
+    Given the "ruby-hello-world-3" build was created
+    And the "ruby-hello-world-3" build failed
+    When I run the :logs client command with:
+      | resource_name | build/ruby-hello-world-3 |
+    Then the step should succeed
+    And the output should match:
+      | [Ee]rror  |
+      | 123456 |
 
   # @author yantan@redhat.com
   # @case_id 482194
