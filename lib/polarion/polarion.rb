@@ -1,9 +1,10 @@
-require 'base_helper'
+require 'common'
 require 'http'
 require 'lolsoap'
 
 module CucuShift
-  class Polarion
+module Polarion
+  class Connector
     include Common::Helper
 
     PROJECT  = "ProjectWebService"
@@ -13,6 +14,11 @@ module CucuShift
     SESSION  = "SessionWebService"
     TRACKER  = "TrackerWebService"
     TEST     = "TestManagementWebService"
+
+    # for some reason don't want to use uri class here
+    # this should match URL up to the host:port part
+    # if unstable we can use URI(url).host = ...
+    URL_HOST_MATCH = %r{^.+?://.+?(?=$|[?#/])}
 
     def initialize(options={})
       svc_name = options[:service_name] ||
@@ -60,6 +66,22 @@ module CucuShift
       Collections.map_hash(hash) { |k, v| [k.tr('-','_').downcase.to_sym, v] }
     end
 
+    def deep_snake(hash)
+      Collections.deep_map_hash(hash) { |k,v|
+        new_k = camel_to_snake_case(k).to_sym
+        if Array === v
+          new_v = v.map { |e| Hash === e ? deep_snake(e) : e }
+        else
+          new_v = v
+        end
+        [ new_k, new_v ]
+      }
+    end
+
+    def new_client
+      Connector.new(opts)
+    end
+
     private def opts
       @options
     end
@@ -98,29 +120,37 @@ module CucuShift
     # @return [LolSoap::Response] with monkey patched #raw method
     # @yield [body_builder] to set request params as with request.body.do |b|
     # @note all SOAP requests use the POST method
-    private def do_request(type, op, login: true)
+    private def do_request(type, op, login: true, raise_faults: true,
+                           sticky_session: true)
       raise "you need to supply block" unless block_given?
 
       cl = client(type)
       req = cl.request(op)
       yield req.body # req.body {|b| yield b}
-      req.header.__node__ << login() if login
+      req.header.__node__ << auth_header if login
+
       raw = Http.request(
-                          method: :post,
-                          url: req.url,
-                          headers: headers_sym(req.headers),
-                          payload: req.content,
-                          raise_on_error: false,
-                          **ssl_opts
-                        )
-      if raw[:success]
-        res = cl.response(req, raw[:response])
-      elsif raw[:exitstatus] == 500 && raw[:response].include?(">Not authorized.<") && login && !session_safe?
+        method: :post,
+        url: login && sticky_session ? use_session_host(req.url) : req.url,
+        headers: headers_sym(req.headers),
+        payload: req.content,
+        raise_on_error: false,
+        **ssl_opts
+      )
+
+      if raw[:exitstatus] == 500 && raw[:response].include?(">Not authorized.<") && login && !session_safe?
         ## possibly session has expired, try to login again
         logout
         return do_request(type, op, login: true) { |b| yield(b) }
+      elsif raw[:success] || raw[:exitstatus].between?(500, 599)
+        res = cl.response(req, raw[:response])
       else
         raise raw[:error]
+      end
+
+      if res.fault && raise_faults
+        raise PolarionCallError.new(res),
+          "failed to perform #{op}, #{res.body_hash["faultstring"]}"
       end
 
       res.instance_variable_set(:@raw, raw[:response])
@@ -152,22 +182,29 @@ module CucuShift
     # have to investigate when that can be an issue
     # I never saw issues when getting WSDL files close after one another
     #   but saw issues after some time of inactivity and then login again
-    # I guess one solution would be to download all WSDLs after login
-    # Another solution might be to save endpoint server on login and override
-    #   it on every new WSDL download.
-    # For the time being, I'll just reset cache on login and see how it goes.
+    # This method does nothing as using same host always is now implemented
     private def reset_state
-      @wsdl_cache = nil
-      @client_cache = nil
+      # @wsdl_cache = nil
+      # @client_cache = nil
     end
 
 
-    # login should actually perform login only if needed (no session or expired)
     # @return [String, Nokogiri::XML::NodeSet, Nokogiri::XML::Node] that is
     #   only SessionID header so far
-    def login
+    def auth_header
       # TODO: check if session expired if possible
-      @auth_header ||= do_login
+      login unless @auth_header
+      @auth_header
+    end
+
+    # this methed should help when downloading wsdl not in cache and load
+    #   balancer gives us WSDL file not from the server we performed auth
+    #   against
+    # @return [String] the same url with proto://host:port part changed to the
+    #   host that was used for authentiation
+    private def use_session_host(url)
+      login unless @auth_host
+      url.sub(URL_HOST_MATCH) { |m| @auth_host }
     end
 
     ############ REQUEST HELPERS BELOW ############
@@ -175,13 +212,15 @@ module CucuShift
     # execute login unconditionally and set session header if successful
     # @return [String, Nokogiri::XML::NodeSet, Nokogiri::XML::Node] that is
     #   only SessionID header so far
-    def do_login
+    def login
       reset_state
       res = do_request(SESSION, 'logIn', login: false) do |b|
         b.userName opts[:user]
         b.password opts[:password]
       end
       session_checkpoint!
+
+      @auth_host = res.request.url.match(URL_HOST_MATCH)[0]
       # dup because of https://github.com/sparklemotion/nokogiri/issues/1200
       @auth_header = res.doc.xpath("//*[local-name()='sessionID']")[0].dup
     end
@@ -201,6 +240,7 @@ module CucuShift
       raise if raise_on_error
     ensure
       @auth_header = nil
+      @auth_host = nil
     end
 
     def begin_transaction
@@ -227,14 +267,18 @@ module CucuShift
       def user_uri(username)
         "subterra:data-service:objects:/default/${User}#{username}"
       end
-      def workitem_uri(workitem_id)
-        "subterra:data-service:objects:/default/OSE${WorkItem}#{workitem_id}"
+      def workitem_uri(workitem_id, project_id)
+        "subterra:data-service:objects:/default/#{project_id}${WorkItem}#{workitem_id}"
       end
-      def testrun_uri(testrun_id)
-        "subterra:data-service:objects:/default/OSE${TestRun}#{testrun_id}"
+      def testrun_uri(testrun_id, project_id)
+        "subterra:data-service:objects:/default/#{project_id}${TestRun}#{testrun_id}"
       end
-      def testrun_template_uri(template_id)
-        testrun_uri(template_id)
+      def testrun_template_uri(template_id, project_id)
+        testrun_uri(template_id, project_id)
+      end
+      def project_uri(project_id)
+        # we can get this with get_project as well
+        "subterra:data-service:objects:/default/#{project_id}${Project}#{project_id}"
       end
     end
 
@@ -255,7 +299,23 @@ module CucuShift
         @builder_methods ||= MethodHolder.new(self, self.class.const_get(__method__.upcase))
       end
       def tracker
-        @tracker_methods ||= MethodHolder.new(self, self.class.const_get(__method__.upcase))
+        # @tracker_methods ||= MethodHolder.new(self, self.class.const_get(__method__.upcase))
+
+        ## artificially add :id element to custom fields value; WSDL?!!
+        return @tracker_methods if @tracker_methods
+        @tracker_methods = MethodHolder.new(self, self.class.const_get(__method__.upcase))
+        custom_field_val_sub = @tracker_methods.instance_variable_get(:@snake_map)[:create_work_item][:sub][:content][:sub][:custom_fields][:sub][:custom][:sub][:value][:sub] ||= {}
+        custom_field_val_sub[:id] = {:camel=>"id"} # for enums
+        custom_field_val_sub[:type] = {:camel=>"type"} # for multiline strings
+        custom_field_val_sub[:content] = {:camel=>"content"} # for strings
+        custom_field_val_sub[:content_lossy] = {:camel=>"contentLossy"} # for strings
+        return @tracker_methods
+
+        ## allow arbitrary structures under custom fields value
+        # return @tracker_methods if @tracker_methods
+        # @tracker_methods = MethodHolder.new(self, self.class.const_get(__method__.upcase))
+        #@tracker_methods.instance_variable_get(:@snake_map)[:create_work_item][:sub][:content][:sub][:custom_fields][:sub][:custom][:sub][:value][:sub] = :non_validated
+        # return @tracker_methods
       end
       def project
         @project_methods ||= MethodHolder.new(self, self.class.const_get(__method__.upcase))
@@ -288,16 +348,16 @@ module CucuShift
           (class << self; self; end).class_eval do
             define_method(op_snake) do |**params|
               do_build = proc do |builder, snake_map, params|
-                extra_params = params.keys - snake_map.keys
+                extra_params = params.keys - (snake_map || {}).keys
                 unless extra_params.empty?
-                  raise "unknown polarion param in op=#{op_snake}, subelement=#{snake_map[:camel]}, extra parameters=#{extra_params}"
+                  raise "unknown polarion param (somewhere deep) in op=#{op_snake}, extra parameters=#{extra_params}"
                 end
 
                 params.each do |param, value|
                   case value
                   when Hash
-                    # untested
-                    builder.__tag__(snake_map[param][:camel]) do |b|
+                    # builder.__tag__(snake_map[param][:camel]) do |b|
+                    builder.__send__(snake_map[param][:camel]) do |b|
                       do_build.call(b, snake_map[param][:sub], value)
                     end
                   when Array
@@ -307,7 +367,10 @@ module CucuShift
                     end
                   else
                     # using internal api method as #send and #method are removed
-                    builder.__tag__(snake_map[param][:camel], value)
+                    # in fact :send method should handle attr vs sub-element
+                    #   automatically
+                    # builder.__tag__(snake_map[param][:camel], value)
+                    builder.__send__(snake_map[param][:camel], value)
                   end
                 end
               end
@@ -331,9 +394,11 @@ module CucuShift
       # @return undefined
       private def build_mappings(el_tree, snake_map, element, type_rec = {})
         el_snake = camel_to_snake_case(element.name).to_sym
+
+        attributes = element.type.attributes rescue []
         subelements = element.type.elements
 
-        if subelements.empty?
+        if subelements.empty? && attributes.empty?
           type_name = element.type.name rescue "Unknown"
           el_tree[el_snake] = type_name
           snake_map[el_snake] = {camel: element.name}
@@ -343,6 +408,13 @@ module CucuShift
         else
           el_tree[el_snake] = {}
           snake_map[el_snake] = {camel: element.name, sub: {}}
+
+          attributes.each { |attribute|
+            camel_attr = camel_to_snake_case(attribute).to_sym
+            el_tree[el_snake][camel_attr] = "Attribute"
+            snake_map[el_snake][:sub][camel_attr] = {camel: attribute}
+          }
+
           type_rec[element.type] = {tree: el_tree[el_snake],
                                     snake_map: snake_map[el_snake]}
           subelements.keys.each do |key|
@@ -354,4 +426,13 @@ module CucuShift
       end
     end
   end
+
+  class PolarionCallError < StandardError
+    attr_reader :response
+
+    def initialize(response)
+      @response = response
+    end
+  end
+end
 end
