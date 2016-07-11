@@ -814,3 +814,119 @@ Feature: Testing haproxy router
       |  -o  |
       |  /dev/null|
     Then the output should match "200"
+
+  # @author bmeng@redhat.com
+  # @case_id 526537
+  @admin
+  @destructive
+  Scenario: Route should be moved to the correct router once the label changed
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Given default router replica count is restored after scenario
+    And admin ensures "router-label-red" dc is deleted after scenario
+    And admin ensures "router-label-red" service is deleted after scenario
+    And admin ensures "router-label-blue" dc is deleted after scenario
+    And admin ensures "router-label-blue" service is deleted after scenario
+    When I run the :scale client command with:
+      | resource | dc |
+      | name | router |
+      | replicas | 0 |
+    Then the step should succeed
+    When I run the :oadm_router admin command with:
+      | name | router-label-red |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+    Then a pod becomes ready with labels:
+      | deploymentconfig=router-label-red |
+    When I run the :env client command with:
+      | resource | dc/router-label-red |
+      | e | ROUTE_LABELS=router=red |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deployment=router-label-red-2 |
+    And evaluation of `pod.ip` is stored in the :router_red_ip clipboard
+    When I run the :oadm_router admin command with:
+      | name | router-label-blue |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+    Then a pod becomes ready with labels:
+      | deploymentconfig=router-label-blue |
+    When I run the :env client command with:
+      | resource | dc/router-label-blue |
+      | e | ROUTE_LABELS=router=blue |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deployment=router-label-blue-2 |
+    And evaluation of `pod.ip` is stored in the :router_blue_ip clipboard
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name | route-reen |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
+      | service | service-secure |
+      | cert | route_reencrypt-reen.example.com.crt |
+      | key | route_reencrypt-reen.example.com.key |
+      | cacert | route_reencrypt.ca |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | route |
+      | name | route-reen |
+      | key_val | router=red |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | --resolve |
+      | <%= route("route-reen", service("route-reen")).dns(by: user) %>:443:<%= cb.router_red_ip %> |
+      | https://<%= route("route-reen", service("route-reen")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Hello-OpenShift"
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | --resolve |
+      | <%= route("route-reen", service("route-reen")).dns(by: user) %>:443:<%= cb.router_blue_ip %> |
+      | https://<%= route("route-reen", service("route-reen")).dns(by: user) %>:443/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should not contain "Hello-OpenShift"
+
+    When I run the :label client command with:
+      | resource | route |
+      | name | route-reen |
+      | key_val | router=blue |
+      | overwrite | true |
+    Then the step should succeed
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | --resolve |
+      | <%= route("route-reen", service("route-reen")).dns(by: user) %>:443:<%= cb.router_red_ip %> |
+      | https://<%= route("route-reen", service("route-reen")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should not contain "Hello-OpenShift"
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | --resolve |
+      | <%= route("route-reen", service("route-reen")).dns(by: user) %>:443:<%= cb.router_blue_ip %> |
+      | https://<%= route("route-reen", service("route-reen")).dns(by: user) %>:443/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Hello-OpenShift"
