@@ -609,3 +609,57 @@ Feature: Testing route
     Then the step should succeed
     And the output should not contain "OPENSHIFT"
     And the output should not match "\d+\.\d+\.\d+\.\d+"
+
+
+  # @author yadu@redhat.com
+  # @case_id 508647
+  Scenario: Config insecureEdgeTerminationPolicy to Allow for route
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name     | myroute          |
+      | service  | service-unsecure |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | route   |
+      | resource_name | myroute |
+      | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Allow"}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | route |
+    Then the step should succeed
+    And the output should contain:
+      | Allow |
+    Given I have a pod-for-ping in the project
+    When I execute on the "<%= pod.name %>" pod:
+      | curl                                                                                          |
+      | --resolve                                                                                     |
+      | <%= route("myroute", service("service-unsecure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("myroute", service("service-unsecure")).dns(by: user) %>/                   |
+      | -k                                                                                            |
+      | -v                                                                                            |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+      | HTTP/1.1 200    |
+    And the output should not contain:
+      | HTTP/1.1 302 Found |
+    When I execute on the "<%= pod.name %>" pod:
+      | curl                                                                                         |
+      | --resolve                                                                                    |
+      | <%= route("myroute", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |
+      | http://<%= route("myroute", service("service-unsecure")).dns(by: user) %>/                   |
+      | -v                                                                                           |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+      | HTTP/1.1 200    | 
+    And the output should not contain:
+      | HTTP/1.1 302 Found |
