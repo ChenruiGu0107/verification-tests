@@ -476,6 +476,17 @@
 :proxy:
   :cmd: oc proxy
   :options:
+    :accept_hosts: --accept-hosts=<value>
+    :accept_paths: --accept-paths=<value>
+    :address: --address=<value>
+    :api_prefix: --api-prefix=<value>
+    :disable_filter: --disable-filter=<value>
+    :port: --port=<value>
+    :reject_methods: --reject-methods=<value>
+    :reject_paths: --reject-paths=<value>
+    :unix_socket: --unix-socket=<value>
+    :www: --www=<value>
+    :www_prefix: --www-prefix=<value>
 :replace:
   :cmd: oc replace
   :options:
