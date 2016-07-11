@@ -174,3 +174,108 @@ Feature: check page info related
       | ^<%= service_account("default").get_secret_names(by: user)[0] %>$             |
       | Type:\ssecret                                                                 |
       | Secret name:\s<%= service_account("default").get_secret_names(by: user)[0] %> |
+
+  # @author yapei@redhat.com
+  # @case_id 477635
+  Scenario: Check Overview details for project
+    Given I create a new project
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %> |
+      | image_name   | nodejs              |
+      | image_tag    | 0.10                |
+      | namespace    | openshift           |
+      | app_name     | nodejs-sample       |
+      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    Then the step should succeed
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    Given the "nodejs-sample-1" build becomes :running
+    # check build info banner when build is running & complete
+    When I perform the :check_build_info_on_overview_page web console action with:
+      | build_config     | nodejs-sample  |
+      | build_id         | #1             |
+      | build_status     | running        |
+    Then the step should succeed
+    Given the "nodejs-sample-1" build becomes :complete
+    When I perform the :check_build_info_on_overview_page web console action with:
+      | build_config     | nodejs-sample  |
+      | build_id         | #1             |
+      | build_status     | completed      |
+    Then the step should succeed
+    # check View log and Dismiss function
+    When I perform the :check_view_log_link_info_on_overview web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | nodejs-sample       |
+      | bc_build_id  | nodejs-sample-1     |
+    Then the step should succeed
+    When I run the :dismiss_build_log_on_overview web console action
+    Then the step should succeed
+    Given 5 seconds have passed
+    When I perform the :check_build_info_on_overview_page web console action with:
+      | build_config     | nodejs-sample  |
+      | build_id         | #1             |
+      | build_status     | completed      |
+    Then the step should fail
+    # check service and route info
+    When I perform the :check_service_link_on_overview web console action with:
+      | project_name | <%= project.name %> |
+      | service_name | nodejs-sample       |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | route          |
+      | resource_name | nodejs-sample  |
+      | template      | {{.spec.host}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :route_hostname clipboard
+    When I perform the :check_route_link_on_overview web console action with:
+      | route_host_name | <%= cb.route_hostname %> |
+    Then the step should succeed
+    # check deployment info on overview
+    When I perform the :check_deployment_config_link_info_on_overview web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | nodejs-sample       |
+    Then the step should succeed
+    When I perform the :check_deployments_link_info_on_overview web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | nodejs-sample       |
+      | deployments  | nodejs-sample-1     |
+    Then the step should succeed
+    When I perform the :check_pod_info_on_overview web console action with:
+      | pod_display | 1pod |
+    Then the step should succeed
+    # check pod-template detail
+    When I perform the :check_pod_template_image_link web console action with:
+      | project_name | <%= project.name %> |
+      | image_name   | nodejs-sample       |
+    Then the step should succeed
+    When I perform the :check_pod_template_build_link web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | nodejs-sample       |
+      | bc_build_id  | nodejs-sample-1     |
+    Then the step should succeed
+    When I run the :check_pod_template_source_info web console action
+    Then the step should succeed
+    When I perform the :check_pod_template_port_info web console action with:
+      | port_number | 8080 |
+    Then the step should succeed
+    # standalone RC
+    When I run the :run client command with:
+      | name      | myrun-rc              |
+      | image     | aosqe/hello-openshift |
+      | generator | run/v1                |
+    Then the step should succeed
+    Given I wait until replicationController "myrun-rc" is ready
+    When I perform the :check_standalone_rc_info_on_overview web console action with:
+      | rc_name | myrun-rc |
+    Then the step should succeed
+    # standalone Pod
+    When I run the :run client command with:
+      | name      | myrun-pod             |
+      | image     | aosqe/hello-openshift |
+      | generator | run-pod/v1            |
+    Then the step should succeed
+    Given the pod named "myrun-pod" becomes ready
+    When I perform the :check_standalone_pod_info_on_overview web console action with:
+      | pod_name | myrun-pod |
+    Then the step should succeed
