@@ -689,7 +689,6 @@ Feature: Testing haproxy router
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
 
-
   # @author zzhao@redhat.com
   # @case_id 516836
   @admin
@@ -930,3 +929,33 @@ Feature: Testing haproxy router
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
+
+  # @author zzhao@redhat.com
+  # @case_id 483533
+  @admin
+  @destructive
+  Scenario: router cannot be running if the stats port was occupied
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Given default router replica count is restored after scenario
+    And admin ensures "tc-483533" dc is deleted after scenario
+    And admin ensures "tc-483533" service is deleted after scenario
+    When I run the :scale client command with:
+      | resource | dc     |
+      | name     | router |
+      | replicas | 0      |
+    Then the step should succeed
+
+    When I run the :oadm_router admin command with:
+      | name | tc-483533 |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+      | stats_port | 22 |
+      | service_account | router |
+    Then I wait up to 50 seconds for the steps to pass:
+    """
+    When I get project events
+    And the output should match:
+      | Readiness probe failed: *:22/healthz: malformed HTTP response "SSH |
+    """
