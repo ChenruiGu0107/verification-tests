@@ -30,6 +30,22 @@ module CucuShift
         return perform(**base_opts, method: "DELETE")
       end
 
+      def self.get_subresources_status(base_opts, opts)
+        populate("/namespaces/<project_name>/<resource_type>/<resource_name>/status", base_opts, opts)
+        return perform(**base_opts, method: "GET")
+      end
+ 
+      def self.get_project_status(base_opts, opts)
+        populate("/namespaces/<project_name>/status", base_opts, opts)
+        return perform(**base_opts, method: "GET")
+      end
+
+      def self.replace_pod_status(base_opts, opts)
+        base_opts[:payload] = File.read(opts[:payload_file])
+        populate("/namespaces/<project_name>/pods/<pod_name>/status", base_opts, opts)
+        return Http.request(**base_opts, method: "PUT")
+      end
+
     end
   end
 end

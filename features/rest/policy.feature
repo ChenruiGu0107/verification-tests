@@ -124,3 +124,67 @@ Feature: REST policy related features
     """
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 403
+
+
+  # @author xiaocwan@redhat.com
+  # @case_id 476290
+  @admin
+  Scenario: Cluster-admin could get/edit/delete subresource
+    Given I create a new project
+    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Then the step should succeed
+    # cluster admin get subresource status
+    Given the second user is cluster-admin
+    And I switch to the second user
+    When I perform the :get_subresources_status rest request with:
+      | project_name  | <%= project.name %> |
+      | resource_type | resourcequotas      |
+      | resource_name | quota               |
+    Then the step should fail
+    And the expression should be true> @result[:exitstatus] == 405
+    When I perform the :get_subresources_oapi rest request with:
+      | project_name  | <%= project.name %> |
+      | resource_type | imagestreams        |
+      | resource_name | ruby-22-centos7     |
+    Then the step should fail
+    And the expression should be true> @result[:exitstatus] == 405
+    When I perform the :get_project_status rest request with:
+      | project_name  | <%= project.name %> |
+    Then the step should fail
+    And the expression should be true> @result[:exitstatus] == 405
+  
+    # cluster admin edit subresource
+    Given a pod becomes ready with labels:
+      | deployment=database-1     |
+    When I run the :get client command with:
+      | resource      | pod             |
+      | resource_name | <%= pod.name %> |
+      | output        | json            |
+      | namespace     | <%= project.name %> |
+    Then the step should succeed
+    Given I save the output to file> database-pod.json
+    And I replace lines in "database-pod.json":
+      | "phase": "Running" | "phase": "Pending" |
+    Then the step should succeed
+
+    When I perform the :replace_pod_status rest request with:
+      | project_name  | <%= project.name %> |
+      | pod_name      | <%= pod.name %>     |
+      | payload_file  |  database-pod.json  |  
+    Then the step should succeed
+    And the expression should be true> @result[:exitstatus] == 200
+    And the output should match:
+      | phase.*Pending |
+    When I get project pods
+    Then the output should match:
+      | <%= pod.name %>.*Pending |
+
+    # cluster admin delete subresource
+    Given a pod becomes ready with labels:
+      | deployment=database-1          |
+    When I perform the :delete_subresources_api rest request with:
+      | project_name  | <%= project.name %> |
+      | resource_type | pods                |
+      | resource_name | <%= pod.name %>     |
+    Then the step should fail
+    And the expression should be true> @result[:exitstatus] == 405
