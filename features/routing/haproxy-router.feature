@@ -388,7 +388,7 @@ Feature: Testing haproxy router
       |  admin:<%= cb.password %> |
       |  127.0.0.1:1936  |
       |  -o  |
-      |  /dev/null| 
+      |  /dev/null|
     Then the output should match "200"
 
   # @author zzhao@redhat.com
@@ -424,7 +424,7 @@ Feature: Testing haproxy router
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
 
-    Given I have a pod-for-ping in the project 
+    Given I have a pod-for-ping in the project
     When I execute on the "<%= pod.name %>" pod:
       | wget |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
@@ -447,7 +447,7 @@ Feature: Testing haproxy router
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
-    
+
     #create some invalid route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_expire.json |
@@ -465,7 +465,7 @@ Feature: Testing haproxy router
       | resource      | route |
     Then the output should contain 10 times:
       | ExtendedValidationFailed |
-    
+
     #create one normal reencyption route to check if it can work after those invalid route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
@@ -959,3 +959,118 @@ Feature: Testing haproxy router
     And the output should match:
       | Readiness probe failed: *:22/healthz: malformed HTTP response "SSH |
     """
+
+  # @author bmeng@redhat.com
+  # @case_id 526538
+  @admin
+  @destructive
+  Scenario: Router with specific NAMESPACE_LABELS will only work for specific namespaces
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project_red clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :project_blue clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :project_nolabel clipboard
+
+    Given I switch to cluster admin pseudo user
+    When I run the :label client command with:
+      | resource | namespaces |
+      | name | <%= cb.project_red %> |
+      | key_val | team=red |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | namespaces |
+      | name | <%= cb.project_blue %> |
+      | key_val | team=blue |
+    Then the step should succeed
+
+    Given I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And cluster role "cluster-reader" is added to the "system:openshift-router" group
+    And default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | NAMESPACE_LABELS=team=red |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And evaluation of `pod.ip` is stored in the :router_ip clipboard
+
+    Given I switch to the first user
+    And I use the "<%= cb.project_red %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name | route-pass |
+      | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
+      | service | service-secure |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | --resolve |
+      | <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip %> |
+      | https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+
+    And I use the "<%= cb.project_blue %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name | route-pass |
+      | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
+      | service | service-secure |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | --resolve |
+      | <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip %> |
+      | https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the step should fail
+    And the output should not contain "Hello-OpenShift"
+
+    And I use the "<%= cb.project_nolabel %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name | route-pass |
+      | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
+      | service | service-secure |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | --resolve |
+      | <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip %> |
+      | https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the step should fail
+    And the output should not contain "Hello-OpenShift"
