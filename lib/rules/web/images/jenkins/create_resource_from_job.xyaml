@@ -31,18 +31,26 @@ create_openshift_resources:
       op: click
       type: a
     - selector:
-        name: _.apiURL
-      op: send_keys <apiURL>
+        xpath: //input[contains(@checkurl,"OpenShiftCreator/checkApiURL")]
+      op: send_keys <apiurl>
       type: input
     - selector:
-        name: _.jsonyaml
+        xpath: //textarea[contains(@checkurl,"OpenShiftCreator/checkJsonyaml")]
       op: send_keys <jsonfile>
-      type: input
+      type: textarea
     - selector:
-        name: _.namespace
+        xpath: //input[contains(@checkurl,"OpenShiftCreator/checkNamespace")]
       op: send_keys <namespace>
       type: input
     - selector:
         id: yui-gen31-button
       op: click
       type: button
+
+build_now:
+  url: /job/<job_name>
+  elements:
+    - selector:
+        text: Build Now
+      op: click
+      type: a

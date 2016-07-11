@@ -69,7 +69,12 @@ Feature: jenkins.feature
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"
     When I perform the :create_openshift_resources web action with:
       | job_name  | testplugin                                       |
-      | apiURL    | https://<%= env.master_hosts[0].hostname %>:8443 |
+      | apiurl    | https://<%= env.master_hosts[0].hostname %>:8443 |
       | jsonfile  | <%= File.read('hello-pod.json').to_json %>       |
       | namespace | <%= cb.proj2 %>                                  |
     Then the step should succeed
+    When I perform the :build_now web action with:
+      | job_name  | testplugin |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=hello-openshift |
