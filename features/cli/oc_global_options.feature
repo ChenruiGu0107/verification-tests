@@ -277,7 +277,7 @@ Feature: oc global options (oc options) related scenarios
 
     Given a pod becomes ready with labels:
       | deploymentconfig=mydc |
-    # Kubernets resource
+    # Kubernetes resource
     When I execute on the pod:
       | oc  | get | pod | --match-server-version |
     Then the step should fail
@@ -286,4 +286,3 @@ Feature: oc global options (oc options) related scenarios
     When I execute on the pod:
       | oc  | get | dc  | --match-server-version |
     Then the step should succeed
-

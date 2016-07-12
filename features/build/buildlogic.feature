@@ -595,5 +595,5 @@ Feature: buildlogic.feature
     And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-1 |
-      | state      | invaild            |
+      | state      | invalid            |
     And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"

@@ -138,7 +138,7 @@ Feature: admin build related features
     And the "ruby-sample-build-7" build finished
     And the "ruby-sample-build-8" build finished
 
-    ## the real running env is really slow to fninish build, enlarge the time scope for oadm_prune_builds
+    ## the real running env is really slow to finish build, enlarge the time scope for oadm_prune_builds
     When I run the :oadm_prune_builds admin command with:
       | keep_younger_than | 1s    |
       | confirm           | false |
