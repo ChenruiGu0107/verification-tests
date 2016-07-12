@@ -36,3 +36,64 @@ Feature: jenkins.feature
     """
     And the output should contain:
       | Dashboard [Jenkins] |
+
+  # @author shiywang@redhat.com
+  # @case_id 515420
+  Scenario: Build with new parameter which is configged
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                           |
+      | user_name | system:serviceaccount:<%=project.name%>:default |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
+    Then the step should succeed
+    And I wait for the "jenkins" service to become ready
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I open web server via the "https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
+    Then the output should contain "Jenkins"
+    And the output should not contain "ready to work"
+    """
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route.dns(by: user) %> |
+    When I perform the :login web action with:
+      | username | admin    |
+      | password | password |
+    Then the step should succeed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    Then the expression should be true> /Dashboard \[Jenkins\]/ =~ browser.title
+    """
+    When I run the :check_openshift_pipeline_jenkins_plugin web action
+    Then the step should succeed
+    When I get the html of the web page
+    Then the output should contain "OpenShift Pipeline Jenkins Plugin"
+    When I perform the :create_freestyle_project web action with:
+      | job_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :add_build_string_parameter web action with:
+      | job_name         | <%= project.name %> |
+      | string_parameter | NAMESPACE           |
+    Then the step should succeed
+    When I perform the :create_openshift_build_trigger web action with:
+      | job_name      | <%= project.name %>         |
+      | api_endpoint  | <%= env.api_endpoint_url %> |
+      | build_config  | frontend                    |
+      | store_project | NAMESPACE                   |
+    Then the step should succeed
+    When I perform the :build_with_string_parameter web action with:
+      | job_name        | <%= project.name %> |
+      | build_parameter | <%= project.name %> |
+    Then the step should succeed
+    And the "frontend-1" build was created
+    And the "frontend-1" build completed
+    When I perform the :build_with_string_parameter web action with:
+      | job_name        | <%= project.name %> |
+      | build_parameter | notpass-1a4bc       |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | build |
+    Then the output should not contain "frontend-2"

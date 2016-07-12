@@ -1,0 +1,28 @@
+check_openshift_pipeline_jenkins_plugin:
+  action: go_to_installed_plugin_manage_page
+  element:
+    selector:
+      class: display-name
+      text : OpenShift Pipeline Jenkins Plugin
+    type: a
+
+install_kubernetes_plugin:
+  action: go_to_updates_plugin_manage_page
+  elements:
+  - selector:
+      name: plugin.kubernetes.default
+    type: input
+    op: click
+  - selecotr:
+      name: Download now and install after restart
+    type: button
+    op: click
+
+go_to_updates_plugin_manage_page:
+  url: /pluginManager
+go_to_installed_plugin_manage_page:
+  url: /pluginManager/installed
+go_to_available_plugin_manage_page:
+  url: /pluginManager/available
+go_to_advanced_plugin_manage_page:
+  url: /pluginManager/advanced

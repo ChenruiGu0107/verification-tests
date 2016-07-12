@@ -1,0 +1,18 @@
+create_freestyle_project:
+  action: go_to_build_new_job_page
+  elements:
+  - selector:
+      value: hudson.model.FreeStyleProject
+    type: input
+    op: click
+  - selector:
+      id: name
+    type: input
+    op: send_keys <job_name>
+  - selector:
+      id: ok-button
+    type: button
+    op: click
+
+go_to_build_new_job_page:
+  url: /view/All/newJob
