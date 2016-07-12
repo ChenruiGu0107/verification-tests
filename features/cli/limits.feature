@@ -176,3 +176,42 @@ Feature: limit range related scenarios:
     Then the step should fail
     And the output should match:
       | [Ee]rror.*when creat.*myclaim-1.*forbidden.*[Ee]xceeded quota |
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 529156
+  @admin
+  Scenario: Check the openshift.io/imagestreams of quota in the project after build image
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/openshift-object-counts.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | quota   |
+      | o             | yaml |
+    Then the output should contain:
+      | openshift.io/imagestreams: "0" |
+    """
+    When I run the :new_build client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    Then the "ruby-ex-1" build completes
+    When I run the :get client command with:
+      | resource      | quota   |
+      | o             | yaml |
+    Then the output should contain:
+      | openshift.io/imagestreams: "2" |
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    Then the "ruby-ex-2" build completes
+    When I run the :get client command with:
+      | resource      | quota   |
+      | resource_name | openshift-object-counts |
+      | o             | yaml |
+    Then the output should contain:
+      | openshift.io/imagestreams: "2" |
