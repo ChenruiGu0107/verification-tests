@@ -1,0 +1,56 @@
+---
+create_job:
+  url: /
+  elements:
+    - selector:
+        text: New Item
+      op: click
+      type: a
+    - selector:
+        id: name
+      op: send_keys <job_name>
+      type: input
+    - selector:
+        name: mode
+      op: click
+      type: input
+    - selector:
+        id: ok-button
+      op: click
+      type: button
+
+create_openshift_resources:
+  url: /job/<job_name>/configure
+  elements:
+    - selector:
+        id: yui-gen3-button
+      op: click
+      type: button
+    - selector:
+        text: Create OpenShift Resource(s)
+      op: click
+      type: a
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftCreator/checkApiURL")]
+      op: send_keys <apiurl>
+      type: input
+    - selector:
+        xpath: //textarea[contains(@checkurl,"OpenShiftCreator/checkJsonyaml")]
+      op: send_keys <jsonfile>
+      type: textarea
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftCreator/checkNamespace")]
+      op: send_keys <namespace>
+      type: input
+    - selector:
+        id: yui-gen31-button
+      op: click
+      type: button
+
+build_now:
+  url: /job/<job_name>
+  elements:
+    - selector:
+        text: Build Now
+      op: click
+      type: a
