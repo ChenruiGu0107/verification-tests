@@ -279,3 +279,17 @@ Feature: SCC policy related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_privileged.json |
     Then the step should succeed
     And the pod named "hello-nginx-docker-1" becomes ready
+    
+  # @author mcurlej@redhat.com
+  # @case_id 495037
+  # The test only works when 'MustRunAsRange' policy is configured in SCC
+  Scenario: pod should only be created with SC UID in the available range with the SCC restricted.
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_outrange.json |
+    Then the step should fail
+    And the output should contain:
+      | securityContext.runAsUser: Invalid value: 1000: UID on container pod-uid-outrange does not match required range. |
+    And evaluation of `project.uid_range(user:user).split("/")[0].to_i + 1` is stored in the :scc_uid_inrange clipboard
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_inrange.json
+    Then the step should succeed
