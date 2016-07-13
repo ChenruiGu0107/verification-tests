@@ -111,7 +111,7 @@ Feature: Persistent Volume Claim binding policies
       | nfsc-<%= project.name %> |
     Given I ensure "nfsc-<%= project.name %>" pvc is deleted
 
-    #Create unmathed pvc of rox
+    #Create unmatched pvc of rox
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json"
     And I replace lines in "claim-rox.json":
       | nfsc | nfsc-<%= project.name %> |
@@ -208,7 +208,7 @@ Feature: Persistent Volume Claim binding policies
   # @case_id 501013
   @admin
   @destructive
-  Scenario: PVCs with accessmode ROX could bound to PV accessmode contanis ROX
+  Scenario: PVCs with accessmode ROX could bound to PV accessmode contains ROX
     Given I have a project
     And I have a NFS service in the project
 
@@ -256,7 +256,7 @@ Feature: Persistent Volume Claim binding policies
   # @case_id 501012
   @admin
   @destructive
-  Scenario: PV and PVC bound with accessmod rwx
+  Scenario: PV and PVC bound with accessmode rwx
     Given I have a project
     And I have a NFS service in the project
 

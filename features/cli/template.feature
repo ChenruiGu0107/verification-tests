@@ -1,4 +1,4 @@
-Feature: template related scnearios:
+Feature: template related scenarios:
 
   # @author pruan@redhat.com
   # @case_id 483165

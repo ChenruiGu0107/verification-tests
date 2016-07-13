@@ -1,4 +1,4 @@
-Feature: sessions realated scenarios
+Feature: sessions related scenarios
   # @author pruan@redhat.com
   # @case_id 488991
   Scenario: Show information about the current session using 'oc whoami'

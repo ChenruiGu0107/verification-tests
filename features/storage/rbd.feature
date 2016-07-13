@@ -4,10 +4,10 @@ Feature: Storage of Ceph plugin testing
   # @case_id 522141
   @admin
   @destructive
-  Scenario: Ceph persistant volume with invalid monitors
+  Scenario: Ceph persistent volume with invalid monitors
     Given I have a project
 
-    #Create a invlid pv with rbd of wrong monitors
+    #Create a invalid pv with rbd of wrong monitors
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/rbd-secret.yaml |
     Then the step should succeed
@@ -27,7 +27,7 @@ Feature: Storage of Ceph plugin testing
     Given SCC "privileged" is added to the "default" user
     And SCC "privileged" is added to the "system:serviceaccounts" group
 
-    #Creat the pod
+    #Create the pod
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/pod.json |
     Then the step should succeed
