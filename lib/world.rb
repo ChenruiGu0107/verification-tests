@@ -496,7 +496,8 @@ module CucuShift
         dc: "deploymentconfigs",
         rc: "replicationcontrollers",
         pv: "persistentvolumes",
-        svc: "service"
+        svc: "service",
+	pvc: "persistentvolumeclaims"
       }
       type = shorthands[type.to_sym] if shorthands[type.to_sym]
 
