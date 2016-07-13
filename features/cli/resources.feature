@@ -534,3 +534,65 @@ Feature: resouces related scenarios
       | o              | no-this      |
     Then the step should fail
     And the output should contain "no-this"
+
+  # @author yanpzhan@redhat.com
+  # @case_id 481680
+  Scenario: Templates could parameterize cpu and memory usage values for each container
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/application-template-with-resources.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | template |
+      | name     | ruby-helloworld-sample-with-resources |
+    Then the output should match: 
+      | Name:\\s+MYSQL_RESOURCES_LIMITS_MEMORY|
+      | Value:\\s+200Mi|
+      | Name:\\s+MYSQL_RESOURCES_LIMITS_CPU|
+      | Value:\\s+400m|
+      | Name:\\s+DEPLOY_MYSQL_RESOURCES_LIMITS_MEMORY|
+      | Value:\\s+50Mi|
+      | Name:\\s+DEPLOY_MYSQL_RESOURCES_LIMITS_CPU|
+      | Value:\\s+20m|
+      | Name:\\s+FRONTEND_RESOURCES_LIMITS_MEMORY|
+      | Value:\\s+100Mi|
+      | Name:\\s+FRONTEND_RESOURCES_LIMITS_CPU|
+      | Value:\\s+200m|
+      | Name:\\s+DEPLOY_FRONTEND_RESOURCES_LIMITS_MEMORY|
+      | Value:\\s+50Mi|
+      | Name:\\s+DEPLOY_FRONTEND_RESOURCES_LIMITS_CPU|
+      | Value:\\s+20m|
+      | Name:\\s+BUILD_RUBY_RESOURCES_LIMITS_MEMORY|
+      | Value:\\s+50Mi|
+      | Name:\\s+BUILD_RUBY_RESOURCES_LIMITS_CPU|
+      | Value:\\s+20m|
+
+    When I run the :new_app client command with:
+      | template | ruby-helloworld-sample-with-resources |
+    Then the step should succeed
+
+    And I wait until the status of deployment "database" becomes :running
+    When I run the :get client command with:
+      | resource      | pod |
+      | resource_name | database-1-deploy |
+      | o             | json |
+    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources'] == {"limits"=>{"cpu"=>"20m", "memory"=>"50Mi"}, "requests"=>{"cpu"=>"20m", "memory"=>"50Mi"}}
+
+    Given 1 pods become ready with labels:
+      | deploymentconfig=database |
+    When I run the :get client command with:
+      | resource      | pod |
+      | resource_name | <%= pod.name%> |
+      | o             | json |
+    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources'] == {"limits"=>{"cpu"=>"400m", "memory"=>"200Mi"}, "requests"=>{"cpu"=>"400m", "memory"=>"200Mi"}}
+
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+
+    Given the pod named "ruby-sample-build-2-build" is present
+    When I run the :get client command with:
+      | resource      | pod |
+      | resource_name | ruby-sample-build-2-build |
+      | o             | json |
+    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources'] == {"limits"=>{"cpu"=>"20m", "memory"=>"50Mi"}, "requests"=>{"cpu"=>"20m", "memory"=>"50Mi"}}
