@@ -339,7 +339,7 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a NFS service in the project
 
-    # make NFS only accessable to user 1000100001
+    # make NFS only accessible to user 1000100001
     When I execute on the pod:
       | chown | -R | 1000100001:root | /mnt/data |
     Then the step should succeed
@@ -404,7 +404,7 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a NFS service in the project
 
-    # make NFS only accessable to group 1000100011
+    # make NFS only accessible to group 1000100011
     When I execute on the pod:
       | chown | -R | root:1000100011 | /mnt/data |
     Then the step should succeed

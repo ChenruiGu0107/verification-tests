@@ -7,7 +7,7 @@ Feature: Storage of GlusterFS plugin testing
   Scenario: Gluster storage testing with Invalid gluster endpoint
     Given I have a project
 
-    #Create a invlid endpoint
+    #Create a invalid endpoint
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/endpoints.json"
     And I replace content in "endpoints.json":
       | /\d{2}/ | 11 |
@@ -24,7 +24,7 @@ Feature: Storage of GlusterFS plugin testing
     Then the step should succeed
     And the PV becomes :bound
 
-    #Creat the pod
+    #Create the pod
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/pod.json |
     Then the step should succeed

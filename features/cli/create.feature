@@ -387,7 +387,7 @@ Feature: creating 'apps' with CLI
 
   # @author pruan@redhat.com
   # @case_id 476350
-  Scenario: Create resources with labels --Negetive test
+  Scenario: Create resources with labels --Negative test
     Given I have a project
     And I run the :new_app client command with:
       | docker_image | <%= product_docker_repo %>rhscl/ruby-22-rhel7 |
@@ -756,7 +756,7 @@ Feature: creating 'apps' with CLI
     When I run the :get client command with:
       | resource      | project             |
       | resource_name | <%= project.name %> |
-    # create and save the invalide supplemental_group_id
+    # create and save the invalid supplemental_group_id
     And evaluation of `project.supplemental_groups(user:user).split('/')[0].to_i - 1000` is stored in the :invalid_sgid clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/special_fs_groupid.json"
     And I replace lines in "special_fs_groupid.json":

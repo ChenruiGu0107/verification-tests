@@ -172,7 +172,7 @@ Feature: Quota related scenarios
     Then the output should contain:
       | database-1-deploy |
 
-    # update dc to be exceeded and triggered deplyment
+    # update dc to be exceeded and triggered deployment
     Given I replace resource "dc" named "database" saving edit to "database2.yaml":
       | cpu: 20m     | cpu:    1020m |
       | memory: 50Mi | memory: 760Mi |
@@ -698,7 +698,7 @@ Feature: Quota related scenarios
   # @author chezhang@redhat.com
   # @case_id 509087
   @admin
-  Scenario: Could create quota if exsiting resources exceed to the hard quota but prevent to create further resources
+  Scenario: Could create quota if existing resources exceed to the hard quota but prevent to create further resources
     Given I have a project
     When I run the :new_app admin command with:
       | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota_template.yaml        |

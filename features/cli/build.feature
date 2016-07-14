@@ -195,7 +195,7 @@ Feature: build 'apps' with CLI
       | NAME              |
       | ruby-sample-build |
     # As the trigger of bc is "ConfigChange" and sometime the first build doesn't create quickly,
-    # so wait the first build complete，wanna start maunally for testing this cli well
+    # so wait the first build complete，wanna start manually for testing this cli well
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     When I run the :start_build client command with:

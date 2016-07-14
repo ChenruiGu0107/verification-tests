@@ -322,9 +322,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | opt1 | /proc/mounts |
     Then the step should succeed
     When I execute on the pod:
-      | ls | /opt1/ |
-    Then the output should contain:
-      | sbin |
+      | ls | /opt1/sbin |
+    Then the step should succeed
     # remove hostPath from dc
     When I run the :volume client command with:
       | resource | dc/mydb  |
@@ -380,9 +379,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | grep | opt2 | /proc/mounts |
     Then the step should succeed
     When I execute on the pod:
-      | ls | /opt2/ |
-    Then the output should contain:
-      | sbin |
+      | ls | /opt2/sbin |
+    Then the step should succeed
     # remove hostPath from rc
     When I run the :volume client command with:
       | resource | rc/mydb-3 |

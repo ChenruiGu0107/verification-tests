@@ -4,7 +4,7 @@ Feature: CephFS storage plugin testing
   # @case_id 507218
   @admin
   @destructive
-  Scenario: Creating cephfs persistant volume with RWO accessmode and default policy
+  Scenario: Creating cephfs persistent volume with RWO accessmode and default policy
     # Prepare CephFS server
     Given I have a project
     And I have a CephFS pod in the project

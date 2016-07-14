@@ -390,7 +390,7 @@ Feature: deployment related features
 
   # @author pruan@redhat.com
   # @case_id 487644
-  Scenario: New depployment will be created once the old one is complete - single deployment
+  Scenario: New deployment will be created once the old one is complete - single deployment
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/sleepv1.json |
