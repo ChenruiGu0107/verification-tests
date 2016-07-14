@@ -116,7 +116,7 @@ Feature: jenkins.feature
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins/      |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :login web action with:
+    When I perform the :jenkins_login web action with:
       | username | admin    |
       | password | password |
     Then the step should succeed
@@ -124,17 +124,17 @@ Feature: jenkins.feature
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:default service account
-    When I perform the :create_job web action with:
+    When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"
-    When I perform the :create_openshift_resources web action with:
+    When I perform the :jenkins_create_openshift_resources web action with:
       | job_name  | testplugin                                       |
       | apiurl    | https://<%= env.master_hosts[0].hostname %>:8443 |
       | jsonfile  | <%= File.read('hello-pod.json').to_json %>       |
       | namespace | <%= cb.proj2 %>                                  |
     Then the step should succeed
-    When I perform the :build_now web action with:
+    When I perform the :jenkins_build_now web action with:
       | job_name  | testplugin |
     Then the step should succeed
     Given a pod becomes ready with labels:
