@@ -40,7 +40,7 @@ Feature:Create apps using new_app cmd feature
       | URL:\\s+https://github.com/openshift/ruby-hello-world.git|
       | From Image:\\s+ImageStreamTag openshift/ruby:2.0|
     And the "ruby-sample-build-1" build was created
-        And the "ruby-sample-build-1" build completed
+    And the "ruby-sample-build-1" build completed
     Given I wait for the "frontend" service to become ready
     When I expose the "frontend" service
     Then I wait for a web server to become available via the "frontend" route
@@ -144,7 +144,7 @@ Feature:Create apps using new_app cmd feature
   # @case_id 529370 529371
   Scenario Outline: Nodejs-ex quickstart test with nodejs-4-rhel7
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift/nodejs-ex/master/openshift/templates/<template>" 
+    And I download a file from "https://raw.githubusercontent.com/openshift/nodejs-ex/master/openshift/templates/<template>"
     And I replace lines in "<template>":
       |nodejs:0.10|nodejs:4|
     When I run the :new_app client command with:

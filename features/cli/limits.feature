@@ -169,10 +169,10 @@ Feature: limit range related scenarios:
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/kubernetes/kubernetes/master/docs/user-guide/persistent-volumes/claims/claim-01.yaml |
     Then the step should succeed
-    And the output should match:    
-      | [Pp]ersistentvolumeclaim.*myclaim-1.*created | 
+    And the output should match:
+      | [Pp]ersistentvolumeclaim.*myclaim-1.*created |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/kubernetes/kubernetes/master/docs/user-guide/persistent-volumes/claims/claim-01.yaml |
     Then the step should fail
-    And the output should match: 
+    And the output should match:
       | [Ee]rror.*when creat.*myclaim-1.*forbidden.*[Ee]xceeded quota |

@@ -152,7 +152,7 @@ Feature: config related scenarios
     And the output is parsed as YAML
     Then the expression should be true> @result[:parsed]['users'].any? {|t| t['user']['token'].include? 'tc470725-token-new'}
     # make sure we have replaced the old one and not just add the new along with the old
-		And the expression should be true> not @result[:parsed]['users'].any? {|t| t['user']['token'].include? 'tc470725-token-old'}
+    And the expression should be true> not @result[:parsed]['users'].any? {|t| t['user']['token'].include? 'tc470725-token-old'}
 
   # @author pruan@redhat.com
   # @case_id 470726

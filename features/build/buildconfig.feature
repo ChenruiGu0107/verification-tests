@@ -182,7 +182,7 @@ Feature: buildconfig.feature
     When I run the :patch client command with:
       | resource      | buildconfig                                                                                              |
       | resource_name | ruby22-sample-build                                                                                      |
-        | p | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@<%= cb.imagesha %>"}},"type":"Docker","sourceStrategy":null}}} |
+      | p | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@<%= cb.imagesha %>"}},"type":"Docker","sourceStrategy":null}}} |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | buildconfig           |
@@ -201,27 +201,27 @@ Feature: buildconfig.feature
     And the output should match:
       | DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %> |
     When I run the :patch client command with:
-        | resource      | buildconfig                                                                                                                                                 |
-        | resource_name | ruby22-sample-build                                                                                                                                         |
-        | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@<%= cb.imagesha[0..15] %>"}},"type":"Docker","sourceStrategy":null}}} |
+      | resource      | buildconfig                                                                                                                                                 |
+      | resource_name | ruby22-sample-build                                                                                                                                         |
+      | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@<%= cb.imagesha[0..15] %>"}},"type":"Docker","sourceStrategy":null}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     Then the step should succeed
     Given the "ruby22-sample-build-3" build was created
     When I run the :patch client command with:
-        | resource      | buildconfig                                                                                                                               |
-        | resource_name | ruby22-sample-build                                                                                                                       |
-        | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@123456" }},"type":"Docker","sourceStrategy":null}}} |
+      | resource      | buildconfig                                                                                                                               |
+      | resource_name | ruby22-sample-build                                                                                                                       |
+      | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@123456" }},"type":"Docker","sourceStrategy":null}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     Then the step should fail
     And the output should contain "not found"
     When I run the :patch client command with:
-        | resource      | buildconfig                                                                                                                        |
-        | resource_name | ruby22-sample-build                                                                                                                |
-        | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@"}},"type":"Docker","sourceStrategy":null}}} |
+      | resource      | buildconfig                                                                                                                        |
+      | resource_name | ruby22-sample-build                                                                                                                |
+      | p             | {"spec":{"strategy":{"dockerStrategy":{"from":{"kind":"ImageStreamImage","name":"ruby@"}},"type":"Docker","sourceStrategy":null}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |

@@ -125,7 +125,6 @@ Feature: REST policy related features
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 403
 
-
   # @author xiaocwan@redhat.com
   # @case_id 476290
   @admin
@@ -152,7 +151,7 @@ Feature: REST policy related features
       | project_name  | <%= project.name %> |
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 405
-  
+
     # cluster admin edit subresource
     Given a pod becomes ready with labels:
       | deployment=database-1     |
@@ -170,7 +169,7 @@ Feature: REST policy related features
     When I perform the :replace_pod_status rest request with:
       | project_name  | <%= project.name %> |
       | pod_name      | <%= pod.name %>     |
-      | payload_file  |  database-pod.json  |  
+      | payload_file  |  database-pod.json  |
     Then the step should succeed
     And the expression should be true> @result[:exitstatus] == 200
     And the output should match:

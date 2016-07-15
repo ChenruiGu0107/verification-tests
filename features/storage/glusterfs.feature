@@ -92,7 +92,8 @@ Feature: Storage of GlusterFS plugin testing
 
   # @author chaoyang@redhat.com
   # @case_id 510730
-  @admin @destructive
+  @admin
+  @destructive
   Scenario: Glusterfs volume security testing
     Given I have a project
     And I switch to cluster admin pseudo user

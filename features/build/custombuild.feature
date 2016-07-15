@@ -69,7 +69,7 @@ Feature: custombuild.feature
       | <%= cb.imagestreamimage %> | <%= cb.imagestreamimage[0..15] %> |
     And I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
-    Then the step should succeed    
+    Then the step should succeed
     Given the "ruby-sample-build-3" build completed
     When I run the :describe client command with:
       | resource | build |

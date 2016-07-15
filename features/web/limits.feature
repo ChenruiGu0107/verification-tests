@@ -237,7 +237,7 @@ Feature: functions about resource limits on pod
       | default_cpu_lim    | 130                                         |
       | memory_limit_range | 5 MiB min to 750 MiB max                    |
       | default_memory_req | 100                                         |
-      | default_memory_lim | 120                                         |  
+      | default_memory_lim | 120                                         |
     Then the step should succeed
     # Set CPU Limit/Request ratio > defined CPU maxLimitRequestRatio
     When I perform the :create_app_from_image_set_cpu_resource_request web console action with:
@@ -246,7 +246,7 @@ Feature: functions about resource limits on pod
     When I perform the :create_app_from_image_set_cpu_resource_limit web console action with:
       | cpu_limit   | 330 |
     Then the step should succeed
-    When I run the :create_app_from_image_submit web console action 
+    When I run the :create_app_from_image_submit web console action
     Then the step should fail
     When I get the visible text on web html page
     Then the output should contain:

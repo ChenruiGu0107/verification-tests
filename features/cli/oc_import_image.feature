@@ -85,7 +85,6 @@ Feature: oc import-image related feature
       | The import completed successfully           |
       | latest.+aosqe/hello-openshift@sha256:       |
 
-
   # @author wjiang@redhat.com
   # @case_id 510523
   Scenario: Could not import the tag when reference is true
@@ -102,7 +101,6 @@ Feature: oc import-image related feature
       | aosqeruby:3.3 |
     """
 
-
   # @author wsun@redhat.com
   # @case_id 510524
   Scenario: Import image when pointing to non-existing docker image
@@ -115,7 +113,6 @@ Feature: oc import-image related feature
     Then the step should fail
     And the output should match:
       | the repository "aosqe/non-existen-image" was not found, tag "latest" has not been set on repository "aosqe/non-existen-image" |
-
 
   # @author wjiang@redhat.com
   # @case_id 510525
@@ -132,7 +129,6 @@ Feature: oc import-image related feature
     And the output should match:
       | aosqeruby:latest |
     """
-
 
   # @author wjiang@redhat.com
   # @case_id 510526
@@ -152,14 +148,13 @@ Feature: oc import-image related feature
       | aosqeruby:latest |
     """
 
-
   # @author wjiang@redhat.com
   # @case_id 510527
   Scenario: Import image when spec.DockerImageRepository with some tags defined when Kind!=DockerImage
     Given I have a project
     When I run the :create client command with:
       | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510525.json |
-    Then the step should succeed 
+    Then the step should succeed
     Given I wait up to 15 seconds for the steps to pass:
     """
     When I run the :get client command with:
@@ -182,7 +177,6 @@ Feature: oc import-image related feature
       | aosqe/ruby-20-centos7@sha256:093405d5f541b8526a008f4a249f9bb8583a3cffd1d8e301c205228d1260150a |
     """
 
-
   # @author wjiang@redhat.com
   # @case_id 510528
   Scenario: Import image when spec.DockerImageRepository with some tags defined when Kind==DockerImage
@@ -198,7 +192,6 @@ Feature: oc import-image related feature
     And the output should contain:
       | aosqeruby:3.3 |
     """
-
 
   # @author wsun@redhat.com
   # @case_id 510529

@@ -468,7 +468,7 @@ Feature: create app on web console related
     Then the step should succeed
     And the output should contain:
       | simplev1 |
-  
+
   # @author yapei@redhat.com
   # @case_id 478984
   @admin

@@ -492,20 +492,20 @@ Feature: change the policy of user/service account
       | user_name   |  <%= user(2, switch: false).name %> |
     Then the step should fail
 
-    # @author wsun@redhat.com
-    # @case_id 526285
-    @admin
-    Scenario: UserA could impersonate UserB
-      Given I have a project
-      Given cluster role "sudoer" is added to the "first" user
-      When I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
-      Then the step should fail
-      When I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
-        | as | system:admin    |
-      Then the step should succeed
-      When I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
-        | as | <%= user(1, switch: false).name %>    | 
-      Then the step should fail
+  # @author wsun@redhat.com
+  # @case_id 526285
+  @admin
+  Scenario: UserA could impersonate UserB
+    Given I have a project
+    Given cluster role "sudoer" is added to the "first" user
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
+    Then the step should fail
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
+      | as | system:admin    |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
+      | as | <%= user(1, switch: false).name %>    |
+    Then the step should fail

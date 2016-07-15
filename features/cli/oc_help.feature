@@ -298,7 +298,6 @@ Feature: oc related features
     And the output should contain:
       | DEPRECATED: This command has been moved to "oc logs"  |
 
-
   # @author chezhang@redhat.com
   # @case_id 519918
   Scenario: kubectl secret subcommand - help
@@ -405,7 +404,6 @@ Feature: oc related features
       | --sort-by=           |
       | -t, --template=      |
       | --validate=          |
-
 
   # @author chezhang@redhat.com
   # @case_id 521542

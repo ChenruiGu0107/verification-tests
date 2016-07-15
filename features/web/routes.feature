@@ -201,7 +201,7 @@ Feature: Routes related features on web console
   # @case_id 511906
   Scenario: Add path when creating edge terminated route on web cosnole
     Given I create a new project
-    
+
     # create pod, service and pod used for curl command
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
@@ -210,7 +210,7 @@ Feature: Routes related features on web console
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    
+
     # create edge route with path on web console
     When I perform the :open_create_route_page_from_overview_page web console action with:
       | project_name | <%= project.name%> |
@@ -220,11 +220,11 @@ Feature: Routes related features on web console
       | route_name              | edgepathroute   |
       | hostname                | :null           |
       | path                    | /test           |
-      | target_port             | 8080            | 
+      | target_port             | 8080            |
       | tls_termination_type    | Edge            |
       | insecure_traffic_policy | None            |
     Then the step should succeed
-    
+
     # check route function
     Given I have a pod-for-ping in the project
     When I execute on the "<%= pod.name %>" pod:
@@ -249,7 +249,7 @@ Feature: Routes related features on web console
   # @case_id 511907
   Scenario: Create edge termianted route with redirect insecure traffic policy on web console
     Given I create a new project
-    
+
     # create pod, service and pod used for curl command
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |

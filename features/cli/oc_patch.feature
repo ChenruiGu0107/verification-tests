@@ -313,5 +313,5 @@ Feature: oc patch related scenarios
       | type          | strategic     |
       | p             | spec:\n  ports:\n  -\n    targetPort: 446 |
     Then the step should fail
-     And the output should match:
+    And the output should match:
       | does not contain declared merge key |

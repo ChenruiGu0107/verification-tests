@@ -5,7 +5,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
   Scenario: Delete pod with mounting error
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/tc526564/pod_volumetest.json | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/tc526564/pod_volumetest.json |
     Then the step should succeed
     And I wait for the steps to pass:
     """

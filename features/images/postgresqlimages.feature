@@ -47,7 +47,7 @@ Feature: Postgresql images test
     Given I execute on the pod:
       | grep | effective_cache_size | /var/lib/pgsql/openshift-custom-postgresql.conf |
     Then the output should contain "effective_cache_size = 128MB"
-    
+
     Examples:
       | image                          |
       | openshift3/postgresql-92-rhel7 |
@@ -77,7 +77,7 @@ Feature: Postgresql images test
       | openshift3/postgresql-92-rhel7 |
       | rhscl/postgresql-94-rhel7      |
       | rhscl/postgresql-95-rhel7      |
-   
+
   # @author wewang@redhat.com
   # @case_id 528408 528409 529328
   Scenario Outline: Use default values for memory limits env vars - postgresql
@@ -101,5 +101,4 @@ Feature: Postgresql images test
       | openshift3/postgresql-92-rhel7 |
       | rhscl/postgresql-94-rhel7      |
       | rhscl/postgresql-95-rhel7      |
-
 

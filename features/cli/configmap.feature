@@ -29,7 +29,6 @@ Feature: configMap
       | SPECIAL_TYPE_KEY=charm |
       | SPECIAL_LEVEL_KEY=very |
 
-
   # @author chezhang@redhat.com
   # @case_id 520894
   Scenario: Consume ConfigMap via volume plugin
@@ -67,7 +66,6 @@ Feature: configMap
     Then the step should succeed
     And the output should contain:
       | charm |
-
 
   # @author chezhang@redhat.com
   # @case_id 520895
@@ -107,7 +105,6 @@ Feature: configMap
     Then the step should succeed
     And the output should match:
       | configmap "example-config" deleted |
-
 
   # @author chezhang@redhat.com
   # @case_id 520903

@@ -359,7 +359,7 @@ Feature: buildlogic.feature
       | .*io.s2i.scripts-url.*                               |
 
   # @author yantan@redhat.com
-  # case_id 482195
+  # @case_id 482195
   Scenario: Trigger build from webhook against external git provider - gitlab
     Given I have a project
     And I have an ssh-git service in the project
@@ -411,7 +411,7 @@ Feature: buildlogic.feature
     And the "ruby-hello-world-3" build completes
 
   # @author dyan@redhat.com
-  # case_id 482196
+  # @case_id 482196
   Scenario: Trigger generic webhooks with invalid branch or commit ID for external private git solutions - gitlab
     Given I have a project
     And I have an ssh-git service in the project
@@ -524,7 +524,7 @@ Feature: buildlogic.feature
 
   # @author yantan@redhat.com
   # @case_id 482192
-  Scenario: Build from private git repo with wrong auth method 
+  Scenario: Build from private git repo with wrong auth method
     Given I have a project
     When I run the :new_build client command with:
       | image_stream   | openshift/ruby:2.2                            |

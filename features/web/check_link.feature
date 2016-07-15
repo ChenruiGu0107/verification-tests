@@ -6,12 +6,12 @@ Feature: Check links in Openshift
     When I perform the :check_default_documentation_link_in_get_started web console action with:
       | default_documentation_link | https://docs.openshift.com/enterprise/latest/welcome/index.html |
     Then the step should succeed
-    
+
     # check Documentation link on /console help
     When I perform the :check_default_documentation_link_in_console_help web console action with:
       | default_documentation_link | https://docs.openshift.com/enterprise/latest/welcome/index.html |
     Then the step should succeed
-    
+
     # check docs link in about page
     When I perform the :check_default_documentation_link_in_about_page web console action with:
       | default_documentation_link | https://docs.openshift.com/enterprise/latest/welcome/index.html |
@@ -22,7 +22,7 @@ Feature: Check links in Openshift
     When I perform the :check_basic_cli_reference_doc_link_in_about_page web console action with:
       | basic_cli_reference_doc_link | https://docs.openshift.com/enterprise/latest/cli_reference/basic_cli_operations.html |
     Then the step should succeed
-    
+
     # check docs link on command line page
     When I perform the :check_get_started_with_cli_doc_link_in_cli_page web console action with:
       | get_started_cli_doc_link | https://docs.openshift.com/enterprise/latest/cli_reference/get_started_cli.html |
@@ -48,7 +48,7 @@ Feature: Check links in Openshift
       | basic_cli_reference_doc_link | https://docs.openshift.com/enterprise/latest/cli_reference/basic_cli_operations.html |
       | webhook_trigger_doc_link | https://docs.openshift.com/enterprise/latest/dev_guide/builds.html#webhook-triggers |
     Then the step should succeed
-    
+
     # check docs link about build
     When I perform the :check_webhook_trigger_doc_link_in_bc_page web console action with:
       | project_name | <%= project.name %>   |
