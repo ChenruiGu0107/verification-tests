@@ -71,7 +71,7 @@ Feature: Event related scenarios
       | hello-openshift-invalid.*Warning\\s+Failed     |
     """
     When  I run the :describe client command with:
-      | resource  | pods                    | 
+      | resource  | pods                    |
       | name      | hello-openshift-invalid |
     Then the output should match:
       | Normal\\s+Scheduled   |

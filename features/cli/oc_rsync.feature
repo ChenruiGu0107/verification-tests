@@ -214,7 +214,7 @@ Feature: oc_rsync.feature
     """
     Given a "test/test1/testfile1" file is created with the following lines:
     """
-    testfile1 
+    testfile1
     """
     And a "test/test1/testfile2" file is created with the following lines:
     """

@@ -203,65 +203,65 @@ Feature: build related feature on web console
       | xpath | //fieldset |
     Then the output should contain "true"
 
-  # author yapei@redhat.com
+  # @author yapei@redhat.com
   # @case_id 518658
   Scenario: Modify buildconfig for bc has ImageSource
-  Given I have a project
-  When I run the :create client command with:
-    | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/image-source.yaml |
-  Then the step should succeed
-  When I run the :get client command with:
-    | resource      | bc |
-    | resource_name | imagedockerbuild |
-    | o             | json             |
-  Then the step should succeed
-  Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 1
-  When I run the :get client command with:
-    | resource      | bc |
-    | resource_name | imagesourcebuild |
-    | o             | json             |
-  Then the step should succeed
-  Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 2
-  # check bc on web console
-  When I perform the :count_buildconfig_image_paths web console action with:
-    | project_name     | <%= project.name %>  |
-    | bc_name          | imagedockerbuild     |
-    | image_path_count | 1                    |
-  Then the step should succeed
-  When I perform the :count_buildconfig_image_paths web console action with:
-    | project_name     | <%= project.name %>  |
-    | bc_name          | imagesourcebuild     |
-    | image_path_count | 2                    |
-  Then the step should succeed
-  # change bc
-  When I perform the :add_bc_source_and_destination_paths web console action with:
-    | project_name     | <%= project.name %>  |
-    | bc_name          | imagedockerbuild     |
-    | image_source_from | Image Stream Tag    |
-    | image_source_namespace | openshift      |
-    | image_source_is | ruby |
-    | image_source_tag | 2.2 |
-    | source_path | /usr/bin/ruby |
-    | dest_dir  | user/test |
-  Then the step should succeed
-  When I run the :save_buildconfig_changes web console action
-  Then the step should succeed
-  # for bc has more than one imagestream source, couldn't add
-  When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
-    | project_name | <%= project.name %>  |
-    | bc_name      | imagesourcebuild     |
-  Then the step should succeed
-  When I perform the :choose_image_source_from web console action with:
-    | image_source_from | Image Stream Tag |
-  Then the step should fail
-  And the output should contain "element not found"
-  # check image source via CLI
-  When I run the :get client command with:
-    | resource      | bc |
-    | resource_name | imagedockerbuild |
-    | o             | json             |
-  Then the step should succeed
-  Then the expression should be true> @result[:parsed]['spec']['source']['images'][0]['paths'].length == 2
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/image-source.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | bc |
+      | resource_name | imagedockerbuild |
+      | o             | json             |
+    Then the step should succeed
+    Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 1
+    When I run the :get client command with:
+      | resource      | bc |
+      | resource_name | imagesourcebuild |
+      | o             | json             |
+    Then the step should succeed
+    Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 2
+    # check bc on web console
+    When I perform the :count_buildconfig_image_paths web console action with:
+      | project_name     | <%= project.name %>  |
+      | bc_name          | imagedockerbuild     |
+      | image_path_count | 1                    |
+    Then the step should succeed
+    When I perform the :count_buildconfig_image_paths web console action with:
+      | project_name     | <%= project.name %>  |
+      | bc_name          | imagesourcebuild     |
+      | image_path_count | 2                    |
+    Then the step should succeed
+    # change bc
+    When I perform the :add_bc_source_and_destination_paths web console action with:
+      | project_name     | <%= project.name %>  |
+      | bc_name          | imagedockerbuild     |
+      | image_source_from | Image Stream Tag    |
+      | image_source_namespace | openshift      |
+      | image_source_is | ruby |
+      | image_source_tag | 2.2 |
+      | source_path | /usr/bin/ruby |
+      | dest_dir  | user/test |
+    Then the step should succeed
+    When I run the :save_buildconfig_changes web console action
+    Then the step should succeed
+    # for bc has more than one imagestream source, couldn't add
+    When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
+      | project_name | <%= project.name %>  |
+      | bc_name      | imagesourcebuild     |
+    Then the step should succeed
+    When I perform the :choose_image_source_from web console action with:
+      | image_source_from | Image Stream Tag |
+    Then the step should fail
+    And the output should contain "element not found"
+    # check image source via CLI
+    When I run the :get client command with:
+      | resource      | bc |
+      | resource_name | imagedockerbuild |
+      | o             | json             |
+    Then the step should succeed
+    Then the expression should be true> @result[:parsed]['spec']['source']['images'][0]['paths'].length == 2
 
   # @author yapei@redhat.com
   # @case_id 518657
@@ -319,7 +319,7 @@ Feature: build related feature on web console
     # check env vars via CLI
     When I run the :get client command with:
       | resource      | bc    |
-      | resource_name | myapp | 
+      | resource_name | myapp |
       | o             | json  |
     Then the step should succeed
     Then the expression should be true> @result[:parsed]['spec']['strategy']['dockerStrategy']['env'].include?({"name"=>"dockertest", "value"=>"docker1234"})
@@ -356,7 +356,7 @@ Feature: build related feature on web console
     Then the step should succeed
     When I run the :get client command with:
       | resource      | bc    |
-      | resource_name | myapp | 
+      | resource_name | myapp |
       | o             | json  |
     Then the step should succeed
     And the output should not contain:
@@ -480,7 +480,7 @@ Feature: build related feature on web console
     Then the output should match:
       | Force Pull.*yes |
       | Image Reference.*DockerImage\syapei-test/origin-ruby-sample:latest |
-      
+
   # @author yapei@redhat.com
   # @case_id 518655
   Scenario: Modify buildconfig settings for Docker strategy
@@ -537,7 +537,7 @@ Feature: build related feature on web console
       | Triggered by.*ImageChange.*Config |
     And the output should match:
       | No Cache.*true |
-      
+
   # @author yapei@redhat.com
   # @case_id 518659
   Scenario: Modify buildconfig settings for source strategy
@@ -574,7 +574,7 @@ Feature: build related feature on web console
     # check bc on web console
     When I perform the :check_build_strategy web console action with:
       | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample          |   
+      | bc_name        | ruby-sample          |
       | build_strategy | Source               |
     Then the step should succeed
     # edit bc
@@ -628,7 +628,7 @@ Feature: build related feature on web console
     Then the step should succeed
     And the output should match:
       | From Image.*ImageStreamImage.*<%= cb.image_stream_image %> |
-      
+
   # @author yapei@redhat.com
   # @case_id 518656
   Scenario: Modify buildconfig settings for Binary source
@@ -655,7 +655,7 @@ Feature: build related feature on web console
     Then the step should succeed
     And the output should match:
       | Binary.*provided as.*hello-world-ruby.zip.*on build |
-    # add Env Vars 
+    # add Env Vars
     When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby                 |
@@ -676,7 +676,7 @@ Feature: build related feature on web console
       | bc_name       | ruby                 |
     Then the step should fail
     And the output should contain "element not found"
-    
+
   # @author yapei@redhat.com
   # @case_id 518660
   Scenario: Modify buildconfig has DockerImage as build output
@@ -693,7 +693,7 @@ Feature: build related feature on web console
     # check bc on web console
     When I perform the :check_bc_output web console action with:
       | project_name   | <%= project.name %>     |
-      | bc_name        | python-sample-build-sti |   
+      | bc_name        | python-sample-build-sti |
       | bc_output      | docker.io/aosqe/python-sample-sti:latest |
     Then the step should succeed
     # edit bc output image to another DockerImageLink
@@ -707,7 +707,7 @@ Feature: build related feature on web console
     Then the step should succeed
     When I perform the :check_bc_output web console action with:
       | project_name   | <%= project.name %>     |
-      | bc_name        | python-sample-build-sti |   
+      | bc_name        | python-sample-build-sti |
       | bc_output      | docker.io/yapei/python-sample-test:latest |
     Then the step should succeed
     # change bc output image to ImageStreamTag
@@ -723,13 +723,13 @@ Feature: build related feature on web console
     Then the step should succeed
     When I perform the :check_bc_output web console action with:
       | project_name   | <%= project.name %>     |
-      | bc_name        | python-sample-build-sti |   
+      | bc_name        | python-sample-build-sti |
       | bc_output      | <%= project.name %>/python-sample-sti:test |
     Then the step should succeed
     # change bc output image to None
     When I perform the :change_bc_output_image_to_none web console action with:
       | project_name      | <%= project.name %>     |
-      | bc_name           | python-sample-build-sti |   
+      | bc_name           | python-sample-build-sti |
       | output_image_dest | None                    |
     Then the step should succeed
     When I run the :save_buildconfig_changes web console action
@@ -750,7 +750,7 @@ Feature: build related feature on web console
       | code           | https://github.com/openshift/ruby-hello-world |
       | image_stream   | openshift/ruby                                |
     Then the step should succeed
-    
+
     When I perform the :check_build_log_tab web console action with:
       | project_name      | <%= project.name %> |
       | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
@@ -794,7 +794,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
     When I run the :start_build client command with:
-       | buildconfig | ruby-hello-world |
+      | buildconfig | ruby-hello-world |
     Then the step should succeed
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-2 |
@@ -814,7 +814,7 @@ Feature: build related feature on web console
       | https://github.com/openshift/ruby-hello-world | https://github.com/openshift/nonexist |
     Then the step should succeed
     When I run the :start_build client command with:
-       | buildconfig | ruby-hello-world |
+      | buildconfig | ruby-hello-world |
     Then the step should succeed
     Given the "ruby-hello-world-3" build becomes :failed
     When I perform the :check_build_log_tab web console action with:

@@ -156,11 +156,11 @@ Feature: general_db.feature
   # @case_id 498006
   Scenario: mongodb persistent template
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-persistent-template.json" 
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-persistent-template.json"
     And I replace lines in "mongodb-persistent-template.json":
       |mongodb:latest|mongodb:2.6|
     Then I run the :new_app client command with:
-      | file  |mongodb-persistent-template.json| 
+      | file  |mongodb-persistent-template.json|
       | param | MONGODB_ADMIN_PASSWORD=admin   |
     Then the step should succeed
     When I run the :patch client command with:

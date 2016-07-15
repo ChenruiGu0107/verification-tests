@@ -3,7 +3,7 @@ Feature: git server related scenarios
   # @case_id 500998
   Scenario: Config REQUIRE_SERVER_AUTH and REQUIRE_GIT_AUTH for git server
     Given I have a project
-    And I have an http-git service in the project 
+    And I have an http-git service in the project
     When I run the :run client command with:
       | name  | gitserver                  |
       | image | openshift/origin-gitserver |
@@ -73,12 +73,12 @@ Feature: git server related scenarios
     Then the step should succeed
     And I wait until number of replicas match "1" for replicationController "git-4"
     Given I store in the clipboard the pods labeled:
-     | deployment=git-4 |
+      | deployment=git-4 |
     When I run the :logs client command with:
       | resource_name| pods/<%= cb.pods[0].name%> |
     Then the output should contain:
       |error: only one of REQUIRE_SERVER_AUTH or REQUIRE_GIT_AUTH may be specified|
-    
+
   # @author shiywang@redhat.com
   # @case_id 500999
   Scenario: Do automatic build and deployment using private gitserver

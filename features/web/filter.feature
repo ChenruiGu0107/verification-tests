@@ -525,7 +525,7 @@ Feature: filter on create page
     When I perform the :goto_builds_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
-    When I run the :click_filter_box web console action 
+    When I run the :click_filter_box web console action
     Then the step should succeed
     When I perform the :check_suggested_label web console action with:
       | label | app |

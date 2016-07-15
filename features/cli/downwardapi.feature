@@ -39,7 +39,6 @@ Feature: Downward API
       | POD_NAME=dapi-test-pod |
       | POD_NAMESPACE=<%= project.name %> |
 
-
   # @author qwang@redhat.com
   # @case_id 509098
   Scenario: Container consume infomation from the downward API using a volume plugin
@@ -94,4 +93,4 @@ Feature: Downward API
       | rack="a111" |
     And the output should contain:
       | region="r1" |
-      | zone="z11"  | 
+      | zone="z11"  |

@@ -452,7 +452,7 @@ Feature: mysql_images.feature
       | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     |
 
   # @author wzheng@redhat.com
-  #  @case_id 527286,527287
+  # @case_id 527286,527287
   Scenario Outline: Use customized values for memory limits env vars
     Given I have a project
     When I run the :run client command with:
@@ -504,7 +504,7 @@ Feature: mysql_images.feature
       | name=mysql-slave          |
     And a pod becomes ready with labels:
       | name=mysql-master         |
-    Given I wait for the "mysql-master" service to become ready 
+    Given I wait for the "mysql-master" service to become ready
     And I wait up to 200 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -523,7 +523,7 @@ Feature: mysql_images.feature
       | resource | dc/mysql-master        |
       | e        | MYSQL_PASSWORD=newuser |
     Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:  
+    And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
       | bash | -c | mysql -h mysql-master -u user -puser -D userdb -e 'select * from  test;' |

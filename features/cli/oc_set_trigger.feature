@@ -130,7 +130,7 @@ Feature: oc set triggers tests
   Scenario: `oc set triggers` for dc
     Given I have a project
     And I run the :create client command with:
-    	| f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
     When I run the :set_triggers client command with:
       | resource   | dc/dctest              |

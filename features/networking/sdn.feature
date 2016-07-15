@@ -94,12 +94,11 @@ Feature: SDN related networking scenarios
       | systemctl status atomic-openshift-node |
     Then the output should contain "active (running)"
 
-
   # @author yadu@redhat.com
   # @case_id 517334
   @admin
   @destructive
-  Scenario:  bridge-nf-call-iptables should be disable on node
+  Scenario: bridge-nf-call-iptables should be disable on node
     Given I select a random node's host
     And the node network is verified
     And the node service is verified
@@ -165,7 +164,7 @@ Feature: SDN related networking scenarios
   @admin
   @destructive
   Scenario: [Bug 1308701] kubelet proxy could change to userspace mode
-    Given I select a random node's host  
+    Given I select a random node's host
     And the node network is verified
     And the node service is verified
     And system verification steps are used:

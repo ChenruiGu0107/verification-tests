@@ -114,5 +114,5 @@ Feature: set deployment-hook/build-hook with CLI
       | deployment_config | rails-postgresql-example |
       | latest ||
     Then the step should succeed
-    And I wait until the status of deployment "rails-postgresql-example" becomes :failed 
+    And I wait until the status of deployment "rails-postgresql-example" becomes :failed
 

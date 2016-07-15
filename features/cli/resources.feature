@@ -545,7 +545,7 @@ Feature: resouces related scenarios
     When I run the :describe client command with:
       | resource | template |
       | name     | ruby-helloworld-sample-with-resources |
-    Then the output should match: 
+    Then the output should match:
       | Name:\\s+MYSQL_RESOURCES_LIMITS_MEMORY|
       | Value:\\s+200Mi|
       | Name:\\s+MYSQL_RESOURCES_LIMITS_CPU|

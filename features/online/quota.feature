@@ -16,9 +16,9 @@ Feature: ONLY ONLINE Quota related scripts in this file
     Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources']['requests']['cpu'] == "<expr3>"
     Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources']['requests']['memory'] == "<expr4>"
 
-    # request/limit of containers should be overridden based on memory limit when master provide override ratio: 
-    # cpuRequestToLimitPercent, limitCPUToMemoryPercent, memoryRequestToLimitPercent. 
-    # When case fails because of unexpected value of expr1-4, master configuration should be checked firstly. 
+    # request/limit of containers should be overridden based on memory limit when master provide override ratio:
+    # cpuRequestToLimitPercent, limitCPUToMemoryPercent, memoryRequestToLimitPercent.
+    # When case fails because of unexpected value of expr1-4, master configuration should be checked firstly.
     # If the the output of expr1-4 is indeed based on the override ratio, then it's a bug.
     Examples:
       | path     | filename                  | podname              | expr1 | expr2 | expr3 | expr4 |

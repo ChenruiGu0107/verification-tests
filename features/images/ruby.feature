@@ -29,7 +29,7 @@ Feature: ruby.feature
   # @case_id 529326
   Scenario: Tune puma workers according to memory limit ruby-rhel7
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521462/template.json" 
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521462/template.json"
     And I replace lines in "template.json":
       |ruby:2.2|ruby:2.3|
     When I run the :create client command with:

@@ -80,7 +80,7 @@ Feature: stibuild.feature
     When I run the :describe client command with:
       | resource | build              |
       | name     | php-sample-build-1 |
-    Then the output should contain: 
+    Then the output should contain:
       | Build configuration change |
 
   # @author xiuwang@redhat.com

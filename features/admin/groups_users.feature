@@ -86,7 +86,7 @@ Feature: groups and users related features
     Then the step should succeed
     And the output should not match:
       | <%= project.name %>user1 |
-    
+
   # @author xiaocwan@redhat.com
   # @case_id 498662
   @admin
@@ -94,8 +94,8 @@ Feature: groups and users related features
     Given admin creates a project
     Then evaluation of `project.name` is stored in the :project1 clipboard
     Given admin creates a project
-    Then evaluation of `project.name` is stored in the :project2 clipboard    
-    
+    Then evaluation of `project.name` is stored in the :project2 clipboard
+
     When I run the :oadm_groups_new admin command with:
       | group_name | <%= cb.project1 %>-<%= cb.project2 %>-group |
     Then the step should succeed
@@ -110,7 +110,7 @@ Feature: groups and users related features
       | group_name | <%= cb.project1 %>-<%= cb.project2 %>-group |
       | n          | <%= cb.project1 %>                          |
     Then the step should succeed
-    When I switch to the first user 
+    When I switch to the first user
     And I run the :get client command with:
       | resource | project |
     Then the step should succeed
@@ -152,12 +152,12 @@ Feature: groups and users related features
     And I run the :policy_remove_role_from_group admin command with:
       | role       | view                                        |
       | group_name | <%= cb.project1 %>-<%= cb.project2 %>-group |
-      | n          | <%= cb.project2 %>                          |   
+      | n          | <%= cb.project2 %>                          |
     Then the step should succeed
     When I run the :get client command with:
       | resource | all                |
       | n        | <%= cb.project1 %> |
-    Then the step should fail 
+    Then the step should fail
     And the output should match:
       | cannot list .* in project.*<%= cb.project1 %> |
     When I run the :get client command with:
@@ -174,7 +174,7 @@ Feature: groups and users related features
     Given admin creates a project
     Then evaluation of `project.name` is stored in the :project1 clipboard
     Given admin creates a project
-    Then evaluation of `project.name` is stored in the :project2 clipboard    
+    Then evaluation of `project.name` is stored in the :project2 clipboard
 
     When I run the :oadm_groups_new admin command with:
       | group_name | <%= cb.project1 %>-<%= cb.project2 %>-group |
@@ -190,7 +190,7 @@ Feature: groups and users related features
       | group_name | <%= cb.project1 %>-<%= cb.project2 %>-group |
       | n          | <%= cb.project1 %>                          |
     Then the step should succeed
-    When I switch to the first user 
+    When I switch to the first user
     And I run the :get client command with:
       | resource | project |
     Then the step should succeed
@@ -240,7 +240,7 @@ Feature: groups and users related features
       | role       | edit                                        |
       | user_name  | <%= user(1, switch: false).name %>          |
       | n          | <%= cb.project2 %>                          |
-    Then the step should fail  
+    Then the step should fail
     And the output should match:
       | cannot get policybindings in project.*<%= cb.project2 %> |
 
@@ -251,12 +251,12 @@ Feature: groups and users related features
     And I run the :policy_remove_role_from_group admin command with:
       | role       | edit                                        |
       | group_name | <%= cb.project1 %>-<%= cb.project2 %>-group |
-      | n          | <%= cb.project2 %>                          |   
+      | n          | <%= cb.project2 %>                          |
     Then the step should succeed
     When I run the :get client command with:
       | resource | all                |
       | n        | <%= cb.project1 %> |
-    Then the step should fail 
+    Then the step should fail
     And the output should match:
       | cannot list .* in project.*<%= cb.project1 %> |
     When I run the :get client command with:
