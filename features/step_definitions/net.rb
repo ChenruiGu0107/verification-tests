@@ -11,7 +11,8 @@ end
 
 Given /^I wait(?: up to ([0-9]+) seconds)? for a( secure)? web server to become available via the(?: "(.+?)")? route$/ do |seconds, secure, route_name|
   proto = secure ? "https" : "http"
-  @result = route(route_name).wait_http_accessible(by: user, timeout: seconds.to_i,
+  seconds = seconds.to_i unless seconds.nil?
+  @result = route(route_name).wait_http_accessible(by: user, timeout: seconds,
                                                    proto: proto)
 
   unless @result[:success]
