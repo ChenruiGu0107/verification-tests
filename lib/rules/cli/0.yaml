@@ -577,6 +577,23 @@
     :command: --command -- <value>
     :script: --script=<value>
     :args: -- <value>
+:set_deployment_hook:
+  :cmd: oc set deployment-hook <global_options> <options>
+  :options:
+    :all: --all
+    :oc_opts_end: --
+    :args: <value>
+    :deploymentconfig: <value>
+    :failure_policy: --failure-policy=<value>
+    :mid: --mid
+    :post: --post
+    :pre: --pre
+    :remove: --remove
+    :c: -c <value>
+    :e: -e <value>
+    :f: -f <value>
+    :o: -o <value>
+    :l: -l <value>
 :set_env:
   :cmd: oc set env
   :options:
