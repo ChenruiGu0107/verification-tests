@@ -30,7 +30,7 @@ Feature: SDN related networking scenarios
     And I register clean-up steps:
     """
     When I run commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
     Then the step should succeed
     """
     And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
@@ -38,7 +38,7 @@ Feature: SDN related networking scenarios
       | sed -i 's/mtu:.*/mtu: 3450/g' /etc/origin/node/node-config.yaml |
     Then the step should succeed
     When I run commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
     Then the step should succeed
     When I run commands on the host:
       | systemctl restart atomic-openshift-node |
