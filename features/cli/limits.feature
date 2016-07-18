@@ -190,10 +190,11 @@ Feature: limit range related scenarios:
     And I wait for the steps to pass:
     """
     When I run the :get client command with:
-      | resource      | quota   |
-      | o             | yaml |
-    Then the output should contain:
-      | openshift.io/imagestreams: "0" |
+      | resource      | quota |
+      | resource_name | openshift-object-counts |
+      | template      | {{.status.used}} |
+      | n             | <%= project.name %> |
+    Then the output should match "openshift.io/imagestreams:0"
     """
     When I run the :new_build client command with:
       | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
@@ -201,17 +202,58 @@ Feature: limit range related scenarios:
     And the "ruby-ex-1" build was created
     Then the "ruby-ex-1" build completes
     When I run the :get client command with:
-      | resource      | quota   |
-      | o             | yaml |
-    Then the output should contain:
-      | openshift.io/imagestreams: "2" |
+      | resource      | quota |
+      | resource_name | openshift-object-counts |
+      | template      | {{.status.used}} |
+      | n             | <%= project.name %> |
+    Then the output should match "openshift.io/imagestreams:2"
     When I run the :start_build client command with:
       | buildconfig | ruby-ex |
     Then the step should succeed
     Then the "ruby-ex-2" build completes
     When I run the :get client command with:
-      | resource      | quota   |
+      | resource      | quota |
       | resource_name | openshift-object-counts |
-      | o             | yaml |
-    Then the output should contain:
-      | openshift.io/imagestreams: "2" |
+      | template      | {{.status.used}} |
+      | n             | <%= project.name %> |
+    Then the output should match "openshift.io/imagestreams:2"
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 529157
+  @admin
+  Scenario: Check the quota after import-image with --all option
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/openshift-object-counts.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | quota |
+      | resource_name | openshift-object-counts |
+      | template      | {{.status.used}} |
+      | n             | <%= project.name %> |
+    Then the output should match "openshift.io/imagestreams:0"
+    """
+    When I run the :import_image client command with:
+      | image_name | centos           |
+      | from       | docker.io/centos |
+      | confirm    | true             |
+      | all        | true             |
+    Then the step should succeed
+    When I run the :tag client command with:
+      | source_type  | docker                     |
+      | source       | docker.io/library/busybox:latest   |
+      | dest         | mystream:latest            |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | quota |
+      | resource_name | openshift-object-counts |
+      | template      | {{.status.used}} |
+      | n             | <%= project.name %> |
+    Then the output should match "openshift.io/imagestreams:2"
+    """
