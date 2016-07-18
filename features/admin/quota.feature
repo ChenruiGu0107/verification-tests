@@ -853,3 +853,43 @@ Feature: Quota related scenarios
       | secrets\\s+9\\s+20                |
       | services\\s+0\\s+30               |
     """
+
+
+  # @author qwang@redhat.com
+  # @case_id 509091
+  @admin
+  Scenario: The quota usage should be incremented if Requests = Limits and in the range of hard quota but exceed the real node available resources
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    When  I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu\\s+0\\s+30                    |
+      | memory\\s+0\\s+16Gi               |
+      | persistentvolumeclaims\\s+0\\s+20 |
+      | pods\\s+0\\s+20                   |
+      | replicationcontrollers\\s+0\\s+30 |
+      | resourcequotas\\s+1\\s+1          |
+      | secrets\\s+9\\s+15                |
+      | services\\s+0\\s+10               |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509091/pod-request-limit-valid-4.yaml |
+    Then the step should succeed
+    Given the pod named "pod-request-limit-valid-4" status becomes :pending
+    When I run the :describe client command with:
+      | resource | quota   |
+      | name     | myquota |
+    Then the output should match:
+      | cpu\\s+10\\s+30                   |
+      | memory\\s+10Gi\\s+16Gi            |
+      | persistentvolumeclaims\\s+0\\s+20 |
+      | pods\\s+1\\s+20                   |
+      | replicationcontrollers\\s+0\\s+30 |
+      | resourcequotas\\s+1\\s+1          |
+      | secrets\\s+9\\s+15                |
+      | services\\s+0\\s+10               |
+

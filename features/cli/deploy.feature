@@ -1489,6 +1489,7 @@ Feature: deployment related features
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
 
+
   # @author yinzhou@redhat.com
   # @case_id 527513
   Scenario: Automatic set to false without ConfigChangeController on the DeploymentConfig
@@ -1554,3 +1555,30 @@ Feature: deployment related features
       | resource_name | deployment-example |
       | o             | json |
     Then the expression should be true> @result[:parsed]['spec']['replicas'] == 3
+  
+
+  # @author qwang@redhat.com
+  # @case_id 470706
+  Scenario: configchange triggers deploy automatically
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    Given status becomes :succeeded of exactly 1 pods labeled:
+      | name=hello-openshift |
+    When I run the :env client command with:
+      | resource | dc/hooks |
+      | e        | MYSQL_PASSWORD=update12345 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | hooks            |
+      | o             | json             |
+    Then the output should contain:
+      | "latestVersion": 2 |
+    Given I wait until number of replicas match "0" for replicationController "hooks-1"
+    And I wait until number of replicas match "1" for replicationController "hooks-2"
+    When I run the :get client command with:
+      | resource | pod |
+    Then the output should match:
+      | hooks-2.*Running |
