@@ -195,6 +195,7 @@ Feature: Logging and Metrics
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_pv.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
     And I store default router subdomain in the :subdomain clipboard
+    And I store master major version in the :master_version clipboard
     When I run the :create_serviceaccount client command with:
       | serviceaccount_name | metrics-deployer |
     Then the step should succeed
@@ -213,7 +214,7 @@ Feature: Logging and Metrics
     When I create a new application with:
       | template | metrics-deployer-template |
       | param | HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.<%= cb.subdomain%> |
-      | param | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/,USE_PERSISTENT_STORAGE=true,CASSANDRA_PV_SIZE=5Gi,IMAGE_VERSION=3.2.1 |
+      | param | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/,USE_PERSISTENT_STORAGE=true,CASSANDRA_PV_SIZE=5Gi,IMAGE_VERSION=<%= cb.master_version%> |
       | param | MASTER_URL=<%= env.api_endpoint_url %> |
     Then the step should succeed
     And all pods in the project are ready
