@@ -307,3 +307,56 @@ Feature: remote registry related scenarios
       | o             | yaml |
     And the output is parsed as YAML
     Then the expression should be true> @result[:parsed]['status']['tags'][0]['items'][0]['dockerImageReference'] == @result[:parsed]['status']['tags'][1]['items'][0]['dockerImageReference']
+
+  # @author yinzhou@redhat.com
+  # @case_id 529155,529160
+  @admin
+  @destructive
+  Scenario: After Image Size Limit increment can push the image which previously over the limit
+    Given I have a project
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource      | limits |
+      | resource_name | openshift-resource-limits |
+      | o             | yaml  |
+      | n             | <%= project.name %> |
+    Then the step should succeed
+    And I save the output to file>openshift-resource-limits.yaml
+    Given I replace lines in "openshift-resource-limits.yaml":
+      | storage: 1Gi | storage: 65Mi |
+    When I run the :replace admin command with:
+      | f             | openshift-resource-limits.yaml  |
+      | n             | <%= project.name %>             |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    Then the step should succeed
+    And evaluation of `cb.integrated_reg_ip + "/" + project.name + "/mystream:2.0"` is stored in the :my_tag clipboard
+    When I run commands on the host:
+      | docker pull docker.io/centos:centos7 |
+      | docker tag docker.io/centos:centos7 <%= cb.my_tag %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.my_tag %> |
+    Then the step should fail
+    When I run the :get admin command with:
+      | resource      | limits |
+      | resource_name | openshift-resource-limits |
+      | o             | yaml  |
+      | n             | <%= project.name %> |
+    Then the step should succeed
+    And I save the output to file>openshift-resource-limits.yaml
+    Given I replace lines in "openshift-resource-limits.yaml":
+      | storage: 65Mi | storage: 70Mi |
+    When I run the :replace admin command with:
+      | f             | openshift-resource-limits.yaml  |
+      | n             | <%= project.name %>             |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.my_tag %> |
+    Then the step should succeed
