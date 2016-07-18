@@ -60,10 +60,8 @@ Feature: Pod related networking scenarios
     And the pod named "hello-pod" becomes ready
     And I run the steps 20 times:
     """
-    Given I execute on the "<%= pod.name %>" pod:
-      | getent     |
-      | hosts      |
-      | google.com | 
+    Given I execute on the pod:
+      | getent | hosts | google.com |
     Then the step should succeed
     And the output should contain "google.com"
     """
