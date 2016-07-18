@@ -783,14 +783,14 @@ Feature: build related feature on web console
       | build_status_name | Complete             |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
-      | build_log_context | Successfully pushed |
+      | build_log_context | uccessfully |
     Then the step should succeed
     When I run the :go_to_end_log web console action
     Then the step should succeed
     When I run the :go_to_top_log web console action
     Then the step should succeed
     When I perform the :open_full_view_log web console action with:
-      | log_context | Successfully pushed |
+      | log_context | uccessfully |
     Then the step should succeed
 
     When I run the :start_build client command with:
@@ -823,5 +823,5 @@ Feature: build related feature on web console
       | build_status_name | Failed             |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
-      | build_log_context |  Error: build error: failed to fetch requested repository "https://github.com/openshift/nonexist" |
+      | build_log_context | error: failed to fetch requested repository "https://github.com/openshift/nonexist" |
     Then the step should succeed

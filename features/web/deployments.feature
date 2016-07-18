@@ -171,9 +171,7 @@ Feature: Check deployments function
   # @author yanpzhan@redhat.com
   # @case_id 510377
   Scenario: View deployments streaming logs
-    When I create a new project via web
-    Then the step should succeed
-
+    Given I create a new project via web
     When I run the :run client command with:
       | name  | mytest             |
       | image | openshift/mysql-55-centos7:latest |
@@ -185,7 +183,7 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
       | pod_name     | mytest-1-deploy |
       | status       | Running |
-      | log_context  | Deploying |
+      | log_context  | Scaling |
     Then the step should succeed
 
     And I wait until the status of deployment "mytest" becomes :complete
@@ -200,7 +198,7 @@ Feature: Check deployments function
       | dc_name      | mytest    |
       | dc_number    | 2         |
       | status       | Running   |
-      | log_context  | Deploying |
+      | log_context  | Scaling |
     Then the step should succeed
 
     And I wait until the status of deployment "mytest" becomes :complete
