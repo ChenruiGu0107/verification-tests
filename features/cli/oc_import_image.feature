@@ -204,7 +204,7 @@ Feature: oc import-image related feature
       | image_name | tc510529 |
     Then the step should fail
     And the output should match:
-      | error: image stream has not defined anything to import |
+      | error: image stream |
 
   # @author xiaocwan@redhat.com
   # @case_id 519468

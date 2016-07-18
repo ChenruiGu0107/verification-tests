@@ -225,15 +225,6 @@ Feature: remote registry related scenarios
       | docker push <%= cb.my_tag %> |
     Then the step should fail
     And the output should contain "unauthorized"
-    When I give project edit role to the third user
-    Given I switch to the third user
-    When I run commands on the host:
-      | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
-    Then the step should succeed
-    When I run commands on the host:
-      | docker push <%= cb.my_tag %> |
-    Then the step should fail
-    And the output should contain "unauthorized"
     Given I switch to the first user
     When I run commands on the host:
       | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |

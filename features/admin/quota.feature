@@ -148,7 +148,7 @@ Feature: Quota related scenarios
       | \\S+ |
     When I get project events
     Then the output should match:
-      | rror creating deployer pod.*<%= project.name %>/dctest-1 |
+      | Failed quota: quota: must specify cpu,memory |
 
   # @author xiaocwan@redhat.com
   # @case_id 481679
