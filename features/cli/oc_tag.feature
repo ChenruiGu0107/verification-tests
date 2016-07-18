@@ -253,7 +253,7 @@ Feature: oc tag related scenarios
       | resource_name | ruby:tip |
       | output        | yaml     |
     Then the step should succeed
-    And the expression should be true> @result[:parsed]["image"]["dockerImageLayers"].empty? == false
+    And the expression should be true> @result[:parsed].dig("image", "dockerImageLayers", 0, "size")
     When I run the :tag client command with:
       | source_type  | docker                  |
       | source       | openshift/origin:v1.2.0 |
@@ -271,7 +271,7 @@ Feature: oc tag related scenarios
       | resource_name | ruby:another |
       | output        | yaml         |
     Then the step should succeed
-    And the expression should be true> @result[:parsed]["image"]["dockerImageLayers"].empty? == false
+    And the expression should be true> @result[:parsed].dig("image", "dockerImageLayers", 0, "size")
     When I run the :tag client command with:
       | source_type  | docker                |
       | source       | openshift/origin:fail |
