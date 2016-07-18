@@ -53,3 +53,18 @@ Feature: Pod related networking scenarios
       | name | fail-pod |
     Then the step should succeed
     And the output should not contain "TeardownNetworkError"
+
+  # @author yadu@redhat.com
+  # @case_id 528410
+  Scenario:  [Bug 1312945] Container could reach the dns server
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc528410/tc_528410_pod.json |
+    And the pod named "hello-pod" becomes ready
+    And I run the steps 20 times:
+    """
+    Given I execute on the pod:
+      | getent | hosts | google.com |
+    Then the step should succeed
+    And the output should contain "google.com"
+    """
