@@ -328,8 +328,8 @@ Feature: deployment related features
       | o             | json |
     Then the output should contain:
       | "value": "Plqe5Wev"    |
-    And the output should not contain:
-      | "type": "ConfigChange" |
+    And the output should contain:
+      | "type": "ImageChange" |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | enable_triggers   ||
@@ -1187,8 +1187,7 @@ Feature: deployment related features
       | f | true |
       | resource_name | dc/hooks |
     Then the output should contain:
-      | Scaling <%= project.name %>/hooks-1 to 1 before performing acceptance check |
-      | Deployment hooks-1 successfully made active |
+      | Scaling hooks-1 to 1 |
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :get client command with:
       | resource      | rc |
@@ -1317,9 +1316,13 @@ Feature: deployment related features
     @admin
     Scenario: DeploymentConfig should allow valid value of resource requirements
     Given I have a project
-    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | n | <%= project.name %> |
     Then the step should succeed
-    When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/quota.yaml |
+      | n | <%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
