@@ -92,6 +92,10 @@ require 'watir-webdriver'
       # @@headless.destroy if @@headless
     end
 
+    def replace_rules(rulez)
+      @rules = Web4Cucumber.load_rules [rulez] 
+    end
+
     def res_join(master_res, *results)
       results.each do |res|
         master_res.merge!(res) do |key, oldval, newval|

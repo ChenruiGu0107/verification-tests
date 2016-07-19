@@ -9,3 +9,8 @@ logout:
       expect_result: ~
     - command: return window.localStorage['LocalStorageUserStore.user']
       expect_result: ~
+
+logout_forget:
+  scripts:
+    - command: return window.localStorage.clear()
+      expect_result: ~

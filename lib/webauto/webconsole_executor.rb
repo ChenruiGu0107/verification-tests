@@ -20,24 +20,51 @@ module CucuShift
       @env = env
       @opts = opts
       @executors = {}
-      @rules = nil # use rules cache to space a few milliseconds
+      @rules = nil # use rules cache to spare a few milliseconds
+      @version = nil # cache rules version
     end
 
     def executor(user)
       return @executors[user.name] if @executors[user.name]
 
-      rulez = @rules || RULES_DIR
+      rulez = @rules || RULES_DIR +  "base/"
 
-      @executors[user.name] = Web4Cucumber.new(
+      e = @executors[user.name] = Web4Cucumber.new(
         logger: logger,
         base_url: env.web_console_url,
         rules: rulez
       )
 
-      # if we don't have cached rules, do it now
-      @rules ||= Collections.deep_freeze(@executors[user.name].rules)
+      unless @rules
+        e.replace_rules(RULES_DIR + get_master_version(user) + "/")
+        @rules = Collections.deep_freeze(e.rules)
+      end
 
-      return @executors[user.name]
+      return e
+    end
+
+    def get_master_version(user)
+
+      res = login(user)
+      unless res[:success]
+        raise "can not login via web console"
+      end
+
+      res = executor(user).run_action(:get_master_version_from_webconsole)
+      unless res[:success]
+        raise "can not get the specific rule version"
+      end
+
+      @version = executor(user).text.scan(/^OpenShift Master:\nv(.+)/)[0][0]
+      # CliExecutor::rules_version
+      v = @version.split('.')
+      if v.first == '3' && v[1..2].all? {|e| e =~ /^[0-9]+$/} && v[3]
+        # version like v3.0.0.0-32-g3ae1d27, i.e. return version 0
+        return @version.split('.')[1]
+      else
+        # version like v1.0.2, i.e. return version 0
+        return (Integer(v[0]) - 1).to_s
+      end
     end
 
     def login(user)
@@ -49,7 +76,7 @@ module CucuShift
         # looks like we use token only user, lets try to hack our way in
         # res = user.get_self
         # if res[:success]
-          return executor(user).run_action(:login_token,
+        return executor(user).run_action(:login_token,
                                            # user: res[:response].chomp,
                                            token: user.get_bearer_token.token
                                           )
@@ -59,20 +86,40 @@ module CucuShift
       end
     end
 
+    def logout(user)
+      if user.password?
+        return executor(user).run_action(:logout)
+      else
+        return executor(user).run_action(:logout_forget)
+      end
+    end
+
     def run_action(user, action, **opts)
       login_actions = [ :login, :login_token ]
 
       if action == :logout && !user.password?
-        raise "be careful to not logout while user defined only by token"
+        return logout(user)
       end
 
-      # login automatically on first browser use unless `_nologin` option given
-      if !opts.delete(:_nologin) && executor(user).is_new? &&
-                                    !login_actions.include?(action)
-        res = login(user)
-        unless res[:success]
-          logger.error "login to web console failed:\n" + res[:response]
-          return res
+      # support "nologin" action
+      if opts.delete(:_nologin)
+        # this is tricky - if rules/version is not already cached, then
+        #   creating a new executor will first login to obtain version number;
+        #   we want to reverse this here provided _nologin option is used
+        if !@rules && !executor(user).is_new?
+          res = logout(user)
+          unless res[:success]
+            raise  "logout from web console failed:\n" + res[:response]
+          end
+        end
+      else
+        # login automatically on first use unless `_nologin` option given
+        if executor(user).is_new? && !login_actions.include?(action)
+          res = login(user)
+          unless res[:success]
+            logger.error "login to web console failed:\n" + res[:response]
+            return res
+          end
         end
       end
 
