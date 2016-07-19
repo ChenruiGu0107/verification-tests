@@ -221,12 +221,20 @@ Given /^I have a pod-for-ping in the(?: "([^ ]+?)")? project$/ do |project_name|
     raise "project #{project_name} does not exist"
   end
 
-  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json")
+  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json")
   raise "could not create a pod-for-ping" unless @result[:success]
 
   cb.ping_pod = pod("hello-pod")
   @result = pod("hello-pod").wait_till_ready(user, 300)
   raise "pod-for-ping did not become ready in time" unless @result[:success]
+
+  #get the ca.pem from github for secure routing tests
+  @result = pod.exec(
+    "bash", "-c",
+    "wget https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem -O /tmp/ca.pem",
+    as: user
+  )
+  raise "cannot get ca cert" unless @result[:success]
 end
 
 Given /^I have a Gluster service in the(?: "([^ ]+?)")? project$/ do |project_name|
