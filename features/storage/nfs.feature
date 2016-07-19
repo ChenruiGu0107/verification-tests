@@ -91,57 +91,10 @@ Feature: NFS Persistent Volume
 
   # @author lxia@redhat.com
   # @case_id 508050
-  @admin
-  @destructive
-  Scenario: NFS volume plugin with ROX access mode and Retain policy
-    # Preparations
-    Given I have a project
-    And I have a NFS service in the project
-    When I execute on the pod:
-      | chmod | g+w | /mnt/data |
-    Then the step should succeed
-
-    # Creating PV and PVC
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]                | ReadOnlyMany                     |
-      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                           |
-      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0] | ReadOnlyMany             |
-    Then the step should succeed
-    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
-      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
-    Then the step should succeed
-    Given the pod named "mypod-<%= project.name %>" becomes ready
-    When I execute on the pod:
-      | id |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | -ld | /mnt/ |
-    Then the step should succeed
-    When I execute on the pod:
-      | touch | /mnt/tc508050 |
-    Then the step should succeed
-    And the output should not contain "Permission denied"
-
-    Given I ensure "mypod-<%= project.name %>" pod is deleted
-    And I ensure "nfsc-<%= project.name %>" pvc is deleted
-    And the PV becomes :released
-    When I execute on the "nfs-server" pod:
-      | ls | /mnt/data/tc508050 |
-    Then the step should succeed
-
-  # @author lxia@redhat.com
   # @case_id 508051
   @admin
   @destructive
-  Scenario: NFS volume plugin with RWX access mode and Default policy
+  Scenario Outline: NFS volume plugin with ROX/RWX access mode and Retain/Default policy
     # Preparations
     Given I have a project
     And I have a NFS service in the project
@@ -152,13 +105,13 @@ Feature: NFS Persistent Volume
     # Creating PV and PVC
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]                | ReadWriteMany                    |
-      | ["spec"]["persistentVolumeReclaimPolicy"] | Default                          |
+      | ["spec"]["accessModes"][0]                | <access_mode>                    |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | <reclaim_policy>                 |
       | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0] | ReadWriteMany            |
+      | ["spec"]["accessModes"][0] | <access_mode>            |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -174,7 +127,7 @@ Feature: NFS Persistent Volume
       | ls | -ld | /mnt/ |
     Then the step should succeed
     When I execute on the pod:
-      | touch | /mnt/tc508051 |
+      | touch | /mnt/test_file |
     Then the step should succeed
     And the output should not contain "Permission denied"
 
@@ -182,8 +135,13 @@ Feature: NFS Persistent Volume
     And I ensure "nfsc-<%= project.name %>" pvc is deleted
     And the PV becomes :released
     When I execute on the "nfs-server" pod:
-      | ls | /mnt/data/tc508051 |
+      | ls | /mnt/data/test_file |
     Then the step should succeed
+
+    Examples:
+      | access_mode   | reclaim_policy |
+      | ReadOnlyMany  | Retain         |
+      | ReadWriteMany | Default        |
 
   # @author jhou@redhat.com
   # @case_id 488980
