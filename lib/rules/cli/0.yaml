@@ -782,6 +782,13 @@
   :cmd: oadm groups new
   :options:
     :group_name: <value>
+:oadm_groups_prune:
+  :cmd: oadm groups prune
+  :options:
+    :sync_config: --sync-config=<value>
+    :blacklist: --blacklist=<value>
+    :whitelist: --whitelist=<value>
+    :confirm: --confirm
 :oadm_groups_remove_users:
   :cmd: oadm groups remove-users
   :options:

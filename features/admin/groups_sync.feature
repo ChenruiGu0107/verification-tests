@@ -160,3 +160,90 @@ Feature: Group sync related scenarios
     And the output should contain:
       |person4      |
 
+
+  # @author wjiang@redhat.com
+  # @case_id 515433
+  @admin
+  Scenario: Administrator can remove groups which are no longer present on the LDAP server from openshift records
+    Given I have a project
+    Given I have LDAP service in my project
+    Given I switch to cluster admin pseudo user
+    Given admin ensures "tc515433group1" group is deleted after scenario
+    Given admin ensures "tc515433group2" group is deleted after scenario
+    Given admin ensures "tc515433group3" group is deleted after scenario
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/rfc2307/sync-config-tc515433.yaml"
+    Then the step should succeed
+    And I replace lines in "sync-config-tc515433.yaml":
+      | LDAP_SERVICE_IP:389  | 127.0.0.1:<%= cb.ldap_port %>  |
+    When I run the :oadm_groups_sync admin command with:
+      | sync_config  | sync-config-tc515433.yaml  |
+      | confirm      |                            |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource     | groups                     |
+    Then the step should succeed
+    And the output should contain:
+      | tc515433group1   |
+      | tc515433group2   |
+      | tc515433group3   |
+    When I run the :rsh client command with:
+      | pod              | <%= cb.ldap_pod_name %>                                                                                                                                                  |
+      | _stdin           | ldapdelete -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin cn=group1,ou=groups,ou=rfc2307,dc=example,dc=com cn=group2,ou=groups,ou=rfc2307,dc=example,dc=com|
+      | n                | <%= project.name %>                                                                                                                                                      |
+    Then the step should succeed
+    Given a "whitelist" file is created with the following lines:
+      | tc515433group1   |
+    When I run the :oadm_groups_prune admin command with:
+      | sync_config  | sync-config-tc515433.yaml  |
+      | confirm      |                            |
+      | whitelist    | whitelist                  |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource     | groups                     |
+    Then the step should succeed
+    And the output should contain:
+      | tc515433group2   |
+    And the output should not contain:
+      | tc515433group1   |
+    Given a "blacklist" file is created with the following lines:
+      | tc515433group2   |
+    When I run the :oadm_groups_prune admin command with:
+      | sync_config  | sync-config-tc515433.yaml  |
+      | confirm      |                            |
+      | blacklist    | blacklist                  |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource     | groups                     |
+    Then the step should succeed
+    And the output should contain:
+      | tc515433group2   |
+    When I run the :rsh client command with:
+      | pod              | <%= cb.ldap_pod_name %>                                                                                                  |
+      | _stdin           | ldapdelete -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin cn=group3,ou=groups,ou=rfc2307,dc=example,dc=com |
+      | n                | <%= project.name %>                                                                                                      |
+    Then the step should succeed
+    Given a "whitelist1" file is created with the following lines:
+      | tc515433group3   |
+    When I run the :oadm_groups_prune admin command with:
+      | sync_config  | sync-config-tc515433.yaml  |
+      | confirm      |                            |
+      | whitelist    | whitelist1                 |
+      | blacklist    | blacklist                  |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource     | groups                     |
+    Then the step should succeed
+    And the output should contain:
+      | tc515433group2   |
+    And the output should not contain:
+      | tc515433group3   |
+    When I run the :oadm_groups_prune admin command with:
+      | sync_config  | sync-config-tc515433.yaml|
+      | confirm      |                          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource     | groups                   |
+    Then the step should succeed
+    And the output should not contain:
+      | tc515433group2   |
+
