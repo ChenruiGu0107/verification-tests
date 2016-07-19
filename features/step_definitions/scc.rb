@@ -77,7 +77,7 @@ Given /^SCC #{QUOTED} is (added to|removed from) the #{QUOTED} (user|group|servi
       _user_name = user(word_to_num(which), switch: false).name
       _opts[:user_name] = _user_name
     else
-      _user_name = service_account(which, switch: false).shortname
+      _user_name = service_account(which, switch: false).name
       _opts[:serviceaccount] = _user_name
     end
 
