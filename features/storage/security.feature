@@ -131,8 +131,7 @@ Feature: storage security check
     And I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
 
-    #Create two pods for selinux testing
-    And I run the :create client command with:
+    When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gitrepo/gitrepo-selinux-fsgroup-auto510759.json |
     Then the step should succeed
     Given the pod named "gitrepo" becomes ready
