@@ -38,6 +38,12 @@ module CucuShift
       unless @rules
         e.replace_rules(RULES_DIR + get_master_version(user) + "/")
         @rules = Collections.deep_freeze(e.rules)
+        res = logout(user)
+        unless res[:success]
+          raise  "logout from web console failed:\n" + res[:response]
+        end
+
+        @version_browser = e
       end
 
       return e
@@ -101,20 +107,10 @@ module CucuShift
         return logout(user)
       end
 
-      # support "nologin" action
-      if opts.delete(:_nologin)
-        # this is tricky - if rules/version is not already cached, then
-        #   creating a new executor will first login to obtain version number;
-        #   we want to reverse this here provided _nologin option is used
-        if !@rules && !executor(user).is_new?
-          res = logout(user)
-          unless res[:success]
-            raise  "logout from web console failed:\n" + res[:response]
-          end
-        end
-      else
+      if !opts.delete(:_nologin)
         # login automatically on first use unless `_nologin` option given
-        if executor(user).is_new? && !login_actions.include?(action)
+        if is_new?(executor(user)) && !login_actions.include?(action)
+          @version_browser = nil
           res = login(user)
           unless res[:success]
             logger.error "login to web console failed:\n" + res[:response]
@@ -125,6 +121,10 @@ module CucuShift
 
       # execute actual action requested
       return executor(user).run_action(action, **opts)
+    end
+
+    def is_new?(browser)
+      return browser.is_new? || @version_browser == browser
     end
 
     def clean_up
