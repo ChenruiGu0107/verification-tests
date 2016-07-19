@@ -1,0 +1,102 @@
+expand_help_menu:
+  url: /console
+  element:
+    selector:
+      id: help-dropdown
+    op: click
+check_default_documentation_link_in_get_started:
+  action: goto_projects_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<default_documentation_link>") and contains(.,'documentation')]
+check_default_documentation_link_in_console_help:
+  action: expand_help_menu
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<default_documentation_link>") and contains(.,'Documentation')]
+check_default_documentation_link_in_about_page:
+  action: goto_about_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<default_documentation_link>") and contains(.,'documentation')]
+check_cli_reference_doc_link_in_about_page:
+  action: goto_about_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<cli_reference_doc_link>") and contains(.,'CLI Reference')]
+check_basic_cli_reference_doc_link_in_about_page:
+  action: goto_about_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<basic_cli_reference_doc_link>") and contains(.,'Basic CLI Operations')]
+check_get_started_with_cli_doc_link_in_cli_page:
+  action: goto_cli_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<get_started_cli_doc_link>") and contains(.,'Get Started with the CLI')]
+check_cli_reference_doc_link_in_cli_page:
+  action: goto_cli_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<cli_reference_doc_link>") and contains(.,'CLI Reference')]
+check_basic_cli_reference_doc_link_in_cli_page:
+  action: goto_cli_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<basic_cli_reference_doc_link>") and contains(.,'Basic CLI Operations')]
+check_cli_reference_doc_link_in_next_step_page:
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<cli_reference_doc_link>") and contains(.,'CLI Reference')]
+check_basic_cli_reference_doc_link_in_next_step_page:
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<basic_cli_reference_doc_link>") and contains(.,'Basic CLI Operations')]
+check_webhook_trigger_doc_link_in_next_step_page:
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<webhook_trigger_doc_link>") and contains(.,'webhook trigger')]
+check_documentation_link_in_next_step_page:
+  action: create_app_from_image
+  action: create_from_image_complete_info_on_next_page
+  action: check_cli_reference_doc_link_in_next_step_page
+  action: check_basic_cli_reference_doc_link_in_next_step_page
+  action: check_webhook_trigger_doc_link_in_next_step_page
+check_webhook_trigger_doc_link_in_bc_page:
+  action: goto_buildconfig_configuration_tab
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Generic webhook URL')]/a[contains(@href,"<webhook_trigger_doc_link>")]
+  - selector:
+      xpath: //dt[contains(.,'GitHub webhook URL')]/a[contains(@href,"<webhook_trigger_doc_link>")]
+check_start_build_doc_link_in_bc_page:
+  action: goto_buildconfig_configuration_tab
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Manual (CLI)')]/a[contains(@href,"<start_build_doc_link>")]
+check_documentation_link_in_dc_page:
+  action: check_dc_loaded_completely
+  elements:
+  - selector:
+      xpath: //h3[contains(.,'Triggers')]//following::dt[contains(.,'Manual')]//a[@href="<deployment_operation_doc_link>"]
+check_route_type_doc_link_on_create_route_page:
+  action: goto_routes_page
+  action: click_create_route_on_routes_page
+  action: show_options_for_secure_route
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<route_type_doc_link>") and contains(.,'Learn more')]
+check_pv_doc_link_on_attach_page:
+  action: goto_one_dc_page
+  action: goto_add_pvc_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<pv_doc_link>") and contains(.,'using persistent volumes')]
+check_compute_resource_doc_link_on_set_limit_page:
+  action: goto_one_dc_page
+  action: goto_set_resource_limit_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<compute_resource_doc_link>") and contains(.,'Learn more')]
+goto_cli_page:
+  url: /console/command-line

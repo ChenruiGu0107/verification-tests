@@ -1,0 +1,18 @@
+#----check pod page-----
+check_pod_list_page:
+  action: goto_pods_page
+  element:
+    selector:
+      xpath: //table[descendant::th[text()="Name"]]
+check_pod_list_with_no_pod:
+  action: check_pod_list_page
+  element:
+    selector:
+      xpath: //em[contains(text(),'No pods to show')]
+goto_one_pod_page:
+  url: /console/project/<project_name>/browse/pods/<pod_name>
+  elements:
+  - selector:
+      xpath: //div[@ng-if="pod"]
+goto_pods_page:
+  url: /console/project/<project_name>/browse/pods
