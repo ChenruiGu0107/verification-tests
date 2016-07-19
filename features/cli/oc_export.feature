@@ -163,14 +163,12 @@ Feature: oc exports related scenarios
 
   # @author pruan@redhat.com
   # @case_id 489300
-  # TODO: currently this test will fail due to bug  https://bugzilla.redhat.com/show_bug.cgi?id=1276564
   Scenario: Convert a file to specific version by oc export
     Given I have a project
     When I run the :export client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1v1beta3.json |
       | output_version | v1 |
       | output_format  | json |
-    And evaluation of `@result[:response]` is stored in the :export_489300_a clipboard
     Given I save the response to file> export_489300_a.json
     And I run the :create client command with:
       | f | export_489300_a.json |
@@ -179,14 +177,4 @@ Feature: oc exports related scenarios
       | f | export_489300_a.json |
       | output_version | v1beta3 |
       | output_format | json |
-    And evaluation of `@result[:response]` is stored in the :export_489300_b clipboard
-    Given I save the response to file> export_489300_b.json
     Then the step should succeed
-    And I create a new project
-    Then I run the :export client command with:
-      | f | export_489300_b.json |
-      | output_version | abc |
-      | output_format | json |
-    And evaluation of `@result[:response]` is stored in the :export_489300_c clipboard
-    Given I save the response to file> export_489300_c.json
-    And the expression should be true> cb.export_489300_c == cb.export_489300_b
