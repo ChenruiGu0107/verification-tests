@@ -970,6 +970,11 @@
   :options:
     :user_name: <value>
     :serviceaccount: --serviceaccount=<value>
+:oadm_policy_reconcile_sccs:
+  :cmd: oadm policy reconcile-sccs
+  :options:
+    :additive_only: --additive-only=<value>
+    :confirm: --confirm
 :oadm_policy_remove_scc_from_user:
   :cmd: oadm policy remove-scc-from-user <scc>
   :options:
