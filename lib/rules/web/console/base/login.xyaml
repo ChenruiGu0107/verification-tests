@@ -24,6 +24,13 @@ login:
   action: verify_logged_in
 
 login_token:
+  #url: /console
+  #scripts:
+  #- command: return window.localStorage['LocalStorageUserStore.user'] = '<user>'
+  #  expect_result: <user>
+  #- command: return window.localStorage['LocalStorageUserStore.token'] = '<token>'
+  #  expect_result: <token>
+  #url: /console
   url: /console/oauth#access_token=<token>&expires_in=86400&state=/&token_type=Bearer
   element:
     selector:
