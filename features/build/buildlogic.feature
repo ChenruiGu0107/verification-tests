@@ -404,7 +404,7 @@ Feature: buildlogic.feature
     :method: post
     :headers:
       :content_type: application/json
-    :payload: push-generic.json
+    :payload: <%= File.read("push-generic.json").to_json %>
     """
     Then the step should succeed
     And the "ruby-hello-world-3" build was created
