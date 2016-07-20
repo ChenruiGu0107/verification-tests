@@ -18,6 +18,24 @@ Given /^I store the schedulable nodes in the#{OPT_SYM} clipboard$/ do |cbname|
   @nodes.concat cb[cbname].shuffle
 end
 
+Given /^(I|admin) stores? in the#{OPT_SYM} clipboard the nodes backing pods(?: in project #{QUOTED})? labeled:$/ do |who, cbname, project, labels|
+  if who == "admin"
+    ensure_admin_tagged
+    _user = admin
+  else
+    _user = user
+  end
+
+  pods = CucuShift::Pod.get_labeled(*labels.raw.flatten,
+                                       project: project(project),
+                                       user: _user)
+
+  node_names = pods.map(&:node_name)
+
+  cbname ||= "nodes"
+  cb[cbname] = node_names.map { |n| node(n) }
+end
+
 Given /^environment has( at least| at most) (\d+) schedulable nodes?$/ do |cmp, num|
   ensure_admin_tagged
   nodes = CucuShift::Node.get_matching(user: admin) { |n, hash| n.schedulable? }
@@ -40,6 +58,34 @@ Given /^I run commands on the host:$/ do |table|
   raise "You must set a host prior to running this step" unless host
 
   @result = host.exec(*table.raw.flatten)
+end
+
+Given /^I run commands on the hosts in the#{OPT_SYM} clipboard:$/ do |cbname, table|
+  ensure_admin_tagged
+  cbname ||= "hosts"
+
+  unless Array === cb[cbname] && cb[cbname].size > 0 &&
+      cb[cbname].all? {|e| CucuShift::Host === e}
+    raise "You must set a clipboard prior to running this step"
+  end
+
+  results = cb[cbname].map { |h| h.exec(*table.raw.flatten) }
+  @result = results.find {|r| !r[:success] }
+  @result ||= results[0]
+  @result[:response] = results.map { |r| r[:response] }
+  @result[:exitstatus] = results.map { |r| r[:exitstatus] }
+end
+
+Given /^I run commands on the nodes in the#{OPT_SYM} clipboard:$/ do |cbname, table|
+  ensure_admin_tagged
+  cbname ||= "nodes"
+
+  tmpcb = rand_str(5, "dns")
+  cb[tmpcb] = cb[cbname].map(&:host)
+
+  step "I run commands on the hosts in the :#{tmpcb} clipboard:", table
+
+  cb[tmpcb] = nil
 end
 
 # use a specific node in cluster
