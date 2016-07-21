@@ -16,7 +16,12 @@ Feature: set deployment-hook/build-hook with CLI
       | e                | FOO1=BAR1                   |
       | failure_policy   | retry                       |
       | oc_opts_end      |                             |
-      | args             | noescape: /bin/bash -c bundle exec rake db:migrate |
+      | args             | /bin/bash                   |
+      | args             | -c                          |
+      | args             | bundle                      |
+      | args             | exec                        |
+      | args             | rake                        |
+      | args             | db:migrate                  |
     Then the step should succeed
     When I run the :set_deployment_hook client command with:
       | deploymentconfig | dc/rails-postgresql-example |
