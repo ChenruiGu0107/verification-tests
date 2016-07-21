@@ -8,8 +8,8 @@ require 'commander'
 require 'gherkin_parse'
 require 'yaml'
 require 'zlib'
-
 require 'asciidoctor' # to generate html
+require 'term/ansicolor' #colorized terminal output
 
 module CucuShift
   class TcmsBackup
@@ -526,11 +526,29 @@ module CucuShift
           scenario_tags = {case_id => []}
           #Check for TCMS/source code automation mismatch
           auto_mismatch = {case_id => []}
+          general_errors = {case_id => []}
           begin
-            script_field = JSON.parse(tcms_case["script"])
-            feature_file, scenario = script_field['ruby'].split(":")
+            #Check to see if the script is marked automated as 'both', report errror
+            if tcms_case['is_automated'] == 2
+              puts Term::ANSIColor.yellow("Case #{case_id} marked automated as 'Both'")
+              raise "Case #{case_id} marked automated as 'Both'"
+            #Check to see if the script has a nil or empty field, check if manual
+            elsif (tcms_case["script"].nil? || tcms_case["script"].empty?) && tcms_case['is_automated'] == 0
+              puts Term::ANSIColor.blue("Possibly a manual case: Case # #{case_id}")
+              next
+            else
+              script_field = JSON.parse(tcms_case["script"])
+              feature_file, scenario = script_field['ruby'].split(":")
+            end
           rescue => e
-            puts "\e[0;31mError in case #: #{case_id}, #{e.message}, issue with JSON in script field.\e[0m"
+            general_errors[case_id].push "Error in case #: #{case_id}, #{e.message}, issue with JSON in script field."
+            puts Term::ANSIColor.red("Error in case #: #{case_id}, #{e.message}, issue with JSON in script field.")
+            diff_cases[case_id] = [
+              {"tcms_missing" => []},
+              {"scenario_missing" => []},
+              {"auto_mismatch" => []},
+              {"general_errors" => general_errors[case_id]}
+            ]
             next
           end
           if script_field.keys.include? "ruby"
@@ -542,19 +560,31 @@ module CucuShift
               gparser = CucuShift::GherkinParse.new
               file_contents = gparser.parse_feature(File.join("#{HOME}/features", feature_file))
             rescue => e
-              puts "\e[0;31mError in case #: #{case_id}, #{e.message}\e[0m"
+              general_errors[case_id].push "Error in case #: #{case_id}, #{e.message}"
+              puts Term::ANSIColor.red("Error in case #: #{case_id}, #{e.message}")
+              diff_cases[case_id] = [
+                {"tcms_missing" => []},
+                {"scenario_missing" => []},
+                {"auto_mismatch" => []},
+                {"general_errors" => general_errors[case_id]}
+              ]
               next
             end
             #Using the Gherkin parsed scenarios, return all found scenario tags
-            file_contents[:scenarioDefinitions].each do |auto_scenario|
+            #file_contents[:scenarioDefinitions].each do |auto_scenario|
+            scenario_found = false
+            file_contents[:feature][:children].each do |auto_scenario|
               if auto_scenario[:name].eql? scenario
+                scenario_found = true
                 unless auto_scenario[:tags].empty?
                   found_tags = auto_scenario[:tags].map{|s| s[:name][1..-1]}
                   found_tags.map{|t| scenario_tags[case_id].push t}
                 end
-              else
-              puts "\e[0;31mError in case #: #{case_id}, scenario name not found in file\e[0m"
               end
+            end
+            if scenario_found == false
+              general_errors[case_id].push "Error in case #: #{case_id}, scenario name not found in file."
+              puts Term::ANSIColor.red("Error in case #: #{case_id}, scenario name not found in file.")
             end
           end
           #Only push tcms tags if there are mismatched scenario tags
@@ -562,19 +592,19 @@ module CucuShift
             #Only list TCMS tag descrepancies if they are one of the "canonical" tags
             canonical_tags = ["devenv","destructive","aggressive","sequential","migration", "admin", "vpn", "smoke"]
             scenario_tags[case_id].each do |scenario_tag|
-              if not tcms_tags[case_id].include? scenario_tag and canonical_tags.include? scenario_tag
+              if !tcms_tags[case_id].include?(scenario_tag) && canonical_tags.include?(scenario_tag)
                tcms_missing[case_id].push scenario_tag unless scenario_tag =~ /user/
               end
             end
             tcms_tags[case_id].each do |tcms_tag|
-            if not scenario_tags[case_id].include? tcms_tag and canonical_tags.include? tcms_tag
+            if !scenario_tags[case_id].include?(tcms_tag) && canonical_tags.include?(tcms_tag)
                 scenario_missing[case_id].push tcms_tag
               end
             end
           end
-          diff_cases[case_id] = [{"tcms_missing" => tcms_missing[case_id]}, {"scenario_missing" => scenario_missing[case_id]},{"auto_mismatch" => auto_mismatch[case_id]}]
+          diff_cases[case_id] = [{"tcms_missing" => tcms_missing[case_id]}, {"scenario_missing" => scenario_missing[case_id]},{"auto_mismatch" => auto_mismatch[case_id]},{"general_errors" => general_errors[case_id]}]
           #Remove cases with empty sets, i.e. no difference between TCMS and the scenario code.
-          diff_cases.delete(case_id) if tcms_missing[case_id].empty? and scenario_missing[case_id].empty? and auto_mismatch[case_id].empty?
+          diff_cases.delete(case_id) if tcms_missing[case_id].empty? && scenario_missing[case_id].empty? && auto_mismatch[case_id].empty? && general_errors[case_id].empty?
         end
       end
       diff_cases
@@ -588,6 +618,7 @@ module CucuShift
         tcms_missing = case_discrepancy[1][0]
         scenario_missing = case_discrepancy[1][1]
         auto_mismatch = case_discrepancy[1][2]
+        general_errors = case_discrepancy[1][3]
         #Print the case number as header
         tcms_src_diff_report << "https://tcms.engineering.redhat.com/case/#{case_id}[#{case_id}]: "
         if not tcms_missing["tcms_missing"].empty?
@@ -600,6 +631,11 @@ module CucuShift
           tcms_src_diff_report << scenario_missing["scenario_missing"].join(", ")
           tcms_src_diff_report << "; "
         end
+        if not general_errors["general_errors"].empty?
+          tcms_src_diff_report << "General Errors: "
+          tcms_src_diff_report << general_errors["general_errors"].join(", ")
+          tcms_src_diff_report << "; "
+        end
         if not auto_mismatch["auto_mismatch"].empty?
           tcms_src_diff_report << "Auto mismatch"
         end
@@ -608,7 +644,7 @@ module CucuShift
       #Generate the report, both in .adoc and .html format
       File.write("tcms_src_diff_report.adoc", tcms_src_diff_report)
       Asciidoctor.render(tcms_src_diff_report, :safe => :unsafe, :to_file => 'tcms_src_diff_report.html')
-      puts "\e[0;32m Report successfully generated. \e[0m"
+      puts Term::ANSIColor.green("Report successfully generated.")
     end
   end
 end
