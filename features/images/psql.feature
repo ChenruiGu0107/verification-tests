@@ -231,3 +231,41 @@ Feature: Postgresql images test
       | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:latest  | postgresql:9.2 | postgresql-persistent-template.json |
       | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:latest  | postgresql:9.5 | postgresql-persistent-template.json |
 
+  #wewang@redhat.com
+  # @case_id 511969
+  Scenario: Create postgresql resources via installed persistent template for postgresql-94-rhel7 images
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json"
+    And I replace lines in "postgresql-persistent-template.json":
+      | postgresql:latest | postgresql:9.4 |
+    And I run the :new_app client command with:
+      | file     | postgresql-persistent-template.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | postgresql                                                                      |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "postgresql" PVC becomes :bound within 300 seconds
+    And a pod becomes ready with labels:
+      |name=postgresql|
+      |deployment=postgresql-1|
+    Given I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | psql -U $POSTGRESQL_USER -c 'CREATE TABLE tbl (col1 VARCHAR(20), col2 VARCHAR(20));' -d $POSTGRESQL_DATABASE |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | CREATE TABLE |
+    When I execute on the pod:
+      | bash | -c | psql -U $POSTGRESQL_USER -c "INSERT INTO tbl (col1,col2) VALUES ('foo1', 'bar1');" -d $POSTGRESQL_DATABASE |
+    Then the step should succeed
+    And the output should contain:
+      | INSERT 0 1 |
+    When I execute on the pod:
+      | bash | -c | psql -U $POSTGRESQL_USER -c 'SELECT * FROM tbl;' -d $POSTGRESQL_DATABASE |
+    Then the step should succeed
+    And the output should contain:
+      | col1 | col2 |
+      | foo1 | bar1 |
