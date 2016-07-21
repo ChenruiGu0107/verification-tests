@@ -899,6 +899,8 @@
     :service_account: --service-account=<value>
     :force_subdomain: --force-subdomain=<value>
     :ports: --ports=<value>
+    :selector: --selector=<value>
+    :replicas: --replicas=<value>
 :openshift_version:
   :cmd: openshift version
   :expected:
