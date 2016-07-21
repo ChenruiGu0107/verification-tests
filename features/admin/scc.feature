@@ -244,3 +244,46 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     And the expression should be true> @result[:parsed]['spec']['volumes'].any? {|p| p['name'] == "data"} && @result[:parsed]['spec']['volumes'].any? {|p| p['hostPath']['path'] == "/usr"}
 
+  # @author mcurlej@redhat.com
+  # @case_id 495039
+  @admin
+  Scenario: The SCC will take effect only when the user request the SC in the pod
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_not_privileged.json |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | pod                |
+      | resource_name | hello-nginx-docker |
+    Then the step should succeed
+    And the output should contain:
+      | CrashLoopBackOff |
+    """
+    When I run the :delete client command with:
+      | object_type | pod                     |
+      | l           | name=hello-nginx-docker |
+    Then the step should succeed
+    When SCC "privileged" is added to the "default" user
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_not_privileged.json |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | pod                |
+      | resource_name | hello-nginx-docker |
+    Then the step should succeed
+    And the output should contain:
+      | CrashLoopBackOff |
+    """
+    When I run the :delete client command with:
+      | object_type | pod                     |
+      | l           | name=hello-nginx-docker |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_privileged.json |
+    Then the step should succeed
+    And the pod named "hello-nginx-docker" becomes ready
