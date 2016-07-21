@@ -1,6 +1,7 @@
 require 'common'
 require 'http'
-require 'lolsoap'
+
+require_relative 'hack'
 
 module CucuShift
 module Polarion
