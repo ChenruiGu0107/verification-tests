@@ -12,39 +12,39 @@ check_deleted_pod:
   url: /console/project/<project_name>/browse/pods/<pod_name>
   elements:
   - selector:
-      xpath: //strong[contains(text(),'<pod_warning>')]
+      xpath: //span[contains(text(),'<pod_warning>')]
 check_deleted_service:
   action: goto_one_service_page
   elements:
   - selector:
-      xpath: //strong[contains(text(),'<service_warning>')]
+      xpath: //span[contains(text(),'<service_warning>')]
 check_deleted_buildconfig:
   action: goto_one_buildconfig_page
   elements:
   - selector:
-      xpath: //strong[contains(text(),'<bc_warning>')]
+      xpath: //span[contains(text(),'<bc_warning>')]
 check_deleted_deploymentconfig:
   action: goto_one_dc_page
   elements:
   - selector:
-      xpath: //strong[contains(text(),'<dc_warning>')]
+      xpath: //span[contains(text(),'<dc_warning>')]
 check_deleted_rc:
   action: goto_one_deployment_page
   elements:
   - selector:
-      xpath: //strong[contains(text(),'<rc_warning>')]
+      xpath: //span[contains(text(),'<rc_warning>')]
 check_deleted_build:
   url: /console/project/<project_name>/browse/builds/<bc_name>/<build_name>
   elements:
   - selector:
-      xpath: //strong[contains(text(),'<build_warning>')]
+      xpath: //span[contains(text(),'<build_warning>')]
 check_deleted_route:
   action: goto_one_route_page
   elements:
   - selector:
-      xpath: //strong[contains(text(),'<route_warning>')]
+      xpath: //span[contains(text(),'<route_warning>')]
 check_deleted_imagestream:
   action: goto_one_image_stream_page
   elements:
   - selector:
-      xpath: //strong[contains(text(),'<image_warning>')]
+      xpath: //span[contains(text(),'<image_warning>')]

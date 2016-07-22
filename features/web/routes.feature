@@ -85,9 +85,6 @@ Feature: Routes related features on web console
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/multi-portsvc.json |
     Then the step should succeed
-    When I perform the :goto_routes_page web console action with:
-      | project_name | <%= project.name %> |
-    Then the step should succeed
     When I perform the :check_empty_routes_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed

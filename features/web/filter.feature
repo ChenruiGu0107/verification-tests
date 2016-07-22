@@ -498,9 +498,7 @@ Feature: filter on create page
   # @author: yanpzhan@redhat.com
   # @case_id: 470360
   Scenario: Display existing labels in label suggestion list according to different resources
-    When I create a new project via web
-    Then the step should succeed
-
+    Given I have a project
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                        |
       | image_name   | python                                     |

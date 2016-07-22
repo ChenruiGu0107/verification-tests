@@ -18,7 +18,7 @@ new_project:
     ref: new_project_form
   element:
     selector:
-      text: Select Image or Template
+      xpath: //div[contains(@class,"catalog-header-left") and contains(.,'Choose from web frameworks')] 
     timeout: 60
   ##element:
     ##selector:

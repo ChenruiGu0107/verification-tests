@@ -227,8 +227,7 @@ Feature: create app on web console related
   # @author yanpzhan@redhat.com
   # @case_id 498145
   Scenario: Create app from template leaving empty parameters to be generated
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     Given I use the "<%= project.name %>" project
 
     When I run the :create client command with:

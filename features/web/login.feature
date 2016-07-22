@@ -53,8 +53,7 @@ Feature: login related scenario
   # @author xxing@redhat.com
   # @case_id 467931
   Scenario: The page should redirect to login page when access session protected pages after session expired
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     #make token expired
     And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']='<%= rand_str(32, :dns) %>';")
     When I access the "/console/project/<%= project.name %>/overview" path in the web console

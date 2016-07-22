@@ -9,21 +9,27 @@ check_error_page:
 check_error_list_project_resources:               
   url: /console/project/<project_name>/overview 
   elements:
-    - selector:
-         xpath: //div[text()='Failed to list builds/v1 (403)']
-    - selector:
-         xpath: //div[text()='Failed to list pods/v1 (403)']
-    - selector:
-         xpath: //div[text()='Failed to list replicationcontrollers/v1 (403)']
-    - selector:
-         xpath: //div[text()='Failed to list routes/v1 (403)']
-    - selector:
-         xpath: //div[text()='Failed to list deploymentconfigs/v1 (403)']
-    - selector:
-         xpath: //div[text()='Failed to list imagestreams/v1 (403)']    
-    - selector:
-         xpath: //div[text()='Failed to list services/v1 (403)']      
+  - selector:
+      xpath: //div[text()='Failed to list builds/v1 (403)']
+  - selector:
+      xpath: //div[text()='Failed to list pods/v1 (403)']
+  - selector:
+      xpath: //div[text()='Failed to list replicationcontrollers/v1 (403)']
+  - selector:
+      xpath: //div[text()='Failed to list routes/v1 (403)']
+  - selector:
+      xpath: //div[text()='Failed to list deploymentconfigs/v1 (403)']
+  - selector:
+      xpath: //div[text()='Failed to list imagestreams/v1 (403)']  
+  - selector:
+      xpath: //div[text()='Failed to list services/v1 (403)']    
 check_error_notification_on_page:
   elements:
   - selector:
       xpath: //div[contains(.,'<error_message>')]
+
+check_login_error_message:
+  elements:
+  - selector:
+      xpath: //div[@class='alert alert-danger' and contains(., '<error_message>')]
+

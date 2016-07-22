@@ -2,8 +2,7 @@ Feature: error page on web console
   # @author yapei@redhat.com
   # @case_id 470664
   Scenario: Redirect to error page when got 403 error
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed

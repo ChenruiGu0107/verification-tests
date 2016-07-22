@@ -148,14 +148,28 @@ check_buildconfig_environment:
   action: goto_buildconfig_environment_tab
   elements:
   - selector:
-      xpath: //tr[@ng-repeat='env in envVars' and contains(.,'<env_var_key>')]
-  - selector:
-      xpath: //tr[@ng-repeat='env in envVars' and contains(.,'<env_var_value>')]
+      xpath: //div[contains(@class,'key-value-editor-input')]/input
+  scripts:
+    - command: | 
+             var key = "<env_var_key>"
+             var value = "<env_var_value>"
+             var rows = document.querySelectorAll('div[class~=key-value-editor-entry]')
+             for (var i =0; i< rows.length; i++) {
+                 var inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input')  
+                     if (inputs[0].value == key && inputs[1].value == value) {
+                           return true
+                               }
+             }
+             return false
+      expect_result: true
 check_empty_buildconfig_environment:
   action: goto_buildconfig_environment_tab
   elements:
   - selector:
-      xpath: //em[contains(.,'had no environment variables')] 
+      xpath: //div[contains(@class,'key-value-editor-entry')]
+  scripts:
+    - command: return document.querySelectorAll('div[class~=key-value-editor-entry]').length == 1
+      expect_result: true
 check_buildconfig_dockerfile_config:
   action: goto_buildconfig_configuration_tab
   elements:
@@ -293,11 +307,11 @@ check_outdated_bc_warn_message:
 check_deleted_bc_warn_message:
   elements:
   - selector:
-      xpath: //strong[@ng-if='alert.message' and contains(.,'This build configuration has been deleted')]
+      xpath: //span[@ng-if='alert.message' and contains(.,'This build configuration has been deleted')]
 check_build_has_started_message:
   elements:
   - selector:
-      xpath: //strong[@ng-if='alert.message' and contains(.,'has started')]
+      xpath: //span[@ng-if='alert.message' and contains(.,'has started')]
 save_buildconfig_changes:
   elements:
   - selector:
@@ -324,12 +338,12 @@ check_bc_github_webhook_trigger:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'GitHub webhook URL')]/following-sibling::dd[contains(.,'<github_webhook_trigger>')]
+      xpath: //dt[contains(.,'GitHub webhook URL')]/following::input[contains(@value,'<github_webhook_trigger>')]
 check_bc_generic_webhook_trigger:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'Generic webhook URL')]/following-sibling::dd[contains(.,'<generic_webhook_trigger>')]
+      xpath: //dt[contains(.,'Generic webhook URL')]/following::input[contains(@value,'<generic_webhook_trigger>')]
 check_bc_image_change_trigger:
   action: goto_buildconfig_configuration_tab
   elements:

@@ -29,7 +29,7 @@ check_deleted_image_stream:
   action: goto_one_image_stream_page
   elements:
   - selector:
-      xpath: //alerts//strong[contains(text(),'The image stream details could not be loaded')]
+      xpath: //alerts//span[contains(text(),'The image stream details could not be loaded')]
   - selector:
       xpath: //alerts//span[contains(text(),'"<image_name>" not found')]
 goto_image_streams_page:

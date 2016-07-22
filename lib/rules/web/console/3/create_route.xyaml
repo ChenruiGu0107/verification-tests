@@ -1,11 +1,12 @@
 #-------create route on web console-------
 open_create_route_page_from_overview_page:
-  action: goto_overview_page
+# workaround for 3.3 due to no Create Route on overview
+  action: goto_one_service_page
   elements:
-  - selector: 
-      xpath: //section[@id='service-<service_name>']//a[text()='Create Route']
+  - selector:
+      text: Create route
+    type: a
     op: click
-    timeout: 60
 open_create_route_page_from_service_page:
   action: goto_one_service_page
   elements:

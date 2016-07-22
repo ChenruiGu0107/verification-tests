@@ -17,7 +17,7 @@ manually_deploy:
     type: button
     op: click
   - selector:
-      xpath: //strong[contains(text(),'has started')]
+      xpath: //span[contains(text(),'has started')]
 cancel_deployments:
   action: goto_one_deployment_page
   elements:
@@ -165,7 +165,7 @@ check_dc_manual_cli_trigger:
   action: check_dc_loaded_completely
   elements:
   - selector:
-      xpath: //h3[contains(.,'Triggers')]//following::dd[contains(.,'<dc_manual_trigger_cli>')]
+      xpath:  //h3[contains(.,'Triggers')]//following::input[contains(@value,'oc deploy')]
 check_dc_config_trigger:
   action: check_dc_loaded_completely
   elements:

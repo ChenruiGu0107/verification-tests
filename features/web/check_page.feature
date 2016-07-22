@@ -15,7 +15,6 @@ Feature: check page info related
     Then the step should succeed
     And I get the html of the web page
     Then the output should contain:
-      | Select Image or Template |
       | Choose from web frameworks, databases, and other components |
 
   # @author xxing@redhat.com
