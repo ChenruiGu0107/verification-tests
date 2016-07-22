@@ -193,7 +193,20 @@ module CucuShift
                                 content_lossy: "false",
                                 content: "reserved by: #{EXECUTOR_NAME}"}
 
-          client.test.update_test_record_at_index(**res_req)
+          begin
+            client.test.update_test_record_at_index(**res_req)
+          rescue => e
+            if PolarionCallError === e &&
+                e.message.include?("ConcurrentModificationException")
+              logger.info "#{executor_str()}: case #{tc_id} concurrent " <<
+                " reservation update, skipping"
+            else
+              logger.warn "#{executor_str()}: case #{tc_id} unknown " <<
+                " reservation error:\n" << exception_to_string(e)
+            end
+            get_run.call
+            next
+          end
 
           # TODO: make sleep depend on call response times
           sleep 5
@@ -203,7 +216,7 @@ module CucuShift
           rec = records[rec_idx]
 
           if rec["duration"] == reserve_duration
-            say "executor #{Thread.current.thread_variable_get(:num)} executing #{tc_id}"
+            say "#{executor_str()} executing #{tc_id}"
 
             # sleep some time to simulate test execution
             sleep 15
@@ -212,7 +225,7 @@ module CucuShift
             get_run.call
             rec = records[rec_idx]
             if rec["duration"] != reserve_duration
-              raise "we lost the reservation of #{tc_id}"
+              raise "#{executor_str()} lost the reservation of #{tc_id}"
             end
 
             res_rec[:executed] = Time.now.iso8601
@@ -438,6 +451,10 @@ module CucuShift
           cl.logout
         end
         return cl
+      end
+
+      def executor_str
+        "executor #{Thread.current.thread_variable_get(:num)}"
       end
     end
   end
