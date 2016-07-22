@@ -47,13 +47,17 @@ Feature: login related scenario
     Then the output should contain:
       | Invalid login or password. Please try again |
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
+    And I wait up to 10 seconds for the steps to pass:
+    """
     Then the expression should be true> /Login/ =~ browser.title
+    """
     And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']") == nil
 
   # @author xxing@redhat.com
   # @case_id 467931
   Scenario: The page should redirect to login page when access session protected pages after session expired
-    Given I have a project
+    When I create a new project via web
+    Then the step should succeed
     #make token expired
     And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']='<%= rand_str(32, :dns) %>';")
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
