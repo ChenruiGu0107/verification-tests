@@ -1074,3 +1074,49 @@ Feature: Testing haproxy router
       | /tmp/ca.pem |
     Then the step should fail
     And the output should not contain "Hello-OpenShift"
+
+
+  # @author yadu@redhat.com
+  # @case_id 518936
+  @admin
+  @destructive
+  Scenario: Set invalid reload time for haproxy router script
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Given default router replica count is restored after scenario
+    And admin ensures "tc-518936" dc is deleted after scenario
+    And admin ensures "tc-518936" service is deleted after scenario
+    When I run the :scale client command with:
+      | resource | dc     |
+      | name     | router |
+      | replicas | 0      |
+    Then the step should succeed
+    When I run the :oadm_router admin command with:
+      | name   | tc-518936                                               |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+    Then a pod becomes ready with labels:
+      | deploymentconfig=tc-518936 |
+    When I run the :env client command with:
+      | resource | dc/tc-518936   |
+      | e | RELOAD_INTERVAL=-100s |
+    Then the step should succeed
+    And I wait until number of replicas match "1" for replicationController "tc-518936-2"
+    Given I store in the clipboard the pods labeled:
+      | deployment=tc-518936-2 |
+    When I run the :logs client command with:
+      | resource_name| pods/<%= cb.pods[0].name%> |
+    Then the output should contain:
+      | must be a positive duration |
+    When I run the :env client command with:
+      | resource | dc/tc-518936 |
+      | e | RELOAD_INTERVAL=abc |
+    Then the step should succeed
+    And I wait until number of replicas match "1" for replicationController "tc-518936-3"
+    Given I store in the clipboard the pods labeled:
+      | deployment=tc-518936-3 |
+    When I run the :logs client command with:
+      | resource_name| pods/<%= cb.pods[0].name%> |
+    Then the output should contain:
+      | Invalid RELOAD_INTERVAL |
