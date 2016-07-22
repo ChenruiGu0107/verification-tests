@@ -7,5 +7,17 @@ class LolSoap::WSDL
     def element(name)
       NullElement.new
     end
+
+    def element_prefix(name)
+        self.prefix
+    end
+
+    def sub_type(name)
+        element(name).type
+    end
+
+    def has_attribute?(name)
+        false
+    end
   end
 end

@@ -22,8 +22,9 @@ tools/polarion_wf_test.rb generate-test-data -p <project id> -c <num cases to cr
 tools/polarion_wf_test.rb execute-tests -p <project id> -c <num executors>
 '''
 
-require 'thread'
 require 'commander'
+require 'thread'
+require 'yaml'
 
 require 'common'
 require 'polarion/polarion'
@@ -63,6 +64,7 @@ module CucuShift
           c.action do |args, options|
             puts options.tag_num
             @project = options.project
+            @project_uri = polarion.project_uri(@project)
             count_cases = Integer(options.count) rescue 100
             count_matching = Integer(options.matching) rescue 42
             count_tags = Integer(options.case_tags) rescue 12
@@ -79,6 +81,7 @@ module CucuShift
               else
                 tags = generate_random_tags(count_tags, total_tags)
               end
+              tags = tags.join(" ")
 
               tc = create_test_case("Auto generated for PoC - #{i}", tags: tags)
               logger.error("Failed to create case ##{i}: #{tc.fault}") if tc.fault
@@ -95,6 +98,7 @@ module CucuShift
           c.option('--test-run-name NAME', "the name for created test run")
           c.action do |args, options|
             @project = options.project
+            @project_uri = polarion.project_uri(@project)
             count_executors = Integer(options.count) rescue 5
             say "using #{count_executors} executors"
 
@@ -250,6 +254,8 @@ module CucuShift
             res_rec[:comment][:content] += "\ncompleted"
             res_rec[:result] = {id: "passed"}
 
+            # this below can fail when run concurrently with other unrelated
+            # update_test_record_at_index calls, we need to retry
             client.test.update_test_record_at_index(**res_req)
 
             # TODO: update worklog
@@ -285,7 +291,7 @@ module CucuShift
                 {key: "automation_script", value: {
                   type: "text/plain",
                   content: generate_auto_script,
-                  contentLossy: "false"}
+                  content_lossy: "false"}
                 }
               ]
             }
@@ -398,7 +404,7 @@ module CucuShift
           }
         end
 
-        return script
+        return script.to_yaml
       end
 
       def generate_random_tags(num, max, min: 0)
