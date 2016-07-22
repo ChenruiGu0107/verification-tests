@@ -336,7 +336,7 @@ Feature: oc related features
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
-      | -t, --template=      |
+      | --template=          |
       | --type=              |
       | --validate=          |
     When I run the :create_secret client command with:
@@ -357,7 +357,7 @@ Feature: oc related features
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
-      | -t, --template=      |
+      | --template=          |
       | --type=              |
       | --validate=          |
     When I run the :create_secret client command with:
@@ -380,7 +380,7 @@ Feature: oc related features
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
-      | -t, --template=      |
+      | --template=          |
       | --validate=          |
     When I run the :create_secret client command with:
       | createservice_type | docker-registry |
