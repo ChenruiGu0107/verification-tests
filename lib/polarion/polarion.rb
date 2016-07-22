@@ -36,7 +36,7 @@ module Polarion
 
       ## try to obtain user/password in all possible ways
       @options[:user] = ENV['POLARION_USER'] if ENV['POLARION_USER']
-      @options[:password] = ENV['TPOLARION_PASSWORD'] if ENV['POLARION_PASSWORD']
+      @options[:password] = ENV['POLARION_PASSWORD'] if ENV['POLARION_PASSWORD']
       unless @options[:user]
         Timeout::timeout(120) {
           STDERR.puts "Polarion user (timeout in 2 minutes): "

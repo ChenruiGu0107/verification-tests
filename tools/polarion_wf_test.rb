@@ -1,9 +1,26 @@
 #!/usr/bin/env ruby
 $LOAD_PATH.unshift("#{File.dirname(__FILE__)}/../lib")
 
-"""
+'''
 Utility to execute simple CucuShift workflow test over a polarion server.
-"""
+
+There are some pre-requisites for the project under testing:
+* Test Case Workitem should have custom multi-line field automation_script
+* Test Case Workitem should have custom enumeration field caseautomation with
+  values "notautomated", "manualonly" and "automated"
+
+For automated use set user and password in private/config/config.yaml or
+  set env variables POLARION_USER and POLARION_PASSWORD
+
+# see help
+tools/polarion_wf_test.rb -h
+
+# create test template and sample test cases
+tools/polarion_wf_test.rb generate-test-data -p <project id> -c <num cases to create> -m <num cases to match template>
+
+# create run and simulate executors fighting for executing test cases
+tools/polarion_wf_test.rb execute-tests -p <project id> -c <num executors>
+'''
 
 require 'thread'
 require 'commander'
@@ -42,7 +59,7 @@ module CucuShift
           c.option('--case-name-prefix PREFIX', "string to use as prefix for new test case names")
           c.option('-m', '--matching MATCHING', "target number of test cases to match by the test run template")
           c.option('--tag-num TAG_NUM', "max number of tags used in total")
-          c.option('-t', '--case-tags CASE_TAGS', "how many tags should each test case have")
+          c.option('-t', '--case-tags CASE_TAGS', "how many tags should each test case have (must be 5 or more)")
           c.action do |args, options|
             puts options.tag_num
             @project = options.project
@@ -75,7 +92,7 @@ module CucuShift
           c.option('-p', '--project PROJECT', "the project to create them in")
           c.option('-c', '--count COUNT', "the number of concurrent executors")
           c.option('--test-template TEMPLATE', "the template to create run")
-          c.option('--test-run-name NAME', "the name or created test run")
+          c.option('--test-run-name NAME', "the name for created test run")
           c.action do |args, options|
             @project = options.project
             count_executors = Integer(options.count) rescue 5
