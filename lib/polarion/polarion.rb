@@ -1,6 +1,7 @@
 require 'common'
 require 'http'
-require 'lolsoap'
+
+require_relative 'hack'
 
 module CucuShift
 module Polarion
@@ -145,7 +146,7 @@ module Polarion
       elsif raw[:success] || raw[:exitstatus].between?(500, 599)
         res = cl.response(req, raw[:response])
       else
-        raise raw[:error]
+        raise raw[:error] rescue raise "failed to perform #{op}"
       end
 
       if res.fault && raise_faults

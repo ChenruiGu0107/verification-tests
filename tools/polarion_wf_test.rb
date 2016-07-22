@@ -79,18 +79,59 @@ module CucuShift
           c.action do |args, options|
             @project = options.project
             count_executors = Integer(options.count) rescue 5
+            say "using #{count_executors} executors"
 
             # create new testrun
             tr_uri = create_test_run(options.test_run_name, options.test_run_template)
             say "Created Test Run: #{tr_uri}"
             work_queue = Queue.new
+            executors = []
+            finished_executors = []
+            failed_executors = []
+            timeout = 5 * 24 * 60 * 60 # 5 days
+            stats = {}
 
-            # must run in multiple threads
-            executor!(
-              async_client,
-              tr_uri,
-              work_queue,
-            )
+            executor_proc = proc {
+              executor!(
+                async_client,
+                tr_uri,
+                work_queue,
+              )
+            }
+            count_executors.times { |i|
+              executors << Thread.new(&executor_proc)
+              # we have plenty of time before this variable is used
+              executors[-1].thread_variable_set(:num, i)
+            }
+
+            # use executor_proc.call if you want to pry inside it
+            finished = wait_for(timeout, stats: stats) do
+              say "executors: #{executors.size} running, #{finished_executors.size} finished, #{failed_executors.size} failed"
+              executors.delete_if do |thread|
+                begin
+                  finished_executors << thread if thread.join(5)
+                rescue
+                  failed_executors << thread
+                end
+              end
+              executors.empty?
+            end
+
+            say "finished with executors: #{executors.size} running, #{finished_executors.size} finished, #{failed_executors.size} failed"
+
+            say "ERRORS below:" unless failed_executors.empty?
+            failed_executors.each do |t|
+              begin
+                t.join
+              rescue => e
+                say exception_to_string(e)
+              end
+            end
+
+            unless finished
+              executors.each { |t| t.terminate }
+              raise "we didn't finish within timeout"
+            end
 
             # TODO: summarize results based on work_queue
             # TODO: verify end state of all test records
@@ -152,7 +193,20 @@ module CucuShift
                                 content_lossy: "false",
                                 content: "reserved by: #{EXECUTOR_NAME}"}
 
-          client.test.update_test_record_at_index(**res_req)
+          begin
+            client.test.update_test_record_at_index(**res_req)
+          rescue => e
+            if PolarionCallError === e &&
+                e.message.include?("ConcurrentModificationException")
+              logger.info "#{executor_str()}: case #{tc_id} concurrent " <<
+                " reservation update, skipping"
+            else
+              logger.warn "#{executor_str()}: case #{tc_id} unknown " <<
+                " reservation error:\n" << exception_to_string(e)
+            end
+            get_run.call
+            next
+          end
 
           # TODO: make sleep depend on call response times
           sleep 5
@@ -162,7 +216,7 @@ module CucuShift
           rec = records[rec_idx]
 
           if rec["duration"] == reserve_duration
-            say "now executing #{tc_id}"
+            say "#{executor_str()} executing #{tc_id}"
 
             # sleep some time to simulate test execution
             sleep 15
@@ -171,7 +225,7 @@ module CucuShift
             get_run.call
             rec = records[rec_idx]
             if rec["duration"] != reserve_duration
-              raise "we lost the reservation of #{tc_id}"
+              raise "#{executor_str()} lost the reservation of #{tc_id}"
             end
 
             res_rec[:executed] = Time.now.iso8601
@@ -187,9 +241,10 @@ module CucuShift
           end
         end
 
-        require 'pry'
-        binding.pry
-
+        if Thread.current == Thread.main
+          require 'pry'
+          binding.pry
+        end
       end
 
       def create_test_case(name, tags: "", automated: "automated")
@@ -396,6 +451,10 @@ module CucuShift
           cl.logout
         end
         return cl
+      end
+
+      def executor_str
+        "executor #{Thread.current.thread_variable_get(:num)}"
       end
     end
   end

@@ -100,7 +100,7 @@ module CucuShift
     def log(msg, level=INFO, show_datetime='time')
       return if level > self.level
 
-      ## take case of special message types
+      ## take care of special message types
       case msg
       when Exception
         msg = exception_to_string(msg)
@@ -209,7 +209,7 @@ module CucuShift
         return res
       end
 
-      # restructive to messages array, but we don't care at this point
+      # destructive to messages array, but we don't care at this point
       def print(logger, tokenized_log)
         format = self.format
         msg_idx = 0
