@@ -12,6 +12,12 @@ There are some pre-requisites for the project under testing:
 For automated use set user and password in private/config/config.yaml or
   set env variables POLARION_USER and POLARION_PASSWORD
 
+# clone repo and install dependencies if needed
+cd cucushift
+bundle check || bundle install --gemfile=tools/Gemfile
+sudo dnf install rubygem-nokogiri # installing from gem requires additional native deps
+gem install lolsoap # nokogiri an lolsoap install procedure not ironed out yet
+
 # see help
 tools/polarion_wf_test.rb -h
 
