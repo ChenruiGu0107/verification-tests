@@ -81,17 +81,12 @@ Feature: Check oc status cli
       | file     | application-template-stibuild.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
+    Given the "ruby-sample-build-1" build becomes :running
     When I run the :status client command
     Then the step should succeed
     And the output should match:
       |svc\/database\\s+-\\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}:\\d+\\s+->\\s+3306|
       |svc\/frontend|
-      |build.*1.*pending\|build.*new|
-
-    Given the "ruby-sample-build-1" build becomes :running
-    When I run the :status client command
-    Then the step should succeed
-    And the output should match:
       |build.*1.*running    |
       |deployment.*waiting  |
 

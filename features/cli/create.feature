@@ -199,7 +199,6 @@ Feature: creating 'apps' with CLI
       | template | ruby-helloworld-sample |
       | param    | MYSQL_DATABASE=db1,ADMIN_PASSWORD=pass1|
     Then the step should succeed
-    Given I wait for the "frontend" service to become ready
     And I run the :get client command with:
       | resource | deploymentConfig |
       | resource_name | frontend    |

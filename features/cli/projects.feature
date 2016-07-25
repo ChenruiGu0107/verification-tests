@@ -91,15 +91,15 @@ Feature: projects related features via cli
     When I run the :project client command with:
       | project_name | <%= project(2, switch: false).name %> |
     Then the output should contain:
-      | Now using project "<%= project(2, switch: false).name %>" on server |
+      | project "<%= project(2, switch: false).name %>" on server |
     When I run the :project client command with:
       | project_name | <%= project(1, switch: false).name %> |
     Then the output should contain:
-      | Now using project "<%= project(1, switch: false).name %>" on server |
+      | project "<%= project(1, switch: false).name %>" on server |
     When I run the :project client command with:
       | project_name | <%= project.name %> |
     Then the output should contain:
-      | Now using project "<%= project.name %>" on server |
+      | project "<%= project.name %>" on server |
     And I run the :project client command with:
       | project_name | notaccessible |
     Then the output should contain:
@@ -480,9 +480,9 @@ Feature: projects related features via cli
     Then the step should succeed
     And the output should contain:
       | You have access to the following projects and can switch between them with 'oc project <projectname>': |
-      | * <%= @projects[0].name %> |
-      | * <%= @projects[1].name %> |
-      | * <%= @projects[2].name %> |
+      | <%= @projects[0].name %> |
+      | <%= @projects[1].name %> |
+      | <%= @projects[2].name %> |
 
     # 'Using project "<project>" uses the alphabetically least project name when config is newly created
     # So can not be hard coded as <%= project.name %>
