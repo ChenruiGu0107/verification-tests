@@ -414,3 +414,42 @@ Feature: Persistent Volume Claim binding policies
     And the "pvname-256m-rwx-<%= project.name %>" PV status is :available
     And the "pvname-257m-rwx-<%= project.name %>" PV status is :available
     And the "pvcname-258m-rwx-<%= project.name %>" PVC becomes :pending
+
+  # @author lxia@redhat.com
+  # @case_id 532707
+  # @bug_id 1337106
+  @admin
+  @destructive
+  Scenario: Pre-bound PVC with invalid PV should have consistent status
+    Given I have a project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"] | pv-<%= project.name %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | pvc-<%= project.name %> |
+      | ["spec"]["volumeName"] | pv1-<%= project.name %> |
+    Then the step should succeed
+    And the "pv-<%= project.name %>" PV status is :available
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
+
+  # @author lxia@redhat.com
+  # @case_id 532710
+  # @bug_id 1337106
+  @admin
+  @destructive
+  Scenario: Pre-bound PV with invalid PVC should have consistent status
+    Given I have a project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpv-rwo.yaml" where:
+      | ["metadata"]["name"]              | pv-<%= project.name %>   |
+      | ["spec"]["claimRef"]["namespace"] | <%= project.name %>      |
+      | ["spec"]["claimRef"]["name"]      | pvc1-<%= project.name %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the "pv-<%= project.name %>" PV status is :available
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
