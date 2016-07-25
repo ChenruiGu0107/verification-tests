@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+# This file is to be executed instead of `bundle install` to help avoid
+# some troubles setting up jenkins slaves. i.e. avoid recompiling some
+# existing locally gems. Doing normal `bundle install` should also be
+# absolutely fine as long as it works for user.
+
 # Idea is to go about all hack_gemfiles and try to lock currently installed
 # local version of gem (if any). We need to copy lockfile so that all gems
 # are locked in the same lockfile. Finally copy lock to main dir so that
