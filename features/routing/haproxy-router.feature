@@ -1120,3 +1120,76 @@ Feature: Testing haproxy router
       | resource_name| pods/<%= cb.pods[0].name%> |
     Then the output should contain:
       | Invalid RELOAD_INTERVAL |
+
+  # @author zzhao@redhat.com
+  # @case_id 531375
+  @admin
+  @destructive
+  Scenario: Be able to create multi router in same node via setting port with hostnetwork network mode
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given default router replica count is stored in the :router_num clipboard
+    Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
+      | deploymentconfig=router |
+    
+    And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
+    And evaluation of `rand(32000..64000)` is stored in the :http_port clipboard
+    And evaluation of `rand(32000..64000)` is stored in the :https_port clipboard
+    And I register clean-up steps:
+    """
+    Given I run commands on the nodes in the :router_node clipboard:
+      | iptables -D INPUT -p tcp --dport <%= cb.http_port %> -j ACCEPT      |
+      | iptables -D INPUT -p tcp --dport <%= cb.https_port %> -j ACCEPT     |
+      | iptables -D INPUT -p tcp --dport <%= cb.stats_port %> -j ACCEPT     |
+    Then the step should succeed
+    """
+    Given I run commands on the nodes in the :router_node clipboard:
+      | iptables -I INPUT -p tcp --dport <%= cb.http_port %> -j ACCEPT      |
+      | iptables -I INPUT -p tcp --dport <%= cb.https_port %> -j ACCEPT     |
+      | iptables -I INPUT -p tcp --dport <%= cb.stats_port %> -j ACCEPT     |
+    Then the step should succeed
+        
+    Given admin ensures "tc-531375" dc is deleted after scenario
+    And admin ensures "tc-531375" service is deleted after scenario
+    When I run the :oadm_router admin command with:
+      | name | tc-531375 |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+      | stats_port | <%= cb.stats_port %> |
+      | replicas | <%= cb.router_num %> |
+      | ports | <%= cb.http_port %>:<%= cb.http_port %>,<%= cb.https_port %>:<%= cb.https_port %> |
+    When I run the :env client command with:
+      | resource | dc/tc-531375 |
+      | e        | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>,ROUTER_SERVICE_HTTPS_PORT=<%= cb.https_port %>  |
+    Then the step should succeed    
+    And a pod becomes ready with labels:
+      | deployment=tc-531375-2 |
+   
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    
+    When I open web server via the "http://<%= route.dns(by: user) %>" url
+    Then the output should contain "Hello-OpenShift"
+    When I open web server via the "http://<%= route.dns(by: user) %>:<%= cb.http_port %>" url
+    Then the output should contain "Hello-OpenShift"
+    When I run the :create_route_edge client command with:
+      | name | edge-route |
+      | service | service-unsecure |
+    Then the step should succeed
+    When I open secure web server via the "edge-route" route
+    Then the output should contain "Hello-OpenShift"
+    
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | https://<%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %> |
+      | -k |
+    Then the output should contain "Hello-OpenShift"
