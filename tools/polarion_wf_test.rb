@@ -198,6 +198,23 @@ module CucuShift
           raise "count of test records is #{records.size} but found #{work_items.size} workitems"
         end
 
+        update_rec_at_index = proc do |req|
+          begin
+            client.test.update_test_record_at_index(**req)
+          rescue => e
+            if PolarionCallError === e &&
+                e.message.include?("ConcurrentModificationException")
+              logger.info "#{executor_str()}: case #{tc_id} concurrent " <<
+                " reservation update, skipping"
+            else
+              logger.warn "#{executor_str()}: case #{tc_id} unknown " <<
+                " reservation error:\n" << exception_to_string(e)
+            end
+            get_run.call
+            next
+          end
+        end
+
         # while we find unreserved case, reserve them and mark them complete
         while rec_idx = records.find_index {|r| r["duration"].nil?}
           rec = records[rec_idx]
@@ -220,20 +237,8 @@ module CucuShift
                                 content_lossy: "false",
                                 content: "reserved by: #{EXECUTOR_NAME}"}
 
-          begin
-            client.test.update_test_record_at_index(**res_req)
-          rescue => e
-            if PolarionCallError === e &&
-                e.message.include?("ConcurrentModificationException")
-              logger.info "#{executor_str()}: case #{tc_id} concurrent " <<
-                " reservation update, skipping"
-            else
-              logger.warn "#{executor_str()}: case #{tc_id} unknown " <<
-                " reservation error:\n" << exception_to_string(e)
-            end
-            get_run.call
-            next
-          end
+          logger.info "#{executor_str()} reserving #{tc_id}"
+          update_rec_at_index.call(res_req)
 
           # TODO: make sleep depend on call response times
           sleep 5
@@ -262,7 +267,8 @@ module CucuShift
 
             # this below can fail when run concurrently with other unrelated
             # update_test_record_at_index calls, we need to retry
-            client.test.update_test_record_at_index(**res_req)
+            logger.info "#{executor_str()} setting #{tc_id} completion status"
+            update_rec_at_index.call(res_req)
 
             # TODO: update worklog
           else
