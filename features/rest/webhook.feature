@@ -312,3 +312,46 @@ Feature: Webhook REST Related Tests
     When I run the :logs client command with:
       | resource_name | pod/ruby-hello-world-1-build |
     And the output should contain "/bin/sh: No such file or directory" 
+  
+  # @author wewang@redhat.com
+  # @case_id 509014
+  @admin
+  @destructive
+  Scenario: Verify guestbook example of Atomic Host works
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_privileged.yaml"
+    Given the following scc policy is created: scc_privileged.yaml
+    Then the step should succeed
+    And I run the :patch admin command with:
+      | resource      | scc     |
+      | resource_name | scc-pri |
+      | p             | {"groups":["system:serviceaccounts:default","system:serviceaccounts:<%= project.name %>"]} |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/509014/redis-master-controller.yaml |
+    Then the step should succeed
+    Then a pod becomes ready with labels:
+      | app=redis,role=master |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/kubernetes/kubernetes/f6f013b992441379a67bf98a5ba4b7e975c3470e/examples/guestbook/redis-master-service.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/kubernetes/kubernetes/f6f013b992441379a67bf98a5ba4b7e975c3470e/examples/guestbook/redis-slave-controller.yaml |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | app=redis,role=slave  |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/kubernetes/kubernetes/f6f013b992441379a67bf98a5ba4b7e975c3470e/examples/guestbook/redis-slave-service.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/509014/frontend-controller.yaml |
+    Then the step should succeed
+    And 3 pods become ready with labels:
+      | app=guestbook,tier=frontend |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/kubernetes/kubernetes/f6f013b992441379a67bf98a5ba4b7e975c3470e/examples/guestbook/frontend-service.yaml  |
+    Then the step should succeed
+    When I expose the "frontend" service
+    Then the step should succeed
+    And I wait for a web server to become available via the route
+    And the output should contain "Guestbook"     
