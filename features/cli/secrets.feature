@@ -1288,3 +1288,39 @@ Feature: secrets related scenarios
     Given I get project builds
     Then the output should contain "ruby-hello-world-3"
     Given the "ruby-hello-world-3" build completes
+
+
+  # @author qwang@redhat.com
+  # @case_id 532390
+  Scenario: Secret volume should update when secret is updated
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret1.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret-pod-1.yaml |
+    Then the step should succeed
+    Given the pod named "secret-pod-1" status becomes :running
+    When I run the :exec client command with:
+      | pod              | secret-pod-1                  |
+      | exec_command     | cat                           |
+      | exec_command_arg | /etc/secret-volume-1/username |
+    Then the output should contain:
+      | first-username |
+    When I run the :patch client command with:
+      | resource      | secret                                                   |
+      | resource_name | secret-n                                                 |
+      | p             | {"data":{"username":"Zmlyc3QtdXNlcm5hbWUtdXBkYXRlCg=="}} |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :exec client command with:
+      | pod              | secret-pod-1                  |
+      | exec_command     | cat                           |
+      | exec_command_arg | /etc/secret-volume-1/username |
+    Then the output should contain:
+      | first-username-update |
+    """
+    Then the step should succeed
+
+
