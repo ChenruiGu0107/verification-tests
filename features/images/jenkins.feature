@@ -139,3 +139,31 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=hello-openshift |
+
+  # @author shiywang@redhat.com
+  # @case_id 516504
+  Scenario: Check verbose logging in build field of openshift v3 plugin of jenkins-1-rhel7
+    Given I have a project
+    When I give project admin role to the default service account
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json                  |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/                                     |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin    |
+      | password | password |
+    Then the step should succeed
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :jenkins_check_logging_build_step_verbose web action with:
+      | job_name | <%= project.name %> |
+    Then the step should succeed

@@ -68,6 +68,122 @@ jenkins_check_openshift_pipeline_jenkins_plugin:
       text : OpenShift Pipeline Jenkins Plugin
     type: a
 
+jenkins_click_add_build_step_button:
+  element:
+    selector:
+      text: Add build step
+      class: hetero-list-add
+    type: button
+    op: click
+
+jenkins_check_logging_build_step_verbose:
+  url: /job/<job_name>/configure
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Trigger OpenShift Build
+    type: a
+    op: click
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftBuilder')]/descendant::input[@value="true"]
+      type: radio
+    type: input
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftBuilder')]/descendant::input[@value="false"]
+      type: radio
+    type: input
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Scale OpenShift Deployment
+    type: a
+    op: click
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftScaler')]/descendant::input[@value="true"]
+    type: input
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftScaler')]/descendant::input[@value="false"]
+    type: input
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Trigger OpenShift Deployment
+    type: a
+    op: click
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftDeployer')]/descendant::input[@value="true"]
+    type: input
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftDeployer')]/descendant::input[@value="false"]
+    type: input
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Verify OpenShift Service
+    type: a
+    op: click
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftServiceVerifier')]/descendant::input[@value="true"]
+    type: input
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftServiceVerifier')]/descendant::input[@value="false"]
+    type: input
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Tag OpenShift Image
+    type: a
+    op: click
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftImageTagger')]/descendant::input[@value="true"]
+    type: input
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftImageTagger')]/descendant::input[@value="false"]
+    type: input
+  action: jenkins_click_add_post_build_action_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Cancel OpenShift Builds
+    type: a
+    op: click
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftBuildCanceller')]/descendant::input[@value="true"]
+      type: radio
+    type: input
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftBuildCanceller')]/descendant::input[@value="false"]
+      type: radio
+    type: input
+  action: jenkins_click_add_post_build_action_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Cancel OpenShift Deployment
+    type: a
+    op: click
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftDeployCanceller')]/descendant::input[@value="true"]
+      type: radio
+    type: input
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftDeployCanceller')]/descendant::input[@value="false"]
+      type: radio
+    type: input
+
+jenkins_click_add_post_build_action_button:
+  element:
+    selector:
+      text: Add post-build action
+      class: hetero-list-add
+    type: button
+    op: click
+
 jenkins_click_save_button:
   element:
     selector:
