@@ -122,6 +122,19 @@ Given /^I wait(?: (\d+) seconds)? for the :(.+?) web console action to succeed w
   end
 end
 
+# @precondition a `browser` object
+Given /^I wait(?: (\d+) seconds)? for the title of the web browser to match "(.+)"$/ do |time, pattern|
+  time = time ? time.to_i : 10
+  reg = Regexp.new(pattern)
+  success = wait_for(time) {
+    reg =~ browser.title
+  }
+  unless success
+    raise "browser title #{browser.title} did not match #{pattern} within timeout"
+  end
+end
+  
+
 # @notes used for swithing browser window,e.g. do some action in pop-up window
 # @window_spec is something like,":url=>console\.html"(need escape here,part of url),":title=>some info"(part of title)
 When /^I perform the :(.*?) web( console)? action in "([^"]+)" window with:$/ do |action, console, window_spec, table|

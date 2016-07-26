@@ -28,11 +28,11 @@ Feature: login related scenario
     When I perform the :new_project_navigate web console action with:
       | _nologin | true |
     Then the step should succeed
-    And the expression should be true> /Login/ =~ browser.title
+    Given I wait for the title of the web browser to match "Login"
     When I access the "/console/project/<%= project.name %>/create" path in the web console
-    Then the expression should be true> /Login/ =~ browser.title
+    Given I wait for the title of the web browser to match "Login"
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
-    Then the expression should be true> /Login/ =~ browser.title
+    Given I wait for the title of the web browser to match "Login"
 
   # @author xxing@redhat.com
   # @case_id 467930
@@ -47,10 +47,7 @@ Feature: login related scenario
     Then the output should contain:
       | Invalid login or password. Please try again |
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
-    And I wait up to 10 seconds for the steps to pass:
-    """
-    Then the expression should be true> /Login/ =~ browser.title
-    """
+    Given I wait for the title of the web browser to match "Login"
     And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']") == nil
 
   # @author xxing@redhat.com
@@ -61,7 +58,4 @@ Feature: login related scenario
     #make token expired
     And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']='<%= rand_str(32, :dns) %>';")
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
-    And I wait up to 10 seconds for the steps to pass:
-    """
-    Then the expression should be true> /Login/ =~ browser.title
-    """
+    Given I wait for the title of the web browser to match "Login"
