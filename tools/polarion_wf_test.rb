@@ -119,11 +119,17 @@ module CucuShift
             stats = {}
 
             executor_proc = proc {
-              executor!(
-                async_client,
-                tr_uri,
-                work_queue,
-              )
+              begin
+                executor!(
+                  async_client,
+                  tr_uri,
+                  work_queue,
+                )
+              rescue => e
+                logger.error "critical error in #{executor_str()}\n" +
+                  exception_to_string(e)
+                redo
+              end
             }
             count_executors.times { |i|
               executors << Thread.new(&executor_proc)
@@ -173,8 +179,28 @@ module CucuShift
         tr = nil
         records = nil
         tr_hash = nil
+        tr_id = tr_uri.sub(/^.+}/, "")
+        pr_id = tr_uri.sub(%r{.+default/(\w+)\$\{TestRun\}.+},"\\1")
+
+        # get required fields for cases in the run
+        sql = sql_get_workitems_from_run(tr_id, pr_id)
+        cases = client.tracker.query_work_items_by_sql(sql_query: sql, fields: ["id", "customFields.caseautomation", "customFields.automation_script"])
+        work_items = cases.body_hash["queryWorkItemsBySQLReturn"]
 
         get_run = proc do
+          _err = nil
+          got = wait_for(300, interval: 5) do
+            begin
+              tr = client.test.get_test_run_by_uri(uri: tr_uri)
+            rescue => e
+              _err = e
+              logger.warn "#{executor_str()}: #{e.inspect}"
+              false
+            end
+          end
+          unless got
+            raise _err rescue raise "#{executor_str()} could not get #{tr_uri} record 5m"
+          end
           tr = client.test.get_test_run_by_uri(uri: tr_uri)
           if tr.fault || !testrun_exists?(tr)
             puts tr.body.to_xml
@@ -185,17 +211,28 @@ module CucuShift
         end
 
         get_run.call
-        tr_id = tr_uri.sub(/^.+}/, "")
         pr_uri = tr_hash["getTestRunByUriReturn"]["projectURI"]
-        pr_id = pr_uri.sub(/^.+}/, "")
-
-        # get required fields for cases in the run
-        sql = sql_get_workitems_from_run(tr_id, pr_id)
-        cases = client.tracker.query_work_items_by_sql(sql_query: sql, fields: ["id", "customFields.caseautomation", "customFields.automation_script"])
-        work_items = cases.body_hash["queryWorkItemsBySQLReturn"]
+        # pr_id = pr_uri.sub(/^.+}/, "")
 
         if records.size != work_items.size
           raise "count of test records is #{records.size} but found #{work_items.size} workitems"
+        end
+
+        update_rec_at_index = proc do |req|
+          begin
+            next client.test.update_test_record_at_index(**req)
+          rescue => e
+            tc_id = req[:test_record][:test_case_uri].sub(/^.+}/, "")
+            if PolarionCallError === e &&
+                e.message.include?("ConcurrentModificationException")
+              logger.info "#{executor_str()}: case #{tc_id} concurrent " <<
+                " reservation update, skipping"
+            else
+              logger.warn "#{executor_str()}: case #{tc_id} unknown " <<
+                " reservation error:\n" << exception_to_string(e)
+            end
+            next false
+          end
         end
 
         # while we find unreserved case, reserve them and mark them complete
@@ -218,19 +255,10 @@ module CucuShift
           res_rec[:duration] = reserve_duration
           res_rec[:comment] = { type: "text/plain",
                                 content_lossy: "false",
-                                content: "reserved by: #{EXECUTOR_NAME}"}
+                                content: "reserved by: #{EXECUTOR_NAME} #{executor_str()}"}
 
-          begin
-            client.test.update_test_record_at_index(**res_req)
-          rescue => e
-            if PolarionCallError === e &&
-                e.message.include?("ConcurrentModificationException")
-              logger.info "#{executor_str()}: case #{tc_id} concurrent " <<
-                " reservation update, skipping"
-            else
-              logger.warn "#{executor_str()}: case #{tc_id} unknown " <<
-                " reservation error:\n" << exception_to_string(e)
-            end
+          logger.info "#{executor_str()} reserving #{tc_id}"
+          unless (update_rec_at_index.call(res_req) rescue nil)
             get_run.call
             next
           end
@@ -262,9 +290,17 @@ module CucuShift
 
             # this below can fail when run concurrently with other unrelated
             # update_test_record_at_index calls, we need to retry
-            client.test.update_test_record_at_index(**res_req)
+            logger.info "#{executor_str()} setting #{tc_id} completion status"
+            updated = wait_for(600, interval: 3) do
+              update_rec_at_index.call(res_req)
+            end
+            unless updated
+              raise "#{executor_str()} could not update #{tc_id} record 10m"
+            end
 
             # TODO: update worklog
+
+            get_run.call # refresh case list
           else
             say "skipping #{tc_id}, duration: #{rec["duration"]}, expected: #{reserve_duration}"
           end
