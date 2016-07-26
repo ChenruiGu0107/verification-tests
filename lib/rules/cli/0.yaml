@@ -901,6 +901,8 @@
     :ports: --ports=<value>
     :selector: --selector=<value>
     :replicas: --replicas=<value>
+    :default_cert: --default-cert=<value>
+    :host_network: --host-network=<value>
 :openshift_version:
   :cmd: openshift version
   :expected:

@@ -1193,3 +1193,159 @@ Feature: Testing haproxy router
       | https://<%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %> |
       | -k |
     Then the output should contain "Hello-OpenShift"
+
+  # @author zzhao@redhat.com
+  # @case_id 500001
+  @admin
+  @destructive
+  Scenario: The route auto generated can be accessed using the default cert
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Given default router replica count is restored after scenario
+    And admin ensures "tc-500001" dc is deleted after scenario
+    And admin ensures "tc-500001" service is deleted after scenario
+    When I run the :scale client command with:
+      | resource | dc |
+      | name | router |
+      | replicas | 0 |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/default-router.pem"
+    When I run the :oadm_router admin command with:
+      | name | tc-500001|
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+      | default_cert | default-router.pem |
+    And a pod becomes ready with labels:
+      | deploymentconfig=tc-500001|
+    And evaluation of `pod.ip` is stored in the :router_default_cert clipboard 
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name | route-edge |
+      | service | service-unsecure |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the "<%= pod.name %>" pod:
+      | wget |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/default-router.pem |
+      | -O |
+      | /tmp/default-router.pem |
+    Then the step should succeed 
+    When I execute on the "<%= pod.name %>" pod:
+      | curl |
+      | --resolve |
+      | <%= route("route-edge", service("service-unsecure")).dns(by: user) %>:443:<%= cb.router_default_cert %> |
+      | https://<%= route("route-edge", service("service-unsecure")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/default-router.pem |
+    Then the output should contain "Hello-OpenShift"
+
+  # @author zzhao@redhat.com
+  # @case_id 498716
+  @admin
+  @destructive
+  Scenario: Router can work well with container network stack
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given default router replica count is stored in the :router_num clipboard
+    Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
+      | deploymentconfig=router |
+    And default router replica count is restored after scenario
+    When I run the :scale client command with:
+      | resource | dc |
+      | name | router |
+      | replicas | 0 |
+    Then the step should succeed
+    Given admin ensures "tc-498716" dc is deleted after scenario
+    And admin ensures "tc-498716" service is deleted after scenario
+    When I run the :oadm_router admin command with:
+      | name | tc-498716 |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router |
+      | host_network | false |
+      | replicas | <%= cb.router_num %> |
+    And a pod becomes ready with labels:
+      | deploymentconfig=tc-498716 |
+    And evaluation of `pod.ip` is stored in the :router_ip clipboard
+
+    Given I run commands on the nodes in the :router_node clipboard:
+      | docker ps \| grep tc-498716 |
+    Then the output should contain "0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp, 0.0.0.0:1936->1936/tcp"
+    
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I open web server via the "http://<%= route.dns(by: user) %>" url
+    Then the output should contain "Hello-OpenShift"
+    
+    #edge route
+    When I run the :create_route_edge client command with:
+      | name | edge-route |
+      | service | service-unsecure |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | https:// <%= route("edge-route", service("service-unsecure")).dns(by: user) %> |
+      | -k |
+    Then the output should contain "Hello-OpenShift"
+
+    #passthrough route
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name | passthrough-route |
+      | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
+      | service | service-secure |
+    Then the step should succeed
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= route("passthrough-route", service("passthrough-route")).dns(by: user) %>:443:<%= cb.router_ip %> |
+      | https://<%= route("passthrough-route", service("passthrough-route")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Hello-OpenShift"
+
+    #reencrypt route
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+
+    Then the step should succeed
+    When I run the :create_route_reencrypt client command with:
+      | name | route-reencrypt |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
+      | service | service-secure |
+      | cert | route_reencrypt-reen.example.com.crt |
+      | key | route_reencrypt-reen.example.com.key |
+      | cacert | route_reencrypt.ca |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip %> |
+      | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
+      | --cacert |
+      | /tmp/ca.pem |
+    Then the output should contain "Hello-OpenShift"
