@@ -37,8 +37,6 @@ Feature: NFS Persistent Volume
       | name     | mypod-<%= project.name %> |
     Then the output should contain:
       | Unable to mount volumes for pod |
-      | Mount failed: exit status       |
-      | Mounting arguments              |
     """
 
   # @author lxia@redhat.com
