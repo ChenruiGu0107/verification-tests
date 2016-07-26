@@ -79,3 +79,68 @@ Feature: Event related scenarios
       | Normal\\s+BackOff     |
     And the output should match 3 times:
       | Warning\\s+Failed     |
+
+  # @author yanpzhan@redhat.com
+  # @case_id 532269
+  Scenario: Project should only watch its owned cache events
+    When I run the :new_project client command with:
+      | project_name | eventcache532269 |
+    Then the step should succeed
+
+    When I run the :new_project client command with:
+      | project_name | eventcache532269-1 |
+    Then the step should succeed
+
+    When I run the :get background client command with:
+      | resource | secrets          |
+      | o        | name             |
+      | n        | eventcache532269 |
+      | w        | true             |
+    Then the step should succeed
+
+    # Cucumber runs fast. If not wait here, oc get --watch would be killed at 
+    # once and have empty output, so wait some time for the output to show up
+    Given 20 seconds have passed
+    When I terminate last background process
+    And evaluation of `@result[:response]` is stored in the :watchevent clipboard
+
+    When I run the :get background client command with:
+      | resource | secrets            |
+      | o        | name               |
+      | n        | eventcache532269-1 |
+      | w        | true               |
+    Then the step should succeed
+
+    # Same reason as above
+    Given 20 seconds have passed
+    When I terminate last background process
+    And evaluation of `@result[:response]` is stored in the :watchevent1 clipboard
+
+    When I run the :get background client command with:
+      | resource | secrets          |
+      | o        | name             |
+      | n        | eventcache532269 |
+      | w        | true             |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | secrets            |
+      | n           | eventcache532269-1 |
+      | all         |                    |
+    Then the step should succeed
+
+    # Same reason as above
+    Given 20 seconds have passed
+    When I terminate last background process
+    And the output should equal "<%= cb.watchevent %>"
+
+    When I run the :get background client command with:
+      | resource | secrets            |
+      | o        | name               |
+      | n        | eventcache532269-1 |
+      | w        | true               |
+    Then the step should succeed
+
+    # Same reason as above
+    Given 20 seconds have passed
+    When I terminate last background process
+    And the expression should be true> @result[:response] != "<%= cb.watchevent1 %>"
