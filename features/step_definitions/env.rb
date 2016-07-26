@@ -35,7 +35,7 @@ Given /^I store master major version in the#{OPT_SYM} clipboard$/ do |cb_name|
   res = node(hosts[0].name).host.exec_as(nil, "docker images", quiet: false)
 
   cb_name = 'master_version' unless cb_name
-  cb[cb_name] = res[:response].match(/\w*[origin|ose]-docker-registry\s+v(\d+.\d+.\d+)/).captures[0]
+  cb[cb_name] = res[:response].match(/\w*[origin|ose]-pod\s+v(\d+.\d+.\d+)/).captures[0]
 
   # for origin, return the :latest as image tag version
   if cb[cb_name].start_with?('1')
