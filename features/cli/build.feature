@@ -1030,7 +1030,8 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc470327/python-34-rhel7-stibuild.json |
     Then the step should fail
-    And the output should contain "spec.strategy.sourceStrategy.from.name: Required value"
+    And the output should match:
+      | spec.strategy.sourceStrategy.from.name: [Rr]equired value |
 
   # @author pruan@redhat.com
   # @case_id 519266
