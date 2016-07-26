@@ -24,10 +24,10 @@ Feature: create app on web console related
       | label_value   | test   |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
-    When I access the "/console/project/<%= project.name %>/browse/builds/ruby-sample-build" path in the web console
-    Then the step should succeed
-    And I get the html of the web page
-    Then the output should contain "ruby-sample-build"
+    When I perform the :check_one_build_inside_bc_page web console action with:
+      | project_name      | <%= project.name %>                   |
+      | bc_and_build_name | ruby-sample-build/ruby-sample-build-1 |
+    Then the step should succeed 
     Given the "ruby-sample-build-1" build completed
     When I run the :get client command with:
       | resource | all         |

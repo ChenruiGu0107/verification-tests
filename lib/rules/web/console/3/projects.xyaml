@@ -47,5 +47,11 @@ cancel_delete_project:
   - selector:
       xpath: //a[contains(@href,'<project_name>')]
     type: a
+get_disabled_project_submit_button:
+  element:
+    selector:
+      type: submit
+      disabled: disabled
+    type: button
 goto_projects_page:
   url: /console

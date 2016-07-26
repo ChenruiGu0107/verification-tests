@@ -25,9 +25,8 @@ Feature: projects related features via web
     Given I login via web console
     When I access the "/console/createProject" path in the web console
     Then the step should succeed
-    When I get the "disabled" attribute of the "button" web element:
-      | type | submit |
-    Then the output should contain "true"
+    When I run the :get_disabled_project_submit_button web console action
+    Then the step should succeed
     #create the project with a duplicate project name
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I perform the :new_project web console action with:
@@ -48,9 +47,8 @@ Feature: projects related features via web
       | display_name | :null              |
       | description  ||
     Then the step should fail
-    When I get the "disabled" attribute of the "button" web element:
-      | type | submit |
-    Then the output should contain "true"
+    When I run the :get_disabled_project_submit_button web console action
+    Then the step should succeed
     # Create a project with uper-case letters
     When I perform the :new_project web console action with:
       | project_name | ABCDE |
