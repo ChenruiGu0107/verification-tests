@@ -451,4 +451,4 @@ Feature: xpass.feature
     When I run the :logs client command with:
       | resource_name | jboss-eap-quickstarts-1-build |
     Then the output should contain:
-      | -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga packagee |
+      | -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga package |
