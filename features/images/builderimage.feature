@@ -29,10 +29,13 @@ Feature: builderimage.feature
       | file | sample-php-rhel7.json |
     Then the step should succeed
     And the "php-sample-build-1" build completed
+    Given a pod becomes ready with labels:
+      | name=database |
     When I expose the "frontend" service
     Then I wait for a web server to become available via the "frontend" route
-    And  the output should contain "Mail_sendmail Object"
-    And  the output should contain "Database connection is successful"
+    And  the output should match:
+      | [Mm]ail_sendmail [Oo]bject           |
+      | [Dd]atabase connection is successful |
 
     Examples:
       | php_image | mysql_image |
