@@ -5,19 +5,19 @@ Feature: oc_expose.feature
   Scenario: Expose the second sevice from service
     Given I have a project
     When I run the :new_app client command with:
-      | code | https://github.com/openshift/sti-perl |
-      | l | app=test-perl|
-      | context_dir | 5.20/test/sample-test-app/ |
-      | name | myapp |
+      | code        | https://github.com/openshift/sti-perl |
+      | l           | app=test-perl                         |
+      | context_dir | 5.20/test/sample-test-app/            |
+      | name        | myapp                                 |
     Then the step should succeed
     And the "myapp-1" build completed
     When I run the :expose client command with:
-      | resource | service |
-      | resource_name | myapp |
-      | port | 80 |
-      | target_port | 8080 |
-      | name | myservice |
-      | generator  | service/v1 |
+      | resource      | service    |
+      | resource_name | myapp      |
+      | port          | 80         |
+      | target_port   | 8080       |
+      | name          | myservice  |
+      | generator     | service/v1 |
     Then the step should succeed
     When I run the :get client command with:
       | resource | service |
@@ -37,12 +37,12 @@ Feature: oc_expose.feature
   Scenario: Expose services from deploymentconfig
     Given I have a project
     When I run the :new_app client command with:
-      | app repo    | <%= product_docker_repo %>openshift3/perl-516-rhel7 |
-      | code        | https://github.com/openshift/sti-perl    |
-      | l           | app=test-perl                            |
-      | context dir | 5.16/test/sample-test-app/               |
-      | name        | myapp                                    |
-      | insecure_registry | true                               |
+      | app repo          | <%= product_docker_repo %>openshift3/perl-516-rhel7 |
+      | code              | https://github.com/openshift/sti-perl               |
+      | l                 | app=test-perl                                       |
+      | context dir       | 5.16/test/sample-test-app/                          |
+      | name              | myapp                                               |
+      | insecure_registry | true                                                |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | deploymentconfig |
@@ -68,13 +68,13 @@ Feature: oc_expose.feature
       | name         | myapp                                 |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | deploymentconfig=myapp  |
+      | deploymentconfig=myapp |
     When I run the :expose client command with:
-      | resource      | pod                |
+      | resource      | pod             |
       | resource name | <%= pod.name %> |
-      | target port   | 8080               |
-      | generator     | service/v1         |
-      | name          | myservice          |
+      | target port   | 8080            |
+      | generator     | service/v1      |
+      | name          | myservice       |
     Given I wait for the "myservice" service to become ready
     When I execute on the pod:
       | curl | -k | <%= service.url %> |
@@ -93,8 +93,8 @@ Feature: oc_expose.feature
       | resource name | frontend |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | route    |
-      | resource_name | frontend |
+      | resource      | route                       |
+      | resource_name | frontend                    |
       | template      | "{{.spec.port.targetPort}}" |
     Then the step should succeed
     And the output should contain "web"
@@ -114,8 +114,8 @@ Feature: oc_expose.feature
       | resource name | frontend |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | route    |
-      | resource_name | frontend |
+      | resource      | route                       |
+      | resource_name | frontend                    |
       | template      | "{{.spec.port.targetPort}}" |
     Then the step should succeed
     And the output should not contain "web"
@@ -154,3 +154,71 @@ Feature: oc_expose.feature
     Then the step should succeed
     """
     And the output should contain "Everything is OK"
+
+  # @author pruan@redhat.com
+  # @case_id 529580
+  Scenario: Access app througth secure service
+    Given I have a project
+    Given a "caddyfile.conf" file is created with the following lines:
+    """
+    :8443 {
+      tls /etc/serving-cert/tls.crt /etc/serving-cert/tls.key
+      root /srv/publics
+      browse /test
+    }
+    :8080 {
+      root /srv/public
+      browse /test
+    }
+    """
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc529580/dc.yaml"
+    # oc volume -f dc.yaml --add --secret-name=ssl-key  --mount-path=/etc/serving-cert
+    And I run the :volume client command with:
+      | f           | dc.yaml           |
+      | action      | --add             |
+      | secret-name | ssl-key           |
+      | mount-path  | /etc/serving-cert |
+    Then the step should succeed
+    And I run the :expose client command with:
+      | resource      | deploymentconfig |
+      | resource_name | hello            |
+      | port          | 443              |
+      | target_port   | 8443             |
+    Then the step should succeed
+    And I run the :annotate client command with:
+      | resource     | svc                                                         |
+      | resourcename | hello                                                       |
+      | keyval       | service.alpha.openshift.io/serving-cert-secret-name=ssl-key |
+    Then the step should succeed
+    And I run the :create_configmap client command with:
+      | name      | default-conf   |
+      | from_file | caddyfile.conf |
+    Then the step should succeed
+    # oc set volumes dc/hello --add --configmap-name=default-conf --mount-path=/etc/caddy/config
+    Then I run the :set_volume client command with:
+      | resource       | dc                |
+      | resource_name  | hello             |
+      | action         | --add             |
+      | configmap-name | default-conf      |
+      | mount-path     | /etc/caddy/config |
+    Then the step should succeed
+    Given all pods in the project are ready
+    Then I run the :run client command with:
+      | name       | centos                                                           |
+      | restart    | Never                                                            |
+      | generator  | run-pod/v1                                                       |
+      | image      | centos                                                           |
+      | oc_opt_end |                                                                  |
+      | cmd        | curl                                                             |
+      | cmd        | --cacert                                                         |
+      | cmd        | /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt     |
+      | cmd        | https://<%= service('hello').name %>.<%= project.name %>.svc:443 |
+    And the pod named "centos" status becomes :succeeded
+    And I run the :logs client command with:
+      | resource_name | centos |
+      | f             | true   |
+    Then the output should contain:
+      | Hello-OpenShift-1 https-8443 |
+
+
+

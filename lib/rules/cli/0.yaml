@@ -114,10 +114,43 @@
   :options:
     :f: -f <value>
     :filename: --filename=<value>
+:create_configmap:
+  :cmd: oc create configmap
+  :options:
+    :name: <value>
+    :from_file: --from-file=<value>
+:create_route_edge:
+  :cmd: oc create route edge <name>
+  :options:
+    :hostname: --hostname=<value>
+    :service: --service=<value>
+    :cert: --cert=<value>
+    :key: --key=<value>
+    :cacert: --ca-cert=<value>
+    :path: --path=<value>
+:create_route_passthrough:
+  :cmd: oc create route passthrough <name>
+  :options:
+    :hostname: --hostname=<value>
+    :service: --service=<value>
+:create_route_reencrypt:
+  :cmd: oc create route reencrypt <name>
+  :options:
+    :hostname: --hostname=<value>
+    :service: --service=<value>
+    :cert: --cert=<value>
+    :key: --key=<value>
+    :cacert: --ca-cert=<value>
+    :destcacert: --dest-ca-cert=<value>
+    :path: --path=<value>
 :create_secret:
   :cmd: oc create secret <createservice_type>
 :create_serviceaccount:
   :cmd: oc create serviceaccount <serviceaccount_name>
+:cucushift_test_do_not_use:
+  :cmd: <command>
+  :options:
+    :opt: <value>
 :debug:
   :cmd: oc debug <global_options>
   :options:
@@ -193,10 +226,6 @@
   :options:
     :arg: <value>
     :test_do_not_use: <value>
-:cucushift_test_do_not_use:
-  :cmd: <command>
-  :options:
-    :opt: <value>
 :explain:
   :cmd: oc explain
   :options:
@@ -232,30 +261,7 @@
     :output: --output=<value>
     :o: -o <value>
     :path: --path=<value>
-:create_route_edge:
-  :cmd: oc create route edge <name>
-  :options:
-    :hostname: --hostname=<value>
-    :service: --service=<value>
-    :cert: --cert=<value>
-    :key: --key=<value>
-    :cacert: --ca-cert=<value>
-    :path: --path=<value>
-:create_route_passthrough:
-  :cmd: oc create route passthrough <name>
-  :options:
-    :hostname: --hostname=<value>
-    :service: --service=<value>
-:create_route_reencrypt:
-  :cmd: oc create route reencrypt <name>
-  :options:
-    :hostname: --hostname=<value>
-    :service: --service=<value>
-    :cert: --cert=<value>
-    :key: --key=<value>
-    :cacert: --ca-cert=<value>
-    :destcacert: --dest-ca-cert=<value>
-    :path: --path=<value>
+
 :get:
   :cmd: oc get <resource>
   :options:
@@ -526,17 +532,18 @@
     :w: --watch=<value>
     :delete: --delete=<value>
 :run:
-  :cmd: oc run <name>
+  :cmd: oc run <name> <global_options> <options>
   :options:
     :attach: --attach=<value>
     :command: --command=<value>
     :cmd: <value>
-    :image: --image <value>
+    :image: --image=<value>
     :port: --port <value>
     :replicas: --replicas <value>
     :generator: --generator=<value>
     :limits: --limits=<value>
     :requests: --requests=<value>
+    :oc_opt_end: --
     :dry_run: --dry-run
     :-i: --stdin=<value>
     :-l: --labels=<value>
@@ -669,6 +676,7 @@
     :claim-name: --claim-name=<value>
     :claim-mode: --claim-mode=<value>
     :claim-size: --claim-size=<value>
+    :configmap-name: --configmap-name=<value>
     :all: --all=<value>
     :selector: --selector=<value>
     :overwrite: --overwrite
@@ -722,6 +730,7 @@
     :action: <value>
     :confirm: --confirm=<value>
     :name: --name=<value>
+    :f: --filename=<value>
     :type: --type=<value>
     :secret-name: --secret-name=<value>
     :source: --source=<value>
