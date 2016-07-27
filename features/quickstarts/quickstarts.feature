@@ -164,3 +164,24 @@ Feature: quickstarts.feature
       | ruby:2.3   | ruby:2.2   |                |                | rails-postgresql.json  | rails-postgresql-example | rails-ex  |
       | perl:5.20  | perl:5.16  |                |                | dancer.json            | dancer-example           | dancer-ex |
       | perl:5.20  | perl:5.16  |                |                | dancer-mysql.json      | dancer-mysql-example     | dancer-ex |
+
+  # @author dyan@redhat.com
+  # @case_id 492612 508973
+  Scenario Outline: Dancer-ex quickstart test with perl-516-rhel7
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | <template> |
+    Then the step should succeed
+    And the "<buildcfg>-1" build was created
+    And the "<buildcfg>-1" build completed
+    And <podno> pods become ready with labels:
+      | app=<buildcfg> |
+    When I use the "<buildcfg>" service
+    Then I wait for a web server to become available via the "<buildcfg>" route
+    Then the output should contain "<output>"
+
+    Examples: OS Type
+      | template                                                                                                | buildcfg             | output  | podno |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc492612/dancer.json       | dancer-example       | Dancer  | 1     |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     |
+
