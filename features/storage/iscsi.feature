@@ -112,14 +112,14 @@ Feature: ISCSI volume plugin testing
     When I run the :exec client command with:
       | pod              | iscsi2luns    |
       | c                | iscsi-rw      |
-      | exec_command     | --            |
+      | oc_opts_end      |               |
       | exec_command     | touch         |
       | exec_command_arg | /mnt/iscsi/rw |
     Then the step should succeed
     When I run the :exec client command with:
       | pod              | iscsi2luns    |
       | c                | iscsi-rw      |
-      | exec_command     | --            |
+      | oc_opts_end      |               |
       | exec_command     | ls            |
       | exec_command_arg | /mnt/iscsi/rw |
     Then the step should succeed
@@ -128,7 +128,7 @@ Feature: ISCSI volume plugin testing
      When I run the :exec client command with:
       | pod              | iscsi2luns    |
       | c                | iscsi-ro      |
-      | exec_command     | --            |
+      | oc_opts_end      |               |
       | exec_command     | touch         |
       | exec_command_arg | /mnt/iscsi/ro |
     Then the step should fail
