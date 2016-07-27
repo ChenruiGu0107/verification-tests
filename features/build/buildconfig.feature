@@ -179,6 +179,7 @@ Feature: buildconfig.feature
     And evaluation of `@result[:parsed]["status"]["tags"][0]["items"][0]["image"]` is stored in the :imagesha clipboard
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
     Then the step should succeed
+    And the "ruby22-sample-build-1" build completes
     When I run the :patch client command with:
       | resource      | buildconfig                                                                                              |
       | resource_name | ruby22-sample-build                                                                                      |
@@ -188,8 +189,9 @@ Feature: buildconfig.feature
       | resource | buildconfig           |
       | name     | ruby22-sample-build   |
     Then the step should succeed
-    And the output should match:
-      | ImageStreamImage\s+ruby@<%= cb.imagesha %> |
+    And the output should match "ImageStreamImage\s+ruby@<%= cb.imagesha %>"
+    #And the output should match:
+    #| ImageStreamImage\s+ruby@<%= cb.imagesha %> |
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     Then the step should succeed
@@ -198,8 +200,9 @@ Feature: buildconfig.feature
       | resource | build                 |
       | name     | ruby22-sample-build-2 |
     Then the step should succeed
-    And the output should match:
-      | DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %> |
+    And the output should match "DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %>"
+    #And the output should match:
+    #  | DockerImage\s+centos/ruby-22-centos7@<%= cb.imagesha %> |
     When I run the :patch client command with:
       | resource      | buildconfig                                                                                                                                                 |
       | resource_name | ruby22-sample-build                                                                                                                                         |
