@@ -69,3 +69,68 @@ Feature: ISCSI volume plugin testing
       | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>        |
     Then the step should succeed
     And the pod named "iscsi-<%= project.name %>" becomes ready
+
+  # @author jhou@redhat.com
+  # @case_id 532645
+  @admin
+  @destructive
+  Scenario: Multiple iSCSI LUNs with rw and ro mode should ensure the access behavior correctly
+    Given I have a iSCSI setup in the environment
+    And I have a project
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    # Create RW PV/PVC for LUN 0
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pv-read-write.json" where:
+      | ["metadata"]["name"]              | iscsi-rw-<%= project.name %> |
+      | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260      |
+    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pvc-read-write.json" replacing paths:
+      | ["metadata"]["name"]   | iscsi-rw-<%= project.name %> |
+      | ["spec"]["volumeName"] | iscsi-rw-<%= project.name %> |
+    Then the step should succeed
+    And the "iscsi-rw-<%= project.name %>" PVC becomes bound to the "iscsi-rw-<%= project.name %>" PV
+
+    # Create RO PV/PVC for LUN 1
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pv-read-only.json" where:
+      | ["metadata"]["name"]              | iscsi-ro-<%= project.name %> |
+      | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260      |
+    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pvc-read-only.json" replacing paths:
+      | ["metadata"]["name"]   | iscsi-ro-<%= project.name %> |
+      | ["spec"]["volumeName"] | iscsi-ro-<%= project.name %> |
+    Then the step should succeed
+    And the "iscsi-ro-<%= project.name %>" PVC becomes bound to the "iscsi-ro-<%= project.name %>" PV
+
+    # Create the pod with 2 containers mounting RW and RO PVCs
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pod-two-luns.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | iscsi-rw-<%= project.name %>   |
+      | ["spec"]["volumes"][1]["persistentVolumeClaim"]["claimName"] | iscsi-ro-<%= project.name %>   |
+    Then the step should succeed
+    And the pod named "iscsi2luns" becomes ready
+
+    # Should successfully access RW container
+    When I run the :exec client command with:
+      | pod              | iscsi2luns    |
+      | c                | iscsi-rw      |
+      | exec_command     | --            |
+      | exec_command     | touch         |
+      | exec_command_arg | /mnt/iscsi/rw |
+    Then the step should succeed
+    When I run the :exec client command with:
+      | pod              | iscsi2luns    |
+      | c                | iscsi-rw      |
+      | exec_command     | --            |
+      | exec_command     | ls            |
+      | exec_command_arg | /mnt/iscsi/rw |
+    Then the step should succeed
+
+    # Should failed to access RO container
+     When I run the :exec client command with:
+      | pod              | iscsi2luns    |
+      | c                | iscsi-ro      |
+      | exec_command     | --            |
+      | exec_command     | touch         |
+      | exec_command_arg | /mnt/iscsi/ro |
+    Then the step should fail
+    And the output should contain:
+      | Read-only file system |
