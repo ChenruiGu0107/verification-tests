@@ -821,7 +821,7 @@ Feature: deployment related features
     When I run the :logs client command with:
       | resource_name | dc/hooks |
     Then the output should match:
-      | eploying |
+      | caling.*to\\s+1 |
 
     Given I collect the deployment log for pod "hooks-1-deploy" until it disappears
     And I run the :logs client command with:
@@ -832,19 +832,25 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            |       |
+    Given I wait until the status of deployment "hooks" becomes :running
     And I run the :deploy client command with:
       | deployment_config | hooks |
       | cancel            |       |
-    Then I wait until the status of deployment "hooks" becomes :failed
-    And I run the :logs client command with:
-      | resource_name | dc/hooks |
-    Then the step should fail
-    And the output should contain "not available"
+    Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :failed
+    # When deploy failed by cancelled 3.2 keeps the deploy pod, 3.3 will discard the pod, 
+    # logs are different, so better to check by `oc deploy dc` instead of `oc logs`
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+    Then the step should succeed
+    And the output should match:
+      | [Cc]ancelled.*user |
     # check for non-existent dc
     When I run the :logs client command with:
       | resource_name | dc/nonexistent |
     Then the step should fail
-    And the output should contain "not found"
+    And the output should match:
+      | [Dd]eploymentconfigs.*not found |
 
   # @author yinzhou@redhat.com
   # @case_id 497540
