@@ -17,18 +17,18 @@ Feature: services related feature on web console
       | service_name | hello-service              |
       | selectors    | name=hello-pod             |
       | type         | ClusterIP                  |
-      | routes       | http://www.hello.com       |
+      | routes       | http://www.hello.com/testpath1 |
       | target_port  | 5555                       |
     Then the step should succeed
     When I replace resource "route" named "hello-route":
-      | www.hello.com | www.hello2.com |
+      | testpath1 | testpath2 |
     Then the step should succeed
     When I perform the :check_one_service_page web console action with:
       | project_name | <%= project.name %>        |
       | service_name | hello-service              |
       | selectors    | name=hello-pod             |
       | type         | ClusterIP                  |
-      | routes       | http://www.hello2.com      |
+      | routes       | http://www.hello.com/testpath2 |
       | target_port  | 5555                       |
     Then the step should succeed
     When I run the :create client command with:
