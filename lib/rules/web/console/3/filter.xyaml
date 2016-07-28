@@ -81,3 +81,4 @@ check_suggested_label:
   elements:
   - selector:
       xpath: //div[@class='selectize-dropdown-content']/div[contains(@data-value,'<label>')]
+check_suggested_label_on_overview_page: {}
