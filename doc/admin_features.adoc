@@ -16,7 +16,7 @@ If configuration changes happened though, these can affect later scenarios execu
 
 For visibility, please tag any scenarios using admin with the `@admin` tag.
 
-To avoid such situation we have to define clean-up routines. Clean-up routines can be defined either directly in step code by calling `teardown_add { proc.. }` or by registering clean-up steps from wihtin scenario.
+To avoid such situation we have to define clean-up routines. Clean-up routines can be defined either directly in step code by calling `teardown_add { proc.. }` or by registering clean-up steps from within scenario.
 
 These clean-up steps will execute after scenario no matter if scenario succeeded or not. So you don't have to revert the changes in clean-up and regular steps.
 
@@ -30,7 +30,7 @@ Design your clean-up in a way that it fails only if further scenario execution c
 
 See `features/test/clean_up.feature`.
 
-Note that upon execution, any dynamic code in steps is resolved so clean-up steps usually don't need special method and variable handling. You just need to ensure operations are well specified. For example if you want to remove a project at the end, specify its name in the step. Dont leave it just `the project`. Otherwise `the project` at teardown might be a completely different project. Same goes to users and any other resources we work with.
+Note that upon execution, any dynamic code in steps is resolved so clean-up steps usually don't need special method and variable handling. You just need to ensure operations are well specified. For example if you want to remove a project at the end, specify its name in the step. Don't leave it just `the project`. Otherwise `the project` at teardown might be a completely different project. Same goes to users and any other resources we work with.
 
 === clean-up defined in step code
 One admin scenario is "Admin could get/edit/delete the project" defined inside `features/admin/project.feature`. It creates a project as admin but at that point we don't have guarantee user will receive admin rights over it and will be able to remove it.
