@@ -42,12 +42,14 @@ Feature: custombuild.feature
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479017/custombuild-template.json"
     Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource      | istag          |
       | resource_name | origin-custom-docker-builder:latest |
       | o             | json           |
     Then the step should succeed
-    Given the output is parsed as JSON
+    """
     And evaluation of `@result[:parsed]['image']['metadata']['name']` is stored in the :imagestreamimage clipboard
     When I replace resource "bc" named "ruby-sample-build":
       | ImageStreamTag | ImageStreamImage |
