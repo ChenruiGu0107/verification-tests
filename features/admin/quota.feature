@@ -391,11 +391,17 @@ Feature: Quota related scenarios
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    When I get project builds
+    Then the step should succeed
+    And the output should match:
+      | ruby-sample-build-[23].*[Nn]ew.*[Cc]annotCreateBuildPod |
+    """
     When I run the :describe client command with:
       | resource | build                |
-      | name     | ruby-sample-build-3  |
     Then the output should match:
-      | pods "ruby-sample-build-3-build" is forbidden |
+      | pods.*ruby-sample-build-[23].*forbidden |
       | aximum memory usage.*is 750Mi.*limit is 796917760 |
       | aximum cpu usage.*is 500m.*limit is 1020m |
 
