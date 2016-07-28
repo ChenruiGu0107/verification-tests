@@ -86,21 +86,19 @@ Feature: buildlogic.feature
   Scenario: Create new build config use dockerfile with source repo
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo | https://github.com/openshift/ruby-hello-world |
-      | D | FROM centos:7\nRUN yum install -y httpd |
+      | app_repo | https://github.com/openshift/ruby-hello-world   |
+      | D        | FROM centos/ruby-22-centos7:latest\nRUN echo ok |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | bc |
-      | o | yaml |
+      | resource | bc   |
+      | o        | yaml |
     Then the step should succeed
-    Then the output should contain:
-      | dockerfile: |
-      |  FROM centos:7 |
-      |  RUN yum install -y httpd |
-      | git: |
+    Then the output should match:
+      | dockerfile   |
+      | FROM centos/ruby-22-centos7:latest                 |
+      | RUN echo ok  |
       | uri: https://github.com/openshift/ruby-hello-world |
-      | secrets: [] |
-      | type: Git |
+      | type: [Gg]it |
     When I run the :get client command with:
       | resource | build |
     Then the "ruby-hello-world-1" build completed
