@@ -10,7 +10,7 @@ Feature: dockerbuild.feature
     When I run the :create client command with:
       | f | blankrepo.json |
     Then the step should fail
-    Then the output should contain "spec.source.git.uri: Required value"
+    Then the output should match "spec.source.git.uri: [Rr]equired value"
 
   # @author wzheng@redhat.com
   # @case_id 470419
