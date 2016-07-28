@@ -204,3 +204,15 @@ Given /^(I|admin) ensures? #{QUOTED} (\w+) is deleted(?: from the#{OPT_QUOTED} p
     p.call
   end
 end
+
+# example: I wait "hello-pod" pod to appear up to 42 seconds
+Given /^(I|admin) waits? #{QUOTED} (\w+) to appear(?: in the the#{OPT_QUOTED} project)?(?: up to (\d+) seconds)?$/ do |by, name, type, project_name, timeout|
+  _user = by == "admin" ? admin : user
+  _resource = resource(name, type, project_name: project_name)
+  timeout = timeout ? timeout.to_i : 60
+
+  @result = _resource.wait_to_appear(_user, timeout)
+  unless @result[:success]
+    raise %Q{#{type} "#{name}" did not appear within timeout}
+  end
+end
