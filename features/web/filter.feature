@@ -510,13 +510,9 @@ Feature: filter on create page
     Given the "python-sample-1" build was created
 
     # Check suggested labels on overview page.
-    When I perform the :goto_overview_page web console action with:
+    When I perform the :check_suggested_label_on_overview_page web console action with:
       | project_name | <%= project.name%> |
-    Then the step should succeed
-    When I run the :click_filter_box web console action
-    Then the step should succeed
-    When I perform the :check_suggested_label web console action with:
-      | label | app |
+      | label        | app |
     Then the step should succeed
 
     # Check suggested labels on builds page.
