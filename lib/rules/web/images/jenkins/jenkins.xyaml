@@ -125,7 +125,7 @@ jenkins_create_openshift_resources:
   url: /job/<job_name>/configure
   elements:
     - selector:
-        id: yui-gen3-button
+        xpath: //button[contains(., 'Add build step')]
       op: click
       type: button
     - selector:
