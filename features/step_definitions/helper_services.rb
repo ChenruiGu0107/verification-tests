@@ -47,12 +47,8 @@ Given /^I have LDAP service in my project$/ do
       })
     step %Q/the step should succeed/
     step %Q/I wait until replicationController "ldapserver-1" is ready/
-    step %Q/I run the :get client command with:/, table(%{
-      | resource |pods	  |
-      | o        |yaml	  |
-      })
+    step %Q/I get project pods as YAML/
     step %Q/the step should succeed/
-    step %Q/the output is parsed as YAML/
     step %Q/evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :ldap_pod_name clipboard/
     # Init the test data in ldap server.
     step %Q/I run the :rsh client command with:/, table(%{
