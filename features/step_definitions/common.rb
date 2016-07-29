@@ -205,8 +205,8 @@ Given /^(I|admin) ensures? #{QUOTED} (\w+) is deleted(?: from the#{OPT_QUOTED} p
   end
 end
 
-# example: I wait "hello-pod" pod to appear up to 42 seconds
-Given /^(I|admin) waits? #{QUOTED} (\w+) to appear(?: in the the#{OPT_QUOTED} project)?(?: up to (\d+) seconds)?$/ do |by, name, type, project_name, timeout|
+# example: I wait for the "hello-pod" pod to appear up to 42 seconds
+Given /^(I|admin) waits? for the #{QUOTED} (\w+) to appear(?: in the the#{OPT_QUOTED} project)?(?: up to (\d+) seconds)?$/ do |by, name, type, project_name, timeout|
   _user = by == "admin" ? admin : user
   _resource = resource(name, type, project_name: project_name)
   timeout = timeout ? timeout.to_i : 60
