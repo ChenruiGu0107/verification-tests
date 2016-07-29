@@ -614,36 +614,71 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
-    Given I wait for the pod named "hooks-1-deploy" to die
+
+    Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
-    Given I wait for the pod named "hooks-2-deploy" to die
+
+    Given I wait until the status of deployment "hooks" becomes :complete
+    # Workaround: the below steps make a failed deployment instead of --cancel
+    When I run the :patch client command with:
+      | resource      | dc              |
+      | resource_name | hooks           |
+      | p             | {"spec":{"strategy":{"rollingParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ], "containerName": "hello-openshift" }, "failurePolicy": "Abort" }}}}} |
+    Then the step should succeed
+    Then I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | dc                 |
+      | resource_name | hooks              |
+      | template      | {{.spec.strategy.rollingParams.pre.execNewPod.command}} |
+    Then the step should succeed
+    And the output should contain "/bin/false"
+    """
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest ||
+      | latest            |       |
     Then the step should succeed
     And the output should contain "Started deployment #3"
-    And I wait until the status of deployment "hooks" becomes :running
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | cancel ||
+
+    Given I wait until the status of deployment "hooks" becomes :failed
+    # Remove the pre-hook introduced by the above workaround,
+    # otherwise later deployment will always fail
+    When I run the :patch client command with:
+      | resource      | dc              |
+      | resource_name | hooks           |
+      | p             | {"spec":{"strategy":{"rollingParams":{"pre":null}}}} |
     Then the step should succeed
-    And the output should contain "ancelled deployment #3"
+    Then I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | dc                 |
+      | resource_name | hooks              |
+      | template      | {{.spec.strategy.rollingParams.pre}} |
+    Then the step should succeed
+    And the output should contain "no value"
+    """
+
     When I run the :rollback client command with:
       | deployment_name | hooks |
     Then the step should succeed
+    # Deployment #4
     And the output should contain "rolled back to hooks-2"
-    Given I wait for the pod named "hooks-4-deploy" to die
+
+    Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :rollback client command with:
       | deployment_name | hooks |
       | to_version | 1 |
     Then the step should succeed
+    # Deployment #5
     And the output should contain "rolled back to hooks-1"
-    Given I wait for the pod named "hooks-5-deploy" to die
+
+    Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :rollback client command with:
       | deployment_name | dc/hooks |
     Then the step should succeed
+    # Deployment #6
     And the output should contain "rolled back to hooks-4"
 
   # @author pruan@redhat.com
