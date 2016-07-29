@@ -577,7 +577,7 @@ Feature: Testing haproxy router
   Scenario: Haproxy router health check via stats port specified by user
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
@@ -591,7 +591,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I run the :oadm_router admin command with:
       | name | tc-516834 |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | stats_port | <%= cb.stats_port %> |
       | service_account | router |
     And a pod becomes ready with labels:
@@ -607,7 +607,7 @@ Feature: Testing haproxy router
   Scenario: The correct route info should be reported back to user when there are multiple routers
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     Given environment has at least 2 schedulable nodes
     And default router replica count is restored after scenario
     When I run the :scale client command with:
@@ -623,14 +623,14 @@ Feature: Testing haproxy router
     And admin ensures "<%= cb.router2_name %>" service is deleted after scenario
     When I run the :oadm_router admin command with:
       | name | <%= cb.router1_name %> |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | force_subdomain | ${name}-${namespace}.apps.aaa.com |
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.router1_name %> |
     And evaluation of `pod.ip` is stored in the :router1_ip clipboard
     When I run the :oadm_router admin command with:
       | name | <%= cb.router2_name %> |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | force_subdomain | ${name}-${namespace}.apps.zzz.com |
     And a pod becomes ready with labels:
       | deploymentconfig=<%= cb.router2_name %> |
@@ -698,7 +698,7 @@ Feature: Testing haproxy router
   Scenario: Haproxy router health check will use 1936 port if user disable the stats port
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     Given default router replica count is restored after scenario
@@ -711,7 +711,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I run the :oadm_router admin command with:
       | name | tc-516836 |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | stats_port | 0 |
       | service_account | router |
     And a pod becomes ready with labels:
@@ -727,7 +727,7 @@ Feature: Testing haproxy router
   Scenario: User can access router stats using the specified port and username/pass
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
@@ -741,7 +741,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I run the :oadm_router admin command with:
       | name | tc-483532 |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | stats_port | <%= cb.stats_port %> |
       | stats_user | tc483532 |
       | stats_passwd | 483532tc |
@@ -779,7 +779,7 @@ Feature: Testing haproxy router
   Scenario: router stats's password will be shown if creating router without providing stats password
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
@@ -793,7 +793,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I run the :oadm_router admin command with:
       | name | tc-483529 |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | stats_port | <%= cb.stats_port %> |
       | stats_user | tc483529|
       | service_account | router |
@@ -826,7 +826,7 @@ Feature: Testing haproxy router
   Scenario: Route should be moved to the correct router once the label changed
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     Given default router replica count is restored after scenario
@@ -841,7 +841,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I run the :oadm_router admin command with:
       | name | router-label-red |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
     Then a pod becomes ready with labels:
       | deploymentconfig=router-label-red |
     When I run the :env client command with:
@@ -853,7 +853,7 @@ Feature: Testing haproxy router
     And evaluation of `pod.ip` is stored in the :router_red_ip clipboard
     When I run the :oadm_router admin command with:
       | name | router-label-blue |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
     Then a pod becomes ready with labels:
       | deploymentconfig=router-label-blue |
     When I run the :env client command with:
@@ -943,7 +943,7 @@ Feature: Testing haproxy router
   Scenario: router cannot be running if the stats port was occupied
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     Given default router replica count is restored after scenario
@@ -957,7 +957,7 @@ Feature: Testing haproxy router
 
     When I run the :oadm_router admin command with:
       | name | tc-483533 |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | stats_port | 22 |
       | service_account | router |
     Then I wait up to 50 seconds for the steps to pass:
@@ -1090,7 +1090,7 @@ Feature: Testing haproxy router
   Scenario: Set invalid reload time for haproxy router script
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     Given default router replica count is restored after scenario
@@ -1103,7 +1103,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I run the :oadm_router admin command with:
       | name   | tc-518936                                               |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
     Then a pod becomes ready with labels:
       | deploymentconfig=tc-518936 |
     When I run the :env client command with:
@@ -1136,7 +1136,7 @@ Feature: Testing haproxy router
   Scenario: Be able to create multi router in same node via setting port with hostnetwork network mode
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     Given default router replica count is stored in the :router_num clipboard
     Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
       | deploymentconfig=router |
@@ -1162,7 +1162,7 @@ Feature: Testing haproxy router
     And admin ensures "tc-531375" service is deleted after scenario
     When I run the :oadm_router admin command with:
       | name | tc-531375 |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | stats_port | <%= cb.stats_port %> |
       | replicas | <%= cb.router_num %> |
       | ports | <%= cb.http_port %>:<%= cb.http_port %>,<%= cb.https_port %>:<%= cb.https_port %> |
@@ -1210,7 +1210,7 @@ Feature: Testing haproxy router
   Scenario: The route auto generated can be accessed using the default cert
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     Given default router replica count is restored after scenario
@@ -1224,7 +1224,7 @@ Feature: Testing haproxy router
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/default-router.pem"
     When I run the :oadm_router admin command with:
       | name | tc-500001|
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | default_cert | default-router.pem |
     And a pod becomes ready with labels:
       | deploymentconfig=tc-500001|
@@ -1267,7 +1267,7 @@ Feature: Testing haproxy router
   Scenario: Router can work well with container network stack
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master major version in the :master_version clipboard
+    And I store master image version in the clipboard
     Given default router replica count is stored in the :router_num clipboard
     Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
       | deploymentconfig=router |
@@ -1281,7 +1281,7 @@ Feature: Testing haproxy router
     And admin ensures "tc-498716" service is deleted after scenario
     When I run the :oadm_router admin command with:
       | name | tc-498716 |
-      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version%> |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | host_network | false |
       | replicas | <%= cb.router_num %> |
     And a pod becomes ready with labels:
