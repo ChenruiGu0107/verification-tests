@@ -78,7 +78,8 @@ Given /^SCC #{QUOTED} is (added to|removed from) the #{QUOTED} (user|group|servi
       _opts[:user_name] = _user_name
     else
       _user_name = service_account(which, switch: false).name
-      _opts[:serviceaccount] = _user_name
+      # _opts[:serviceaccount] = _user_name # this is project dependent
+      _opts[:user_name] = _user_name
     end
 
     _add_command = :oadm_policy_add_scc_to_user
