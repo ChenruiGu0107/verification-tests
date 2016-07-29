@@ -303,6 +303,31 @@ Feature: buildconfig.feature
     And the "ruby-hello-world-2" build was created
     And the "ruby-ex-2" build was created
 
+  # @author dyan@redhat.com
+  # @case_id 470322
+  Scenario: Trigger chain builds from a image update
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    Then the "ruby-20-centos7" image stream was created
+    And the "ruby-hello-world-1" build was created
+    Given the "ruby-hello-world-1" build becomes :complete
+    When I run the :new_build client command with:
+      | image_stream | ruby-hello-world                     |
+      | code         | https://github.com/openshift/ruby-ex |
+      | name         | ruby-ex                              |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    When I run the :tag client command with:
+      | source_type | docker                 |
+      | source      | centos/ruby-22-centos7 |
+      | dest        | ruby-20-centos7:latest |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build was created
+    When the "ruby-hello-world-2" build becomes :complete
+    Then the "ruby-ex-2" build was created
+
   # @author haowang@redhat.com
   # @case_id 479540 479541
   Scenario Outline: Build with images pulled from private repositories
