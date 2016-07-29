@@ -611,8 +611,10 @@
   :options:
     :all: --all=<value>
     :env_name: <value>
+    :from: --from=<value>
     :keyval: <value>
     :list: --list=<value>
+    :prefix: --prefix=<value>
     :resource: <value>
     :c: -c <value>
     :e: -e <value>
