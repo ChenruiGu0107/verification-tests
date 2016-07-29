@@ -360,7 +360,6 @@ Feature: Persistent Volume Claim binding policies
       | not all containers have started |
       | 0 != 1                          |
     Given I ensure "mypod-<%= project.name %>" pod is deleted
-    And I wait for the pod named "mypod-<%= project.name %>" to die regardless of current status
     """
 
   # @author lxia@redhat.com
