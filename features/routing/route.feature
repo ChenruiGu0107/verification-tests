@@ -663,3 +663,40 @@ Feature: Testing route
       | HTTP/1.1 200    | 
     And the output should not contain:
       | HTTP/1.1 302 Found |
+
+
+  # @author yadu@redhat.com
+  # @case_id 470694
+  Scenario: Enabled Active/Active routers can do round-robin on multiple target IPs
+    # The case need to run on multi-node env
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    Then the expression should be true> cb.router_ip.size > 1
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name     | edge-route       |
+      | service  | service-unsecure |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl                                                                                       |
+      | --resolve                                                                                  |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/                   |
+      | -k                                                                                         |
+    Then the step should succeed
+    Then the output should contain "Hello-OpenShift"
+    When I execute on the pod:
+      | curl                                                                                       |
+      | --resolve                                                                                  |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[1] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/                   |
+      | -k                                                                                         |
+    Then the step should succeed
+    Then the output should contain "Hello-OpenShift"
