@@ -1684,3 +1684,35 @@ Feature: deployment related features
     And the expression should be true> dc('minreadytest').unavailable_replicas(user: user) == 2
     And 40 seconds have passed
     And the expression should be true> dc('minreadytest').available_replicas(user: user) == 2
+  
+  # @author mcurlej@redhat.com
+  # @case_id 532411
+  Scenario: Auto cleanup old RCs
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc532411/history-limit-dc.yaml |
+    Then the step should succeed
+    When I run the steps 3 times:
+    """
+    When I run the :env client command with:
+      | resource | dc/history-limit |
+      | e        | TEST#{cb.i}=1 |
+    Then the step should succeed
+    And I wait until the status of deployment "history-limit" becomes :complete 
+    """
+    When I run the :rollback client command with:
+      | deployment_name | history-limit |
+      | to_version      | 1             |
+    Then the step should fail
+    And the output should contain:
+      | couldn't find deployment for rollback  |
+    When I run the :env client command with:
+      | resource | dc/history-limit |
+      | e        | TEST4=4 |
+    Then the step should succeed
+    And I wait until the status of deployment "history-limit" becomes :complete 
+    And I wait for the steps to pass:
+    """
+    When I get project rc as JSON
+    Then the output should not contain "history-limit-2" 
+    """
