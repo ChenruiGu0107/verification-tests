@@ -677,3 +677,52 @@ Feature: buildlogic.feature
       | build_name | ruby-hello-world-1 |
       | state      | invalid            |
     And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
+
+  # @author dyan@redhat.com
+  # @case_id 472757
+  Scenario: Show the fields of build
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    Given the "ruby-hello-world-1" build becomes :running
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-1 |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource   | build               |
+      | name       | ruby-hello-world-1 |
+    Then the step should succeed
+    And the output should match:
+      | [Nn]ame                |
+      | [Ll]abels              |
+      | [Ss]tatus              |
+      | [Cc]ancelled           |
+      | [Dd]uration            |
+      | [Ss]trategy            |
+    When I run the :patch client command with:
+      | resource      | bc  |
+      | resource_name | ruby-hello-world |
+      | p             | {"spec": {"source": {"sourceSecret": {"name": "mysecret"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    And the "ruby-hello-world-2" build was created
+    Given the "ruby-hello-world-2" build becomes :pending
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-2 |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | build |
+      | name     | ruby-hello-world-2 |
+    Then the step should succeed
+    And the output should match:
+      | [Nn]ame                |
+      | [Ll]abels              |
+      | [Ss]tatus              |
+      | [Cc]ancelled           |
+      | [Dd]uration            |
+      | [Ss]trategy            |
+
