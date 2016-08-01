@@ -20,7 +20,7 @@
   :server: --server=<value>
   :stderrthreshold: --stderrthreshold=<value>
   :token: --token=<value>
-  :as: --as=<value> 
+  :as: --as=<value>
 :add_secret:
   :cmd: oc secrets add serviceaccount/<sa_name> secrets/<secret_name>
   :options:
@@ -449,6 +449,7 @@
   :options:
     :role_namespace: --role-namespace=<value>
     :serviceaccount: -z=<value>
+    :serviceaccountraw: <value>
     :user_name: <value>
 :policy_remove_group:
   :cmd: oc policy remove-group <group_name>
