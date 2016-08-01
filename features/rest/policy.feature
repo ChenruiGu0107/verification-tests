@@ -132,28 +132,11 @@ Feature: REST policy related features
     Given I create a new project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
     Then the step should succeed
-    # cluster admin get subresource status
+    # need switch to cluster-amin and use user token for kube api request
+    # cluster admin edit subresource
     Given the second user is cluster-admin
     And I switch to the second user
-    When I perform the :get_subresources_status rest request with:
-      | project_name  | <%= project.name %> |
-      | resource_type | resourcequotas      |
-      | resource_name | quota               |
-    Then the step should fail
-    And the expression should be true> @result[:exitstatus] == 405
-    When I perform the :get_subresources_oapi rest request with:
-      | project_name  | <%= project.name %> |
-      | resource_type | imagestreams        |
-      | resource_name | ruby-22-centos7     |
-    Then the step should fail
-    And the expression should be true> @result[:exitstatus] == 405
-    When I perform the :get_project_status rest request with:
-      | project_name  | <%= project.name %> |
-    Then the step should fail
-    And the expression should be true> @result[:exitstatus] == 405
-
-    # cluster admin edit subresource
-    Given a pod becomes ready with labels:
+    And a pod becomes ready with labels:
       | deployment=database-1     |
     When I run the :get client command with:
       | resource      | pod             |
