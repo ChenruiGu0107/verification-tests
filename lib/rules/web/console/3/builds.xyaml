@@ -44,18 +44,13 @@ check_one_buildconfig_page_with_check_config:
       xpath: //a[contains(text(),"github.com")]
   # Generic webhook URL
   - selector:
-      xpath: //dl/div[1]//span//a[text()="Show URL"]
-    type: a
-    op: click
-  - selector:
-      xpath: //span[contains(text(),"generic")]
+      xpath: //dt[contains(.,'Generic webhook URL')]
   # GitHub webhook URL
   - selector:
-      xpath: //dl/div[2]//span//a[text()="Show URL"]
-    type: a
-    op: click
+      xpath: //dt[contains(.,'GitHub webhook URL')]
+  # Manual (CLI): 
   - selector:
-      xpath: //span[contains(text(),"github")]
+      xpath: //dt[contains(.,'Manual (CLI):')]
   # Learn more
   - selector:
       xpath: //a[contains(@href,"webhook-triggers") and descendant::span[contains(text(),"Learn more")]]
@@ -70,16 +65,17 @@ check_one_buildconfig_page_with_build_op:
     type: button
     op: click
   - selector:
-      text: Start Build
-      class: btn-default
-      disabled: disabled
-    type: button
+      xpath: //span[contains(., 'has started')]
 check_one_build_inside_bc_page:
   # <bc_and_build_name> contains two "/",e.g. bc/build/ 
   action: goto_one_build_page
   elements:
   - selector:
       text: Show annotations
+check_rebuild_button:
+  elements:
+  - selector:
+      xpath: //button[@ng-click="cloneBuild()" and text()="Rebuild"]     
 cancel_build_from_pending_status:
   action: check_one_build_inside_bc_page
   elements:

@@ -80,6 +80,10 @@ check_one_build_inside_bc_page:
   elements:
   - selector:
       text: Show annotations
+check_rebuild_button:
+  elements:
+  - selector:
+      xpath: //button[@disabled="disabled" and text()="Rebuild"] 
 cancel_build_from_pending_status:
   action: check_one_build_inside_bc_page
   elements:

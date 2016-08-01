@@ -28,7 +28,8 @@ Feature: build related feature on web console
       | bc_name       | python-sample |
     Then the step should succeed
     Given the "python-sample-1" build was created
-    Given the "python-sample-1" build completed
+    # wait for build finished is ok, does not nessarily to be completed  
+    Given the "python-sample-1" build finished
     When I perform the :check_one_build_inside_bc_page web console action with:
       | project_name            | <%= project.name %> |
       | bc_and_build_name       | python-sample/python-sample-1       |
@@ -38,10 +39,8 @@ Feature: build related feature on web console
       | class | btn-default |
     Then the step should succeed
     Given the "python-sample-2" build was created
-    When I get the "disabled" attribute of the "button" web element:
-      | text  | Rebuild |
-      | class | btn-default |
-    Then the output should contain "true"
+    When I run the :check_rebuild_button web console action
+    Then the step should succeed
     When I perform the :check_one_buildconfig_page web console action with:
       | project_name  | <%= project.name %> |
       | bc_name       | python-sample |
