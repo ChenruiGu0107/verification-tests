@@ -119,7 +119,7 @@ Feature: oc tag related scenarios
   # @author cryan@redhat.com
   # @case_id 519853
   # @bug_id 1304109
-  Scenario: Tag image from another project via oc tag and use it to create app via oc new-app
+  Scenario: oc tag gets istag pointing to image of latest revision from the source istag
     Given I have a project
     And evaluation of `project.name` is stored in the :stage clipboard
     When I run the :new_build client command with:
@@ -144,30 +144,6 @@ Feature: oc tag related scenarios
       | dest         | <%= cb.prod %>/myis:tag1 |
     Then the step should succeed
     Then the output should match "set to.*<%= cb.img2[0..15] %>"
-    Given I use the "<%= cb.prod %>" project
-    When I run the :new_app client command with:
-      | app_repo | myis:tag1 |
-    Then the step should succeed
-    Given I wait for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource | pod |
-      | l | app=myis |
-      | o | yaml |
-    Then the output should contain "unauthorized"
-    """
-    When I run the :policy_add_role_to_user client command with:
-      | role | edit |
-      | user_name | system:serviceaccount:<%= cb.prod %>:default |
-      | n | <%= cb.stage %> |
-    Then the step should succeed
-    When I run the :new_app client command with:
-      | app_repo | myis:tag1 |
-      | name | myapp |
-      | n | <%= cb.prod %> |
-    Then the step should succeed
-    Then a pod becomes ready with labels:
-      | app=myapp |
 
   # @author yanpzhan@redhat.com
   # @case_id 528866
