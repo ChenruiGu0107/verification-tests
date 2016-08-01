@@ -295,6 +295,98 @@ jenkins_login:
       type: button
   action: jenkins_verify_logged_in
 
+jenkins_tag_openshift_image:
+  url: /job/<job_name>/configure
+  elements:
+    - selector:
+        xpath: //button[contains(., 'Add build step')]
+      op: click
+      type: button
+    - selector:
+        text: Tag OpenShift Image
+      op: click
+      type: a
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkApiURL")]
+      op: send_keys <apiurl>
+      type: input
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestTag")]
+      op: send_keys <curr_img_tag>
+      type: input
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestStream")]
+      op: send_keys <curr_img_tag_is>
+      type: input
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkProdTag")]
+      op: send_keys <new_img_tag>
+      type: input
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkProdStream")]
+      op: send_keys <new_img_tag_is>
+      type: input
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkNamespace")]
+      op: send_keys <tagnamespace>
+      type: input
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkDestinationNamespace")]
+      op: send_keys <destinationnamespace>
+      type: input
+    - selector:
+        xpath: (//td[contains(., "authorization token")])[last()-1]/following-sibling::td[1]/input
+      op: send_keys <auth_token>
+      type: input
+    - selector:
+        xpath: //input[@name="_.destinationAuthToken"]
+      op: send_keys <destination_auth_token>
+      type: input
+    - selector:
+        xpath: //button[contains(.,'Save')]
+      op: click
+      type: button
+
+jenkins_tag_openshift_image_test:
+  url: /job/<job_name>/configure
+  elements:
+    - selector:
+        xpath: //button[contains(., 'Add build step')]
+      op: click
+      type: button
+    - selector:
+        text: Tag OpenShift Image
+      op: click
+      type: a
+    - selector:
+        xpath: (//td[contains(., "authorization token")])[last()-1]/following-sibling::td[1]/input
+      op: send_keys <auth_token>
+      type: input
+
+jenkins_tag_openshift_image_id_update:
+  url: /job/<job_name>/configure
+  elements:
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestTag")]
+      op: clear
+      type: input
+    - selector:
+        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestTag")]
+      op: send_keys <curr_img_tag>
+      type: input
+    - selector:
+        xpath: //button[contains(.,'Save')]
+      op: click
+      type: button
+
+jenkins_verify_job_success:
+  url: /job/<job_name>/<job_number>/console
+  elements:
+  - selector:
+      xpath: //div[@id='main-panel']//pre[contains(.,'SUCCESS')]
+    timeout: 60
+    visible: true
+
 jenkins_verify_logged_in:
   elements:
   - selector:

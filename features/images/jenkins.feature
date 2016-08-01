@@ -140,6 +140,279 @@ Feature: jenkins.feature
     Given a pod becomes ready with labels:
       | name=hello-openshift |
 
+  # @author cryan@redhat.com
+  # @case_id 527297
+  Scenario: jenkins plugin can tag image in different projects use destination project token
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    When I run the :import_image client command with:
+      | image_name | ruby                      |
+      | from       | openshift/ruby-22-centos7 |
+      | confirm    | true                      |
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin    |
+      | password | password |
+    Then the step should succeed
+    When I create a new project
+    Then the step should succeed
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:default |
+      | n | <%= cb.proj2 %> |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj2 %>:default |
+      | n                 | <%= cb.proj1 %>                               |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj2 %>:default |
+      | n                 | <%= cb.proj2 %>                               |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:default |
+      | n                 | <%= cb.proj1 %>                               |
+    Then the step should succeed
+
+    Given I find a bearer token of the system:serviceaccount:<%= cb.proj2 %>:default service account
+    Given evaluation of `service_account.get_bearer_token.token` is stored in the :token1 clipboard
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_tag_openshift_image web action with:
+      | job_name               | testplugin                                       |
+      | apiurl                 | https://<%= env.master_hosts[0].hostname %>:8443 |
+      | curr_img_tag           | latest                                           |
+      | curr_img_tag_is        | ruby                                             |
+      | new_img_tag            | newtag                                           |
+      | new_img_tag_is         | newimage                                         |
+      | tagnamespace           | <%= cb.proj1 %>                                  |
+      | destinationnamespace   | <%= cb.proj2 %>                                  |
+      | auth_token             | ""                                               |
+      | destination_auth_token | <%= cb.token1 %>                                 |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | testplugin |
+      | job_number | 1          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is       |
+      | resource_name | newimage |
+      | o             | json     |
+    Then the step should succeed
+    And the output should contain:
+      | newtag           |
+      | ImageStreamImage |
+      | ruby@            |
+    When I perform the :jenkins_build_now web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | testplugin |
+      | job_number | 2          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is       |
+      | resource_name | newimage |
+      | o             | json     |
+    Then the step should succeed
+    And the output should contain:
+      | newtag           |
+      | ImageStreamImage |
+      | ruby@            |
+    Given evaluation of `@result[:parsed]["spec"]["tags"][0]["from"]["name"].gsub(/ruby@/,'')` is stored in the :imgid clipboard
+    When I perform the :jenkins_tag_openshift_image_id_update web action with:
+      | job_name             | testplugin                                       |
+      | apiurl               | https://<%= env.master_hosts[0].hostname %>:8443 |
+      | curr_img_tag         | <%= cb.imgid %>                                  |
+      | curr_img_tag_is      | ruby                                             |
+      | new_img_tag          | newtag                                           |
+      | new_img_tag_is       | newimage                                         |
+      | tagnamespace         | <%= cb.proj1 %>                                  |
+      | destinationnamespace | <%= cb.proj2 %>                                  |
+      | token                | <%= cb.token1 %>                                 |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | testplugin |
+      | job_number | 3          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is       |
+      | resource_name | newimage |
+      | o             | json     |
+    Then the step should succeed
+    And the output should contain:
+      | newtag           |
+      | ImageStreamImage |
+      | ruby@            |
+    When I perform the :jenkins_build_now web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | testplugin |
+      | job_number | 4          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is       |
+      | resource_name | newimage |
+      | o             | json     |
+    Then the step should succeed
+    And the output should contain:
+      | newtag           |
+      | ImageStreamImage |
+      | ruby@            |
+
+  # @author cryan@redhat.com
+  # @case_id 527298
+  Scenario: jenkins plugin can tag image in different projects use jenkins project token
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    When I run the :import_image client command with:
+      | image_name | ruby                      |
+      | from       | openshift/ruby-22-centos7 |
+      | confirm    | true                      |
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin    |
+      | password | password |
+    Then the step should succeed
+    When I create a new project
+    Then the step should succeed
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:default |
+      | n | <%= cb.proj2 %> |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj2 %>:default |
+      | n                 | <%= cb.proj1 %>                               |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj2 %>:default |
+      | n                 | <%= cb.proj2 %>                               |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:default |
+      | n                 | <%= cb.proj1 %>                               |
+    Then the step should succeed
+
+    Given I find a bearer token of the system:serviceaccount:<%= cb.proj1 %>:default service account
+    Given evaluation of `service_account.get_bearer_token.token` is stored in the :token1 clipboard
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_tag_openshift_image web action with:
+      | job_name                | testplugin                                       |
+      | apiurl                  | https://<%= env.master_hosts[0].hostname %>:8443 |
+      | curr_img_tag            | latest                                           |
+      | curr_img_tag_is         | ruby                                             |
+      | new_img_tag             | newtag                                           |
+      | new_img_tag_is          | newimage                                         |
+      | tagnamespace            | <%= cb.proj1 %>                                  |
+      | destinationnamespace    | <%= cb.proj2 %>                                  |
+      | auth_token              | <%= cb.token1 %>                                 |
+      | destination_auth_token  | ""                                               |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | testplugin |
+      | job_number | 1          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is       |
+      | resource_name | newimage |
+      | o             | json     |
+    Then the step should succeed
+    And the output should contain:
+      | newtag           |
+      | ImageStreamImage |
+      | ruby@            |
+    When I perform the :jenkins_build_now web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | testplugin |
+      | job_number | 2          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is       |
+      | resource_name | newimage |
+      | o             | json     |
+    Then the step should succeed
+    And the output should contain:
+      | newtag           |
+      | ImageStreamImage |
+      | ruby@            |
+    Given evaluation of `@result[:parsed]["spec"]["tags"][0]["from"]["name"].gsub(/ruby@/,'')` is stored in the :imgid clipboard
+    When I perform the :jenkins_tag_openshift_image_id_update web action with:
+      | job_name     | testplugin      |
+      | curr_img_tag | <%= cb.imgid %> |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | testplugin |
+      | job_number | 3          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is       |
+      | resource_name | newimage |
+      | o             | json     |
+    Then the step should succeed
+    And the output should contain:
+      | newtag           |
+      | ImageStreamImage |
+      | ruby@            |
+    When I perform the :jenkins_build_now web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | testplugin |
+      | job_number | 4          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is       |
+      | resource_name | newimage |
+      | o             | json     |
+    Then the step should succeed
+    And the output should contain:
+      | newtag           |
+      | ImageStreamImage |
+      | ruby@            |
+
   # @author shiywang@redhat.com
   # @case_id 516504
   Scenario: Check verbose logging in build field of openshift v3 plugin of jenkins-1-rhel7
