@@ -137,7 +137,7 @@ Given /^the #{QUOTED} path is( recursively)? removed on the host after scenario$
   }
 end
 
-Given /^the node service is restarted on the host after scenario$/ do
+Given /^the node service is restarted on the host( after scenario)?$/ do |after|
   _host = @host
 
   @result = _host.exec_admin("systemctl status atomic-openshift-node")
@@ -145,7 +145,7 @@ Given /^the node service is restarted on the host after scenario$/ do
     raise "something already wrong with node service, failing early"
   end
 
-  teardown_add {
+  _op = proc {
     @result = _host.exec_admin("systemctl restart atomic-openshift-node")
     unless @result[:success]
       raise "could not restart node service on #{_host.hostname}"
@@ -161,6 +161,13 @@ Given /^the node service is restarted on the host after scenario$/ do
     #   object in such case. Also question is how long to wait before check,
     #   because openshift is not so fast to react on errors.
   }
+
+  if after
+    logger.info "Node service to be restarted after scenario on #{_host.hostname}"
+    teardown_add _op
+  else
+    _op.call
+  end
 end
 
 Given /^label #{QUOTED} is added to the#{OPT_QUOTED} node$/ do |label, node_name|
