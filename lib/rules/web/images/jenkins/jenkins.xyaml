@@ -25,10 +25,10 @@ jenkins_add_build_string_parameter:
 jenkins_build_now:
   url: /job/<job_name>
   elements:
-    - selector:
-        text: Build Now
-      op: click
-      type: a
+  - selector:
+      text: Build Now
+    op: click
+    type: a
 
 jenkins_build_with_string_parameter:
   url: /job/<job_name>
@@ -240,30 +240,30 @@ jenkins_create_openshift_build_trigger:
 jenkins_create_openshift_resources:
   url: /job/<job_name>/configure
   elements:
-    - selector:
-        xpath: //button[contains(., 'Add build step')]
-      op: click
-      type: button
-    - selector:
-        text: Create OpenShift Resource(s)
-      op: click
-      type: a
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftCreator/checkApiURL")]
-      op: send_keys <apiurl>
-      type: input
-    - selector:
-        xpath: //textarea[contains(@checkurl,"OpenShiftCreator/checkJsonyaml")]
-      op: send_keys <jsonfile>
-      type: textarea
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftCreator/checkNamespace")]
-      op: send_keys <namespace>
-      type: input
-    - selector:
-        id: yui-gen31-button
-      op: click
-      type: button
+  - selector:
+      xpath: //button[contains(., 'Add build step')]
+    op: click
+    type: button
+  - selector:
+      text: Create OpenShift Resource(s)
+    op: click
+    type: a
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftCreator/checkApiURL")]
+    op: send_keys <apiurl>
+    type: input
+  - selector:
+      xpath: //textarea[contains(@checkurl,"OpenShiftCreator/checkJsonyaml")]
+    op: send_keys <jsonfile>
+    type: textarea
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftCreator/checkNamespace")]
+    op: send_keys <namespace>
+    type: input
+  - selector:
+      id: yui-gen31-button
+    op: click
+    type: button
 
 jenkins_install_kubernetes_plugin:
   action: go_to_updates_plugin_manage_page
@@ -272,7 +272,7 @@ jenkins_install_kubernetes_plugin:
       name: plugin.kubernetes.default
     type: input
     op: click
-  - selecotr:
+  - selector:
       name: Download now and install after restart
     type: button
     op: click
@@ -280,104 +280,208 @@ jenkins_install_kubernetes_plugin:
 jenkins_login:
   url: /login
   elements:
-    - selector:
-        id: j_username
-      op: send_keys <username>
-      type: input
-    - selector:
-        name: j_password
-      op: send_keys <password>
-      type: input
+  - selector:
+      id: j_username
+    op: send_keys <username>
+    type: input
+  - selector:
+      name: j_password
+    op: send_keys <password>
+    type: input
   elements:
-    - selector:
-        id: yui-gen1-button
-      op: click
-      type: button
+  - selector:
+      id: yui-gen1-button
+    op: click
+    type: button
   action: jenkins_verify_logged_in
+
+jenkins_trigger_sample_openshift_build:
+  url: /job/<job_name>/configure
+  elements:
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftScaler/checkApiURL")]
+    op: clear
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftScaler/checkApiURL")]
+    op: send_keys <scaler_apiurl>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftScaler/checkNamespace")]
+    op: clear
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftScaler/checkNamespace")]
+    op: send_keys <scaler_namespace>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuilder/checkApiURL")]
+    op: clear
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuilder/checkApiURL")]
+    op: send_keys <builder_apiurl>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuilder/checkNamespace")]
+    op: clear
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuilder/checkNamespace")]
+    op: send_keys <builder_namespace>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkApiURL")]
+    op: clear
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkApiURL")]
+    op: send_keys <deploy_verify_apiurl>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkNamespace")]
+    op: clear
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkNamespace")]
+    op: send_keys <deploy_verify_namespace>
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl, "OpenShiftScaler/checkApiURL")])[last()]
+    op: clear
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl, "OpenShiftScaler/checkApiURL")])[last()]
+    op: send_keys <scaler_apiurl>
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl, "OpenShiftScaler/checkNamespace")])[last()]
+    op: clear
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl, "OpenShiftScaler/checkNamespace")])[last()]
+    op: send_keys <scaler_namespace>
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl, "OpenShiftServiceVerifier/checkApiURL")])[last()]
+    op: clear
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl, "OpenShiftServiceVerifier/checkApiURL")])[last()]
+    op: send_keys <service_verify_apiurl>
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl, "OpenShiftServiceVerifier/checkNamespace")])[last()]
+    op: clear
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl, "OpenShiftServiceVerifier/checkNamespace")])[last()]
+    op: send_keys <service_verify_namespace>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl, "OpenShiftImageTagger/checkApiURL")]
+    op: clear
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl, "OpenShiftImageTagger/checkApiURL")]
+    op: send_keys <image_tagger_apiurl>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl, "OpenShiftImageTagger/checkNamespace")]
+    op: clear
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl, "OpenShiftImageTagger/checkNamespace")]
+    op: send_keys <image_tagger_namespace>
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkApiURL")])[last()]
+    op: clear
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkApiURL")])[last()]
+    op: send_keys <deploy_verify_apiurl>
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkNamespace")])[last()]
+    op: clear
+    type: input
+  - selector:
+      xpath: (//input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkNamespace")])[last()]
+    op: send_keys <deploy_verify_namespace>
+    type: input
+  - selector:
+      xpath: //button[contains(., 'Save')]
+    op: click
+    type: button
 
 jenkins_tag_openshift_image:
   url: /job/<job_name>/configure
   elements:
-    - selector:
-        xpath: //button[contains(., 'Add build step')]
-      op: click
-      type: button
-    - selector:
-        text: Tag OpenShift Image
-      op: click
-      type: a
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkApiURL")]
-      op: send_keys <apiurl>
-      type: input
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestTag")]
-      op: send_keys <curr_img_tag>
-      type: input
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestStream")]
-      op: send_keys <curr_img_tag_is>
-      type: input
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkProdTag")]
-      op: send_keys <new_img_tag>
-      type: input
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkProdStream")]
-      op: send_keys <new_img_tag_is>
-      type: input
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkNamespace")]
-      op: send_keys <tagnamespace>
-      type: input
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkDestinationNamespace")]
-      op: send_keys <destinationnamespace>
-      type: input
-    - selector:
-        xpath: (//td[contains(., "authorization token")])[last()-1]/following-sibling::td[1]/input
-      op: send_keys <auth_token>
-      type: input
-    - selector:
-        xpath: //input[@name="_.destinationAuthToken"]
-      op: send_keys <destination_auth_token>
-      type: input
-    - selector:
-        xpath: //button[contains(.,'Save')]
-      op: click
-      type: button
-
-jenkins_tag_openshift_image_test:
-  url: /job/<job_name>/configure
-  elements:
-    - selector:
-        xpath: //button[contains(., 'Add build step')]
-      op: click
-      type: button
-    - selector:
-        text: Tag OpenShift Image
-      op: click
-      type: a
-    - selector:
-        xpath: (//td[contains(., "authorization token")])[last()-1]/following-sibling::td[1]/input
-      op: send_keys <auth_token>
-      type: input
+  - selector:
+      xpath: //button[contains(., 'Add build step')]
+    op: click
+    type: button
+  - selector:
+      text: Tag OpenShift Image
+    op: click
+    type: a
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkApiURL")]
+    op: send_keys <apiurl>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestTag")]
+    op: send_keys <curr_img_tag>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestStream")]
+    op: send_keys <curr_img_tag_is>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkProdTag")]
+    op: send_keys <new_img_tag>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkProdStream")]
+    op: send_keys <new_img_tag_is>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkNamespace")]
+    op: send_keys <tagnamespace>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkDestinationNamespace")]
+    op: send_keys <destinationnamespace>
+    type: input
+  - selector:
+      xpath: (//td[contains(., "authorization token")])[last()-1]/following-sibling::td[1]/input
+    op: send_keys <auth_token>
+    type: input
+  - selector:
+      xpath: //input[@name="_.destinationAuthToken"]
+    op: send_keys <destination_auth_token>
+    type: input
+  - selector:
+      xpath: //button[contains(.,'Save')]
+    op: click
+    type: button
 
 jenkins_tag_openshift_image_id_update:
   url: /job/<job_name>/configure
   elements:
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestTag")]
-      op: clear
-      type: input
-    - selector:
-        xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestTag")]
-      op: send_keys <curr_img_tag>
-      type: input
-    - selector:
-        xpath: //button[contains(.,'Save')]
-      op: click
-      type: button
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestTag")]
+    op: clear
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkTestTag")]
+    op: send_keys <curr_img_tag>
+    type: input
+  - selector:
+      xpath: //button[contains(.,'Save')]
+    op: click
+    type: button
 
 jenkins_verify_job_success:
   url: /job/<job_name>/<job_number>/console
@@ -403,4 +507,3 @@ go_to_advanced_plugin_manage_page:
   url: /pluginManager/advanced
 goto_configure_page:
   url: /job/<job_name>/configure
-

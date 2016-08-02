@@ -141,6 +141,86 @@ Feature: jenkins.feature
       | name=hello-openshift |
 
   # @author cryan@redhat.com
+  # @case_id 498667
+  Scenario: Trigger build of application from jenkins job with ephemeral volume
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
+    When I give project edit role to the default service account
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    When I execute on the pod:
+      |  id | -u |
+    Then the step should succeed
+    #Check that the user is not root, or 0 id
+    #The regex below should match any number greater than 0
+    And the output should match "^[1-9][0-9]*$"
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin    |
+      | password | password |
+    Then the step should succeed
+    When I perform the :jenkins_trigger_sample_openshift_build web action with:
+      | job_name                 | OpenShift%20Sample          |
+      | scaler_apiurl            | <%= env.api_endpoint_url %> |
+      | scaler_namespace         | <%= project.name %>         |
+      | builder_apiurl           | <%= env.api_endpoint_url %> |
+      | builder_namespace        | <%= project.name %>         |
+      | deploy_verify_apiurl     | <%= env.api_endpoint_url %> |
+      | deploy_verify_namespace  | <%= project.name %>         |
+      | service_verify_apiurl    | <%= env.api_endpoint_url %> |
+      | service_verify_namespace | <%= project.name %>         |
+      | image_tagger_apiurl      | <%= env.api_endpoint_url %> |
+      | image_tagger_namespace   | <%= project.name %>         |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | OpenShift%20Sample |
+    Then the step should succeed
+    Given the "frontend-1" build was created
+    And the "frontend-1" build completes
+    And a pod becomes ready with labels:
+      | app=frontend |
+    #Ensure the Jenkins job completes, wait for the frontend-prod pod
+    And a pod becomes ready with labels:
+      | deployment=frontend-prod-1 |
+    And I get project services
+    Then the output should contain:
+      | frontend-prod |
+      | frontend      |
+      | jenkins       |
+    Given I get project deploymentconfigs
+    Then the output should contain:
+      | frontend-prod |
+      | frontend      |
+      | jenkins       |
+    Given I get project is
+    Then the output should contain:
+      | <%= project.name %>/nodejs-010-rhel7     |
+      | <%= project.name %>/origin-nodejs-sample |
+      | prod                                     |
+    When I run the :describe client command with:
+      | resource | builds     |
+      | name     | frontend-1 |
+    Then the step should succeed
+    And the output should contain "Manually triggered"
+    When I perform the :jenkins_build_now web action with:
+      | job_name | OpenShift%20Sample |
+    Then the step should succeed
+    Given the "frontend-2" build was created
+    And the "frontend-2" build completes
+    Given I get project is
+    Then the output should contain:
+      | <%= project.name %>/nodejs-010-rhel7     |
+      | <%= project.name %>/origin-nodejs-sample |
+      | prod                                     |
+
+  # @author cryan@redhat.com
   # @case_id 527297
   Scenario: jenkins plugin can tag image in different projects use destination project token
     Given I have a project
