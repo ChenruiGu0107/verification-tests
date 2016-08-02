@@ -141,6 +141,76 @@ Feature: jenkins.feature
       | name=hello-openshift |
 
   # @author cryan@redhat.com
+  # @case_id 527335
+  Scenario: jenkins plugin can tag image in the same project
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I create a new project
+    Then the step should succeed
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:default service account
+    When I run the :import_image client command with:
+      | image_name | ruby                     |
+      | from       | wewang58/ruby-22-centos7 |
+      | confirm    | true                     |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | is   |
+      | resource_name | ruby |
+      | o             | yaml |
+    Then the step should succeed
+    And evaluation of `@result[:parsed]["status"]["tags"][0]["items"][0]["image"]` is stored in the :shasum clipboard
+    When I perform the :jenkins_login web action with:
+      | username | admin    |
+      | password | password |
+    Then the step should succeed
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_tag_openshift_image web action with:
+      | job_name               | testplugin                  |
+      | apiurl                 | <%= env.api_endpoint_url %> |
+      | curr_img_tag           | <%= cb.shasum %>            |
+      | curr_img_tag_is        | ruby                        |
+      | new_img_tag            | tag20                       |
+      | new_img_tag_is         | ruby20                      |
+      | tagnamespace           | <%= cb.proj2 %>             |
+      | destinationnamespace   | <%= cb.proj2 %>             |
+      | auth_token             | ""                          |
+      | destination_auth_token | ""                          |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name  | testplugin |
+    Then the step should succeed
+    Given the "ruby20" image stream becomes ready
+    When I run the :get client command with:
+      | resource      | is     |
+      | resource_name | ruby20 |
+      | o             | json   |
+    Then the step should succeed
+    Then the expression should be true> @result[:parsed]["spec"]["tags"][0]["from"]["name"] == "ruby@<%= cb.shasum.gsub(/sha256:/,'') %>"
+    When I perform the :jenkins_tag_openshift_image_update_dest_tag web action with:
+      | job_name | testplugin |
+    When I perform the :jenkins_build_now web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    Given the "ruby20" image stream becomes ready
+    When I run the :get client command with:
+      | resource      | is     |
+      | resource_name | ruby20 |
+      | o             | json   |
+    Then the step should succeed
+    Then the expression should be true> @result[:parsed]["spec"]["tags"][0]["from"]["name"] == "ruby:latest"
+
+  # @author cryan@redhat.com
   # @case_id 498667
   Scenario: Trigger build of application from jenkins job with ephemeral volume
     Given I have a project
