@@ -100,10 +100,6 @@ Feature: build 'apps' with CLI
       | secret_name     | sec-push                    |
       | credential_file | <dockercfg_file>            |
     Then the step should succeed
-    When I run the :add_secret client command with:
-      | sa_name         | builder                     |
-      | secret_name     | sec-push                    |
-    Then the step should succeed
     Given I download a file from "<template_file>"
     When I replace lines in "<file_name>":
       | aosqe           |  qeopenshift                |
@@ -120,11 +116,11 @@ Feature: build 'apps' with CLI
       | Push Secret:.*sec\-push                       |
     When I run the :build_logs client command with:
       | build_name      | <second_build_name>         |
-    Then the output should match "<output_image>"
+    Then the output should match "latest.*digest"
     Examples:
-      | app_repo                                                            | context_dir                  | first_build_name   | second_build_name         | template_file                                                                                                               | output_image                                                    | dockercfg_file                                                       | file_name |
-      | openshift/python-33-centos7~https://github.com/openshift/sti-python | 3.3/test/standalone-test-app | sti-python-1       | python-sample-build-sti-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476357/application-template-stibuild.json    | Successfully pushed docker.io\/qeopenshift\/pushimage\-tc476357 | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> | application-template-stibuild.json    |
-      | https://github.com/openshift/ruby-hello-world.git                   |                              | ruby-hello-world-1 | ruby-sample-build-1       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476356/application-template-dockerbuild.json | Push successful                                                 | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> | application-template-dockerbuild.json |
+      | app_repo                                                            | context_dir                  | first_build_name   | second_build_name         | template_file                                                                                                               | dockercfg_file                                                       | file_name |
+      | openshift/python-33-centos7~https://github.com/openshift/sti-python | 3.3/test/standalone-test-app | sti-python-1       | python-sample-build-sti-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476357/application-template-stibuild.json    | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> | application-template-stibuild.json    |
+      | https://github.com/openshift/ruby-hello-world.git                   |                              | ruby-hello-world-1 | ruby-sample-build-1       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476356/application-template-dockerbuild.json | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> | application-template-dockerbuild.json |
 
   # @author xxing@redhat.com
   # @case_id 491409
