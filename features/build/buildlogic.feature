@@ -64,7 +64,7 @@ Feature: buildlogic.feature
     And the "php-sample-build-3" build completed
     When I run the :build_logs client command with:
       | build_name  | php-sample-build-3 |
-    Then the output should match "Successfully pushed"
+    Then the output should match "latest.*digest"
 
   # @author gpei@redhat.com
   # @case_id 515255

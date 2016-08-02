@@ -1982,7 +1982,7 @@ Feature: build 'apps' with CLI
     When I run the :logs client command with:
       | resource_name  | build/ruby-hello-world-2 |
     Then the step should succeed
-    And the output should contain "Successfully pushed"
+    And the output should match "latest.*digest"
     When I replace resource "bc" named "ruby-hello-world":
       | usernon        | userroot    |
     Then the step should succeed
@@ -1993,7 +1993,7 @@ Feature: build 'apps' with CLI
     When I run the :logs client command with:
       | resource_name  | build/ruby-hello-world-3 |
     Then the step should succeed
-    Then the output should contain "Successfully pushed"
+    Then the output should match "latest.*digest"
     When I replace resource "bc" named "ruby-hello-world":
       | userroot       | userdefault |
     Then the step should succeed
@@ -2004,7 +2004,7 @@ Feature: build 'apps' with CLI
     When I run the :logs client command with:
       | resource_name  | build/ruby-hello-world-4 |
     Then the step should succeed
-    Then the output should contain "Successfully pushed"
+    Then the output should match "latest.*digest"
     When I replace resource "bc" named "ruby-hello-world":
       | userdefault    | user1001    |
     Then the step should succeed
@@ -2015,7 +2015,7 @@ Feature: build 'apps' with CLI
     When I run the :logs client command with:
       | resource_name  | build/ruby-hello-world-5 |
     Then the step should succeed
-    And the output should contain "Successfully pushed"
+    And the output should match "latest.*digest"
 
   # @author cryan@redhat.com
   # @case_id 526204
@@ -2350,7 +2350,7 @@ Feature: build 'apps' with CLI
     When I run the :logs client command with:
       | resource_name  | build/ruby-hello-world-1 |
     Then the step should succeed
-    And the output should contain "Successfully pushed"
+    And the output should match "latest.*digest"
 
   # @author haowang@redhat.com
   # @case_id 526207 526206
