@@ -2604,3 +2604,20 @@ Feature: build 'apps' with CLI
     And the "ruby-ex-8" build status is any of:
       | pending |
       | running |
+
+  # @author wewang@redhat.com
+  # @case_id 526542
+  Scenario: Do sti build using image with onbuild instructions and without tar should build failed
+    Given I have a project
+    When I git clone the repo "https://github.com/openshift/ruby-hello-world" 
+    When I run the :new_app client command with:
+      | app_repo | <%= localhost.workdir %>/ruby-hello-world |
+      | docker_image | docker.io/aosqe/rubyonbuild:notar | 
+    Then the step should succeed
+    And the "ruby-hello-world-1" build was created
+    And the "ruby-hello-world-1" build failed
+    When I run the :build_logs client command with:
+      | build_name | ruby-hello-world-1 |
+    Then the step should succeed
+    Then the output should contain:
+      | builder image uses ONBUILD instructions but ONBUILD is not allowed  |
