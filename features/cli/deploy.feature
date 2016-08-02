@@ -1591,3 +1591,43 @@ Feature: deployment related features
       | resource | pod |
     Then the output should match:
       | hooks-2.*Running |
+
+  # @author mcurlej@redhat.com
+  # @case_id 532413
+  Scenario: Could revert an application back to a previous deployment by 'oc rollout undo' command
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :env client command with:
+      | resource | dc/hooks |
+      | e        | TEST=123 |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :env client command with:
+      | resource | dc/hooks |
+      | list     | true     |
+    Then the step should succeed
+    And the output should contain "TEST=123"
+    When I run the :rollout_undo client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :env client command with:
+      | resource | dc/hooks |
+      | list     | true     |
+    Then the step should succeed
+    And the output should not contain "TEST=123"
+    When I run the :rollout_undo client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | to_revision   | 2     |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :env client command with:
+      | resource | dc/hooks |
+      | list     | true     |
+    Then the step should succeed
+    And the output should contain "TEST=123"
