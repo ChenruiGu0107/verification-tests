@@ -899,3 +899,150 @@ Feature: Quota related scenarios
       | secrets\\s+9\\s+15                |
       | services\\s+0\\s+10               |
 
+  # @author chezhang@redhat.com
+  # @case_id 532979
+  @admin
+  Scenario: Admin can restrict the ability to use services.nodeports
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/quota-service.yaml |
+      | n | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+0\\s+5           |
+      | services.nodeports\\s+0\\s+2 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc1.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+1\\s+5           |
+      | services.nodeports\\s+1\\s+2 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc2.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+2\\s+5           |
+      | services.nodeports\\s+2\\s+2 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc3.json |
+    Then the step should fail
+    And the output should match:
+      | Exceeded quota: quota-service.*limited: services.nodeports=2 |
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+2\\s+5           |
+      | services.nodeports\\s+2\\s+2 |
+    When I run the :delete client command with:
+      | object_type       | svc           |
+      | object_name_or_id | nodeport-svc1 |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+1\\s+5           |
+      | services.nodeports\\s+1\\s+2 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc3.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+2\\s+5           |
+      | services.nodeports\\s+2\\s+2 |
+
+  # @author chezhang@redhat.com
+  # @case_id 532980
+  @admin
+  Scenario: Service with multi nodeports should be charged properly in the quota system
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/quota-service.yaml |
+      | n | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+0\\s+5           |
+      | services.nodeports\\s+0\\s+2 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532980/multi-nodeports-svc.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+1\\s+5           |
+      | services.nodeports\\s+2\\s+2 |
+    When I run the :delete client command with:
+      | object_type       | svc                 |
+      | object_name_or_id | multi-nodeports-svc |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+0\\s+5           |
+      | services.nodeports\\s+0\\s+2 |
+
+  # @author chezhang@redhat.com
+  # @case_id 532981
+  @admin
+  Scenario: services.nodeports in quota system work well when change service type
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/quota-service.yaml |
+      | n | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+0\\s+5           |
+      | services.nodeports\\s+0\\s+2 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc1.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+1\\s+5           |
+      | services.nodeports\\s+1\\s+2 |
+    When I run the :patch client command with:
+      | resource      | svc           |
+      | resource_name | nodeport-svc1 |
+      | type          | json          |
+      | p             | [{"op": "remove", "path": "/spec/ports/0/nodePort"},{"op": "replace", "path": "/spec/type", "value": ClusterIP}] |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+1\\s+5           |
+      | services.nodeports\\s+0\\s+2 |
+    When I run the :patch client command with:
+      | resource      | svc           |
+      | resource_name | nodeport-svc1 |
+      | type          | json          |
+      | p             | [{"op": "replace", "path": "/spec/type", "value": NodePort}] |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | quota-service |
+    Then the output should match:
+      | services\\s+1\\s+5           |
+      | services.nodeports\\s+1\\s+2 |
