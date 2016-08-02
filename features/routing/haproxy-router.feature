@@ -1140,7 +1140,7 @@ Feature: Testing haproxy router
     Given default router replica count is stored in the :router_num clipboard
     Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
       | deploymentconfig=router |
-    
+
     And evaluation of `rand(32000..64000)` is stored in the :stats_port clipboard
     And evaluation of `rand(32000..64000)` is stored in the :http_port clipboard
     And evaluation of `rand(32000..64000)` is stored in the :https_port clipboard
@@ -1157,7 +1157,7 @@ Feature: Testing haproxy router
       | iptables -I INPUT -p tcp --dport <%= cb.https_port %> -j ACCEPT     |
       | iptables -I INPUT -p tcp --dport <%= cb.stats_port %> -j ACCEPT     |
     Then the step should succeed
-        
+
     Given admin ensures "tc-531375" dc is deleted after scenario
     And admin ensures "tc-531375" service is deleted after scenario
     When I run the :oadm_router admin command with:
@@ -1169,10 +1169,10 @@ Feature: Testing haproxy router
     When I run the :env client command with:
       | resource | dc/tc-531375 |
       | e        | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>,ROUTER_SERVICE_HTTPS_PORT=<%= cb.https_port %>  |
-    Then the step should succeed    
+    Then the step should succeed
     And a pod becomes ready with labels:
       | deployment=tc-531375-2 |
-   
+
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
@@ -1184,7 +1184,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
-    
+
     When I open web server via the "http://<%= route.dns(by: user) %>" url
     Then the output should contain "Hello-OpenShift"
     When I open web server via the "http://<%= route.dns(by: user) %>:<%= cb.http_port %>" url
@@ -1195,7 +1195,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I open secure web server via the "edge-route" route
     Then the output should contain "Hello-OpenShift"
-    
+
     Given I have a pod-for-ping in the project
     When I execute on the pod:
       | curl |
@@ -1228,7 +1228,7 @@ Feature: Testing haproxy router
       | default_cert | default-router.pem |
     And a pod becomes ready with labels:
       | deploymentconfig=tc-500001|
-    And evaluation of `pod.ip` is stored in the :router_default_cert clipboard 
+    And evaluation of `pod.ip` is stored in the :router_default_cert clipboard
 
     Given I switch to the first user
     And I have a project
@@ -1245,13 +1245,13 @@ Feature: Testing haproxy router
       | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
     Then the step should succeed
     Given I have a pod-for-ping in the project
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | wget |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/default-router.pem |
       | -O |
       | /tmp/default-router.pem |
-    Then the step should succeed 
-    When I execute on the "<%= pod.name %>" pod:
+    Then the step should succeed
+    When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route("route-edge", service("service-unsecure")).dns(by: user) %>:443:<%= cb.router_default_cert %> |
@@ -1291,7 +1291,7 @@ Feature: Testing haproxy router
     Given I run commands on the nodes in the :router_node clipboard:
       | docker ps \| grep tc-498716 |
     Then the output should contain "0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp, 0.0.0.0:1936->1936/tcp"
-    
+
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
@@ -1305,7 +1305,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I open web server via the "http://<%= route.dns(by: user) %>" url
     Then the output should contain "Hello-OpenShift"
-    
+
     #edge route
     When I run the :create_route_edge client command with:
       | name | edge-route |
