@@ -1265,7 +1265,7 @@ Feature: build 'apps' with CLI
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby-sample-build |
-      | p | {"spec": {"strategy": {"customStrategy": {"buildAPIVersion": "v1beta3"}}}} |
+      | p | {"spec": {"strategy": {"customStrategy": {"buildAPIVersion": "v1"}}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
@@ -1276,7 +1276,8 @@ Feature: build 'apps' with CLI
       | list | true |
     Then the step should succeed
     And the output should contain:
-      | "apiVersion":"v1beta3" |
+      | "apiVersion":"v1"      |
+      | "buildAPIVersion":"v1" |
 
   # @author cryan@redhat.com
   # @case_id 497657

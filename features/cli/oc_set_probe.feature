@@ -40,8 +40,8 @@ Feature: oc_set_probe.feature
       | readiness    |             |
       | open_tcp     | 45          |
       | no_headers   |             |
-      | output_version | 1beta3    |
-      | o            | json      |
+      | output_version | v1        |
+      | o            | json        |
     Then the step should succeed
     When I save the output to file>file.json
     And I run the :set_probe client command with:
