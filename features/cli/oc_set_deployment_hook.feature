@@ -41,6 +41,7 @@ Feature: set deployment-hook/build-hook with CLI
       | [Pp]ost-deployment hook   |
       | failure policy: [Ii]gnore |
       | /bin/true                 |
+    Given I wait until the status of deployment "rails-postgresql-example" becomes :complete
     When I run the :deploy client command with:
       | deployment_config | rails-postgresql-example |
       | latest ||
@@ -63,6 +64,7 @@ Feature: set deployment-hook/build-hook with CLI
       | [Pp]re-deployment hook   |
       | failure policy: [Rr]etry |
       | ./migrate-database.sh    |
+    Given I wait until the status of deployment "rails-postgresql-example" becomes :complete    
     When I run the :deploy client command with:
       | deployment_config | rails-postgresql-example |
       | latest ||
@@ -115,6 +117,7 @@ Feature: set deployment-hook/build-hook with CLI
       | [Mm]id-deployment hook   |
       | failure policy: [Aa]bort |
       | /bin/false               |
+    Given I wait until the status of deployment "rails-postgresql-example" becomes :complete
     When I run the :deploy client command with:
       | deployment_config | rails-postgresql-example |
       | latest ||
