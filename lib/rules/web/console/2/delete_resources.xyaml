@@ -21,42 +21,42 @@ delete_resources_pod_with_viewer:
   action: delete_resources_pod
   elements:
   - selector:
-      xpath: //span[contains(text(),'<pod_warning>')]
+      xpath: //span[contains(text(),'cannot delete pods')]
 delete_resources_service_with_viewer:
   action: delete_resources_service
   elements:
   - selector:
-      xpath: //span[contains(text(),'<service_warning>')]
+      xpath: //span[contains(text(),'cannot delete services')]
 delete_resources_buildconfig_with_viewer:
   action: delete_resources_buildconfig
   elements:
   - selector:
-      xpath: //span[contains(text(),'<bc_warning>')]
+      xpath: //span[contains(text(),'cannot delete buildconfigs')]
 delete_resources_deploymentconfig_with_viewer:
   action: delete_resources_deploymentconfig
   elements:
   - selector:
-      xpath: //span[contains(text(),'<dc_warning>')]
+      xpath: //span[contains(text(),'cannot delete deploymentconfigs')]
 delete_resources_rc_with_viewer:
   action: delete_resources_rc
   elements:
   - selector:
-      xpath: //span[contains(text(),'<rc_warning>')]
+      xpath: //span[contains(text(),'cannot delete replicationcontrollers')]
 delete_resources_build_with_viewer:
   action: delete_resources_build
   elements:
   - selector:
-      xpath: //span[contains(text(),'<build_warning>')]
+      xpath: //span[contains(text(),'cannot delete builds')]
 delete_resources_route_with_viewer:
   action: delete_resources_route
   elements:
   - selector:
-      xpath: //span[contains(text(),'<route_warning>')]
+      xpath: //span[contains(text(),'cannot delete routes')]
 delete_resources_imagestream_with_viewer:
   action: delete_resources_imagestream
   elements:
   - selector:
-      xpath: //span[contains(text(),'<image_warning>')]
+      xpath: //span[contains(text(),'cannot delete imagestreams')]
  
 delete_resources_pod:
   action: goto_one_pod_page
