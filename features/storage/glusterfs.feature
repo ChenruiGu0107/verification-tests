@@ -149,6 +149,9 @@ Feature: Storage of GlusterFS plugin testing
   @destructive
   Scenario: Pod references GlusterFS volume directly from its template
     Given I have a project
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
     And I have a Gluster service in the project
 
     # Create endpoint
