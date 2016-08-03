@@ -1324,3 +1324,32 @@ Feature: secrets related scenarios
     Then the step should succeed
 
 
+  # @author qwang@redhat.com
+  # @case_id 532389
+  Scenario: Mapping specified secret volume should update when secret is updated
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret1.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/mapping-secret-volume-pod.yaml |
+    Then the step should succeed
+    Given the pod named "mapping-secret-volume-pod" status becomes :running
+    When I execute on the pod:
+      | cat | /etc/secret-volume/test-secrets |
+    Then the step should succeed
+    And the output should contain:
+      | first-username |
+    When I run the :patch client command with:
+      | resource      | secret                                                   |
+      | resource_name | secret-n                                                 |
+      | p             | {"data":{"username":"Zmlyc3QtdXNlcm5hbWUtdXBkYXRlCg=="}} |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | cat | /etc/secret-volume/test-secrets |
+    Then the output should contain:
+      | first-username-update |
+    """
+    Then the step should succeed
