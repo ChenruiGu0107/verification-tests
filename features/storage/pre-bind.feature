@@ -18,7 +18,7 @@ Feature: Testing for pv and pvc pre-bind feature
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>        |
       | ["spec"]["claimRef"]["name"]      | nfsc-<%= project.name %>   |
     And the "nfspv2-<%= project.name %>" PV status is :available
-  
+
   # @author chaoyang@redhat.com
   # @case_id 531194
   @admin
@@ -35,7 +35,7 @@ Feature: Testing for pv and pvc pre-bind feature
       | ["spec"]["accessModes"][0] | ReadWriteMany            |
     And the "nfsc-<%= project.name %>" PVC becomes :pending
     And the "nfspv-<%= project.name %>" PV status is :available
-	
+
   # @author chaoyang@redhat.com
   # @case_id 531195
   @admin
@@ -162,7 +162,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfspv-<%= project.name %>" PV within 60 seconds
 
   # @author chaoyang@redhat.com
-  # @case_id 531193 
+  # @case_id 531193
   # @case_id 531198
   @admin
   @destructive
@@ -183,3 +183,50 @@ Feature: Testing for pv and pvc pre-bind feature
       | pre-bind-pvc              | pre-bind-pv                |
       | nfsc-<%= project.name %>  | nfspv1-<%= project.name %> |
       | nfsc1-<%= project.name %> | nfspv-<%= project.name %>  |
+
+  # @author lxia@redhat.com
+  # @case_id 531237
+  @admin
+  @destructive
+  Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PVC pre-bind to PV
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
+      | ["metadata"]["name"]   | pvc-prebind-<%= project.name %> |
+      | ["spec"]["volumeName"] | pv-<%= project.name %>          |
+    Then the step should succeed
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs.json" where:
+      | ["metadata"]["name"] | pv-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-prebind-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV within 60 seconds
+
+  # @author lxia@redhat.com
+  # @case_id 531238
+  @admin
+  @destructive
+  Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PV pre-bind to PVC
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpv-rwo.yaml" where:
+      | ["metadata"]["name"]              | pv-prebind-<%= project.name %> |
+      | ["spec"]["claimRef"]["namespace"] | <%= project.name %>            |
+      | ["spec"]["claimRef"]["name"]      | pvc-<%= project.name %>        |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-prebind-<%= project.name %>" PV within 60 seconds
+
+  # @author lxia@redhat.com
+  # @case_id 531277
+  @admin
+  Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PV/PVC pre-bind to each other
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
+      | ["metadata"]["name"]   | pvc-prebind-<%= project.name %> |
+      | ["spec"]["volumeName"] | pv-prebind-<%= project.name %>  |
+    Then the step should succeed
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpv-rwo.yaml" where:
+      | ["metadata"]["name"]              | pv-prebind-<%= project.name %>  |
+      | ["spec"]["claimRef"]["namespace"] | <%= project.name %>             |
+      | ["spec"]["claimRef"]["name"]      | pvc-prebind-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-prebind-<%= project.name %>" PVC becomes bound to the "pv-prebind-<%= project.name %>" PV within 60 seconds
