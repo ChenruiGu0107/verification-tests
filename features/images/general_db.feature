@@ -295,12 +295,9 @@ Feature: general_db.feature
   # @case_id 529333
   Scenario: Verify mongodb can be connect after change admin and user password or re-deployment for ephemeral storage - mongodb-32-rhel7
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-ephemeral-template.json"
-    And I replace lines in "mongodb-ephemeral-template.json":
-      |mongodb:latest|mongodb:3.2|
     When I run the :new_app client command with:
-      | file  | mongodb-ephemeral-template.json |
-      | param | MONGODB_ADMIN_PASSWORD=admin    |
+      | template | mongodb-ephemeral         |
+      | param | MONGODB_ADMIN_PASSWORD=admin |
     And a pod becomes ready with labels:
       | name=mongodb         |
       | deployment=mongodb-1 |
@@ -322,7 +319,7 @@ Feature: general_db.feature
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | bash | -lc | mongo admin -u admin -padmin --eval 'db.version()' |
+      | bash | -lc | mongo admin -u admin -pnewadmin --eval 'db.version()' |
     Then the step should succeed
     """
     And the output should contain:
