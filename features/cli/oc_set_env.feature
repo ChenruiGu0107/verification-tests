@@ -346,3 +346,48 @@ Feature: oc_set_env.feature
     Then the step should succeed
     And the output should contain:
       | MYSQL_NAME=mytest |
+
+  # @author wewang@redhat.com
+  # @case_id 530145
+  Scenario: Set environment variables for resources using oc set env --overwrite=false
+    Given I have a project
+    When I run the :run client command with:
+      | name  | hello-rc  |
+      | image | openshift/hello-openshift |
+      | generator | run-controller/v1 |
+    And the step succeeded
+    # Set an env variable into rc pod template
+    When I run the :set_env client command with:
+      | resource | rc/hello-rc  |
+      | e        | MY_ENV=VALUE-1 |
+    Then the step should succeed
+    When I run the :set_env client command with:
+      | resource | rc/hello-rc |
+      | list     | true |
+    Then the step should succeed
+    And the output should contain:
+      | MY_ENV=VALUE-1  |
+    # Use "--overwrite=false" when using "oc env -e"
+    When I run the :set_env client command with:
+      | resource  | rc/hello-rc    |
+      | e         | MY_ENV=VALUE-2 |
+      | overwrite | false          |
+    Then the step should fail
+    When I run the :set_env client command with:
+      | resource | rc/hello-rc |
+      | list     | true |
+    Then the step should succeed
+    And the output should contain:
+      | MY_ENV=VALUE-1  |
+    #Use "--overwrite=false" when not using "-e" flag
+    When I run the :set_env client command with:
+      | resource  | rc/hello-rc    |
+      |          | MY_ENV=VALUE-3 |
+      | overwrite | false          |
+    Then the step should fail
+    When I run the :set_env client command with:
+      | resource | rc/hello-rc |
+      | list     | true |
+    Then the step should succeed
+    And the output should contain:
+      | MY_ENV=VALUE-1  |

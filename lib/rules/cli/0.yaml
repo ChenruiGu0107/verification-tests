@@ -621,6 +621,7 @@
     :e: -e <value>
     :o: -o <value>
     :f: -f <value>
+    :overwrite: --overwrite=<value>
 :set_probe:
   :cmd: oc set probe <global_options> <options>
   :options:
