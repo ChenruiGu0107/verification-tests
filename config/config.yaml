@@ -71,6 +71,16 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+  ded_int_gcp:
+    hosts: api.ded-int-gcp.openshift.com:etcd:master:node
+    web_console_url: https://console.ded-int-gcp.openshift.com
+    hosts_type: Host # we can't basically access that host so this should work
+    type: StaticEnvironment
+    user_manager: StaticUserManager
+    #set OPENSHIFT_ENV_DED_INT_GCP_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #user_manage_users:
+    cli: SharedLocalCliExecutor
+    admin_cli: false
   engint:
     hosts: api.engint.openshift.com:etcd:master:node
     web_console_url: https://console.engint.openshift.com
