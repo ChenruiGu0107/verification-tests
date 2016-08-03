@@ -165,11 +165,11 @@ Feature: xpass.feature
     And I wait up to 120 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | scl | enable | rh-mongodb26 | mongo $MONGODB_DATABASE -u $MONGODB_USER -p $MONGODB_PASSWORD  --eval 'db.version()' |
+      | bash | -lc | mongo $MONGODB_DATABASE -u $MONGODB_USER -p $MONGODB_PASSWORD  --eval 'db.version()' |
     Then the step should succeed
     """
     And the output should contain:
-      | 2.6 |
+      | 3.2 |
 
     Examples:
       | template                  |
@@ -347,7 +347,7 @@ Feature: xpass.feature
     Then the step should succeed
     """
     And the output should contain:
-      | 2.6 |
+      | 3.2 |
 
     Examples:
       | template                  |

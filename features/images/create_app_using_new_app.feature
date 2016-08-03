@@ -144,11 +144,8 @@ Feature:Create apps using new_app cmd feature
   # @case_id 529370 529371
   Scenario Outline: Nodejs-ex quickstart test with nodejs-4-rhel7
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift/nodejs-ex/master/openshift/templates/<template>"
-    And I replace lines in "<template>":
-      |nodejs:0.10|nodejs:4|
     When I run the :new_app client command with:
-      | file  | <template> |
+      | template  | <buildcfg> |
     Then the step should succeed
     And the "<buildcfg>-1" build was created
     And the "<buildcfg>-1" build completed
@@ -157,6 +154,6 @@ Feature:Create apps using new_app cmd feature
     Then the output should contain "Welcome to your Node.js application on OpenShift"
 
     Examples:
-      |template           |buildcfg              |
-      |nodejs.json        |nodejs-example        |
-      |nodejs-mongodb.json|nodejs-mongodb-example|
+      |buildcfg              |
+      |nodejs-example        |
+      |nodejs-mongodb-example|
