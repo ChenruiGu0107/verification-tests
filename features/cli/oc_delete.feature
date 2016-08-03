@@ -154,12 +154,6 @@ Feature: oc_delete.feature
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
     Given the "ruby-sample-build-1" build finished
     When I run the :delete client command with:
-      | object_type | replicationcontroller |
-      | object_name_or_id | database-1 |
-    Then the step should succeed
-    Given I get project replicationcontrollers
-    Then the output should not contain "database-1"
-    When I run the :delete client command with:
       | object_type | pods,services |
       | l | template=application-template-stibuild |
     Then the step should succeed

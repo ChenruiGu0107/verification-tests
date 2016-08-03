@@ -159,10 +159,12 @@ Feature: template related scenarios:
     And the output should contain:
       |The --parameters flag does not process the template, can't be used with --value|
 
+    Given oc major.minor version is stored in the clipboard
     When I run the :process client command with:
       |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
       |v|NONEXIST=abcd|
-    And the step succeeded
+    Then the expression should be true> @result[:success] == (cb.oc_version.split(".").last.to_i < 3)
+    #And the step failed
     And the output should contain:
       |unknown parameter name "NONEXIST"|
 
