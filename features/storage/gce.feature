@@ -1,5 +1,53 @@
 Feature: GCE specific scenarios
   # @author lxia@redhat.com
+  # @case_id 532746
+  @admin
+  @destructive
+  Scenario: Two or more pods scheduled to the same node with the same volume with ROX should not fail
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    When I run the :oadm_new_project admin command with:
+      | project_name  | <%= cb.proj_name %>      |
+      | node_selector | <%= cb.proj_name %>=test |
+      | admin         | <%= user.name %>         |
+    Then the step should succeed
+
+    Given I store the schedulable nodes in the :nodes clipboard
+    And label "<%= cb.proj_name %>=test" is added to the "<%= cb.nodes[0].name %>" node
+
+    Given I have a 1 GB volume and save volume id in the :gcepd clipboard
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-default-rwo.json" where:
+      | ["metadata"]["name"]                      | pv-<%= project.name %> |
+      | ["spec"]["capacity"]["storage"]           | 1                      |
+      | ["spec"]["accessModes"][0]                | ReadOnlyMany           |
+      | ["spec"]["gcePersistentDisk"]["pdName"]   | <%= cb.gcepd %>        |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                 |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                   | ReadOnlyMany            |
+      | ["spec"]["resources"]["requests"]["storage"] | 1                       |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | pod1-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>  |
+    Then the step should succeed
+    Given the pod named "pod1-<%= project.name %>" becomes ready
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | pod2-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>  |
+    Then the step should succeed
+    Given the pod named "pod2-<%= project.name %>" becomes ready
+    When I execute on the "<%= pod(-1).name %>" pod:
+      | ls | /mnt/gce/ |
+    Then the step should succeed
+    When I execute on the "<%= pod(-2).name %>" pod:
+      | ls | /mnt/gce/ |
+    Then the step should succeed
+
+  # @author lxia@redhat.com
   # @case_id 532743
   @admin
   Scenario: pods referencing different partitions of the same volume should not fail
