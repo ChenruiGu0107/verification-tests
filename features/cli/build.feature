@@ -563,13 +563,13 @@ Feature: build 'apps' with CLI
     And I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should fail
-    And the output should match:
-      | Error from server: fatal error generating Build from BuildConfig: can't instantiate from BuildConfig <%= project.name %>/ruby-sample-build: BuildConfig is paused |
+    And the output should contain:
+      | can't instantiate from BuildConfig <%= project.name %>/ruby-sample-build: BuildConfig is paused |
     When I run the :start_build client command with:
       | from_build | ruby-sample-build-1 |
     Then the step should fail
-    And the output should match:
-      | Error from server: fatal error generating Build from BuildConfig: can't instantiate from BuildConfig <%= project.name %>/ruby-sample-build: BuildConfig is paused |
+    And the output should contain:
+      | can't instantiate from BuildConfig <%= project.name %>/ruby-sample-build: BuildConfig is paused |
     Then I run the :delete client command with:
       | object_type | buildConfig |
       | object_name_or_id | ruby-sample-build |
