@@ -513,6 +513,11 @@
     :output: --output=<value>
     :template: --template=<value>
     :to_version: --to-version=<value>
+:rollout_history:
+  :cmd: oc rollout history <resource>
+  :options:
+    :resource_name: <value>
+    :revision: --revision=<value>
 :rollout_pause:
   :cmd: oc rollout pause <resource> <name>
   :options:
