@@ -190,23 +190,27 @@ Feature: build 'apps' with CLI
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
+    And the "ruby-sample-build-2" build was created
+    And the "ruby-sample-build-2" build becomes :running
     When I run the :cancel_build client command with:
       | build_name | ruby-sample-build-2 |
       | dump_logs  | true                |
-    Then the output should contain:
-      | Build logs for ruby-sample-build-2 |
+    Then the output should match:
+      | Build .* logs |
     # "cancelled" comes quickly after "failed" status, wait
     # "failed" has the same meaning
     Given the "ruby-sample-build-2" build was cancelled
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
+    And the "ruby-sample-build-3" build was created
+    And the "ruby-sample-build-3" build becomes :running
     When I run the :cancel_build client command with:
       | build_name | ruby-sample-build-3 |
       | restart    | true                |
       | dump_logs  | true                |
-    Then the output should contain:
-      | Build logs for ruby-sample-build-3 |
+    Then the output should match:
+      | Build .* logs |
     Given the "ruby-sample-build-3" build was cancelled
     When I get project build
     # Should contain the new start build
