@@ -36,9 +36,7 @@ Feature: deployment related features
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | dc |
-      | resource_name | hooks |
+    When I get project dc named "hooks"
     Then the output should match:
       | hooks\\s+2\\s+2\\s+image.*|
     When I run the :rollback client command with:
@@ -95,8 +93,7 @@ Feature: deployment related features
     Then the output should contain:
       | #1 is Complete; only failed deployments can be retried        |
       | You can start a new deployment using the --latest option      |
-    When I run the :get client command with:
-      | resource | pod |
+    When I get project pod
     Then the output should not contain:
       | deployment-example-1-deploy   |
 
@@ -142,9 +139,7 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | hooks |
     Then the output should match "hooks.+#1.+waiting for manual"
-    When I run the :get client command with:
-      | resource      | dc |
-      | resource_name | hooks |
+    When I get project dc named "hooks"
     Then the output should match:
       | hooks\\s+0 |
     When I run the :deploy client command with:
@@ -157,16 +152,11 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | hooks |
     Then the output should match "hooks.+#1.+deployed"
-    When I run the :get client command with:
-      | resource      | dc |
-      | resource_name | hooks |
+    When I get project dc named "hooks"
     Then the output should match:
       | hooks\\s+1                        |
     # Make the edit action
-    When I run the :get client command with:
-      | resource      | dc |
-      | resource_name | hooks |
-      | o             | json |
+    When I get project dc named "hooks" as JSON
     And I save the output to file>hooks.json
     And I replace lines in "hooks.json":
       | Recreate | Rolling |
@@ -176,10 +166,7 @@ Feature: deployment related features
       | deployment_config | hooks |
       | latest            ||
     Then the output should contain "Started deployment #2"
-    When I run the :get client command with:
-      | resource      | dc |
-      | resource_name | hooks |
-      | o             | yaml |
+    When I get project dc named "hooks" as YAML
     Then the output should contain:
       | type: Rolling |
 
@@ -193,9 +180,7 @@ Feature: deployment related features
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks |
+    When I get project dc named "hooks"
     Then the output should match:
       | hooks\\s+2\\s+2\\s+image.*|
     When I run the :rollback client command with:
@@ -223,10 +208,7 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks |
-      | o             | json |
+    When I get project dc named "hooks" as JSON
     Then the output should contain:
       | "type": "Recreate"     |
       | "type": "ConfigChange" |
@@ -235,10 +217,7 @@ Feature: deployment related features
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks |
-      | o             | json |
+    When I get project dc named "hooks" as JSON
     Then the output should contain:
       | "type": "Rolling"         |
       | "type": "ImageChange"     |
@@ -257,15 +236,11 @@ Feature: deployment related features
       | deployment_config | hooks |
     Then the output should match:
       | hooks.+#3.+deployed |
-    When I run the :get client command with:
-      | resource | pod |
+    When I get project pod
     Then the output should match:
       | READY\\s+STATUS |
       | 1/1\\s+Running  |
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks |
-      | o             | json |
+    When I get project dc named "hooks" as JSON
     Then the output should contain:
       | "type": "ConfigChange" |
       | "value": "Plqe5Wev"    |
@@ -284,10 +259,7 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks |
-      | o             | json |
+    When I get project dc named "hooks" as JSON
     Then the output should contain:
       | "type": "Recreate"     |
       | "type": "ConfigChange" |
@@ -296,10 +268,7 @@ Feature: deployment related features
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks |
-      | o             | json |
+    When I get project dc named "hooks" as JSON
     Then the output should contain:
       | "type": "Rolling"         |
       | "type": "ImageChange"     |
@@ -317,15 +286,11 @@ Feature: deployment related features
       | deployment_config | hooks |
     Then the output should match:
       | hooks.*#3.*deployed |
-    When I run the :get client command with:
-      | resource | pod |
+    When I get project pod
     Then the output should match:
       | READY\\s+STATUS |
       | (Running)?(Pending)?  |
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks |
-      | o             | json |
+    When I get project dc named "hooks" as JSON
     Then the output should contain:
       | "value": "Plqe5Wev"    |
     And the output should contain:
@@ -343,10 +308,7 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks            |
-      | o             | json             |
+    When I get project dc named "hooks" as JSON
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 1
     When I get project deploymentconfig as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :dc_name clipboard
@@ -365,10 +327,7 @@ Feature: deployment related features
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            |true |
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks |
-      | o             | json  |
+    When I get project dc named "hooks" as JSON
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 2
 
   # @author pruan@redhat.com
@@ -395,10 +354,7 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/sleepv1.json |
     # simulate 'oc edit'
-    When I run the :get client command with:
-      | resource      | dc |
-      | resource_name | hooks |
-      | o             | yaml |
+    When I get project dc named "hooks" as YAML
     And I save the output to file>hooks.yaml
     And I replace lines in "hooks.yaml":
       | 200 | 10 |
@@ -434,10 +390,7 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     # simulate 'oc edit'
     When the pod named "hooks-1-deploy" becomes ready
-    When I run the :get client command with:
-      | resource      | pod            |
-      | resource_name | hooks-1-deploy |
-      | o             | yaml           |
+    When I get project pod named "hooks-1-deploy" as YAML
     And I save the output to file>hooks.yaml
    And I replace lines in "hooks.yaml":
       | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 300 |
@@ -495,10 +448,7 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/sleepv1.json|
     # simulate 'oc edit'
     When the pod named "hooks-1-deploy" becomes ready
-    When I run the :get client command with:
-      | resource      | pod            |
-      | resource_name | hooks-1-deploy |
-      | o             | yaml           |
+    When I get project pod named "hooks-1-deploy" as YAML
     And I save the output to file>hooks.yaml
     And I replace lines in "hooks.yaml":
       | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 2 |
@@ -694,9 +644,7 @@ Feature: deployment related features
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | deploymentConfig |
-      | resource_name | hooks       |
+    When I get project dc named "hooks"
     Then the output should match:
       |NAME         |
       |hooks.*onfig |
@@ -713,9 +661,7 @@ Feature: deployment related features
       | latest ||
     Then the step should succeed
     # Given I wait for the pod named "hooks-2-deploy" to die
-    When I run the :get client command with:
-      | resource | deploymentConfig |
-      | resource_name | hooks       |
+    When I get project dc named "hooks"
     Then the step should succeed
     And the output should match:
       |NAME          |
@@ -838,7 +784,7 @@ Feature: deployment related features
       | cancel            |       |
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :failed
-    # When deploy failed by cancelled 3.2 keeps the deploy pod, 3.3 will discard the pod, 
+    # When deploy failed by cancelled 3.2 keeps the deploy pod, 3.3 will discard the pod,
     # logs are different, so better to check by `oc deploy dc` instead of `oc logs`
     When I run the :deploy client command with:
       | deployment_config | hooks |
@@ -938,18 +884,14 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :get client command with:
-      | resource      | dc    |
-      | resource_name | hooks |
+    When I get project dc named "hooks"
     Then the output should match:
       | hooks.*onfig |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest ||
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | dc    |
-      | resource_name | hooks |
+    When I get project dc named "hooks"
     Then the output should match:
       | hooks.*onfig |
 
@@ -961,19 +903,13 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
     Then the step should succeed
     When the pod named "hooks-1-hook-pre" becomes ready
-    And I run the :get client command with:
-      | resource | pod |
-      | resource_name | hooks-1-hook-pre    |
-      | output        | yaml        |
+    And I get project pod named "hooks-1-hook-pre" as YAML
     And the output should match:
       | mountPath:\\s+/var/lib/origin |
       | emptyDir:\\s+{} |
       | name:\\s+dataem |
     When the pod named "hooks-1-hook-post" becomes ready
-    And I run the :get client command with:
-      | resource | pod |
-      | resource_name | hooks-1-hook-post    |
-      | output        | yaml        |
+    And I get project pod named "hooks-1-hook-post" as YAML
     And the output should match:
       | mountPath:\\s+/var/lib/origin |
       | emptyDir:\\s+{} |
@@ -990,10 +926,7 @@ Feature: deployment related features
     And I wait for the steps to pass:
 
     """
-      When I run the :get client command with:
-        | resource | pod  |
-        | resource_name | <pod_name> |
-        |  o        | json |
+      When I get project pod named "<pod_name>" as JSON
       Then the expression should be true> @result[:parsed]['status']['containerStatuses'][0]['restartCount'] > 1
     """
     Examples:
@@ -1035,8 +968,7 @@ Feature: deployment related features
     Then the step should succeed
     Given I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource | pods |
+    When I get project pods
     Then the output should contain:
       | NAME           |
       | hooks-1-hook-pre|
@@ -1076,9 +1008,7 @@ Feature: deployment related features
       | replicas: 1 | replicas: 3 |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    And I run the :get client command with:
-      | resource | rc |
-      | o | json |
+    ANd I get project rc as JSON
     Then the expression should be true> @result[:parsed]['items'][0]['status']['replicas'] == 3
 
   # @author pruan@redhat.com
@@ -1093,10 +1023,7 @@ Feature: deployment related features
       | name     | hooks |
       | replicas | 10    |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | dc    |
-      | resource_name | hooks |
-      | o             | json  |
+    When I get project dc named "hooks" as JSON
     Then the expression should be true> @result[:parsed]['spec']['replicas'] == 10
 
     When I run the :deploy client command with:
@@ -1136,10 +1063,7 @@ Feature: deployment related features
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     Given I wait until the status of deployment "frontend" becomes :complete
-    When I run the :get client command with:
-      | resource      | dc |
-      | resource_name | frontend |
-      | o             | yaml |
+    When I get project dc named "frontend" as YAML
     Then the output by order should match:
       | causes:         |
       | - imageTrigger: |
@@ -1158,10 +1082,7 @@ Feature: deployment related features
       | terminationGracePeriodSeconds: 30 | terminationGracePeriodSeconds: 36 |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
-    When I run the :get client command with:
-      | resource      | dc |
-      | resource_name | deployment-example |
-      | o             | yaml |
+    When I get project dc named "deployment-example" as YAML
     Then the output by order should match:
       | terminationGracePeriodSeconds: 36 |
       | causes:         |
@@ -1195,10 +1116,7 @@ Feature: deployment related features
     Then the output should contain:
       | Scaling hooks-1 to 1 |
     And I wait until the status of deployment "hooks" becomes :complete
-    When I run the :get client command with:
-      | resource      | rc |
-      | resource_name | hooks-1 |
-      | o             | yaml |
+    When I get project rc named "hooks-1" as YAML
     Then the output by order should match:
       | phase: Complete |
       | status: |
@@ -1220,10 +1138,7 @@ Feature: deployment related features
     Then the step should succeed
     And the output should match:
       | hooks.*#1.*failed |
-    When I run the :get client command with:
-      | resource      | rc |
-      | resource_name | hooks-1 |
-      | o             | yaml |
+    When I get project rc named "hooks-1" as YAML
     Then the output by order should match:
       | phase: Failed |
       | status: |
@@ -1245,20 +1160,20 @@ Feature: deployment related features
     Given I wait until the status of deployment "hooks" becomes :complete
     And I wait until number of replicas match "0" for replicationController "hooks"
 
-    # @author yinzhou@redhat.com
-    # @case_id 515919
-    Scenario: Start new deployment when deployment running
-      Given I have a project
-      When I run the :create client command with:
-        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
-      Then the step should succeed
-      Given I wait until the status of deployment "hooks" becomes :running
-      And I replace resource "dc" named "hooks":
-        | latestVersion: 1 | latestVersion: 2 |
-      Then the step should succeed
-      When I run the :deploy client command with:
-        | deployment_config | hooks |
-      Then the output should contain "newer deployment was found running"
+  # @author yinzhou@redhat.com
+  # @case_id 515919
+  Scenario: Start new deployment when deployment running
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
+    Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :running
+    And I replace resource "dc" named "hooks":
+      | latestVersion: 1 | latestVersion: 2 |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+    Then the output should contain "newer deployment was found running"
 
   # @author cryan@redhat.com
   # @case_id 515922
@@ -1293,34 +1208,26 @@ Feature: deployment related features
       | resource_name | hooks |
       | p             | {"spec":{"replicas": 4}} |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | pod |
-      | resource_name | hooks-2-deploy |
-      | o | json |
+    When I get project pod named "hooks-2-deploy" as JSON
     Then the output should contain ""activeDeadlineSeconds": 5"
-    When I run the :get client command with:
-      | resource |dc |
-      | resource_name | hooks |
-      | o | json |
+    When I get project dc named "hooks" as JSON
     Then the output should contain ""replicas": 4"
     Given all existing pods die with labels:
       | deployment=hooks-2 |
-    When I run the :get client command with:
-      | resource | pods |
+    When I get project pods with labels:
       | l | deployment=hooks-2 |
     Then the output should not contain "hooks-2"
     Given a pod becomes ready with labels:
       | deployment=hooks-1 |
-    When I run the :get client command with:
-      | resource | pods |
+    When I get project pods
     And the output should contain:
       | DeadlineExceeded |
       | hooks-1 |
 
-    # @author yinzhou@redhat.com
-    # @case_id 481677
-    @admin
-    Scenario: DeploymentConfig should allow valid value of resource requirements
+  # @author yinzhou@redhat.com
+  # @case_id 481677
+  @admin
+  Scenario: DeploymentConfig should allow valid value of resource requirements
     Given I have a project
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
@@ -1336,10 +1243,7 @@ Feature: deployment related features
     Then the step should succeed
     And I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | pod    |
-      | resource_name | hooks-1-deploy  |
-      | o             | yaml   |
+    When I get project pod named "hooks-1-deploy" as YAML
     Then the output should match:
       | \\s+limits:\n\\s+cpu: 30m\n\\s+memory: 150Mi\n   |
       | \\s+requests:\n\\s+cpu: 30m\n\\s+memory: 150Mi\n |
@@ -1347,9 +1251,7 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :complete
     And I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | pod    |
-      | o             | yaml   |
+    When I get project pod as YAML
     Then the output should match:
       | \\s+limits:\n\\s+cpu: 400m\n\\s+memory: 200Mi\n   |
       | \\s+requests:\n\\s+cpu: 400m\n\\s+memory: 200Mi\n |
@@ -1366,10 +1268,7 @@ Feature: deployment related features
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     And I wait until the status of deployment "frontend" becomes :complete
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | frontend |
-      | o             | json |
+    When I get project dc named "frontend" as JSON
     Then the output should contain:
       | lastTriggeredImage     |
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
@@ -1377,16 +1276,10 @@ Feature: deployment related features
       | buildconfig | ruby-sample-build |
     Then the step should succeed
     Given the "ruby-sample-build-2" build finishes
-    When I run the :get client command with:
-      | resource      | imagestream |
-      | resource_name | origin-ruby-sample |
-      | o             | json |
+    When I get project imagestream named "origin-ruby-sample" as JSON
     And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | frontend |
-      | o             | json |
+    When I get project dc named "frontend" as JSON
     Then the output should contain:
       | "latestVersion": 1 |
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
@@ -1400,10 +1293,7 @@ Feature: deployment related features
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     And I wait until the status of deployment "frontend" becomes :complete
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | frontend |
-      | o             | json |
+    When I get project dc named "frontend" as JSON
     Then the output should contain:
       | lastTriggeredImage     |
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
@@ -1411,16 +1301,10 @@ Feature: deployment related features
       | buildconfig | ruby-sample-build |
     Then the step should succeed
     Given the "ruby-sample-build-2" build finishes
-    When I run the :get client command with:
-      | resource      | imagestream |
-      | resource_name | origin-ruby-sample |
-      | o             | json |
+    When I get project imagestream named "origin-ruby-sample" as JSON
     And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | frontend |
-      | o             | json |
+    When I get project dc named "frontend" as JSON
     Then the output should contain:
       | "latestVersion": 2 |
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
@@ -1469,10 +1353,7 @@ Feature: deployment related features
     And the "ruby-sample-build-1" build completed
     And I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | frontend |
-      | o             | json |
+    When I get project dc named "frontend" as JSON
     Then the output should contain:
       | lastTriggeredImage     |
     And the output should not contain:
@@ -1483,21 +1364,14 @@ Feature: deployment related features
       | buildconfig | ruby-sample-build |
     Then the step should succeed
     Given the "ruby-sample-build-2" build finishes
-    When I run the :get client command with:
-      | resource      | imagestream |
-      | resource_name | origin-ruby-sample |
-      | o             | json |
+    When I get project imagestream named "origin-ruby-sample" as JSON
     And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | frontend |
-      | o             | json |
+    When I get project dc named "frontend" as JSON
     Then the output should not contain:
       | "latestVersion": 1 |
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
-
 
   # @author yinzhou@redhat.com
   # @case_id 527513
@@ -1511,10 +1385,7 @@ Feature: deployment related features
     And the "ruby-sample-build-1" build completed
     And I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | frontend |
-      | o             | json |
+    When I get project dc named "frontend" as JSON
     Then the output should contain:
       | lastTriggeredImage     |
     And the output should not contain:
@@ -1525,21 +1396,14 @@ Feature: deployment related features
       | buildconfig | ruby-sample-build |
     Then the step should succeed
     Given the "ruby-sample-build-2" build finishes
-    When I run the :get client command with:
-      | resource      | imagestream |
-      | resource_name | origin-ruby-sample |
-      | o             | json |
+    When I get project imagestream named "origin-ruby-sample" as JSON
     And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | frontend |
-      | o             | json |
+    When I get project dc named "frontend" as JSON
     Then the output should not contain:
       | "latestVersion": 1 |
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
-
 
   # @author yinzhou@redhat.com
   # @case_id 515917
@@ -1559,12 +1423,8 @@ Feature: deployment related features
       | latest            ||
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | deployment-example |
-      | o             | json |
+    When I get project dc named "deployment-example" as JSON
     Then the expression should be true> @result[:parsed]['spec']['replicas'] == 3
-  
 
   # @author qwang@redhat.com
   # @case_id 470706
@@ -1579,15 +1439,11 @@ Feature: deployment related features
       | resource | dc/hooks |
       | e        | MYSQL_PASSWORD=update12345 |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | deploymentConfig |
-      | resource_name | hooks            |
-      | o             | json             |
+    When I get project dc named "hooks" as JSON
     Then the output should contain:
       | "latestVersion": 2 |
     Given I wait until number of replicas match "0" for replicationController "hooks-1"
     And I wait until number of replicas match "1" for replicationController "hooks-2"
-    When I run the :get client command with:
-      | resource | pod |
+    When I get project pod
     Then the output should match:
       | hooks-2.*Running |

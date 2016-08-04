@@ -90,6 +90,7 @@ Feature: dockerbuild.feature
       | from_file | nonexist.json |
     Then the step should fail
     And the output should contain "no such file"
+
   # @author yantan@redhat.com
   # @case_id 479296
   Scenario: Custom build with dockerImage with specified tag
@@ -104,8 +105,7 @@ Feature: dockerbuild.feature
     Then the step should succeed
     And the output should contain:
       |DockerImage openshift/origin-custom-docker-builder:latest|
-    And I run the :get client command with:
-      | resource | builds |
+    When I get project builds
     Then the step should succeed
     And I run the :describe client command with:
       | resource | builds|
@@ -236,10 +236,7 @@ Feature: dockerbuild.feature
     Then the step should succeed
     And the "ruby22-sample-build-1" build was created
     Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
-    When I run the :get client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
-      | o | json |
+    When I get project bc named "ruby22-sample-build" as JSON
     Then the step should succeed
     Given I save the output to file>bc.json
     And I replace lines in "bc.json":
@@ -253,10 +250,7 @@ Feature: dockerbuild.feature
     Then the "ruby22-sample-build-2" build was created
 
     Given I switch to the first user
-    When I run the :get client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
-      | o | json |
+    When I get project bc named "ruby22-sample-build" as JSON
     Then the step should succeed
     Given I save the output to file>bc1.json
     And I replace lines in "bc1.json":

@@ -26,10 +26,7 @@ Feature: stibuild.feature
     Then the step should succeed
     And the output should contain:
       | {"name":"DISABLE_ASSET_COMPILATION","value":"true"}]}} |
-    When I run the :get client command with:
-      | resource | buildconfig |
-      | resource_name | ruby-sample-build |
-      | o | json |
+    When I get project bc named "ruby-sample-build" as JSON
     And I save the output to file>bc.json
     And I replace lines in "bc.json":
       | true | 1 |
@@ -108,10 +105,7 @@ Feature: stibuild.feature
       | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/myimage|
     Then the step should succeed
     And the "sample-build-2" build was created
-    When I run the :get client command with:
-      |resource     |buildconfig |
-      |resource_name|sample-build|
-      |o            |yaml        |
+    When I get project bc named "sample-build" as YAML
     Then the step should succeed
     And the output should contain:
       |lastTriggeredImageID: <%= cb.integrated_reg_ip %>/<%= project.name %>/myimage|
@@ -119,8 +113,7 @@ Feature: stibuild.feature
       | buildconfig | sample-build |
     Then the step should succeed
     And the "sample-build-3" build was created
-    When I run the :get client command with:
-      |resource|builds|
+    When I get project builds
     Then the step should succeed
     And the output should not contain "sample-build-4"
 

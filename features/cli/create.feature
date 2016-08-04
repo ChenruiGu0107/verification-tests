@@ -199,10 +199,7 @@ Feature: creating 'apps' with CLI
       | template | ruby-helloworld-sample |
       | param    | MYSQL_DATABASE=db1,ADMIN_PASSWORD=pass1|
     Then the step should succeed
-    And I run the :get client command with:
-      | resource | deploymentConfig |
-      | resource_name | frontend    |
-      | output        | yaml        |
+    And I get project dc named "frontend" as YAML
     Then the output by order should match:
       | name: ADMIN_PASSWORD |
       | value: pass1         |
@@ -257,19 +254,16 @@ Feature: creating 'apps' with CLI
       |f| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
     And all pods in the project are ready
-    When I run the :get client command with:
-      | resource | pod |
+    When I get project pod
     Then the step should succeed
     And the output should contain:
       | Running |
-    When I run the :get client command with:
-      | resource | service |
+    When I get project service
     Then the step should succeed
     And the output should contain:
       | test-service |
       | name=test-pods |
-    When I run the :get client command with:
-      | resource | endpoints |
+    When I get project endpoints
     And the output should contain:
       | test-service |
     Given I wait for the "test-service" service to become ready
@@ -427,10 +421,7 @@ Feature: creating 'apps' with CLI
       | f       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-with-v1beta3.json |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
-    When I run the :get client command with:
-      | resource | pod |
-      | resource_name | hello-pod |
-      |  o  | yaml |
+    When I get project pod named "hello-pod" as YAML
     Then the output should contain:
       |  apiVersion: v1  |
 
@@ -458,10 +449,7 @@ Feature: creating 'apps' with CLI
       | f | pod_with_special_supplementalGroups.json |
     Then the step should succeed
     When the pod named "hello-openshift" becomes ready
-    When I run the :get client command with:
-      | resource | pod             |
-      | resource_name | hello-openshift |
-      | output       | yaml        |
+    When I get project pod named "hello-openshift" as YAML
     Then the output by order should match:
       | securityContext:|
       | supplementalGroups: |
@@ -482,10 +470,7 @@ Feature: creating 'apps' with CLI
       | n | <%= project.name %>                                                                                   |
     Then the step should succeed
     When the pod named "hello-openshift" becomes ready
-    When I run the :get client command with:
-      | resource      | pod             |
-      | resource_name | hello-openshift |
-      | output        | yaml            |
+    When I get project pod named "hello-openshift" as YAML
     Then the output by order should match:
       | securityContext: |
       | fsGroup: 0       |
@@ -653,15 +638,10 @@ Feature: creating 'apps' with CLI
     #Change service labels
     Given I replace resource "services" named "frontend" saving edit to "serviceschange.json":
       | app: ruby-sample-build | app: change |
-    When I run the :get client command with:
-      | resource | pods |
-      | resource_name | <%= pod.name %> |
-      | o | json |
+    When I get project pod named "<%= pod.name %>" as JSON
     Then the step should succeed
     Given I save the output to file> podschange.json
-    When I run the :get client command with:
-      | resource | buildconfigs |
-      | o | json |
+    When I get project bc as JSON
     Then the step should succeed
     Given I save the output to file> buildconfigschange.json
     #Services are missing here, because they were replaced in the
@@ -673,26 +653,19 @@ Feature: creating 'apps' with CLI
     #Verify changes, and at the same time save the output to a directory
     #and make new changes simultaneously.
     Given I create the "change" directory
-    When I run the :get client command with:
-      | resource | services |
-      | o | json |
+    When I get project services as JSON
     Then the output should contain:
       | "app": "change" |
     Given I save the output to file> change/services.json
     Given I replace lines in "change/services.json":
       | "app": "change" | "app": "change2" |
-    When I run the :get client command with:
-      | resource | pods |
-      | resource_name | <%= pod.name %> |
-      | o | json |
+    When I get project pod named "<%= pod.name %>" as JSON
     Then the output should contain:
       | "name": "changed" |
     Given I save the output to file> change/pods.json
     Given I replace lines in "change/pods.json":
       | "name": "changed" | "name": "changed2" |
-    When I run the :get client command with:
-      | resource | buildconfigs |
-      | o | json |
+    When I get project bc as JSON
     Then the output should contain:
       | "uri": "https://github.com/openshift/origin" |
     Given I save the output to file> change/buildconfig.json
@@ -701,20 +674,13 @@ Feature: creating 'apps' with CLI
     When I run the :replace client command with:
       | f | change/ |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | services |
-      | o | json |
+    When I get project services as JSON
     Then the output should contain:
       | "app": "change2" |
-    When I run the :get client command with:
-      | resource | pods |
-      | resource_name | <%= pod.name %> |
-      | o | json |
+    When I get project pod named "<%= pod.name %>" as JSON
     Then the output should contain:
       | "name": "changed2" |
-    When I run the :get client command with:
-      | resource | buildconfigs |
-      | o | json |
+    When I get project bc as JSON
     Then the output should contain:
       | "uri": "https://github.com/openshift/rails-ex" |
     When I run the :start_build client command with:
@@ -742,9 +708,7 @@ Feature: creating 'apps' with CLI
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | pods             |
-      | resource_name | hello-pod        |
+    When I get project pods named "hello-pod"
     Then the expression should be true> pod.supplemental_groups(user:user)[0].to_s == cb.scc_limit
 
   # @author pruan@redhat.com
@@ -815,10 +779,7 @@ Feature: creating 'apps' with CLI
       | pod          | hello-pod |
       | exec_command | id        |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | pods             |
-      | resource_name | hello-pod        |
-
+    When I get project pods named "hello-pod"
     Then the expression should be true> pod.supplemental_groups(user:user)[0] == 1000
 
   # @author mcurlej@redhat.com
@@ -827,15 +788,13 @@ Feature: creating 'apps' with CLI
     Given I have a project
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag.json
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | imagestreamtag |
+    When I get project istag
     Then the step should succeed
     And the output should contain:
       |<%= product_docker_repo %>rhel7.2|
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag-update.json
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | imagestreamtag |
+    When I get project istag
     Then the step should succeed
     And the output should contain:
       | <%= product_docker_repo %>rhel7.1 |

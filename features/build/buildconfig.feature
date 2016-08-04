@@ -171,10 +171,7 @@ Feature: buildconfig.feature
       | from       | centos/ruby-22-centos7 |
       | confirm    | true                   |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | is   |
-      | resource_name | ruby |
-      | o             | yaml |
+    When I get project is named "ruby" as YAML
     Then the output should match "name:\s+ruby"
     And evaluation of `@result[:parsed]["status"]["tags"][0]["items"][0]["image"]` is stored in the :imagesha clipboard
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
@@ -250,10 +247,7 @@ Feature: buildconfig.feature
       | resource_name | ruby22-sample-build |
       | p | {"spec": {"strategy": {"dockerStrategy": {"env": [{"name": "EXAMPLE","value": "sample-app"}, {"name":"HTTP_PROXY","value":"http://incorrect.proxy:3128"}]}}}} |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
-      | o | json |
+    When I get project bc named "ruby22-sample-build" as JSON
     Then the output should contain "HTTP_PROXY"
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
