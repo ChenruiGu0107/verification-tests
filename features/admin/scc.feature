@@ -252,7 +252,7 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_not_privileged.json |
     Then the step should succeed
-    And I wait for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource      | pod                |
@@ -270,7 +270,7 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_not_privileged.json |
     Then the step should succeed
-    And I wait for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource      | pod                |
@@ -286,4 +286,4 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_privileged.json |
     Then the step should succeed
-    And the pod named "hello-nginx-docker" becomes ready
+    And the pod named "hello-nginx-docker-1" becomes ready

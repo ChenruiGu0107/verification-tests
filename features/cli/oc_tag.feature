@@ -262,7 +262,6 @@ Feature: oc tag related scenarios
       | another\s+openshift/origin:v1.2.0 |
       | fail\s+openshift\/origin:fail     |
       | import failed:                    |
-      | not found                         |
     When I run the :get client command with:
       | resource      | istag     |
       | resource_name | ruby:fail |
