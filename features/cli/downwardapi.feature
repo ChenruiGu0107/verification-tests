@@ -49,11 +49,11 @@ Feature: Downward API
     Given the pod named "pod-dapi-volume" becomes ready
     When I execute on the pod:
       | ls | -laR | /var/tmp/podinfo |
-    Then the output should contain:
-      | annotations -> ..downwardapi/annotations |
-      | labels -> ..downwardapi/labels           |
-      | name -> ..downwardapi/name               |
-      | namespace -> ..downwardapi/namespace     |
+    Then the output should match:
+      | annotations -> \.\.[a-z]+/annotations |
+      | labels -> \.\.[a-z]+/labels           |
+      | name -> \.\.[a-z]+/name               |
+      | namespace -> \.\.[a-z]+/namespace     |
     When I execute on the pod:
       | cat | /var/tmp/podinfo/name |
     Then the output should contain:
