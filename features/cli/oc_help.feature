@@ -402,7 +402,7 @@ Feature: oc related features
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
-      | -t, --template=      |
+      | --template=          |
       | --validate=          |
 
   # @author chezhang@redhat.com
@@ -429,7 +429,7 @@ Feature: oc related features
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
-      | -t, --template=      |
+      | --template=          |
     When I run the :autoscale client command with:
       | help  | |
     Then the step should succeed
@@ -450,7 +450,7 @@ Feature: oc related features
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
-      | -t, --template=      |
+      | --template=          |
     When I run the :help client command with:
       | command_name | autoscale |
     Then the step should succeed
@@ -471,5 +471,5 @@ Feature: oc related features
       | -a, --show-all=      |
       | --show-labels=       |
       | --sort-by=           |
-      | -t, --template=      |
+      | --template=          |
 
