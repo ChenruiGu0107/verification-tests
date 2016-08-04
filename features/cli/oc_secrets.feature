@@ -214,7 +214,6 @@ Feature: oc_secrets.feature
     Then the step should fail
     And the output should match:
       | [Ii]nvalid     |
-      | DNS subdomain |
 
     When I run the :secrets client command with:
       | action | new       |
