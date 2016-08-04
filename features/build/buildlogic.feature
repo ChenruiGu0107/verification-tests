@@ -228,9 +228,9 @@ Feature: buildlogic.feature
     When I run the :describe client command with:
       | resource | bc     |
       | name     | centos |
-    Then the output should contain:
-      | From Image:		ImageStreamTag centos:7      |
-      | Output to:		ImageStreamTag centos:latest |
+    Then the output should match:
+      | From Image:\s+ImageStreamTag centos:7     |
+      | Output to:\s+ImageStreamTag centos:latest |
     Given the "centos-1" build becomes :complete
     When I run the :new_build client command with:
       | D    | FROM centos:7\nRUN yum install -y httpd |
