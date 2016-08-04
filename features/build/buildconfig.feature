@@ -333,8 +333,8 @@ Feature: buildconfig.feature
   Scenario Outline: Build with images pulled from private repositories
     Given I have a project
     When I run the :new_secret client command with:
-      | secret_name     | pull                                                                                   |
-      | credential_file | .dockerconfigjson=<%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
+      | secret_name     | pull                                                                 |
+      | credential_file | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
     Then the step should succeed
     When I run the :create client command with:
       | f | <template> |
