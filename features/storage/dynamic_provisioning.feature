@@ -44,24 +44,15 @@ Feature: Dynamic provisioning
       | dynamic-pvc2-<%= project.name %> |
       | dynamic-pvc3-<%= project.name %> |
 
-    When I run the :get client command with:
-      | resource      | pvc                              |
-      | resource_name | dynamic-pvc1-<%= project.name %> |
-      | o             | json                             |
+    When I get project pvc named "dynamic-pvc1-<%= project.name %>" as JSON
     Then the step should succeed
     And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name1 clipboard
 
-    When I run the :get client command with:
-      | resource      | pvc                              |
-      | resource_name | dynamic-pvc2-<%= project.name %> |
-      | o             | json                             |
+    When I get project pvc named "dynamic-pvc2-<%= project.name %>" as JSON
     Then the step should succeed
     And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name2 clipboard
 
-    When I run the :get client command with:
-      | resource      | pvc                              |
-      | resource_name | dynamic-pvc3-<%= project.name %> |
-      | o             | json                             |
+    When I get project pvc named "dynamic-pvc3-<%= project.name %>" as JSON
     Then the step should succeed
     And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name3 clipboard
 
@@ -188,7 +179,7 @@ Feature: Dynamic provisioning
   # @author wehe@redhat.com
   # @case_id 532273 532275 532276
   @admin
-  Scenario: dynamic pvc shows lost after pv is deleted 
+  Scenario: dynamic pvc shows lost after pv is deleted
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc1-<%= project.name %> |
@@ -218,22 +209,13 @@ Feature: Dynamic provisioning
       | dynamic-pvc2-<%= project.name %> |
       | dynamic-pvc3-<%= project.name %> |
 
-    When I run the :get client command with:
-      | resource      | pvc                              |
-      | resource_name | dynamic-pvc1-<%= project.name %> |
-      | o             | json                             |
+    When I get project pvc named "dynamic-pvc1-<%= project.name %>" as JSON
     Then the step should succeed
 
-    When I run the :get client command with:
-      | resource      | pvc                              |
-      | resource_name | dynamic-pvc2-<%= project.name %> |
-      | o             | json                             |
+    When I get project pvc named "dynamic-pvc2-<%= project.name %>" as JSON
     Then the step should succeed
 
-    When I run the :get client command with:
-      | resource      | pvc                              |
-      | resource_name | dynamic-pvc3-<%= project.name %> |
-      | o             | json                             |
+    When I get project pvc named "dynamic-pvc3-<%= project.name %>" as JSON
     Then the step should succeed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:

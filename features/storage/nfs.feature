@@ -26,8 +26,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
       | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | pod/mypod-<%= project.name %> |
+    When I get project pod named "mypod-<%= project.name %>"
     Then the output should not contain:
       | Running |
     And I wait up to 300 seconds for the steps to pass:

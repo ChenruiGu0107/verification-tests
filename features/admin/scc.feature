@@ -187,8 +187,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     Given a pod becomes ready with labels:
       |deploymentconfig=busybox|
-    When I run the :get client command with:
-      |resource | pod|
+    When I get project pods
     Then the step should succeed
     When I execute on the pod:
       |sh|
@@ -237,10 +236,7 @@ Feature: SCC policy related scenarios
     And the pod named "hooks-1-deploy" status becomes :running
     And the pod named "hooks-1-hook-pre" status becomes :running
     # step 2, check the pre-hook pod
-    And I run the :get client command with:
-      | resource      | pod              |
-      | resource_name | hooks-1-hook-pre |
-      | o             | yaml             |
+    When I get project pod named "hooks-1-hook-pre" as YAML
     Then the step should succeed
     And the expression should be true> @result[:parsed]['spec']['volumes'].any? {|p| p['name'] == "data"} && @result[:parsed]['spec']['volumes'].any? {|p| p['hostPath']['path'] == "/usr"}
 
@@ -254,9 +250,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     And I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | pod                |
-      | resource_name | hello-nginx-docker |
+    When I get project pod named "hello-nginx-docker"
     Then the step should succeed
     And the output should contain:
       | CrashLoopBackOff |
@@ -272,9 +266,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     And I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | pod                |
-      | resource_name | hello-nginx-docker |
+    When I get project pod named "hello-nginx-docker"
     Then the step should succeed
     And the output should contain:
       | CrashLoopBackOff |

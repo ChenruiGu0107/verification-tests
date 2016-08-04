@@ -54,8 +54,7 @@ Feature: admin deployment related features
       | mydc-1  |
       | newdc-1 |
 
-    When I run the :get client command with:
-      | resource | rc |
+    When I get project rc
     Then the step should succeed
     # --confirm=false does dry-run prune
     And the output should contain:
@@ -69,8 +68,7 @@ Feature: admin deployment related features
       | keep_younger_than | 1m     |
     Then the step should succeed
 
-    When I run the :get client command with:
-      | resource | rc |
+    When I get project rc
     Then the step should succeed
     # --confirm=true does real prune
     And the output should not contain:
@@ -107,8 +105,7 @@ Feature: admin deployment related features
       | keep_younger_than | 1m     |
     Then the step should succeed
 
-    When I run the :get client command with:
-      | resource | rc |
+    When I get project rc
     Then the step should succeed
     # Orphan deployments are pruned
     And the output should not contain:

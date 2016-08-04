@@ -67,10 +67,7 @@ Feature: Persistent Volume Claim binding policies
   ## mount should be correct to the pod, no-matter if the pod is completed or not, check the case checkpoint
     And I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | pod              |
-      | resource_name | hooks-1-hook-pre |
-      |  o            | yaml             |
+    When I get project pod named "hooks-1-hook-pre" as YAML
     Then the output by order should match:
       | - mountPath: /opt1     |
       | name: v1               |

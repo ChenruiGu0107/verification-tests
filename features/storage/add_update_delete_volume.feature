@@ -32,17 +32,15 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
     # check after add pvc to dc
-    When I run the :get client command with:
-      | resource | dc/mydb |
-      | output   | yaml    |
+    When I get project dc named "mydb" as YAML
+    Then the step should succeed
     And the output should contain:
       | - mountPath: /opt1                 |
       | - name: v1                         |
       | persistentVolumeClaim:             |
       | claimName: pvc-<%= project.name %> |
-    When I run the :get client command with:
-      | resource | rc/mydb-2 |
-      | output   | yaml      |
+    When I get project rc named "mydb-2" as YAML
+    Then the step should succeed
     And the output should contain:
       | - mountPath: /opt1                 |
       | - name: v1                         |
@@ -61,14 +59,12 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
     # check after remove pvc from dc
-    When I run the :get client command with:
-      | resource | dc/mydb |
-      | output   | yaml    |
+    When I get project dc named "mydb" as YAML
+    Then the step should succeed
     And the output should not contain:
       | name: v1 |
-    When I run the :get client command with:
-      | resource | rc/mydb-3 |
-      | output   | yaml      |
+    When I get project rc named "mydb-3" as YAML
+    Then the step should succeed
     And the output should not contain:
       | name: v1 |
     When I execute on the pod:
@@ -84,9 +80,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | claim-name | pvc-<%= project.name %> |
     Then the step should succeed
     # check after add pvc to rc
-    When I run the :get client command with:
-      | resource | rc/mydb-3 |
-      | output   | yaml      |
+    When I get project rc named "mydb-3" as YAML
+    Then the step should succeed
     And the output should contain:
       | - mountPath: /opt2                 |
       | - name: v2                         |
@@ -109,9 +104,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name     | v2        |
     Then the step should succeed
     # check after remove pvc from rc
-    When I run the :get client command with:
-      | resource | rc/mydb-3 |
-      | output   | yaml      |
+    When I get project rc named "mydb-3" as YAML
+    Then the step should succeed
     And the output should not contain:
       | name: v2 |
     When I run the :delete client command with:
@@ -184,16 +178,14 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
     # check after add emptyDir to dc
-    When I run the :get client command with:
-      | resource | dc/mydb |
-      | output   | yaml    |
+    When I get project dc named "mydb" as YAML
+    Then the step should succeed
     And the output should contain:
       | - mountPath: /opt1 |
       | - emptyDir: {}     |
       | name: v1           |
-    When I run the :get client command with:
-      | resource | rc/mydb-2 |
-      | output   | yaml      |
+    When I get project rc named "mydb-2" as YAML
+    Then the step should succeed
     And the output should contain:
       | - mountPath: /opt1 |
       | - emptyDir: {}     |
@@ -211,14 +203,12 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
     # check after remove emptyDir from dc
-    When I run the :get client command with:
-      | resource | dc/mydb |
-      | output   | yaml    |
+    When I get project dc named "mydb" as YAML
+    Then the step should succeed
     And the output should not contain:
       | name: v1 |
-    When I run the :get client command with:
-      | resource | rc/mydb-3 |
-      | output   | yaml      |
+    When I get project rc named "mydb-3" as YAML
+    Then the step should succeed
     And the output should not contain:
       | name: v1 |
     When I execute on the pod:
@@ -233,9 +223,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name       | v2        |
     Then the step should succeed
     # check after add emptyDir to rc
-    When I run the :get client command with:
-      | resource | rc/mydb-3 |
-      | output   | yaml      |
+    When I get project rc named "mydb-3" as YAML
+    Then the step should succeed
     And the output should contain:
       | - mountPath: /opt2 |
       | - emptyDir: {}     |
@@ -257,9 +246,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name     | v2        |
     Then the step should succeed
     # check after remove emptyDir from rc
-    When I run the :get client command with:
-      | resource | rc/mydb-3 |
-      | output   | yaml      |
+    When I get project rc named "mydb-3" as YAML
+    Then the step should succeed
     And the output should not contain:
       | name: v2 |
     When I run the :delete client command with:
@@ -302,17 +290,15 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
     # check after add hostPath to dc
-    When I run the :get client command with:
-      | resource | dc/mydb |
-      | output   | yaml    |
+    When I get project dc named "mydb" as YAML
+    Then the step should succeed
     And the output should contain:
       | - mountPath: /opt1 |
       | - hostPath:        |
       | path: /usr         |
       | name: v1           |
-    When I run the :get client command with:
-      | resource | rc/mydb-2 |
-      | output   | yaml      |
+    When I get project rc named "mydb-2" as YAML
+    Then the step should succeed
     And the output should contain:
       | - mountPath: /opt1 |
       | - hostPath:        |
@@ -334,14 +320,12 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
     # check after remove hostPath from dc
-    When I run the :get client command with:
-      | resource | dc/mydb |
-      | output   | yaml    |
+    When I get project dc named "mydb" as YAML
+    Then the step should succeed
     And the output should not contain:
       | name: v1 |
-    When I run the :get client command with:
-      | resource | rc/mydb-3 |
-      | output   | yaml      |
+    When I get project rc named "mydb-3" as YAML
+    Then the step should succeed
     And the output should not contain:
       | name: v1 |
     When I execute on the pod:
@@ -360,9 +344,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name       | v2        |
     Then the step should succeed
     # check after add hostPath to rc
-    When I run the :get client command with:
-      | resource | rc/mydb-3 |
-      | output   | yaml      |
+    When I get project rc named "mydb-3" as YAML
+    Then the step should succeed
     And the output should contain:
       | - mountPath: /opt2 |
       | - hostPath:        |
@@ -388,9 +371,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name     | v2        |
     Then the step should succeed
     # check after remove emptyDir from rc
-    When I run the :get client command with:
-      | resource | rc/mydb-3 |
-      | output   | yaml      |
+    When I get project rc named "mydb-3" as YAML
+    Then the step should succeed
     And the output should not contain:
       | name: v2 |
     When I run the :delete client command with:
@@ -458,10 +440,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | app=mydb |
     #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
-    When I run the :get client command with:
-      | resource      | pvc                      |
-      | resource_name | nfsc-<%= project.name %> |
-      | output        | yaml                     |
+    When I get project pvc named "nfsc-<%= project.name %>" as YAML
     Then the step should succeed
     And the expression should be true> @result[:parsed]['status']['accessModes'][0] == "ReadWriteMany"
     And the expression should be true> @result[:parsed]['status']['capacity']['storage'] == "5Gi"

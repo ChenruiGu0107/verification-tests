@@ -15,15 +15,10 @@ Feature: custombuild.feature
     Given I wait for the pod named "frontend-1-deploy" to die
     Given 2 pods become ready with labels:
       | name=frontend |
-    When I run the :get client command with:
-      | resource      | service  |
-      | resource_name | frontend |
-      | o             | json     |
+    When I get project service named "frontend" as JSON
     Then the step should succeed
     And evaluation of `@result[:parsed]['spec']['clusterIP']` is stored in the :service_ip clipboard
-    When I run the :get client command with:
-      | resource | pods  |
-      | o        | json  |
+    When I get project pods as JSON
     Then the step should succeed
     Given evaluation of `@result[:parsed]['items'][1]['metadata']['name']` is stored in the :pod_name clipboard
     Given I wait up to 120 seconds for the steps to pass:
@@ -44,10 +39,7 @@ Feature: custombuild.feature
     Then the step should succeed
     Given I wait up to 30 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | istag          |
-      | resource_name | origin-custom-docker-builder:latest |
-      | o             | json           |
+    When I get project istag named "origin-custom-docker-builder:latest" as JSON
     Then the step should succeed
     """
     And evaluation of `@result[:parsed]['image']['metadata']['name']` is stored in the :imagestreamimage clipboard

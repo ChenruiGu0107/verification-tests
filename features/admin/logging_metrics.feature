@@ -159,8 +159,7 @@ Feature: Logging and Metrics
     Then the step should succeed
     And I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource  | replicationcontrollers |
+    When I get project replicationcontrollers
     Then the output should contain:
       | logging-fluentd-1 |
       | logging-kibana-1 |
@@ -225,10 +224,7 @@ Feature: Logging and Metrics
       | metrics-infra=hawkular-cassandra |
     And I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource         | pod |
-      | resource_name    | <%= pod.name %> |
-      | o                | yaml |
+    When I get project pod named "<%= pod.name %>" as YAML
     Then the output should contain:
       | persistentVolumeClaim |
     """

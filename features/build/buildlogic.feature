@@ -13,8 +13,7 @@ Feature: buildlogic.feature
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
-    When I run the :get client command with:
-      | resource | build |
+    When I get project build
     Then the output should contain:
       |  (CannotCreateBuildPod) |
     When I run the :delete admin command with:
@@ -22,8 +21,7 @@ Feature: buildlogic.feature
       | object_name_or_id | quota               |
       | n                 | <%= project.name %> |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | build |
+    When I get project build
     Then the output should not contain:
       |  (CannotCreateBuildPod) |
 
@@ -89,9 +87,7 @@ Feature: buildlogic.feature
       | app_repo | https://github.com/openshift/ruby-hello-world   |
       | D        | FROM centos/ruby-22-centos7:latest\nRUN echo ok |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | bc   |
-      | o        | yaml |
+    When I get project bc as YAML
     Then the step should succeed
     Then the output should match:
       | dockerfile   |
@@ -99,8 +95,7 @@ Feature: buildlogic.feature
       | RUN echo ok  |
       | uri: https://github.com/openshift/ruby-hello-world |
       | type: [Gg]it |
-    When I run the :get client command with:
-      | resource | build |
+    When I get project build
     Then the "ruby-hello-world-1" build completed
 
   # @author haowang@redhat.com
@@ -241,8 +236,7 @@ Feature: buildlogic.feature
       | D    | FROM centos:7\nRUN yum install -y httpd |
       | to   | centos:7                                |
       | name | myapp                                   |
-    And I run the :get client command with:
-      | resource | buildConfig |
+    And I get project bc
     Then the output should contain:
       | myapp |
     Given the "myapp-1" build becomes :complete
@@ -293,8 +287,8 @@ Feature: buildlogic.feature
       | secret_name    | mysecret |
     Then the step should succeed
     When I execute on the pod:
-      | bash                                                                                                                                                                     |
-      | -c                                                                                                                                                                       |
+      | bash |
+      | -c   |
       | cd /repos/ && rm -rf sample.git && git clone --bare https://github.com/openshift/ruby-hello-world sample.git |
     Then the step should succeed
     When I run the :new_build client command with:
@@ -305,8 +299,8 @@ Feature: buildlogic.feature
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
     When I run the :patch client command with:
-      | resource      | buildconfig                                                                             |
-      | resource_name | ruby-hello-world                                                                        |
+      | resource      | buildconfig                                              |
+      | resource_name | ruby-hello-world                                         |
       | p             | {"spec":{"source":{"git":{"uri":"<%= cb.git_repo %>"}}}} |
     Then the step should succeed
     And I run the :start_build client command with:
@@ -458,8 +452,7 @@ Feature: buildlogic.feature
     :payload: <%= File.read("push-generic.json").to_json %>
     """
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | build |
+    When I get project build
     Then the step should succeed
     And the output should not contain "ruby-hello-world-3"
     When I replace lines in "push-generic.json":
@@ -475,8 +468,7 @@ Feature: buildlogic.feature
     :payload: <%= File.read("push-generic.json").to_json %>
     """
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | build |
+    When I get project build
     Then the step should succeed
     Given the "ruby-hello-world-3" build was created
     And the "ruby-hello-world-3" build failed

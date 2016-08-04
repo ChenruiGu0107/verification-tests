@@ -9,10 +9,7 @@ Feature: build 'apps' with CLI
       | e              | key1=value1,key2=value2,key3=value3                 |
       | image_stream   | openshift/ruby                                      |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource          | buildConfig      |
-      | resource_name     | ruby-hello-world |
-      | o                 | yaml             |
+    When I get project bc named "ruby-hello-world" as YAML
     Then the output should match:
       | uri:\\s+https://github.com/openshift/ruby-hello-world|
       | ref:\\s+beta2                                        |
@@ -24,14 +21,12 @@ Feature: build 'apps' with CLI
       | value: value3                                        |
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource | builds |
+    When I get project builds
     Then the output should contain:
       | NAME                |
       | ruby-hello-world-1  |
     """
-    When I run the :get client command with:
-      |resource| imageStream |
+    When I get project imageStream
     Then the output should contain:
       | ruby-hello-world |
 
@@ -50,13 +45,11 @@ Feature: build 'apps' with CLI
     Then the output should match:
       | URL:\\s+https://github.com/openshift/ruby-hello-world|
     Given the pod named "ruby-hello-world-1-build" becomes ready
-    When I run the :get client command with:
-      | resource | builds |
+    When I get project builds
     Then the output should contain:
       | NAME                |
       | ruby-hello-world-1  |
-    When I run the :get client command with:
-      |resource| is |
+    When I get project is
     Then the output should contain:
       | ruby-hello-world |
     When I run the :new_build client command with:
@@ -70,13 +63,11 @@ Feature: build 'apps' with CLI
     Then the output should match:
       | URL:\\s+https://github.com/openshift/ruby-hello-world|
     Given the pod named "n1-1-build" becomes ready
-    When I run the :get client command with:
-      | resource | builds |
+    When I get project builds
     Then the output should contain:
       | NAME                |
       | n1-1 |
-    When I run the :get client command with:
-      |resource| is |
+    When I get project is
     Then the output should contain:
       | ruby-hello-world |
 
@@ -138,8 +129,7 @@ Feature: build 'apps' with CLI
       | l            | app=test |
     And I wait up to 120 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      |resource| buildConfig |
+    When I get project buildConfig
     Then the output should match:
       | NAME\\s+TYPE                 |
       | <%= Regexp.escape("ruby-hello-world") %>\\s+Source   |
@@ -189,8 +179,7 @@ Feature: build 'apps' with CLI
     When I run the :create client command with:
       | f | app-stibuild.json |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | buildConfig |
+    When I get project buildConfig
     Then the output should contain:
       | NAME              |
       | ruby-sample-build |
@@ -219,8 +208,7 @@ Feature: build 'apps' with CLI
     Then the output should contain:
       | Build logs for ruby-sample-build-3 |
     Given the "ruby-sample-build-3" build was cancelled
-    When I run the :get client command with:
-      | resource | build |
+    When I get project build
     # Should contain the new start build
     Then the output should match:
       | <%= Regexp.escape("ruby-sample-build-4") %>.+(?:Running)?(?:Pending)?|
@@ -296,8 +284,7 @@ Feature: build 'apps' with CLI
       | l                 | app=testapps                                                                                                                                     |
       | insecure_registry | true                                                                                                                                             |
     Then the step should succeed
-    When I run the :get client command with:
-      |resource| buildConfig |
+    When I get project buildConfig
     Then the output should match:
       | NAME\\s+TYPE                 |
       | <%= Regexp.escape("ruby-hello-world") %>\\s+Source   |
@@ -443,10 +430,7 @@ Feature: build 'apps' with CLI
       | resource_name | ruby22-sample-build |
       | p | {"spec": {"strategy": {"dockerStrategy": {"env": [{"name": "DISABLE_ASSET_COMPILATION","value": "1"}, {"name":"RACK_ENV","value":"development"}]}}}} |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
-      | o | json |
+    When I get project buildconfig named "ruby22-sample-build" as JSON
     Then the output should contain "DISABLE_ASSET_COMPILATION"
     And the output should contain "RACK_ENV"
     When I run the :start_build client command with:
@@ -478,8 +462,7 @@ Feature: build 'apps' with CLI
       | buildconfig |  ruby-sample-build |
     And I run the :start_build client command with:
       | buildconfig |  ruby-sample-build |
-    And I run the :get client command with:
-      | resource | builds |
+    And I get project builds
     Then the output by order should match:
       | ruby-sample-build-1 |
       | ruby-sample-build-2 |
@@ -523,12 +506,10 @@ Feature: build 'apps' with CLI
       | object_type | buildConfig |
       | object_name_or_id | ruby-sample-build |
     Then the step should succeed
-    And I run the :get client command with:
-      | resource | buildConfig |
+    And I get project buildConfig
     Then the output should not contain:
       | ruby-sample-build |
-    And I run the :get client command with:
-      | resource | build |
+    And I get project build
     Then the output should not contain:
       | ruby-sample-build |
 
@@ -570,8 +551,7 @@ Feature: build 'apps' with CLI
       | object_type | buildConfig |
       | object_name_or_id | ruby-sample-build |
     Then the step should succeed
-    And I run the :get client command with:
-      | resource | buildConfig |
+    And I get project buildConfig
     Then the output should not contain:
       | ruby-sample-build |
     When I run the :create client command with:
@@ -1188,10 +1168,7 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc517666/ruby22rhel7-template-sti.json |
     Given the "ruby22-sample-build-1" build completes
-    When I run the :get client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
-      | o | yaml |
+    When I get project bc named "ruby22-sample-build" as YAML
     Then the output should contain "xiuwangs2i-2"
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
@@ -1314,10 +1291,7 @@ Feature: build 'apps' with CLI
     When I run the :new_build client command with:
       | binary | ruby |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | bc |
-      | resource_name | ruby |
-      | o             | yaml |
+    When I get project bc named "ruby" as YAML
     Then the step should succeed
     And the output should contain:
       | sourceStrategy |
@@ -1326,10 +1300,7 @@ Feature: build 'apps' with CLI
       | binary | registry.access.redhat.com/rhscl/ruby-22-rhel7:latest |
       | to     | ruby1 |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | bc |
-      | resource_name | ruby1 |
-      | o             | yaml  |
+    When I get project bc named "ruby1" as YAML
     Then the step should succeed
     And the output should contain:
       | sourceStrategy |
@@ -1339,10 +1310,7 @@ Feature: build 'apps' with CLI
       | strategy | docker |
       | to     | ruby2 |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | bc |
-      | resource_name | ruby2 |
-      | o             | yaml |
+    When I get project bc named "ruby2" as YAML
     Then the step should succeed
     And the output should contain:
       | dockerStrategy |
@@ -1365,10 +1333,7 @@ Feature: build 'apps' with CLI
       | name | final-app |
       | allow_missing_imagestream_tags| true |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | buildconfig |
-      | resource_name | final-app |
-      | o | yaml |
+    When I get project bc named "final-app" as YAML
     Then the output should match:
       | kind:\s+ImageStreamTag |
       | name:\s+python:latest |
@@ -1527,10 +1492,7 @@ Feature: build 'apps' with CLI
       | resource_name | ruby-sample-build |
       | p | {"spec": {"strategy": {"sourceStrategy": {"env": [{"name": "http_proxy","value": "http://<%= cb.service_ip %>:3128"}]}}}} |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | buildconfig |
-      | resource_name | ruby-sample-build |
-      | o | json |
+    When I get project bc named "ruby-sample-build" as JSON
     Then the output should contain "http://<%= cb.service_ip %>:3128"
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
@@ -1621,10 +1583,7 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc517668/ruby22rhel7-template-docker.json |
     Given the "ruby22-sample-build-1" build completes
-    When I run the :get client command with:
-      | resource      | buildconfig         |
-      | resource_name | ruby22-sample-build |
-      | o             | yaml                |
+    When I get project bc named "ruby22-sample-build" as YAML
     Then the output should contain "xiuwangtest"
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
@@ -1923,8 +1882,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/nosrc-extended-test-bldr/master/nosrc-test.json  |
-    When I run the :get client command with:
-      | resource  | bc |
+    When I get project bc
     Then the output should contain:
       | <bc_name> |
     When I run the :start_build client command with:
@@ -1940,9 +1898,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     When I run the :create client command with:
       | f | <file_name> |
-    When I run the :get client command with:
-      | resource      | bc        |
-      | resource_name | <bc_name> |
+    When I get project bc named "<bc_name>"
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig   | <bc_name> |
@@ -2113,10 +2069,7 @@ Feature: build 'apps' with CLI
       | name     | ruby22-sample-build-2 |
     Then the step should succeed
     And the output should contain "Manually triggered"
-    When I run the :get client command with:
-      | resource      | builds                |
-      | resource_name | ruby22-sample-build-2 |
-      | o             | yaml                  |
+    When I get project builds named "ruby22-sample-build-2" as YAML
     Then the step should succeed
     And the output should contain "Manually triggered"
 
@@ -2538,6 +2491,7 @@ Feature: build 'apps' with CLI
     Then the step succeeded
     And the "ruby-hello-world-3" build was created
     And the "ruby-hello-world-2" build is :complete
+
   # @author haowang@redhat.com
   # @case_id 526202
   Scenario: Change Parallel runpolicy to SerialLatestOnly build
@@ -2605,10 +2559,10 @@ Feature: build 'apps' with CLI
   # @case_id 526542
   Scenario: Do sti build using image with onbuild instructions and without tar should build failed
     Given I have a project
-    When I git clone the repo "https://github.com/openshift/ruby-hello-world" 
+    When I git clone the repo "https://github.com/openshift/ruby-hello-world"
     When I run the :new_app client command with:
       | app_repo | <%= localhost.workdir %>/ruby-hello-world |
-      | docker_image | docker.io/aosqe/rubyonbuild:notar | 
+      | docker_image | docker.io/aosqe/rubyonbuild:notar |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build failed
