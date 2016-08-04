@@ -40,7 +40,7 @@ Feature: deployment related features
       | resource      | dc |
       | resource_name | hooks |
     Then the output should match:
-      | hooks\\s+2\\s+2\\s+image.*|
+      | hooks.*|
     When I run the :rollback client command with:
       | deployment_name | hooks-1 |
       | dry_run         ||
@@ -197,7 +197,7 @@ Feature: deployment related features
       | resource      | deploymentConfig |
       | resource_name | hooks |
     Then the output should match:
-      | hooks\\s+2\\s+2\\s+image.*|
+      | hooks.*|
     When I run the :rollback client command with:
       | deployment_name         | hooks-1 |
       | output                  | json  |
@@ -583,19 +583,27 @@ Feature: deployment related features
     And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
       | latestVersion: 2 | latestVersion: -1 |
     Then the step should fail
-    And the output should match:
-      | nvalid value.*-1.*latestVersion cannot be negative |
-      | nvalid value.*-1.*latestVersion cannot be decremented |
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | template      | {{.status.latestVersion}} |
+    Then the output should match "2"
     And I replace resource "dc" named "hooks":
       | latestVersion: 2 | latestVersion: 0 |
     Then the step should fail
-    And the output should match:
-      | nvalid value.*0.*latestVersion cannot be decremented |
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | template      | {{.status.latestVersion}} |
+    Then the output should match "2"
     And I replace resource "dc" named "hooks":
       | latestVersion: 2 | latestVersion: 5 |
     Then the step should fail
-    And the output should match:
-      | nvalid value.*5.*latestVersion can only be incremented by 1 |
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | template      | {{.status.latestVersion}} |
+    Then the output should match "2"
 
   # @author pruan@redhat.com
   # @case_id 487643
@@ -646,8 +654,6 @@ Feature: deployment related features
       | Status:		Failed         |
       | Deployment #2:          |
       | Status:		Failed         |
-      | Deployment #1:          |
-      | Status:		Complete       |
 
   # @author cryan@redhat.com
   # @case_id 497366
@@ -1117,15 +1123,17 @@ Feature: deployment related features
   Scenario: Inline deployer hook logs
     Given I have a project
     And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/Inline-logs.json |
     And I run the :logs client command with:
       | f | true |
       | resource_name | dc/hooks |
     Then the output should contain:
-      | Created lifecycle pod <%= project.name %>/hooks-1-hook-pre for deployment <%= project.name %>/hooks-1 |
-      | Finished reading logs for hook pod <%= project.name %>/hooks-1-hook-pre |
-      | Created lifecycle pod <%= project.name %>/hooks-1-hook-post for deployment <%= project.name %>/hooks-1 |
-      | Finished reading logs for hook pod <%= project.name %>/hooks-1-hook-post |
+      | pre: |
+      | Can't read /etc/scl/prefixes/mysql55 |
+      | pre: Success |
+      | post: |
+      | Can't read /etc/scl/prefixes/mysql55 |
+      | post: Success |
 
   # @author yinzhou@redhat.com
   # @case_id 433309
