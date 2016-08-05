@@ -20,7 +20,7 @@ jenkins_add_build_string_parameter:
       name: parameter.name
     type: input
     op: send_keys <string_parameter>
-  action: click_save_button
+  action: jenkins_click_save_button
 
 jenkins_build_now:
   url: /job/<job_name>
@@ -58,7 +58,7 @@ jenkins_change_configure_label:
       name: _.label
     type: input
     op: send_keys <label>
-  action: click_save_button
+  action: jenkins_click_save_button
 
 jenkins_check_openshift_pipeline_jenkins_plugin:
   action: go_to_installed_plugin_manage_page
@@ -235,7 +235,7 @@ jenkins_create_openshift_build_trigger:
       xpath: //input[contains(@checkurl,"OpenShiftBuilder/checkNamespace")]
     type: input
     op: send_keys <store_project>
-  action: click_save_button
+  action: jenkins_click_save_button
 
 jenkins_create_openshift_resources:
   url: /job/<job_name>/configure

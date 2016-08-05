@@ -86,41 +86,42 @@ Feature: jenkins.feature
     Then the output should contain "Jenkins"
     And the output should not contain "ready to work"
     """
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins/      |
       | base_url | https://<%= route.dns(by: user) %> |
-    When I perform the :login web action with:
-      | username | admin    |
-      | password | password |
+    When I perform the :jenkins_login web action with:
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
     Then the step should succeed
     Given I wait up to 60 seconds for the steps to pass:
     """
     Then the expression should be true> /Dashboard \[Jenkins\]/ =~ browser.title
     """
-    When I run the :check_openshift_pipeline_jenkins_plugin web action
+    When I run the :jenkins_check_openshift_pipeline_jenkins_plugin web action
     Then the step should succeed
     When I get the html of the web page
     Then the output should contain "OpenShift Pipeline Jenkins Plugin"
-    When I perform the :create_freestyle_project web action with:
+    When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %> |
     Then the step should succeed
-    When I perform the :add_build_string_parameter web action with:
+    When I perform the :jenkins_add_build_string_parameter web action with:
       | job_name         | <%= project.name %> |
       | string_parameter | NAMESPACE           |
     Then the step should succeed
-    When I perform the :create_openshift_build_trigger web action with:
+    When I perform the :jenkins_create_openshift_build_trigger web action with:
       | job_name      | <%= project.name %>         |
       | api_endpoint  | <%= env.api_endpoint_url %> |
       | build_config  | frontend                    |
       | store_project | NAMESPACE                   |
     Then the step should succeed
-    When I perform the :build_with_string_parameter web action with:
+    When I perform the :jenkins_build_with_string_parameter web action with:
       | job_name        | <%= project.name %> |
       | build_parameter | <%= project.name %> |
     Then the step should succeed
     And the "frontend-1" build was created
     And the "frontend-1" build completed
-    When I perform the :build_with_string_parameter web action with:
+    When I perform the :jenkins_build_with_string_parameter web action with:
       | job_name        | <%= project.name %> |
       | build_parameter | notpass-1a4bc       |
     Then the step should succeed
@@ -143,12 +144,13 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins/      |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     When I perform the :jenkins_login web action with:
-      | username | admin    |
-      | password | password |
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
     Then the step should succeed
     When I create a new project
     Then the step should succeed
@@ -180,6 +182,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins/      |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
@@ -199,8 +202,8 @@ Feature: jenkins.feature
     Then the step should succeed
     And evaluation of `@result[:parsed]["status"]["tags"][0]["items"][0]["image"]` is stored in the :shasum clipboard
     When I perform the :jenkins_login web action with:
-      | username | admin    |
-      | password | password |
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
     Then the step should succeed
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
@@ -253,6 +256,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     When I execute on the pod:
       |  id | -u |
     Then the step should succeed
@@ -263,8 +267,8 @@ Feature: jenkins.feature
       | rules    | lib/rules/web/images/jenkins/      |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     When I perform the :jenkins_login web action with:
-      | username | admin    |
-      | password | password |
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
     Then the step should succeed
     When I perform the :jenkins_trigger_sample_openshift_build web action with:
       | job_name                 | OpenShift%20Sample          |
@@ -334,12 +338,13 @@ Feature: jenkins.feature
       | image_name | ruby                      |
       | from       | openshift/ruby-22-centos7 |
       | confirm    | true                      |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins/      |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     When I perform the :jenkins_login web action with:
       | username | admin    |
-      | password | password |
+      | password | <%= cb.jenkins_password %> |
     Then the step should succeed
     When I create a new project
     Then the step should succeed
@@ -470,6 +475,7 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     When I run the :import_image client command with:
       | image_name | ruby                      |
       | from       | openshift/ruby-22-centos7 |
@@ -478,8 +484,8 @@ Feature: jenkins.feature
       | rules    | lib/rules/web/images/jenkins/      |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     When I perform the :jenkins_login web action with:
-      | username | admin    |
-      | password | password |
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
     Then the step should succeed
     When I create a new project
     Then the step should succeed
@@ -607,12 +613,13 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins/                                     |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     When I perform the :jenkins_login web action with:
-      | username | admin    |
-      | password | password |
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
     Then the step should succeed
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %> |
