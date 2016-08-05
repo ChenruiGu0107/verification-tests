@@ -37,6 +37,36 @@ Feature: jenkins.feature
     And the output should contain:
       | Dashboard [Jenkins] |
 
+  # @author cryan@redhat.com
+  # @case_id 525985
+  Scenario: Jenkins service existed with bc of jenkinpipeline strategy
+    Given I have a project
+    And I download a file from "https://raw.githubusercontent.com/fabric8io/openshift-jenkins-sync-plugin/master/src/test/resources/sampleBC.yml"
+    When I run the :create client command with:
+      | f | sampleBC.yml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready
+    When I use the "jenkins" service
+    When I open secure web server via the "jenkins" route
+    Then the output should contain "hudson"
+    #Create second bc
+    Given I replace lines in "sampleBC.yml":
+      | name: edam | name: edam1 |
+    When I run the :create client command with:
+      | f | sampleBC.yml |
+    Then the step should succeed
+    When I use the "jenkins" service
+    When I open secure web server via the "jenkins" route
+    Then the output should contain "hudson"
+    When I run the :get client command with:
+      | resource | bc |
+    Then the step should succeed
+    And the output should contain:
+      | edam  |
+      | edam1 |
+
   # @author shiywang@redhat.com
   # @case_id 515420
   Scenario: Build with new parameter which is configged
