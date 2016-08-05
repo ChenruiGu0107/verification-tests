@@ -1048,10 +1048,10 @@ Feature: build 'apps' with CLI
     And the output should not match "xiuwangs2i$"
     Given 2 pods become ready with labels:
       |deployment=frontend-1|
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | ls | xiuwangs2i |
     Then the step should fail
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | ls |
     Then the step should succeed
     And the output should contain:
@@ -1082,7 +1082,7 @@ Feature: build 'apps' with CLI
     Given the "ruby-sample-build-1" build completes
     Given 2 pods become ready with labels:
       | name=frontend |
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | env |
     Then the output should contain "envtest1"
 
@@ -1176,7 +1176,7 @@ Feature: build 'apps' with CLI
     Then the output should contain "xiuwangs2i-2"
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | ls | -al | xiuwangs2i-2 |
     Then the step should succeed
     And the output should contain "tmp"
@@ -1359,7 +1359,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=frontend |
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | ls | -al | xiuwangtest |
     Then the output should contain "tmp"
     Given I replace resource "buildconfig" named "final-app" saving edit to "edit_bldcfg.json":
@@ -1369,7 +1369,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=frontend-2 |
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | ls | -al | test |
     Then the output should contain "tmp"
     Then I run the :import_image client command with:
@@ -1592,7 +1592,7 @@ Feature: build 'apps' with CLI
     Then the output should contain "xiuwangtest"
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | ls | -al | xiuwangtest |
     Then the step should succeed
     And the output should contain "tmp"

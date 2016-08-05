@@ -143,7 +143,7 @@ Feature: Dynamic provisioning
     And a pod becomes ready with labels:
       | name=frontendhttp |
 
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | touch | /mnt/gce/testfile |
     Then the step should succeed
 

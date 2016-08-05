@@ -520,7 +520,7 @@ Feature: creating 'apps' with CLI
       | deployment=<%= cb.appname %>-1 |
     And I wait for the steps to pass:
     """
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl | localhost:8080 |
     Then the step should succeed
     """
@@ -537,7 +537,7 @@ Feature: creating 'apps' with CLI
       | deployment=<%= cb.appname1 %>-1 |
     And I wait for the steps to pass:
     """
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl | localhost:8080 |
     Then the step should succeed
     """
@@ -554,7 +554,7 @@ Feature: creating 'apps' with CLI
       | deployment=<%= cb.appname2 %>-1 |
     And I wait for the steps to pass:
     """
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl | localhost:8080 |
     Then the step should succeed
     """
@@ -571,7 +571,7 @@ Feature: creating 'apps' with CLI
       | deployment=<%= cb.appname3 %>-1 |
     And I wait for the steps to pass:
     """
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl | localhost:8080 |
     Then the step should succeed
     """

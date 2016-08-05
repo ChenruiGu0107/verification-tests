@@ -22,7 +22,7 @@ Feature: Postgresql images test
     Then the output should contain "route-edge"
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl | localhost:8080 |
     Then the output should contain:
       | Hello |

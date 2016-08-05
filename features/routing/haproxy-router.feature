@@ -184,7 +184,7 @@ Feature: Testing haproxy router
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     And the pod named "hello-pod" becomes ready
     #access the route without cookies
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -s |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
@@ -195,7 +195,7 @@ Feature: Testing haproxy router
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
     Given I wait for the steps to pass:
     """
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -s |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
@@ -206,7 +206,7 @@ Feature: Testing haproxy router
     #access the route with cookies
     Given I run the steps 6 times:
     """
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -s |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
@@ -239,7 +239,7 @@ Feature: Testing haproxy router
 
     Given I have a pod-for-ping in the project
     #access the route without cookies
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -s |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
@@ -251,7 +251,7 @@ Feature: Testing haproxy router
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
     Given I wait for the steps to pass:
     """
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -s |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
@@ -263,7 +263,7 @@ Feature: Testing haproxy router
     #access the route with cookies
     Given I run the steps 6 times:
     """
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -s |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
@@ -308,14 +308,14 @@ Feature: Testing haproxy router
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     And the pod named "hello-pod" becomes ready
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | wget |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
       | /tmp/ca.pem |
     Then the step should succeed
     #access the route without cookies
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -s |
       | --resolve |
@@ -330,7 +330,7 @@ Feature: Testing haproxy router
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
     Given I wait for the steps to pass:
     """
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -s |
       | --resolve |
@@ -345,7 +345,7 @@ Feature: Testing haproxy router
     #access the route with cookies
     Given I run the steps 6 times:
     """
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -s |
       | --resolve |
@@ -425,7 +425,7 @@ Feature: Testing haproxy router
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
 
     Given I have a pod-for-ping in the project
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | wget |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
@@ -439,7 +439,7 @@ Feature: Testing haproxy router
       | key | route_edge-www.edge.com.key |
       | cacert | ca.pem |
     Then the step should succeed
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
@@ -484,7 +484,7 @@ Feature: Testing haproxy router
       | cacert | route_reencrypt.ca |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
@@ -662,28 +662,28 @@ Feature: Testing haproxy router
     Then the step should succeed
     And the output should match "apps.[az][az][az].com.*more"
     Given I have a pod-for-ping in the project
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | service-unsecure-<%= cb.project %>.apps.aaa.com:80:<%= cb.router1_ip %> |
       | http://service-unsecure-<%= cb.project %>.apps.aaa.com/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | service-unsecure-<%= cb.project %>.apps.zzz.com:80:<%= cb.router1_ip %> |
       | http://service-unsecure-<%= cb.project %>.apps.zzz.com/ |
     Then the step should succeed
     And the output should not contain "Hello-OpenShift"
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | service-unsecure-<%= cb.project %>.apps.aaa.com:80:<%= cb.router2_ip %> |
       | http://service-unsecure-<%= cb.project %>.apps.aaa.com:80/ |
     Then the step should succeed
     And the output should not contain "Hello-OpenShift"
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | service-unsecure-<%= cb.project %>.apps.zzz.com:80:<%= cb.router2_ip %> |
