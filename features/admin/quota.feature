@@ -376,15 +376,21 @@ Feature: Quota related scenarios
     Then the step should succeed
     And the output should match:
       | uildconfig\\s+"ruby-sample-build"\\s+created |
+    Given the pod named "database-1-deploy" is present
+    And the pod named "ruby-sample-build-2-build" is present
     When I get project pod as YAML
     Then the output should match:
       |   cpu:\\s+20m     |
       |   memory:\\s+50Mi |
       |   cpu:\\s+20m     |
       |   memory:\\s+50Mi |
+    When I run the :delete client command with:
+      | object_type       | build               |
+      | all               | |
+    Then the step should succeed
     When I replace resource "bc" named "ruby-sample-build" saving edit to "ruby-sample-build2.yaml":
-      | cpu: 20m     | cpu:    1020m |
-      | memory: 50Mi | memory: 760Mi |
+      | cpu: 20m          | cpu:    1020m       |
+      | memory: 50Mi      | memory: 760Mi       |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
