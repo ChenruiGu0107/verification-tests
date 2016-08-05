@@ -356,6 +356,14 @@ Feature: Persistent Volume Claim binding policies
       | rror syncing pod                |
       | not all containers have started |
       | 0 != 1                          |
+    When I execute on the pod:
+      | mountpoint | -d | /mnt |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | date >> /mnt/testfile |
+    Then the step should succeed
     Given I ensure "mypod-<%= project.name %>" pod is deleted
     """
 
