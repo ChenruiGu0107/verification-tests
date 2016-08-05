@@ -3,7 +3,7 @@ lib_path = File.expand_path(File.dirname(__FILE__))
 unless $LOAD_PATH.any? {|p| File.expand_path(p) == lib_path}
   $LOAD_PATH.unshift(lib_path)
 end
-require 'jira'
+require 'jira-ruby'
 require 'common'
 
 module CucuShift
@@ -52,7 +52,7 @@ module CucuShift
         begin
           return client.Project.find(id)
         rescue => e
-          @logger.error("Can't find project '#{id}', exiting...\n #{e}") 
+          @logger.error("Can't find project '#{id}', exiting...\n #{e}")
           exit
         end
       end
@@ -102,8 +102,8 @@ module CucuShift
       issuetypes = get_all_project_issuetypes
       return issuetypes.select {|i| i.attrs if issue_type == i.name}[0]
     end
-    
-    # @id, id could either be Integer or String 
+
+    # @id, id could either be Integer or String
     # returns a component object
     def get_component(id)
       # Automation component has id of 11173
