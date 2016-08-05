@@ -357,6 +357,9 @@ Feature: Persistent Volume Claim binding policies
       | not all containers have started |
       | 0 != 1                          |
     When I execute on the pod:
+      | mountpoint | -d | /mnt |
+    Then the step should succeed
+    When I execute on the pod:
       | bash |
       | -c   |
       | date >> /mnt/testfile |

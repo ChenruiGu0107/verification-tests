@@ -19,6 +19,9 @@ Feature: GCE specific scenarios
     Then the step should succeed
     Given the pod named "mypod-<%= project.name %>" becomes ready
     When I execute on the pod:
+      | mountpoint | -d | /mnt/gce |
+    Then the step should succeed
+    When I execute on the pod:
       | bash |
       | -c   |
       | date >> /mnt/gce/testfile |
