@@ -1008,7 +1008,7 @@ Feature: deployment related features
       | replicas: 1 | replicas: 3 |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
-    ANd I get project rc as JSON
+    And I get project rc as JSON
     Then the expression should be true> @result[:parsed]['items'][0]['status']['replicas'] == 3
 
   # @author pruan@redhat.com
