@@ -351,3 +351,31 @@ Feature: remote registry related scenarios
     When I run commands on the host:
       | docker push <%= cb.my_tag %> |
     Then the step should succeed
+
+  # @author yinzhou@redhat.com
+  # @case_id 518910
+  @admin
+  Scenario: No layers of the image will be stored in docker registy
+    Given I have a project
+    When I find a bearer token of the deployer service account
+    When I run the :tag client command with:
+      | source_type | docker                  |
+      | source      | openshift/origin:latest |
+      | dest        | mystream:latest         |
+    Then the step should succeed
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    When I run commands on the host:
+      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+    Then the step should succeed
+    Given I run commands on the host:
+      | docker ps \|grep docker-registry: \| awk '{ print $1}'|
+    Then the step should succeed
+    Given I run commands on the host:
+      | docker exec  <%= @result[:response].strip() %> find /registry \| grep layer\| grep mystream |
+    Then the step should fail
+    And the output should not match:
+      | mystream |
