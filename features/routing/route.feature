@@ -238,7 +238,7 @@ Feature: Testing route
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     And the pod named "hello-pod" becomes ready
-    Given I execute on the "<%= pod.name %>" pod:
+    Given I execute on the pod:
       | wget |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
@@ -251,7 +251,7 @@ Feature: Testing route
       | cert | route_edge-www.edge.com.crt |
       | key | route_edge-www.edge.com.key |
     Then the step should succeed
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
@@ -261,7 +261,7 @@ Feature: Testing route
       | -c | 
       | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | cat |
       | /tmp/cookie.txt |
     Then the step should succeed
@@ -284,7 +284,7 @@ Feature: Testing route
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     And the pod named "hello-pod" becomes ready
-    Given I execute on the "<%= pod.name %>" pod:
+    Given I execute on the pod:
       | wget |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
@@ -295,7 +295,7 @@ Feature: Testing route
       | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
       | service | service-secure |
     Then the step should succeed
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route("passthrough-route", service("passthrough-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
@@ -325,7 +325,7 @@ Feature: Testing route
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     And the pod named "hello-pod" becomes ready
-    Given I execute on the "<%= pod.name %>" pod:
+    Given I execute on the pod:
       | wget |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
@@ -340,7 +340,7 @@ Feature: Testing route
       | cacert | route_reencrypt.ca |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
@@ -350,7 +350,7 @@ Feature: Testing route
       | -c |
       | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | cat |
       | /tmp/cookie.txt |
     Then the step should succeed
@@ -412,19 +412,19 @@ Feature: Testing route
       | service | service-unsecure |
       | path| /test |
     Then the step should succeed
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/test/ |
       | -c |
       | /tmp/cookie.txt |
       | -k |
     Then the output should contain "Hello-OpenShift-Path-Test"
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
       | -k |
     Then the output should contain "Application is not available"
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | cat | 
       | /tmp/cookie.txt |
     Then the step should succeed
@@ -451,7 +451,7 @@ Feature: Testing route
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     And the pod named "hello-pod" becomes ready
-    Given I execute on the "<%= pod.name %>" pod:
+    Given I execute on the pod:
       | wget |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
@@ -467,7 +467,7 @@ Feature: Testing route
       | destcacert | route_reencrypt_dest.ca |
       | path | /test |
     Then the step should succeed
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
@@ -475,7 +475,7 @@ Feature: Testing route
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift-Path-Test"
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route("route-recrypt", service("route-recrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
@@ -508,7 +508,7 @@ Feature: Testing route
       | service | service-secure |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route("no-cert", service("no-cert")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
@@ -570,7 +570,7 @@ Feature: Testing route
       | Redirect |
     # Acess the route
     Given I have a pod-for-ping in the project 
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -v |
       | -L |
@@ -597,13 +597,13 @@ Feature: Testing route
     When I expose the "service-unsecure" service
     Then the step should succeed
     Given I have a pod-for-ping in the project
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | <%= route.dns(by: user) %> |
       | -c |
       | /tmp/cookie |
     Then the output should contain "Hello-OpenShift"
-    And I execute on the "<%= pod.name %>" pod:
+    And I execute on the pod:
       | cat | 
       | /tmp/cookie |
     Then the step should succeed
@@ -638,7 +638,7 @@ Feature: Testing route
     And the output should contain:
       | Allow |
     Given I have a pod-for-ping in the project
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl                                                                                          |
       | --resolve                                                                                     |
       | <%= route("myroute", service("service-unsecure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
@@ -651,7 +651,7 @@ Feature: Testing route
       | HTTP/1.1 200    |
     And the output should not contain:
       | HTTP/1.1 302 Found |
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl                                                                                         |
       | --resolve                                                                                    |
       | <%= route("myroute", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |

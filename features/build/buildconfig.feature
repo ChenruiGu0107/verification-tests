@@ -239,7 +239,7 @@ Feature: buildconfig.feature
     And the "ruby22-sample-build-1" build completed
     Given 2 pods become ready with labels:
       | name=frontend |
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | env |
     Then the output should contain "RACK_ENV=production"
     When I run the :patch client command with:

@@ -165,7 +165,7 @@ Feature: Routes related features on web console
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | wget |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
       | -O |
@@ -185,7 +185,7 @@ Feature: Routes related features on web console
     When I run the :submit_create_route web console action
     Then the step should succeed
     # check route is accessible
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route("service-secure", service("service-secure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
@@ -224,19 +224,19 @@ Feature: Routes related features on web console
 
     # check route function
     Given I have a pod-for-ping in the project
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/test/ |
       | -c |
       | /tmp/cookie.txt |
       | -k |
     Then the output should contain "Hello-OpenShift-Path-Test"
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/ |
       | -k |
     Then the output should contain "Application is not available"
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/none/ |
       | -k |
@@ -271,7 +271,7 @@ Feature: Routes related features on web console
 
     # check route function
     Given I have a pod-for-ping in the project
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -v   |
       | -L   |
@@ -312,7 +312,7 @@ Feature: Routes related features on web console
 
     # check route function
     Given I have a pod-for-ping in the project
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -v   |
       | -L   |
@@ -321,7 +321,7 @@ Feature: Routes related features on web console
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift |
-    When I execute on the "<%= pod.name %>" pod:
+    When I execute on the pod:
       | curl |
       | -v   |
       | -L   |
