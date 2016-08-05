@@ -17,7 +17,7 @@ Feature: oc_label.feature
       | name | hello-openshift |
     Then the step should succeed
     And the output should match:
-      |Labels:\\s+name=hello-openshift,status=healthy|
+      |Labels:\\s+name=hello-openshift[\s,]+status=healthy|
     When I run the :label client command with:
       | resource | pods |
       | name | hello-openshift |
@@ -37,7 +37,7 @@ Feature: oc_label.feature
       | name | hello-openshift |
     Then the step should succeed
     And the output should match:
-      |Labels:\\s+name=hello-openshift,status=unhealthy|
+      |Labels:\\s+name=hello-openshift[\s,]+status=unhealthy|
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc482217/hello-pod.json |
     Then the step should succeed
@@ -54,8 +54,8 @@ Feature: oc_label.feature
       | resource | pod |
     Then the step should succeed
     And the output should match:
-      |Labels:\\s+name=hello-openshift,status=healthy|
-      |Labels:\\s+name=tc482217-pod,status=healthy|
+      |Labels:\\s+name=hello-openshift[\s,]+status=healthy|
+      |Labels:\\s+name=tc482217-pod[\s,]+status=healthy|
     When I run the :label client command with:
       | resource | pods |
       | name | hello-openshift |
@@ -67,7 +67,7 @@ Feature: oc_label.feature
       | name | hello-openshift |
       | key_val | status=$%@# |
     Then the step should fail
-    And the output should contain "invalid label spec"
+    And the output should match "invalid label (value|spec)"
     When I run the :label client command with:
       | resource | pods |
       | name | hello-openshift |
