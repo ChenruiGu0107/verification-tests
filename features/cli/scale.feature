@@ -209,3 +209,51 @@ Feature: scaling related scenarios
     Then the output should contain:
       | "replicas": 2          |
     """
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 515916
+  @admin
+  Scenario: HPA scale dc will update the deploymentconfig replicas
+    Given I have a project
+    Given SCC "privileged" is added to the "default" service account
+    When I run the :get admin command with:
+      | resource         | pod |
+      | namespace        | openshift-infra |
+    Then the output should contain:
+      | hawkular-cassandra |
+      | hawkular-metrics   |
+      | heapster           |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/php-dc.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/hpa.yaml |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource | dc |
+      | resource_name | php-apache |
+      | port | 80 |
+    Then the step should succeed
+    When I expose the "php-apache" service
+    And evaluation of `route("php-apache", service("php-apache")).dns(by: user)` is stored in the :route_host clipboard
+    Then the step should succeed
+    And I wait until the status of deployment "php-apache" becomes :complete
+    Given I wait for the "php-apache" service to become ready
+    When I perform 500 HTTP GET requests with concurrency 1 to: http://<%= cb.route_host %>
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | php-apache |
+      | o             | json  |
+    And evaluation of `@result[:parsed]['spec']['replicas']` is stored in the :first_replicas clipboard
+    When I run the :deploy client command with:
+      | deployment_config | php-apache |
+      | latest            |true |
+    And I wait until the status of deployment "php-apache" becomes :complete
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | php-apache |
+      | o             | json  |
+    And evaluation of `@result[:parsed]['spec']['replicas']` is stored in the :second_replicas clipboard
+    Then the expression should be true> @result[:parsed]['spec']['replicas'] > 1
+    Then the expression should be true> cb.first_replicas == cb.second_replicas
