@@ -380,6 +380,7 @@ Feature: Testing route
     Then the output should contain "Hello-OpenShift-Path-Test"
     """
     When I open web server via the "http://<%= cb.unsecure %>/" url
+    Then the step should fail
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json"
     And I replace lines in "route_unsecure.json":
       | unsecure.example.com | <%= cb.unsecure %> |
@@ -392,7 +393,7 @@ Feature: Testing route
     Then the output should contain "Hello-OpenShift-Path-Test"
     """
     When I open web server via the "http://<%= route("route", service("service-unsecure")).dns(by: user) %>/" url
-    Then the step should fail
+    Then the output should contain "Hello-OpenShift"
 
   # @author zzhao@redhat.com
   # @case_id 470735

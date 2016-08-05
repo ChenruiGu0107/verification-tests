@@ -964,7 +964,7 @@ Feature: Testing haproxy router
     """
     When I get project events
     And the output should match:
-      | Readiness probe failed: *:22/healthz: malformed HTTP response "SSH |
+      | Readiness probe failed: .*:22/healthz: malformed HTTP response "SSH |
     """
 
   # @author bmeng@redhat.com
