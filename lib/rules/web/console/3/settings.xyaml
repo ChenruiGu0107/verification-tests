@@ -39,7 +39,7 @@ check_project_without_quota_settings:
   - selector:
       text: There are no resource quotas set on this project.
 goto_settings_page:
-  url: /console/project/<project_name>/settings
+  url: /console/project/<project_name>/quota
 check_general_information:
   action: goto_settings_page
   elements:
