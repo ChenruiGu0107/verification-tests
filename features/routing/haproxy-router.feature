@@ -995,7 +995,7 @@ Feature: Testing haproxy router
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     And evaluation of `pod.name` is stored in the :router_pod clipboard
-    And cluster role "cluster-reader" is added to the "system:openshift-router" group
+    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
     And default router deployment config is restored after scenario
     When I run the :env client command with:
       | resource | dc/router |
