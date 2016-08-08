@@ -156,17 +156,13 @@ create_app_from_image_change_scaling_setting:
 create_app_from_image_add_labels:
   elements:
   - selector:
-      xpath: //label-editor//div[@ng-show='expand']//input[@name="key"]
+      xpath: //label-editor//div[@ng-show='expand']//input[@placeholder="Name"]
     op: send_keys <label_key>
     type: input
   - selector:
-      xpath: //label-editor//div[@ng-show='expand']//input[@name="value"]      
+      xpath: //label-editor//div[@ng-show='expand']//input[@placeholder="Value"]
     op: send_keys <label_value>
     type: input
-  - selector:
-      xpath: //label-editor//div[@ng-show='expand']//a[@role="button"]
-    op: click
-    type: a
 create_app_from_image_check_cpu_limit_range:
   element:
     selector:

@@ -750,11 +750,13 @@ Feature: build related feature on web console
       | image_stream   | openshift/ruby                                |
     Then the step should succeed
 
-    When I perform the :check_build_log_tab web console action with:
-      | project_name      | <%= project.name %> |
-      | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
-      | build_status_name | Pending             |
-    Then the step should succeed
+# Since pending status is hard to catch, consider to move this check to
+# another manual case.
+#    When I perform the :check_build_log_tab web console action with:
+#      | project_name      | <%= project.name %> |
+#      | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
+#      | build_status_name | Pending             |
+#    Then the step should succeed
 
     Given the "ruby-hello-world-1" build becomes :running
     When I perform the :check_build_log_tab web console action with:
@@ -763,7 +765,7 @@ Feature: build related feature on web console
       | build_status_name | Running             |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
-      | build_log_context | Running build with cgroup limits |
+      | build_log_context | unning |
     Then the step should succeed
 
     When I run the :follow_log web console action
@@ -782,14 +784,14 @@ Feature: build related feature on web console
       | build_status_name | Complete             |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
-      | build_log_context | uccessfully |
+      | build_log_context | uccessful |
     Then the step should succeed
     When I run the :go_to_end_log web console action
     Then the step should succeed
     When I run the :go_to_top_log web console action
     Then the step should succeed
     When I perform the :open_full_view_log web console action with:
-      | log_context | uccessfully |
+      | log_context | uccessful |
     Then the step should succeed
 
     When I run the :start_build client command with:
