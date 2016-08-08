@@ -1495,3 +1495,32 @@ Feature: deployment related features
       | list     | true     |
     Then the step should succeed
     And the output should contain "TEST=123"
+    
+  # @author mcurlej@redhat.com
+  # @case_id 532412
+  Scenario: Check the status for deployment configs
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | o             | json  |
+    Then the step should succeed
+    And evaluation of `@result[:parsed]['metadata']['generation']` is stored in the :prev_generation clipboard
+    And evaluation of `@result[:parsed]['status']['observedGeneration']` is stored in the :prev_observed_generation clipboard
+    When I run the :env client command with:
+      | resource | dc/hooks |
+      | e        | TEST=1   |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | o             | json  |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]['metadata']['generation'] - cb.prev_generation == 1 
+    And the expression should be true> @result[:parsed]['status']['observedGeneration'] - cb.prev_observed_generation == 1
+    And the expression should be true> @result[:parsed]['status']['observedGeneration'] >= @result[:parsed]['metadata']['generation']
