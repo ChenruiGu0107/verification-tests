@@ -332,10 +332,8 @@ Feature: create app on web console related
   Scenario: v1bata3 API version is not supported
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc515804/application-template-stibuild.json |
     Then the step should succeed
-    Given I replace resource "template" named "ruby-helloworld-sample" saving edit to "tempsti.json":
-      | v1 | v1beta3 |
     When I perform the :create_app_from_template web console action with:
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |

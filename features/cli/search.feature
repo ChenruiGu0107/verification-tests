@@ -17,9 +17,9 @@ Feature: new-app with --search option
     Then the step should succeed
     When I run the :new_app client command
     Then the output should contain:
-      | $ oc new-app -S php |
-      | $ oc new-app -S --template=ruby |
-      | $ oc new-app -S --image=mysq |
+      | oc new-app -S php |
+      | oc new-app -S --template=ruby |
+      | oc new-app -S --image=mysq |
 
     #Search directly
     When I run the :new_app client command with:

@@ -680,7 +680,7 @@ Feature: build related feature on web console
   # @case_id 518660
   Scenario: Modify buildconfig has DockerImage as build output
     Given I create a new project
-    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476357/application-template-stibuild.json"
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc518660/application-template-stibuild.json"
     Then the step should succeed
     When I run the :describe client command with:
       | resource      | bc/python-sample-build-sti |
