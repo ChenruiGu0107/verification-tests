@@ -79,21 +79,13 @@ Feature: Delete the resources via web console
     When I perform the :delete_resources_with_viewer_in_the_project web console action with:
       | project_name     | <%= project.name %>   |
       | pod_name         | nodejs-sample-1-build |
-      | pod_warning      | cannot delete pods in project |
       | service_name     | nodejs-sample         |
-      | service_warning  | cannot delete services in project |
       | bc_name          | nodejs-sample         |
-      | bc_warning       | cannot delete buildconfigs in project |
       | dc_name          | nodejs-sample         |
-      | dc_warning       | cannot delete deploymentconfigs in project |
       | build_name       | nodejs-sample-1       |
-      | build_warning    | cannot delete builds in project |
       | route_name       | nodejs-sample         |
-      | route_warning    | cannot delete routes in project |
       | image_name       | nodejs-sample         |
-      | image_warning    | cannot delete imagestreams in project |
       | dc_number        | 1                     |
-      | rc_warning       | cannot delete replicationcontrollers in project |
     Then the step should succeed
 
   # @author yanpzhan@redhat.com

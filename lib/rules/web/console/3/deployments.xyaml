@@ -130,7 +130,7 @@ click_rollback_button_in_settings:
       xpath: //div[@ng-show='rollBackCollapsed']//button
     op: click
   - selector:
-      xpath: //strong[contains(text(),'is rolling back')]
+      xpath: //span[contains(text(),'is rolling back')]
 goto_deployments_page:
   url: /console/project/<project_name>/browse/deployments
 goto_one_dc_page:

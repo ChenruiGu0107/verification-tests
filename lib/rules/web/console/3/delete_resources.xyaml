@@ -18,45 +18,29 @@ delete_resources_with_viewer_in_the_project:
   action: delete_resources_route_with_viewer
   action: delete_resources_imagestream_with_viewer
 delete_resources_pod_with_viewer:
-  action: delete_resources_pod
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'<pod_warning>')]
+  action: goto_one_pod_page
+  action: delete_resource_with_viewer
 delete_resources_service_with_viewer:
-  action: delete_resources_service
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'<service_warning>')]
+  action: goto_one_service_page
+  action: delete_resource_with_viewer
 delete_resources_buildconfig_with_viewer:
-  action: delete_resources_buildconfig
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'<bc_warning>')]
+  action: goto_one_buildconfig_page
+  action: delete_resource_with_viewer
 delete_resources_deploymentconfig_with_viewer:
-  action: delete_resources_deploymentconfig
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'<dc_warning>')]
+  action: goto_one_dc_page
+  action: delete_resource_with_viewer
 delete_resources_rc_with_viewer:
-  action: delete_resources_rc
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'<rc_warning>')]
+  action: goto_one_deployment_page
+  action: delete_resource_with_viewer
 delete_resources_build_with_viewer:
-  action: delete_resources_build
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'<build_warning>')]
+  url: /console/project/<project_name>/browse/builds/<bc_name>/<build_name>
+  action: delete_resource_with_viewer
 delete_resources_route_with_viewer:
-  action: delete_resources_route
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'<route_warning>')]
+  action: goto_one_route_page
+  action: delete_resource_with_viewer
 delete_resources_imagestream_with_viewer:
-  action: delete_resources_imagestream
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'<image_warning>')]
+  action: goto_one_image_stream_page
+  action: delete_resource_with_viewer
  
 delete_resources_pod:
   action: goto_one_pod_page
@@ -96,3 +80,10 @@ delete_resource:
       text: Delete
     type: button
     op: click
+delete_resource_with_viewer:
+  element:
+    # viewer cannot find "Actions","Delete"
+    selector:
+      text: Actions
+    type: button
+    visible: false
