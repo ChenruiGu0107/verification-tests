@@ -78,16 +78,21 @@ Feature: Testing route
 
     When I switch to cluster admin pseudo user
     And I use the "default" project
-    And I execute on the "<%= cb.router_pod %>" pod:
-      | ls                  |
-      | /var/lib/containers/router/certs |
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | bash |
+      | -lc |
+      | ls /var/lib/*/router/certs |
     Then the step should succeed
     And the output should contain:
       | <%= cb.proj_name %>_<%= cb.edge_route %>.pem |
       | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
+    """
     When I execute on the pod:
-      | ls                  |
-      | /var/lib/containers/router/cacerts |
+      | bash |
+      | -lc |
+      | ls /var/lib/*/router/cacerts |
     Then the step should succeed
     And the output should contain:
       | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
@@ -103,8 +108,9 @@ Feature: Testing route
     And I switch to cluster admin pseudo user
     And I use the "default" project
     And I execute on the pod:
-      | ls                  |
-      | /var/lib/containers/router/certs |
+      | bash |
+      | -lc |
+      | ls /var/lib/*/router/certs |
     Then the step should succeed
     And the output should not contain:
       | <%= cb.proj_name %>_<%= cb.edge_route %>.pem |
@@ -122,9 +128,9 @@ Feature: Testing route
     And I switch to cluster admin pseudo user
     And I use the "default" project
     And I execute on the pod:
-      | ls                  |
-      | /var/lib/containers/router/certs   |
-      | /var/lib/containers/router/cacerts |
+      | bash |
+      | -lc |
+      | ls /var/lib/*/router/certs /var/lib/*/router/cacerts |
     Then the step should succeed
     And the output should not contain:
       | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
