@@ -512,6 +512,11 @@
     :output: --output=<value>
     :template: --template=<value>
     :to_version: --to-version=<value>
+:rollout_undo:
+  :cmd: oc rollout undo <resource>
+  :options:
+    :resource_name: <value>
+    :to_revision: --to-revision=<value>
 :rsh:
   :cmd: oc rsh <global_options> <options>
   :options:
