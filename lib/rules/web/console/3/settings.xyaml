@@ -3,8 +3,6 @@ check_settings_page:
   action: goto_settings_page
   elements:
   - selector:
-      text: General information
-  - selector:
       text: Quota
   - selector:
       text: Limit Range

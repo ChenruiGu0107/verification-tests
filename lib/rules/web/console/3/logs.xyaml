@@ -18,7 +18,7 @@ check_log_tab_on_deployment_page:
 check_log_context:
   elements:
   - selector:
-      xpath: //tbody[@id='logContent']//td[contains(text(),'<log_context>')]
+      xpath: //table//td[contains(text(),'<log_context>')]
     timeout: 180
 check_no_log_info:
   elements:
@@ -31,7 +31,7 @@ check_no_log_info:
 open_in_new_window:
   elements:
   - selector:
-      text: Expand
+      text: Expand log
     type: a
     op: click
 select_a_container:
