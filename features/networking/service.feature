@@ -24,6 +24,7 @@ Feature: Service related networking scenarios
   # @case_id 508149
   @admin
   Scenario: The packets should be dropped when accessing the service which points to a pod in another project
+    When cluster role "system:endpoint-controller" is added to the "first" user
     ## Create pod in project1 and copy the pod ip
     Given I have a project
     And evaluation of `project.name` is stored in the :project1 clipboard
@@ -33,7 +34,6 @@ Feature: Service related networking scenarios
     Given the pod named "hello-pod" becomes ready
     And evaluation of `pod.ip` is stored in the :pod1_ip clipboard
 
-    When cluster role "system:endpoint-controller" is added to the "system:serviceaccounts:<%= cb.project1 %>" group
     ## Create pod in project2
     Given I create a new project
     And evaluation of `project.name` is stored in the :project2 clipboard
@@ -60,6 +60,7 @@ Feature: Service related networking scenarios
   # @case_id 508150
   @admin
   Scenario: The packets should be dropped when accessing the service which points to a service in another project
+    When cluster role "system:endpoint-controller" is added to the "first" user
     ## Create pod and service in project1 and copy the service ip
     Given I have a project
     And evaluation of `project.name` is stored in the :project1 clipboard
@@ -70,7 +71,6 @@ Feature: Service related networking scenarios
     Given I use the "test-service" service
     And evaluation of `service.ip(user: user)` is stored in the :service1_ip clipboard
 
-    When cluster role "system:endpoint-controller" is added to the "system:serviceaccounts:<%= cb.project1 %>" group
     ## Create pod in project2
     Given I create a new project
     And evaluation of `project.name` is stored in the :project2 clipboard
