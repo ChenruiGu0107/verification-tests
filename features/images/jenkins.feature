@@ -394,6 +394,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_verify_job_success web action with:
       | job_name   | testplugin |
       | job_number | 1          |
+      | time_out   | 60         |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | is       |
@@ -410,6 +411,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_verify_job_success web action with:
       | job_name   | testplugin |
       | job_number | 2          |
+      | time_out   | 60         |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | is       |
@@ -438,6 +440,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_verify_job_success web action with:
       | job_name   | testplugin |
       | job_number | 3          |
+      | time_out   | 60         |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | is       |
@@ -454,6 +457,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_verify_job_success web action with:
       | job_name   | testplugin |
       | job_number | 4          |
+      | time_out   | 60         |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | is       |
@@ -535,6 +539,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_verify_job_success web action with:
       | job_name   | testplugin |
       | job_number | 1          |
+      | time_out   | 60         |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | is       |
@@ -551,6 +556,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_verify_job_success web action with:
       | job_name   | testplugin |
       | job_number | 2          |
+      | time_out   | 60         |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | is       |
@@ -572,6 +578,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_verify_job_success web action with:
       | job_name   | testplugin |
       | job_number | 3          |
+      | time_out   | 60         |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | is       |
@@ -588,6 +595,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_verify_job_success web action with:
       | job_name   | testplugin |
       | job_number | 4          |
+      | time_out   | 60         |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | is       |
@@ -627,3 +635,92 @@ Feature: jenkins.feature
     When I perform the :jenkins_check_logging_build_step_verbose web action with:
       | job_name | <%= project.name %> |
     Then the step should succeed
+
+  # @author shiywang@redhat.com
+  # @case_id 520288 520287 520286
+  Scenario Outline: Use Jenkins as S2I builder and with Kubernetes Slaves
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role      | edit                                            |
+      | user_name | system:serviceaccount:<%=project.name%>:default |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/master-slave/jenkins-slave-template.json  |
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/master-slave/jenkins-master-template.json |
+    Then the step should succeed
+    When I perform the :create_app_from_template_with_blank_form web console action with:
+      | project_name  | <%= project.name %>                                       |
+      | template_name | jenkins-slave-builder                                     |
+      | namespace     | <%= project.name %>                                       |
+      | param_one     | <%= product_docker_repo %><image_url>                     |
+      | param_two     | <image>                                                   |
+      | param_three   | https://github.com/openshift-qe/jenkins-slave-rhel7repo   |
+      | param_four    | :null                                                     |
+      | param_five    | master                                                    |
+    Then the step should succeed
+    And the "<image>-jenkins-slave-1" build was created
+    And the "<image>-jenkins-slave-1" build completed
+    And I run the :get client command with:
+      | resource      | imagestreams          |
+      | resource_name | <image>-jenkins-slave |
+    Then the step should succeed
+    And the output should match:
+      | <image>-jenkins-slave |
+    When I perform the :create_app_from_template web console action with:
+      | project_name  | <%= project.name %> |
+      | template_name | jenkins-master      |
+      | namespace     | <%= project.name %> |
+      | param_one     | :null               |
+      | param_two     | :null               |
+      | param_three   | :null               |
+      | param_four    | :null               |
+      | param_five    | :null               |
+      | label_key     | label1              |
+      | label_value   | test                |
+    Then the step should succeed
+    And the "jenkins-master-1" build was created
+    And the "jenkins-master-1" build completed
+    And I wait for the "jenkins" service to become ready
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I open web server via the "https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
+    Then the output should contain "Jenkins"
+    And the output should not contain "ready to work"
+    """
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
+    Then the step should succeed
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route.dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
+    Then the step should succeed
+    When I run the :jenkins_install_kubernetes_plugin web action
+    Then the step should succeed
+    When I perform the :jenkins_login web action with:
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
+    Then the step should succeed
+    When I run the :jenkins_check_kubernetes_plugin web action
+    Then the step should succeed
+    When I perform the :jenkins_change_configure_label web action with:
+      | job_name | ruby-hello-world-test |
+      | label    | <image>               |
+    When I perform the :jenkins_change_execute_shell_command web action with:
+      | job_name | ruby-hello-world-test |
+      | input    | <execute_shell_param> |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | ruby-hello-world-test |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | ruby-hello-world-test |
+      | job_number | 1                     |
+      | time_out   | 300                   |
+    Then the step should succeed
+    Examples:
+      | image      | image_url                       | execute_shell_param                                                                                             |
+      | ruby-22    | rhscl/ruby-22-rhel7:latest      | # Install the rubygems \n bundle install --path=./vendor \n # Execute simple unit test \n bundle exec rake test |
+      | ruby-20    | openshift3/ruby-20-rhel7:latest | # Install the rubygems \n bundle install --path=./vendor \n # Execute simple unit test \n bundle exec rake test |
+      | nodejs-010 | openshift3/nodejs-010-rhel7     | npm -v                                                                                                          |

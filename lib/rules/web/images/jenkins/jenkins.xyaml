@@ -3,12 +3,11 @@ jenkins_add_build_string_parameter:
   action: goto_configure_page
   elements:
   - selector:
-      id: cb8
-    type: input
+      text: This build is parameterized
     op: click
   - selector:
       class: hetero-list-add
-      id: yui-gen1-button
+      text: Add Parameter
     type: button
     op: click
   - selector:
@@ -60,6 +59,40 @@ jenkins_change_configure_label:
     op: send_keys <label>
   action: jenkins_click_save_button
 
+jenkins_change_execute_shell_command:
+  action: goto_configure_page
+  action: jenkins_click_delete_execute_shell
+  scripts:
+  - command: return document.querySelectorAll('button')[37].id = 'clicktarget'
+    expect_result: true
+  elements:
+  - selector:
+      id: clicktarget
+    op: click
+    type: button
+  - selector:
+      text: Execute shell
+    type: a
+    op: click
+  scripts:
+  - command: return document.querySelectorAll('.CodeMirror')[1].querySelectorAll('div')[0].style.overflow = 'auto'
+    expect_result: true
+  - command: return document.querySelectorAll('.CodeMirror')[1].querySelectorAll('div')[0].style.height = '1px'
+    expect_result: true
+  - command: return document.querySelectorAll('.CodeMirror')[1].querySelectorAll('div')[0].querySelector('textarea').id = 'inputtarget'
+    expect_result: true
+  element:
+    selector:
+      xpath: //textarea[@id='inputtarget']
+    type: textarea
+    op: set <input>
+  action: jenkins_click_save_button
+
+jenkins_click_delete_execute_shell:
+  scripts:
+  - command: return document.querySelector("div[name=builder]").querySelector("button").click()
+    expect_result: ~
+
 jenkins_check_openshift_pipeline_jenkins_plugin:
   action: go_to_installed_plugin_manage_page
   element:
@@ -68,13 +101,20 @@ jenkins_check_openshift_pipeline_jenkins_plugin:
       text : OpenShift Pipeline Jenkins Plugin
     type: a
 
+jenkins_check_kubernetes_plugin:
+  action: go_to_installed_plugin_manage_page
+  element:
+    selector:
+      class: display-name
+      text : Kubernetes plugin
+    type: a
+
 jenkins_click_add_build_step_button:
   element:
     selector:
-      text: Add build step
-      class: hetero-list-add
-    type: button
+      xpath: //button[contains(., 'Add build step')]
     op: click
+    type: button
 
 jenkins_check_logging_build_step_verbose:
   url: /job/<job_name>/configure
@@ -213,12 +253,8 @@ jenkins_create_freestyle_job:
 
 jenkins_create_openshift_build_trigger:
   action: goto_configure_page
+  action: jenkins_click_add_build_step_button
   elements:
-  - selector:
-      id: yui-gen5-button
-      class: hetero-list-add
-    type: button
-    op: click
   - selector:
       text: Trigger OpenShift Build
     type: a
@@ -239,6 +275,7 @@ jenkins_create_openshift_build_trigger:
 
 jenkins_create_openshift_resources:
   url: /job/<job_name>/configure
+  action: jenkins_click_add_build_step_button
   elements:
   - selector:
       xpath: //button[contains(., 'Add build step')]
@@ -267,13 +304,16 @@ jenkins_create_openshift_resources:
 
 jenkins_install_kubernetes_plugin:
   action: go_to_updates_plugin_manage_page
-  elements:
-  - selector:
-      name: plugin.kubernetes.default
-    type: input
-    op: click
-  - selector:
-      name: Download now and install after restart
+  scripts:
+  - command: return document.getElementsByName("plugin.kubernetes.default")[0].click()
+    expect_result: ~
+  - command: return document.querySelector('button').click()
+    expect_result: ~
+
+jenkins_click_download_install_button:
+  element:
+    selector:
+      text: Download now and install after restart
     type: button
     op: click
 
@@ -500,7 +540,7 @@ jenkins_verify_job_success:
   elements:
   - selector:
       xpath: //div[@id='main-panel']//pre[contains(.,'SUCCESS')]
-    timeout: 60
+    timeout: <time_out>
     visible: true
 
 jenkins_verify_logged_in:
