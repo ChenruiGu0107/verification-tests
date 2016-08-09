@@ -85,7 +85,7 @@ Feature: SDN related networking scenarios
       | systemctl restart atomic-openshift-node |
     Then the step should succeed
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep common.go |
+      | journalctl -l -u atomic-openshift-node --since "30s ago" |
     Then the step should succeed
     And the output should contain:
       | Failed to determine node address from hostname |
