@@ -53,12 +53,12 @@ module CucuShift
 
       res = login(user)
       unless res[:success]
-        raise "can not login via web console"
+        raise "can not login via web console:\n" + res[:response]
       end
 
       res = executor(user).run_action(:get_master_version_from_webconsole)
       unless res[:success]
-        raise "can not get the specific rule version"
+        raise "can not get the specific rule version:\n" + res[:response]
       end
 
       @version = executor(user).text.scan(/^OpenShift Master:\nv(.+)/)[0][0]

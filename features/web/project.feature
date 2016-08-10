@@ -238,4 +238,3 @@ Feature: projects related features via web
       | dispaly_name | projecttestupdate   |
       | description  | testupdate          |
     Then the step should succeed
-

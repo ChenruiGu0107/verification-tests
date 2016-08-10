@@ -4,7 +4,6 @@ Feature: Pod related features on web console
   Scenario: View streaming logs for a running pod
     When I create a new project via web
     Then the step should succeed
-    Given I use the "<%= project.name %>" project
 
     #Create a pod
     And I run the :run client command with:
