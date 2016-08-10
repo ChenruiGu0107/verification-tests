@@ -215,7 +215,7 @@ module CucuShift
         if pv && @pvs.last == pv
           return pv
         elsif pv
-          @pvs << @pvs.delete(s) if switch
+          @pvs << @pvs.delete(pv) if switch
           return pv
         else
           # create new CucuShift::PV object with specified name
