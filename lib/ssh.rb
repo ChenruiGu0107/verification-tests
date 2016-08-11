@@ -87,26 +87,41 @@ module CucuShift
       end
 
       def active?(verify: false)
-        return @session && ! @session.closed? && (!verify || active_verified?)
+        if @session && ! @session.closed?
+          case
+          when verify == :force
+            do_verify
+          when verify
+            active_recently_verified?
+          else
+            true
+          end
+        else
+          false
+        end
       end
 
       # make sure connection was recently enough actually usable;
       #   otherwise perform a simple connection test;
       #   this is useful with keepalive: true when the host reboots
-      private def active_verified?
+      private def active_recently_verified?
         case
         when @last_accessed.nil?
           raise "ssh session initialization issue, we should never be here"
         when monotonic_seconds - @last_accessed < 120 # 2 minutes
           return true
         else
-          res = exec("echo", timeout: 30, liveness: true)
-          if res[:success]
-            @last_accessed = monotonic_seconds
-            return true
-          else
-            return false
-          end
+          return do_verify
+        end
+      end
+
+      private def do_verify
+        res = exec("echo", timeout: 30, liveness: true)
+        if res[:success]
+          @last_accessed = monotonic_seconds
+          return true
+        else
+          return false
         end
       end
 
@@ -231,7 +246,7 @@ module CucuShift
               opts[:timeout] == 0 ||
               monotonic_seconds - wait_since < opts[:timeout]
           break unless channel.active?
-          # break unless active_verified? # useless with keepalive
+          # break unless active_recently_verified? # useless with keepalive
           sleep 1
         end
         if channel.active?

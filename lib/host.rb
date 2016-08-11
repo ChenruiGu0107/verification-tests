@@ -309,6 +309,36 @@ module CucuShift
     def to_s
       return self[:user] + '@' + hostname
     end
+
+    # @return [Integer] seconds since host has been started
+    def uptime
+      raise "#{__method__} method not implemented"
+      # `awk -F . '{print $1}' /proc/uptime`
+    end
+
+    # @return [Time] host local time
+    def time
+      raise "#{__method__} method not implemented"
+    end
+
+    def reboot
+      raise "#{__method__} method not implemented"
+    end
+
+    def reboot_checked(timeout:)
+      before_reboot = time
+      reboot
+      sleep 30 # let machine enough time to actually reboot
+      if wait_to_become_accessible(timeout)[:success]
+        if before_reboot < time - uptime
+          return nil
+        else
+          raise "#{self} does not appear to have actually rebooted"
+        end
+      else
+        raise "#{self} did not become available within #{timeout} seconds"
+      end
+    end
   end
 
   class LinuxLikeHost < Host
@@ -568,7 +598,7 @@ module CucuShift
         response: ""
       }
       res[:instruction] = "ssh #{self.inspect}"
-      res[:success] = !!ssh # getting ssh means connection is checked
+      res[:success] = connected?(verify: :force) || !!ssh
     rescue => e
       res[:error] = e
       res[:response] = exception_to_string(e)
