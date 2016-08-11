@@ -1524,3 +1524,121 @@ Feature: deployment related features
     And the expression should be true> @result[:parsed]['metadata']['generation'] - cb.prev_generation == 1 
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] - cb.prev_observed_generation == 1
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] >= @result[:parsed]['metadata']['generation']
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 533160
+  Scenario: Support endpoints of Deployment in OpenShift
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/extensions/deployment.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | deployment |
+    Then the step should succeed
+    And the output should contain:
+      | hello-openshift |
+    When I run the :patch client command with:
+      | resource      | deployment |
+      | resource_name | hello-openshift |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","ports":[{"containerPort":80}]}]}}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | template      | {{(index (index .spec.template.spec.containers 0).ports 1).containerPort }} |
+    Then the step should succeed
+    And the output should match "^80$"
+    When I run the :get client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | template      | {{.metadata.annotations}} |
+    Then the step should succeed
+    And the output should contain:
+      | deployment.kubernetes.io/revision:2 |
+    When I run the :delete client command with:
+      | object_type | deployment |
+      | object_name_or_id | hello-openshift |
+    Then the step should succeed
+    Given 30 seconds have passed
+    When I get project pods
+    Then the step should succeed
+    And the output should not contain "Terminating"
+    And the output should not contain "Running"
+    When I get project rs
+    Then the step should succeed
+    And the output should not contain "hello-openshift.*"
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 533161
+  Scenario: Support verbs of Deployment in OpenShift
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/extensions/deployment.yaml |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource| deployment |
+      | name | hello-openshift |
+      | replicas | 5 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deployment |
+      | resource_name | hello-openshift |
+      | template      | {{.spec.replicas}} |
+    Then the output should match "5"
+    When I run the :scale client command with:
+      | resource| deployment |
+      | name | hello-openshift |
+      | replicas | 2 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deployment |
+      | resource_name | hello-openshift |
+      | template      | {{.spec.replicas}} |
+    Then the output should match "2"
+    When I run the :rollout_pause client command with:
+      | resource      | deployment |
+      | name | hello-openshift |
+    Then the step should succeed
+    When I run the :set_env client command with:
+      | resource | deployment/hello-openshift |
+      | e        | key=value     |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource  | deployment  |
+      | resource_name | hello-openshift |
+      |  o        | yaml |
+    And the expression should be true> @result[:parsed]['metadata']['annotations']['deployment.kubernetes.io/revision'] == "1"
+    And the expression should be true> @result[:parsed]['spec']['paused'] == true
+    And the expression should be true> @result[:parsed]['spec']['template']['spec']['containers'][0]['env'].include?({"name"=>"key", "value"=>"value"})
+    When I run the :env client command with:
+      | resource | pods |
+      | all      | true |
+      | list     | true |
+    And the output should not contain:
+      | key=value      |
+    When I run the :rollout_resume client command with:
+      | resource      | deployment |
+      | name | hello-openshift |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | template      | {{.metadata.annotations}} |
+    Then the step should succeed
+    And the output should contain:
+      | deployment.kubernetes.io/revision:2 |
+    When I run the :env client command with:
+      | resource | pods |
+      | all      | true |
+      | list     | true |
+    And the output should contain:
+      | key=value      |
+    When I run the :get client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | template      | {{.metadata.annotations}} |
+    Then the step should succeed
+    And the output should contain:
+      | deployment.kubernetes.io/revision:2 |

@@ -513,6 +513,14 @@
     :output: --output=<value>
     :template: --template=<value>
     :to_version: --to-version=<value>
+:rollout_pause:
+  :cmd: oc rollout pause <resource> <name>
+  :options:
+    :f: -f <value>
+:rollout_resume:
+  :cmd: oc rollout resume <resource> <name>
+  :options:
+    :f: -f <value>
 :rollout_undo:
   :cmd: oc rollout undo <resource>
   :options:
