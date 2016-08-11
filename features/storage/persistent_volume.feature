@@ -1,50 +1,43 @@
 Feature: Persistent Volume Claim binding policies
 
   # @author jhou@redhat.com
-  # @case_id 510615
+  # @author wehe@redhat.com
+  # @author chaoyang@redhat.com
+  # @author lxia@redhat.com
+  # @case_id 510615 501012 501013
   @admin
   @destructive
-  Scenario: PVC with accessMode RWO could bound PV with accessMode RWO
+  Scenario Outline: PVC with one accessMode can bind PV with all accessMode
     # Preparations
     Given I have a project
 
     # Create 2 PVs
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-all-access-modes.json" where:
+    # Create PV with all accessMode
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-all-access-modes.json" where:
       | ["metadata"]["name"] | nfs-<%= project.name %> |
-    And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-rox-rwx.json" where:
-      | ["metadata"]["name"] | nfs1-<%= project.name %> |
+    Then the step should succeed
+    # Create PV without accessMode3
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
+      | ["metadata"]["name"]       | nfs1-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | <accessMode1>            |
+      | ["spec"]["accessModes"][1] | <accessMode2>            |
+    Then the step should succeed
 
-    # Create 1 PVC
-    And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
+    # Create PVC with accessMode3
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["spec"]["accessModes"][0] | <accessMode3> |
+    Then the step should succeed
 
-    # First PV can bound because it has RWO
+    # First PV can bound
     And the "nfsc" PVC becomes bound to the "nfs-<%= project.name %>" PV
-    # Second PV can not bound because it does not have RWO
+    # Second PV can not bound
     And the "nfs1-<%= project.name %>" PV status is :available
 
-  # @author jhou@redhat.com
-  # @case_id 510616
-  @admin
-  @destructive
-  Scenario: PVC with accessMode RWX could bound PV with accessMode RWX
-    # Preparations
-    Given I have a project
-
-    # Create 2 PVs
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-all-access-modes.json" where:
-      | ["metadata"]["name"] | nfs-<%= project.name %> |
-    And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template-rwo-rox.json" where:
-      | ["metadata"]["name"] | nfs1-<%= project.name %> |
-
-    # Create 1 PVC
-    And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json |
-
-    # First PV can bound because it has RWX
-    And the "nfsc" PVC becomes bound to the "nfs-<%= project.name %>" PV
-    # Second PV can not bound because it does not have RWX
-    And the "nfs1-<%= project.name %>" PV status is :available
+    Examples:
+      | accessMode1   | accessMode2   | accessMode3   |
+      | ReadOnlyMany  | ReadWriteMany | ReadWriteOnce |
+      | ReadOnlyMany  | ReadWriteOnce | ReadWriteMany |
+      | ReadWriteMany | ReadWriteOnce | ReadOnlyMany  |
 
   # @author yinzhou@redhat.com
   # @case_id 510610
@@ -200,74 +193,6 @@ Feature: Persistent Volume Claim binding policies
       | resource_name | nfs-<%= project.name %> |
     Then the output should not contain:
       | nfsc-<%= project.name %> |
-
-  # @author wehe@redhat.com
-  # @case_id 501013
-  @admin
-  @destructive
-  Scenario: PVCs with accessmode ROX could bound to PV accessmode contains ROX
-    Given I have a project
-    And I have a NFS service in the project
-
-    #Create RWXRWOROX pv
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"]       | nfs-<%= project.name %>          |
-      | ["spec"]["accessModes"][0] | ReadWriteOnce                    |
-      | ["spec"]["accessModes"][1] | ReadWriteMany                    |
-      | ["spec"]["accessModes"][2] | ReadOnlyMany                     |
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
-    Then the step should succeed
-
-    #Create RWXRWO pv
-    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"]       | nfs1-<%= project.name %>         |
-      | ["spec"]["accessModes"][0] | ReadWriteOnce                    |
-      | ["spec"]["accessModes"][1] | ReadWriteMany                    |
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
-    Then the step should succeed
-
-    #Create rox pvc
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json" replacing paths:
-      | ["metadata"]["name"] | pvc-<%= project.name %> |
-    Then the step should succeed
-
-    #To verify the test point
-    And the "pvc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
-    And the "nfs1-<%= project.name %>" PV status is :available
-
-    #Create the pod using the pvc
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
-    Then the step should succeed
-    Given the pod named "nfs" becomes ready
-
-    #Verify the mount path access
-    When I execute on the pod:
-      | touch | /mnt/wehe1 |
-    When I execute on the "nfs-server" pod:
-      | ls | /mnt/data |
-    Then the output should contain:
-      | wehe1 |
-
-  # @author chaoyang@redhat.com
-  # @case_id 501012
-  @admin
-  @destructive
-  Scenario: PV and PVC bound with accessmode rwx
-    Given I have a project
-    And I have a NFS service in the project
-
-    And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
-      | ["metadata"]["name"]       | nfs-<%= project.name %>          |
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0] | ReadWriteOnce                    |
-      | ["spec"]["accessModes"][1] | ReadWriteMany                    |
-      | ["spec"]["accessModes"][2] | ReadOnlyMany                     |
-
-    And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json |
-
-    And the "nfsc" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
   # @author chaoyang@redhat.com
   # @case_id 501014
