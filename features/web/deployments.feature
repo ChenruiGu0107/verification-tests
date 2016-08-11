@@ -11,10 +11,9 @@ Feature: Check deployments function
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
     And evaluation of `"hooks"` is stored in the :dc_name clipboard
-    When I perform the :wait_latest_deployments_to_status web console action with:
+    When I perform the :wait_latest_deployments_to_deployed web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>  |
-      | status_name  | Deployed |
     Then the step should succeed
     # manually trigger deploy after deployments is "Deployed"
     When I perform the :manually_deploy web console action with:
@@ -29,10 +28,9 @@ Feature: Check deployments function
     And I get the "disabled" attribute of the "button" web element:
       | text | Deploy |
     Then the output should contain "true"
-    When I perform the :wait_latest_deployments_to_status web console action with:
+    When I perform the :wait_latest_deployments_to_deployed web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>  |
-      | status_name  | Deployed |
     Then the step should succeed
     # cancel deployments
     When I perform the :manually_deploy web console action with:
@@ -156,10 +154,9 @@ Feature: Check deployments function
       | project_name | <%= project.name %>    |
       | dc_name      | hooks                  |
     Then the step should succeed
-    When I perform the :wait_latest_deployments_to_status web console action with:
+    When I perform the :wait_latest_deployments_to_deployed web console action with:
       | project_name | <%= project.name %>    |
       | dc_name      | hooks                  |
-      | status_name  | Deployed               |
     Then the step should succeed
     When I perform the :check_specific_deploy_selector web console action with:
       | project_name | <%= project.name %>    |

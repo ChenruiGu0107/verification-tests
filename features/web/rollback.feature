@@ -12,20 +12,18 @@ Feature: Deployments rollback features
     Then the step should succeed
     And evaluation of `"hooks"` is stored in the :dc_name clipboard
     # wait to be deployed on web console
-    When I perform the :wait_latest_deployments_to_status web console action with:
+    When I perform the :wait_latest_deployments_to_deployed web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>  |
-      | status_name  | Deployed |
     Then the step should succeed
     # replace deploymentconfig
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
     # wait to be deployed on web console
-    When I perform the :wait_latest_deployments_to_status web console action with:
+    When I perform the :wait_latest_deployments_to_deployed web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>  |
-      | status_name  | Deployed |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | deploymentConfig |
@@ -45,10 +43,9 @@ Feature: Deployments rollback features
     When I run the :<rollback_op> web console action
     Then the step should succeed
     # check latest deployment no is 3
-    When I perform the :wait_latest_deployments_to_status web console action with:
+    When I perform the :wait_latest_deployments_to_deployed web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>  |
-      | status_name  | Deployed |
     Then the step should succeed
     When I perform the :check_latest_deployment_version web console action with:
       | project_name | <%= project.name %> |
