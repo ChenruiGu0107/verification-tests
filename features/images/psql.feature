@@ -163,7 +163,7 @@ Feature: Postgresql images test
 
   # wewang@redhat.com
   # @case_id 508092  519475  529319
-  Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for persistent storage-psql92 and psql94
+  Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for persistent storage
     Given I have a project
     And I download a file from "<file>"
     And I replace lines in "postgresql-persistent-template.json":
@@ -227,9 +227,9 @@ Feature: Postgresql images test
 
     Examples:
       | file | image| new_image | template|
-      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:latest  | postgresql:9.4 | postgresql-persistent-template.json |
-      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:latest  | postgresql:9.2 | postgresql-persistent-template.json |
-      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:latest  | postgresql:9.5 | postgresql-persistent-template.json |
+      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:9.5  | postgresql:9.4 | postgresql-persistent-template.json |
+      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:9.5  | postgresql:9.2 | postgresql-persistent-template.json |
+      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  |                 |                | postgresql-persistent-template.json |
 
   #wewang@redhat.com
   # @case_id 511969
