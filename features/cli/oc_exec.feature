@@ -103,8 +103,8 @@ Feature: containers related features
       | container | hello-openshift |
       | exec_command | ls      |
     Then the step should fail
-    And the output should contain:
-      | error: pod hello-openshift is not running and cannot execute commands; current phase is Pending |
+    And the output should match:
+      | [Ee]rror.*not |
 
   # @author chaoyang@redhat.com
   # @case_id 472858

@@ -67,18 +67,19 @@ fromtemplate_param_form:
 fromtemplate_set_labels:
   elements:
   - selector:
-      name: key
+      xpath: //div[@ng-if="!cannotAdd"]/div[1]/input
+    op: click
+    type: input
+  - selector:
+      xpath: //div[@ng-repeat="entry in entries"]
+  - selector:
+      xpath: //div[@ng-repeat="entry in entries"][count(//input[@placeholder="Name"])-1]/div[1]/input
     op: send_keys <label_key>
     type: input
   - selector:
-      name: value
+      xpath: //div[@ng-repeat="entry in entries"][count(//input[@placeholder="Name"])-1]/div[2]/input
     op: send_keys <label_value>
     type: input
-  - selector:
-      xpath: //a[contains(text(),'Add') and contains(@role, 'button') and not(@disabled)]
-    op: click
-    type: a
-
 clear_param_form:
   elements:
   - selector:

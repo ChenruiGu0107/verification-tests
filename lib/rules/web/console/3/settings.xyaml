@@ -1,4 +1,42 @@
 # --check settings page
+check_general_information:
+  action: goto_projects_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"<project_name>") and text()="<dispaly_name>"]
+    type: a
+  - selector:
+      xpath: //span[text()="<description>"]
+edit_general_information:
+  action: goto_edit_project_page
+  elements:
+  - selector:
+      id: displayName
+    type: input
+    op: clear
+  - selector:
+      id: displayName
+    type: input
+    op: send_keys <display_name>
+  - selector:
+      id: description
+    type: textarea
+    op: set <description>
+save_edit_general_informantion:
+  action: edit_general_information
+  elements:
+  - selector:
+      text: Save
+      type: submit
+    type: button
+    op: click
+cancel_edit_general_informantion:
+  action: edit_general_information
+  elements:
+  - selector:
+      text: Cancel
+    type: a
+    op: click
 check_settings_page:
   action: goto_settings_page
   elements:
@@ -38,54 +76,10 @@ check_project_without_quota_settings:
       text: There are no resource quotas set on this project.
 goto_settings_page:
   url: /console/project/<project_name>/quota
-check_general_information:
-  action: goto_settings_page
-  elements:
-  - selector:
-      text: <project_name>
-  - selector:
-      text: <dispaly_name>
-  - selector:
-      text: <description>
-edit_general_information:
-  action: goto_settings_page
-  elements:
-  - selector:
-      text: Actions
-    type: button
-    op: click
-  - selector:
-      text: Edit
-    type: a
-    op: click
-  - selector:
-      xpath: //input[@id='settings_display_name']
-    type: input
-    op: clear
-  - selector:
-      xpath: //input[@id='settings_display_name']
-    type: input
-    op: send_keys <display_name>
-  - selector:
-      xpath: //textarea[@id='settings_description']
-    type: textarea
-    op: set <description>
-cancel_edit_general_informantion:
-  action: edit_general_information
-  elements:
-  - selector:
-      text: Cancel
-    type: button
-    op: click
-save_edit_general_informantion:
-  action: edit_general_information
-  elements:
-  - selector:
-      text: Save
-    type: button
-    op: click
 check_quota_scope_type:
   action: goto_settings_page
   elements:
   - selector:
       xpath: //div[@class="ng-binding ng-scope" and contains(text(),'<scope_type>')]
+goto_edit_project_page:
+  url: /console/project/<project_name>/edit
