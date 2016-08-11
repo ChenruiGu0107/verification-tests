@@ -189,3 +189,99 @@ Feature: SDN related networking scenarios
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep node.go |
     Then the step should succeed
     And the output should contain "Using userspace Proxier"
+
+  # @author bmeng@redhat.com
+  # @case_id 528505
+  @admin
+  @destructive
+  Scenario: iptables rules will be repaired automatically once it gets destroyed
+    Given I select a random node's host
+    And the node iptables config is verified
+    And the node service is restarted on the host after scenario
+    When I run commands on the host:
+      | iptables -D INPUT -p udp -m multiport --dport 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
+      | iptables -D INPUT -i tun0 -m comment --comment "traffic from docker for internet" -j ACCEPT |
+      | iptables -D FORWARD -s <%= cb.clusternetwork %> -j ACCEPT |
+      | iptables -D FORWARD -d <%= cb.clusternetwork %> -j ACCEPT |
+      | iptables -t nat -D POSTROUTING -s <%= cb.clusternetwork %> ! -d <%= cb.clusternetwork %> -j MASQUERADE |
+    Then the step should succeed
+    And I wait up to 35 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "5s ago" \| grep node_iptables.go |
+    Then the output should contain "Syncing openshift iptables rules"
+    And the output should contain "syncIPTableRules took"
+    """
+    When I run commands on the host:
+      | iptables -S -t filter |
+    Then the output should contain:
+      | INPUT -i tun0 -m comment --comment "traffic from docker for internet" -j ACCEPT |
+      | INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
+      | FORWARD -s <%= cb.clusternetwork %> -j ACCEPT |
+      | FORWARD -d <%= cb.clusternetwork %> -j ACCEPT |
+    When I run commands on the host:
+      | iptables -S -t nat |
+    Then the output should contain:
+      | POSTROUTING -s <%= cb.clusternetwork %> ! -d <%= cb.clusternetwork %> -j MASQUERADE |
+
+  # @author bmeng@redhat.com
+  # @case_id 528506
+  @admin
+  @destructive
+  Scenario: iptablesSyncPeriod should be configurable
+    Given I select a random node's host
+    When I run commands on the host:
+      | grep iptablesSyncPeriod /etc/origin/node/node-config.yaml |
+    Then the output should match ".*30s"
+    Given the node iptables config is verified
+    And the node service is restarted on the host after scenario
+    And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
+    When I run commands on the host:
+      | sed -i 's/iptablesSyncPeriod:.*/iptablesSyncPeriod: "10s"/g' /etc/origin/node/node-config.yaml |
+    Then the step should succeed
+    Given the node service is restarted on the host
+    When I run commands on the host:
+      | iptables -D INPUT -p udp -m multiport --dport 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
+    Then the step should succeed
+    And I wait up to 15 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "5s ago" \| grep node_iptables.go |
+    Then the output should contain "Syncing openshift iptables rules"
+    And the output should contain "syncIPTableRules took"
+    """
+    When I run commands on the host:
+      | iptables -S -t filter |
+    Then the output should contain:
+      | INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
+
+  # @author bmeng@redhat.com
+  # @case_id 528507
+  @admin
+  @destructive
+  Scenario: k8s iptables sync loop and openshift iptables sync loop should work together
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | svc |
+      | resource_name | service-unsecure |
+      | template | {{.spec.clusterIP}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :service_ip clipboard
+    Given I select a random node's host
+    And the node iptables config is verified
+    And the node service is restarted on the host after scenario
+    When I run commands on the host:
+      | iptables -t nat -D POSTROUTING -s <%= cb.clusternetwork %> ! -d <%= cb.clusternetwork %> -j MASQUERADE |
+      | iptables -t filter -D OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES |
+      | iptables -t nat -S \| grep <%= cb.service_ip %> \| cut -d ' ' -f2- \| xargs -L1 iptables -t nat -D |
+    Then the step should succeed
+    And I wait up to 40 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | iptables -S -t nat |
+    Then the output should match:
+      | KUBE-SERVICES -d <%= cb.service_ip %>/32 -p tcp -m comment --comment ".*/service-unsecure:http cluster IP" -m tcp --dport 27017 |
+    """
