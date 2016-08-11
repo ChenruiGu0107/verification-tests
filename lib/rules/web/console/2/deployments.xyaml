@@ -9,6 +9,12 @@ wait_latest_deployments_to_status:
     selector:
       xpath: (//td[@data-title="Deployment"]/following-sibling::td[@data-title="Status"])[1][contains(.,'<status_name>')]
     timeout: 600
+wait_latest_deployments_to_deployed:
+  action: goto_one_dc_page
+  element:
+    selector:
+      xpath: (//td[@data-title="Deployment"]/following-sibling::td[@data-title="Status"])[1][contains(.,Deployed)]
+    timeout: 600
 manually_deploy:
   action: goto_one_dc_page
   elements:
