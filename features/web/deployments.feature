@@ -183,7 +183,6 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
       | pod_name     | mytest-1-deploy |
       | status       | Running |
-      | log_context  | Scaling |
     Then the step should succeed
 
     And I wait until the status of deployment "mytest" becomes :complete
@@ -193,24 +192,20 @@ Feature: Check deployments function
     Then the step should succeed
 
     # Check deployment log
-    When I perform the :check_log_context_on_deployment_page web console action with:
+    When I perform the :check_log_context_on_running_deployment_page web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | mytest    |
       | dc_number    | 2         |
-      | status       | Running   |
-      | log_context  | Scaling |
     Then the step should succeed
 
     And I wait until the status of deployment "mytest" becomes :complete
     Given 1 pods become ready with labels:
       | run=mytest |
 
-    When I perform the :check_log_context_on_deployment_page web console action with:
+    When I perform the :check_log_context_on_deployed_deployment_page web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | mytest    |
       | dc_number    | 2         |
-      | status       | Deployed |
-      | log_context  | PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER |
     Then the step should succeed
 
     When I run the :follow_log web console action
