@@ -4,15 +4,13 @@ Feature: job.feature
   # @case_id 511597
   Scenario: Create job with multiple completions
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc511597/job.yaml"
     When I run the :create client command with:
-      | f | job.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc511597/job.yaml |
     Then the step should succeed
     Given 5 pods become ready with labels:
       | app=pi |
-    When I run the :get client command with:
-      | resource | pods |
-      | l | app=pi |
+    When I get project pods with labels:
+      | app=pi |
     Then the step should succeed
     And the output should contain 5 times:
       |  pi- |
@@ -30,24 +28,18 @@ Feature: job.feature
     Then the step should succeed
     Given all existing pods die with labels:
       | app=pi |
-    When I run the :get client command with:
-      | resource | pods |
-      | l | app=pi |
+    When I get project pods with labels:
+      | app=pi |
     Then the step should succeed
     And the output should not contain "pi-"
-    Given I replace lines in "job.yaml":
-      | completions: 5 | completions: -1 |
-    When I run the :create client command with:
-      | f | job.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc511597/job.yaml" replacing paths:
+      | ["spec"]["completions"] | -1 |
     Then the step should fail
     And the output should contain "must be greater than or equal to 0"
-    Given I replace lines in "job.yaml":
-      | completions: -1 | completions: 0.1 |
-    When I run the :create client command with:
-      | f | job.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc511597/job.yaml" replacing paths:
+      | ["spec"]["completions"] | 0.1 |
     Then the step should fail
     And the output should contain "fractional integer"
-
 
   # @author chezhang@redhat.com
   # @case_id 511600
@@ -56,16 +48,14 @@ Feature: job.feature
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | pods   |
+    When I get project pods
     Then the output should contain 5 times:
       | pi-      |
     Given status becomes :succeeded of exactly 5 pods labeled:
       | app=pi   |
     Then the step should succeed
     And I wait until job "pi" completes
-    When I run the :get client command with:
-      | resource | jobs   |
+    When I get project jobs
     Then the output should match:
       | pi.*5 |
     When I run the :describe client command with:
@@ -81,8 +71,7 @@ Feature: job.feature
       | Pods\\s+Statuses:\\s+0\\s+Running.*5\\s+Succeeded.*0\\s+Failed  |
     And the output should contain 5 times:
       | SuccessfulCreate  |
-    When I run the :get client command with:
-      | resource | pods   |
+    When I get project pods
     Then the output should contain 5 times:
       | Completed         |
     When I run the :logs client command with:
@@ -91,24 +80,19 @@ Feature: job.feature
     And the output should contain:
       |  3.14159265       |
 
-
-    # @author qwang@redhat.com
-    # @case_id 511598
-    Scenario: Create job with pod parallelism
+  # @author qwang@redhat.com
+  # @case_id 511598
+  Scenario: Create job with pod parallelism
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml"
-    And I replace lines in "job_with_0_activeDeadlineSeconds.yaml":
-      | parallelism: 1 | parallelism: 5 |
-      | completions: 1 | completions: null |
-      | activeDeadlineSeconds: 0 | activeDeadlineSeconds: null |
-    When I run the :create client command with:
-      | f | job_with_0_activeDeadlineSeconds.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
+      | ["spec"]["parallelism"]           | 5    |
+      | ["spec"]["completions"]           | null |
+      | ["spec"]["activeDeadlineSeconds"] | null |
     Then the step should succeed
     Given 5 pods become ready with labels:
       | app=pi |
-    When I run the :get client command with:
-      | resource | pods   |
-      | l        | app=pi |
+    When I get project pods with labels:
+      | app=pi |
     Then the output should contain 5 times:
       |  zero- |
     # Check job-pod log
@@ -125,44 +109,40 @@ Feature: job.feature
     Then the step should succeed
     Given all existing pods die with labels:
       | app=pi |
-    When I run the :get client command with:
-      | resource | pods   |
-      | l        | app=pi |
+    When I get project pods with labels:
+      | app=pi |
     Then the output should not contain "zero-"
     # Create a job with invalid completions valuse
-    Given I replace lines in "job_with_0_activeDeadlineSeconds.yaml":
-      | parallelism: 5 | parallelism: -1 |
-    When I run the :create client command with:
-      | f | job_with_0_activeDeadlineSeconds.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
+      | ["spec"]["parallelism"]           | -1   |
+      | ["spec"]["completions"]           | null |
+      | ["spec"]["activeDeadlineSeconds"] | null |
     Then the step should fail
     And the output should contain:
       | spec.parallelism |
       | must be greater than or equal to 0 |
-    Given I replace lines in "job_with_0_activeDeadlineSeconds.yaml":
-      | parallelism: -1 | parallelism: 0.1 |
-    When I run the :create client command with:
-      | f | job_with_0_activeDeadlineSeconds.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
+      | ["spec"]["parallelism"]           | 0.1  |
+      | ["spec"]["completions"]           | null |
+      | ["spec"]["activeDeadlineSeconds"] | null |
     Then the step should fail
     And the output should contain "fractional integer"
     # Create a job with both "parallelism" < "completions"
     Given all existing pods die with labels:
       | app=pi |
-    And I replace lines in "job_with_0_activeDeadlineSeconds.yaml":
-      | parallelism: 0.1  | parallelism: 3 |
-      | completions: null | completions: 5 |
-    When I run the :create client command with:
-      | f | job_with_0_activeDeadlineSeconds.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
+      | ["spec"]["parallelism"]           | 3    |
+      | ["spec"]["completions"]           | 5    |
+      | ["spec"]["activeDeadlineSeconds"] | null |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | pods   |
-      | l        | app=pi |
+    When I get project pods with labels:
+      | app=pi |
     Then the output should contain 3 times:
       |  zero- |
     Given 5 pods become ready with labels:
       | app=pi |
-    When I run the :get client command with:
-      | resource | pods   |
-      | l        | app=pi |
+    When I get project pods with labels:
+      | app=pi |
     Then the output should contain 5 times:
       |  zero- |
     # Create a job with both "parallelism" > "completions"
@@ -172,65 +152,56 @@ Feature: job.feature
     Then the step should succeed
     Given all existing pods die with labels:
       | app=pi |
-    And I replace lines in "job_with_0_activeDeadlineSeconds.yaml":
-      | parallelism: 3 | parallelism: 5 |
-      | completions: 5 | completions: 3 |
-    When I run the :create client command with:
-      | f | job_with_0_activeDeadlineSeconds.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
+      | ["spec"]["parallelism"]           | 5    |
+      | ["spec"]["completions"]           | 3    |
+      | ["spec"]["activeDeadlineSeconds"] | null |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | pods   |
-      | l        | app=pi |
+    When I get project pods with labels:
+      | app=pi |
     Then the output should contain 3 times:
       |  zero- |
     Given 3 pods become ready with labels:
       | app=pi |
-    When I run the :get client command with:
-      | resource | pods   |
-      | l        | app=pi |
+    When I get project pods with labels:
+      | app=pi |
     Then the output should contain 3 times:
       |  zero- |
-
 
   # @author qwang@redhat.com
   # @case_id 522411
   Scenario: Create job with activeDeadlineSeconds
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/mdshuai/testfile-openshift/master/job/job-runonce.yaml"
     When I run the :create client command with:
-      | f | job-runonce.yaml |
+      | f | https://raw.githubusercontent.com/mdshuai/testfile-openshift/master/job/job-runonce.yaml |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | job                 |
-      | n        | <%= project.name %> |
+    When I get project job
     Then the output should match:
       | pi-runonce\\s+2\\s+0 |
+    And I wait up to 120 seconds for the steps to pass:
+    """
     When I run the :describe client command with:
       | resource | job        |
       | name     | pi-runonce |
     Then the output should contain "DeadlineExceeded"
-
+    """
 
   # @author qwang@redhat.com
   # @case_id 525131
   Scenario: Specifying your own pod selector for job
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job-manualselector.yaml"
     When I run the :create client command with:
-      | f | job-manualselector.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job-manualselector.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | job |
       | name     | pi  |
     Then the output should contain "controller-uid=64e92bd2-078d-11e6-a269-fa163e15bd57"
-    Given I replace lines in "job-manualselector.yaml":
-      | manualSelector: true | manualSelector: false |
-    When I run the :create client command with:
-      | f | job-manualselector.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
+      | ["spec"]["manualSelector"] | false |
     Then the step should fail
     And the output should contain:
       | `selector` not auto-generated |
-
 
   # @author qwang@redhat.com
   # @case_id 511596
@@ -251,13 +222,10 @@ Feature: job.feature
       | v | RESTART_POLICY=Never   |
     Then the step should succeed
     And I wait until job "pi-restartpolicy" completes
-    When I run the :get client command with:
-      | resource | pod                 |
-      | n        | <%= project.name %> |
+    When I get project pods
     Then the output should match:
       | Completed\\s+0 |
-    When I run the :get client command with:
-      | resource | job |
+    When I get project job
     Then the output should match:
       | 1\\s+1 |
     # Create job with restartPolicy=OnFailure
@@ -272,13 +240,10 @@ Feature: job.feature
       | v | RESTART_POLICY=OnFailure |
     Then the step should succeed
     And I wait until job "pi-restartpolicy" completes
-    When I run the :get client command with:
-      | resource | pod                 |
-      | n        | <%= project.name %> |
+    When I get project pods
     Then the output should match:
       | Completed\\s+0 |
-    When I run the :get client command with:
-      | resource | job |
+    When I get project job
     Then the output should match:
       | 1\\s+1 |
     # Create job with restartPolicy=Never and make sure the pod never restart even there is error
@@ -296,14 +261,11 @@ Feature: job.feature
     Then the step should succeed
     When I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource | pod                 |
-      | n        | <%= project.name %> |
+    When I get project pods
     Then the output should match:
       | (Err)?ImagePull(BackOff)?\\s+0 |
     """
-    When I run the :get client command with:
-      | resource | job |
+    When I get project job
     Then the output should match:
       | 1\\s+0 |
     # Create job with restartPolicy=OnFailure and make sure the pod is restared when error
@@ -322,14 +284,11 @@ Feature: job.feature
     Then the step should succeed
     When I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource | pod                 |
-      | n        | <%= project.name %> |
+    When I get project pods
     Then the output should match:
       | CrashLoopBackOff\\s+[1-9][0-9]*? |
     """
-    When I run the :get client command with:
-      | resource | job |
+    When I get project job
     Then the output should match:
       | 1\\s+0 |
     # Create job with restartPolicy=Always
