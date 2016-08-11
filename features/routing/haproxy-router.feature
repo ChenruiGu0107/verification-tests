@@ -1360,3 +1360,14 @@ Feature: Testing haproxy router
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
+
+  # @author bmeng@redhat.com
+  # @case_id 520312
+  @admin
+  Scenario: Unable to create router with host networking mode when mapping ports are different
+    When I run the :oadm_router admin command with:
+      | name | router-test |
+      | host_network | true |
+      | ports | 1080:1081,10443:10444 |
+    Then the step should fail
+    And the output should contain "must be equal"
