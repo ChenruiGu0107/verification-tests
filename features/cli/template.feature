@@ -50,9 +50,10 @@ Feature: template related scenarios:
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample-tc497538 |
     Then the step should fail
+
+    # Due to bug 1245528, the output is not stable, do fuzzy check about the info for now.
     And the output should contain:
-      | error: unable to find object fields on reflect.Value |
-      | Kind:"FailedService" |
+      | error |
 
   # @author akostadi@redhat.com
   # @case_id 476351
