@@ -69,150 +69,85 @@ Feature: Persistent Volume Claim binding policies
     """
 
   # @author wehe@redhat.com
+  # @author chaoyang@redhat.com
   # @case_id 522131
   @admin
   @destructive
-  Scenario: PVCs with size more than PV or access mode not supported by existing PV and expect pending
+  Scenario: PV can not bind PVC which request more storage and mismatched accessMode
     Given I have a project
-    And I have a NFS service in the project
-
-    #Create PV by using create admin method to avoid the second time delete at pv.rb
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json"
-    And I replace lines in "pv-template.json":
-      | #NFS-Service-IP# | <%= service.ip %> |
-    When admin creates a PV from "pv-template.json" where:
-      | ["metadata"]["name"] | nfs-<%= project.name %> |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]       | pv-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadOnlyMany           |
     Then the step should succeed
-
-    #Create a bigger size pvc
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json"
-    And I replace lines in "claim-rwx.json":
-      | nfsc | nfsc-<%= project.name %> |
-      | 5Gi  | 10Gi                     |
-    And I run the :create client command with:
-      | f | claim-rwx.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadOnlyMany             |
+      | ["spec"]["resources"]["requests"]["storage"] | 10Gi                     |
     Then the step should succeed
-
-    #Tricky method here, to avoid conflicting with other pv/pvc
-    When I run the :get admin command with:
-      | resource      | pv             |
-      | resource_name | <%= pv.name %> |
-    Then the output should not contain:
-      | nfsc-<%= project.name %> |
-    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
-
-    #Create unmatched pvc of rox
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json"
-    And I replace lines in "claim-rox.json":
-      | nfsc | nfsc-<%= project.name %> |
-    And I run the :create client command with:
-      | f | claim-rox.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]       | pvc2-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
     Then the step should succeed
-
-    #Verify the pv does not bind the pvc I created
-    When I run the :get admin command with:
-      | resource      | pv             |
-      | resource_name | <%= pv.name %> |
-    Then the output should not contain:
-      | nfsc-<%= project.name %> |
-    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
-
-    #Create rwo pvc
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json"
-    And I replace lines in "claim-rwo.json":
-      | nfsc | nfsc-<%= project.name %> |
-    And I run the :create client command with:
-      | f | claim-rwo.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]       | pvc3-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadWriteMany            |
     Then the step should succeed
+    And the "pvc1-<%= project.name %>" PVC becomes :pending
+    And the "pvc2-<%= project.name %>" PVC becomes :pending
+    And the "pvc3-<%= project.name %>" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
+    Given I ensure "pvc1-<%= project.name %>" pvc is deleted
+    And I ensure "pvc2-<%= project.name %>" pvc is deleted
+    And I ensure "pvc3-<%= project.name %>" pvc is deleted
+    And admin ensures "pv-<%= project.name %>" pv is deleted
 
-    #Verify unbound here
-    When I run the :get admin command with:
-      | resource      | pv             |
-      | resource_name | <%= pv.name %> |
-    Then the output should not contain:
-      | nfsc-<%= project.name %> |
-    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
-
-    #Delete the pv by myself
-    Given admin ensures "<%= pv.name %>" pv is deleted
-
-    #Replace the access mode to RWO and then create pv
-    And I replace lines in "pv-template.json":
-      | ReadWriteMany | ReadWriteOnce |
-    When admin creates a PV from "pv-template.json" where:
-      | ["metadata"]["name"] | nfs-<%= project.name %> |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]       | pv-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce          |
     Then the step should succeed
-
-    #Create rwx pvc
-    And I run the :create client command with:
-      | f | claim-rwx.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
+      | ["spec"]["resources"]["requests"]["storage"] | 10Gi                     |
     Then the step should succeed
-    When I run the :get admin command with:
-      | resource      | pv             |
-      | resource_name | <%= pv.name %> |
-    Then the output should not contain:
-      | nfsc-<%= project.name %> |
-    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
-
-    #Create rox pvc
-    And I run the :create client command with:
-      | f | claim-rox.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]       | pvc2-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadOnlyMany             |
     Then the step should succeed
-    When I run the :get admin command with:
-      | resource      | pv             |
-      | resource_name | <%= pv.name %> |
-    Then the output should not contain:
-      | nfsc-<%= project.name %> |
-    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
-
-    #Delete pv and recreate the pv with ROX with the method in pv.rb to delete the pv at the clean up step
-    Given admin ensures "<%= pv.name %>" pv is deleted
-    And I replace lines in "pv-template.json":
-      | ReadWriteOnce | ReadOnlyMany |
-    When admin creates a PV from "pv-template.json" where:
-      | ["metadata"]["name"] | nfs-<%= project.name %> |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]       | pvc3-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadWriteMany            |
     Then the step should succeed
+    And the "pvc1-<%= project.name %>" PVC becomes :pending
+    And the "pvc2-<%= project.name %>" PVC becomes :pending
+    And the "pvc3-<%= project.name %>" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
+    Given I ensure "pvc1-<%= project.name %>" pvc is deleted
+    And I ensure "pvc2-<%= project.name %>" pvc is deleted
+    And I ensure "pvc3-<%= project.name %>" pvc is deleted
+    And admin ensures "pv-<%= project.name %>" pv is deleted
 
-    #Create rwx pvc
-    And I run the :create client command with:
-      | f | claim-rwx.json |
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]       | pv-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadWriteMany          |
     Then the step should succeed
-    When I run the :get admin command with:
-      | resource      | pv                      |
-      | resource_name | nfs-<%= project.name %> |
-    Then the output should not contain:
-      | nfsc-<%= project.name %> |
-    Given I ensure "nfsc-<%= project.name %>" pvc is deleted
-
-    #Create rwo pvc
-    And I run the :create client command with:
-      | f | claim-rwo.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteMany            |
+      | ["spec"]["resources"]["requests"]["storage"] | 10Gi                     |
     Then the step should succeed
-    When I run the :get admin command with:
-      | resource      | pv                      |
-      | resource_name | nfs-<%= project.name %> |
-    Then the output should not contain:
-      | nfsc-<%= project.name %> |
-
-  # @author chaoyang@redhat.com
-  # @case_id 501014
-  @admin
-  @destructive
-  Scenario: PV and PVC does not bound due to mismatched accessmode
-    Given I have a project
-    And I have a NFS service in the project
-
-    And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
-      | ["metadata"]["name"]       | nfs-<%= project.name %>          |
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0] | ReadWriteMany                    |
-      | ["spec"]["accessModes"][1] | ReadOnlyMany                     |
-
-    And I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
-
-    And the "nfsc" PVC becomes :pending
-    And the "nfs-<%= project.name %>" PV status is :available
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]       | pvc2-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]       | pvc3-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadOnlyMany             |
+    Then the step should succeed
+    And the "pvc1-<%= project.name %>" PVC becomes :pending
+    And the "pvc2-<%= project.name %>" PVC becomes :pending
+    And the "pvc3-<%= project.name %>" PVC becomes :pending
+    And the "pv-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
   # @case_id 522215
