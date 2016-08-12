@@ -11,7 +11,7 @@ Feature: create app on web console related
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
     Then the step should succeed
-    When I perform the :create_app_from_template web console action with:
+    When I perform the :create_app_from_template_with_label web console action with:
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
@@ -60,7 +60,7 @@ Feature: create app on web console related
     Then the step should succeed
     Given I replace resource "template" named "ruby-helloworld-sample" saving edit to "tempsti.json":
       | Service | Test |
-    When I perform the :create_app_from_template web console action with:
+    When I perform the :create_app_from_template_without_label web console action with:
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
@@ -69,8 +69,6 @@ Feature: create app on web console related
       | param_three   | :null  |
       | param_four    | :null  |
       | param_five    | :null  |
-      | label_key     | label1 |
-      | label_value   | test   |
     Then the step should fail
     When I get the html of the web page
     Then the output should contain 3 times:
@@ -117,7 +115,7 @@ Feature: create app on web console related
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
-    When I perform the :create_app_from_template web console action with:
+    When I perform the :create_app_from_template_with_label web console action with:
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
@@ -234,7 +232,7 @@ Feature: create app on web console related
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
 
-    When I perform the :create_app_from_template web console action with:
+    When I perform the :create_app_from_template_without_label web console action with:
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
@@ -243,8 +241,6 @@ Feature: create app on web console related
       | param_three   | :null  |
       | param_four    | :null  |
       | param_five    | :null  |
-      | label_key     | label1 |
-      | label_value   | test   |
     Then the step should succeed
 
     When I run the :env client command with:
@@ -334,7 +330,7 @@ Feature: create app on web console related
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc515804/application-template-stibuild.json |
     Then the step should succeed
-    When I perform the :create_app_from_template web console action with:
+    When I perform the :create_app_from_template_without_label web console action with:
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
@@ -343,8 +339,6 @@ Feature: create app on web console related
       | param_three   | :null  |
       | param_four    | :null  |
       | param_five    | :null  |
-      | label_key     | label1 |
-      | label_value   | test   |
     Then the step should fail
     When I get the html of the web page
     Then the output should match:
@@ -358,7 +352,7 @@ Feature: create app on web console related
     And I run oc create with "application-template-stibuild.json" replacing paths:
       | ["objects"][0]["apiVersion"] | fake/v1          |
     Then the step should succeed
-    When I perform the :create_app_from_template web console action with:
+    When I perform the :create_app_from_template_without_label web console action with:
       | project_name  | <%= project.name %>    |
       | template_name | ruby-helloworld-sample |
       | namespace     | <%= project.name %>    |
@@ -367,8 +361,6 @@ Feature: create app on web console related
       | param_three   | :null  |
       | param_four    | :null  |
       | param_five    | :null  |
-      | label_key     | label1 |
-      | label_value   | test   |
     Then the step should fail
     When I get the html of the web page
     Then the output should match:
@@ -436,7 +428,7 @@ Feature: create app on web console related
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/test-api.yaml |
     Then the step should succeed
-    When I perform the :create_app_from_template web console action with:
+    When I perform the :create_app_from_template_without_label web console action with:
       | project_name  | <%= project.name %>    |
       | template_name | test-api               |
       | namespace     | <%= project.name %>    |
@@ -445,8 +437,6 @@ Feature: create app on web console related
       | param_three   | :null  |
       | param_four    | :null  |
       | param_five    | :null  |
-      | label_key     | label1 |
-      | label_value   | test   |
     Then the step should succeed
     # check resources are created
     When I run the :get client command with:
