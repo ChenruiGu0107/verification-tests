@@ -86,16 +86,6 @@ Feature: oc run related scenarios
     Then the step should have timed out
     And the output should match:
       | [Ww]aiting for pod .*webapp4 to be running       |
-    When I run the :run client command with:
-      | name         | webapp5               |
-      | image        | training/webapp       |
-      | -i           | true                  |
-      | tty          | true                  |
-      | restart      | Never                 |
-      | _timeout     | 15                    |
-    Then the step should have timed out
-    And the output should match:
-      | [Ww]aiting for pod .*webapp5 to be running       |
 
   # @author pruan@redhat.com
   # @case_id 510405
