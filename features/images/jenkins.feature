@@ -666,7 +666,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And the output should match:
       | <image>-jenkins-slave |
-    When I perform the :create_app_from_template web console action with:
+    When I perform the :create_app_from_template_without_label web console action with:
       | project_name  | <%= project.name %> |
       | template_name | jenkins-master      |
       | namespace     | <%= project.name %> |
@@ -675,8 +675,6 @@ Feature: jenkins.feature
       | param_three   | :null               |
       | param_four    | :null               |
       | param_five    | :null               |
-      | label_key     | label1              |
-      | label_value   | test                |
     Then the step should succeed
     And the "jenkins-master-1" build was created
     And the "jenkins-master-1" build completed
