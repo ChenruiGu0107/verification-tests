@@ -306,7 +306,7 @@ module CucuShift
         #   would rarely make sense
         raise "what rc are you talking about?"
       else
-        return @rc.last
+        return @rcs.last
       end
     end
 
