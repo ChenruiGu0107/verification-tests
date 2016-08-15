@@ -827,6 +827,7 @@ Feature: Testing haproxy router
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And I store master image version in the clipboard
+    Given environment has at least 2 schedulable nodes
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     Given default router replica count is restored after scenario
