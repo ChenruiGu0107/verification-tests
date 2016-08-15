@@ -211,7 +211,9 @@ module CucuShift
           channel.exec(command) do |ch, success|
             unless success
               res[:success] = false
-              logger.error("could not execute command in ssh channel")
+              err = "could not execute command on #{@host}: #{command}"
+              logger.error(err)
+              res[:error] = RuntimeError.new(err)
               abort
             end
 
@@ -231,6 +233,12 @@ module CucuShift
               exit_signal = data.read_long
             end
 
+            channel.on_open_failed { |ch, code, desc|
+              err = "could not open SSH channel on #{@host}: #{code} #{desc}"
+              logger.error(err)
+              res[:error] = RuntimeError.new(err)
+            }
+
             if opts[:stdin]
               channel.send_data opts[:stdin].to_s
             end
@@ -238,6 +246,7 @@ module CucuShift
             channel.eof!
           end
         end
+
         # launch a processing thread unless such is already running
         loop_thread!
         # wait channel to finish; nil or 0 means no timeout (wait forever)
@@ -245,17 +254,28 @@ module CucuShift
         while opts[:timeout].nil? ||
               opts[:timeout] == 0 ||
               monotonic_seconds - wait_since < opts[:timeout]
-          break unless channel.active?
+          # checking session for https://github.com/net-ssh/net-ssh/issues/425
+          break if channel.connection.closed? || !channel.active?
           # break unless active_recently_verified? # useless with keepalive
           sleep 1
         end
         if channel.active?
-          # looks like we hit the timeout
-          channel.close
-          if opts[:liveness]
-            logger.warn("liveness check failed, may retry @#{@host}: #{command}")
+          if channel.connection.closed?
+            # looks like session closed before channel finished
+            # I don't think liveness probe is likely to end-up here so
+            #   don't perform special handling here for it.
+            err = loop_thread_error
+            # err = "ssh session @#{@host} closed prematurely: #{err.inspect}"
+            res[:error] = err
           else
-            logger.error("ssh channel timeout @#{@host}: #{command}")
+            # looks like we hit command timeout
+            channel.close
+            if opts[:liveness]
+              logger.warn("liveness check failed, may retry @#{@host}: #{command}")
+            else
+              logger.error("ssh channel timeout @#{@host}: #{command}")
+            end
+            res[:error] = CucuShift::TimeoutError.new("ssh channel timeout @#{@host}: #{command}")
           end
         end
         unless opts[:quiet]
@@ -271,9 +291,22 @@ module CucuShift
 
       # launches a new loop/process thread unless we have one already running
       def loop_thread!
+        # should we ever try to replace a dead thread?
         unless @loop_thread && @loop_thread.alive?
           @loop_thread = Thread.new { session.loop }
         end
+      end
+
+      private def loop_thread_error
+        # should we protect agains replacing dead treat before error is read?
+        if @loop_thread && !@loop_thread.alive?
+          begin
+            @loop_thread.join
+          rescue => e
+            return e
+          end
+        end
+        return nil
       end
     end
   end

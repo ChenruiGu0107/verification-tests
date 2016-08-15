@@ -3,6 +3,8 @@ require 'socket'
 # should not require 'common' and any other files from cucushift, base helpers
 #   are fine though
 
+require_relative 'error'
+
 # @note put only very base things here, do not use for configuration settings
 module CucuShift
   # autoload to avoid too much require statements and speed-up load times

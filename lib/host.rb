@@ -307,7 +307,7 @@ module CucuShift
     end
 
     def to_s
-      return self[:user] + '@' + hostname
+      return self[:user].to_s + '@' + hostname
     end
 
     # @return [Integer] seconds since host has been started
@@ -485,6 +485,46 @@ module CucuShift
 
       return res[:response][/(?<=FOUND FILE: ).*(?=$)/]
     end
+
+    # @return [Integer] seconds since host has been started
+    def uptime
+      cmd = "awk -F . '{print $1}' /proc/uptime"
+      res = exec_raw(cmd, timeout: 20)
+      if res[:success]
+        return Integer(res[:response])
+      else
+        raise "failed to get #{self} uptime, see log"
+      end
+    end
+
+    # @return [Time] host local time
+    def time
+      cmd = "date -u +%FT%TZ"
+      # date -u +"%Y-%m-%dT%H:%M:%SZ"
+      res = exec_raw(cmd, timeout: 20)
+      if res[:success]
+        return Time.iso8601(res[:response])
+      else
+        raise "failed to get #{self} current time, see log"
+      end
+    end
+
+    # @return [nil]
+    # @raise [Error] when any error was detected
+    def reboot
+      cmd = 'shutdown -r now "CucuShift triggered reboot"'
+      res = exec_raw(cmd, timeout: 20)
+      if res[:success]
+        return nil
+      else
+        case res[:error]
+        when nil, IOError, CucuShift::TimeoutError
+          return nil
+        else
+          raise "failed to get #{self} current time, see log"
+        end
+      end
+    end
   end
 
   # some pure-ruby method implementations
@@ -591,6 +631,8 @@ module CucuShift
       @ssh && @ssh.active?(verify: verify)
     end
 
+    # unlike #connected?, this method will always issue a test command to verify
+    # remote host is accessible at the moment
     def accessible?
       res = {
         success: false,
