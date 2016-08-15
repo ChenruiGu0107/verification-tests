@@ -7,18 +7,36 @@ check_log_tab_on_pod_page:
   - selector:
       xpath: //div[@class='log-status']//span[@class='ng-binding' and contains(text(),'<status>')]
     timeout: 300
-check_log_tab_on_deployment_page:
+check_log_tab_on_running_deployment_page:
   elements:
   - selector:
       xpath: //uib-tab-heading[text()='Logs']
     op: click
   - selector:
-      xpath: //div[@class='log-status']/span[contains(.,'<status>')]
+      xpath: //div[@class='log-status']/span[contains(.,'Running')]
+    timeout: 300
+check_log_tab_on_deployed_deployment_page:
+  elements:
+  - selector:
+      xpath: //uib-tab-heading[text()='Logs']
+    op: click
+  - selector:
+      xpath: //div[@class='log-status']/span[contains(.,'Deployed')]
     timeout: 300
 check_log_context:
   elements:
   - selector:
       xpath: //tbody[@id='logContent']//td[contains(text(),'<log_context>')]
+    timeout: 180
+check_running_log_context:
+  elements:
+  - selector:
+      xpath: //table//td[contains(text(),'Scaling')]
+    timeout: 180
+check_deployed_log_context:
+  elements:
+  - selector:
+      xpath: //table//td[contains(text(),'PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER')]
     timeout: 180
 check_no_log_info:
   elements:
@@ -62,10 +80,14 @@ go_to_end_log:
 open_full_view_log:
   action: open_in_new_window
   action: check_log_context
-check_log_context_on_deployment_page:
+check_log_context_on_running_deployment_page:
   action: goto_one_deployment_page
-  action: check_log_tab_on_deployment_page
-  action: check_log_context
+  action: check_log_tab_on_running_deployment_page
+  action: check_running_log_context
+check_log_context_on_deployed_deployment_page:
+  action: goto_one_deployment_page
+  action: check_log_tab_on_deployed_deployment_page
+  action: check_deployed_log_context
 check_log_context_on_pod_page:
   action: goto_one_pod_page
   action: check_log_tab_on_pod_page
