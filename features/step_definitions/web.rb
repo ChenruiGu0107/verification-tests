@@ -133,7 +133,7 @@ Given /^I wait(?: (\d+) seconds)? for the title of the web browser to match "(.+
     raise "browser title #{browser.title} did not match #{pattern} within timeout"
   end
 end
-  
+
 
 # @notes used for swithing browser window,e.g. do some action in pop-up window
 # @window_spec is something like,":url=>console\.html"(need escape here,part of url),":title=>some info"(part of title)

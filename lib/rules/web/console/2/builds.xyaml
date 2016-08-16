@@ -75,7 +75,7 @@ check_one_buildconfig_page_with_build_op:
       disabled: disabled
     type: button
 check_one_build_inside_bc_page:
-  # <bc_and_build_name> contains two "/",e.g. bc/build/ 
+  # <bc_and_build_name> contains two "/",e.g. bc/build/
   action: goto_one_build_page
   elements:
   - selector:
@@ -83,7 +83,7 @@ check_one_build_inside_bc_page:
 check_rebuild_button:
   elements:
   - selector:
-      xpath: //button[@disabled="disabled" and text()="Rebuild"] 
+      xpath: //button[@disabled="disabled" and text()="Rebuild"]
 cancel_build_from_pending_status:
   action: check_one_build_inside_bc_page
   elements:
@@ -145,7 +145,7 @@ start_build_base_on_buildconfig:
 wait_latest_build_to_status:
   action: goto_one_buildconfig_page
   element:
-    selector: 
+    selector:
       xpath: //span[@class='latest-build-status']/span[contains(.,'<build_status>')]
     timeout: 600
 check_buildconfig_environment:
@@ -159,7 +159,7 @@ check_empty_buildconfig_environment:
   action: goto_buildconfig_environment_tab
   elements:
   - selector:
-      xpath: //em[contains(.,'had no environment variables')] 
+      xpath: //em[contains(.,'had no environment variables')]
 check_buildconfig_dockerfile_config:
   action: goto_buildconfig_configuration_tab
   elements:
@@ -212,6 +212,12 @@ check_buildconfig_edit_page_loaded_completely:
       xpath: //h3[contains(.,'Environment Variables')]
   - selector:
       xpath: //h3[contains(.,'Triggers')]
+check_buildconfig_page_loaded_completely_after_editing:
+  elements:
+  - selector:
+      xpath: //button[contains(.,'Start Build')]
+  - selector:
+      xpath: //strong[contains(.,'was successfully updated.')]
 add_bc_source_and_destination_paths:
   action: check_buildconfig_edit_page_loaded_completely
   action: choose_image_source_from

@@ -93,7 +93,7 @@ require 'watir-webdriver'
     end
 
     def replace_rules(rulez)
-      @rules = Web4Cucumber.load_rules [rulez] 
+      @rules = Web4Cucumber.load_rules [rulez]
     end
 
     def res_join(master_res, *results)
