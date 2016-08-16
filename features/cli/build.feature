@@ -2426,12 +2426,9 @@ Feature: build 'apps' with CLI
       | build_name | ruby-hello-world-3 |
     Then the step should succeed
     Then the "ruby-hello-world-4" build becomes :running
-    Then the "ruby-hello-world-4" build completes
-    #Then the "ruby-hello-world-5" build becomes :running
     Then the "ruby-hello-world-5" build status is any of:
       | pending |
       | running |
-    #Then the "ruby-hello-world-6" build becomes :running
     Then the "ruby-hello-world-6" build status is any of:
       | pending |
       | running |
@@ -2444,11 +2441,11 @@ Feature: build 'apps' with CLI
       | buildconfig | ruby-hello-world |
     Then the step should succeed
     And the "ruby-hello-world-7" build was created
+    And the "ruby-hello-world-7" build is :new
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
     Then the step should succeed
     And the "ruby-hello-world-8" build was created
-    And the "ruby-hello-world-7" build is :new
     And the "ruby-hello-world-8" build is :new
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-5 |
@@ -2456,10 +2453,7 @@ Feature: build 'apps' with CLI
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-6 |
     Then the step should succeed
-    #And the "ruby-hello-world-7" build becomes :running
-    And the "ruby-hello-world-7" build status is any of:
-      | pending |
-      | running |
+    And the "ruby-hello-world-7" build becomes :running
     Then the "ruby-hello-world-8" build is :new
 
   # @author haowang@redhat.com
