@@ -38,17 +38,16 @@ module CucuShift
       return res[:response].scan(/^os?c v(.+)$/)[0][0]
     end
 
-    # work in progress, we need to see how versionning goes forward;
-    #   hopefully we get stable mapping between ose and origin cli version at
-    #   some point
+    # try to map ocp and origin cli version to a comparable integer value
+    # we may switch to `major.minor` rules versions in the future
     private def rules_version(str_version)
       v = str_version.split('.')
       if v.first == '3' && v[1..2].all? {|e| e =~ /^[0-9]+$/} && v[3]
         # version like v3.0.0.0-32-g3ae1d27, i.e. return version 0
-        return str_version.split('.')[1]
+        return v[1]
       else
         # version like v1.0.2, i.e. return version 0
-        return (Integer(v[0]) - 1).to_s
+        return v[1]
       end
     end
 
