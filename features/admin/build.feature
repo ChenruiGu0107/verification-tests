@@ -12,27 +12,12 @@ Feature: admin build related features
 
     #Generate enough builds for the oadm command to clean
     Given the "ruby-sample-build-1" build was created
+    And I run the steps 7 times:
+    """
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
+    """
 
     When I run the :oadm_prune_builds client command with:
       | h ||
@@ -102,27 +87,12 @@ Feature: admin build related features
 
     #Generate enough builds for the oadm command to clean
     Given the "ruby-sample-build-1" build was created
+    And I run the steps 7 times:
+    """
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
+    """
 
     When I run the :oadm_prune_builds client command with:
       | help ||
