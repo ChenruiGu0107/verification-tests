@@ -1372,3 +1372,18 @@ Feature: Testing haproxy router
       | ports | 1080:1081,10443:10444 |
     Then the step should fail
     And the output should contain "must be equal"
+
+  # @author bmeng@redhat.com
+  # @case_id 532646
+  @admin
+  Scenario: The router pod should have default resource limits
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    When I run the :get client command with:
+      | resource | pod |
+      | l | deploymentconfig=router |
+      | o | yaml |
+    Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['requests'].include?("cpu")
+    Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['requests'].include?("memory")
