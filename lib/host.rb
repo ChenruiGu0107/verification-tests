@@ -307,7 +307,37 @@ module CucuShift
     end
 
     def to_s
-      return self[:user] + '@' + hostname
+      return self[:user].to_s + '@' + hostname
+    end
+
+    # @return [Integer] seconds since host has been started
+    def uptime
+      raise "#{__method__} method not implemented"
+      # `awk -F . '{print $1}' /proc/uptime`
+    end
+
+    # @return [Time] host local time
+    def time
+      raise "#{__method__} method not implemented"
+    end
+
+    def reboot
+      raise "#{__method__} method not implemented"
+    end
+
+    def reboot_checked(timeout:)
+      before_reboot = time
+      reboot
+      sleep 30 # let machine enough time to actually reboot
+      if wait_to_become_accessible(timeout)[:success]
+        if before_reboot < time - uptime
+          return nil
+        else
+          raise "#{self} does not appear to have actually rebooted"
+        end
+      else
+        raise "#{self} did not become available within #{timeout} seconds"
+      end
     end
   end
 
@@ -455,6 +485,46 @@ module CucuShift
 
       return res[:response][/(?<=FOUND FILE: ).*(?=$)/]
     end
+
+    # @return [Integer] seconds since host has been started
+    def uptime
+      cmd = "awk -F . '{print $1}' /proc/uptime"
+      res = exec_raw(cmd, timeout: 20)
+      if res[:success]
+        return Integer(res[:response])
+      else
+        raise "failed to get #{self} uptime, see log"
+      end
+    end
+
+    # @return [Time] host local time
+    def time
+      cmd = "date -u +%FT%TZ"
+      # date -u +"%Y-%m-%dT%H:%M:%SZ"
+      res = exec_raw(cmd, timeout: 20)
+      if res[:success]
+        return Time.iso8601(res[:response])
+      else
+        raise "failed to get #{self} current time, see log"
+      end
+    end
+
+    # @return [nil]
+    # @raise [Error] when any error was detected
+    def reboot
+      cmd = 'shutdown -r now "CucuShift triggered reboot"'
+      res = exec_raw(cmd, timeout: 20)
+      if res[:success]
+        return nil
+      else
+        case res[:error]
+        when nil, IOError, CucuShift::TimeoutError
+          return nil
+        else
+          raise "failed to get #{self} current time, see log"
+        end
+      end
+    end
   end
 
   # some pure-ruby method implementations
@@ -561,6 +631,8 @@ module CucuShift
       @ssh && @ssh.active?(verify: verify)
     end
 
+    # unlike #connected?, this method will always issue a test command to verify
+    # remote host is accessible at the moment
     def accessible?
       res = {
         success: false,
@@ -568,7 +640,7 @@ module CucuShift
         response: ""
       }
       res[:instruction] = "ssh #{self.inspect}"
-      res[:success] = !!ssh # getting ssh means connection is checked
+      res[:success] = connected?(verify: :force) || !!ssh
     rescue => e
       res[:error] = e
       res[:response] = exception_to_string(e)
