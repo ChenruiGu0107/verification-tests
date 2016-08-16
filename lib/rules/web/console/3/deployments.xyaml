@@ -19,7 +19,7 @@ manually_deploy:
   action: goto_one_dc_page
   elements:
   - selector:
-      text: Deploy
+      xpath: //button[contains(text(),"Deploy") and not(@disabled)]
     type: button
     op: click
   - selector:
@@ -32,7 +32,7 @@ cancel_deployments:
     type: button
     op: click
   - selector:
-      xpath: //strong[contains(text(),'Cancelling deployment')]
+      xpath: //span[contains(text(),'Cancelling deployment')]
     timeout: 60
 edit_replicas_on_deployment_page:
   action: goto_one_dc_page
@@ -112,7 +112,7 @@ rollback_none_components:
 click_rollback_button:
   element:
     selector:
-      text: Roll Back
+      xpath: //button[contains(text(),"Roll Back") and not(@disabled)]
     type: button
     op: click
 change_scale_settings:
