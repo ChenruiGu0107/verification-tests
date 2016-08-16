@@ -266,3 +266,8 @@ Given /^the#{OPT_QUOTED} node service is verified$/ do |node_name|
   svc_verify.call
   teardown_add svc_verify
 end
+
+Given /^the host is rebooted and I wait it(?: up to (\d+) seconds) to become available$/ do |timeout|
+  timeout = timeout ? Integer(timeout) : 200
+  @host.reboot_checked(timeout: timeout)
+end
