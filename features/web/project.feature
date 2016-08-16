@@ -102,6 +102,7 @@ Feature: projects related features via web
     Then the output should contain "<%= project.name %>"
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
+      | input_str    | <%= project.name %> |
     Then the step should succeed
     Given I wait for the resource "project" named "<%= project.name %>" to disappear
     When I run the :check_project_list web console action
@@ -115,6 +116,7 @@ Feature: projects related features via web
     Then the step should succeed
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
+      | input_str    | <%= project.name %> |
     Then the step should succeed
     Given I wait for the resource "project" named "<%= project.name %>" to disappear
     When I run the :check_project_list web console action
@@ -130,12 +132,14 @@ Feature: projects related features via web
     Given I switch to the second user
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
+      | input_str    | <%= project.name %> |
     And I get the html of the web page
     Then the output should contain:
       | User "<%= user.name %>" cannot delete projects in project "<%= project.name %>" |
     Given I switch to the third user
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
+      | input_str    | <%= project.name %> |
     And I get the html of the web page
     Then the output should contain:
       | User "<%= user.name %>" cannot delete projects in project "<%= project.name %>" |
@@ -238,3 +242,48 @@ Feature: projects related features via web
       | dispaly_name | projecttestupdate   |
       | description  | testupdate          |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id 528311
+  Scenario: Delete project from web console
+    # delete project with project name on /console page
+    When I create a project via web with:
+      | display_name | testing project one |
+      | description  || 
+    Then the step should succeed
+    When I perform the :type_project_delete_string web console action with:
+      | project_name | testing project one      |
+      | input_str    | <%= rand_str(7, :dns) %> |
+    Then the step should succeed
+    When I run the :check_delete_button_for_project_deletion web console action
+    Then the step should fail
+    When I perform the :delete_project web console action with:
+      | project_name | testing project one |
+      | input_str    | <%= project.name %> |
+    Then the step should succeed
+    Given I wait for the resource "project" named "<%= project.name %>" to disappear
+    When I run the :get client command with:
+      | resource | project |
+    Then the step should succeed
+    And the output should not contain:
+      | testing project one |
+      | <%= project.name %> |
+    # delete project with project display name
+    When I create a project via web with:
+      | display_name | testing project two |
+      | description  || 
+    Then the step should succeed
+    When I perform the :cancel_delete_project web console action with:
+      | project_name | testing project two |
+    Then the step should succeed
+    When I perform the :delete_project web console action with:
+      | project_name | testing project two |
+      | input_str    | testing project two |
+    Then the step should succeed
+    Given I wait for the resource "project" named "<%= project.name %>" to disappear
+    When I run the :get client command with:
+      | resource | project |
+    Then the step should succeed
+    And the output should not contain:
+      | testing project two |
+      | <%= project.name %> |

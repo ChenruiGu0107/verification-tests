@@ -5,6 +5,7 @@ Feature: error page on web console
     Given I have a project
     When I perform the :delete_project web console action with:
       | project_name | <%= project.name %> |
+      | input_str    | <%= project.name %> |
     Then the step should succeed
     When I perform the :goto_overview_page web console action with:
       | project_name | <%= project.name %> |
