@@ -423,7 +423,7 @@ module CucuShift
         elsif scenario_specification[:examples_table]
           # we want a whole examples table to be run
           unless test_case.source.last.class.to_s.end_with?("::Row") &&
-              test_case.source[-2].class.to_s.end_with?("::ExamplesTable")
+              test_case.source[-2].class.to_s =~ /::Examples(Table)?$/
             Kernel.puts("case #{self.case_id} vs #{test_case.location.to_s}; cucumber API changed?")
             return false
           end
@@ -440,7 +440,7 @@ module CucuShift
           scenario_specification[:examples_table].nil?
           # we want a whole outline to be run
           unless test_case.source.last.class.to_s.end_with?("::Row") &&
-              test_case.source[-2].class.to_s.end_with?("::ExamplesTable") &&
+              test_case.source[-2].class.to_s =~ /::Examples(Table)?$/ &&
               test_case.source[-3].class.to_s.end_with?("ScenarioOutline")
             Kernel.puts("case #{self.case_id} vs #{test_case.location.to_s}; cucumber API changed?")
             return false
