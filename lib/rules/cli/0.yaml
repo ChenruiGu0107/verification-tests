@@ -282,6 +282,14 @@
   :options:
     :command_name: <value>
     # use global `h` and `help` options if needed
+:idle:
+  :cmd: oc idle
+  :options:
+    :all: --all=<value>
+    :dry-run: --dry-run=<value>
+    :l: -l <value>
+    :resource-names-file: --resource-names-file=<value>
+    :svc_name: <value>
 :import:
   :cmd: oc import <command>
   :options:
