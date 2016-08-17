@@ -327,38 +327,49 @@ def update_script(options)
     #The following block is if a table argument is specified after -s
     elsif scenario[:type] == :ScenarioOutline
       scenario[:examples].each do |example|
-        example[:tableBody].each do |row|
-          if row[:location][:line] == target_line_number
-            #Get the scenario description
-            scenario_description = scenario[:name]
-            #Get the scenario tags
-            tags = get_scenario_tags(scenario, tcms)
-            #Get the example table tags, if any
-            example_table_tags = get_example_table_tags(example, tcms)
-            #Get table headers to zip with arguments
-            example[:tableHeader][:cells].each do |thead|
-              example_row_headers << thead[:value]
-            end
-            #Get table arguments
-            row[:cells].each do |cell|
-              example_row_cells << cell[:value]
+        if example[:location][:line] == target_line_number
+          # Get the scenario description
+          scenario_description = scenario[:name]
+          # Get the example description
+          example_description = example[:name]
+          # Get the example keyword
+          # example[:keyword] == "Examples"
+          example_keyword = "Examples"
+          arg_hash[example_keyword] = example_description
+        else
+          example[:tableBody].each do |row|
+            if row[:location][:line] == target_line_number
+              #Get the scenario description
+              scenario_description = scenario[:name]
+              #Get the scenario tags
+              tags = get_scenario_tags(scenario, tcms)
+              #Get the example table tags, if any
+              example_table_tags = get_example_table_tags(example, tcms)
+              #Get table headers to zip with arguments
+              example[:tableHeader][:cells].each do |thead|
+                example_row_headers << thead[:value]
+              end
+              #Get table arguments
+              row[:cells].each do |cell|
+                example_row_cells << cell[:value]
+              end
             end
           end
+          #Zip the table headers and table cells
+          example_row_headers.each_with_index do |value, index|
+            arg_hash[value] = example_row_cells[index]
+          end
         end
-        #Zip the table headers and table cells
-        example_row_headers.each_with_index do |value, index|
-          arg_hash[value] = example_row_cells[index]
-        end
-        if arg_hash.empty?
-          arg_hash = nil
-        else
-          tcms_arg_field = arg_hash.to_json
-        end
+      end
+      if arg_hash.empty?
+        arg_hash = nil
+      else
+        tcms_arg_field = arg_hash.to_json
       end
     end
   end
   if scenario_description == nil
-    raise 'Can not find Scenario or Scenario Outline target line, please check the line number specified for the file is correct'
+    raise 'Can not find Scenario, Scenario Outline or Examples Table target line, please check the line number specified for the file is correct'
   end
   # for tcms we need to strip out the features/ part of the arguement
   path = path[9..path.length]
