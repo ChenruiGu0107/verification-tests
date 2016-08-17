@@ -227,11 +227,6 @@ Feature: dockerbuild.feature
   Scenario: Edit bc with an allowed strategy to use a restricted strategy
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
-    Then the step should succeed
-    Given I switch to the second user
-    Given I have a project
-    When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
     Then the step should succeed
     And the "ruby22-sample-build-1" build was created
@@ -248,8 +243,12 @@ Feature: dockerbuild.feature
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     Then the "ruby22-sample-build-2" build was created
-
-    Given I switch to the first user
+ 
+    Given I switch to the second user
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
     When I get project bc named "ruby22-sample-build" as JSON
     Then the step should succeed
     Given I save the output to file>bc1.json
