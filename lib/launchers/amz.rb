@@ -335,6 +335,7 @@ module CucuShift
       # default to use rhel if no filter is specified
       instance_opt = config[:create_opts] ? config[:create_opts].dup : {}
       instance_opt.merge!(create_opts) if create_opts
+      tags = instance_opt.delete(:tags) || {}
 
       if image.kind_of? Symbol
         image = config[:ami_types][image]
@@ -369,17 +370,23 @@ module CucuShift
         instance_opt[:min_count] = instance_opt[:max_count] = tag_name.size
       end
 
-      logger.info("Launching EC2 instance from #{image.kind_of?(Aws::EC2::Image) ? image.name : image.inspect} with tags #{tag_name}...")
+      logger.info("Launching EC2 instance from #{image.kind_of?(Aws::EC2::Image) ? image.name : image.inspect} named #{tag_name}...")
       instances = @ec2.create_instances(instance_opt)
 
       res = []
       instances.each_with_index do | instance, i |
-        tag = tag_name[i] || tag.last
+        inst_tags = tags.each_with_object([]) { |(key,value),memo|
+          case key
+          when "Name", :Name, "name", :name
+          else
+            memo << {key: key.to_s, value: value}
+          end
+        }
+        inst_tags << {key: "Name", value: tag_name[i] || tag_name.last}
         inst = instance.wait_until_running
-        logger.info("Tagging instance with name #{tag} ...")
-        tag_hash = {key: "Name", value: tag}
-        inst.create_tags({ tags: [ tag_hash ] })
-        inst.tags << tag_hash # odd that we need this
+        logger.info("Tagging instance with #{inst_tags} ..")
+        inst.create_tags({ tags: inst_tags })
+        inst.tags.concat inst_tags # odd that we need this
         # make sure we can ssh into the instance
         host = get_host(inst, wait: wait_accessible)
         res << [inst, host]
