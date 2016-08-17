@@ -137,6 +137,11 @@ click_rollback_button_in_settings:
     op: click
   - selector:
       xpath: //span[contains(text(),'is rolling back')]
+click_actions_button:
+  elements:
+  - selector:
+      xpath: //button[contains(text(), 'Actions')]
+    op: click
 goto_deployments_page:
   url: /console/project/<project_name>/browse/deployments
 goto_one_dc_page:
@@ -144,12 +149,22 @@ goto_one_dc_page:
 goto_one_standalone_rc_page:
   url: /console/project/<project_name>/browse/deployments-replicationcontrollers/<rc_name>
 goto_set_resource_limit_page:
+  action: click_actions_button
   elements:
   - selector:
-      xpath: //button[contains(text(), 'Actions')]
-    op: click
-  - selector:
       xpath: //a[contains(text(), 'Set Resource Limits')]
+    op: click
+goto_health_check_page:
+  action: click_actions_button
+  elements:
+  - selector:
+      xpath: //a[contains(text(), 'Edit Health Checks')]
+    op: click
+goto_add_autoscaler_page:
+  action: click_actions_button
+  elements:
+  - selector:
+      xpath: //a[contains(text(), 'Add Autoscaler')]
     op: click
 check_dc_loaded_completely:
   action: goto_one_dc_page
