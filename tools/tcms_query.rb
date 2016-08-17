@@ -332,10 +332,8 @@ def update_script(options)
           scenario_description = scenario[:name]
           # Get the example description
           example_description = example[:name]
-          # Get the example keyword
-          # example[:keyword] == "Examples"
-          example_keyword = "Examples"
-          arg_hash[example_keyword] = example_description
+          # FYI example[:keyword] == "Examples" but we hardcode
+          arg_hash["Examples"] = example_description
         else
           example[:tableBody].each do |row|
             if row[:location][:line] == target_line_number
