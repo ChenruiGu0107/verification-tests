@@ -216,6 +216,52 @@ jenkins_check_logging_build_step_verbose:
       type: radio
     type: input
 
+jenkins_post_cancel_build_from_job:
+  url: /job/<job_name>/configure
+  action: jenkins_click_add_post_build_action_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Cancel OpenShift Builds
+    type: a
+    op: click
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuildCanceller/checkApiURL")]
+    type: input
+    op: send_keys <api_endpoint>
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuildCanceller/checkNamespace")]
+    type: input
+    op: send_keys <store_project>
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuildCanceller/checkBldCfg")]
+    type: input
+    op: send_keys <build_config>
+  action: jenkins_click_save_button
+
+jenkins_cancel_deployment_from_job:
+  url: /job/<job_name>/configure
+  action: jenkins_click_add_post_build_action_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Cancel OpenShift Deployment
+    type: a
+    op: click
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeployCanceller/checkApiURL")]
+    type: input
+    op: send_keys <api_endpoint>
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeployCanceller/checkNamespace")]
+    type: input
+    op: send_keys <store_project>
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeployCanceller/checkDepCfg")]
+    type: input
+    op: send_keys <deployment_config>
+  action: jenkins_click_save_button
+
 jenkins_click_add_post_build_action_button:
   element:
     selector:
