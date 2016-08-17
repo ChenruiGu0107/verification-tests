@@ -277,7 +277,7 @@ Feature: build 'apps' with CLI
       | image_stream      | openshift/mysql                                                                                                                                  |
       | image_stream      | <%= project.name %>/mysql:5.6                                                                                                                    |
       | docker_image      | <%= product_docker_repo %>rhscl/mysql-56-rhel7                                                                                                   |
-      | image_stream      | openshift/postgresql:9.4                                                                                                                         |
+      | image_stream      | openshift/postgresql                                                                                                                        |
       | image_stream      | <%= project.name %>/postgresql:9.4                                                                                                               |
       | docker_image      | <%= product_docker_repo %>rhscl/postgresql-94-rhel7                                                                                              |
       | group             | openshift/ruby+openshift/mysql+openshift/postgresql                                                                                              |
@@ -303,7 +303,7 @@ Feature: build 'apps' with CLI
       | resource | buildConfig        |
       | name     | ruby-hello-world-1 |
     Then the output should match:
-      | ImageStreamTag openshift/ruby:2.2 |
+      | ImageStreamTag openshift/ruby |
     When I run the :describe client command with:
       | resource | buildConfig        |
       | name     | ruby-hello-world-2 |
@@ -312,7 +312,7 @@ Feature: build 'apps' with CLI
     Given the "ruby-hello-world-1" build completed
     Given the "ruby-hello-world-1-1" build completed
     Given the "ruby-hello-world-2-1" build completed
-    Given I wait for the "mysql-56-rhel7" service to become ready
+    Given I wait for the "ruby-hello-world" service to become ready
     And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :exec client command with:
@@ -325,7 +325,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     """
     And the output should contain "Demo App"
-    Given I wait for the "postgresql" service to become ready
+    Given I wait for the "ruby-hello-world-1" service to become ready
     And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :exec client command with:
