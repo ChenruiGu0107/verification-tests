@@ -4,6 +4,12 @@ When /^I run the :(.*?) client command$/ do |yaml_key|
   @result = user.cli_exec(yaml_key.to_sym, {})
 end
 
+Given /^oc major.minor version is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
+  @result = user.cli_exec(:version)
+  cb_name ||= "oc_version"
+  cb[cb_name] = @result[:props][:oc_version].split(".")[0..1].join(".")
+end
+
 When /^I run the :([a-z_]*?)( background)? client command with:$/ do |yaml_key, background, table|
   if background
     @result = user.cli_exec(
