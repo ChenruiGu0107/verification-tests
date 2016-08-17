@@ -722,3 +722,80 @@ Feature: jenkins.feature
       | ruby-22    | rhscl/ruby-22-rhel7:latest      | # Install the rubygems \n bundle install --path=./vendor \n # Execute simple unit test \n bundle exec rake test |
       | ruby-20    | openshift3/ruby-20-rhel7:latest | # Install the rubygems \n bundle install --path=./vendor \n # Execute simple unit test \n bundle exec rake test |
       | nodejs-010 | openshift3/nodejs-010-rhel7     | npm -v                                                                                                          |
+
+  # @author wewang@redhat.com
+  # @case_id  515423
+  Scenario: Test jenkins post-build actions 
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:default service account
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
+    Then the step should succeed
+    And I wait for the "jenkins" service to become ready
+    Given I wait up to 60 seconds for the steps to pass:
+    """ 
+    When I open web server via the "https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
+    Then the output should contain "Jenkins"
+    And the output should not contain "ready to work"
+    When I run the :env client command with:
+      | resource | dc/jenkins |
+      | list     | true       |
+    Then the step should succeed
+    And evaluation of `/JENKINS_PASSWORD=(.*)/.match(@result[:response])[1]` is stored in the :jenkins_password clipboard
+    """
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route.dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin    |
+      | password | <%= cb.jenkins_password %> | 
+    Then the step should succeed
+    When I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    And the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completes
+    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:default service account
+    When I run the :start_build client command with:
+      |buildconfig|ruby-sample-build|
+    Then the step should succeed
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | cancelbuildjob |
+    Then the step should succeed
+    When I perform the :jenkins_post_cancel_build_from_job web action with:
+      | job_name  |  cancelbuildjob                                  |
+      | api_endpoint | <%= env.api_endpoint_url %>                   |
+      | store_project| <%= cb.proj2 %>                               |
+      | build_config | ruby-sample-build                             |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name  | cancelbuildjob |
+    Then the step should succeed
+    And the "ruby-sample-build-2" build was cancelled 
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | canceldeploymentjob |
+    Then the step should succeed
+    When I perform the :jenkins_cancel_deployment_from_job web action with:
+      | job_name  | canceldeploymentjob                              |
+      | api_endpoint | https://openshift.default.svc.cluster.local   |
+      | deployment_config  | database                                |
+      | store_project | <%= cb.proj2 %>                              |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | database |
+      | latest | true |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name  | canceldeploymentjob |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | rc   |
+    And the output should match:
+      | database-2+\s+0+\s+0 |
