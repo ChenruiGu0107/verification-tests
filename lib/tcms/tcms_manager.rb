@@ -121,8 +121,8 @@ module CucuShift
       job = incomplete_jobs.find { |job| job.matches?(test_case) }
       if job && job.ready? # job may still require more scenarios
         ready_jobs << incomplete_jobs.delete(job)
-      elsif job.nil?
-        Kernel.puts("skipping #{test_case.location.to_s} for no cases match it")
+      #elsif job.nil?
+      #  Kernel.puts("skipping #{test_case.location.to_s} for no cases match it")
       end
     end
 
