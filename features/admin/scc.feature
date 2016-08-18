@@ -295,9 +295,9 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
   # @author mcurlej@redhat.com
-  # @case_id 495036
+  # @case_id 495032, 495036
   @admin
-  Scenario: The process can be ran with the specified user when using MustRunAs as the RunAsUserStrategy
+  Scenario Outline: The process can be ran with the specified user when using MustRunAs or RunAsAny as the RunAsUserStrategy
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_outrange.json |
@@ -305,8 +305,13 @@ Feature: SCC policy related scenarios
     And the output should contain:
       | UID                           |
       | does not match required range |
-    When the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc-user-mustrunas.yaml
+    When the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/<scc_file_name>.yaml
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_outrange.json |
     Then the step should succeed
+
+    Examples:
+      | scc_file_name      |
+      | scc-user-mustrunas |
+      | scc-runasany       |
