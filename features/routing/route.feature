@@ -712,6 +712,7 @@ Feature: Testing route
     Then the step should succeed
     Then the output should contain "Hello-OpenShift"
 
+
   # @author yadu@redhat.com
   # @case_id 528342
   Scenario: Route could NOT be updated after created
@@ -725,3 +726,38 @@ Feature: Testing route
       | p             | {"spec":{"host":"www.changeroute.com"}} |
     Then the output should contain:
       | spec.host: Invalid value: "www.changeroute.com": field is immutable |
+
+
+  # @author zzhao@redhat.com
+  # @case_id 533075
+  Scenario: Limit the number of http request per ip
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I expose the "test-service" service
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                                           |
+      | resourcename | test-service                                                    |
+      | keyval       | haproxy.router.openshift.io/rate-limit-connections=true         |
+      | keyval       | haproxy.router.openshift.io/rate-limit-connections.rate-http=3  |
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | bash | -c | for i in {1..5} ; do curl --resolve <%= route.dns(by: user) %>:80:<%= cb.router_ip[0] %> http://<%= route.dns(by: user) %>/ ; done |
+    Then the output should contain 3 times:
+      | Hello OpenShift |
+    And the output should contain 2 times:
+      | Empty reply from server |
+
+    Given 15 seconds have passed
+    When I execute on the pod:
+      | bash | -c | for i in {1..5} ; do curl --resolve <%= route.dns(by: user) %>:80:<%= cb.router_ip[0] %> http://<%= route.dns(by: user) %>/ ; done |
+    Then the output should contain 3 times:
+      | Hello OpenShift |
+    And the output should contain 2 times:
+      | Empty reply from server |
