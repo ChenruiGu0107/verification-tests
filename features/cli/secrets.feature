@@ -1353,3 +1353,71 @@ Feature: secrets related scenarios
       | first-username-update |
     """
     Then the step should succeed
+
+  # @author wehe@redhat.com
+  # @case_id 533102 
+  Scenario: Consume secret via volume plugin with multiple volumes 
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml | 
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret      |
+      | name     | test-secret |
+    Then the output should match:
+      | data-1:\\s+9\\s+bytes  |
+      | data-2:\\s+11\\s+bytes |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/pod-multi-volume.yaml | 
+    Then the step should succeed
+    And the pod named "multiv-secret-pod" status becomes :succeeded
+    When I run the :logs client command with:
+      | resource_name | multiv-secret-pod |
+    Then the step should succeed
+    And the output should contain:
+      | value-1              |
+      | secret-volume/data-1 |
+
+  # @author wehe@redhat.com
+  # @case_id 533101 
+  Scenario: Consume same name secretes via volume plugin in different namespaces 
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml | 
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret      |
+      | name     | test-secret |
+    Then the output should match:
+      | data-1:\\s+9\\s+bytes  |
+      | data-2:\\s+11\\s+bytes |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-pod.yaml | 
+    Then the step should succeed
+    And the pod named "secret-test-pod" status becomes :succeeded
+    When I run the :logs client command with:
+      | resource_name | secret-test-pod |
+    Then the step should succeed
+    And the output should contain:
+      | value-1              |
+      | secret-volume/data-1 |
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml | 
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret      |
+      | name     | test-secret |
+    Then the output should match:
+      | data-1:\\s+9\\s+bytes  |
+      | data-2:\\s+11\\s+bytes |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-pod.yaml | 
+    Then the step should succeed
+    And the pod named "secret-test-pod" status becomes :succeeded
+    When I run the :logs client command with:
+      | resource_name | secret-test-pod |
+    Then the step should succeed
+    And the output should contain:
+      | value-1              |
+      | secret-volume/data-1 |
