@@ -1,4 +1,5 @@
 require 'openshift/project_resource'
+require 'openshift/container'
 
 module CucuShift
   # represents an OpenShift pod
@@ -120,9 +121,27 @@ module CucuShift
     def supplemental_groups(user:, cached: true, quiet: false)
       spec = get_cached_prop(prop: :securityContext, user: user, cached: cached, quiet: quiet)
       return spec["supplementalGroups"]
-
+    end
+    # returns an array of Container objects belonging to a pod
+    def containers(user:, cached: true, quiet: false)
+      res = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
+      containers_raw = res["containerStatuses"]
+      containers = containers_raw.map { |c_hash| Container.new(c_hash, self) }
+      return containers
     end
 
+    # return the Container object matched by the lookup parameter
+    def container(user:, name:, cached: true, quiet: false)
+      containers = self.containers(user:user, cached: cached, quiet: quiet)
+      containers.each do | container |
+        return container if container.name == name
+      end
+      raise "No container with name #{name} found..."
+    end
+
+    def uid(user, cached: true, quiet: false)
+      return get_cached_prop(prop: :uid, user: user, cached: cached, quiet: quiet)
+    end
     # @note call without parameters only when props are loaded
     def node_hostname(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :node_hostname, user: user, cached: cached, quiet: quiet)
