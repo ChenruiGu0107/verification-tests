@@ -113,21 +113,21 @@ Feature: Testing haproxy router
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     When I execute on the "<%= cb.router_pod %>" pod:
-      | ls |
-      | --full-time |
-      | /var/lib/containers/router/certs/<%= cb.project %>_route-edge.pem |
+      | bash |
+      | -lc |
+      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>_route-edge.pem |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :edge_cert clipboard
     When I execute on the "<%= cb.router_pod %>" pod:
-      | ls |
-      | --full-time |
-      | /var/lib/containers/router/certs/<%= cb.project %>_route-reen.pem |
+      | bash |
+      | -lc |
+      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>_route-reen.pem |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :reen_cert clipboard
     When I execute on the "<%= cb.router_pod %>" pod:
-      | ls |
-      | --full-time |
-      | /var/lib/containers/router/cacerts/<%= cb.project %>_route-reen.pem |
+      | bash |
+      | -lc |
+      | ls --full-time /var/lib/*/router/cacerts/<%= cb.project %>_route-reen.pem |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :reen_cacert clipboard
 
@@ -137,28 +137,31 @@ Feature: Testing haproxy router
     When I run the :patch client command with:
       | resource | route |
       | resource_name | route-reen |
-      | p | {"spec": {"host": "<%= rand_str(5, :dns) %>.reen2.com"}} |
+      | p | {"spec": {"path": "/test"}} |
     Then the step should succeed
 
     # check only the cert files for the updated route are changed
     When I switch to cluster admin pseudo user
     And I use the "default" project
+    And I wait up to 10 seconds for the steps to pass:
+    """
     When I execute on the "<%= cb.router_pod %>" pod:
-      | ls |
-      | --full-time |
-      | /var/lib/containers/router/certs/<%= cb.project %>_route-reen.pem |
+      | bash |
+      | -lc |
+      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>_route-reen.pem |
     Then the step should succeed
     And the expression should be true> cb.reen_cert != @result[:response]
+    """
     When I execute on the "<%= cb.router_pod %>" pod:
-      | ls |
-      | --full-time |
-      | /var/lib/containers/router/cacerts/<%= cb.project %>_route-reen.pem |
+      | bash |
+      | -lc |
+      | ls --full-time /var/lib/*/router/cacerts/<%= cb.project %>_route-reen.pem |
     Then the step should succeed
     And the expression should be true> cb.reen_cacert != @result[:response]
     When I execute on the "<%= cb.router_pod %>" pod:
-      | ls |
-      | --full-time |
-      | /var/lib/containers/router/certs/<%= cb.project %>_route-edge.pem |
+      | bash |
+      | -lc |
+      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>_route-edge.pem |
     Then the step should succeed
     And the expression should be true> cb.edge_cert == @result[:response]
 
