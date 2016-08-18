@@ -1642,3 +1642,34 @@ Feature: deployment related features
     Then the step should succeed
     And the output should contain:
       | deployment.kubernetes.io/revision:2 |
+      
+  # @author mcurlej@redhat.com
+  # @case_id 532416
+  Scenario: View the history of rollouts for a specific deployment config
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    Then the step should succeed
+    And I wait until the status of deployment "deployment-example" becomes :complete
+    When I run the :env client command with:
+      | resource | dc/deployment-example |
+      | e        | TEST=1                |
+    Then the step should succeed
+    And I wait until the status of deployment "deployment-example" becomes :complete
+    When I run the :rollout_history client command with:
+      | resource      | dc                 |
+      | resource_name | deployment-example |
+    Then the step should succeed
+    And the output should contain:
+      | caused by an image change |
+      | caused by a config change |
+    When I run the :rollout_history client command with:
+      | resource      | dc                 |
+      | resource_name | deployment-example |
+      | revision      | 2                  |
+    Then the step should succeed
+    And the output should match:
+      | deploymentconfigs\s+".+?"\s+history\s+viewed\s+\(revision:\s+2\) |
+      | Labels:                                                          |
+      | Containers:                                                      |
+      | Annotations:                                                     |
