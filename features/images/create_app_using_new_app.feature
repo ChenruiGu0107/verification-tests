@@ -115,7 +115,7 @@ Feature:Create apps using new_app cmd feature
     Given I have a browser with:
       | rules    | lib/rules/web/images/jenkins/     |
       | base_url | http://<%= route.dns(by: user) %> |
-    When I perform the :login web action with:
+    When I perform the :jenkins_login web action with:
       | username | admin   |
       | password | test123 |
     Then the step should succeed

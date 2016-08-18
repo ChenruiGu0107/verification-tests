@@ -324,10 +324,6 @@ jenkins_create_openshift_resources:
   action: jenkins_click_add_build_step_button
   elements:
   - selector:
-      xpath: //button[contains(., 'Add build step')]
-    op: click
-    type: button
-  - selector:
       text: Create OpenShift Resource(s)
     op: click
     type: a
