@@ -161,3 +161,63 @@ Feature: Service related networking scenarios
     Then the step should fail
     Then the output should not contain:
       | Hello OpenShift |
+
+  # @author bmeng@redhat.com
+  # @case_id 533666
+  @admin    
+  Scenario: Do not allow user to create endpoints which point to the clusternetworkCIDR or servicenetworkCIDR
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    And evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    And evaluation of `service("service-unsecure").ip(user: user)` is stored in the :service_ip clipboard
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
+      | ["items"][0]["metadata"]["name"] | clustercidr |
+      | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.pod_ip %> |
+    Then the step should fail
+    And the output should match "endpoint address .* is not allowed"
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
+      | ["items"][0]["metadata"]["name"] | servicecidr |
+      | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.service_ip %> |
+    Then the step should fail
+    And the output should match "endpoint address .* is not allowed"
+
+  # @author bmeng@redhat.com
+  # @case_id 533665
+  @admin
+  Scenario: Be able to create endpoints which point to the cluster network after given the permission by cluster admin
+    Given I switch to cluster admin pseudo user
+    When I run the :get client command with:
+      | resource | clusternetwork |
+      | resource_name | default |
+      | template | {{.network}} |
+    Then the step should succeed
+    And evaluation of `@result[:response].split(".")[0]` is stored in the :clusternetwork_1 clipboard
+    And evaluation of `@result[:response].split(".")[1]` is stored in the :clusternetwork_2 clipboard
+    When I run the :get client command with:
+      | resource | clusternetwork |
+      | resource_name | default |
+      | template | {{.serviceNetwork}} |
+    Then the step should succeed
+    And evaluation of `@result[:response].split(".")[0]` is stored in the :servicenetwork_1 clipboard
+    And evaluation of `@result[:response].split(".")[1]` is stored in the :servicenetwork_2 clipboard
+
+    Given I switch to the first user
+    And I have a project
+    And cluster role "system:endpoint-controller" is added to the "first" user
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
+      | ["items"][0]["metadata"]["name"] | clustercidr |
+      | ["items"][1]["metadata"]["name"] | clustercidr-endpoint |
+      | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.clusternetwork_1 %>.<%= cb.clusternetwork_2 %>.<%= rand(255) %>.<%= rand(1..255) %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/external_service_to_external_pod.json" replacing paths:
+      | ["items"][0]["metadata"]["name"] | servicecidr |
+      | ["items"][1]["metadata"]["name"] | servicecidr-endpoint |
+      | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.servicenetwork_1 %>.<%= cb.servicenetwork_2 %>.<%= rand(255) %>.<%= rand(1..255) %> |
+    Then the step should succeed
