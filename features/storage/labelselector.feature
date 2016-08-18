@@ -18,8 +18,7 @@ Feature: Target pvc to a specific pv
       | nfs-pv-1b | nfspv2-<%= project.name %> |
     Then I run the :new_app admin command with:
       | file | pv1.json |
-    And the "nfspv1-<%= project.name %>" PV becomes :available
-    And the "nfspv2-<%= project.name %>" PV becomes :available
+    Then the step should succeed
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc1.json" replacing paths:
       | ["metadata"]["name"]| nfsc-<%= project.name %> |
     Then the step should succeed
@@ -34,7 +33,7 @@ Feature: Target pvc to a specific pv
     Given I have a project
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv2.json" where:
       | ["metadata"]["name"] | nfspv-<%= project.name %> |
-    And the "nfspv-<%= project.name %>" PV becomes :available
+    Then the step should succeed
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc2.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | nfsc1-<%= project.name %> |
       | ["items"][1]["metadata"]["name"] | nfsc2-<%= project.name %> |
@@ -61,8 +60,7 @@ Feature: Target pvc to a specific pv
       | nfs-pv-3b | nfspv2-<%= project.name %> |
     Then I run the :new_app admin command with:
       | file | pv3.json |
-    And the "nfspv1-<%= project.name %>" PV becomes :available
-    And the "nfspv2-<%= project.name %>" PV becomes :available
+    Then the step should succeed
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc3.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | nfsc1-<%= project.name %> |
       | ["items"][1]["metadata"]["name"] | nfsc2-<%= project.name %> |
@@ -91,8 +89,7 @@ Feature: Target pvc to a specific pv
       | nfs-pv-4b | nfspv2-<%= project.name %> |
     Then I run the :new_app admin command with:
       | file | pv4.json |
-    And the "nfspv1-<%= project.name %>" PV becomes :available
-    And the "nfspv2-<%= project.name %>" PV becomes :available
+    Then the step should succeed
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc4.json" replacing paths:
       | ["metadata"]["name"] | nfsc1-<%= project.name %> |
     Then the step should succeed
@@ -109,7 +106,7 @@ Feature: Target pvc to a specific pv
       | ["metadata"]["name"]              | nfspv1-<%= project.name %> |
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>        |
       | ["spec"]["claimRef"]["name"]      | nfsc1-<%= project.name %>  |
-    And the "nfspv1-<%= project.name %>" PV becomes :available
+    Then the step should succeed
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc5.json" replacing paths:
       | ["metadata"]["name"]   | nfsc1-<%= project.name %>  |
     Then the step should succeed
@@ -133,8 +130,7 @@ Feature: Target pvc to a specific pv
       | nfs-pv-6b | nfspv2-<%= project.name %> |
     Then I run the :new_app admin command with:
       | file | pv6.json |
-    And the "nfspv1-<%= project.name %>" PV becomes :available
-    And the "nfspv2-<%= project.name %>" PV becomes :available
+    Then the step should succeed
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc6.json" replacing paths:
       | ["metadata"]["name"]   | nfsc1-<%= project.name %>  |
       | ["spec"]["volumeName"] | nfspv2-<%= project.name %> |
@@ -150,7 +146,7 @@ Feature: Target pvc to a specific pv
     Given I have a project
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv7.json" where:
       | ["metadata"]["name"] | nfspv1-<%= project.name %> |
-    And the "nfspv1-<%= project.name %>" PV becomes :available
+    Then the step should succeed
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc7.json" replacing paths:
       | ["metadata"]["name"]   | nfsc1-<%= project.name %>  |
     Then the step should succeed 
@@ -185,9 +181,7 @@ Feature: Target pvc to a specific pv
       | nfs-pv-8c | nfspv3-<%= project.name %> |
     Then I run the :new_app admin command with:
       | file | pv8.json |
-    And the "nfspv1-<%= project.name %>" PV becomes :available
-    And the "nfspv2-<%= project.name %>" PV becomes :available
-    And the "nfspv3-<%= project.name %>" PV becomes :available
+    Then the step should succeed
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc8.json" replacing paths:
       | ["items"][0]["metadata"]["name"] | nfsc1-<%= project.name %> |
       | ["items"][1]["metadata"]["name"] | nfsc2-<%= project.name %> |
@@ -205,7 +199,7 @@ Feature: Target pvc to a specific pv
     Given I have a project
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv2.json" where:
       | ["metadata"]["name"] | nfspv1-<%= project.name %> |
-    And the "nfspv1-<%= project.name %>" PV becomes :available
+    Then the step should succeed
     Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/claim.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc1-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                       |
