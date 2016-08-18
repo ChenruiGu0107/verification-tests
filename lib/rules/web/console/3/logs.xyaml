@@ -62,6 +62,7 @@ follow_log:
   - selector:
       xpath: //div[@class='log-view']//a/span[contains(text(),'Follow')]
     op: click
+    timeout: 30
 stop_follow_log:
   elements:
   - selector:

@@ -41,7 +41,7 @@ check_one_buildconfig_page_with_check_config:
     op: click
     type: a
   - selector:
-      xpath: //a[contains(text(),"github.com")]
+      xpath: //a[contains(@href,"github.com")]
   # Generic webhook URL
   - selector:
       xpath: //dt[contains(.,'Generic webhook URL')]
@@ -51,6 +51,9 @@ check_one_buildconfig_page_with_check_config:
   # Manual (CLI): 
   - selector:
       xpath: //dt[contains(.,'Manual (CLI):')]
+  - selector:
+      xpath: //div/input[contains(@value,"oc start-build") and @readonly]
+    type: input
   # Learn more
   - selector:
       xpath: //a[contains(@href,"webhook-triggers") and descendant::span[contains(text(),"Learn more")]]
@@ -337,12 +340,12 @@ check_bc_github_webhook_trigger:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'GitHub webhook URL')]/following::input[contains(@value,'<github_webhook_trigger>')]
+      xpath: //dt[contains(.,'GitHub webhook URL')]/following::input[contains(@value,'<github_webhook_trigger>') and @readonly]
 check_bc_generic_webhook_trigger:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'Generic webhook URL')]/following::input[contains(@value,'<generic_webhook_trigger>')]
+      xpath: //dt[contains(.,'Generic webhook URL')]/following::input[contains(@value,'<generic_webhook_trigger>') and @readonly]
 check_bc_image_change_trigger:
   action: goto_buildconfig_configuration_tab
   elements:
