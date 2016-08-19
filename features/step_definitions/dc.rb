@@ -7,7 +7,11 @@
 
 Given /^I wait until the status of deployment "(.+)" becomes :(.+)$/ do |resource_name, status|
   ready_timeout = 10 * 60
-  dc(resource_name).wait_till_status(status.to_sym, user, ready_timeout)
+  @result = dc(resource_name).wait_till_status(status.to_sym, user, ready_timeout)
+  unless @result[:success]
+    user.cli_exec(:logs, resource_name: "dc/#{resource_name}")
+    raise "dc #{resource_name} never became #{status}"
+  end
 end
 
 # restore the selected dc in teardown by getting current deployment and do:
