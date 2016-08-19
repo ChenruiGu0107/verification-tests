@@ -181,7 +181,7 @@ Feature: Quota related scenarios
       | database-2-deploy |
 
     # trigger deployment manually according to the case step
-    When I wait until the status of deployment "database" becomes :complete
+    Given I wait until the status of deployment "database" becomes :complete
     When I run the :deploy client command with:
       | deployment_config | database |
       | latest            ||
