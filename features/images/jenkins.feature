@@ -13,20 +13,21 @@ Feature: jenkins.feature
     Then the step should succeed
     And the "jenkins" PVC becomes :bound within 300 seconds
     Given I wait for the "jenkins" service to become ready
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     And I wait for the steps to pass:
     """
     When I execute on the pod:
-      | curl | -sS | -u| admin:password | <%= service.url %> |
+      | curl | -sS | -u| admin:<%= cb.jenkins_password %> | <%= service.url %> |
     Then the step should succeed
     """
     And the output should contain:
       | Dashboard [Jenkins] |
     When I run the :env client command with:
-      | resource | dc/jenkins  |
+      | resource | dc/jenkins              |
       | e        | JENKINS_PASSWORD=redhat |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | name=jenkins |
+      | name=jenkins         |
       | deployment=jenkins-2 |
     And I wait for the steps to pass:
     """
