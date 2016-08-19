@@ -68,3 +68,26 @@ Feature: Pod related networking scenarios
     Then the step should succeed
     And the output should contain "google.com"
     """
+
+  # @author bmeng@redhat.com
+  # @case_id 515233
+  Scenario: containers can use vxlan as they want
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/udp4789-pod.json |
+    Then the step should succeed
+    And the pod named "udp4789-pod" becomes ready
+    And evaluation of `pod.ip` is stored in the :udp_pod clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    Then the step should succeed
+    And the pod named "hello-pod" becomes ready
+    When I execute on the "hello-pod" pod:
+      | bash |
+      | -c |
+      | (echo "Connection test to vxlan port") \| /usr/bin/ncat --udp <%= cb.udp_pod %> 4789 |
+    Then the step should succeed 
+    When I run the :logs client command with:
+      | resource_name | udp4789-pod |
+    Then the step should succeed
+    And the output should contain "Connection test to vxlan port"
