@@ -1,7 +1,7 @@
 Feature: oc tag related scenarios
 
   # @author xxia@redhat.com
-  # @case_id 492275 492278 492277 492279 
+  # @case_id 492275 492278 492277 492279
   Scenario Outline: Tag an image into image stream
     Given I have a project
     When I run the :tag client command with:
@@ -271,3 +271,31 @@ Feature: oc tag related scenarios
       | Error from server: |
       | ruby:fail          |
       | not found          |
+
+  # @author pruan@redhat.com
+  # @case_id 533103
+  Scenario: New-app using tagged imagestreamtag across projects without cross-namespace permission
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    Then I run the :new_build client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | name     | origin-ruby-sample                                              |
+    Then the step should succeed
+    Given the "origin-ruby-sample-1" build was created
+    And the "origin-ruby-sample-1" build completed
+    And I create a new project
+    Then the step should succeed
+    And I run the :tag client command with:
+      | source | <%= cb.proj1 %>/origin-ruby-sample:latest |
+      | dest   | <%= project.name %>/deadbeef533103:tag1         |
+    Then the step should succeed
+    Then I run the :get client command with:
+      | resource      | is             |
+      | resource_name | deadbeef533103 |
+      | o             | yaml           |
+    Then the expression should be true> @result[:parsed]['status']['tags'][0]['items'][0]['dockerImageReference'].include? project.name
+    When I run the :new_app client command with:
+      | app_repo | deadbeef533103:tag1 |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | app=deadbeef533103 |
