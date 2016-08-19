@@ -63,7 +63,7 @@ jenkins_change_execute_shell_command:
   action: goto_configure_page
   action: jenkins_click_delete_execute_shell
   scripts:
-  - command: return document.querySelectorAll('button')[37].id = 'clicktarget'
+  - command: return document.querySelectorAll('button')[document.querySelectorAll('button').length-4].id = 'clicktarget'
     expect_result: true
   elements:
   - selector:

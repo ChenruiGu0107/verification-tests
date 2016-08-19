@@ -25,7 +25,7 @@ Feature: stibuild.feature
       | all      | true |
     Then the step should succeed
     And the output should contain:
-      | {"name":"DISABLE_ASSET_COMPILATION","value":"true"} |
+      | {"name":"DISABLE_ASSET_COMPILATION","value":"true"}]}} |
     When I get project bc named "ruby-sample-build" as JSON
     And I save the output to file>bc.json
     And I replace lines in "bc.json":
@@ -44,7 +44,7 @@ Feature: stibuild.feature
       | all      | true |
     Then the step should succeed
     And the output should contain:
-      | {"name":"DISABLE_ASSET_COMPILATION","value":"1"} |
+      | {"name":"DISABLE_ASSET_COMPILATION","value":"1"}]}} |
 
   # @author haowang@redhat.com
   # @case_id 476409

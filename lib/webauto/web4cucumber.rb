@@ -196,17 +196,13 @@ require 'watir-webdriver'
         raise "Script lack of command or expect_result"
       end
       # sleep to make sure the ajax done, still no idea how much time should be
-      sleep 1
+      sleep 2
 
-      command = script[:command].gsub(/<([a-z_]+?)>/) { |match|
-        user_opts[match[1..-2].to_sym] || match
-      }
+      command = replace_angle_brackets(script[:command], user_opts)
       output = execute_script(command)
 
       if script[:expect_result].kind_of? String
-        expect = script[:expect_result].gsub(/<([a-z_]+?)>/) { |match|
-          user_opts[match[1..-2].to_sym] || match
-        }
+        expect = replace_angle_brackets(script[:expect_result], user_opts)
         success = output == expect
       else
         success = ! output == ! script[:expect_result]
@@ -281,9 +277,7 @@ require 'watir-webdriver'
     end
 
     def goto_url(url, **user_opts)
-      url = url.gsub(/<([a-z_]+?)>/) { |match|
-              user_opts[match[1..-2].to_sym] || match
-            }
+      url =  replace_angle_brackets(url, user_opts)
 
       if !(url =~ URI.regexp)
         url = URI.join(base_url, url).to_s
@@ -303,11 +297,19 @@ require 'watir-webdriver'
       unless element_rule.kind_of? Hash
         raise "Element rules should be a Hash but is: #{element_rule.inspect}"
       end
+
+      #copy the element_rule
+      rule = element_rule.dup
+      #replace selecotr's '<param>' with corresponding value in user_opts
+      rule[:selector] = selector_param_setter(rule[:selector], user_opts)
+
+      #replace timeout's '<param>' with corresponding value in user_opts
+      if rule[:timeout]
+        rule[:timeout] = Integer(replace_angle_brackets(rule[:timeout], user_opts))
+      end
+
       # wait for element
-      found, elements = wait_for_elements(element_rule.merge(
-        # it's often useful to have paramaters inside selectors
-        selector: selector_param_setter(element_rule[:selector], user_opts)
-      ))
+      found, elements = wait_for_elements(rule)
 
       res = {
         instruction: "handle #{element_rule}",
@@ -342,9 +344,7 @@ require 'watir-webdriver'
       end
 
       op, space, val = op_spec.partition(" ")
-      val.gsub!(/<([a-z_]+?)>/) { |match|
-        user_opts[match[1..-2].to_sym] || match
-      }
+      val = replace_angle_brackets(val, user_opts)
 
       res = {
         instruction: "#{op} #{element} with #{val}",
@@ -464,10 +464,20 @@ require 'watir-webdriver'
       return selector if params.empty?
       selector_res = {}
       selector.each do |selector_type, query|
-        selector_res[selector_type] =
-          query.gsub(/<([a-z_]+)>/) { |m| params[$1.to_sym] || m }
+        selector_res[selector_type] = replace_angle_brackets(query, params)
       end
       return selector_res
+    end
+
+    # replace <something> strings inside strings given option hash with symbol
+    #   keys
+    # @param [String] str string to replace
+    # @param [Hash] opts hash options to use for replacement
+    # @return [String] the value match in the opts[key]
+    private def replace_angle_brackets(str, opts)
+      return str.gsub(/<([a-z_]+)>/) { |m|
+        opts[m[1..-2].to_sym] || m
+      }
     end
 
     # this somehow convoluted method can be used to wait for multiple elements
