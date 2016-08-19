@@ -15,6 +15,7 @@ require 'openshift/persistent_volume'
 require 'openshift/persistent_volume_claim'
 require 'openshift/replication_controller'
 require 'openshift/deployment_config'
+require 'openshift/replicaset'
 module CucuShift
   # @note this is our default cucumber World extension implementation
   class DefaultWorld
@@ -45,6 +46,7 @@ module CucuShift
       @rcs = []
       @dcs = []
       @image_streams = []
+      @rss = []  # replicasets
       # used to store host the user wants to run commands on
       @host = nil
       # used to store nodes in the cluster
@@ -308,6 +310,14 @@ module CucuShift
       else
         return @rcs.last
       end
+    end
+
+    # @return rs (ReplicaSets) by name from scenario cache;
+    #   with no params given, returns last requested rs;
+    #   otherwise creates a [ReplicaSet] object
+    # @note you need the project already created
+    def rs(name = nil, project = nil)
+      project_resource(ReplicaSet, name, project)
     end
 
     # @return dc (DeploymentConfig) by name from scenario cache;
