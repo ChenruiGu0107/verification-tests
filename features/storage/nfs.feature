@@ -39,59 +39,10 @@ Feature: NFS Persistent Volume
     """
 
   # @author lxia@redhat.com
-  # @case_id 508049
+  # @case_id 508049 508050 508051
   @admin
   @destructive
-  Scenario: NFS volume plugin with RWO access mode and Recycle policy
-    # Preparations
-    Given I have a project
-    And I have a NFS service in the project
-    When I execute on the pod:
-      | chmod | g+w | /mnt/data |
-    Then the step should succeed
-
-    # Creating PV and PVC
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
-      | ["spec"]["accessModes"][0]                | ReadWriteOnce                    |
-      | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                          |
-      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
-    Then the step should succeed
-    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
-      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
-    Then the step should succeed
-    Given the pod named "mypod-<%= project.name %>" becomes ready
-    When I execute on the pod:
-      | id |
-    Then the step should succeed
-    When I execute on the pod:
-      | ls | -ld | /mnt/ |
-    Then the step should succeed
-    When I execute on the pod:
-      | touch | /mnt/tc508049 |
-    Then the step should succeed
-    And the output should not contain "Permission denied"
-
-    Given I ensure "mypod-<%= project.name %>" pod is deleted
-    And I ensure "nfsc-<%= project.name %>" pvc is deleted
-    And the PV becomes :available within 300 seconds
-    When I execute on the "nfs-server" pod:
-      | ls | /mnt/data/tc508049 |
-    Then the step should fail
-
-  # @author lxia@redhat.com
-  # @case_id 508050
-  # @case_id 508051
-  @admin
-  @destructive
-  Scenario Outline: NFS volume plugin with ROX/RWX access mode and Retain/Default policy
+  Scenario Outline: NFS volume plugin with access mode and reclaim policy
     # Preparations
     Given I have a project
     And I have a NFS service in the project
@@ -130,15 +81,16 @@ Feature: NFS Persistent Volume
 
     Given I ensure "mypod-<%= project.name %>" pod is deleted
     And I ensure "nfsc-<%= project.name %>" pvc is deleted
-    And the PV becomes :released
+    And the PV becomes :<pv_status> within 300 seconds
     When I execute on the "nfs-server" pod:
       | ls | /mnt/data/test_file |
-    Then the step should succeed
+    Then the step should <step_status>
 
     Examples:
-      | access_mode   | reclaim_policy |
-      | ReadOnlyMany  | Retain         |
-      | ReadWriteMany | Default        |
+      | access_mode   | reclaim_policy | pv_status | step_status |
+      | ReadOnlyMany  | Retain         | released  | succeed     |
+      | ReadWriteMany | Default        | released  | succeed     |
+      | ReadWriteOnce | Recycle        | available | fail        |
 
   # @author jhou@redhat.com
   # @case_id 488980
