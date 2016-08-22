@@ -304,7 +304,7 @@ require 'watir-webdriver'
       rule[:selector] = selector_param_setter(rule[:selector], user_opts)
 
       #replace timeout's '<param>' with corresponding value in user_opts
-      if rule[:timeout]
+      if rule[:timeout].kind_of? String
         rule[:timeout] = Integer(replace_angle_brackets(rule[:timeout], user_opts))
       end
 
