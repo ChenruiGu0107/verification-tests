@@ -6,7 +6,6 @@ Feature: Deployments rollback features
     When I create a new project via web
     Then the step should succeed
     # create deployment from template on web console
-    Given I use the "<%= project.name %>" project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
@@ -16,6 +15,7 @@ Feature: Deployments rollback features
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>  |
     Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :complete
     # replace deploymentconfig
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
@@ -25,6 +25,7 @@ Feature: Deployments rollback features
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>  |
     Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :get client command with:
       | resource      | deploymentConfig |
       | resource_name | hooks |

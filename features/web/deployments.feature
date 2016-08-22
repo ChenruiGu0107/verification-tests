@@ -15,6 +15,7 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>  |
     Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :complete
     # manually trigger deploy after deployments is "Deployed"
     When I perform the :manually_deploy web console action with:
       | project_name | <%= project.name %> |
@@ -32,6 +33,7 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>  |
     Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :complete
     # cancel deployments
     When I perform the :manually_deploy web console action with:
       | project_name | <%= project.name %> |
