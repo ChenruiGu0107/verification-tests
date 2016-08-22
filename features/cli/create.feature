@@ -786,10 +786,14 @@ Feature: creating 'apps' with CLI
     Given I have a project
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag.json
     Then the step should succeed
-    When I get project istag
-    Then the step should succeed
-    And the output should contain:
+    # Add wait step to avoid the async delay
+    And I wait for the steps to pass:
+    """
+    I get project istag
+    the step should succeed
+    the output should contain:
       |<%= product_docker_repo %>rhel7.2|
+    """
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag-update.json
     Then the step should succeed
     When I get project istag
