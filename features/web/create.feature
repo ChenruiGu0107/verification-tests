@@ -7,7 +7,6 @@ Feature: create app on web console related
       | display_name | :null               |
       | description  ||
     Then the step should succeed
-    Given I use the "<%= project.name %>" project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
     Then the step should succeed

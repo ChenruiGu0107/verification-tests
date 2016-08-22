@@ -42,15 +42,16 @@ goto_settings_page:
   url: /console/project/<project_name>/settings
 check_general_information:
   action: goto_settings_page
+  action: check_specific_project_info
+check_specific_project_info:
   elements:
   - selector:
-      text: <project_name>
+      xpath: //div[contains(text(),"<project_name>")]
   - selector:
-      text: <dispaly_name>
+      xpath: //div[contains(text(),"<display_name>")]
   - selector:
-      text: <description>
+      xpath: //truncate-long-text/span[text()="<description>"]
 edit_general_information:
-  action: goto_settings_page
   elements:
   - selector:
       text: Actions
@@ -67,25 +68,27 @@ edit_general_information:
   - selector:
       xpath: //input[@id='settings_display_name']
     type: input
-    op: send_keys <display_name>
+    op: send_keys <new_display_name>
   - selector:
       xpath: //textarea[@id='settings_description']
     type: textarea
-    op: set <description>
+    op: set <new_description>
 cancel_edit_general_informantion:
   action: edit_general_information
-  elements:
-  - selector:
+  element:
+    selector:
       text: Cancel
     type: button
     op: click
+  action: check_specific_project_info
 save_edit_general_informantion:
   action: edit_general_information
-  elements:
-  - selector:
+  element:
+    selector:
       text: Save
     type: button
     op: click
+  action: check_specific_project_info
 check_quota_scope_type:
   action: goto_settings_page
   elements:
