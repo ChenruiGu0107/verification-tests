@@ -262,7 +262,15 @@
     :output: --output=<value>
     :o: -o <value>
     :path: --path=<value>
-
+:extract:
+  :cmd: oc extract
+  :options:
+    :confirm: --confirm=<value>
+    :f: -f <value>
+    :filename: --filename=<value>
+    :keys: --keys=<value>
+    :resource: <value>
+    :to: --to=<value>
 :get:
   :cmd: oc get <resource>
   :options:
