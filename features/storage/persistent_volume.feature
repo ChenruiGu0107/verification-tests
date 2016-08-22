@@ -41,18 +41,12 @@ Feature: Persistent Volume Claim binding policies
 
   # @author yinzhou@redhat.com
   # @case_id 510610
-  @admin
-  @destructive
   Scenario: deployment hook volume inheritance -- with persistentvolumeclaim Volume
     Given I have a project
-    And I have a NFS service in the project
-    # Creating PV and PVC
-    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto-nfs-recycle-rwo.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | nfsc |
     Then the step should succeed
-    And the PV becomes :bound
+    And the "nfsc" PVC becomes :bound
 
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/510610/hooks-with-nfsvolume.json |
