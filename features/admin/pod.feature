@@ -74,3 +74,32 @@ Feature: pod related features
       | ls -al <%= cb.inspect_1_out %> |
     And the output should contain "No such file or directory"
     """
+
+  # @author pruan@redhat.com
+  # @case_id 521573
+  @admin
+  Scenario: Create pod with podspec.containers[].securityContext.ReadOnlyRootFileSystem = nil|false|true should succeed with scc.ReadOnlyRootFilesystem=false
+    Given I have a project
+    And I select a random node's host
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc521573/readonly_false.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=disk-pod |
+    And evaluation of `pod.container(user: user, name: 'disk-pod').id` is stored in the :container_id clipboard
+    When I run commands on the host:
+      | docker inspect <%= cb.container_id %> \|grep only |
+    Then the step should succeed
+    Then the output should match:
+      | "ReadonlyRootfs":\s+false |
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc521573/readonly_true.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=disk-pod-true |
+    And evaluation of `pod.container(user: user, name: 'disk-pod-true').id` is stored in the :container_id_2 clipboard
+    When I run commands on the host:
+      | docker inspect <%= cb.container_id_2 %> \|grep only |
+    Then the step should succeed
+    Then the output should match:
+      | "ReadonlyRootfs":\s+true |
