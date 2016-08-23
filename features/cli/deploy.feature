@@ -104,14 +104,14 @@ Feature: deployment related features
     When I run the :rollback client command with:
       | deployment_name | non-exist |
     Then the output should contain:
-      | error: non-exist is not a valid deployment or deploymentconfig |
+      | error: non-exist |
     When I run the :rollback client command with:
       | deployment_name         | non-exist |
       | change_strategy         ||
       | change_triggers         ||
       | change_scaling_settings ||
     Then the output should contain:
-      | error: non-exist is not a valid deployment or deploymentconfig |
+      | error: non-exist |
     When I run the :rollback client command with:
       | deployment_name         | non-exist |
       | change_strategy         ||
@@ -119,7 +119,7 @@ Feature: deployment related features
       | change_scaling_settings ||
       | dry_run                 ||
     Then the output should contain:
-      | error: non-exist is not a valid deployment or deploymentconfig |
+      | error: non-exist |
     When I run the :rollback client command with:
       | deployment_name         | non-exist |
       | output                  | yaml      |
@@ -127,7 +127,7 @@ Feature: deployment related features
       | change_triggers         ||
       | change_scaling_settings ||
     Then the output should contain:
-      | error: non-exist is not a valid deployment or deploymentconfig |
+      | error: non-exist |
 
   # @author xxing@redhat.com
   # @case_id 491013
@@ -532,7 +532,7 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :complete
     And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
       | latestVersion: 2 | latestVersion: -1 |
-    Then the step should fail
+    Then the step should succeed
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
@@ -540,7 +540,7 @@ Feature: deployment related features
     Then the output should match "2"
     And I replace resource "dc" named "hooks":
       | latestVersion: 2 | latestVersion: 0 |
-    Then the step should fail
+    Then the step should succeed
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
@@ -548,7 +548,7 @@ Feature: deployment related features
     Then the output should match "2"
     And I replace resource "dc" named "hooks":
       | latestVersion: 2 | latestVersion: 5 |
-    Then the step should fail
+    Then the step should succeed
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
@@ -1364,7 +1364,6 @@ Feature: deployment related features
     When I get project dc named "frontend" as JSON
     Then the output should contain:
       | lastTriggeredImage     |
-    And the output should not contain:
       | "latestVersion": 1 |
     """
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
@@ -1376,8 +1375,8 @@ Feature: deployment related features
     And evaluation of `@result[:parsed]['status']['tags'][0]['items']` is stored in the :imagestreamitems clipboard
     And the expression should be true> cb.imagestreamitems.length == 2
     When I get project dc named "frontend" as JSON
-    Then the output should not contain:
-      | "latestVersion": 1 |
+    Then the output should contain:
+      | "latestVersion": 2 |
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :sed_imagestreamimage clipboard
     And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
 
