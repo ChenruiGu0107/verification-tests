@@ -183,9 +183,7 @@ Feature: Testing haproxy router
     When I expose the "service-unsecure" service
     Then the step should succeed
 
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
     #access the route without cookies
     When I execute on the pod:
       | curl |
@@ -308,15 +306,7 @@ Feature: Testing haproxy router
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
 
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
-    When I execute on the pod:
-      | wget |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | -O |
-      | /tmp/ca.pem |
-    Then the step should succeed
+    Given I have a pod-for-ping in the project
     #access the route without cookies
     When I execute on the pod:
       | curl |
@@ -428,12 +418,6 @@ Feature: Testing haproxy router
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
 
     Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | wget |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | -O |
-      | /tmp/ca.pem |
-    Then the step should succeed
     When I run the :create_route_edge client command with:
       | name | edge-route |
       | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
