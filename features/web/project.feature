@@ -204,42 +204,43 @@ Feature: projects related features via web
     Then the step should succeed
     When I perform the :check_general_information web console action with:
       | project_name | <%= project.name %> |
-      | dispaly_name | projecttest         |
+      | display_name | projecttest         |
       | description  | test                |
     Then the step should succeed
     When I perform the :cancel_edit_general_informantion web console action with:
-      | project_name | <%= project.name %> |
-      | display_name | projecttestupdate |
-      | description  | testupdate        |
-    Then the step should succeed
-    When I perform the :check_general_information web console action with:
-      | project_name | <%= project.name %> |
-      | dispaly_name | projecttest         |
-      | description  | test                |
+      | project_name     | <%= project.name %> |
+      | display_name     | projecttest         |
+      | description      | test                |
+      | new_display_name | projecttestupdate   |
+      | new_description  | testupdate          |
     Then the step should succeed
     When I perform the :save_edit_general_informantion web console action with:
-      | project_name | <%= project.name %> |
-      | display_name | projecttestupdate |
-      | description  | testupdate        |
-    Then the step should succeed
-    When I perform the :check_general_information web console action with:
-      | project_name | <%= project.name %> |
-      | dispaly_name | projecttestupdate   |
-      | description  | testupdate          |
+      | project_name     | <%= project.name %> |
+      | display_name     | projecttestupdate   |
+      | description      | testupdate          |
+      | new_display_name | projecttestupdate   |
+      | new_description  | testupdate          |
     Then the step should succeed
     When I run the :policy_add_role_to_user client command with:
       | role      | edit                                |
       | user_name |  <%= user(1, switch: false).name %> |
       | n         | <%= project.name %>                 |
     Given I switch to the second user
-    When I perform the :save_edit_general_informantion web console action with:
+    When I perform the :check_general_information web console action with:
       | project_name | <%= project.name %> |
-      | display_name | projecttesteditor   |
-      | description  | testeditor          |
+      | display_name | projecttestupdate   |
+      | description  | testupdate          |
+    Then the step should succeed
+    When I perform the :save_edit_general_informantion web console action with:
+      | project_name     | <%= project.name %> |
+      | display_name     | projecttestupdate   |
+      | description      | testupdate          |
+      | new_display_name | projecttesteditor   |
+      | new_description  | testeditor          |
     Then the step should succeed
     When I perform the :check_general_information web console action with:
       | project_name | <%= project.name %> |
-      | dispaly_name | projecttestupdate   |
+      | display_name | projecttestupdate   |
       | description  | testupdate          |
     Then the step should succeed
 

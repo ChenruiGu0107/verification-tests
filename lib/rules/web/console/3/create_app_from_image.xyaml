@@ -140,7 +140,7 @@ create_app_from_image_change_bc_image_trigger:
 create_app_from_image_change_bc_config_trigger:
   element:
     selector:
-      text: Automatically build a new image when the build configuration changes
+      text: Launch the first build when the build configuration is created
     op: click
 create_app_from_image_change_routing_setting:
   element:

@@ -21,14 +21,14 @@ Feature: oc run related scenarios
       | name | <%= project.name %> |
       | image |                    |
     Then the step should fail
-    And the output should contain:
-      | Parameter: image is required |
+    And the output should match:
+      | (nvalid )?image [name\|is required] |
     # oc run with less options
     And I run the :run client command with:
       | name | newtest |
     Then the step should fail
-    And the output should contain:
-      | Parameter: image is required |
+    And the output should match:
+      | (nvalid )?image [name\|is required] |
     And I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg | run |
       | test_do_not_use | --image=test  |
