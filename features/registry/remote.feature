@@ -379,3 +379,124 @@ Feature: remote registry related scenarios
     Then the step should fail
     And the output should not match:
       | mystream |
+
+  # @author yinzhou@redhat.com
+  # @case_id 533923
+  @admin
+  Scenario: Do not push blobs during cross-repo mount
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role            | registry-admin   |
+      | user name       | system:anonymous |
+    Then the step should succeed
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    When I run commands on the host:
+      | docker pull busybox                 |
+      | docker tag busybox <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+    Then the step should succeed
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :u1p2 clipboard
+    When I run the :policy_add_role_to_user client command with:
+      | role            | registry-admin   |
+      | user name       | system:anonymous |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker tag busybox <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
+      | docker push <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
+    Then the step should succeed
+    And the output should contain:
+      | Mounted from |
+
+  # @author yinzhou@redhat.com
+  # @case_id 532650
+  @destructive
+  @admin
+  Scenario: Support unauthenticated with registry-admin role
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role            | registry-admin   |
+      | user name       | system:anonymous |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    Then the "ruby-ex-1" build completes
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And I select a random node's host
+    When I run commands on the host:
+      | docker logout <%= cb.integrated_reg_ip %> |
+      | docker pull <%= cb.integrated_reg_ip %>/<%= project.name %>/ruby-ex:latest |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull busybox                 |
+      | docker tag busybox <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+    Then the step should succeed
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :u1p2 clipboard
+    When I run the :new_build client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    Then the "ruby-ex-1" build completes
+    When I run commands on the host:
+      | docker pull <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/ruby-ex:latest |
+    Then the step should fail
+    And the output should contain:
+      | not found |
+    When I run commands on the host:
+      | docker tag busybox <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
+      | docker push <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
+    Then the step should fail
+    And the output should contain:
+      | unauthorized |
+
+  # @author yinzhou@redhat.com
+  # @case_id 532651
+  @destructive
+  @admin
+  Scenario: Support unauthenticated with registry-viewer role docker pull 
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role            | registry-viewer   |
+      | user name       | system:anonymous  |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    Then the "ruby-ex-1" build completes
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And I select a random node's host
+    When I run commands on the host:
+      | docker logout <%= cb.integrated_reg_ip %> |
+      | docker pull <%= cb.integrated_reg_ip %>/<%= project.name %>/ruby-ex:latest |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull busybox                 |
+      | docker tag busybox <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+    Then the step should fail
+    And the output should contain:
+      | unauthorized |
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :u1p2 clipboard
+    When I run the :new_build client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    Then the "ruby-ex-1" build completes
+    When I run commands on the host:
+      | docker pull <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/ruby-ex:latest |
+    Then the step should fail
+    And the output should contain:
+      | not found |
+    When I run commands on the host:
+      | docker tag busybox <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
+      | docker push <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
+    Then the step should fail
+    And the output should contain:
+      | unauthorized |

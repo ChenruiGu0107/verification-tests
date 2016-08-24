@@ -461,6 +461,8 @@
   :cmd: oc policy remove-role-from-user <role> <user_name>
   :options:
     :role_namespace: --role-namespace=<value>
+:policy_can_i:
+  :cmd: oc policy can-i <verb> <resource>
 :policy_who_can:
   :cmd: oc policy who-can <verb> <resource>
 :port_forward:
