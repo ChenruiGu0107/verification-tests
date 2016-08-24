@@ -2573,7 +2573,7 @@ Feature: build 'apps' with CLI
 
   # @author pruan@redhat.com
   # @case_id 498665
-  Scenario: Simple error message return when no value followed with oc build-logs
+  Scenario: Simple error message return when no value followed with oc logs
     Given I have a project
     When I run the :logs client command with:
       | resource_name | |
@@ -2595,3 +2595,28 @@ Feature: build 'apps' with CLI
     Then the step should fail
     And the output should contain:
       | arguments in resource/name form must have a single resource and name |
+
+  # @author pruan@redhat.com
+  # @case_id 533768
+  Scenario: Simple error message return when no value followed with oc build-logs
+    Given I have a project
+    When I run the :build_logs client command with:
+      | build_name | |
+    Then the step should fail
+    And the output should contain:
+      | resource name may not be empty |
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Then the step should succeed
+    And the "ruby-sample-build-1" build becomes :running
+    When I run the :build_logs client command with:
+      | build_name | |
+    Then the step should fail
+    And the output should contain:
+      | resource name may not be empty |
+    When I run the :build_logs client command with:
+      | build_name |  |
+      | n             | default |
+    Then the step should fail
+    And the output should contain:
+      | resource name may not be empty |
