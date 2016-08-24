@@ -937,6 +937,11 @@
   :options:
     :project: <value>
     :selector: --selector=<value>
+:oadm_pod_network_isolate_projects:
+  :cmd: oadm pod-network isolate-projects
+  :options:
+    :project: <value>
+    :selector: --selector=<value>
 :oadm_router:
   :cmd: oadm router <name>
   :options:
