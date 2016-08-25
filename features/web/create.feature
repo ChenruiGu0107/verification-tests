@@ -484,3 +484,27 @@ Feature: create app on web console related
     Then the step should fail
     When I perform the :check_error_notification_on_page web console action with:
       | error_message | You may not request a new project via this API |
+
+  # @author yapei@redhat.com
+  # @case_id 532281
+  Scenario: Check template message on next step page
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/application-template-stibuild.json |
+    Then the step should succeed
+    When I perform the :create_app_from_template_without_label web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | ruby-helloworld-sample |
+      | namespace     | <%= project.name %>    |
+      | param_one     | adminuser  |
+      | param_two     | :null      |
+      | param_three   | :null      |
+      | param_four    | mysqlpass  |
+      | param_five    | :null      |
+    Then the step should succeed
+    When I run the :check_template_message_on_next_page web console action
+    Then the step should succeed
+    When I run the :check_generated_parameter_on_next_page web console action
+    Then the step should succeed
+    When I run the :check_parameter_value web console action
+    Then the step should succeed
