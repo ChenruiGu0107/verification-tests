@@ -44,7 +44,8 @@ Feature: GCE specific scenarios
     Given I store the schedulable nodes in the :nodes clipboard
     And label "<%= cb.proj_name %>=test" is added to the "<%= cb.nodes[0].name %>" node
 
-    Given I have a 1 GB volume and save volume id in the :gcepd clipboard
+    Given I use the "<%= cb.proj_name %>" project
+    And I have a 1 GB volume and save volume id in the :gcepd clipboard
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-default-rwo.json" where:
       | ["metadata"]["name"]                      | pv-<%= project.name %> |
       | ["spec"]["capacity"]["storage"]           | 1                      |
