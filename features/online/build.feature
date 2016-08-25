@@ -62,8 +62,6 @@ Feature: ONLY ONLINE related feature's scripts in this file
       | new_env_value | https://mirror.openshift.com/nexus/content/groups/public/ |
     Then the step should succeed
     When I run the :save_buildconfig_changes web console action
-    Then the step should succeed
-    When I perform the :check_buildconfig_page_loaded_completely_after_editing web console action with:
       | project_name | <%= project.name %> |
       | bc_name      | maven-dep-sample    |
     Then the step should succeed

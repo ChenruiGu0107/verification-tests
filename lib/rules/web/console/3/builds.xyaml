@@ -48,7 +48,7 @@ check_one_buildconfig_page_with_check_config:
   # GitHub webhook URL
   - selector:
       xpath: //dt[contains(.,'GitHub webhook URL')]
-  # Manual (CLI): 
+  # Manual (CLI):
   - selector:
       xpath: //dt[contains(.,'Manual (CLI):')]
   - selector:
@@ -70,7 +70,7 @@ check_one_buildconfig_page_with_build_op:
   - selector:
       xpath: //span[contains(., 'has started')]
 check_one_build_inside_bc_page:
-  # <bc_and_build_name> contains two "/",e.g. bc/build/ 
+  # <bc_and_build_name> contains two "/",e.g. bc/build/
   action: goto_one_build_page
   elements:
   - selector:
@@ -78,7 +78,7 @@ check_one_build_inside_bc_page:
 check_rebuild_button:
   elements:
   - selector:
-      xpath: //button[@ng-click="cloneBuild()" and text()="Rebuild"]     
+      xpath: //button[@ng-click="cloneBuild()" and text()="Rebuild"]
 cancel_build_from_pending_status:
   action: check_one_build_inside_bc_page
   elements:
@@ -140,7 +140,7 @@ start_build_base_on_buildconfig:
 wait_latest_build_to_status:
   action: goto_one_buildconfig_page
   element:
-    selector: 
+    selector:
       xpath: //span[@class='latest-build-status']/span[contains(.,'<build_status>')]
     timeout: 600
 check_buildconfig_environment:
@@ -149,13 +149,13 @@ check_buildconfig_environment:
   - selector:
       xpath: //div[contains(@class,'key-value-editor-input')]/input
   scripts:
-    - command: | 
+    - command: |
              var key = "<env_var_key>"
              var value = "<env_var_value>"
              var rows = document.querySelectorAll('div[class~=key-value-editor-entry]')
              for (var i =0; i< rows.length; i++) {
-                 var inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input')  
-                     if (inputs[0].value == key && inputs[1].value == value) {
+                 var inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input')
+                     if (inputs.length == 2 && inputs[0].value == key && inputs[1].value == value) {
                            return true
                                }
              }
@@ -167,7 +167,15 @@ check_empty_buildconfig_environment:
   - selector:
       xpath: //div[contains(@class,'key-value-editor-entry')]
   scripts:
-    - command: return document.querySelectorAll('div[class~=key-value-editor-entry]').length == 1
+    - command: |
+             var rows = document.querySelectorAll('div[class~=key-value-editor-entry]')
+             for (var i =0; i< rows.length; i++) {
+                 var inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input')
+                     if (inputs.length == 2 && (inputs[0].value != "" || inputs[1].value != "")) {
+                           return false
+                               }
+             }
+             return true
       expect_result: true
 check_buildconfig_dockerfile_config:
   action: goto_buildconfig_configuration_tab
@@ -198,8 +206,20 @@ delete_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
   elements:
   - selector:
-      xpath: //div[@ng-controller="KeyValuesEntryController" and descendant::div[@title="<env_var_key>"]]//a[@title='Delete']
-    op: click
+      xpath: //div[contains(@class,'key-value-editor-input')]/input
+  scripts:
+    - command: |
+             var key = "<env_var_key>"
+             var rows = document.querySelectorAll('div[class~=key-value-editor-entry]')
+             for (var i =0; i< rows.length; i++) {
+                 var inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input')
+                 if (inputs[0].value == key) {
+                     rows[i].querySelector(".key-value-editor-buttons a").click()
+                     return true
+                 }
+             }
+             return false
+      expect_result: true
 count_buildconfig_image_paths:
   action: goto_buildconfig_configuration_tab
   scripts:
@@ -283,19 +303,15 @@ change_source_repo_url:
 add_env_var_key:
   elements:
   - selector:
-      xpath: //div[@ng-if="!cannotAdd"]/div[1]/input
+      xpath: //div[@ng-if="(!cannotAdd) && addRowLink"]/a
     op: click
-  - selector:
-      xpath: //div[@ng-repeat="entry in entries"]
   - selector:
       xpath: //div[@ng-repeat="entry in entries"][count(//div[@ng-repeat="entry in entries"])]/div[1]/input
     op: send_keys <env_var_key>
 add_env_var_value:
   elements:
   - selector:
-      xpath: //div[@ng-repeat="entry in entries"]
-  - selector:
-      xpath: //div[@ng-repeat="entry in entries"][count(//div[@ng-repeat="entry in entries"])]/div[2]/input
+      xpath: //div[@ng-repeat="entry in entries"][count(//div[@ng-repeat="entry in entries"])]/div[2]//input
     op: send_keys <env_var_value>
 save_env_vars: {}
 check_invalid_url_warn_message:
