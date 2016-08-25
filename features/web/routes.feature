@@ -330,3 +330,62 @@ Feature: Routes related features on web console
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift |
+
+  # @author yanpzhan@redhat.com
+  # @case_id 526534
+  Scenario: Edit route on web console
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+   When I perform the :open_create_route_page_from_service_page web console action with:
+      | project_name | <%= project.name%> |
+      | service_name | service-unsecure   |
+    Then the step should succeed
+
+    When I perform the :create_unsecured_route_from_service_or_overview_page web console action with:
+      | route_name | service-unsecure-route |
+    Then the step should succeed
+
+    When I perform the :cancel_edit_route_with_path web console action with:
+      | project_name | <%= project.name%>   |
+      | route_name | service-unsecure-route |
+      | path       | /testone               |
+    Then the step should succeed
+
+    When I perform the :check_edit_route_with_invalid_path web console action with:
+      | project_name | <%= project.name%>   |
+      | route_name | service-unsecure-route |
+      | path       | test123                |
+    Then the step should succeed
+
+    When I perform the :edit_route_with_hostname web console action with:
+      | project_name | <%= project.name%>   |
+      | route_name | service-unsecure-route |
+      | hostname    | test.example.com      |
+    Then the step should fail
+
+    When I perform the :edit_route_to_tls_termination web console action with:
+      | project_name | <%= project.name%>   |
+      | route_name | service-unsecure-route |
+      | tls_termination_type | Passthrough  |
+      | termination_type | passthrough  |
+    Then the step should succeed
+
+    When I perform the :edit_route_to_other_tls_termination web console action with:
+      | project_name | <%= project.name%>   |
+      | route_name | service-unsecure-route |
+      | tls_termination_type | Edge         |
+      | termination_type |     edge         |
+    Then the step should succeed
+
+    When I perform the :edit_route_with_path web console action with:
+      | project_name | <%= project.name%>   |
+      | route_name | service-unsecure-route |
+      | path       | /testtwo               |
+    Then the step should succeed

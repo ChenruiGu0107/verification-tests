@@ -1,0 +1,72 @@
+#---------Edit route on web ------------
+edit_route_with_path:
+  action: goto_one_route_page
+  action: goto_edit_route_page
+  action: set_path
+  action: save_edit_route
+  action: check_path_on_route_page
+cancel_edit_route_with_path:
+  action: goto_one_route_page
+  action: goto_edit_route_page
+  action: set_path
+  action: cancel_edit_route
+check_edit_route_with_invalid_path:
+  action: goto_one_route_page
+  action: goto_edit_route_page
+  action: set_path
+  action: show_options_for_secure_route
+  action: check_warning_info_for_path
+  action: check_save_button_disabled
+edit_route_with_hostname:
+  action: goto_one_route_page
+  action: goto_edit_route_page
+  action: set_hostname
+edit_route_to_tls_termination:
+  action: goto_one_route_page
+  action: goto_edit_route_page
+  action: show_options_for_secure_route
+  action: set_tls_termination
+  action: save_edit_route
+  action: check_termination_type_on_route_page
+edit_route_to_other_tls_termination:
+  action: goto_one_route_page
+  action: goto_edit_route_page
+  action: set_tls_termination
+  action: save_edit_route
+  action: check_termination_type_on_route_page
+goto_edit_route_page:
+  elements:
+  - selector:
+      xpath: //button[contains(., 'Actions')]
+    op: click
+  - selector:
+      xpath: //a[text()='Edit']
+    op: click
+save_edit_route:
+  elements:
+  - selector:
+      text: Save
+    type: button
+    op: click
+cancel_edit_route:
+  elements:
+  - selector:
+      text: Cancel
+    type: a
+    op: click
+check_warning_info_for_path:
+  elements:
+  - selector:
+      xpath: //span[contains(., "Path must start with")]
+check_save_button_disabled:
+  elements:
+  - selector:
+      xpath: //button[@disabled='disabled' and text()='Save']
+check_path_on_route_page:
+  elements:
+  - selector:
+      xpath: //span[text()='<path>']
+check_termination_type_on_route_page:
+  elements:
+  - selector:
+      xpath: //dt[contains(., "Termination type:")]/following-sibling::dd[contains(., '<termination_type>')]
