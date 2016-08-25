@@ -244,9 +244,9 @@ Feature: limit range related scenarios:
       | all        | true             |
     Then the step should succeed
     When I run the :tag client command with:
-      | source_type  | docker                     |
-      | source       | docker.io/library/busybox:latest   |
-      | dest         | mystream:latest            |
+      | source_type  | docker                           |
+      | source       | docker.io/library/busybox:latest |
+      | dest         | mystream:latest                  |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -257,3 +257,74 @@ Feature: limit range related scenarios:
       | n             | <%= project.name %> |
     Then the output should match "openshift.io/imagestreams:2"
     """
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 529162
+  @admin
+  Scenario: When exceed openshift.io/image-tags will ban to create new image references in the project
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml"
+    And I replace lines in "image-limit-range.yaml":
+      | openshift.io/image-tags: 20 | openshift.io/image-tags: 1 |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | image-limit-range.yaml |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    When I run the :tag client command with:
+      | source_type  | docker                           |
+      | source       | docker.io/library/busybox:latest |
+      | dest         | mystream:v1                      |
+    Then the step should succeed
+    When I run the :tag client command with:
+      | source_type  | docker                    |
+      | source       | openshift/hello-openshift |
+      | dest         | mystream:v2               |
+    Then the step should fail
+    And the output should contain:
+      | forbidden |
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 529163
+  @admin
+  Scenario: When exceed openshift.io/images will ban to create image reference or push image to project
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role            | registry-admin   |
+      | user name       | system:anonymous |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml"
+    And I replace lines in "image-limit-range.yaml":
+      | openshift.io/images: 30 | openshift.io/images: 1 |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | image-limit-range.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :tag client command with:
+      | source_type  | docker                           |
+      | source       | docker.io/library/busybox:latest |
+      | dest         | mystream:v1                      |
+    Then the step should succeed
+    When I run the :tag client command with:
+      | source_type  | docker                    |
+      | source       | openshift/hello-openshift |
+      | dest         | mystream:v2               |
+    And I run the :describe client command with:
+      |resource | imagestream |
+      | name    | mystream    |
+    And the output should contain:
+      | Import failed |
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And I select a random node's host
+    When I run commands on the host:
+      | docker pull docker.io/openshift/deployment-example |
+      | docker tag docker.io/openshift/deployment-example <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:v3 |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:v3 |
+    Then the step should fail
+    And the output should contain:
+      | denied |

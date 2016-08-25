@@ -202,7 +202,7 @@ Feature: oc_expose.feature
       | configmap-name | default-conf      |
       | mount-path     | /etc/caddy/config |
     Then the step should succeed
-    Given all pods in the project are ready
+    And I wait until the status of deployment "hello" becomes :complete
     Then I run the :run client command with:
       | name       | centos                                                           |
       | restart    | Never                                                            |
