@@ -1050,3 +1050,232 @@ Feature: Quota related scenarios
     Then the output should match:
       | services\\s+1\\s+5           |
       | services.nodeports\\s+1\\s+2 |
+
+  # @author chezhang@redhat.com
+  # @case_id 533791
+  @admin
+  Scenario: The quota usage should be released when pod completed
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name | myquota                    |
+      | hard | cpu=30,memory=16Gi,pods=20 |
+      | n    | <%= project.name %>        |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota    |
+      | name     | myquota  |
+    Then the output should match:
+      | cpu\\s+0\\s+30      |
+      | memory\\s+0\\s+16Gi |
+      | pods\\s+0\\s+20     |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-completed.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota    |
+      | name     | myquota  |
+    Then the output should match:
+      | cpu\\s+700m\\s+30     |
+      | memory\\s+1Gi\\s+16Gi |
+      | pods\\s+1\\s+20       |
+    Given the pod named "podtocomplete" status becomes :succeeded
+    When I run the :describe client command with:
+      | resource | quota    |
+      | name     | myquota  |
+    Then the output should match:
+      | cpu\\s+0\\s+30      |
+      | memory\\s+0\\s+16Gi |
+      | pods\\s+0\\s+20     |
+
+  # @author chezhang@redhat.com
+  # @case_id 533795
+  @admin
+  Scenario: Quota with BestEffort and NotBestEffort scope
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name   | quota-besteffort     |
+      | hard   | pods=10              |
+      | scopes | BestEffort           |
+      | n      | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :create_quota admin command with:
+      | name   | quota-notbesteffort |
+      | hard   | pods=5              |
+      | scopes | NotBestEffort       |
+      | n | <%= project.name %>      |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota    |
+    Then the output by order should match:
+      | quota-besteffort    |
+      | BestEffort          |
+      | pods\\s+0\\s+10     |
+      | quota-notbesteffort |
+      | NotBestEffort       |
+      | pods\\s+0\\s+5      |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-besteffort.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota    |
+    Then the output by order should match:
+      | pods\\s+1\\s+10     |
+      | pods\\s+0\\s+5      |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-notbesteffort.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota    |
+    Then the output by order should match:
+      | pods\\s+1\\s+10     |
+      | pods\\s+1\\s+5      |
+    Given I ensure "pod-notbesteffort" pod is deleted
+    When I run the :describe client command with:
+      | resource | quota    |
+    Then the output by order should match:
+      | pods\\s+1\\s+10     |
+      | pods\\s+0\\s+5      |
+
+  # @author chezhang@redhat.com
+  # @case_id 533796
+  @admin
+  Scenario: Quota with Terminating and NotTerminating scope
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name   | quota-terminating |
+      | hard   | pods=10           |
+      | scopes | Terminating       |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    When I run the :create_quota admin command with:
+      | name   | quota-notterminating |
+      | hard   | pods=5               |
+      | scopes | NotTerminating       |
+      | n      | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota     |
+    Then the output by order should match:
+      | quota-notterminating |
+      | NotTerminating       |
+      | pods\\s+0\\s+5       |
+      | quota-terminating    |
+      | Terminating          |
+      | pods\\s+0\\s+10      |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-terminating.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota |
+    Then the output by order should match:
+      | pods\\s+0\\s+5   |
+      | pods\\s+1\\s+10  |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-notterminating.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota |
+    Then the output by order should match:
+      | pods\\s+1\\s+5   |
+      | pods\\s+1\\s+10  |
+    Given a pod becomes ready with labels:
+      | name=pod-terminating |
+    And I wait up to 70 seconds for the steps to pass:
+    """
+    When I get project pods
+    Then the output should match "pod-terminating.*DeadlineExceeded"
+    """
+    When I run the :describe client command with:
+      | resource | quota |
+    Then the output by order should match:
+      | pods\\s+1\\s+5   |
+      | pods\\s+0\\s+10  |
+
+  # @author chezhang@redhat.com
+  # @case_id 533792
+  @admin
+  Scenario: Quota combined scopes
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name   | quota-notbesteffortandnotterminating |
+      | hard   | pods=10                              |
+      | scopes | NotBestEffort,NotTerminating         |
+      | n | <%= project.name %>                       |
+    Then the step should succeed
+    When I run the :create_quota admin command with:
+      | name   | quota-besteffortandterminating |
+      | hard   | pods=8                         |
+      | scopes | BestEffort,Terminating         |
+      | n      | <%= project.name %>            |
+    Then the step should succeed
+    When I run the :create_quota admin command with:
+      | name   | quota-besteffort    |
+      | hard   | pods=6              |
+      | scopes | BestEffort          |
+      | n      | <%= project.name %> |
+    Then the step should succeed
+    When I run the :create_quota admin command with:
+      | name   | quota-notterminating |
+      | hard   | pods=5               |
+      | scopes | NotTerminating       |
+      | n      | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota |
+    Then the output by order should match:
+      | quota-besteffort                     |
+      | BestEffort                           |
+      | pods\\s+0\\s+6                       |
+      | quota-besteffortandterminating       |
+      | BestEffort.*Terminating              |
+      | pods\\s+0\\s+8                       |
+      | quota-notbesteffortandnotterminating |
+      | NotBestEffort.*NotTerminating        |
+      | pods\s+0\\s+10                       |
+      | quota-notterminating                 |
+      | NotTerminating                       |
+      | pods\\s+0\\s+5                       |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-notbesteffort.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota |
+    Then the output by order should match:
+      | pods\\s+0\\s+6 |
+      | pods\\s+0\\s+8 |
+      | pods\s+1\\s+10 |
+      | pods\\s+1\\s+5 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-besteffort.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota |
+    Then the output by order should match:
+      | pods\\s+1\\s+6 |
+      | pods\\s+0\\s+8 |
+      | pods\s+1\\s+10 |
+      | pods\\s+2\\s+5 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-besteffort-terminating.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota |
+    Then the output by order should match:
+      | pods\\s+2\\s+6 |
+      | pods\\s+1\\s+8 |
+      | pods\s+1\\s+10 |
+      | pods\\s+2\\s+5 |
+    Given a pod becomes ready with labels:
+      | name=pod-besteffort-terminating |
+    And I wait up to 70 seconds for the steps to pass:
+    """
+    When I get project pods
+    Then the output should match "pod-besteffort-terminating.*DeadlineExceeded"
+    """
+    When I run the :describe client command with:
+      | resource | quota |
+    Then the output by order should match:
+      | pods\\s+1\\s+6 |
+      | pods\\s+0\\s+8 |
+      | pods\s+1\\s+10 |
+      | pods\\s+2\\s+5 |
