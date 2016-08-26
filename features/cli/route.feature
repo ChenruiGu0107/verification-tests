@@ -60,10 +60,11 @@ Feature: route related features via cli
     When I expose the "myapp" service
     Then the step should succeed
     Given I get project routes
-    And the output should contain "app=test-perl"
+    And the output should match:
+      | myapp .* 8080    |
     When I run the :describe client command with:
       | resource | route |
-      | name | myapp |
+      | name     | myapp |
     Then the step should succeed
     And the output should match "Labels:\s+app=test-perl"
     When I wait for a web server to become available via the "myapp" route
