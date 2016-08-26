@@ -135,10 +135,13 @@ Feature: scaling related scenarios
       | deployment_config | hooks |
       | latest            ||
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
     And I run the :deploy client command with:
       | deployment_config | hooks |
       | cancel            ||
     Then the step should succeed
+    """
     And the output should match:
       | [Cc]ancelled |
     And I wait until the status of deployment "hooks" becomes :failed
