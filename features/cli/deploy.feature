@@ -532,7 +532,7 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :complete
     And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
       | latestVersion: 2 | latestVersion: -1 |
-    Then the step should succeed
+    Then the step should fail
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
@@ -540,7 +540,7 @@ Feature: deployment related features
     Then the output should match "2"
     And I replace resource "dc" named "hooks":
       | latestVersion: 2 | latestVersion: 0 |
-    Then the step should succeed
+    Then the step should fail
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
@@ -548,7 +548,7 @@ Feature: deployment related features
     Then the output should match "2"
     And I replace resource "dc" named "hooks":
       | latestVersion: 2 | latestVersion: 5 |
-    Then the step should succeed
+    Then the step should fail
     When I run the :get client command with:
       | resource      | dc    |
       | resource_name | hooks |
