@@ -44,7 +44,8 @@ Feature: GCE specific scenarios
     Given I store the schedulable nodes in the :nodes clipboard
     And label "<%= cb.proj_name %>=test" is added to the "<%= cb.nodes[0].name %>" node
 
-    Given I have a 1 GB volume and save volume id in the :gcepd clipboard
+    Given I use the "<%= cb.proj_name %>" project
+    And I have a 1 GB volume and save volume id in the :gcepd clipboard
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-default-rwo.json" where:
       | ["metadata"]["name"]                      | pv-<%= project.name %> |
       | ["spec"]["capacity"]["storage"]           | 1                      |
@@ -157,27 +158,27 @@ Feature: GCE specific scenarios
     # create pod using above pvc
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc1-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod1-<%= project.name %>       |
+      | ["metadata"]["name"]                                         | mypod1                           |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc2-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod2-<%= project.name %>       |
+      | ["metadata"]["name"]                                         | mypod2                           |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc3-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod3-<%= project.name %>       |
+      | ["metadata"]["name"]                                         | mypod3                           |
     Then the step should succeed
 
     # write to the mounted storage
     Given 3 pods become ready with labels:
       | name=frontendhttp |
-    When I execute on the "<%= pod(-1).name %>" pod:
+    When I execute on the "mypod1" pod:
       | touch | /mnt/gce/testfile_before_restart_1 |
     Then the step should succeed
-    When I execute on the "<%= pod(-2).name %>" pod:
+    When I execute on the "mypod2" pod:
       | touch | /mnt/gce/testfile_before_restart_2 |
     Then the step should succeed
-    When I execute on the "<%= pod(-3).name %>" pod:
+    When I execute on the "mypod3" pod:
       | touch | /mnt/gce/testfile_before_restart_3 |
     Then the step should succeed
 
@@ -186,24 +187,24 @@ Feature: GCE specific scenarios
     And the node service is restarted on the host
 
     # verify previous created files still exist
-    When I execute on the "<%= pod(-1).name %>" pod:
+    When I execute on the "mypod1" pod:
       | ls | /mnt/gce/testfile_before_restart_1 |
     Then the step should succeed
-    When I execute on the "<%= pod(-2).name %>" pod:
+    When I execute on the "mypod2" pod:
       | ls | /mnt/gce/testfile_before_restart_2 |
     Then the step should succeed
-    When I execute on the "<%= pod(-3).name %>" pod:
+    When I execute on the "mypod3" pod:
       | ls | /mnt/gce/testfile_before_restart_3 |
     Then the step should succeed
 
     # write to the mounted storage
-    When I execute on the "<%= pod(-1).name %>" pod:
+    When I execute on the "mypod1" pod:
       | touch | /mnt/gce/testfile_after_restart_1 |
     Then the step should succeed
-    When I execute on the "<%= pod(-2).name %>" pod:
+    When I execute on the "mypod2" pod:
       | touch | /mnt/gce/testfile_after_restart_2 |
     Then the step should succeed
-    When I execute on the "<%= pod(-3).name %>" pod:
+    When I execute on the "mypod3" pod:
       | touch | /mnt/gce/testfile_after_restart_3 |
     Then the step should succeed
 
