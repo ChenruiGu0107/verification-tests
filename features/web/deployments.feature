@@ -226,3 +226,101 @@ Feature: Check deployments function
       | resource_name    | <%= pod.name %> |
     Then the step should succeed
     And the output should equal "<%= cb.output %>"
+
+  # @author yapei@redhat.com
+  # @case_id 533674
+  Scenario: Idled DC handling on web console
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-service.yaml |
+    Then the step should succeed
+    Given I wait until the status of deployment "hello-openshift" becomes :complete
+    When I run the :idle client command with:
+      | svc_name | hello-openshift |
+    Then the step should succeed
+    Given I wait until number of replicas match "0" for replicationController "hello-openshift-1"
+    # check replicas after idle
+    When I perform the :check_dc_replicas web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hello-openshift     |
+      | dc_replicas  | 0                   |
+    Then the step should succeed
+    When I perform the :check_deployment_idle_text web console action with:
+      | project_name      | <%= project.name %> |
+      | dc_name           | hello-openshift     |
+      | dc_number         |   1                 |
+      | previous_replicas |   1                 |
+    Then the step should succeed
+    When I perform the :check_dc_idle_text_on_overview web console action with:
+      | project_name      | <%= project.name %> |
+      | dc_name           | hello-openshift     |
+      | previous_replicas |   1                 |
+    Then the step should succeed
+    When I perform the :check_donut_text_on_overview web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hello-openshift     |
+      | donut_text   | Idle                |
+    Then the step should succeed
+    # check replicas after wake up
+    When I perform the :click_wake_up_option_on_overview web console action with:
+      | project_name      | <%= project.name %> |
+      | dc_name           | hello-openshift     |
+      | previous_replicas |   1                 |
+    Then the step should succeed
+    Given I wait until number of replicas match "1" for replicationController "hello-openshift-1"
+    And all pods in the project are ready
+    When I perform the :check_dc_replicas web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hello-openshift     |
+      | dc_replicas  | 1                   |
+    Then the step should succeed
+    When I perform the :check_donut_text_on_overview web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hello-openshift     |
+      | donut_text   | 1pod                |
+    Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id 533676
+  Scenario: Idled RC handling on web console
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/mdshuai/testfile-openshift/master/k8s/rc-and-svc-list.yaml |
+    Then the step should succeed
+    Given all pods in the project are ready
+    When I run the :idle client command with:
+      | svc_name | hello-svc |
+    Then the step should succeed
+    Given I wait until number of replicas match "0" for replicationController "hello-pod"
+    When I perform the :check_standalone_rc_idle_text web console action with:
+      | project_name      | <%= project.name %> |
+      | rc_name           | hello-pod           |
+      | previous_replicas |  2                  |
+    Then the step should succeed
+    When I perform the :check_dc_idle_text_on_overview web console action with:
+      | project_name      | <%= project.name %> |
+      | dc_name           | hello-pod           |
+      | previous_replicas |   2                 |
+    Then the step should succeed
+    When I perform the :check_donut_text_on_overview web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hello-pod           |
+      | donut_text   | Idle                |
+    Then the step should succeed
+    # check replicas after wake up
+    When I perform the :click_wake_up_option_on_rc_page web console action with:
+      | project_name      | <%= project.name %> |
+      | rc_name           | hello-pod           |
+      | previous_replicas |  2                  |
+    Then the step should succeed
+    Given I wait until number of replicas match "2" for replicationController "hello-pod"
+    When I perform the :check_standalone_rc_replicas web console action with:
+      | project_name      | <%= project.name %> |
+      | rc_name           | hello-pod           |
+      | rc_replicas       | 2                   |
+    Then the step should succeed
+    When I perform the :check_donut_text_on_overview web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hello-pod           |
+      | donut_text   | 2pods               |
+    Then the step should succeed
