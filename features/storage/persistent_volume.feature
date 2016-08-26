@@ -311,3 +311,21 @@ Feature: Persistent Volume Claim binding policies
     And the "pv-<%= project.name %>" PV status is :available
     And the "pvc-<%= project.name %>" PVC becomes :pending
     And the "pv-<%= project.name %>" PV status is :available
+
+  # @author wehe@redhat.com
+  # @case_id 533135 
+  @admin
+  Scenario: Check the pvc capacity  
+    Given I have a project
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-retain-rox.json" where:
+      | ["metadata"]["name"]              | pv-<%= project.name %>   |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+    When I get project pvc named "pvc-<%= project.name %>" 
+    Then the output should contain:
+      | ROX |
+      | 5Gi |         
