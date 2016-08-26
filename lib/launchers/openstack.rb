@@ -28,7 +28,7 @@ module CucuShift
       #   allow users to keep configuration for multiple OpenStack instances
       service_name = options[:service_name] ||
                      ENV['OPENSTACK_SERVICE_NAME'] ||
-                     'openstack'
+                     'openstack_qeos7'
       @opts = default_opts(service_name).merge options
 
       @os_user = ENV['OPENSTACK_USER'] || opts[:user]
@@ -43,10 +43,12 @@ module CucuShift
         STDERR.puts "OpenStack Password: "
         @os_passwd = STDIN.noecho(&:gets).chomp
       end
+
       @os_tenant_id = ENV['OPENSTACK_TENANT_ID'] || opts[:tenant_id]
-      @os_tenant_name = ENV['OPENSTACK_TENANT_NAME'] || opts[:tenant_name]
-      if @os_tenant_id && @os_tenant_name
-        raise "please provide only one of tenant name and tenant id, now we have both: #{@os_tenant_id} #{@os_tenant_name}"
+      unless @os_tenant_id
+        @os_tenant_name = ENV['OPENSTACK_TENANT_NAME'] || opts[:tenant_name]
+      else
+        @os_tenant_name = nil
       end
 
       @os_url = ENV['OPENSTACK_URL'] || opts[:url]
@@ -99,33 +101,60 @@ module CucuShift
       return res
     end
 
+
+    # Basic token validity check. So we dont generate a new session when we call get_token()
+    def token_valid?()
+
+
+      if monotonic_seconds - @token_created_at > 900
+        params = {:auth => {"tenantName" => self.os_tenant_name, "token" => {"id" => self.os_token}}}
+        @token_created_at = monotonic_seconds
+
+        res = self.rest_run(self.os_url, "POST", params, self.os_token)
+        if res[:success] && res[:exitstatus] == 200
+          logger.info "token found. Using already existing token."
+          return true
+        elsif res[:exitstatus] == 404 || res[:exitstatus] == 401
+          return false
+        else
+          raise "#{res[:error]}"
+        end
+      else
+        return true
+      end
+    end
+
     def get_token()
       # TODO: get token via token
       #   http://docs.openstack.org/developer/keystone/api_curl_examples.html
-      auth_opts = {:passwordCredentials => { "username" => self.os_user, "password" => self.os_passwd }}
-      if @os_tenant_id
-        auth_opts[:tenantId] = self.os_tenant_id
+      if self.os_token && self.token_valid?
+        return @os_token
       else
-        auth_opts[:tenantName] = self.os_tenant_name
-      end
-      params = {:auth => auth_opts}
-      res = self.rest_run(self.os_url, "POST", params) do |result|
-        parsed = result[:parsed] || next
-        @os_token = parsed['access']['token']['id']
-        if parsed['access']['token']["tenant"]
-          @os_tenant_name ||= parsed['access']['token']["tenant"]["name"]
-          @os_tenant_id ||= parsed['access']['token']["tenant"]["id"]
-          logger.info "logged in to tenant: #{parsed['access']['token']["tenant"].to_json}"
+        auth_opts = {:passwordCredentials => { "username" => self.os_user, "password" => self.os_passwd }}
+        if @os_tenant_id
+          auth_opts[:tenantId] = self.os_tenant_id
         else
-          raise "no tenant found in reply: #{result[:response]}"
+          auth_opts[:tenantName] = self.os_tenant_name
         end
-        @os_service_catalog = parsed['access']['serviceCatalog']
+        params = {:auth => auth_opts}
+        res = self.rest_run(self.os_url, "POST", params) do |result|
+          parsed = result[:parsed] || next
+          @os_token = parsed['access']['token']['id']
+          if parsed['access']['token']["tenant"]
+            @os_tenant_name ||= parsed['access']['token']["tenant"]["name"]
+            @os_tenant_id ||= parsed['access']['token']["tenant"]["id"]
+            logger.info "logged in to tenant: #{parsed['access']['token']["tenant"].to_json}"
+          else
+            raise "no tenant found in reply: #{result[:response]}"
+          end
+          @os_service_catalog = parsed['access']['serviceCatalog']
+        end
+        unless @os_token
+          logger.error res.to_yaml
+          raise "Could not obtain proper token"
+        end
+        return @os_token
       end
-      unless @os_token
-        logger.error res.to_yaml
-        raise "Could not obtain proper token"
-      end
-      return @os_token
     end
 
     def os_compute_service
@@ -173,8 +202,8 @@ module CucuShift
     def os_volumes_url
       return @os_volumes_url if @os_volumes_url
       for service in os_service_catalog
-        if server['type'] == "volumev2"
-          @os_volumes_url = server['endpoints'][0]['publicURL']
+        if service['type'] == "volumev2"
+          @os_volumes_url = service['endpoints'][0]['publicURL']
           return @os_volumes_url
         end
       end
@@ -263,6 +292,57 @@ module CucuShift
       end
     end
 
+    def get_volume_by_openshift_metadata(pv_name, project_name)
+
+      vol_res = nil
+      url = self.os_volumes_url + '/' + 'volumes/detail'
+      res = self.rest_run(url, "GET", nil, self.os_token)
+      # cant check directly for the volume as openshift does not provide the whole name of the volume
+      if res[:success] && res[:parsed] && res[:exitstatus] == 200
+        count = 0
+        res[:parsed]["volumes"].count do |vol|
+          if pv_name == vol["metadata"]["kubernetes.io/created-for/pv/name"] && project_name == vol["metadata"]["kubernetes.io/created-for/pvc/namespace"]
+            vol_res = self.rest_run(self_link(vol["links"]), "GET", nil, self.os_token)
+            count += 1
+          end
+        end
+        if vol_res.nil?
+          return nil
+        elsif vol_res[:success] && vol_res[:parsed] && vol_res[:exitstatus] == 200
+          logger.info "volume found: #{vol_res[:response]}"
+          return vol_res
+        elsif count > 1
+          raise "ambiguous volume name, found #{count}"
+        else
+          raise "#{vol_res[:error]}:\n" << vol_res.to_yaml
+        end
+      else
+        raise "#{res[:error]}:\n" << res.to_yaml
+      end
+    end
+
+    def get_volume_by_id(id)
+
+      url = self.os_volumes_url + '/' + 'volumes' + '/' + id
+      res = self.rest_run(url, "GET", nil, self.os_token)
+      if res[:exitstatus] == 200
+          return res
+      elsif res[:exitstatus] == 404
+          return nil
+      else
+        raise "#{res[:error]}:\n" << res.to_yaml
+      end
+    end
+
+    def get_volume_state(res)
+      if res[:exitstatus] == 200
+        return res[:parsed]['volume']['status']
+      else
+        raise "#{res[:error]}:\n" << res.to_yaml
+      end
+    end
+
+
     def clone_volume(src_name: nil, url: nil, id:nil , name:)
       if [src_name, url, id].count{|o| o} != 1
         raise "specify exactly one of 'src_name', 'url' and 'id'"
@@ -270,8 +350,10 @@ module CucuShift
 
       case
       when src_name
-        id = get_volume_by_name(src_name, return_key: "id")
-        # id = get_volume_by_name(src_name)
+          id = get_volume_by_name(src_name)
+        if res.nil?
+          raise "Could not find volume '#{name}'."
+        end
       when url
         id = url.gsub(%r{^.*/([^/]+)$}, '\\1')
       end
@@ -481,6 +563,7 @@ module CucuShift
       }
       return res
     end
+
 
     class Instance
       attr_reader :client

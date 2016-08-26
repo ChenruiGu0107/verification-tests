@@ -17,6 +17,7 @@ module CucuShift
   autoload :LocalProcess, "local_process.rb"
   autoload :OwnThat, "ownthat.rb"
   autoload :MasterConfig, "master_config.rb"
+  autoload :IAAS, "iaas/iaas"
 
   autoload :ImageStream, "openshift/image_stream"
   autoload :Project, "openshift/project"
