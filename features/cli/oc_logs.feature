@@ -117,20 +117,21 @@ Feature: oc logs related features
   # @case_id 519503
   Scenario: Debug the resource with keeping the original pod info
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/2ca50e6cf3131acd17feb6553a2551974be3ffaa/test/integration/fixtures/test-deployment-config.yaml |
+    When I run the :run client command with:
+      | name      | hello                            |
+      | image     | openshift/hello-openshift:latest |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=test-deployment-config-1 |
+      | deployment=hello-1 |
     When I run the :debug client command with:
-      | resource         | dc/test-deployment-config |
+      | resource         | dc/hello |
       | keep_annotations |        |
       | o                | yaml   |
     Then the step should succeed
     And the output should match:
-      | openshift.io/deployment-config.latest-version:.*1              |
-      | openshift.io/deployment-config.name:\\stest-deployment-config  |
-      | openshift.io/deployment.name:\\s+test-deployment-config-1      |
+      | openshift.io/deployment-config.latest-version:.*1 |
+      | openshift.io/deployment-config.name:\\s+hello     |
+      | openshift.io/deployment.name:\\s+hello-1          |
 
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-with-probe.yaml |
