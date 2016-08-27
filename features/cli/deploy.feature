@@ -1494,7 +1494,7 @@ Feature: deployment related features
       | list     | true     |
     Then the step should succeed
     And the output should contain "TEST=123"
-    
+
   # @author mcurlej@redhat.com
   # @case_id 532412
   Scenario: Check the status for deployment configs
@@ -1520,7 +1520,7 @@ Feature: deployment related features
       | resource_name | hooks |
       | o             | json  |
     Then the step should succeed
-    And the expression should be true> @result[:parsed]['metadata']['generation'] - cb.prev_generation == 1 
+    And the expression should be true> @result[:parsed]['metadata']['generation'] - cb.prev_generation == 1
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] - cb.prev_observed_generation == 1
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] >= @result[:parsed]['metadata']['generation']
 
@@ -1641,7 +1641,7 @@ Feature: deployment related features
     Then the step should succeed
     And the output should contain:
       | deployment.kubernetes.io/revision:2 |
-      
+
   # @author mcurlej@redhat.com
   # @case_id 532416
   Scenario: View the history of rollouts for a specific deployment config
@@ -1672,3 +1672,15 @@ Feature: deployment related features
       | Labels:                                                          |
       | Containers:                                                      |
       | Annotations:                                                     |
+
+  # @author pruan@redhat.com
+  # @case_id 532415
+  Scenario: Support MinReadySeconds in DC
+    Given I have a project
+    And evaluation of `60` is stored in the :min_ready_seconds clipboard
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc532415/min_ready.yaml
+    Then the step should succeed
+    And 20 seconds have passed
+    And the expression should be true> dc('minreadytest').unavailable_replicas(user: user) == 2
+    And 40 seconds have passed
+    And the expression should be true> dc('minreadytest').available_replicas(user: user) == 2

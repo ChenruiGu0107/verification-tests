@@ -24,3 +24,25 @@ Feature: replicaSet related tests
     Then the step should not succeed
     And the output should contain:
       | replicasets "frontend" not found |
+
+  # @author pruan@redhat.com
+  # @case_id 533163
+  Scenario: Support to scale up/down with ReplicaSets in OpenShift
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc533163/rs.yaml |
+    Then the step should succeed
+    And I run the :scale client command with:
+      | resource | replicaset |
+      | name     | frontend   |
+      | replicas | 10         |
+    Then the step should succeed
+    And I wait until number of replicas match "10" for replicaSet "frontend"
+    And I run the :scale client command with:
+      | resource | replicaset |
+      | name     | frontend   |
+      | replicas | 2          |
+    Then the step should succeed
+    And I wait until number of replicas match "2" for replicaSet "frontend"
+
+

@@ -88,6 +88,18 @@ module CucuShift
       end
     end
 
+    # avilablity check only exists in 3.3, and oc describe doesn't have that
+    # information prior, so we can't use the same logic to check for that info
+    def unavailable_replicas(user:, cached: false, quiet: false)
+      status = get_cached_prop(prop: :status, user: user,
+                             cached: cached, quiet: quiet)
+
+      if status["unavailableReplicas"]
+        # OCP 3.3 and later
+        return status["unavailableReplicas"]
+      end
+    end
+
     def strategy(user:, cached: true, quiet: false)
       spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
       return spec['strategy']
