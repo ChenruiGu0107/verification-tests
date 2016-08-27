@@ -1374,3 +1374,82 @@ Feature: Testing haproxy router
       | o | yaml |
     Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['requests'].include?("cpu")
     Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['requests'].include?("memory")
+
+  # @author zzhao@redhat.com
+  # @case_id 520314
+  @admin
+  @destructive
+  Scenario: Be able to create multi router via setting port with container network mode
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I store master image version in the clipboard
+    Given default router replica count is stored in the :router_num clipboard
+    Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
+      | deploymentconfig=router |
+
+    And evaluation of `rand(52001..64000)` is stored in the :stats_port clipboard
+    And evaluation of `rand(32000..42000)` is stored in the :http_port clipboard
+    And evaluation of `rand(42001..52000)` is stored in the :https_port clipboard
+    And I register clean-up steps:
+    """
+    Given I run commands on the nodes in the :router_node clipboard:
+      | iptables -D INPUT -p tcp --dport <%= cb.http_port %> -j ACCEPT      |
+      | iptables -D INPUT -p tcp --dport <%= cb.https_port %> -j ACCEPT     |
+      | iptables -D INPUT -p tcp --dport <%= cb.stats_port %> -j ACCEPT     |
+    Then the step should succeed
+    """
+    Given I run commands on the nodes in the :router_node clipboard:
+      | iptables -I INPUT -p tcp --dport <%= cb.http_port %> -j ACCEPT      |
+      | iptables -I INPUT -p tcp --dport <%= cb.https_port %> -j ACCEPT     |
+      | iptables -I INPUT -p tcp --dport <%= cb.stats_port %> -j ACCEPT     |
+    Then the step should succeed
+
+    Given admin ensures "tc-520314" dc is deleted after scenario
+    And admin ensures "tc-520314" service is deleted after scenario
+    When I run the :oadm_router admin command with:
+      | name | tc-520314 |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
+      | stats_port | <%= cb.stats_port %> |
+      | replicas | <%= cb.router_num %> |
+      | ports | <%= cb.http_port %>:<%= cb.http_port %>,<%= cb.https_port %>:<%= cb.https_port %> |
+      | host_network | false |
+    When I run the :env client command with:
+      | resource | dc/tc-520314 |
+      | e        | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>,ROUTER_SERVICE_HTTPS_PORT=<%= cb.https_port %>  |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deployment=tc-520314-2 |
+
+    Given I run commands on the nodes in the :router_node clipboard:
+      | docker ps \| grep tc-520314 |
+    Then the output should contain "0.0.0.0:<%= cb.http_port %>-><%= cb.http_port %>/tcp, 0.0.0.0:<%= cb.https_port %>-><%= cb.https_port %>/tcp, 0.0.0.0:<%= cb.stats_port %>-><%= cb.stats_port %>/tcp"
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    When I open web server via the "http://<%= route.dns(by: user) %>" url
+    Then the output should contain "Hello-OpenShift"
+    When I open web server via the "http://<%= route.dns(by: user) %>:<%= cb.http_port %>" url
+    Then the output should contain "Hello-OpenShift"
+    When I run the :create_route_edge client command with:
+      | name | edge-route |
+      | service | service-unsecure |
+    Then the step should succeed
+    When I open secure web server via the "edge-route" route
+    Then the output should contain "Hello-OpenShift"
+
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | https://<%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %> |
+      | -k |
+    Then the output should contain "Hello-OpenShift"
