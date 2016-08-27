@@ -410,6 +410,7 @@ Feature: oc related features
   Scenario: Check `oc autoscale` help info
     Given I have a project
     When I run the :autoscale client command with:
+      | name  | :false |
       | h     | |
     Then the step should succeed
     And the output should contain:
@@ -431,6 +432,7 @@ Feature: oc related features
       | --sort-by=           |
       | --template=          |
     When I run the :autoscale client command with:
+      | name  | :false |
       | help  | |
     Then the step should succeed
     And the output should contain:

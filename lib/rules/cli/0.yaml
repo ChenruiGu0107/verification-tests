@@ -52,7 +52,11 @@
     :stdin: --stdin=<value>
     :tty: --tty=<value>
 :autoscale:
-  :cmd: oc autoscale
+  :cmd: oc autoscale <name>
+  :options:
+    :cpu-percent: --cpu-percent=<value>
+    :min: --min=<value>
+    :max: --max=<value>
 :build_logs:
   :cmd: oc build-logs <build_name>
   :options:
