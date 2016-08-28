@@ -26,3 +26,48 @@ Feature: Egress-ingress related networking scenarios
       | n | <%= project.name %> |
     Then the step should fail
     And the output should contain "invalid CIDR address"
+
+
+  # @author yadu@redhat.com
+  # @case_id 533249
+  @admin
+  Scenario: Only the cluster-admins can create EgressNetworkPolicy
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
+      | n | <%= project.name %> |
+    Then the step should fail
+    And the output should contain "cannot create egressnetworkpolicies"
+    Given I switch to cluster admin pseudo user
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | egressnetworkpolicy |
+      | created             |
+    When I run the :get client command with:
+      | resource | egressnetworkpolicy |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain "default"
+    Given I switch to the first user
+    When I run the :get client command with:
+      | resource | egressnetworkpolicy |
+      | n        | <%= project.name %> |
+    Then the step should fail
+    And the output should contain "cannot list egressnetworkpolicies"
+    When I run the :delete client command with:
+      | object_type       | egressnetworkpolicy |
+      | object_name_or_id | default             |
+    Then the step should fail
+    And the output should contain "cannot delete egressnetworkpolicies"
+    Given I switch to cluster admin pseudo user
+    When I run the :delete client command with:
+      | object_type       | egressnetworkpolicy |
+      | object_name_or_id | default             |
+      | n                 | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | egressnetworkpolicy |
+      | deleted             |
