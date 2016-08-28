@@ -279,7 +279,7 @@ Feature: SCC policy related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495039/pod_privileged.json |
     Then the step should succeed
     And the pod named "hello-nginx-docker-1" becomes ready
-    
+
   # @author mcurlej@redhat.com
   # @case_id 495037
   # The test only works when 'MustRunAsRange' policy is configured in SCC
@@ -315,3 +315,30 @@ Feature: SCC policy related scenarios
       | scc_file_name      |
       | scc-user-mustrunas |
       | scc-runasany       |
+
+  # @author pruan@redhat.com
+  # @case_id 521575
+  @admin
+  Scenario: Scc.allowhostdir should take precedence to allow or deny hostpath volume
+    Given I have a project
+    When the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc521575/scc_tc521575.yaml
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource      | scc          |
+      | resource_name | scc-tc521575 |
+      | o             | yaml         |
+    Then the expression should be true> @result[:parsed]['volumes'].include? 'hostPath' and @result[:parsed]['allowHostDirVolumePlugin']
+    When the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc521575/scc_tc521575_b.yaml
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource      | scc            |
+      | resource_name | scc-tc521575-b |
+      | o             | yaml           |
+    Then the expression should be true> (!@result[:parsed]['volumes'].include? 'hostPath') and (!@result[:parsed]['allowHostDirVolumePlugin'])
+    When the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc521575/scc_tc521575_c.yaml
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource      | scc            |
+      | resource_name | scc-tc521575-c |
+      | o             | yaml           |
+    Then the expression should be true> !@result[:parsed]['volumes'].include? 'hostPath' and !@result[:parsed]['allowHostDirVolumePlugin']
