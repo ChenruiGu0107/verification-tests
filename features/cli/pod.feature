@@ -107,3 +107,85 @@ Feature: pods related scenarios
     Then the step should succeed
     Given the pod named "grace10" becomes terminating
     Then I wait for the resource "pod" named "grace10" to disappear within 12 seconds
+
+  # @author pruan@redhat.com
+  # @case_id 509107
+  @admin
+  Scenario: Limit to create pod to access hostIPC
+    Given I have a project
+    And I select a random node's host
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc509107/hostipc_true.json"
+    Then I run the :create client command with:
+      | f | hostipc_true.json |
+    Then the step should fail
+    And I replace content in "hostipc_true.json":
+      | "hostIPC": true | "hostIPC": false |
+    Then I run the :create client command with:
+      | f | hostipc_true.json |
+    Then the step should succeed
+    Then I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc509107/hostipc_cluster_admin.json |
+      | n | <%= project.name %>                                                                                         |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=client-cert |
+    When I execute on the "hello-openshift" pod:
+      | ipcs | -m |
+    Then the step should succeed
+    And the output should not contain:
+      | 0x    |
+      | 57005 |
+    When I run commands on the host:
+      | ipcmk  -M  57005 |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    When I execute on the "client-cert" pod:
+      | ipcs | -m |
+    Then the step should succeed
+    And the output should contain:
+      | 57005 |
+
+  # @author pruan@redhat.com
+  # @case_id 509108
+  @admin
+  Scenario: Limit to create pod to access hostPID
+    Given I have a project
+    And I select a random node's host
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc509108/hostpid_true.json"
+    Then I run the :create client command with:
+      | f | hostpid_true.json |
+    Then the step should fail
+    And I replace content in "hostpid_true.json":
+      | "hostPID": true | "hostPID": false |
+    Then I run the :create client command with:
+      | f | hostpid_true.json |
+    Then the step should succeed
+    Then I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc509108/hostpid_true_admin.json |
+      | n | <%= project.name %>                                                                                      |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=hello-openshift |
+    When I execute on the "hello-openshift" pod:
+      | bash                            |
+      | -c                              |
+      | ps aux \| awk '{print $2, $11}' |
+    Then the output should match:
+      | \d+\s+squid |
+
+  # @author pruan@redhat.com
+  # @case_id 518946
+  Scenario: Create pod will inherit all "requiredCapabilities" from the SCC that you validate against
+    Given I have a project
+    And I run the :run client command with:
+      | name  | nginx |
+      | image | nginx |
+    Then the step should succeed
+    When I get project pods as YAML
+    Then the output should contain:
+      | drop:        |
+      | - KILL       |
+      | - MKNOD      |
+      | - SETGID     |
+      | - SETUID     |
+      | - SYS_CHROOT |
