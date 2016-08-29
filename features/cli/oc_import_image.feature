@@ -248,3 +248,45 @@ Feature: oc import-image related feature
       | tag:\\s+latest  |
       | tag:\\s+busybox |
     """
+
+  # @author xiaocwan@redhat.com
+  # @case_id 528307
+  Scenario: Negative test for Import app from docker-compose
+    Given I have a project
+
+    When I run the :import client command with:
+      | command | docker-compose |
+      | h ||
+    Then the output should match:
+      | [Io]mport.*[Dd]ocker [Cc]ompose file |
+      | oc import docker-compose -f          |
+    ## app.json still has bug 1356460 so cannot fully be tested now, will add case or scenario in future
+    When I run the :import client command with:
+      | command | app.json |
+      | h ||
+    Then the output should match:
+      | [Ii]mport app.json file  |
+      | oc import app.json -f    |
+    When I git clone the repo "https://github.com/openshift-qe/docker-compose-nodejs-examples.git"
+    Then the step should succeed
+    
+    ## Negative test with docker-compse.yml
+    # unexisted file
+    When I run the :import client command with:
+      | command | docker-compose     |
+      | f       | docker-compose-nodejs-examples/05-nginx-express-redis-nodemon/unexisted.yml |
+    Then the step should fail
+    And the output should match:
+      | [Ff]ailed .* file     |
+    # file is not in correct path
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/docker-compose-nodejs-examples/master/05-nginx-express-redis-nodemon/docker-compose.yml"
+    When I run the :import client command with:
+      | command | docker-compose     |
+      | f       | docker-compose.yml |
+    Then the step should fail
+    And the output should match:
+      | [Ee]rror  |
+      | git clone |
+      |  /nginx   |
+      |  /app     |
+
