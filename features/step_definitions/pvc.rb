@@ -34,7 +34,7 @@ Given /^the "([^"]*)" PVC becomes bound to the "([^"]*)" PV(?: within (\d+) seco
   timeout = timeout ? timeout.to_i : 30
 
   @result = pvc(pvc_name).wait_till_status(:bound, user, timeout)
-  raise "PVC #{pvc_name} never became: #{status}" unless @result[:success]
+  raise "PVC #{pvc_name} never became: bound" unless @result[:success]
 
   unless pvc(pvc_name).volume_name(user: user, cached: true) == pv_name
     raise "PVC bound to #{pvc(pvc_name).volume_name(cached: true)}"
