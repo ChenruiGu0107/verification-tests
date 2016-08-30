@@ -103,3 +103,31 @@ Feature: pod related features
     Then the step should succeed
     Then the output should match:
       | "ReadonlyRootfs":\s+true |
+
+  # @author pruan@redhat.com
+  # @case_id 521572
+  @admin
+  @destructive
+  Scenario: Create pod with podspec.containers[].securityContext.ReadOnlyRootFileSystem = nil|false should fail with scc.ReadOnlyRootFilesystem=true
+    Given I have a project
+    Given scc policy "restricted" is restored after scenario
+    Given as admin I replace resource "scc" named "restricted":
+      | readOnlyRootFilesystem: false | readOnlyRootFilesystem: true |
+    And I select a random node's host
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc521573/readonly_false.json |
+    Then the step should fail
+    And the output should contain:
+      | unable to validate against any security context constraint |
+      | ReadOnlyRootFilesystem must be set to true                 |
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc521573/readonly_true.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=disk-pod-true |
+    And evaluation of `pod.container(user: user, name: 'disk-pod-true').id` is stored in the :container_id clipboard
+    When I run commands on the host:
+      | docker inspect <%= cb.container_id %> \|grep only |
+    Then the step should succeed
+    Then the output should match:
+      | "ReadonlyRootfs":\s+true |
