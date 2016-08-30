@@ -245,3 +245,32 @@ Feature: template related scenarios:
       | "test/one/two": "value3" | "test-/one": "value4" |
     When I process and create "ruby22rhel7-template-sti.json"
     Then the step should fail
+
+  # @author cryan@redhat.com
+  # @case_id 533273
+  Scenario: Do not show user getting start info after processing a template without Message defined
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I get project templates
+    Then the output should contain "ruby-helloworld-sample"
+    When I run the :describe client command with:
+      | resource | template               |
+      | name     | ruby-helloworld-sample |
+    Then the output should match "Message:\s+<none>"
+    When I run the :process client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    And the output should not contain "message:"
+    When I run the :patch client command with:
+      | resource      | template                  |
+      | resource_name | ruby-helloworld-sample    |
+      | p             | {"message":"TestString1"} |
+    Then the step should succeed
+    Given I get project template named "ruby-helloworld-sample" as JSON
+    Then the output should match ""message": "TestString1""
+    When I run the :process client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    Then the output should not match ""message": "TestString1""
