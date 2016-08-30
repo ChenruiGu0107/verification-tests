@@ -203,9 +203,10 @@ module CucuShift
           hlist << CucuShift.const_get(host_type).new(hostname, **opts, roles: roles)
         end
 
-        unless MANDATORY_OPENSHIFT_ROLES.all? {|r| hlist.find {|h| h.has_role?(r)}}
+        missing_roles = MANDATORY_OPENSHIFT_ROLES.reject{|r| hlist.find {|h| h.has_role?(r)}}
+        unless missing_roles.empty?
           raise "environment does not have hosts with roles: " +
-            "#{MANDATORY_OPENSHIFT_ROLES.select{|r| hlist.find {|h| h.has_role?(r)}}}"
+            missing_roles.to_s
         end
 
         @hosts.concat hlist
