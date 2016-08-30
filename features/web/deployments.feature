@@ -256,10 +256,9 @@ Feature: Check deployments function
       | dc_name           | hello-openshift     |
       | previous_replicas |   1                 |
     Then the step should succeed
-    When I perform the :check_donut_text_on_overview web console action with:
+    When I perform the :check_idle_donut_text_on_overview web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | hello-openshift     |
-      | donut_text   | Idle                |
     Then the step should succeed
     # check replicas after wake up
     When I perform the :click_wake_up_option_on_overview web console action with:
@@ -268,7 +267,6 @@ Feature: Check deployments function
       | previous_replicas |   1                 |
     Then the step should succeed
     Given I wait until number of replicas match "1" for replicationController "hello-openshift-1"
-    And all pods in the project are ready
     When I perform the :check_dc_replicas web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | hello-openshift     |
@@ -287,7 +285,8 @@ Feature: Check deployments function
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/mdshuai/testfile-openshift/master/k8s/rc-and-svc-list.yaml |
     Then the step should succeed
-    Given all pods in the project are ready
+    Given 2 pods become ready with labels:
+      | name=hello-pod |
     When I run the :idle client command with:
       | svc_name | hello-svc |
     Then the step should succeed
@@ -302,10 +301,9 @@ Feature: Check deployments function
       | dc_name           | hello-pod           |
       | previous_replicas |   2                 |
     Then the step should succeed
-    When I perform the :check_donut_text_on_overview web console action with:
+    When I perform the :check_idle_donut_text_on_overview web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | hello-pod           |
-      | donut_text   | Idle                |
     Then the step should succeed
     # check replicas after wake up
     When I perform the :click_wake_up_option_on_rc_page web console action with:

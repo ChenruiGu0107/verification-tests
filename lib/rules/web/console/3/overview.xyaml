@@ -89,6 +89,21 @@ check_donut_text_on_overview:
                 }
                 return false
       expect_result: true
+check_idle_donut_text_on_overview:
+  action: goto_overview_page
+  elements:
+  - selector:
+      xpath: //div[@class="deployment-header"][descendant::a[contains(.,'<dc_name>')]]
+  scripts:
+    - command: |
+               var texts = document.querySelectorAll('g[class=c3-chart-arcs] text')
+               for (i=0; i< texts.length; i++) {
+                 if (texts[i].textContent == 'Idle') {
+                   return true
+                 }
+               }
+               return false
+      expect_result: true
 click_wake_up_option_on_overview:
   action: goto_overview_page
   elements:
