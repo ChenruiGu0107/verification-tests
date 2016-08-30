@@ -13,6 +13,24 @@ module CucuShift
         alias perform perform_common
       end
 
+      # @since 3.3
+      # {
+      #   "major": "3",
+      #   "minor": "3+",
+      #   "gitCommit": "f1694b3",
+      #   "gitVersion": "v3.3.0.27",
+      #   "buildDate": "2016-08-29T14:44:33Z"
+      # }
+      def self.version(base_opts, opts)
+        populate_common("/version", "/openshift", base_opts, opts)
+        return perform(**base_opts, method: "GET") { |res|
+          res[:props][:openshift] = res[:parsed]["gitVersion"]
+          res[:props][:major] = res[:parsed]["major"]
+          res[:props][:minor] = res[:parsed]["minor"]
+          res[:props][:build_date] = res[:parsed]["buildDate"]
+        }
+      end
+
       def self.delete_oauthaccesstoken(base_opts, opts)
         populate("/oauthaccesstokens/<token_to_delete>", base_opts, opts)
         return perform(**base_opts, method: "DELETE")
@@ -102,12 +120,12 @@ module CucuShift
       end
 
       def self.post_role_oapi(base_opts, opts)
-        base_opts[:payload] = {} 
-        base_opts[:payload]["kind"] = opts[:kind] 
+        base_opts[:payload] = {}
+        base_opts[:payload]["kind"] = opts[:kind]
         base_opts[:payload]["apiVersion"] = opts[:api_version]
-        base_opts[:payload]["verb"] = opts[:verb] 
-        base_opts[:payload]["resource"] = opts[:resource] 
-        base_opts[:payload]["user"] = opts[:user] 
+        base_opts[:payload]["verb"] = opts[:verb]
+        base_opts[:payload]["resource"] = opts[:resource]
+        base_opts[:payload]["user"] = opts[:user]
 
         populate("/namespaces/<project_name>/<role>", base_opts, opts)
         return Http.request(**base_opts, method: "POST")
