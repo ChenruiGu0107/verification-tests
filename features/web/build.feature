@@ -826,3 +826,53 @@ Feature: build related feature on web console
     When I perform the :check_build_log_content web console action with:
       | build_log_context | error: failed to fetch requested repository "https://github.com/openshift/nonexist" |
     Then the step should succeed
+
+  # @author: xxia@redhat.com
+  # @case_id: 528951
+  Scenario: Check build trigger info when the trigger is ConfigChange on web
+    Given I have a project
+    When I run the :create client command with:
+      | f    |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc528951/bc_configchange.yaml |
+    Then the step should succeed
+
+    Given the "ruby-ex-1" build was created
+    When I perform the :check_build_trigger web console action with:
+      | project_name      | <%= project.name %> |
+      | bc_and_build_name | ruby-ex/ruby-ex-1   |
+      | trigger_info      | Build configuration change |
+    Then the step should succeed
+
+  # @author: xxia@redhat.com
+  # @case_id: 528954
+  Scenario: Check build trigger info when the trigger is ImageChange on web
+    Given I have a project
+    When I run the :create client command with:
+      | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc528954/bc_imagechange.yaml |
+    Then the step should succeed
+
+    Given the "ruby-ex-1" build was created
+    When I perform the :check_build_trigger web console action with:
+      | project_name      | <%= project.name %> |
+      | bc_and_build_name | ruby-ex/ruby-ex-1   |
+      | trigger_info      | Image change for ruby-22-centos7:latest |
+    Then the step should succeed
+
+  # @author: xxia@redhat.com
+  # @case_id: 528955
+  Scenario: Check build trigger info when the trigger is manual start-build on web
+    Given I have a project
+    When I run the :create client command with:
+      | f    |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc528955/bc_no_trigger.yaml |
+    Then the step should succeed
+
+    When I perform the :start_build_base_on_buildconfig web console action with:
+      | project_name  | <%= project.name %> |
+      | bc_name       | ruby-ex             |
+    Then the step should succeed
+
+    Given the "ruby-ex-1" build was created
+    When I perform the :check_build_trigger web console action with:
+      | project_name      | <%= project.name %> |
+      | bc_and_build_name | ruby-ex/ruby-ex-1   |
+      | trigger_info      | Manual build        |
+    Then the step should succeed

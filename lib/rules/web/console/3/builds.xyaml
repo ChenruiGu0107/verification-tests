@@ -179,6 +179,11 @@ check_build_strategy:
   elements:
   - selector:
       xpath: //dt[contains(.,'Build strategy')]/following-sibling::dd[contains(.,'<build_strategy>')]
+check_build_trigger:
+  action: goto_one_build_page
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Triggered by:')]/following-sibling::dd[contains(.,'<trigger_info>')]
 enable_webhook_build_trigger:
   action: check_buildconfig_edit_page_loaded_completely
   elements:
