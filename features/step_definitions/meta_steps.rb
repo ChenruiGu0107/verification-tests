@@ -50,10 +50,17 @@ end
 
 # repeat steps x times in a multi-line string
 Given /^I run the steps (\d+) times:$/ do |num, steps_string|
+  eval_regex = /\#\{(.+?)\}/
+  eval_found = steps_string =~ eval_regex
   begin
     logger.dedup_start
-    (1..Integer(num)).each {
-      steps steps_string
+    (1..Integer(num)).each { |i|
+      cb.i = i
+      if eval_found
+        steps steps_string.gsub(eval_regex) { |s| eval $1}
+      else
+        steps steps_string
+      end
     }
   ensure
     logger.dedup_flush
