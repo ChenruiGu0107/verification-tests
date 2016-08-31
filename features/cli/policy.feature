@@ -509,3 +509,51 @@ Feature: change the policy of user/service account
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
       | as | <%= user(1, switch: false).name %>    |
     Then the step should fail
+
+  # @author yinzhou@redhat.com
+  # @case_id 520733
+  Scenario: Check the registry-admin permission
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role         |   registry-admin  |
+      | user name    | <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    When I switch to the second user
+    When I run the :policy_can_i client command with:
+      | verb         | create              |
+      | resource     | imagestreamimages   |
+      | n            | <%= project.name %> |
+    Then the output should contain:
+      | yes |
+    When I run the :policy_can_i client command with:
+      | verb         | create              |
+      | resource     | imagestreamimports  |
+      | n            | <%= project.name %> |
+    Then the output should contain:
+      | yes |
+    When I run the :policy_can_i client command with:
+      | verb         | list                |
+      | resource     | imagestreamimports  |
+      | n            | <%= project.name %> |
+    Then the output should contain:
+      | no |
+    When I run the :policy_can_i client command with:
+      | verb         | get                 |
+      | resource     | imagestreamtags     |
+      | n            | <%= project.name %> |
+    Then the output should contain:
+      | yes |
+    When I run the :policy_can_i client command with:
+      | verb         | update              |
+      | resource     | imagestreams/layers |
+      | n            | <%= project.name %> |
+    Then the output should contain:
+      | yes |
+    Given I switch to the first user
+    When I run the :describe client command with:
+      | resource | policybinding |
+      | name | :default |
+    Then the step should succeed
+    And the output should match:
+      | Role:\\s+registry-admin |
+      | Users:\\s+<%= user(1, switch: false).name %> |
