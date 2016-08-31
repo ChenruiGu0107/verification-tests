@@ -57,17 +57,11 @@ fromtemplate_param_form:
 fromtemplate_set_labels:
   elements:
   - selector:
-      xpath: //div[@ng-if="!cannotAdd"]/div[1]/input
-    op: click
-    type: input
-  - selector:
-      xpath: //div[@ng-repeat="entry in entries"]
-  - selector:
-      xpath: //div[@ng-repeat="entry in entries"][count(//input[@placeholder="Name"])-1]/div[1]/input
+      xpath: //div[contains(text(),"Each label")]/following-sibling::div//input[@placeholder="Name"]
     op: send_keys <label_key>
     type: input
   - selector:
-      xpath: //div[@ng-repeat="entry in entries"][count(//input[@placeholder="Name"])-1]/div[2]/input
+      xpath: //div[contains(text(),"Each label")]/following-sibling::div//input[@placeholder="Value"]
     op: send_keys <label_value>
     type: input
 clear_param_form:
@@ -97,3 +91,7 @@ clear_param_form:
     op: clear
     type: input
     optional: true
+confirm_errors_with_invalid_template_label:
+  element:
+    selector:
+      xpath: //div[contains(@class,"alert")]/span[contains(text(),'Invalid value')]

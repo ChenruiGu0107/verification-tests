@@ -28,15 +28,16 @@ Feature: login related scenario
     When I perform the :new_project_navigate web console action with:
       | _nologin | true |
     Then the step should succeed
-    Given I wait for the title of the web browser to match "Login"
+    Given I wait for the title of the web browser to match "(Login|Sign.+GitHub)"
     When I access the "/console/project/<%= project.name %>/create" path in the web console
-    Given I wait for the title of the web browser to match "Login"
+    Given I wait for the title of the web browser to match "(Login|Sign.+GitHub)"
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
-    Given I wait for the title of the web browser to match "Login"
+    Given I wait for the title of the web browser to match "(Login|Sign.+GitHub)"
 
   # @author xxing@redhat.com
   # @case_id 467930
   Scenario: The page should reflect to login page when access session protected pages after failed log in
+    Given I log the message> this scenario can pass only when user accounts have a known password
     Given I have a project
     When I perform the :login web console action with:
       | username | <%= rand_str(6, :dns) %> |
@@ -58,4 +59,4 @@ Feature: login related scenario
     #make token expired
     And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']='<%= rand_str(32, :dns) %>';")
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
-    Given I wait for the title of the web browser to match "Login"
+    Given I wait for the title of the web browser to match "(Login|Sign.+GitHub)"

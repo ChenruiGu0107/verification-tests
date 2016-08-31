@@ -68,7 +68,6 @@ fromtemplate_set_labels:
       xpath: //a[contains(text(),'Add') and contains(@role, 'button') and not(@disabled)]
     op: click
     type: a
-
 clear_param_form:
   elements:
   - selector:
@@ -96,3 +95,9 @@ clear_param_form:
     op: clear
     type: input
     optional: true
+confirm_errors_with_invalid_template_label:
+  elements:
+  - selector:
+      xpath: //span[contains(text(),"Please enter a valid value")]
+  - selector:
+      xpath: //span/a[@data-toggle="tooltip"]
