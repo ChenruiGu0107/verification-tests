@@ -157,7 +157,7 @@ Feature: limit range related scenarios:
   @admin
   Scenario: The number of created persistent volume claims can not exceed the limitation
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/kubernetes/kubernetes/master/docs/admin/resourcequota/quota.yaml"
+    When I download a file from "https://raw.githubusercontent.com/kubernetes/kubernetes/master/test/fixtures/doc-yaml/admin/resourcequota/quota.yaml"
     And I replace lines in "quota.yaml":
       | persistentvolumeclaims: "10" | persistentvolumeclaims: "1"        |
     When I run the :create admin command with:
@@ -167,12 +167,12 @@ Feature: limit range related scenarios:
     And the output should match:
       | [Rr]esourcequota.*quota.*created |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/kubernetes/kubernetes/master/docs/user-guide/persistent-volumes/claims/claim-01.yaml |
+      | f | https://raw.githubusercontent.com/kubernetes/kubernetes/master/test/fixtures/doc-yaml/user-guide/persistent-volumes/claims/claim-01.yaml |
     Then the step should succeed
     And the output should match:
       | [Pp]ersistentvolumeclaim.*myclaim-1.*created |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/kubernetes/kubernetes/master/docs/user-guide/persistent-volumes/claims/claim-01.yaml |
+      | f | https://raw.githubusercontent.com/kubernetes/kubernetes/master/test/fixtures/doc-yaml/user-guide/persistent-volumes/claims/claim-01.yaml |
     Then the step should fail
     And the output should match:
       | [Ee]rror.*when creat.*myclaim-1.*forbidden.*[Ee]xceeded quota |
