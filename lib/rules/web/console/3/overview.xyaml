@@ -67,6 +67,49 @@ check_route_link_on_overview:
   elements:
   - selector:
       xpath: //div[@kind='Service']/descendant::a[contains(@href, "<route_host_name>")]
+check_dc_idle_text_on_overview:
+  action: goto_overview_page
+  elements:
+  - selector:
+      xpath: //div[@class="deployment-header"][descendant::a[contains(.,'<dc_name>')]]/following::deployment-donut//span[contains(.,'Idled')]
+  - selector:
+      xpath: //div[@class="deployment-header"][descendant::a[contains(.,'<dc_name>')]]/following::deployment-donut//a[contains(.,'Start <previous_replicas> pod')]
+check_donut_text_on_overview:
+  action: goto_overview_page
+  elements:
+  - selector:
+      xpath: //div[@class="deployment-header"][descendant::a[contains(.,'<dc_name>')]]
+  scripts:
+    - command: |
+                var texts = document.querySelectorAll('g[class=c3-chart-arcs] text')
+                for (i=0; i< texts.length; i++) {
+                  if (texts[i].textContent == '<donut_text>') {
+                    return true
+                    }
+                }
+                return false
+      expect_result: true
+check_idle_donut_text_on_overview:
+  action: goto_overview_page
+  elements:
+  - selector:
+      xpath: //div[@class="deployment-header"][descendant::a[contains(.,'<dc_name>')]]
+  scripts:
+    - command: |
+               var texts = document.querySelectorAll('g[class=c3-chart-arcs] text')
+               for (i=0; i< texts.length; i++) {
+                 if (texts[i].textContent == 'Idle') {
+                   return true
+                 }
+               }
+               return false
+      expect_result: true
+click_wake_up_option_on_overview:
+  action: goto_overview_page
+  elements:
+  - selector:
+      xpath: //div[@class="deployment-header"][descendant::a[contains(.,'<dc_name>')]]/following::deployment-donut//a[contains(.,'Start <previous_replicas> pod')]
+    op: click
 dismiss_build_log_on_overview:
   elements:
   - selector:

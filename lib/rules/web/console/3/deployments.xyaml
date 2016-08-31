@@ -202,6 +202,31 @@ check_dc_replicas:
   elements:
   - selector:
       xpath: //dt[contains(.,'Replicas')]/following-sibling::dd//span[contains(.,'<dc_replicas>')]
+check_standalone_rc_replicas:
+  action: goto_one_standalone_rc_page
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Replicas')]/following-sibling::dd//span[contains(.,'<rc_replicas>')]
+check_deployment_idle_text:
+  action: goto_one_deployment_page
+  elements:
+  - selector:
+      xpath: //deployment-donut//span[contains(.,'Idled')]
+  - selector:
+      xpath: //deployment-donut//a[contains(.,'Start <previous_replicas> pod')]
+check_standalone_rc_idle_text:
+  action: goto_one_standalone_rc_page
+  elements:
+  - selector:
+      xpath: //deployment-donut//span[contains(.,'Idled')]
+  - selector:
+      xpath: //deployment-donut//a[contains(.,'Start <previous_replicas> pod')]
+click_wake_up_option_on_rc_page:
+  action: goto_one_standalone_rc_page
+  elements:
+  - selector:
+      xpath: //deployment-donut//a[contains(.,'Start <previous_replicas> pod')]
+    op: click
 check_specific_deploy_selector:
   action: goto_one_deployment_page
   elements:
