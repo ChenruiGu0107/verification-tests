@@ -37,3 +37,45 @@ check_complete_with_error_info_on_next_page:
       text: Completed, with errors
   - selector:
       text: Things you can do
+check_template_message_on_next_page:
+  elements:
+  - selector:
+      xpath: //div[contains(@class, 'template-message')]//div[contains(.,'adminuser')]
+  - selector:
+      xpath: //div[contains(@class, 'template-message')]//div[contains(.,'mysqlpass')]
+  - selector:
+      xpath: //div[contains(@class, 'template-message')]//div[contains(.,'MY_ENV')]
+check_generated_parameter_on_next_page:
+  elements:
+  - selector:
+      xpath: //span[@ng-repeat="paramName in parameters.generated" and contains(.,"ADMIN_PASSWORD")]
+  - selector:
+      xpath: //span[@ng-repeat="paramName in parameters.generated" and contains(.,"MYSQL_USER")]
+click_show_parameter_value:
+  elements:
+  - selector:
+      xpath: //a[contains(.,'Show parameter values')]
+    op: click
+check_parameter_value:
+  action: click_show_parameter_value
+  elements:
+  - selector:
+      xpath: //div[contains(@class,'key-value-editor-input')]/input
+  scripts:
+    - command: |
+               var values = "adminuser mysqlpass"
+               var strings = values.split(" ")
+               var rows = document.querySelectorAll('div[class~=key-value-editor-entry]')
+               for (var i=0; i< strings.length; i++) {
+                 for (var j =1; j < rows.length; j++) {
+                   inputs = rows[j].querySelectorAll('div[class~=key-value-editor-input] input')
+                   if (inputs[1].value == strings[i] ) {
+                     matched = true
+                     break
+                   } else {
+                     matched = false
+                     continue }
+                 }
+               }
+               return matched
+      expect_result: true
