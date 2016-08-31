@@ -274,3 +274,79 @@ Feature: template related scenarios:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
     Then the output should not match ""message": "TestString1""
+
+  # @author cryan@redhat.com
+  # @case_id 533274
+  Scenario: Show multi user getting start info after new-app multi templates with Message defined
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    When I run the :process client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    And the output should not contain "message:"
+    When I run the :patch client command with:
+      | resource      | template                  |
+      | resource_name | ruby-helloworld-sample    |
+      | p             | {"message":"Your admin credentials are ${ADMIN_USERNAME}:${ADMIN_PASSWORD}"} |
+    Then the step should succeed
+    Given I get project template named "ruby-helloworld-sample" as JSON
+    Then the output should contain "Your admin credentials are"
+    When I run the :new_app client command with:
+      | template | jenkins-ephemeral,ruby-helloworld-sample |
+    Then the step should succeed
+    And the output should contain:
+      | Your admin credentials are |
+      | The username/password are  |
+
+  # @author cryan@redhat.com
+  # @case_id 533275
+  Scenario: Show user getting start info after new-app a template with message defined
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | template                  |
+      | resource_name | ruby-helloworld-sample    |
+      | p             | {"message":"Your admin credentials are ${ADMIN_USERNAME}:${ADMIN_PASSWORD}"} |
+    Then the step should succeed
+    Given I get project template named "ruby-helloworld-sample" as JSON
+    Then the output should contain "Your admin credentials are"
+    When I run the :describe client command with:
+      | resource | template               |
+      | name     | ruby-helloworld-sample |
+    Then the output should match "Message:\s+Your admin credentials are"
+    When I run the :new_app client command with:
+      | template | ruby-helloworld-sample |
+    Then the step should succeed
+    And the output should contain:
+      | Your admin credentials are |
+
+  # @author cryan@redhat.com
+  # @case_id 533276
+  Scenario: Show user getting start info after processing a template with message defined
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | template                  |
+      | resource_name | ruby-helloworld-sample    |
+      | p             | {"message":"Your admin credentials are ${ADMIN_USERNAME}:${ADMIN_PASSWORD}"} |
+    Then the step should succeed
+    Given I get project template named "ruby-helloworld-sample" as JSON
+    Then the output should contain "Your admin credentials are"
+    When I run the :describe client command with:
+      | resource | template               |
+      | name     | ruby-helloworld-sample |
+    Then the output should match "Message:\s+Your admin credentials are"
+    When I run the :process client command with:
+      | template | ruby-helloworld-sample |
+    Then the output should not match:
+      | [m\|M]essage:              |
+      | Your admin credentials are |
