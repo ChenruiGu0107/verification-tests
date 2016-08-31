@@ -29,6 +29,15 @@ module CucuShift
 
       #global_option('-s', '--service KEY', 'service name to look for in configuration')
 
+      command :fiddle do |c|
+        c.syntax = "#{__FILE__} fiddle"
+        c.description = 'enter a pry shell to play with API'
+        c.action do |args, options|
+          require 'pry'
+          binding.pry
+        end
+      end
+
       command :list do |c|
         c.syntax = 'dyn.rb list'
         c.description = 'list zone records'
