@@ -66,3 +66,45 @@ Feature: ONLY ONLINE Images related scripts in this file
     """
     And the output should contain:
       | 3.2 |
+
+  # @author etrott@redhat.com
+  # @case_id 532647
+  Scenario: Add env variables to postgresql-95-rhel7 image
+    Given I have a project
+    When I run the :new_app client command with:
+      | name  | psql                           |
+      | image | openshift/postgresql:9.5       |
+      | env   | POSTGRESQL_USER=user           |
+      | env   | POSTGRESQL_PASSWORD=redhat     |
+      | env   | POSTGRESQL_DATABASE=sampledb   |
+      | env   | POSTGRESQL_MAX_CONNECTIONS=42  |
+      | env   | POSTGRESQL_SHARED_BUFFERS=64MB |
+    And a pod becomes ready with labels:
+      | deployment=psql-1 |
+    When I execute on the pod:
+      | env |
+    Then the output should contain:
+      | POSTGRESQL_SHARED_BUFFERS=64MB |
+      | POSTGRESQL_MAX_CONNECTIONS=42  |
+    And I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash                           |
+      | -c                             |
+      | psql -c 'show shared_buffers;' |
+    Then the step should succeed
+    """
+    Then the output should contain:
+      | shared_buffers |
+      | 64MB           |
+    And I wait for the steps to pass:
+    """
+    And I execute on the pod:
+      | bash                            |
+      | -c                              |
+      | psql -c 'show max_connections;' |
+    """
+    Then the step should succeed
+    Then the outputs should contain:
+      | max_connections |
+      | 42              |
