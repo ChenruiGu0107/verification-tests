@@ -121,7 +121,7 @@ module CucuShift
 
     # @return [Array] of name, [Time], record_api_path
     def dyn_get_timed_a_records(auth_token=@auth_token, retries=@@dyn_retries)
-      expr = %r%^/REST/ARecord/([^/]*)/((?:[^.][.])?([0-9]{4})-[^.]+[.]\1)/%
+      expr = %r%^/REST/ARecord/([^/]*)/((?:[^.]+[.])?(\d{4})-[^.]+[.]\1)/%
       all = dyn_get_all_zone_records(auth_token, retries)
       now = Time.now
       res = []
@@ -152,6 +152,23 @@ module CucuShift
         path = r.sub(%r%^/REST/%, '')
         dyn_delete(path, auth_token, retries)
       }
+    end
+
+    # @param pattern [String, Regexp]
+    def dyn_delete_matching_records(pattern, auth_token=@auth_token, retries=@@dyn_retries)
+      records = dyn_get_all_zone_records(auth_token, retries)
+      record_names = records.map {|r| r.gsub(%r{^.*/([^/]+)/\d+$}, '\\1')}
+      to_delete = record_names.size.times.each_with_object([]) do |i, memo|
+        if record_names[i].count(".") < 3
+          # for safety ignore top level records
+          # we may make this smarter to depend on the top level domain
+        elsif pattern.kind_of? Regexp
+          memo << records[i] if record_names[i].match(pattern)
+        else
+          memo << records[i] if record_names[i] == pattern
+        end
+      end
+      dyn_delete_records(to_delete, auth_token, retries)
     end
 
     # @param time [Time] the time records should be older than
