@@ -164,37 +164,38 @@ Feature: Quota related scenarios
       | n     | <%= project.name %> |
     Then the step should succeed
     # This template does not include bc, which does not need to create in case step, do not need to take care of AEP
-    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployments_nobc_cpulimit.json"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
     Then the step should succeed
     And the output should match:
-      | eployment.*onfig\\s+"database".*reated |
+      | eployment.*onfig\\s+"hooks".*reated |
     When I get project pods
     Then the output should contain:
-      | database-1-deploy |
+      | hooks-1-deploy |
 
     # update dc to be exceeded and triggered deployment
-    Given I replace resource "dc" named "database" saving edit to "database2.yaml":
-      | cpu: 20m     | cpu:    1020m |
-      | memory: 50Mi | memory: 760Mi |
+    Given I replace resource "dc" named "hooks" saving edit to "hooks2.yaml":
+      | cpu: 30m      | cpu:    1020m |
+      | memory: 150Mi | memory: 760Mi |
     When I get project pods
     Then the output should not contain:
-      | database-2-deploy |
+      | hooks-2-deploy |
 
     # trigger deployment manually according to the case step
-    Given I wait until the status of deployment "database" becomes :complete
+    Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :deploy client command with:
-      | deployment_config | database |
+      | deployment_config | hooks |
       | latest            ||
     Then the output should match:
       | tarted.*eployment.*2  |
     When I get project pods
     Then the output should not contain:
-      | database-2-deploy |
+      | hooks-2-deploy |
 
     When I get project events
     # here comes a bug which fail the last step - 1317783
     Then the output should match:
-      | pods "database-\\d+-deploy" is forbidden |
+      | pods "hooks-\\d+-deploy" is forbidden |
       | aximum memory usage.*is 750Mi.*limit is 796917760 |
       | aximum cpu usage.*is 500m.*limit is 1020m |
 
@@ -325,34 +326,36 @@ Feature: Quota related scenarios
       | f     | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
       | n     | <%= project.name %> |
     Then the step should succeed
-    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployments_nobc_cpulimit.json"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
     Then the step should succeed
     And the output should match:
-      | eployment.*onfig\\s+"database".*reated |
+      | eployment.*onfig\\s+"hooks".*reated |
     When I get project pods
-    Then the output should contain:
-      | database-1-deploy |
-    # update dc to be exceeded and triggered deplyment
-    Given I replace resource "dc" named "database" saving edit to "database2.yaml":
-      | cpu: 20m     | cpu:    1020m |
-      | memory: 50Mi | memory: 760Mi |
+    Then the output should match:
+      | hooks-1-deploy |
+    ## update dc to be exceeded and triggered deplyment
+    Given I replace resource "dc" named "hooks" saving edit to "hooks2.yaml":
+      | cpu: 30m      | cpu:    1020m |
+      | memory: 150Mi | memory: 760Mi |
+    ## oc deploy hoos --latest
     When I get project pods
     Then the output should not contain:
-      | database-2-deploy |
-    When I wait until the status of deployment "database" becomes :complete
+      | hooks-2-deploy |
+    When I wait until the status of deployment "hooks" becomes :complete
     When I run the :deploy client command with:
-      | deployment_config | database |
+      | deployment_config | hooks |
       | latest            ||
     Then the output should match:
       | tarted.*eployment.*2  |
     When I get project pods
     Then the output should not contain:
-      | database-2-deploy |
+      | hooks-2-deploy |
     When I run the :describe client command with:
       | resource | dc      |
-      | name     | database|
+      | name     | hooks   |
     Then the output should match:
-      | pods "database-\\d+-deploy" is forbidden |
+      | pods "hooks-\\d+-deploy" is forbidden |
       | aximum memory usage.*is 750Mi.*limit is 796917760 |
       | aximum cpu usage.*is 500m.*limit is 1020m |
 
