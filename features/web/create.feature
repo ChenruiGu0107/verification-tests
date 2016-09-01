@@ -126,9 +126,8 @@ Feature: create app on web console related
       | label_key     | label1 |
       | label_value   | /%^&   |
     Then the step should fail
-    When I get the html of the web page
-    Then the output should contain:
-      | Please enter a valid value|
+    When I run the :confirm_errors_with_invalid_template_label web console action
+    Then the step should succeed
 
   # @author xxing@redhat.com
   # @case_id 507521

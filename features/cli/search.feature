@@ -16,10 +16,10 @@ Feature: new-app with --search option
       |f| https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-ephemeral-template.json|
     Then the step should succeed
     When I run the :new_app client command
-    Then the output should contain:
+    Then the output should match:
       | oc new-app -S php |
       | oc new-app -S --template=ruby |
-      | oc new-app -S --image=mysq |
+      | oc new-app -S --image(-stream)?=mysq |
 
     #Search directly
     When I run the :new_app client command with:
