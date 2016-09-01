@@ -66,10 +66,10 @@ module CucuShift
       v = @version.split('.')
       if v.first == '3' && v[1..2].all? {|e| e =~ /^[0-9]+$/} && v[3]
         # version like v3.0.0.0-32-g3ae1d27, i.e. return version 0
-        return @version.split('.')[1]
+        return v[1]
       else
         # version like v1.0.2, i.e. return version 0
-        return (Integer(v[0]) - 1).to_s
+        return v[1]
       end
     end
 
