@@ -19,8 +19,8 @@ module CucuShift
     attr_reader :opts
 
     # :master represents register, scheduler, etc.
-    MANDATORY_OPENSHIFT_ROLES = [:node, :etcd, :master]
-    OPENSHIFT_ROLES = MANDATORY_OPENSHIFT_ROLES + [:lb]
+    MANDATORY_OPENSHIFT_ROLES = [:master, :node]
+    OPENSHIFT_ROLES = MANDATORY_OPENSHIFT_ROLES + [:lb, :etcd]
 
     # e.g. you call `#node_hosts to get hosts with the node service`
     OPENSHIFT_ROLES.each do |role|
@@ -38,6 +38,15 @@ module CucuShift
     # return environment key, mainly useful for logging purposes
     def key
       opts[:key]
+    end
+
+    def etcd_hosts
+      etcd_list = hosts.select {|h| h.has_role?(:etcd)}
+      if etcd_list.empty?
+        master_hosts
+      else
+        etcd_list
+      end
     end
 
     def user_manager
