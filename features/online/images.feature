@@ -45,3 +45,24 @@ Feature: ONLY ONLINE Images related scripts in this file
     Then the output should contain:
       | dotnet-sqlite-example |
     And I wait for a web server to become available via the "dotnet-sqlite-example" route
+
+  # @author etrott@redhat.com
+  # @case_id 532758
+  Scenario: Create mongo resources with persistent template for mongodb-32-rhel7 images
+    Given I have a project
+    Then I run the :new_app client command with:
+      | template | mongodb-persistent           |
+      | param    | MONGODB_ADMIN_PASSWORD=admin |
+    Then the step should succeed
+    And the "mongodb" PVC becomes :bound within 300 seconds
+    And a pod becomes ready with labels:
+      | name=mongodb         |
+      | deployment=mongodb-1 |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mongo admin -u admin -padmin --eval 'db.version()' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 3.2 |
