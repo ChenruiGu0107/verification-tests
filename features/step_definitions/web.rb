@@ -110,10 +110,15 @@ When /^I get the visible text on web html page$/ do
 end
 
 # repeat doing web action until success,useful for waiting resource to become visible and available on web
-Given /^I wait(?: (\d+) seconds)? for the :(.+?) web console action to succeed with:$/ do |time, web_action, table|
+Given /^I wait(?: (\d+) seconds)? for the :(.+?) web( console)? action to succeed with:$/ do |time, web_action, console, table|
   time = time ? time.to_i : 15 * 60
+  if console
+    step_string = "I perform the :#{web_action} web console action with:"
+  else
+    step_string = "I perform the :#{web_action} web action with:"
+  end
   success = wait_for(time) {
-    step "I perform the :#{web_action} web console action with:",table
+    step step_string, table
     break true if @result[:success]
   }
   @result[:success] = success
