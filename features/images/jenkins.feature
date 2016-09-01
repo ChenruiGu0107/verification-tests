@@ -135,7 +135,7 @@ Feature: jenkins.feature
   Scenario: Create a new job in jenkins with OpenShift Pipeline Jenkins Plugin
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I give project admin role to the system:serviceaccount:<%= cb.proj1 %>:default service account
+    When I give project admin role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     Then the step should succeed
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
@@ -156,7 +156,7 @@ Feature: jenkins.feature
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:default service account
+    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
     Then the step should succeed
@@ -190,7 +190,7 @@ Feature: jenkins.feature
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
-    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:default service account
+    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     When I run the :import_image client command with:
       | image_name | ruby                     |
       | from       | wewang58/ruby-22-centos7 |
@@ -492,33 +492,16 @@ Feature: jenkins.feature
       | username | admin                      |
       | password | <%= cb.jenkins_password %> |
     Then the step should succeed
+    Given I find a bearer token of the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
+    Given evaluation of `service_account.get_bearer_token.token` is stored in the :token1 clipboard
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
-
     When I run the :policy_add_role_to_user client command with:
       | role              | edit                                          |
-      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:default |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:jenkins |
       | n | <%= cb.proj2 %> |
     Then the step should succeed
-    When I run the :policy_add_role_to_user client command with:
-      | role              | edit                                          |
-      | serviceaccountraw | system:serviceaccount:<%= cb.proj2 %>:default |
-      | n                 | <%= cb.proj1 %>                               |
-    Then the step should succeed
-    When I run the :policy_add_role_to_user client command with:
-      | role              | edit                                          |
-      | serviceaccountraw | system:serviceaccount:<%= cb.proj2 %>:default |
-      | n                 | <%= cb.proj2 %>                               |
-    Then the step should succeed
-    When I run the :policy_add_role_to_user client command with:
-      | role              | edit                                          |
-      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:default |
-      | n                 | <%= cb.proj1 %>                               |
-    Then the step should succeed
-
-    Given I find a bearer token of the system:serviceaccount:<%= cb.proj1 %>:default service account
-    Given evaluation of `service_account.get_bearer_token.token` is stored in the :token1 clipboard
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
     Then the step should succeed
@@ -729,7 +712,7 @@ Feature: jenkins.feature
   Scenario: Test jenkins post-build actions 
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:default service account
+    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     Then the step should succeed
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
@@ -763,7 +746,7 @@ Feature: jenkins.feature
     Then the step should succeed
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completes
-    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:default service account
+    When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     When I run the :start_build client command with:
       |buildconfig|ruby-sample-build|
     Then the step should succeed
