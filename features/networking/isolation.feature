@@ -701,6 +701,12 @@ Feature: networking isolation related scenarios
     Given a pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.ip` is stored in the :proj2p1 clipboard
+    And evaluation of `pod.name` is stored in the :proj2p1name clipboard
+
+    When I execute on the "<%= cb.proj2p1name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj1s1 %>:27017 |
+    Then the step should succeed
+    And the output should contain "Hello"
 
     When I run the :oadm_pod_network_isolate_projects admin command with:
       | project | <%= cb.proj1 %> |
@@ -796,6 +802,12 @@ Feature: networking isolation related scenarios
     Given a pod becomes ready with labels:
       | name=test-pods |
     And evaluation of `pod.ip` is stored in the :proj2p1 clipboard
+    And evaluation of `pod.name` is stored in the :proj2p1name clipboard
+
+    When I execute on the "<%= cb.proj2p1name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj1s1 %>:27017 |
+    Then the step should succeed
+    And the output should contain "Hello"
 
     Given I switch to cluster admin pseudo user
     And I use the "default" project
@@ -867,5 +879,200 @@ Feature: networking isolation related scenarios
     And the output should not contain "Hello"
     When I execute on the "<%= cb.proj2p2name %>" pod:
       | curl | --connect-timeout | 5 | <%= cb.proj1s1 %>:27017 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+  # @author bmeng@redhat.com
+  # @case_id 508643
+  @admin
+  Scenario: Isolate the network for the project which already make network global
+    Given the env is using multitenant network
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run the :oadm_pod_network_make_projects_global admin command with:
+      | project | <%= cb.proj2 %> |
+    Then the step should succeed
+
+    Given I use the "<%= cb.proj1 %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+      | ["items"][1]["metadata"]["name"] | test-service-1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    And evaluation of `pod.name` is stored in the :proj1p1name clipboard
+    And evaluation of `service("test-service-1").ip(user: user)` is stored in the :proj1s1 clipboard
+
+    Given I use the "<%= cb.proj2 %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+      | ["items"][1]["metadata"]["name"] | test-service-2 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    And evaluation of `pod.ip` is stored in the :proj2p1 clipboard
+    And evaluation of `pod.name` is stored in the :proj2p1name clipboard
+
+    When I execute on the "<%= cb.proj2p1name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj1s1 %>:27017 |
+    Then the step should succeed
+    And the output should contain "Hello"
+
+    When I run the :oadm_pod_network_isolate_projects admin command with:
+      | project | <%= cb.proj2 %> |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | netnamespace |
+      | resource_name | <%= cb.proj2 %> |
+      | template | {{.netid}} |
+    Then the step should succeed
+    And the expression should be true> @result[:response] != 0
+
+    Given I use the "<%= cb.proj1 %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+      | ["items"][0]["metadata"]["name"] | new-test-rc |
+      | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
+      | ["items"][1]["spec"]["selector"]["name"] | new-test-pods |
+      | ["items"][1]["metadata"]["name"] | new-test-service-1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=new-test-pods |
+    And evaluation of `pod.ip` is stored in the :proj1p2 clipboard
+
+    Given I use the "<%= cb.proj2 %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+      | ["items"][0]["metadata"]["name"] | new-test-rc |
+      | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
+      | ["items"][1]["spec"]["selector"]["name"] | new-test-pods |
+      | ["items"][1]["metadata"]["name"] | new-test-service-2 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=new-test-pods |
+    And evaluation of `pod.name` is stored in the :proj2p2name clipboard
+    And evaluation of `service("new-test-service-2").ip(user: user)` is stored in the :proj2s2 clipboard
+
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.proj1p1name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj2p1 %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.proj1p1name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj2s2 %>:27017 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.proj2p2name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj1s1 %>:27017 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.proj2p2name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj1p2 %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+  # @author bmeng@redhat.com
+  # @case_id 508645
+  @admin
+  Scenario: Isolate the network for the project which already make network global via selector
+    Given the env is using multitenant network
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+
+    Given I switch to cluster admin pseudo user
+    And I run the :label client command with:
+      | resource | namespace |
+      | name | <%= cb.proj1 %> |
+      | key_val | ns=group1 |
+    And I run the :label client command with:
+      | resource | namespace |
+      | name | <%= cb.proj2 %> |
+      | key_val | ns=group2 |
+    When I run the :oadm_pod_network_make_projects_global admin command with:
+      | selector | ns=group2 |
+    Then the step should succeed
+
+    Given I switch to the first user
+    Given I use the "<%= cb.proj1 %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+      | ["items"][1]["metadata"]["name"] | test-service-1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    And evaluation of `pod.name` is stored in the :proj1p1name clipboard
+    And evaluation of `service("test-service-1").ip(user: user)` is stored in the :proj1s1 clipboard
+
+    Given I use the "<%= cb.proj2 %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+      | ["items"][1]["metadata"]["name"] | test-service-2 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    And evaluation of `pod.ip` is stored in the :proj2p1 clipboard
+    And evaluation of `pod.name` is stored in the :proj2p1name clipboard
+
+    When I execute on the "<%= cb.proj2p1name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj1s1 %>:27017 |
+    Then the step should succeed
+    And the output should contain "Hello"
+
+    When I run the :oadm_pod_network_isolate_projects admin command with:
+      | selector | ns=group2 |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | netnamespace |
+      | resource_name | <%= cb.proj2 %> |
+      | template | {{.netid}} |
+    Then the step should succeed
+    And the expression should be true> @result[:response] != 0
+
+    Given I use the "<%= cb.proj1 %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+      | ["items"][0]["metadata"]["name"] | new-test-rc |
+      | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
+      | ["items"][1]["spec"]["selector"]["name"] | new-test-pods |
+      | ["items"][1]["metadata"]["name"] | new-test-service-1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=new-test-pods |
+    And evaluation of `pod.ip` is stored in the :proj1p2 clipboard
+
+    Given I use the "<%= cb.proj2 %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+      | ["items"][0]["metadata"]["name"] | new-test-rc |
+      | ["items"][0]["spec"]["template"]["metadata"]["labels"]["name"] | new-test-pods |
+      | ["items"][1]["spec"]["selector"]["name"] | new-test-pods |
+      | ["items"][1]["metadata"]["name"] | new-test-service-2 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=new-test-pods |
+    And evaluation of `pod.name` is stored in the :proj2p2name clipboard
+    And evaluation of `service("new-test-service-2").ip(user: user)` is stored in the :proj2s2 clipboard
+
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.proj1p1name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj2p1 %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.proj1p1name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj2s2 %>:27017 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.proj2p2name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj1s1 %>:27017 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.proj2p2name %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.proj1p2 %>:8080 |
     Then the step should fail
     And the output should not contain "Hello"
