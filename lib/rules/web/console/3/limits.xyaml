@@ -65,3 +65,14 @@ set_resource_limit_single:
   - selector:
       xpath: //edit-request-limit[@type='<resource_type>']//compute-resource[@label='<limit_type>']//option[@label='<amount_unit>']
     op: click
+set_resource_limit_online:
+  elements:
+  - selector:
+      xpath: //h2[text()='Container <container_name>']/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]//compute-resource//input
+    op: clear
+  - selector:
+      xpath: //h2[text()='Container <container_name>']/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]//compute-resource//input
+    op: send_keys <resource_amount>
+  - selector:
+      xpath: //h2[text()='Container <container_name>']/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]//compute-resource//option[@label='<amount_unit>']
+    op: click

@@ -57,13 +57,12 @@ Feature: ONLY ONLINE related feature's scripts in this file
       | build_log_context | Aborting due to error code 1 |
     Then the step should succeed
     Given I perform the :change_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name  | <%= project.name %>                                       |
-      | bc_name       | maven-dep-sample                                          |
-      | new_env_value | https://mirror.openshift.com/nexus/content/groups/public/ |
+      | project_name      | <%= project.name %>                                       |
+      | bc_name           | maven-dep-sample                                          |
+      | env_variable_name | MAVEN_MIRROR_URL                                          |
+      | new_env_value     | https://mirror.openshift.com/nexus/content/groups/public/ |
     Then the step should succeed
     When I run the :save_buildconfig_changes web console action
-      | project_name | <%= project.name %> |
-      | bc_name      | maven-dep-sample    |
     Then the step should succeed
     When I click the following "button" element:
       | text  | Start Build |

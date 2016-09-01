@@ -56,18 +56,18 @@ Feature: ONLY ONLINE Deployment related scripts in this file
     And a pod becomes ready with labels:
       | deployment=dctest-2 |
     When I perform the :check_limits_on_pod_page web console action with:
-      | project_name   | <%= project.name %>              |
-      | pod_name       | <%= pod.name %>                  |
-      | container_name | dctest-1                         |
-      | cpu_range      | 70 millicores to 1170 millicores |
-      | memory_range   | 360 MiB to 600 MiB               |
+      | project_name   | <%= project.name %>  |
+      | pod_name       | <%= pod.name %>      |
+      | container_name | dctest-1             |
+      | cpu_range      | 70 millicores to 117 |
+      | memory_range   | 360 MiB to 600 MiB   |
     Then the step should succeed
     When I perform the :check_limits_on_pod_page web console action with:
-      | project_name   | <%= project.name %>             |
-      | pod_name       | <%= pod.name %>                 |
-      | container_name | dctest-2                        |
-      | cpu_range      | 35 millicores to 584 millicores |
-      | memory_range   | 180 MiB to 300 MiB              |
+      | project_name   | <%= project.name %> |
+      | pod_name       | <%= pod.name %>     |
+      | container_name | dctest-2            |
+      | cpu_range      | 35 millicores to 58 |
+      | memory_range   | 180 MiB to 300 MiB  |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rc-with-two-containers.yaml |
@@ -132,16 +132,16 @@ Feature: ONLY ONLINE Deployment related scripts in this file
     Given a pod becomes ready with labels:
       | run=rctest  |
     When I perform the :check_limits_on_pod_page web console action with:
-      | project_name   | <%= project.name %>              |
-      | pod_name       | <%= pod.name %>                  |
-      | container_name | hello-openshift                  |
-      | cpu_range      | 70 millicores to 1170 millicores |
-      | memory_range   | 360 MiB to 600 MiB               |
+      | project_name   | <%= project.name %>  |
+      | pod_name       | <%= pod.name %>      |
+      | container_name | hello-openshift      |
+      | cpu_range      | 70 millicores to 117 |
+      | memory_range   | 360 MiB to 600 MiB   |
     Then the step should succeed
     When I perform the :check_limits_on_pod_page web console action with:
-      | project_name   | <%= project.name %>             |
-      | pod_name       | <%= pod.name %>                 |
-      | container_name | hello-openshift-fedora          |
-      | cpu_range      | 35 millicores to 584 millicores |
-      | memory_range   | 180 MiB to 300 MiB              |
+      | project_name   | <%= project.name %>    |
+      | pod_name       | <%= pod.name %>        |
+      | container_name | hello-openshift-fedora |
+      | cpu_range      | 35 millicores to 58    |
+      | memory_range   | 180 MiB to 300 MiB     |
     Then the step should succeed
