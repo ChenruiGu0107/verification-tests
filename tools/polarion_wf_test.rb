@@ -34,6 +34,7 @@ require 'yaml'
 
 require 'common'
 require 'polarion/polarion'
+require 'polarion/polarion_tc_manager'
 
 module CucuShift
   module Polarion
@@ -57,6 +58,15 @@ module CucuShift
         default_command :help
 
         #global_option('-s', '--service KEY', 'service name to look for in configuration')
+
+        command :fiddle do |c|
+          c.syntax = "#{__FILE__} fiddle"
+          c.description = 'enter a pry shell to play with API'
+          c.action do |args, options|
+            require 'pry'
+            binding.pry
+          end
+        end
 
         command :"generate-test-data" do |c|
           c.syntax = "#{COMMAND_NAME} generate-test-data [options]"
@@ -109,7 +119,14 @@ module CucuShift
             say "using #{count_executors} executors"
 
             # create new testrun
-            tr_uri = create_test_run(options.test_run_name, options.test_run_template)
+            if options.test_template != "skip"
+              tr_uri = create_test_run(options.test_run_name, options.test_template)
+            elsif options.test_run_name
+              tr_uri = polarion.testrun_uri(options.test_run_name, @project)
+            else
+              raise "specify test-run-name when you want to use existing"
+            end
+
             say "Created Test Run: #{tr_uri}"
             work_queue = Queue.new
             executors = []
@@ -136,6 +153,7 @@ module CucuShift
               # we have plenty of time before this variable is used
               executors[-1].thread_variable_set(:num, i)
             }
+            all_executors = executors.dup
 
             # use executor_proc.call if you want to pry inside it
             finished = wait_for(timeout, stats: stats) do
@@ -161,6 +179,22 @@ module CucuShift
               end
             end
 
+            # check for duplicate execution and whether all were executed
+            executed_cases = all_executors.map{|t|t.thread_variable_get(:cases)}
+            executed_num = executed_cases.reduce(0) {|m,c| m + c[:cases].size }
+            executed_cases.each_with_index do |cases, index|
+              executed_cases[0...index].each do |other_cases|
+                common_cases = other_cases[:cases] & cases[:cases]
+                unless common_cases.empty?
+                  executed_num - common_cases.size
+                  logger.error "Executor #{cases[:executor]} and #{other_cases[:executor]} both executed #{common_cases}"
+                end
+              end
+            end
+            if executed_num != executed_cases.first[:seen].size
+              logger.error "executed total cases #{executed_num} but should have been #{executed_cases.first[:seen].size}"
+            end
+
             unless finished
               executors.each { |t| t.terminate }
               raise "we didn't finish within timeout"
@@ -176,134 +210,55 @@ module CucuShift
 
       # @param worklog [Queue] to log useful metrics
       def executor!(client, tr_uri, worklog)
-        tr = nil
-        records = nil
-        tr_hash = nil
-        tr_id = tr_uri.sub(/^.+}/, "")
-        pr_id = tr_uri.sub(%r{.+default/(\w+)\$\{TestRun\}.+},"\\1")
-
-        # get required fields for cases in the run
-        sql = sql_get_workitems_from_run(tr_id, pr_id)
-        cases = client.tracker.query_work_items_by_sql(sql_query: sql, fields: ["id", "customFields.caseautomation", "customFields.automation_script"])
-        work_items = cases.body_hash["queryWorkItemsBySQLReturn"]
-
-        get_run = proc do
-          _err = nil
-          got = wait_for(300, interval: 5) do
-            begin
-              tr = client.test.get_test_run_by_uri(uri: tr_uri)
-            rescue => e
-              _err = e
-              logger.warn "#{executor_str()}: #{e.inspect}"
-              false
-            end
-          end
-          unless got
-            raise _err rescue raise "#{executor_str()} could not get #{tr_uri} record 5m"
-          end
-          tr = client.test.get_test_run_by_uri(uri: tr_uri)
-          if tr.fault || !testrun_exists?(tr)
-            puts tr.body.to_xml
-            raise "error getting TestRun #{tr_uri}"
-          end
-          tr_hash = tr.body_hash
-          records = tr_hash["getTestRunByUriReturn"]["records"]["TestRecord"]
+        executor_str = EXECUTOR_NAME
+        if Thread.current.thread_variable_get(:num)
+          executor_str += "-#{Thread.current.thread_variable_get(:num)}"
         end
 
-        get_run.call
-        pr_uri = tr_hash["getTestRunByUriReturn"]["projectURI"]
-        # pr_id = pr_uri.sub(/^.+}/, "")
+        manager = TCManager.new(client, executor_name: executor_str)
+        run = manager.get_run(uri: tr_uri)
+        work_items = manager.get_automation_data_for_run(run)
 
-        if records.size != work_items.size
-          raise "count of test records is #{records.size} but found #{work_items.size} workitems"
-        end
-
-        update_rec_at_index = proc do |req|
-          begin
-            next client.test.update_test_record_at_index(**req)
-          rescue => e
-            tc_id = req[:test_record][:test_case_uri].sub(/^.+}/, "")
-            if PolarionCallError === e &&
-                e.message.include?("ConcurrentModificationException")
-              logger.info "#{executor_str()}: case #{tc_id} concurrent " <<
-                " reservation update, skipping"
-            else
-              logger.warn "#{executor_str()}: case #{tc_id} unknown " <<
-                " reservation error:\n" << exception_to_string(e)
-            end
-            next false
-          end
+        cases_log = Thread.current.thread_variable_get(:cases)
+        if cases_log
+          executed_cases = cases_log[:cases]
+          seen_cases = cases_log[:seen]
+        else
+          executed_cases = []
+          seen_cases = Set.new
+          cases_log = {type: :cases, executor: executor_str,
+                       cases: executed_cases, seen: seen_cases}
+          Thread.current.thread_variable_set(:cases, cases_log)
         end
 
         # while we find unreserved case, reserve them and mark them complete
-        while rec_idx = records.find_index {|r| r["duration"].nil?}
-          rec = records[rec_idx]
-          tc_uri = rec["testCaseURI"]
-          tc_id = tc_uri.sub(/^.+}/, "")
-          unless work_items.find {|c| c["id"] == tc_id}
-            raise "cannot find case data: #{tc_id}"
+        run.records.size.times do |i|
+          sleep 1 # give poor polarion a little time to breath
+          rec = run.records[i]
+          seen_cases << rec.workitem_id
+          unless work_items.find { |c| c["id"] == rec.workitem_id }
+            raise "cannot find case data: #{rec.workitem_id}"
           end
 
-          reserve_duration = rand(1.0..2.0).round(6).to_s
-          res_rec = client.deep_snake(rec)
-          res_req = {
-            test_run_uri: tr_uri,
-            index: rec_idx,
-            test_record: res_rec
+          logger.info "#{executor_str()} reserving #{rec.workitem_id}"
+          next unless manager.reserve_test_record(rec)
+          executed_cases << rec.workitem_id
+          rec_update = {
+            duration: rand(1.0..603.0).round(6).to_s,
+            comment: {
+              type: "text/plain",
+              content_lossy: "false",
+              content: "executed by: #{EXECUTOR_NAME} #{executor_str()}"
+            },
+            result: {id: "passed"},
+            executed_by_uri: client.self_uri,
+            executed: Time.now.iso8601
           }
-          res_rec.delete(:test_step_results)
-          res_rec[:duration] = reserve_duration
-          res_rec[:comment] = { type: "text/plain",
-                                content_lossy: "false",
-                                content: "reserved by: #{EXECUTOR_NAME} #{executor_str()}"}
 
-          logger.info "#{executor_str()} reserving #{tc_id}"
-          unless (update_rec_at_index.call(res_req) rescue nil)
-            get_run.call
-            next
-          end
-
-          # TODO: make sleep depend on call response times
-          sleep 5
-
-          # check if we get the reservation
-          get_run.call
-          rec = records[rec_idx]
-
-          if rec["duration"] == reserve_duration
-            say "#{executor_str()} executing #{tc_id}"
-
-            # sleep some time to simulate test execution
-            sleep 15
-
-            # verify we still hold the reservation
-            get_run.call
-            rec = records[rec_idx]
-            if rec["duration"] != reserve_duration
-              raise "#{executor_str()} lost the reservation of #{tc_id}"
-            end
-
-            res_rec[:executed] = Time.now.iso8601
-            res_rec[:executed_by_uri] = client.self_uri
-            res_rec[:comment][:content] += "\ncompleted"
-            res_rec[:result] = {id: "passed"}
-
-            # this below can fail when run concurrently with other unrelated
-            # update_test_record_at_index calls, we need to retry
-            logger.info "#{executor_str()} setting #{tc_id} completion status"
-            updated = wait_for(600, interval: 3) do
-              update_rec_at_index.call(res_req)
-            end
-            unless updated
-              raise "#{executor_str()} could not update #{tc_id} record 10m"
-            end
+          logger.info "#{executor_str()} setting #{rec.workitem_id} completion status"
+          manager.update_test_record(rec, rec_update)
 
             # TODO: update worklog
-
-            get_run.call # refresh case list
-          else
-            say "skipping #{tc_id}, duration: #{rec["duration"]}, expected: #{reserve_duration}"
-          end
         end
 
         if Thread.current == Thread.main
@@ -401,39 +356,6 @@ module CucuShift
         )
         raise "cannot create run: #{tr.fault}" if tr.fault
         return tr_uri
-      end
-
-      def testrun_exists?(resp)
-        ! (resp.body.elements.first.attributes["unresolvable"].value == "true" rescue true)
-      end
-
-      def sql_get_workitems_from_run(run_id, project_id)
-        return <<-eof
-          select
-            WORKITEM.C_URI
-          from
-            WORKITEM inner join PROJECT
-              on WORKITEM.FK_URI_PROJECT = PROJECT.C_URI
-          where
-            PROJECT.C_ID = '#{project_id}' AND
-            WORKITEM.C_TYPE = 'testcase' AND
-            WORKITEM.C_URI = ANY(array(
-              select
-                TESTRECORD.FK_URI_TESTCASE
-              from
-                STRUCT_TESTRUN_RECORDS TESTRECORD inner join TESTRUN TESTRUN
-                  on TESTRECORD.FK_P_TESTRUN = TESTRUN.C_PK
-              where
-                TESTRUN.C_ID = '#{run_id}'
-            ))
-        eof
-
-        ## TODO, possible optimizations:
-        #        TESTRECORD.C_DURATION = <REAL> AND
-        #        TESTRECORD.C_COMMENT = <VARCHAR> AND
-        #        TESTRECORD.C_RESULT = 'failed' AND
-        #        TESTRECORD.C_EXECUTED > '2012-05-14 00:00:00' AND
-        #        TESTRECORD.C_EXECUTED < '2012-05-20 00:00:00'
       end
 
       # @return [String] random script/arguments case parameter

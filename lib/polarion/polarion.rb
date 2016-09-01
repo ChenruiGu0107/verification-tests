@@ -1,3 +1,5 @@
+require 'thread'
+
 require 'common'
 require 'http'
 
@@ -7,6 +9,7 @@ module CucuShift
 module Polarion
   class Connector
     include Common::Helper
+    extend Common::BaseHelper
 
     PROJECT  = "ProjectWebService"
     BUILDER  = "BuilderWebService"
@@ -67,7 +70,7 @@ module Polarion
       Collections.map_hash(hash) { |k, v| [k.tr('-','_').downcase.to_sym, v] }
     end
 
-    def deep_snake(hash)
+    def self.deep_snake(hash)
       Collections.deep_map_hash(hash) { |k,v|
         new_k = camel_to_snake_case(k).to_sym
         if Array === v
@@ -79,8 +82,17 @@ module Polarion
       }
     end
 
+    def deep_snake(hash)
+      self.class.deep_snake(hash)
+    end
+
     def new_client
       Connector.new(opts)
+    end
+
+    # can be useful to avoid interference during a transaction
+    def mutex
+      @mutex ||= Mutex.new
     end
 
     private def opts
@@ -98,13 +110,17 @@ module Polarion
       return res_opts
     end
 
+    private def wsdl_base_url
+      opts[:wsdl_base_url]
+    end
+
     # @return [String] wsdl XML for particular type of requests
     private def wsdl(type)
       return @wsdl_cache[type] if (@wsdl_cache ||= {})[type]
 
       @wsdl_cache[type] = CucuShift::Http.request(
         method: :get,
-        url: "#{opts[:wsdl_base_url]}/#{type}?wsdl",
+        url: "#{wsdl_base_url}/#{type}?wsdl",
         raise_on_error: true,
         **ssl_opts
       )[:response]
@@ -129,6 +145,11 @@ module Polarion
       req = cl.request(op)
       yield req.body # req.body {|b| yield b}
       req.header.__node__ << auth_header if login
+
+      unless mutex.owned?
+        mutex.lock
+        should_unlock = true
+      end
 
       raw = Http.request(
         method: :post,
@@ -160,6 +181,8 @@ module Polarion
       end
 
       return res
+    ensure
+      mutex.unlock if should_unlock
     end
 
     private def session_checkpoint!
