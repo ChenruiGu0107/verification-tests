@@ -1282,3 +1282,31 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+8 |
       | pods\s+1\\s+10 |
       | pods\\s+2\\s+5 |
+
+
+  # @author qwang@redhat.com
+  # @case_id 533793
+  @admin
+  Scenario: Quota scope conflict BestEffort and NotBestEffort
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name   | quota-besteffortnot      |
+      | hard   | pods=10                  |
+      | scopes | BestEffort,NotBestEffort |
+      | n      | <%= project.name %>      |
+    Then the step should fail
+    And the output should contain "spec.scopes: Invalid value: ["BestEffort","NotBestEffort"]: conflicting scopes"
+
+
+  # @author qwang@redhat.com
+  # @case_id 533794
+  @admin
+  Scenario: Quota scope conflict Terminating and NotTerminating
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name   | quota-terminatingnot       |
+      | hard   | pods=10                    |
+      | scopes | Terminating,NotTerminating |
+      | n      | <%= project.name %>        |
+    Then the step should fail
+    And the output should contain "spec.scopes: Invalid value: ["Terminating","NotTerminating"]: conflicting scopes"
