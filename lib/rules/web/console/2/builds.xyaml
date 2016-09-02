@@ -314,6 +314,7 @@ save_buildconfig_changes:
       text: Save
     type: button
     op: click
+  action: check_buildconfig_page_loaded_completely_after_editing
 cancel_buildconfig_changes:
   elements:
   - selector:
