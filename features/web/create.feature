@@ -123,8 +123,8 @@ Feature: create app on web console related
       | param_three   | :null  |
       | param_four    | :null  |
       | param_five    | :null  |
-      | label_key     | label1 |
-      | label_value   | /%^&   |
+      | label_key     | /%^&   |
+      | label_value   | value1 |
     Then the step should fail
     When I run the :confirm_errors_with_invalid_template_label web console action
     Then the step should succeed
