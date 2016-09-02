@@ -24,7 +24,7 @@ elif [ "$(os_type)" == "rhel6" ]; then
     file="deps.yum.RHEL"
     additional_deps=install_rvm_ruby
     use_rvm = 1
-elif [ "$(os_type)" == "rhel7" ]; then
+elif [ "$(os_type)" == "rhel7" ] || [ "$(os_type)" == "centos7" ]; then
     cmd="yum install -y"
     file="deps.yum.RHEL7"
     additional_deps=install_rvm_ruby

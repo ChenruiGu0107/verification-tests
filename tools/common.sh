@@ -36,6 +36,7 @@ function os_type()
         fi
         cat /etc/os-release | grep -i -q 'debian' && { echo "debian"; return 0; }
         cat /etc/os-release | grep -i -q 'ubuntu' && { echo "ubuntu"; return 0; }
+        cat /etc/os-release | grep -i -q "CentOS .* 7" && { echo "centos7"; return 0; }
         cat /etc/os-release | grep -i -q "Red Hat .* 7" && { echo "rhel7"; return 0; }
         cat /etc/os-release | grep -i -q "Red Hat .* 6" && { echo "rhel6"; return 0; }
         cat /etc/os-release | grep -i -q 'mint' && { echo "mint"; return 0; }
@@ -49,7 +50,7 @@ function os_pkg_method()
 {
   if [ "$(os_type)" == "fedora_dnf" ]; then
     echo DNF
-  elif [ "$(os_type)" == "fedora" ] || [[ "$(os_type)" =~ "rhel" ]]; then
+  elif [ "$(os_type)" == "fedora" ] || [[ "$(os_type)" =~ "rhel" ]] || [[ "$(os_type)" =~ "centos" ]]; then
     echo "YUM"
   elif [ "$(os_type)" == "ubuntu" ] || [ "$(os_type)" == "debian" ] || [ "$(os_type)" == "mint" ]; then
     echo "DEB"
