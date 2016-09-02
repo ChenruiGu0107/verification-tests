@@ -92,6 +92,8 @@ clear_param_form:
     type: input
     optional: true
 confirm_errors_with_invalid_template_label:
-  element:
-    selector:
-      xpath: //div[contains(@class,"alert")]/span[contains(text(),'Invalid value')]
+  elements:
+  - selector:
+      xpath: //span[text()='validation error']
+  - selector:
+      xpath: //span/a[@data-toggle="tooltip" and contains(@title,'valid object label')]
