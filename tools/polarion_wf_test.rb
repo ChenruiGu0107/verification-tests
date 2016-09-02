@@ -110,7 +110,7 @@ module CucuShift
           c.description = 'simulates test case execution'
           c.option('-p', '--project PROJECT', "the project to create them in")
           c.option('-c', '--count COUNT', "the number of concurrent executors")
-          c.option('--test-template TEMPLATE', "the template to create run")
+          c.option('--from-template TEMPLATE', "the template to create run")
           c.option('--test-run-name NAME', "the name for created test run")
           c.action do |args, options|
             @project = options.project
@@ -119,8 +119,8 @@ module CucuShift
             say "using #{count_executors} executors"
 
             # create new testrun
-            if options.test_template != "skip"
-              tr_uri = create_test_run(options.test_run_name, options.test_template)
+            if options.from_template != "false"
+              tr_uri = create_test_run(options.test_run_name, options.from_template)
             elsif options.test_run_name
               tr_uri = polarion.testrun_uri(options.test_run_name, @project)
             else
@@ -233,7 +233,6 @@ module CucuShift
 
         # while we find unreserved case, reserve them and mark them complete
         run.records.size.times do |i|
-          sleep 1 # give poor polarion a little time to breath
           rec = run.records[i]
           seen_cases << rec.workitem_id
           unless work_items.find { |c| c["id"] == rec.workitem_id }
@@ -243,6 +242,7 @@ module CucuShift
           logger.info "#{executor_str()} reserving #{rec.workitem_id}"
           next unless manager.reserve_test_record(rec)
           executed_cases << rec.workitem_id
+          sleep 15 # it takes 15 seconds to execute imaginary test cases
           rec_update = {
             duration: rand(1.0..603.0).round(6).to_s,
             comment: {

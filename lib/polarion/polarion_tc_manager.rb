@@ -143,6 +143,7 @@ module CucuShift
       end
 
       def sql_get_workitems_from_run(run_id, project_id)
+=begin
         return <<-eof
           select
             WORKITEM.C_URI
@@ -162,8 +163,43 @@ module CucuShift
                 TESTRUN.C_ID = '#{run_id}'
             ))
         eof
-
-        #  TODO: can we just select TESTRECORD.FK_URI_TESTCASE ?
+=end
+        return <<-eof
+          select
+            TESTRECORD.FK_URI_TESTCASE
+          from
+            PROJECT
+          inner join
+            TESTRUN
+              on PROJECT.C_PK = TESTRUN.FK_PROJECT
+          inner join
+            STRUCT_TESTRUN_RECORDS TESTRECORD
+              on TESTRUN.C_PK = TESTRECORD.FK_P_TESTRUN
+          where
+            PROJECT.C_ID = '#{project_id}' AND
+            TESTRUN.C_ID = '#{run_id}'
+        eof
+=begin
+        return <<-eof
+          select
+            FK_URI_TESTCASE
+          from
+            STRUCT_TESTRUN_RECORDS
+          where
+            FK_P_TESTRUN = (
+              select
+                C_PK
+              from
+                TESTRUN
+              where
+                FK_PROJECT = (
+                  select C_PK from PROJECT where PROJECT.C_ID = '#{project_id}'
+                )
+              and
+                TESTRUN.C_ID = '#{run_id}'
+            )
+        eof
+=end
         ## TODO, other possible optimizations:
         #        TESTRECORD.C_DURATION = <REAL> AND
         #        TESTRECORD.C_COMMENT = <VARCHAR> AND
