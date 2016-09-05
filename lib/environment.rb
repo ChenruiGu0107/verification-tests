@@ -29,6 +29,16 @@ module CucuShift
       end
     end
 
+    # override generated method as etcd role not always defined
+    def etcd_hosts
+      etcd_list = hosts.select {|h| h.has_role?(:etcd)}
+      if etcd_list.empty?
+        master_hosts
+      else
+        etcd_list
+      end
+    end
+
     # @param opts [Hash] initialization options
     def initialize(**opts)
       @opts = opts
@@ -38,15 +48,6 @@ module CucuShift
     # return environment key, mainly useful for logging purposes
     def key
       opts[:key]
-    end
-
-    def etcd_hosts
-      etcd_list = hosts.select {|h| h.has_role?(:etcd)}
-      if etcd_list.empty?
-        master_hosts
-      else
-        etcd_list
-      end
     end
 
     def user_manager
@@ -110,6 +111,63 @@ module CucuShift
 
     def web_console_url
       opts[:web_console_url] || api_endpoint_url
+    end
+
+    # some rules and logic to compare given version to current environment
+    # @return [Integer] less than 0 when env is older, 0 when it is comparable,
+    #   more than 0 when environment is newer
+    # @note for compatibility reasons we only compare only major and minor
+    def version_cmp(version, user:)
+      # helper parser
+      parse_version = proc do |ver_str; ver|
+        ver = ver_str.sub(/^v/,"")
+        if ver !~ /^[\d.]+$/
+          raise "version '#{ver}' does not match /^[\d.]+$/"
+        end
+        ver = ver.split(".").reject(&:empty?).map(&:to_i)
+        [ver[0], ver[1]]
+      end
+
+      # figure out local environment version
+      if @major_version && @minor_version
+        # all is fine already
+      elsif opts[:version]
+        # enforced environment version
+        @major_version, @minor_version = parse_version.call(opts[:version])
+      else
+        # try to obtain version
+        obtained = user.rest_request(:version)
+        if obtained[:request_opts][:url].include?("/version/openshift") &&
+            !obtained[:success]
+          # seems like pre-3.3 version, lets hardcode to 3.1
+          @major_version = 3
+          @minor_version = 1
+        elsif obtained[:success]
+          @major_version = obtained[:props][:major].to_i
+          @minor_version = obtained[:props][:minor].to_i
+        else
+          raise "error getting version: #{obtained[:error].inspect}"
+        end
+      end
+
+      major, minor = parse_version.call(version)
+
+      # presently handle only major ver `3`for OCP and `1` for origin
+      bad_majors = [@major_version, major] - [1,3]
+      unless bad_majors.empty?
+        raise "do not know how to compare major versions #{bad_majors}"
+      end
+
+      # lets compare minor version
+      return @minor_version - minor
+    end
+
+    def version_gt(version, user:)
+      version_cmp(version, user: user) > 0
+    end
+
+    def version_lt(version, user:)
+      version_cmp(version, user: user) < 0
     end
 
     # obtain router detals like default router subdomain and router IPs
