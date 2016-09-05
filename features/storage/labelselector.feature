@@ -6,11 +6,8 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: Target pvc to a specific pv with label selector
     Given I have a project
-    And I register clean-up steps:
-     | I run the :delete admin command with: |
-     | ! object_type ! pv               !    |
-     | ! l           ! usedFor=tc531523 !    |
-     | the step should succeed               |
+    And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
+    And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
 
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv1.json"
     Then I replace lines in "pv1.json":
@@ -48,11 +45,8 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: PVC with less label selectors could bound to PV 
     Given I have a project
-    And I register clean-up steps:
-     | I run the :delete admin command with: |
-     | ! object_type ! pv               !    |
-     | ! l           ! usedFor=tc531516 !    |
-     | the step should succeed               |
+    And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
+    And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
 
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv3.json"
     Then I replace lines in "pv3.json":
@@ -77,11 +71,8 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: Target pvc to a best fit size pv with same label selector
     Given I have a project
-    And I register clean-up steps:
-     | I run the :delete admin command with: |
-     | ! object_type ! pv               !    |
-     | ! l           ! usedFor=tc531522 !    |
-     | the step should succeed               |
+    And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
+    And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
 
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv4.json"
     Then I replace lines in "pv4.json":
@@ -118,11 +109,8 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: Prebound PVC could bind to pv and ignore the label selector 
     Given I have a project
-    And I register clean-up steps:
-     | I run the :delete admin command with: |
-     | ! object_type ! pv               !    |
-     | ! l           ! usedFor=tc531518 !    |
-     | the step should succeed               |
+    And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
+    And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
 
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv6.json"
     Then I replace lines in "pv6.json":
@@ -168,11 +156,9 @@ Feature: Target pvc to a specific pv
   @destructive
   Scenario: Target pvc to pv with same label selector and multi accessmode
     Given I have a project
-    And I register clean-up steps:
-     | I run the :delete admin command with: |
-     | ! object_type ! pv               !    |
-     | ! l           ! usedFor=tc531524 !    |
-     | the step should succeed               |
+    And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
+    And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
+    And admin ensures "nfspv3-<%= project.name %>" pv is deleted after scenario
 
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pv8.json"
     Then I replace lines in "pv8.json":
