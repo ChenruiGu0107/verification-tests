@@ -206,7 +206,8 @@ Feature: Testing for pv and pvc pre-bind feature
   Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PV pre-bind to PVC
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
-      | ["metadata"]["name"] | pvc-<%= project.name %> |
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpv-rwo.yaml" where:
       | ["metadata"]["name"]              | pv-prebind-<%= project.name %> |
