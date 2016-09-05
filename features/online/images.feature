@@ -108,3 +108,50 @@ Feature: ONLY ONLINE Images related scripts in this file
     Then the outputs should contain:
       | max_connections |
       | 42              |
+
+  # @author etrott@redhat.com
+  # @case_id 532739
+  Scenario: Verify Mariadb can be connected after admin and user password are changed and re-deployment for persistent storage - marialdb-101-rhel7
+    Given I have a project
+    And I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc532739/mariadb-persistent.json |
+    Given a pod becomes ready with labels:
+      | deployment=mariadb-1 |
+    When I run the :env client command with:
+      | resource | pod/<%= pod.name %> |
+      | list     | true                |
+    Then the output should contain:
+      | MYSQL_USER              |
+      | MYSQL_PASSWORD          |
+      | MYSQL_DATABASE=sampledb |
+    Given I get project pod named "<%= pod.name %>" as YAML
+    And evaluation of `pod.env_var("MYSQL_PASSWORD")` is stored in the :mysql_password clipboard
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | mysql -h <%= pod.name %> --user=$MYSQL_USER --password=<%= cb.mysql_password %> -e 'use sampledb;create table test (name VARCHAR(20));insert into test VALUES("openshift")' |
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      | bash | -c | mysql -h <%= pod.name %> --user=$MYSQL_USER --password=<%= cb.mysql_password %> -e 'use sampledb;select * from test;' |
+    Then the step should succeed
+    When I run the :set_env client command with:
+      | resource | dc/mariadb            |
+      | e        | MYSQL_PASSWORD=redhat |
+    Given a pod becomes ready with labels:
+      | deployment=mariadb-2 |
+    When I execute on the pod:
+      | bash | -c | mysql -h <%= pod.name %> --user=$MYSQL_USER --password=<%= cb.mysql_password %> |
+    Then the step should fail
+    When I execute on the pod:
+      | bash | -c | mysql -h <%= pod.name %> --user=$MYSQL_USER --password=redhat -e 'use sampledb;select * from test;' |
+    Then the step should succeed
+    Given I ensure "<%= pod.name %>" pod is deleted
+    When I run the :deploy client command with:
+      | deployment_config | mariadb |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=mariadb-2 |
+    When I execute on the pod:
+      | bash | -c | mysql -h <%= pod.name %> --user=$MYSQL_USER --password=redhat -e 'use sampledb;select * from test;' |
+    Then the step should succeed
