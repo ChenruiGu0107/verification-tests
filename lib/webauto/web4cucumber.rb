@@ -21,7 +21,8 @@ require 'watir-webdriver'
       :a => :as,
       :button => :button,
       :element => :elements,
-      :input => :input
+      :input => :input,
+      :js => :execute_script
     }
 
     ELEMENT_TIMEOUT = 10
@@ -462,9 +463,17 @@ require 'watir-webdriver'
     # @return [Hash] processed element selector as accepted by watir
     private def selector_param_setter(selector, params)
       return selector if params.empty?
-      selector_res = {}
-      selector.each do |selector_type, query|
-        selector_res[selector_type] = replace_angle_brackets(query, params)
+      case selector
+      when String
+        # javascript selectors
+        selector_res = replace_angle_brackets(selector, params)
+      when Hash
+        selector_res = {}
+        selector.each do |selector_type, query|
+          selector_res[selector_type] = replace_angle_brackets(query, params)
+        end
+      else
+        raise "don't know how to handle selector of type #{selector.class}"
       end
       return selector_res
     end

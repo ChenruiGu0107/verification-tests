@@ -456,9 +456,10 @@ Feature: build related feature on web console
     When I run the :save_buildconfig_changes web console action
     Then the step should succeed
     When I perform the :change_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby-sample-build    |
-      | new_env_value  | yapei-test-custom    |
+      | project_name      | <%= project.name %>               |
+      | bc_name           | ruby-sample-build                 |
+      | env_variable_name | OPENSHIFT_CUSTOM_BUILD_BASE_IMAGE |
+      | new_env_value     | yapei-test-custom                 |
     Then the step should succeed
     When I run the :save_buildconfig_changes web console action
     Then the step should succeed

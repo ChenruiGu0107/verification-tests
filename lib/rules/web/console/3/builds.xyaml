@@ -396,13 +396,23 @@ edit_build_image_to_docker_image:
   action: add_docker_image_link
 edit_env_var_value:
   elements:
-  - selector:
-      id: value-0
-    type: input
+  - selector: &env_var_value_field |
+        var id = null
+        var p = new RegExp("<env_variable_name>");
+        var el = document.getElementsByTagName("input");
+        for (var i=0; i<el.length; i++) {
+          if (p.test(el[i].value)) {
+            id = el[i].id;
+            break;
+          }
+        }
+        if (id == null) return null;
+        id = id.replace("-key-", "-value-");
+        return document.getElementById(id);
+    type: js
     op: clear
-  - selector:
-      id: value-0
-    type: input
+  - selector: *env_var_value_field
+    type: js
     op: send_keys <new_env_value>
 save_updated_env_value: {}
 change_env_vars_on_buildconfig_edit_page:
