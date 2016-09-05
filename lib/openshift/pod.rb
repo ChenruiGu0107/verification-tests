@@ -9,7 +9,7 @@ module CucuShift
     STATUSES = [:pending, :running, :succeeded, :failed, :unknown]
     # statuses that indicate pod running or completed successfully
     SUCCESS_STATUSES = [:running, :succeeded, :missing]
-    TERMINAL_STATUSES = [:failed, :unknown, :succeeded, :missing]
+    TERMINAL_STATUSES = [:failed, :succeeded, :missing]
 
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that ca nchange at any time like status and spec

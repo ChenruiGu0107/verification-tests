@@ -153,7 +153,8 @@ Given /^all existing pods die with labels:$/ do |table|
 
   current_pods.each do |pod|
     @result =
-      pod.wait_till_not_ready(user, timeout - monotonic_seconds + start_time)
+      pod.wait_till_status(CucuShift::Pod::TERMINAL_STATUSES, user,
+                           timeout - monotonic_seconds + start_time)
     unless @result[:success]
       raise "pod #{pod.name} did not die within allowed time"
     end
