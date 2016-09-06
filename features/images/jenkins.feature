@@ -290,7 +290,7 @@ Feature: jenkins.feature
     Given the "frontend-1" build was created
     And the "frontend-1" build completes
     And a pod becomes ready with labels:
-      | <%= env.version_gt("3.2") ? "name" : "app" %>=frontend |
+      | <%= env.version_gt("3.2", user: user) ? "name" : "app" %>=frontend |
     #Ensure the Jenkins job completes, wait for the frontend-prod pod
     And a pod becomes ready with labels:
       | deployment=frontend-prod-1 |
