@@ -377,3 +377,45 @@ Feature: SCC policy related scenarios
     And the output should contain:
       | UID on container test-pod does not match required range        |
       | seLinuxOptions.level on test-pod does not match required level |
+    Then the expression should be true> !@result[:parsed]['volumes'].include? 'hostPath' and !@result[:parsed]['allowHostDirVolumePlugin']
+
+  # @author pruan@redhat.com
+  # @case_id 518947
+  Scenario: Create pod with request capabilities conflict with the scc
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc518947/add_and_drop.json |
+    Then the step should fail
+    And the output should match:
+      | unable to validate against any security context constraint: \[capabilities.add |
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc518947/failure_to_add.json |
+    Then the step should fail
+    And the output should match:
+      | unable to validate against any security context constraint: \[capabilities.add |
+
+  # @author pruan@redhat.com
+  # @case_id 511601
+  Scenario: Container.securityContext should inherit the missing fields of securitycontext from PSC
+    Given I have a project
+    And evaluation of `project.uid_range(user: user).begin` is stored in the :uid_range clipboard
+    And evaluation of `project.mcs(user: user)` is stored in the :proj_selinux_options clipboard
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc511601/no_runasuser.json
+    Then the step should succeed
+    And the pod named "hello-openshift" status becomes :running
+    And evaluation of `pod('hello-openshift').sc_run_as_user(user: user)` is stored in the :sc_run_as_user clipboard
+    Then the expression should be true> cb.sc_run_as_user == cb.uid_range
+    Given I ensure "hello-openshift" pod is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc511601/no_runasnonroot.json |
+    Then the step should succeed
+    And the pod named "hello-openshift" status becomes :running
+    Then the expression should be true> pod('hello-openshift').sc_run_as_nonroot(user: user)
+    Given I ensure "hello-openshift" pod is deleted
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc511601/no_selinux.json
+    Then the step should succeed
+    And the pod named "hello-openshift" status becomes :running
+    And evaluation of `pod('hello-openshift').sc_selinux_options(user: user)` is stored in the :pod_selinux_options clipboard
+    Then the expression should be true> cb.pod_selinux_options['level'] == cb.proj_selinux_options
+

@@ -39,12 +39,25 @@ module CucuShift
     end
 
     # @note call without parameters only when props are loaded
+    # @return a Ruby Range object i.e. the API returns a string 10120000/1000, string transformed into a ruby Range object
     def uid_range(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :scc_uid_range, user: user, cached: cached, quiet: quiet)
+      range_string = get_cached_prop(prop: :scc_uid_range, user: user, cached: cached, quiet: quiet)
+      uids = range_string.split('/').map { |n| Integer(n) }
+      uid_range = (uids[0]...uids[0] + uids[1])
+      return uid_range
     end
 
+    # scc's mcs (https://www.centos.org/docs/5/html/Deployment_Guide-en-US/sec-mcs-ov.html)
+    def mcs(user:, cached: true, quiet: false)
+      return get_cached_prop(prop: :scc_mcs, user: user, cached: cached, quiet: quiet)
+    end
+
+    # @return a Ruby Range object i.e. the API returns a string 10120000/1000, string transformed into a ruby Range object
     def supplemental_groups(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :scc_supplemental_groups, user: user, cached: cached, quiet: quiet)
+      range_string = get_cached_prop(prop: :scc_supplemental_groups, user: user, cached: cached, quiet: quiet)
+      groups = range_string.split('/').map { |n| Integer(n) }
+      group_range = (groups[0]...groups[0] + groups[1])
+      return group_range
     end
     # creates a new project
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create project as
@@ -67,6 +80,7 @@ module CucuShift
       props[:description] = h["annotations"]["openshift.io/description"]
       props[:display_name] = h["annotations"]["openshift.io/display-name"]
       props[:scc_uid_range] = h["annotations"]["openshift.io/sa.scc.uid-range"]
+      props[:scc_mcs] = h["annotations"]["openshift.io/sa.scc.mcs"]
       props[:scc_supplemental_groups] = h["annotations"]["openshift.io/sa.scc.supplemental-groups"]
       props[:status] = project_hash["status"]
 

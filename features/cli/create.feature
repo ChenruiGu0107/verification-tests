@@ -698,7 +698,7 @@ Feature: creating 'apps' with CLI
     When I run the :get client command with:
       | resource      | project             |
       | resource_name | <%= project.name %> |
-    And evaluation of `project.uid_range(user:user).split("/")[0]` is stored in the :scc_limit clipboard
+    And evaluation of `project.uid_range(user:user).begin` is stored in the :scc_limit clipboard
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/510541/scc_rules.json
     Then the step should succeed
     When the pod named "hello-pod" status becomes :running
@@ -707,7 +707,7 @@ Feature: creating 'apps' with CLI
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
     When I get project pods named "hello-pod"
-    Then the expression should be true> pod.supplemental_groups(user:user)[0].to_s == cb.scc_limit
+    Then the expression should be true> pod.supplemental_groups(user:user)[0] == cb.scc_limit
 
   # @author pruan@redhat.com
   # @case_id 510543
@@ -718,7 +718,7 @@ Feature: creating 'apps' with CLI
       | resource      | project             |
       | resource_name | <%= project.name %> |
     # create and save the invalid supplemental_group_id
-    And evaluation of `project.supplemental_groups(user:user).split('/')[0].to_i - 1000` is stored in the :invalid_sgid clipboard
+    And evaluation of `project.supplemental_groups(user:user).begin - 1000` is stored in the :invalid_sgid clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510543/special_fs_groupid.json"
     And I replace lines in "special_fs_groupid.json":
       | 1000 | <%= cb.invalid_sgid %> |

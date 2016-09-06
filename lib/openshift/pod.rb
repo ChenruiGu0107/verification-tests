@@ -113,15 +113,34 @@ module CucuShift
     end
 
     # @note call without parameters only when props are loaded
+    # @return [Integer] fs_group UID
     def fs_group(user:, cached: true, quiet: false)
       spec = get_cached_prop(prop: :securityContext, user: user, cached: cached, quiet: quiet)
-      return spec["fsGroup"].to_s
+      return spec["fsGroup"]
+    end
+
+    # @return [Integer] uuid_range base
+    def sc_run_as_user(user:, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :securityContext, user: user, cached: cached, quiet: quiet)
+      return spec["runAsUser"]
+    end
+
+    # @return [Boolean] runAsNonRoot value
+    def sc_run_as_nonroot(user:, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :securityContext, user: user, cached: cached, quiet: quiet)
+      return spec["runAsNonRoot"]
+    end
+
+    def sc_selinux_options(user:, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :securityContext, user: user, cached: cached, quiet: quiet)
+      return spec["seLinuxOptions"]
     end
 
     def supplemental_groups(user:, cached: true, quiet: false)
       spec = get_cached_prop(prop: :securityContext, user: user, cached: cached, quiet: quiet)
       return spec["supplementalGroups"]
     end
+
     # returns an array of Container objects belonging to a pod
     def containers(user:, cached: true, quiet: false)
       res = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
