@@ -181,11 +181,14 @@ Feature: pods related scenarios
       | name  | nginx |
       | image | nginx |
     Then the step should succeed
-    When I get project pods as YAML
-    Then the output should contain:
+    Given I wait for the steps to pass:
+    """
+    I get project pods as YAML
+    the output should contain:
       | drop:        |
       | - KILL       |
       | - MKNOD      |
       | - SETGID     |
       | - SETUID     |
       | - SYS_CHROOT |
+    """

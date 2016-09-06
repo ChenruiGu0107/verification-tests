@@ -84,8 +84,7 @@ Feature: oc_env.feature
       | e        | pe#cial%=1234 |
     Then the step should fail
     And the output should match:
-      | [Ii]nvalid value.*pe#cial% |
-      | must be a C identifier     |
+      | can only contain letters, numbers, and underscores |
   # @author yapei@redhat.com
   # @case_id 479290
   Scenario: Update environment variables for resources

@@ -223,7 +223,7 @@ Feature: oc tag related scenarios
       | name     | ruby |
     Then the step should succeed
     And the output should match:
-      | tip\s+openshift\/origin:latest |
+      | tip\s.*openshift\/origin:latest |
     When I run the :get client command with:
       | resource      | istag    |
       | resource_name | ruby:tip |
@@ -240,8 +240,8 @@ Feature: oc tag related scenarios
       | name     | ruby |
     Then the step should succeed
     And the output should match:
-      | tip\s+openshift\/origin:latest       |
-      | another\s+openshift\/origin:v1\.2\.0 |
+      | tip\s.*openshift\/origin:latest       |
+      | another\s.*openshift\/origin:v1\.2\.0 |
     When I run the :get client command with:
       | resource      | istag        |
       | resource_name | ruby:another |
@@ -258,10 +258,10 @@ Feature: oc tag related scenarios
       | name     | ruby |
     Then the step should succeed
     And the output should match:
-      | tip\s+openshift\/origin:latest    |
-      | another\s+openshift/origin:v1.2.0 |
-      | fail\s+openshift\/origin:fail     |
-      | import failed:                    |
+      | tip\s.*openshift\/origin:latest    |
+      | another\s.*openshift/origin:v1.2.0 |
+      | fail\s.*openshift\/origin:fail     |
+      | [Ii]mport failed                   |
     When I run the :get client command with:
       | resource      | istag     |
       | resource_name | ruby:fail |
