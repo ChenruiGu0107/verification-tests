@@ -635,7 +635,7 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     #Change service labels
     Given I replace resource "services" named "frontend" saving edit to "serviceschange.json":
-      | app: ruby-sample-build | app: change |
+      | app: ruby-helloworld-sample | app: change |
     When I get project pod named "<%= pod.name %>" as JSON
     Then the step should succeed
     Given I save the output to file> podschange.json
