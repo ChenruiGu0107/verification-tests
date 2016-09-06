@@ -342,3 +342,38 @@ Feature: SCC policy related scenarios
       | resource_name | scc-tc521575-c |
       | o             | yaml           |
     Then the expression should be true> !@result[:parsed]['volumes'].include? 'hostPath' and !@result[:parsed]['allowHostDirVolumePlugin']
+
+  # @author pruan@redhat.com
+  # @case_id 495030
+  @admin
+  Scenario: Different level of SCCs should have different scopes
+    Given I have a project
+    Given a 5 characters random string of type :dns is stored into the :scc_name_1 clipboard
+    Given a 5 characters random string of type :dns is stored into the :scc_name_2 clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495030/scc_1.json"
+    And I replace lines in "scc_1.json":
+       | "name": "restricted", | "name": "<%= cb.scc_name_1 %>", |
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495030/scc_2.json"
+    And I replace lines in "scc_2.json":
+      | "name": "restricted", | "name": "<%= cb.scc_name_2 %>", |
+    And I switch to cluster admin pseudo user
+    Given the following scc policy is created: scc_1.json
+    Then the step should succeed
+    Given the following scc policy is created: scc_2.json
+    Then the step should succeed
+    Given I switch to the first user
+    When I run the :oadm_policy_add_scc_to_user admin command with:
+      | scc       | <%= cb.scc_name_1 %> |
+      | user_name | <%= user.name %>     |
+    Then the step should succeed
+    When I run the :oadm_policy_add_scc_to_user admin command with:
+      | scc       | <%= cb.scc_name_2 %> |
+      | user_name | <%= user.name %>     |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc495030/pod1.json |
+      | n | <%= project.name %>                                                                                     |
+    Then the step should fail
+    And the output should contain:
+      | UID on container test-pod does not match required range        |
+      | seLinuxOptions.level on test-pod does not match required level |
