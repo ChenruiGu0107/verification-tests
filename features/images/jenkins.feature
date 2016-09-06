@@ -782,3 +782,32 @@ Feature: jenkins.feature
       | resource      | rc   |
     And the output should match:
       | database-2+\s+0+\s+0 |
+
+  # @author cryan@redhat.com
+  # @case_id 533683
+  Scenario: Pipeline build, started before Jenkins is deployed, shouldn't get deleted
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.json |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Given I get project builds
+    Then the output should contain:
+      | sample-pipeline-1 |
+      | New               |
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    #Ensure the pre-existing build is still present after jenkins creation
+    Given I get project builds
+    Then the output should contain "sample-pipeline-1"
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    Given I get project builds
+    Then the output should match:
+      | sample-pipeline-1\s+JenkinsPipeline\s+Running |
+    """
