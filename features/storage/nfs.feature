@@ -396,3 +396,32 @@ Feature: NFS Persistent Volume
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
     Then the step should succeed
     And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
+
+  # @author wehe@redhat.com
+  # @case_id 532723
+  @admin
+  Scenario: New pod could be running after nfs server lost connection 
+    Given I have a project
+    And I have a NFS service in the project
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
+      | ["metadata"]["name"]       | pv-nfs-<%= project.name %>       |
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | mysql-persistent |
+    Then the step should succeed
+    And the "mysql" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
+    Given a pod becomes ready with labels:
+      | app=mysql-persistent |
+    And I ensure "nfs-server" pod is deleted
+    And I ensure "nfs-service" service is deleted
+    When I run the :delete client command with:
+      | object_type | pod,services,dc      |
+      | l           | app=mysql-persistent |
+    Then the step should succeed
+    Given all existing pods die with labels:
+      | l | app=mysql-persistent |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should succeed
+    Given the pod named "hello-openshift" status becomes :running
