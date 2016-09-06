@@ -3,7 +3,7 @@ Feature: kubelet restart and node restart
   # @case_id 532742 532741 532740
   @admin
   @destructive
-  Scenario: kubelet restart should not affect attached/mounted volumes
+  Scenario Outline: kubelet restart should not affect attached/mounted volumes
     # create project with node selector
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :oadm_new_project admin command with:
@@ -113,7 +113,7 @@ Feature: kubelet restart and node restart
   # @case_id 533194 533193 533192
   @admin
   @destructive
-  Scenario: node restart should not affect attached/mounted volumes
+  Scenario Outline: node restart should not affect attached/mounted volumes
     # create project with node selector
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :oadm_new_project admin command with:
