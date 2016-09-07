@@ -2608,7 +2608,7 @@ Feature: build 'apps' with CLI
       | resource name may not be empty |
 
   # @author cryan@redhat.com
-  # @case_id 534545 534546 534547 534548 534549 534550 534551
+  # @case_id 534545 534546 534547 534548 534549 534550 534551 534576 534577 534578 534579
   # @bug_id 1368114
   Scenario Outline: image build behind proxy
     Given I have a project
@@ -2634,3 +2634,8 @@ Feature: build 'apps' with CLI
       | openshift/ruby:2.3    | ruby-hello-world |
       | openshift/perl:5.16   | dancer-ex        |
       | openshift/perl:5.20   | dancer-ex        |
+      | openshift/python:3.5  | django-ex        |
+      | openshift/python:3.4  | django-ex        |
+      | openshift/python:3.3  | django-ex        |
+      | openshift/python:2.7  | django-ex        |
+
