@@ -285,18 +285,17 @@ choose_image_source_tag:
 add_image_source_path:
   elements:
   - selector:
-      xpath: //input[@placeholder="Source Path"]
+      xpath: //a[contains(.,'Add image source path')]
+    op: click
+  - selector:
+      xpath: //key-value-editor[@entries='imageSourcePaths']//div[contains(@class,'key-value-editor-entry')][count(//key-value-editor[@entries='imageSourcePaths']//div[contains(@class,'key-value-editor-entry')])-1]//input[@placeholder="Source Path"]
     op: send_keys <source_path>
 add_image_source_dest_path:
   elements:
   - selector:
-      xpath: //input[@placeholder="Destination Dir"]
+      xpath: //key-value-editor[@entries='imageSourcePaths']//div[contains(@class,'key-value-editor-entry')][count(//key-value-editor[@entries='imageSourcePaths']//div[contains(@class,'key-value-editor-entry')])-1]//input[@placeholder="Destination Dir"]
     op: send_keys <dest_dir>
-save_source_and_dest_paths:
-  elements:
-  - selector:
-      xpath: //osc-key-values[@entries='imageSourcePaths']//a[@ng-click='addEntry()']
-    op: click
+save_source_and_dest_paths: {}
 change_source_repo_url:
   elements:
   - selector:
@@ -377,11 +376,22 @@ check_bc_config_change_trigger:
   elements:
   - selector:
       xpath: //dt[contains(.,'Config change for')]/following-sibling::dd[contains(.,'<config_change_trigger>')]
-choose_build_image_source:
+check_bc_config_change_trigger_exist:
+  action: goto_buildconfig_configuration_tab
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Configchange for')]
+choose_build_image_source_to_docker_image:
   action: check_buildconfig_edit_page_loaded_completely
   elements:
   - selector:
-      xpath: //select[@ng-model='builderOptions.pickedType']//option[contains(.,'<build_image_source>')]
+      xpath: //select[@ng-model='builderOptions.pickedType']//option[contains(.,'Docker Image')]
+    op: click
+choose_build_image_source_to_image_stream_image:
+  action: check_buildconfig_edit_page_loaded_completely
+  elements:
+  - selector:
+      xpath: //select[@ng-model='builderOptions.pickedType']//option[contains(.,'Stream Image')]
     op: click
 add_docker_image_link:
   elements:
@@ -392,7 +402,7 @@ add_docker_image_link:
       xpath: //input[@ng-model='builderOptions.pickedDockerImage']
     op: send_keys <docker_image_link>
 edit_build_image_to_docker_image:
-  action: choose_build_image_source
+  action: choose_build_image_source_to_docker_image
   action: add_docker_image_link
 edit_env_var_value:
   elements:
@@ -416,14 +426,22 @@ set_force_pull_on_buildconfig_edit_page:
       xpath: //input[@ng-model='options.forcePull']
     op: click
 toggle_config_change_trigger_on_bc_edit_page:
+  action: change_bc_run_policy_to_parallel
+  action: change_bc_run_policy_to_serial
+change_bc_run_policy_to_parallel:
   elements:
   - selector:
-      xpath: //input[@ng-model="triggers.present.configChange"]
+      xpath: //select[@ng-model="updatedBuildConfig.spec.runPolicy"]/option[contains(.,'Parallel')]
+    op: click
+change_bc_run_policy_to_serial:
+  elements:
+  - selector:
+      xpath: //select[@ng-model="updatedBuildConfig.spec.runPolicy"]/option[contains(.,'Serial')]
     op: click
 toggle_image_change_trigger_on_bc_edit_page:
   elements:
   - selector:
-      xpath: //input[@ng-model="triggers.present.imageChange"]
+      xpath: //input[@ng-model="triggers.builderImageChangeTrigger.present"]
     op: click
 toggle_cache_on_bc_edit_page:
   elements:
@@ -480,28 +498,38 @@ edit_bc_source_context_dir:
   action: check_buildconfig_edit_page_loaded_completely
   action: change_bc_source_context_dir_on_bc_edit_page
 edit_build_image_to_image_stream_image:
-  action: choose_build_image_source
+  action: choose_build_image_source_to_image_stream_image
   action: add_image_stream_image_on_bc_edit_page
 change_bc_output_image_to_image_stream_tag:
   action: check_buildconfig_edit_page_loaded_completely
-  action: choose_bc_output_image_option
+  action: choose_bc_output_image_option_to_image_stream
   action: choose_output_image_namespace
   action: choose_output_image_is
   action: set_output_image_tag
 change_bc_output_image_to_docker_image_link:
   action: check_buildconfig_edit_page_loaded_completely
-  action: choose_bc_output_image_option
+  action: choose_bc_output_image_option_to_docker_image
   action: set_output_docker_image_link
 change_bc_output_image_to_none:
   action: check_buildconfig_edit_page_loaded_completely
-  action: choose_bc_output_image_option
+  action: choose_bc_output_image_option_to_none
 edit_bc_binary_input:
   action: check_buildconfig_edit_page_loaded_completely
   action: change_bc_binary_input
-choose_bc_output_image_option:
+choose_bc_output_image_option_to_docker_image:
   elements:
   - selector:
-      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'<output_image_dest>')]
+      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'Docker Image')]
+    op: click
+choose_bc_output_image_option_to_image_stream:
+  elements:
+  - selector:
+      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'Stream Tag')]
+    op: click
+choose_bc_output_image_option_to_none:
+  elements:
+  - selector:
+      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'None')]
     op: click
 choose_output_image_namespace:
   elements:

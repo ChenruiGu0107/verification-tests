@@ -351,11 +351,22 @@ check_bc_config_change_trigger:
   elements:
   - selector:
       xpath: //dt[contains(.,'Config change for')]/following-sibling::dd[contains(.,'<config_change_trigger>')]
-choose_build_image_source:
+check_bc_config_change_trigger_exist:
+  action: goto_buildconfig_configuration_tab
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Config change for')]
+choose_build_image_source_to_docker_image:
   action: check_buildconfig_edit_page_loaded_completely
   elements:
   - selector:
-      xpath: //select[@ng-model='builderOptions.pickedType']//option[contains(.,'<build_image_source>')]
+      xpath: //select[@ng-model='builderOptions.pickedType']//option[contains(.,'Docker Image')]
+    op: click
+choose_build_image_source_to_image_stream_image:
+  action: check_buildconfig_edit_page_loaded_completely
+  elements:
+  - selector:
+      xpath: //select[@ng-model='builderOptions.pickedType']//option[contains(.,'Stream Image')]
     op: click
 add_docker_image_link:
   elements:
@@ -366,7 +377,7 @@ add_docker_image_link:
       xpath: //input[@ng-model='builderOptions.pickedDockerImage']
     op: send_keys <docker_image_link>
 edit_build_image_to_docker_image:
-  action: choose_build_image_source
+  action: choose_build_image_source_to_docker_image
   action: add_docker_image_link
 edit_env_var_value:
   elements:
@@ -459,28 +470,38 @@ edit_bc_source_context_dir:
   action: check_buildconfig_edit_page_loaded_completely
   action: change_bc_source_context_dir_on_bc_edit_page
 edit_build_image_to_image_stream_image:
-  action: choose_build_image_source
+  action: choose_build_image_source_to_image_stream_image
   action: add_image_stream_image_on_bc_edit_page
 change_bc_output_image_to_image_stream_tag:
   action: check_buildconfig_edit_page_loaded_completely
-  action: choose_bc_output_image_option
+  action: choose_bc_output_image_option_to_image_stream
   action: choose_output_image_namespace
   action: choose_output_image_is
   action: set_output_image_tag
 change_bc_output_image_to_docker_image_link:
   action: check_buildconfig_edit_page_loaded_completely
-  action: choose_bc_output_image_option
+  action: choose_bc_output_image_option_to_docker_image
   action: set_output_docker_image_link
 change_bc_output_image_to_none:
   action: check_buildconfig_edit_page_loaded_completely
-  action: choose_bc_output_image_option
+  action: choose_bc_output_image_option_to_none
 edit_bc_binary_input:
   action: check_buildconfig_edit_page_loaded_completely
   action: change_bc_binary_input
-choose_bc_output_image_option:
+choose_bc_output_image_option_to_docker_image:
   elements:
   - selector:
-      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'<output_image_dest>')]
+      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'Docker Image')]
+    op: click
+choose_bc_output_image_option_to_image_stream:
+  elements:
+  - selector:
+      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'Stream Tag')]
+    op: click
+choose_bc_output_image_option_to_none:
+  elements:
+  - selector:
+      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'None')]
     op: click
 choose_output_image_namespace:
   elements:

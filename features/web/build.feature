@@ -444,7 +444,6 @@ Feature: build related feature on web console
     When I perform the :edit_build_image_to_docker_image web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
-      | build_image_source | Docker Image Link |
       | docker_image_link | yapei-test/origin-ruby-sample:latest |
     Then the step should succeed
     When I run the :save_buildconfig_changes web console action
@@ -525,7 +524,7 @@ Feature: build related feature on web console
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
     Then the step should fail
-    When I perform the :check_bc_config_change_trigger web console action with:
+    When I perform the :check_bc_config_change_trigger_exist web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
     Then the step should fail
@@ -601,7 +600,6 @@ Feature: build related feature on web console
     When I perform the :edit_build_image_to_image_stream_image web console action with:
       | project_name       | <%= project.name %>  |
       | bc_name            | ruby-sample          |
-      | build_image_source | Image Stream Image   |
       | image_stream_image | <%= cb.image_stream_image %> |
     Then the step should succeed
     When I run the :save_buildconfig_changes web console action
@@ -610,7 +608,7 @@ Feature: build related feature on web console
     When I perform the :check_buildconfig_source_repo web console action with:
       | project_name       | <%= project.name %>  |
       | bc_name            | ruby-sample          |
-      | source_repo_url    | https://github.com/openshift/s2i-ruby/tree/mfojtik-patch-1/2.2/test |
+      | source_repo_url    | https://github.com/openshift/s2i-ruby |
     Then the step should succeed
     When I perform the :check_bc_source_ref web console action with:
       | project_name       | <%= project.name %>  |
@@ -699,7 +697,6 @@ Feature: build related feature on web console
     When I perform the :change_bc_output_image_to_docker_image_link web console action with:
       | project_name             | <%= project.name %>     |
       | bc_name                  | python-sample-build-sti |
-      | output_image_dest        | Docker Image Link       |
       | output_docker_image_link | docker.io/yapei/python-sample-test:latest |
     Then the step should succeed
     When I run the :save_buildconfig_changes web console action
@@ -713,7 +710,6 @@ Feature: build related feature on web console
     When I perform the :change_bc_output_image_to_image_stream_tag web console action with:
       | project_name             | <%= project.name %>     |
       | bc_name                  | python-sample-build-sti |
-      | output_image_dest        | Image Stream Tag        |
       | output_image_namespace   | <%= project.name %>     |
       | output_image_is          | python-sample-sti       |
       | output_image_tag         | test                    |
@@ -729,7 +725,6 @@ Feature: build related feature on web console
     When I perform the :change_bc_output_image_to_none web console action with:
       | project_name      | <%= project.name %>     |
       | bc_name           | python-sample-build-sti |
-      | output_image_dest | None                    |
     Then the step should succeed
     When I run the :save_buildconfig_changes web console action
     Then the step should succeed
