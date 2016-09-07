@@ -1469,19 +1469,7 @@ Feature: build 'apps' with CLI
   # @case_id 521601
   Scenario: Overriding builder image scripts by url scripts in buildConfig under proxy
     Given I have a project
-    #Create the proxy
-    When I run the :new_build client command with:
-      | code | https://github.com/openshift-qe/docker-squid |
-      | strategy | docker |
-      | to | myappis |
-      | name | myapp |
-    Then the step should succeed
-    Given the "myapp-1" build completes
-    When I run the :new_app client command with:
-      | image_stream | myappis |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
-      | deployment=myappis-1 |
+    And I have a proxy configured in the project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/test-buildconfig.json |
     Then the step should succeed
@@ -1490,15 +1478,13 @@ Feature: build 'apps' with CLI
       | resource_name | ruby-sample-build |
       | p | {"spec": {"strategy": {"sourceStrategy": {"scripts": "https://raw.githubusercontent.com/openshift-qe/builderimage-scripts/master/bin"}}}} |
     Then the step should succeed
-    #Get the proxy ip
-    And evaluation of `service("myappis").ip(user: user)` is stored in the :service_ip clipboard
     When I run the :patch client command with:
       | resource | buildconfig |
       | resource_name | ruby-sample-build |
-      | p | {"spec": {"strategy": {"sourceStrategy": {"env": [{"name": "http_proxy","value": "http://<%= cb.service_ip %>:3128"}]}}}} |
+      | p | {"spec": {"strategy": {"sourceStrategy": {"env": [{"name": "http_proxy","value": "http://<%= cb.proxy_ip %>:3128"}]}}}} |
     Then the step should succeed
     When I get project bc named "ruby-sample-build" as JSON
-    Then the output should contain "http://<%= cb.service_ip %>:3128"
+    Then the output should contain "http://<%= cb.proxy_ip %>:3128"
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
@@ -2620,3 +2606,31 @@ Feature: build 'apps' with CLI
     Then the step should fail
     And the output should contain:
       | resource name may not be empty |
+
+  # @author cryan@redhat.com
+  # @case_id 534545 534546 534547 534548 534549 534550 534551
+  # @bug_id 1368114
+  Scenario Outline: image build behind proxy
+    Given I have a project
+    And I have a proxy configured in the project
+    When I run the :new_build client command with:
+      | app_repo | <image>~https://github.com/openshift/<repo>  |
+      | e        | http_proxy=http://<%= cb.proxy_ip %>:3128    |
+      | e        | https_proxy=http://<%= cb.proxy_ip %>:3128   |
+      | e        | HTTP_PROXY=http://<%= cb.proxy_ip %>:3128    |
+      | e        | HTTPS_PROXY=http://<%= cb.proxy_ip %>:3128   |
+    Then the step should succeed
+    Given the "<repo>-1" build completes
+    When I run the :logs client command with:
+      | resource_name | build/<repo>-1 |
+    Then the step should succeed
+    And the output should contain "Using HTTP proxy http://<%= cb.proxy_ip %>:3128"
+    Examples:
+      | image                 | repo             |
+      | openshift/nodejs:0.10 | nodejs-ex        |
+      | openshift/ruby:2.0    | ruby-hello-world |
+      | openshift/nodejs:4    | nodejs-ex        |
+      | openshift/ruby:2.2    | ruby-hello-world |
+      | openshift/ruby:2.3    | ruby-hello-world |
+      | openshift/perl:5.16   | dancer-ex        |
+      | openshift/perl:5.20   | dancer-ex        |
