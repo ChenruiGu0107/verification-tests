@@ -2608,7 +2608,7 @@ Feature: build 'apps' with CLI
       | resource name may not be empty |
 
   # @author cryan@redhat.com
-  # @case_id 534545 534546 534547 534548 534549 534550 534551
+  # @case_id 534545 534546 534547 534548 534549 534550 534551 534576 534577 534578 534579
   # @bug_id 1368114
   Scenario Outline: image build behind proxy
     Given I have a project
