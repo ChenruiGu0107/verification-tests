@@ -495,7 +495,7 @@ module CucuShift
     def launch_template(config:, launched_instances_name_prefix:)
       vars = YAML.load(readfile(config))
       if ENV["LAUNCHER_VARS"] && !ENV["LAUNCHER_VARS"].empty?
-        vars.merge!(YAML.load(ENV["LAUNCHER_VARS"]))
+        Collections.deep_merge!(vars, YAML.load(ENV["LAUNCHER_VARS"]))
       end
       vars = Collections.deep_hash_symkeys vars
       vars[:instances_name_prefix] = launched_instances_name_prefix
