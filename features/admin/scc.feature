@@ -419,3 +419,24 @@ Feature: SCC policy related scenarios
     And evaluation of `pod('hello-openshift').sc_selinux_options(user: user)` is stored in the :pod_selinux_options clipboard
     Then the expression should be true> cb.pod_selinux_options['level'] == cb.proj_selinux_options
 
+  # @author chezhang@redhat.com
+  # @case_id 533538
+  Scenario: OpenShift SCC check, empty seccomp
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_seccomp_1.yaml |
+    Then the step should fail
+    And the output should match "unable to validate against any security context constraint.*Forbidden: seccomp may not be set pod"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_seccomp_2.yaml |
+    Then the step should succeed
+
+  # @author chezhang@redhat.com
+  # @case_id 533540
+  @admin
+  Scenario: OpenShift SCC check, all seccomp allowed
+    Given I have a project
+    Given SCC "privileged" is added to the "default" user
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_seccomp_1.yaml |
+    Then the step should succeed
