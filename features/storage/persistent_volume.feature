@@ -1,4 +1,32 @@
 Feature: Persistent Volume Claim binding policies
+  # @author lxia@redhat.com
+  # @case_id 533238
+  @admin
+  Scenario: describe pv should show messages and events
+    Given I have a project
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["metadata"]["name"]                      | pv-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                | ReadWriteOnce          |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]       | pvc-<%= project.name %> |
+      | ["spec"]["volumeName"]     | pv-<%= project.name %>  |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce           |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+    Given I ensure "pvc-<%= project.name %>" pvc is deleted
+    And I wait up to 600 seconds for the steps to pass:
+    """
+    When I run the :describe admin command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+    Then the step should succeed
+    And the output should match:
+      | Message:\s+Recycler failed |
+      | Events:                    |
+    """
 
   # @author jhou@redhat.com
   # @author wehe@redhat.com
@@ -313,9 +341,9 @@ Feature: Persistent Volume Claim binding policies
     And the "pv-<%= project.name %>" PV status is :available
 
   # @author wehe@redhat.com
-  # @case_id 533135 
+  # @case_id 533135
   @admin
-  Scenario: Check the pvc capacity  
+  Scenario: Check the pvc capacity
     Given I have a project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-retain-rox.json" where:
@@ -325,7 +353,7 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
-    When I get project pvc named "pvc-<%= project.name %>" 
+    When I get project pvc named "pvc-<%= project.name %>"
     Then the output should contain:
       | ROX |
-      | 5Gi |         
+      | 5Gi |
