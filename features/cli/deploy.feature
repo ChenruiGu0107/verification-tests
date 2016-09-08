@@ -622,6 +622,7 @@ Feature: deployment related features
       | latest ||
     Then the step should succeed
     And the output should contain "Started deployment #3"
+    And I wait until the status of deployment "hooks" becomes :running
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | cancel ||
