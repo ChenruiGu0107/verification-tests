@@ -50,17 +50,17 @@ Feature: kubelet restart and node restart
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc1-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod1                           |
-      | ["spec"]["containers"][0]["volumeMounts"]["mountPath"]       | /mnt/<platform>                  |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                  |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc2-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod2                           |
-      | ["spec"]["containers"][0]["volumeMounts"]["mountPath"]       | /mnt/<platform>                  |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                  |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc3-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod3                           |
-      | ["spec"]["containers"][0]["volumeMounts"]["mountPath"]       | /mnt/<platform>                  |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                  |
     Then the step should succeed
 
     # write to the mounted storage
@@ -160,17 +160,17 @@ Feature: kubelet restart and node restart
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc1-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod1                           |
-      | ["spec"]["containers"][0]["volumeMounts"]["mountPath"]       | /mnt/<platform>                  |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                  |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc2-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod2                           |
-      | ["spec"]["containers"][0]["volumeMounts"]["mountPath"]       | /mnt/<platform>                  |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                  |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc3-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod3                           |
-      | ["spec"]["containers"][0]["volumeMounts"]["mountPath"]       | /mnt/<platform>                  |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                  |
     Then the step should succeed
 
     # write to the mounted storage
