@@ -116,6 +116,80 @@ jenkins_click_add_build_step_button:
     op: click
     type: button
 
+jenkins_check_build_fields:
+  url: /job/<job_name>/configure
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Trigger OpenShift Build
+    type: a
+    op: click
+  - selector:
+      xpath: //input[contains(@checkurl, 'OpenShiftBuilder/checkApiURL')]
+    type: input
+    op: send_keys <api_endpoint>
+  - selector:
+      xpath: //input[contains(@checkurl, 'OpenShiftBuilder/checkBldCfg')]
+    type: input
+    op: send_keys <build_config>
+  - selector:
+      xpath: //input[contains(@checkurl, 'OpenShiftBuilder/checkNamespace')]
+    type: input
+    op: send_keys <name_space>
+  - selector:
+      xpath: //input[contains(@checkurl, 'OpenShiftBuilder/checkAuthToken')]
+    type: input
+    op: send_keys <token>
+  - selector:
+      name: _.commitID
+    type: input
+    op: send_keys <commit_hash>
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftBuilder')]//td[contains(text(),"Allow for verbose logging during this build step plug-in")]/following-sibling::td[1]/input[1]
+      type: radio
+    type: input
+    op: click
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftBuilder')]//td[contains(text(),"Pipe the build logs from OpenShift to the Jenkins console")]/following-sibling::td[1]/input[1]
+      type: radio
+    type: input
+    op: click
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftBuilder')]//td[contains(text(),"Verify whether any deployments triggered by this build's output fired")]/following-sibling::td[1]/input[1]
+      type: radio
+    type: input
+    op: click
+  action: jenkins_click_save_button
+
+jenkins_check_post_build_fields:
+  url: /job/<job_name>/configure
+  action: jenkins_click_add_post_build_action_button
+  elements:
+  - selector:
+      class: yuimenuitemlabel
+      text: Cancel OpenShift Builds
+    type: a
+    op: click
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuildCanceller/checkApiURL")]
+    type: input
+    op: send_keys <api_endpoint>
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuildCanceller/checkNamespace")]
+    type: input
+    op: send_keys <store_project>
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuildCanceller/checkBldCfg")]
+    type: input
+    op: send_keys <build_config>
+  - selector:
+      xpath: //div[contains(@descriptorid, 'OpenShiftBuildCanceller')]//td[contains(text(),"Allow for verbose logging during this build step plug-in")]/following-sibling::td[1]/input[1]
+      type: radio
+    type: input
+    op: click
+  action: jenkins_click_save_button
+
 jenkins_check_logging_build_step_verbose:
   url: /job/<job_name>/configure
   action: jenkins_click_add_build_step_button
