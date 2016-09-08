@@ -707,3 +707,17 @@ Feature: Testing route
       | -k                                                                                         |
     Then the step should succeed
     Then the output should contain "Hello-OpenShift"
+
+  # @author yadu@redhat.com
+  # @case_id 528342
+  Scenario: Route could NOT be updated after created
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/tc/tc470732/route_withouthost1.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | route                                   |
+      | resource_name | service-unsecure1                       |
+      | p             | {"spec":{"host":"www.changeroute.com"}} |
+    Then the output should contain:
+      | spec.host: Invalid value: "www.changeroute.com": field is immutable |
