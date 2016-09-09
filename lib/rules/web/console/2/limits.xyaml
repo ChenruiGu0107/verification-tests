@@ -54,6 +54,17 @@ set_resource_limit:
   - selector:
       xpath: //h2[contains(.,'Container <container_name>')]/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]/descendant::compute-resource[@label='<limit_type>']/descendant::option[@label='<amount_unit>']
     op: click
+set_resource_limit_single:
+  elements:
+  - selector:
+      xpath: //edit-request-limit[@type='<resource_type>']//compute-resource//input
+    op: clear
+  - selector:
+      xpath: //edit-request-limit[@type='<resource_type>']//compute-resource//input
+    op: send_keys <resource_amount>
+  - selector:
+      xpath: //edit-request-limit[@type='<resource_type>']//compute-resource//option[@label='<amount_unit>']
+    op: click
 set_resource_limit_online:
   elements:
   - selector:
