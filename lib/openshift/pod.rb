@@ -36,6 +36,7 @@ module CucuShift
       props[:node_hostname] = spec["host"]
       props[:node_name] = spec["nodeName"]
       props[:securityContext] = spec["securityContext"]
+      props[:containers] = spec["containers"]
 
       s = pod_hash["status"]
       props[:ip] = s["podIP"]
@@ -171,6 +172,21 @@ module CucuShift
       return get_cached_prop(prop: :node_name, user: user, cached: cached, quiet: quiet)
     end
 
+    def env_var(name, container: nil, user: user)
+      if props[:containers].nil?
+        self.get(user: user)
+      end
+      if props[:containers].length == 1 && !container
+        env_var = props[:containers][0]["env"].find { |env_var| env_var["name"] == name }
+      elsif container
+        container_hash = props[:containers].find { |c| c["name"] == container }
+        if container_hash.nil?
+          raise "No container with name #{container} found..."
+        end
+        env_var = container_hash["env"].find { |env_var| env_var["name"] == name }
+      end
+      return env_var && env_var["value"]
+    end
     # this useful if you wait for a pod to die
     def wait_till_not_ready(user, seconds)
       res = nil
