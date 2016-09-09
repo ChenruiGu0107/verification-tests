@@ -665,6 +665,72 @@ jenkins_verify_logged_in:
       text: Jenkins Admin
     visible: true
 
+jenkins_verify_openshift_build:
+  url: /job/<job_name>/configure
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      text: Verify OpenShift Build
+    op: click
+    type: a
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuildVerifier/checkApiURL")]
+    op: send_keys <apiurl>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuildVerifier/checkBldCfg")]
+    op: send_keys <bldcfg>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftBuildVerifier/checkNamespace")]
+    op: send_keys <namespace>
+    type: input
+  action: jenkins_click_save_button
+
+jenkins_verify_openshift_deployment:
+  url: /job/<job_name>/configure
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      text: Verify OpenShift Deployment
+    op: click
+    type: a
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkApiURL")]
+    op: send_keys <apiurl>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkDepCfg")]
+    op: send_keys <deployconfig>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeploymentVerifier/checkNamespace")]
+    op: send_keys <namespace>
+    type: input
+  action: jenkins_click_save_button
+
+jenkins_verify_openshift_service:
+  url: /job/<job_name>/configure
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      text: Verify OpenShift Service
+    op: click
+    type: a
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftServiceVerifier/checkApiURL")]
+    op: send_keys <apiurl>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftServiceVerifier/checkSvcName")]
+    op: send_keys <svcname>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftServiceVerifier/checkNamespace")]
+    op: send_keys <namespace>
+    type: input
+  action: jenkins_click_save_button
+
 go_to_updates_plugin_manage_page:
   url: /pluginManager
 go_to_installed_plugin_manage_page:
