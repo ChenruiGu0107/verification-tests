@@ -875,8 +875,8 @@
     :schedulable: --schedulable=<value>
 :oadm_new_project:
   :cmd: oadm new-project <project_name>
-  :expected:
-    - Created project <project_name>
+  #:expected:
+  #  - Created project <project_name>
   :options:
     :display_name: --display-name=<value>
     :description: --description=<value>

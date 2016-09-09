@@ -557,3 +557,38 @@ Feature: change the policy of user/service account
     And the output should match:
       | Role:\\s+registry-admin |
       | Users:\\s+<%= user(1, switch: false).name %> |
+
+  # @author pruan@redhat.com
+  # @case_id 484332
+  @admin
+  Scenario: User should have privileges to access project when add its group as a project role
+    Given a 5 characters random string of type :dns is stored into the :group_name clipboard
+    When admin creates a project
+    Then the step should succeed
+    And system verification steps are used:
+    """
+    When I run the :get admin command with:
+      | resource      | users            |
+      | resource_name | <%= user.name %> |
+      | template      | {{.groups}}      |
+    Then the step should succeed
+    And the output should match "<no value>"
+    """
+    Given I run the :oadm_groups_new admin command with:
+      | group_name | <%= cb.group_name %> |
+    Then the step should succeed
+    Given admin ensures "<%= cb.group_name %>" groups is deleted after scenario
+    Given I run the :oadm_groups_add_users admin command with:
+      | group_name | <%= cb.group_name %> |
+      | user_name  | <%= user.name %>     |
+    When I run the :policy_add_role_to_group admin command with:
+      | role       | view                 |
+      | group_name | <%= cb.group_name %> |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    And I run the :get client command with:
+      | resource | projects |
+    Then the step should succeed
+    And the output should match:
+      | <%= project.name%> |
+      | Active             |
