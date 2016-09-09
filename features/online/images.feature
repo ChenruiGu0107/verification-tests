@@ -198,3 +198,21 @@ Feature: ONLY ONLINE Images related scripts in this file
         | innodb_buffer_pool_size = 400M |
         | innodb_log_file_size = 120M    |
         | innodb_log_buffer_size = 120M  |
+
+  # @author etrott@redhat.com
+  # @case_id 532767
+  Scenario: Tune puma workers according to memory limit ruby-rhel7
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/maybelinot/v3-testfiles/master/image/language-image-templates/tc532767/template.json |
+    Then the step should succeed
+    Given the "rails-ex-1" build was created
+    And the "rails-ex-1" build completed
+    Given 1 pods become ready with labels:
+      | app=rails-ex          |
+      | deployment=rails-ex-1 |
+    When I run the :logs client command with:
+      | resource_name    | <%= pod.name %> |
+    Then the output should contain:
+      | * Min threads: 0, max threads: 16 |
+      | * Process workers: 4              |
