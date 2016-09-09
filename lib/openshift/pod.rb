@@ -172,7 +172,7 @@ module CucuShift
       return get_cached_prop(prop: :node_name, user: user, cached: cached, quiet: quiet)
     end
 
-    def env_var(name, container: nil, user: user)
+    def env_var(name, container: nil, user: nil)
       if props[:containers].nil?
         self.get(user: user)
       end

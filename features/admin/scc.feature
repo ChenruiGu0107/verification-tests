@@ -290,7 +290,7 @@ Feature: SCC policy related scenarios
     Then the step should fail
     And the output should contain:
       | securityContext.runAsUser: Invalid value: 1000: UID on container pod-uid-outrange does not match required range. |
-    And evaluation of `project.uid_range(user:user).split("/")[0].to_i + 1` is stored in the :scc_uid_inrange clipboard
+    And evaluation of `rand project.uid_range(user:user)` is stored in the :scc_uid_inrange clipboard
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_inrange.json
     Then the step should succeed
 
@@ -377,7 +377,6 @@ Feature: SCC policy related scenarios
     And the output should contain:
       | UID on container test-pod does not match required range        |
       | seLinuxOptions.level on test-pod does not match required level |
-    Then the expression should be true> !@result[:parsed]['volumes'].include? 'hostPath' and !@result[:parsed]['allowHostDirVolumePlugin']
 
   # @author pruan@redhat.com
   # @case_id 518947
