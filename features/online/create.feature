@@ -33,8 +33,6 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | env_var_key   | MAVEN_MIRROR_URL    |
     Then the step should succeed
     When I run the :save_buildconfig_changes web console action
-      | project_name | <%= project.name %> |
-      | bc_name      | <app-name>          |
     Then the step should succeed
     When I click the following "button" element:
       | text  | Start Build |
@@ -62,8 +60,6 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | env_var_value | https://repo1.maven.org/non-existing/ |
     Then the step should succeed
     When I run the :save_buildconfig_changes web console action
-      | project_name | <%= project.name %> |
-      | bc_name      | <app-name>          |
     Then the step should succeed
     When I click the following "button" element:
       | text  | Start Build |

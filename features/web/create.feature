@@ -26,7 +26,7 @@ Feature: create app on web console related
     When I perform the :check_one_build_inside_bc_page web console action with:
       | project_name      | <%= project.name %>                   |
       | bc_and_build_name | ruby-sample-build/ruby-sample-build-1 |
-    Then the step should succeed 
+    Then the step should succeed
     Given the "ruby-sample-build-1" build completed
     When I run the :get client command with:
       | resource | all         |

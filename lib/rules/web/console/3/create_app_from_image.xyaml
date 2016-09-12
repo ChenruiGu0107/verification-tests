@@ -24,7 +24,12 @@ create_app_from_image_with_env_options:
   action: create_app_from_image_add_bc_env_vars
   action: create_app_from_image_add_dc_env_vars
   action: create_app_from_image_submit
-
+create_app_from_image_with_bc_env_and_git_options:
+  action: create_app_from_image_base_action
+  action: create_app_from_image_show_advanced_param
+  action: create_app_from_image_add_bc_env_vars
+  action: create_app_from_image_set_git_options
+  action: create_app_from_image_submit
 create_app_from_image_base_action:
   action: create_app_from_image_navigate
   action: create_app_from_image_default_options
@@ -60,7 +65,7 @@ create_app_from_image_set_resource_limit:
   action: create_app_from_image_set_memory_resource_request
   action: create_app_from_image_set_memory_resource_limit
   action: create_app_from_image_submit
-# all sub single action  
+# all sub single action
 create_app_from_image_navigate:
   url: /console/project/<project_name>/create/fromimage?imageName=<image_name>&imageTag=<image_tag>&namespace=<namespace>
 create_app_from_image_default_options:
@@ -76,7 +81,7 @@ create_app_from_image_default_options:
 create_app_from_image_show_advanced_param:
   element:
     selector:
-      xpath: //a[contains(@class,'reveal-contents-link')] 
+      xpath: //a[contains(@class,'reveal-contents-link')]
     op: click
     type: a
 create_app_from_image_set_git_options:
@@ -102,31 +107,25 @@ create_app_from_image_change_dc_config_trigger:
 create_app_from_image_add_dc_env_vars:
   elements:
   - selector:
-      xpath: //osc-key-values[@entries='deploymentConfig.envVars']//div[@ng-show='editable']//input[@name="key"]      
-    op: send_keys <dc_env_key>
-    type: input
-  - selector:
-      xpath: //osc-key-values[@entries='deploymentConfig.envVars']//input[@name="value"]
-    op: send_keys <dc_env_value>
-    type: input
-  - selector:
-      xpath: //osc-key-values[@entries='deploymentConfig.envVars']//a[@role="button"]
+      xpath: //osc-form-section[@header="Deployment Configuration"]//a[contains(.,"Add environment variable")]
     op: click
-    type: a
+  - selector:
+      xpath: //osc-form-section[@header="Deployment Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[1]//input
+    op: send_keys <dc_env_key>
+  - selector:
+      xpath: //osc-form-section[@header="Deployment Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[2]//input
+    op: send_keys <dc_env_value>
 create_app_from_image_add_bc_env_vars:
   elements:
   - selector:
-      xpath: //osc-key-values[@entries='buildConfig.envVars']//input[@name="key"]      
-    op: send_keys <bc_env_key>
-    type: input
-  - selector:
-      xpath: //osc-key-values[@entries='buildConfig.envVars']//input[@name="value"]
-    op: send_keys <bc_env_value>
-    type: input
-  - selector:
-      xpath: //osc-key-values[@entries='buildConfig.envVars']//a[@role="button"]
+      xpath: //osc-form-section[@header="Build Configuration"]//a[contains(.,"Add environment variable")]
     op: click
-    type: a
+  - selector:
+      xpath: //osc-form-section[@header="Build Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[1]//input
+    op: send_keys <bc_env_key>
+  - selector:
+      xpath: //osc-form-section[@header="Build Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[2]//input
+    op: send_keys <bc_env_value>
 create_app_from_image_change_bc_webhook_trigger:
   element:
     selector:
@@ -136,7 +135,7 @@ create_app_from_image_change_bc_image_trigger:
   element:
     selector:
       text: Automatically build a new image when the builder image changes
-    op: click       
+    op: click
 create_app_from_image_change_bc_config_trigger:
   element:
     selector:

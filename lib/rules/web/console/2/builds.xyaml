@@ -212,12 +212,6 @@ check_buildconfig_edit_page_loaded_completely:
       xpath: //h3[contains(.,'Environment Variables')]
   - selector:
       xpath: //h3[contains(.,'Triggers')]
-check_buildconfig_page_loaded_completely_after_editing:
-  elements:
-  - selector:
-      xpath: //button[contains(.,'Start Build')]
-  - selector:
-      xpath: //strong[contains(.,'was successfully updated.')]
 add_bc_source_and_destination_paths:
   action: check_buildconfig_edit_page_loaded_completely
   action: choose_image_source_from
@@ -314,7 +308,6 @@ save_buildconfig_changes:
       text: Save
     type: button
     op: click
-  action: check_buildconfig_page_loaded_completely_after_editing
 cancel_buildconfig_changes:
   elements:
   - selector:
@@ -382,13 +375,13 @@ edit_build_image_to_docker_image:
 edit_env_var_value:
   elements:
   - selector:
-      xpath: //a[@title='Edit']
+      xpath: //div[@title='<env_variable_name>']/..//a[@title='Edit']
     op: click
   - selector:
-      xpath: //input[@ng-value='value']
+      xpath: //div[@title='<env_variable_name>']/..//input[@ng-value='value']
     op: clear
   - selector:
-      xpath: //input[@ng-value='value']
+      xpath: //div[@title='<env_variable_name>']/..//input[@ng-value='value']
     op: send_keys <new_env_value>
 save_updated_env_value:
   elements:
