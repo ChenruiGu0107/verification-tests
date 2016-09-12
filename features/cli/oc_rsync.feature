@@ -263,3 +263,22 @@ Feature: oc_rsync.feature
       | w           | true                      |
     Then the step should fail
     And the output should contain ""--watch" can only be used with a local source directory"
+
+  # @author cryan@redhat.com
+  # @case_id 534507
+  # @bug_id 1314817
+  Scenario: oc rsync commands with not exited container
+    Given I have a project
+    And I create the "test" directory
+    And a "test/test.txt" file is created with the following lines:
+    """
+    test
+    """
+    When I run the :rsync client command with:
+      | source      | test/                 |
+      | destination | podnotexist:/tmp/test |
+    Then the step should fail
+    And the output should contain ""podnotexist" not found"
+    And the output should not contain:
+      | cannot use rsync |
+      | cannot use tar   |
