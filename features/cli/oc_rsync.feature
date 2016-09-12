@@ -269,7 +269,6 @@ Feature: oc_rsync.feature
   # @bug_id 1314817
   Scenario: oc rsync commands with not exited container
     Given I have a project
-    And I create the "test" directory
     And a "test/test.txt" file is created with the following lines:
     """
     test
