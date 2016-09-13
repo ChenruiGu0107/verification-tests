@@ -210,11 +210,6 @@ Feature: buildlogic.feature
     Then the step should succeed
     And the output should match:
       | Force Pull:\s+(true\|yes)|
-    When I run the :logs client command with:
-      | resource_name    | pod/ruby-sample-build-1-build |
-    Then the step should succeed
-    And the output should contain:
-      | "forcePull":true |
 
     Examples:
       | strategy       | template                                                                                                                   |
