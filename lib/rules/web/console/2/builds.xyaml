@@ -302,13 +302,13 @@ check_build_has_started_message:
   elements:
   - selector:
       xpath: //strong[@ng-if='alert.message' and contains(.,'has started')]
-save_buildconfig_changes:
+save_your_committed_changes:
   elements:
   - selector:
       text: Save
     type: button
     op: click
-cancel_buildconfig_changes:
+cancel_to_commit_your_changes:
   elements:
   - selector:
       text: Cancel

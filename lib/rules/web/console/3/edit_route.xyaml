@@ -43,17 +43,9 @@ goto_edit_route_page:
       xpath: //a[text()='Edit']
     op: click
 save_edit_route:
-  elements:
-  - selector:
-      text: Save
-    type: button
-    op: click
+  action: save_your_committed_changes
 cancel_edit_route:
-  elements:
-  - selector:
-      text: Cancel
-    type: a
-    op: click
+  action: cancel_to_commit_your_changes
 check_warning_info_for_path:
   elements:
   - selector:

@@ -138,7 +138,7 @@ Feature: build related feature on web console
       | bc_name                  | ruby-sample-build   |
       | changing_source_repo_url | https://github.com/yapei/ruby-hello-world |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :check_buildconfig_source_repo web console action with:
       | project_name    | <%= project.name %> |
@@ -151,7 +151,7 @@ Feature: build related feature on web console
       | bc_name                  | ruby-sample-build   |
       | changing_source_repo_url | https://github.com/yapei/test-ruby-hello-world |
     Then the step should succeed
-    When I run the :cancel_buildconfig_changes web console action
+    When I run the :cancel_to_commit_your_changes web console action
     Then the step should succeed
     When I perform the :check_buildconfig_source_repo web console action with:
       | project_name    | <%= project.name %>  |
@@ -164,7 +164,7 @@ Feature: build related feature on web console
       | bc_name                  | ruby-sample-build    |
       | changing_source_repo_url | iwio%##$7234         |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I run the :check_invalid_url_warn_message web console action
     Then the step should succeed
@@ -179,7 +179,7 @@ Feature: build related feature on web console
       | resource | bc/ruby-sample-build |
       | e        | key1=value1          |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I run the :check_outdated_bc_warn_message web console action
     Then the step should succeed
@@ -243,7 +243,7 @@ Feature: build related feature on web console
       | source_path | /usr/bin/ruby |
       | dest_dir  | user/test |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     # for bc has more than one imagestream source, couldn't add
     When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
@@ -288,7 +288,7 @@ Feature: build related feature on web console
       | env_var_key         | dockertest           |
       | env_var_value       | docker1234           |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
       | project_name        | <%= project.name %>  |
@@ -296,7 +296,7 @@ Feature: build related feature on web console
       | env_var_key         | testname          |
       | env_var_value       | testvalue         |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :enable_webhook_build_trigger web console action with:
       | project_name        | <%= project.name %>  |
@@ -329,7 +329,7 @@ Feature: build related feature on web console
       | bc_name             | myapp                |
       | env_var_key         | dockertest           |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :check_buildconfig_environment web console action with:
       | project_name        | <%= project.name %>  |
@@ -346,7 +346,7 @@ Feature: build related feature on web console
       | bc_name             | myapp                |
       | env_var_key         | testname             |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     # check env vars again
     When I perform the :check_empty_buildconfig_environment web console action with:
@@ -446,13 +446,13 @@ Feature: build related feature on web console
       | bc_name        | ruby-sample-build    |
       | docker_image_link | yapei-test/origin-ruby-sample:latest |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :set_force_pull_on_buildconfig_edit_page web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :change_env_vars_on_buildconfig_edit_page web console action with:
       | project_name      | <%= project.name %>               |
@@ -460,7 +460,7 @@ Feature: build related feature on web console
       | env_variable_name | OPENSHIFT_CUSTOM_BUILD_BASE_IMAGE |
       | new_env_value     | yapei-test-custom                 |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     # check bc after made changes
     When I perform the :check_buildconfig_environment web console action with:
@@ -506,19 +506,19 @@ Feature: build related feature on web console
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :toggle_bc_image_change web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :toggle_bc_cache web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     # check bc after make changes
     When I perform the :check_bc_image_change_trigger web console action with:
@@ -582,28 +582,28 @@ Feature: build related feature on web console
       | bc_name         | ruby-sample          |
       | changing_source_repo_url | https://github.com/openshift/s2i-ruby.git |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :edit_bc_source_repo_ref web console action with:
       | project_name    | <%= project.name %>  |
       | bc_name         | ruby-sample          |
       | source_repo_ref | mfojtik-patch-1      |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :edit_bc_source_context_dir web console action with:
       | project_name       | <%= project.name %>  |
       | bc_name            | ruby-sample          |
       | source_context_dir | 2.2/test             |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :edit_build_image_to_image_stream_image web console action with:
       | project_name       | <%= project.name %>  |
       | bc_name            | ruby-sample          |
       | image_stream_image | <%= cb.image_stream_image %> |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     # check bc after make changes
     When I perform the :check_buildconfig_source_repo web console action with:
@@ -646,7 +646,7 @@ Feature: build related feature on web console
       | bc_name        | ruby                 |
       | bc_binary      | hello-world-ruby.zip |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I run the :describe client command with:
       | resource | bc/ruby |
@@ -660,7 +660,7 @@ Feature: build related feature on web console
       | env_var_key    | binarykey            |
       | env_var_value  | binaryvalue          |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :check_buildconfig_environment web console action with:
       | project_name   | <%= project.name %>  |
@@ -700,7 +700,7 @@ Feature: build related feature on web console
       | bc_name                  | python-sample-build-sti |
       | output_docker_image_link | docker.io/yapei/python-sample-test:latest |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :check_bc_output web console action with:
       | project_name   | <%= project.name %>     |
@@ -715,7 +715,7 @@ Feature: build related feature on web console
       | output_image_is          | python-sample-sti       |
       | output_image_tag         | test                    |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :check_bc_output web console action with:
       | project_name   | <%= project.name %>     |
@@ -727,7 +727,7 @@ Feature: build related feature on web console
       | project_name      | <%= project.name %>     |
       | bc_name           | python-sample-build-sti |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :check_bc_output web console action with:
       | project_name   | <%= project.name %>     |

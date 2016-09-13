@@ -107,10 +107,7 @@ cancel_scale_down_to_zero:
       xpath: //div[@class='scaling-controls']//a[@title='Scale down']
     op: click
     type: a
-  - selector:
-      text: Cancel
-    op: click
-    type: button
+  action: cancel_to_commit_your_changes
 check_scale_down_disabled:
   elements:
   - selector:

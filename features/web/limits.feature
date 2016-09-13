@@ -79,7 +79,7 @@ Feature: functions about resource limits on pod
       | resource_amount | 118        |
     Then the step should succeed
     # save changes
-    When I run the :save_resource_limit_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     # wait #2 deployment is complete
     Given I wait for the pod named "dctest-2-deploy" to die
@@ -141,7 +141,7 @@ Feature: functions about resource limits on pod
       | resource_amount | 97         |
     Then the step should succeed
     # save changes
-    When I run the :save_resource_limit_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     # scale rc 'rctest' to generate new pods
     When I run the :scale client command with:

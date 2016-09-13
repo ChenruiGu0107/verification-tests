@@ -37,12 +37,6 @@ goto_set_resource_limits_for_dc:
 goto_set_resource_limits_for_rc:
   action: goto_one_standalone_rc_page
   action: goto_set_resource_limit_page
-save_resource_limit_changes:
-  elements:
-  - selector:
-      text: Save
-    type: button
-    op: click
 set_resource_limit:
   elements:
   - selector:

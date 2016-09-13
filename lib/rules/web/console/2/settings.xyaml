@@ -75,19 +75,11 @@ edit_general_information:
     op: set <new_description>
 cancel_edit_general_informantion:
   action: edit_general_information
-  element:
-    selector:
-      text: Cancel
-    type: button
-    op: click
+  action: cancel_to_commit_your_changes
   action: check_specific_project_info
 save_edit_general_informantion:
   action: edit_general_information
-  element:
-    selector:
-      text: Save
-    type: button
-    op: click
+  action: save_your_committed_changes
   action: check_specific_project_info
 check_quota_scope_type:
   action: goto_settings_page

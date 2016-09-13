@@ -26,19 +26,10 @@ edit_general_information:
     op: set <new_description>
 save_edit_general_informantion:
   action: edit_general_information
-  elements:
-  - selector:
-      text: Save
-      type: submit
-    type: button
-    op: click
+  action: save_your_committed_changes
 cancel_edit_general_informantion:
   action: edit_general_information
-  elements:
-  - selector:
-      text: Cancel
-    type: a
-    op: click
+  action: cancel_to_commit_your_changes
   action: check_specific_project_info
 check_settings_page:
   action: goto_settings_page
