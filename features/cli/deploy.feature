@@ -1729,10 +1729,7 @@ Feature: deployment related features
       | resource | dc    |
       | name     | hooks |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | dc    |
-      | resource_name | hooks |
-      | o             | yaml  |
+    When I get project dc named "hooks" as YAML
     Then the step should succeed
     And the output should match "paused:\s+?true"
     When I run the :env client command with:
@@ -1744,9 +1741,7 @@ Feature: deployment related features
       | list     | true       |
     Then the step should succeed
     And the output should not contain "TEST=123"
-    When I run the :get client command with:
-      | resource      | rc    |
-      | o             | yaml  |
+    When I get project rc as YAML
     Then the step should succeed
     # Check if that no new rc was created if the dc is paused
     And the output should not contain "hooks-2"
