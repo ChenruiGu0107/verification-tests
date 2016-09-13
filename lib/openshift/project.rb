@@ -32,7 +32,7 @@ module CucuShift
     alias exists? visible?
 
     def empty?(user:)
-      res = cli_exec(as: user, key: :status, n: name)
+      res = cli_exec(as: user, key: :status, v: true, n: name)
 
       res[:success] = res[:response] =~ /ou have no.+services.+deployment.+configs/
       return res
