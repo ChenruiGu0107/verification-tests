@@ -872,3 +872,32 @@ Feature: build related feature on web console
       | bc_and_build_name | ruby-ex/ruby-ex-1   |
       | trigger_info      | Manual build        |
     Then the step should succeed
+
+  # @author: yapei@redhat.com
+  # @case_id 525737 525738
+  Scenario Outline: Check settings for build with no inputs
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | <template_file> |
+    Then the step should succeed
+    When I perform the :check_build_strategy web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | build_strategy | <build_strategy>     |
+    Then the step should succeed
+    When I perform the :check_none_buildconfig_source_repo web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I perform the :check_info_for_no_source_on_edit_page web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should not contain:
+      | GitHub webhooks  |
+      | Generic webhooks |
+    Examples:
+      | template_file | build_strategy |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525737/application-template-custombuild.json | Custom |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525738/application-template-stibuild.json    | Source |
