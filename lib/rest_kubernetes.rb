@@ -67,6 +67,12 @@ module CucuShift
         return Http.request(**base_opts, method: "PUT")
       end
 
+      # make a request to the application running on the resource through
+      # kubernetes proxy api
+      def self.proxy_get_request_to_resource(base_opts, opts)
+        populate("/proxy/namespaces/<project_name>/<resource_type>/<protocol_type>:<resource_name>:<port_name>#{opts[:app_path]}", base_opts, opts)
+        return perform(**base_opts, method: "GET")
+      end
     end
   end
 end
