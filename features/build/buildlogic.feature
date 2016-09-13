@@ -21,9 +21,12 @@ Feature: buildlogic.feature
       | object_name_or_id | quota               |
       | n                 | <%= project.name %> |
     Then the step should succeed
+    Then I wait up to 60 seconds for the steps to pass:
+    """
     When I get project build
     Then the output should not contain:
       |  (CannotCreateBuildPod) |
+    """
 
   # @author haowang@redhat.com
   # @case_id 515254
