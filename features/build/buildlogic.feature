@@ -21,9 +21,12 @@ Feature: buildlogic.feature
       | object_name_or_id | quota               |
       | n                 | <%= project.name %> |
     Then the step should succeed
+    Then I wait up to 60 seconds for the steps to pass:
+    """
     When I get project build
     Then the output should not contain:
       |  (CannotCreateBuildPod) |
+    """
 
   # @author haowang@redhat.com
   # @case_id 515254
@@ -207,11 +210,6 @@ Feature: buildlogic.feature
     Then the step should succeed
     And the output should match:
       | Force Pull:\s+(true\|yes)|
-    When I run the :logs client command with:
-      | resource_name    | pod/ruby-sample-build-1-build |
-    Then the step should succeed
-    And the output should contain:
-      | "forcePull":true |
 
     Examples:
       | strategy       | template                                                                                                                   |
