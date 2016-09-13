@@ -84,3 +84,22 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | template                             | app-name |
       | jws30-tomcat8-mongodb-persistent-s2i | jws-app  |
       | eap64-mysql-persistent-s2i           | eap-app  |
+
+  # @author etrott@redhat.com
+  # @case_id 532961
+  # @case_id 533308
+  Scenario Outline: Create resource from imagestream via oc new-app
+    Given I have a project
+    Then I run the :new_app client command with:
+      | name         | resource-sample |
+      | image_stream | <is>            |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deployment=resource-sample-1 |
+    When I expose the "resource-sample" service
+    Then the step should succeed
+    And I wait for a web server to become available via the route
+    Examples:
+      | is                               |
+      | openshift/jboss-eap70-openshift  |
+      | openshift/redhat-sso70-openshift |
