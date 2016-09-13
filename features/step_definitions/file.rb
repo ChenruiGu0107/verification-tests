@@ -169,3 +169,24 @@ Given /^(?:a|the) "([^"]+)" file is( not)? present$/ do |file, negative|
     end
   end
 end
+
+Given /^the #{QUOTED} directory listing is stored in the#{OPT_SYM} clipboard$/ do |dir_name, cb_name|
+  cb_name ||= :dir_list
+  # ignore the . and .. entries
+  cb[cb_name] = Dir.entries(dir_name) - ['.', '..']
+end
+
+# @author pruan@redhat.com
+# @param [String] directory name we want to list
+# @return [Boolean] true if directory contains all of the expected, false otherwise
+Given /^the #{QUOTED} directory contains:$/ do |dir_name, table|
+  # ignore the . and .. entries
+  dir_list = Dir.entries(dir_name) - ['.', '..']
+  expected_list = table.raw.flatten
+  missing_files = expected_list - dir_list
+  raise "Directory #{dir_name} does not contain #{missing_files}" unless missing_files.empty?
+end
+
+Given /^the #{QUOTED} directory is removed$/ do | dir_name |
+  localhost.delete(File.expand_path(dir_name), r: true)
+end

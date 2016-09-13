@@ -817,6 +817,20 @@
     :imagestreamtag: <value>
     :invalid_option: <value>   # for negative testing
     :o: -o <value>
+:oadm_ca_create_key_pair:
+  :cmd: oadm ca create-key-pair
+  :options:
+    :overwrite: --overwrite=<value>
+    :private_key: --private-key=<value>
+    :public_key: --public-key=<value>
+:oadm_ca_create_signer_cert:
+  :cmd: oadm ca create-signer-cert
+  :options:
+    :cert: --cert=<value>
+    :key: --key=<value>
+    :name: --name=<value>
+    :overwrite: --overwrite=<value>
+    :serial: --serial=<value>
 :oadm_config_view:
   :cmd: oadm config view
   :options:
