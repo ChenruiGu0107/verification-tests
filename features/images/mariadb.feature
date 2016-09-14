@@ -4,13 +4,13 @@ Feature: MariaDB images test
   # @case_id 529359 529360
   Scenario Outline: Deploy mariadb image
     Given I have a project
-    When I run the :run client command with:
-      | name  | mariadb                                        |
-      | image | <%= product_docker_repo %>rhscl/<image>:latest |
-      | env   | MYSQL_ROOT_PASSWORD=test                       |
+    When I run the :new_app client command with:
+      | name         | mariadb                                        |
+      | docker_image | <%= product_docker_repo %>rhscl/<image>:latest |
+      | env          | MYSQL_ROOT_PASSWORD=test                       |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | run=mariadb |
+      | deployment=mariadb-1 |
     Given I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
