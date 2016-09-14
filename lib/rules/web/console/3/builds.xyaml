@@ -235,6 +235,11 @@ check_buildconfig_source_repo:
   elements:
   - selector:
       xpath: //dt[contains(.,'Source repo')]/following::a[contains(.,'<source_repo_url>')]
+check_none_buildconfig_source_repo:
+  action: goto_buildconfig_configuration_tab
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Source')]/following::i[contains(.,"none")]
 check_buildconfig_edit_page_loaded_completely:
   action: goto_buildconfig_edit_page
   elements:
@@ -491,6 +496,11 @@ check_bc_source_context_dir:
   elements:
   - selector:
       xpath: //dd[@ng-if="buildConfig.spec.source.contextDir" and contains(.,'<source_context_dir>')]
+check_info_for_no_source_on_edit_page:
+  action: goto_buildconfig_edit_page
+  elements:
+  - selector:
+      xpath: //i[contains(.,"No source inputs have been defined for this build configuration")]
 toggle_bc_config_change:
   action: check_buildconfig_edit_page_loaded_completely
   action: toggle_config_change_trigger_on_bc_edit_page
