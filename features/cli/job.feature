@@ -304,3 +304,55 @@ Feature: job.feature
     Then the step should fail
     And the output should contain:
       | spec.template.spec.restartPolicy: Unsupported value: "Always": supported values: OnFailure, Never |
+
+
+  # @author yinzhou@redhat.com
+  # @case_id 518949
+  Scenario: Create job with specific deadline
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | job  |
+      | resource_name | zero |
+      |  o            | yaml |
+    And the expression should be true> @result[:parsed]['status']['conditions'][0]['reason'] == "DeadlineExceeded"
+    When I run the :delete client command with:
+      | object_type       | job  |
+      | object_name_or_id | zero |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_negative_activeDeadlineSeconds.yaml |
+    Then the step should fail
+    And the output should contain:
+      | Invalid value: |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_string_activeDeadlineSeconds.yaml  |
+    Then the step should fail
+    And the output should contain:
+      | got first char |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_float_activeDeadlineSeconds.yaml |
+    Then the step should fail
+    And the output should contain:
+      | fractional integer |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_lessthan_runtime_activeDeadlineSeconds.yaml |
+    Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | job  |
+      | resource_name | pi   |
+      |  o            | yaml |
+    And the expression should be true> @result[:parsed]['status']['conditions'][0]['reason'] == "DeadlineExceeded"
+    """
+    When I run the :delete client command with:
+      | object_type       | job |
+      | object_name_or_id | pi  |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_long_activeDeadlineSeconds.yaml |
+    Then the step should succeed
+    And I wait until job "pi" completes
