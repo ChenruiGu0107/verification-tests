@@ -2,6 +2,8 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
 
   # @author etrott@redhat.com
   # @case_id 530591
+  # @case_id 534633
+  # @case_id 534632
   Scenario Outline: Maven repository can be used to providing dependency caching for xPaas templates
     Given I have a project
     When I perform the :create_app_from_template_without_label web console action with:
@@ -25,12 +27,13 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | build_status_name | Complete                |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
-      | build_log_context | Downloading: https://mirror.openshift.com/nexus/content/groups/public/ |
+      | build_log_context | <default_env_log> |
     Then the step should succeed
-    Given I perform the :delete_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name  | <%= project.name %> |
-      | bc_name       | <app-name>          |
-      | env_var_key   | MAVEN_MIRROR_URL    |
+    Given I perform the :change_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name      | <%= project.name %> |
+      | bc_name           | <app-name>          |
+      | env_variable_name | <env_name>          |
+      | new_env_value     | <env_var_value>     |
     Then the step should succeed
     When I run the :save_your_committed_changes web console action
     Then the step should succeed
@@ -51,12 +54,12 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | build_status_name | Complete                |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
-      | build_log_context | Downloading: https://repo1.maven.org/maven2/ |
+      | build_log_context | <custom_env_log> |
     Then the step should succeed
     Given I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
       | project_name  | <%= project.name %>                   |
       | bc_name       | <app-name>                            |
-      | env_var_key   | MAVEN_MIRROR_URL                      |
+      | env_var_key   | <env_name>                            |
       | env_var_value | https://repo1.maven.org/non-existing/ |
     Then the step should succeed
     When I run the :save_your_committed_changes web console action
@@ -78,12 +81,18 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | build_status_name | Failed                  |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
-      | build_log_context | Aborting due to error code 1 |
+      | build_log_context | https://repo1.maven.org/non-existing/ |
     Then the step should succeed
-    Examples:
-      | template                             | app-name |
-      | jws30-tomcat8-mongodb-persistent-s2i | jws-app  |
-      | eap64-mysql-persistent-s2i           | eap-app  |
+    Examples: MAVEN
+      | template                             | app-name | env_name         | env_var_value                   | default_env_log                                                       | custom_env_log                               |
+      | jws30-tomcat8-mongodb-persistent-s2i | jws-app  | MAVEN_MIRROR_URL | https://repo1.maven.org/maven2/ | Downloading: https://mirror.openshift.com/nexus/content/groups/public | Downloading: https://repo1.maven.org/maven2/ |
+      | eap64-mysql-persistent-s2i           | eap-app  | MAVEN_MIRROR_URL | https://repo1.maven.org/maven2/ | Downloading: https://mirror.openshift.com/nexus/content/groups/public | Downloading: https://repo1.maven.org/maven2/ |
+    Examples: CPAN
+      | template             | app-name             | env_name    | env_var_value                                  | default_env_log                       | custom_env_log                                          |
+      | dancer-mysql-example | dancer-mysql-example | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching http://www.cpan.org/authors/ | Fetching https://mirror.openshift.com/mirror/perl/CPAN/ |
+    Examples: PIP
+      | template             | app-name             | env_name      | env_var_value                                          | default_env_log | custom_env_log                                             |
+      | django-psql-example  | django-psql-example  | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ |                 | Downloading https://mirror.openshift.com/mirror/python/web |
 
   # @author etrott@redhat.com
   # @case_id 532961
