@@ -50,6 +50,21 @@ module CucuShift
       opts[:key]
     end
 
+    # environment may have pre-defined static users used for upgrade testing
+    #   or other special purposes like admin user for example
+    # @return [Hash<Hash>] a hash of user symbolic names pointing at a hash
+    #   of user constructor parameters, e.g.
+    #   {u1: {username: "user1", password: "asdf"}, u2: {token: "..."}}
+    private def static_users
+      opts[:static_users_map] || {}
+    end
+
+    # @return [Hash] user constructor parameters
+    # @see #static_users
+    def static_user(symbolic_name)
+      static_users[symbolic_name.to_sym]
+    end
+
     def user_manager
       @user_manager ||= CucuShift.const_get(opts[:user_manager]).new(self, **opts)
     end

@@ -21,7 +21,7 @@ module CucuShift
 
     private def load_env(key)
       # get any configuration and ENV variables related to environment key
-      env_opts = conf[:environments, key].dup || {}
+      env_opts = (conf[:environments, key] || {}).dup
       env_prefix = "OPENSHIFT_ENV_#{key.to_s.upcase}_"
 
       ENV.each do |var, value|

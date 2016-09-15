@@ -25,3 +25,8 @@ end
 Given /^I find a bearer token of the(?: (.+?))? service account$/ do |acc|
   service_account(acc).load_bearer_tokens(by: user)
 end
+
+Given /^the(?: ([a-z]+))? user has all owned resources cleaned$/ do |who|
+  num = who ? word_to_num(who) : nil
+  user(num).clean_up_on_load
+end
