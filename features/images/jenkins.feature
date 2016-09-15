@@ -889,3 +889,65 @@ Feature: jenkins.feature
       | xpath | //div[contains(@descriptorid, 'OpenShiftBuildCanceller')]//td[contains(text(),"Allow for verbose logging during this build step plug-in")]/following-sibling::td[1]/input[1]       |
     Then the output should contain "true"
 
+  # @author cryan@redhat.com
+  # @case_id 534542
+  Scenario: Verify openshift build deployment and service in jenkins pipeline plugin
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role           | edit    |
+      | serviceaccount | jenkins |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
+    And I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/                                     |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    And I create a new project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completes
+    When I run the :policy_add_role_to_user client command with:
+      | role              | edit                                          |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:jenkins |
+      | n                 | <%= cb.proj2 %>                               |
+    Then the step should succeed
+    When I perform the :jenkins_login web action with:
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
+    Then the step should succeed
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    When I perform the :jenkins_verify_openshift_build web action with:
+      | job_name  | openshifttest               |
+      | apiurl    | <%= env.api_endpoint_url %> |
+      | bldcfg    | ruby-sample-build           |
+      | namespace | <%= project.name %>         |
+    When I perform the :jenkins_verify_openshift_deployment web action with:
+      | job_name     | openshifttest               |
+      | apiurl       | <%= env.api_endpoint_url %> |
+      | deployconfig | frontend                    |
+      | namespace    | <%= project.name %>         |
+    When I perform the :jenkins_verify_openshift_service web action with:
+      | job_name  | openshifttest               |
+      | apiurl    | <%= env.api_endpoint_url %> |
+      | svcname   | frontend                    |
+      | namespace | <%= project.name %>         |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | openshifttest |
+      | job_number | 1             |
+      | time_out   | 300           |
+    Then the step should succeed
