@@ -292,6 +292,7 @@
     :o: -o <value>
     :output: --output=<value>
     :resource_name: <value>
+    :show_label: --show-labels=<value>
     :sort_by: --sort-by=<value>
     :template: --template=<value>
     :w: --watch=<value>

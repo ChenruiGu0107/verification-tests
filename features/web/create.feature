@@ -507,3 +507,108 @@ Feature: create app on web console related
     Then the step should succeed
     When I run the :check_parameter_value web console action
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id 530510
+  Scenario: Deploy from ImageName on web console
+    Given I have a project
+    When I perform the :deploy_from_image_stream_name_with_nonexist_image web console action with:
+      | project_name      | <%= project.name %> |
+      | image_deploy_from | yapei/non-exist     |
+    Then the step should succeed
+    When I perform the :deploy_from_image_stream_name_with_env_label web console action with:
+      | project_name          | <%= project.name %> |
+      | image_deploy_from     | openshift/hello-openshift |
+      | env_var_key           | myenv               |
+      | env_var_value         | my-env-value        |
+      | label_key             | mylabel             |
+      | label_value           | my-hello-openshift  |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | all |
+    Then the step should succeed
+    And the output should contain:
+      | is/hello-openshift  |
+      | dc/hello-openshift  |
+      | svc/hello-openshift |
+    When I run the :env client command with:
+      | resource | dc/hello-openshift |
+      | list     | true               |
+    Then the step should succeed
+    And the output should contain:
+      | myenv=my-env-value |
+    When I run the :get client command with:
+      | resource   | is/hello-openshift |
+      | show_label | true               |
+    Then the step should succeed
+    And the output should contain:
+      | app=hello-openshift |
+      | mylabel=my-hello-openshift |
+    When I run the :get client command with:
+      | resource   | svc/hello-openshift |
+      | show_label | true                |
+    Then the step should succeed
+    And the output should contain:
+      | app=hello-openshift |
+      | mylabel=my-hello-openshift |
+
+  # @author: yapei@redhat.com
+  # @case_id: 530511
+  Scenario: Deploy Image from ImageStreamTag on web console
+    Given I have a project
+    When I perform the :deploy_from_image_stream_tag_with_image_stream_more_than_24_chars web console action with:
+      | project_name      | <%= project.name %> |
+      | namespace         | openshift           |
+      | image_stream_name | jboss-webserver30-tomcat8-openshift |
+      | image_stream_tag  | latest              |
+    Then the step should succeed
+    When I perform the :check_deploy_image_name web console action with:
+      | image_name | jboss-webserver30-tomcat |
+    Then the step should succeed
+    When I run the :submit_to_create web console action
+    Then the step should succeed
+    # check created resource
+    When I run the :get client command with:
+      | resource | all |
+    Then the step should succeed
+    And the output should contain:
+      | dc/jboss-webserver30-tomcat  |
+      | svc/jboss-webserver30-tomcat |
+    When I perform the :deploy_from_image_stream_tag_with_normal_image_stream web console action with:
+      | project_name      | <%= project.name %> |
+      | namespace         | openshift           |
+      | image_stream_name | python              |
+      | image_stream_tag  | 3.4                 |
+    Then the step should succeed
+    When I perform the :check_deploy_image_name web console action with:
+      | image_name | python |
+    Then the step should succeed
+    When I perform the :set_name_with_1_char web console action with:
+      | new_deploy_image_name | a |
+    Then the step should succeed
+    When I perform the :set_name_with_invalid_chars web console action with:
+      | new_deploy_image_name | a_b |
+    Then the step should succeed
+    When I perform the :set_name_to_blank web console action with:
+      | new_deploy_image_name | :null |
+    Then the step should succeed
+    When I perform the :set_name_to_dash_started_string web console action with:
+      | new_deploy_image_name | -ba |
+    Then the step should succeed
+    When I perform the :set_name_to_string_end_with_dash web console action with:
+      | new_deploy_image_name | bca- |
+    Then the step should succeed
+    When I perform the :deploy_from_image_stream_tag_with_normal_is_and_change_name web console action with:
+      | project_name          | <%= project.name %> |
+      | namespace             | openshift           |
+      | image_stream_name     | python              |
+      | image_stream_tag      | 3.4                 |
+      | new_deploy_image_name | python-dfi          |
+      | image_name            | python-dfi          |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | all |
+    Then the step should succeed
+    And the output should contain:
+      | dc/python-dfi   |
+      | svc/python-dfi  |
