@@ -48,3 +48,29 @@ check_deleted_imagestream:
   elements:
   - selector:
       xpath: //strong[contains(text(),'<image_warning>')]
+check_builds_of_deleted_buildconfig:
+  action: goto_one_buildconfig_page
+  elements:
+  - selector:
+      xpath: //tbody
+  scripts:
+  - command: return document.querySelectorAll("tbody").length == <build_number>
+    expect_result: true
+  elements:
+  - selector:
+      xpath: //td[@data-title="Build"]//a[contains(text(),'#1')]
+    op: click
+  - selector:
+      xpath: //button[@disabled="disabled" and contains(text(),'Rebuild')]
+check_deployments_of_deleted_deploymentconfig:
+  action: goto_one_dc_page
+  elements:
+  - selector:
+      xpath: //tbody
+  scripts:
+  - command: return document.querySelectorAll("tbody").length == <deployment_number>
+    expect_result: true
+  elements:
+  - selector:
+      xpath: //td[@data-title="Deployment"]//a[contains(text(),'#1')]
+    op: click
