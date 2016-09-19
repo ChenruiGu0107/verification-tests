@@ -540,7 +540,7 @@ Feature: resouces related scenarios
   Scenario: Templates could parameterize cpu and memory usage values for each container
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/application-template-with-resources.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc481680/application-template-with-resources.json |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | template |
@@ -551,7 +551,7 @@ Feature: resouces related scenarios
       | Name:\\s+MYSQL_RESOURCES_LIMITS_CPU|
       | Value:\\s+400m|
       | Name:\\s+DEPLOY_MYSQL_RESOURCES_LIMITS_MEMORY|
-      | Value:\\s+50Mi|
+      | Value:\\s+150Mi|
       | Name:\\s+DEPLOY_MYSQL_RESOURCES_LIMITS_CPU|
       | Value:\\s+20m|
       | Name:\\s+FRONTEND_RESOURCES_LIMITS_MEMORY|
@@ -559,11 +559,11 @@ Feature: resouces related scenarios
       | Name:\\s+FRONTEND_RESOURCES_LIMITS_CPU|
       | Value:\\s+200m|
       | Name:\\s+DEPLOY_FRONTEND_RESOURCES_LIMITS_MEMORY|
-      | Value:\\s+50Mi|
+      | Value:\\s+150Mi|
       | Name:\\s+DEPLOY_FRONTEND_RESOURCES_LIMITS_CPU|
       | Value:\\s+20m|
       | Name:\\s+BUILD_RUBY_RESOURCES_LIMITS_MEMORY|
-      | Value:\\s+50Mi|
+      | Value:\\s+150Mi|
       | Name:\\s+BUILD_RUBY_RESOURCES_LIMITS_CPU|
       | Value:\\s+20m|
 
@@ -576,7 +576,7 @@ Feature: resouces related scenarios
       | resource      | pod |
       | resource_name | database-1-deploy |
       | o             | json |
-    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources'] == {"limits"=>{"cpu"=>"20m", "memory"=>"50Mi"}, "requests"=>{"cpu"=>"20m", "memory"=>"50Mi"}}
+    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources'] == {"limits"=>{"cpu"=>"20m", "memory"=>"150Mi"}, "requests"=>{"cpu"=>"20m", "memory"=>"150Mi"}}
 
     Given 1 pods become ready with labels:
       | deploymentconfig=database |
@@ -595,4 +595,4 @@ Feature: resouces related scenarios
       | resource      | pod |
       | resource_name | ruby-sample-build-2-build |
       | o             | json |
-    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources'] == {"limits"=>{"cpu"=>"20m", "memory"=>"50Mi"}, "requests"=>{"cpu"=>"20m", "memory"=>"50Mi"}}
+    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources'] == {"limits"=>{"cpu"=>"20m", "memory"=>"150Mi"}, "requests"=>{"cpu"=>"20m", "memory"=>"150Mi"}}
