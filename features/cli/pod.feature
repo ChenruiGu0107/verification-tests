@@ -12,9 +12,7 @@ Feature: pods related scenarios
       | name     | hello-openshift |
     Then the output should match:
       | Status:\\s+Running    |
-      | QoS Tier:             |
-      | cpu:\\s+BestEffort    |
-      | memory:\\s+BestEffort |
+      | BestEffort            |
       | State:\\s+Running     |
 
   # @author chezhang@redhat.com
@@ -32,26 +30,22 @@ Feature: pods related scenarios
       | resource | pods              |
       | name     | pod-notbesteffort |
     Then the output should match:
-      | Status:\\s+Running    |
-      | QoS Tier:             |
-      | cpu:\\s+Burstable     |
-      | memory:\\s+Guaranteed |
-      | Limits:               |
-      | cpu:\\s+500m          |
-      | memory:\\s+256Mi      |
-      | Requests:             |
-      | cpu:\\s+200m          |
-      | memory:\\s+256Mi      |
-      | State:\\s+Running     |
+      | Status:\\s+Running |
+      | Burstable          |
+      | Limits:            |
+      | cpu:\\s+500m       |
+      | memory:\\s+256Mi   |
+      | Requests:          |
+      | cpu:\\s+200m       |
+      | memory:\\s+256Mi   |
+      | State:\\s+Running  |
     When I run the :describe client command with:
       | resource | pods              |
       | name     | hello-openshift   |
     Then the output should match:
-      | Status:\\s+Pending    |
-      | QoS Tier:             |
-      | cpu:\\s+BestEffort    |
-      | memory:\\s+BestEffort |
-      | State:\\s+Waiting     |
+      | Status:\\s+Pending |
+      | BestEffort         |
+      | State:\\s+Waiting  |
 
   # @author chezhang@redhat.com
   # @case_id 510724

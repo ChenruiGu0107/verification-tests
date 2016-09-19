@@ -433,12 +433,6 @@ Feature: Quota related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-besteffort.yaml |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | pod            |
-      | name     | pod-besteffort |
-    Then the output should match:
-      | memory:\\s+BestEffort |
-      | cpu:\\s+BestEffort    |
-    When I run the :describe client command with:
       | resource | quota            |
       | name     | quota-besteffort |
     Then the output should match:
@@ -453,16 +447,10 @@ Feature: Quota related scenarios
     Then the output should match:
       | pods\\s+0\\s+2 |
     """
-    # For Bustable/Guaranteed pod
+    # For Bustable pod
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-notbesteffort.yaml |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pod               |
-      | name     | pod-notbesteffort |
-    Then the output should match:
-      | memory:\\s+Guaranteed |
-      | cpu:\\s+Burstable     |
     When I run the :describe client command with:
       | resource | quota            |
       | name     | quota-besteffort |
@@ -495,16 +483,10 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+2              |
       | requests.cpu\\s+0\\s+2      |
       | requests.memory\\s+0\\s+1Gi |
-    # For Bustable/Guaranteed pod
+    # For Bustable pod
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-notbesteffort.yaml |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pod               |
-      | name     | pod-notbesteffort |
-    Then the output should match:
-      | memory:\\s+Guaranteed |
-      | cpu:\\s+Burstable     |
     When I run the :describe client command with:
       | resource | quota               |
       | name     | quota-notbesteffort |
@@ -532,12 +514,6 @@ Feature: Quota related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-besteffort.yaml |
     Then the step should succeed
-    When I run the :describe client command with:
-      | resource | pod            |
-      | name     | pod-besteffort |
-    Then the output should match:
-      | memory:\\s+BestEffort |
-      | cpu:\\s+BestEffort    |
     When I run the :describe client command with:
       | resource | quota               |
       | name     | quota-notbesteffort |
@@ -1310,3 +1286,54 @@ Feature: Quota related scenarios
       | n      | <%= project.name %>        |
     Then the step should fail
     And the output should contain "spec.scopes: Invalid value: ["Terminating","NotTerminating"]: conflicting scopes"
+
+  # @author wmeng@redhat.com
+  # @case_id 534960
+  Scenario: check QoS Tier BestEffort
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-besteffort.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod            |
+      | name     | pod-besteffort |
+    Then the step should succeed
+    And the output should not match:
+      | Burstable  |
+      | Guaranteed |
+    And the output should match:
+      | BestEffort |
+
+  # @author wmeng@redhat.com
+  # @case_id 534961
+  Scenario: check QoS Tier Burstable
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-burstable.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod            |
+      | name     | pod-burstable |
+    Then the step should succeed
+    And the output should not match:
+      | Guaranteed |
+      | BestEffort |
+    And the output should match:
+      | Burstable  |
+
+  # @author wmeng@redhat.com
+  # @case_id 534962
+  Scenario: check QoS Tier Guaranteed
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-guaranteed.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod            |
+      | name     | pod-guaranteed |
+    Then the step should succeed
+    And the output should not match:
+      | BestEffort |
+      | Burstable  |
+    And the output should match:
+      | Guaranteed |
