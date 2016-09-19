@@ -229,3 +229,29 @@ check_specific_deploy_selector:
   elements:
   - selector:
       xpath: //dt[contains(.,'Selectors')]/following-sibling::dd[contains(.,'<specific_deployment_selector>')]
+add_autoscaler_set_max_pod_and_cpu_req_per_from_dc_page:
+  action: goto_one_dc_page
+  action: goto_add_autoscaler_page
+  action: set_max_pod_on_autoscaler_page
+  action: set_cpu_request_percentage
+  action: save_your_committed_changes
+set_max_pod_on_autoscaler_page:
+  elements:
+  - selector:
+      xpath: //input[@name="maxReplicas"]
+    op: send_keys <max_pods>
+set_cpu_request_percentage:
+  elements:
+  - selector:
+      xpath: //input[@name="targetCPU"]
+    op: send_keys <cpu_req_per>
+check_warning_info_for_rc_with_multiple_autoscale:
+  action: goto_one_deployment_page
+  elements:
+  - selector:
+      xpath: //div[contains(@class, "alert") and contains(.,"More than one autoscaler is scaling this resource")]
+  - selector:
+      xpath: //div[contains(@class, "alert") and contains(.,"This deployment is scaled by both a deployment configuration and an autoscaler")]
+  scripts:
+  - command: return document.getElementsByTagName("hpa").length == 2
+    expect_result: true
