@@ -96,6 +96,24 @@ module CucuShift
       raise 'tag scenario @admin and @destructive as you use admin access and failure to restore can have adverse effects to following scenarios' unless tagged_admin? && tagged_destructive?
     end
 
+    # prepares environments' user managers based on @users tag
+    # @return [Object] undefined
+    # @note tags might not be present for each env thus #prepare might not be
+    #   called on each user manager; this is ok because `#prepare(nil)` over
+    #   a *clean* user manager should not affect its (in)ability to work
+    def prepare_scenario_users
+      scenario_tags.select{|t| t.start_with? "@users"}.each do |userstag|
+        tagname, tagvalue = userstag.split("=", 2)
+        unless tagvalue && !tagvalue.empty?
+          raise "users tag value should not be nil or empty"
+        end
+
+        garbage, env_name = tagname.split(":", 2)
+        env_name ||= conf[:default_environment]
+        manager.environments[env_name].user_manager.prepare(tagvalue)
+      end
+    end
+
     # @note call like `user(0)` or simply `user` for current user
     def user(num=nil, switch: true)
       return @user if num.nil? && @user

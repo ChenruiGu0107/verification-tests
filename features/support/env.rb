@@ -45,6 +45,7 @@ Before do |_scenario|
   ## raise inside block only if error can affect scenarios execution ##
   no_err, val = capture_error {
     # put other calls here to setup world according to tags, etc.
+    prepare_scenario_users
   }
   err = no_err ? nil : val
 
