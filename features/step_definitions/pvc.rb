@@ -10,7 +10,7 @@ Given /^the#{OPT_QUOTED} PVC becomes #{SYM}(?: within (\d+) seconds)?$/ do |pvc_
 end
 
 Given /^the#{OPT_QUOTED} PVC status is #{SYM}$/ do |pvc_name, status|
-  @result = pvc(pvc_name).status?(status: status.to_sym, user)
+  @result = pvc(pvc_name).status?(status: status.to_sym, user: user)
 
   unless @result[:success]
     raise "PVC #{pvc_name} does not have status: #{status}"
