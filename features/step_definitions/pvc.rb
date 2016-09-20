@@ -9,6 +9,14 @@ Given /^the#{OPT_QUOTED} PVC becomes #{SYM}(?: within (\d+) seconds)?$/ do |pvc_
   end
 end
 
+Given /^the#{OPT_QUOTED} PVC status is #{SYM}$/ do |pvc_name, status|
+  @result = pvc(pvc_name).status?(status: status.to_sym, user)
+
+  unless @result[:success]
+    raise "PVC #{pvc_name} does not have status: #{status}"
+  end
+end
+
 Given /^([0-9]+) PVCs become #{SYM}(?: within (\d+) seconds)? with labels:$/ do |count, status, timeout, table|
   labels = table.raw.flatten # dimentions irrelevant
   timeout = timeout ? timeout.to_i : 60
