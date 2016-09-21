@@ -389,3 +389,165 @@ Feature: Routes related features on web console
       | route_name | service-unsecure-route |
       | path       | /testtwo               |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id 532706
+  Scenario: Update route to point to multiple services
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json" replacing paths:
+      | ["metadata"]["name"]           | caddy-docker-2 |
+      | ["metadata"]["labels"]["name"] | caddy-docker-2 |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json" replacing paths:
+      | ["metadata"]["name"]     | service-unsecure-2 |
+      | ["spec"]["selector"]["name"] | caddy-docker-2 |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json" replacing paths:
+      | ["metadata"]["name"]           | caddy-docker-3 |
+      | ["metadata"]["labels"]["name"] | caddy-docker-3 |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json" replacing paths:
+      | ["metadata"]["name"]     | service-unsecure-3 |
+      | ["spec"]["selector"]["name"] | caddy-docker-3 |
+    Then the step should succeed
+
+    When I perform the :open_create_route_page_from_service_page web console action with:
+      | project_name | <%= project.name%> |
+      | service_name | service-unsecure   |
+    Then the step should succeed
+
+    When I perform the :create_unsecured_route_from_service_or_overview_page web console action with:
+      | route_name | service-unsecure-route |
+    Then the step should succeed
+
+    When I perform the :update_route_point_to_three_services web console action with:
+      | project_name | <%= project.name%>    |
+      | route_name  | service-unsecure-route |
+      | first_svc_name  | service-unsecure   |
+      | second_svc_name | service-unsecure-2 |
+      | third_svc_name  | service-unsecure-3 |
+      | weight_one   | 2                     |
+      | weight_two   | 3                     |
+      | weight_three | 5                     |
+    Then the step should succeed
+
+    When I perform the :remove_service_from_route web console action with:
+      | project_name | <%= project.name%>    |
+      | route_name  | service-unsecure-route |
+      | rest_svc_number  | 2                 |
+    Then the step should succeed
+
+    When I perform the :remove_and_keep_one_service_for_route web console action with:
+      | project_name | <%= project.name%>    |
+      | route_name  | service-unsecure-route |
+    Then the step should succeed
+
+  # @author: yanpzhan@redhat.com
+  # @case_id: 532705
+  Scenario: Create route pointing to multiple services
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json" replacing paths:
+      | ["metadata"]["name"]           | caddy-docker-2 |
+      | ["metadata"]["labels"]["name"] | caddy-docker-2 |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json" replacing paths:
+      | ["metadata"]["name"]     | service-unsecure-2 |
+      | ["spec"]["selector"]["name"] | caddy-docker-2 |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json" replacing paths:
+      | ["metadata"]["name"]           | caddy-docker-3 |
+      | ["metadata"]["labels"]["name"] | caddy-docker-3 |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json" replacing paths:
+      | ["metadata"]["name"]     | service-unsecure-3 |
+      | ["spec"]["selector"]["name"] | caddy-docker-3 |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json" replacing paths:
+      | ["metadata"]["name"]           | caddy-docker-4 |
+      | ["metadata"]["labels"]["name"] | caddy-docker-4 |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json" replacing paths:
+      | ["metadata"]["name"]     | service-unsecure-4 |
+      | ["spec"]["selector"]["name"] | caddy-docker-4 |
+    Then the step should succeed
+
+    When I perform the :open_create_route_page_from_service_page web console action with:
+      | project_name | <%= project.name%> |
+      | service_name | service-unsecure   |
+    Then the step should succeed
+
+    When I perform the :create_unsecured_route_pointing_to_four_services web console action with:
+      | project_name    | <%= project.name%> |
+      | route_name | service-unsecure-route  |
+      | first_svc_name  | service-unsecure   |
+      | second_svc_name | service-unsecure-2 |
+      | third_svc_name  | service-unsecure-3 |
+      | forth_svc_name  | service-unsecure-4 |
+      | weight_one      | 3                  |
+      | weight_two      | 6                  |
+      | weight_three    | 3                  |
+      | weight_four     | 12                 |
+    Then the step should succeed
+
+    When I perform the :check_update_weight_with_valid_value web console action with:
+      | project_name    | <%= project.name%> |
+      | route_name | service-unsecure-route  |
+      | first_svc_name  | service-unsecure   |
+      | second_svc_name | service-unsecure-2 |
+      | weight_one      | 0                  |
+      | weight_two      | 256                |
+    Then the step should succeed
+
+    When I perform the :check_update_weight_with_non_integer web console action with:
+      | project_name    | <%= project.name%> |
+      | route_name | service-unsecure-route  |
+      | first_svc_name  | service-unsecure   |
+      | second_svc_name | service-unsecure-2 |
+      | third_svc_name  | service-unsecure-3 |
+      | weight_one      | 2.2                |
+      | weight_two      | fadd               |
+      | weight_three    | -23                |
+    Then the step should succeed
+
+    When I perform the :check_update_weight_with_integer_out_of_range web console action with:
+      | project_name    | <%= project.name%> |
+      | route_name | service-unsecure-route  |
+      | second_svc_name | service-unsecure-2 |
+      | weight_two      | 257                |
+    Then the step should succeed
+
+    When I perform the :check_update_weight_with_empty_weight web console action with:
+      | project_name    | <%= project.name%> |
+      | route_name | service-unsecure-route  |
+    Then the step should succeed
+
+    When I perform the :check_update_route_with_duplicated_service web console action with:
+      | project_name    | <%= project.name%> |
+      | route_name | service-unsecure-route  |
+      | second_svc_name | service-unsecure-3 |
+      | weight_two      | 27                 |
+    Then the step should succeed

@@ -47,6 +47,20 @@ create_unsecure_route_without_path:
 select_tls_termination_type:
   action: show_options_for_secure_route
   action: set_tls_termination
+create_unsecured_route_pointing_to_four_services:
+  action: set_route_name
+  action: create_route_with_four_services
+  action: submit_create_route
+  action: goto_one_route_page
+  action: check_four_services_weight_on_route_page
+create_route_with_four_services:
+  action: split_traffic_across_multiple_services
+  action: set_the_first_service_to_route
+  action: set_the_second_service_to_route
+  action: expand_add_another_service
+  action: set_the_third_service_to_route
+  action: expand_add_another_service
+  action: set_the_forth_service_to_route
 choose_service_to_add_route:
   elements:
   - selector:
