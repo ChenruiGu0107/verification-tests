@@ -622,44 +622,19 @@ Feature: deployment related features
 
     Given I wait until the status of deployment "hooks" becomes :complete
     # Workaround: the below steps make a failed deployment instead of --cancel
-    When I run the :patch client command with:
-      | resource      | dc              |
-      | resource_name | hooks           |
-      | p             | {"spec":{"strategy":{"rollingParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ], "containerName": "hello-openshift" }, "failurePolicy": "Abort" }}}}} |
-    Then the step should succeed
-    Then I wait for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource      | dc                 |
-      | resource_name | hooks              |
-      | template      | {{.spec.strategy.rollingParams.pre.execNewPod.command}} |
-    Then the step should succeed
-    And the output should contain "/bin/false"
-    """
+    Given I successfully patch resource "dc hooks" with:
+      | {"spec":{"strategy":{"rollingParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ], "containerName": "hello-openshift" }, "failurePolicy": "Abort" }}}}} |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            |       |
     Then the step should succeed
     And the output should contain "Started deployment #3"
+    And I wait until the status of deployment "hooks" becomes :failed
 
-    Given I wait until the status of deployment "hooks" becomes :failed
     # Remove the pre-hook introduced by the above workaround,
     # otherwise later deployment will always fail
-    When I run the :patch client command with:
-      | resource      | dc              |
-      | resource_name | hooks           |
-      | p             | {"spec":{"strategy":{"rollingParams":{"pre":null}}}} |
-    Then the step should succeed
-    Then I wait for the steps to pass:
-    """
-    When I run the :get client command with:
-      | resource      | dc                 |
-      | resource_name | hooks              |
-      | template      | {{.spec.strategy.rollingParams.pre}} |
-    Then the step should succeed
-    And the output should contain "no value"
-    """
-
+    Given I successfully patch resource "dc hooks" with:
+      | {"spec":{"strategy":{"rollingParams":{"pre":null}}}} |
     When I run the :rollback client command with:
       | deployment_name | hooks |
     Then the step should succeed

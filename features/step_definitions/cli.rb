@@ -158,3 +158,73 @@ Given /^I terminate last background process$/ do
   @bg_processes.last.kill_tree
   @result = @bg_processes.last.result
 end
+
+# This step needs flexibly specify table.
+# A. When the expected json is just == the patch json, the step only needs specify one-unit table, like:
+#     | {"spec":{"replicas":2}} |
+# B. Otherwise, the step needs specify four-unit table, like (explained below):
+#     | patch  | {"metadata":{"labels":{"labelname": null}}} |
+#     | expect | {"metadata":{"labels":null}}                |
+# A is the most frequent situation when using oc patch without 'null' in patch json.
+# B is the situation when the expected json != the patch json, though the patch succeeds.
+# E.g. if the resource has ONLY ONE label and we remove it, the "labels" key will be removed together, so
+# the expected json should be {"metadata":{"labels":null}}.
+Given /^I successfully patch resource "(.*) (.*)" with:$/ do |resource_type, resource_name, table|
+  if table.raw[1]
+    patch_json = table.raw[0][1]
+    expect_hash = YAML.load(table.raw[1][1])
+  elsif
+    patch_json = table.raw[0][0]
+    expect_hash = YAML.load(patch_json)
+  end
+
+  opts = {resource: resource_type, resource_name: resource_name, p: patch_json}
+  res = user.cli_exec(:patch, **opts)
+  unless res[:success]
+    logger.error(res[:response])
+    raise "Failed to patch #{resource_type} #{resource_name} with #{patch_json}"
+  end
+
+  is_subset = true
+  response = ""
+  checker = proc { |expect_hash, resource_hash|
+    expect_hash.each { |k,v|
+      if (! resource_hash.has_key? k) && v != nil
+        # Non-hash key is not shown in -o yaml after oc patch it with 'null', so check 'v != nil' here
+        response = "Field '#{k}' not found in resource"
+        is_subset = false
+        break
+      end
+      if Hash === resource_hash[k]
+        if v != nil
+          # Hash key is shown with {} in -o yaml if oc patch it with null.
+          # e.g. oc patch dc/<dcname> -p {"spec":{"strategy":{"resources": null}}} makes 'resources: {}'.
+          # So check 'v != nil' to avoid 'nil.each' because the proc calles 'each'.
+          checker.call(v, resource_hash[k])
+          if ! is_subset
+            break
+          end
+        end
+      elsif resource_hash[k] != v
+        response = "The resource_hash and expect_hash differ at key '#{k}'"
+        is_subset = false
+        break
+      end
+    }
+
+  is_subset
+
+  }
+
+  opts = {resource: resource_type, resource_name: resource_name, o: "yaml", _quiet: true}
+  sec = 30
+  success = wait_for(sec) {
+    res = user.cli_exec(:get, **opts)
+    checker.call(expect_hash, res[:parsed])
+  }
+
+  if ! success
+    raise "Didn't get expected patch result after #{sec} seconds! #{response}"
+  end
+end
+
