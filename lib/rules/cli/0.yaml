@@ -670,6 +670,13 @@
     :o: -o <value>
     :f: -f <value>
     :overwrite: --overwrite=<value>
+:set_backends:
+  :cmd: oc set route-backends
+  :options:
+    :routename: <value>
+    :service: <value>
+    :zero: --zero
+    :adjust: --adjust
 :set_probe:
   :cmd: oc set probe <global_options> <options>
   :options:
