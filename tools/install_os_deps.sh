@@ -8,26 +8,25 @@ echo "Installing packages on $(os_type)"
 if [ "$(os_type)" == "fedora_dnf" ]; then
     cmd="dnf install -y"
     file="deps.dnf.fedora"
-    #additional_deps=install_rvm_ruby
 elif [ "$(os_type)" == "fedora" ]; then
     cmd="yum install -y"
     file="deps.yum.fedora"
-    additional_deps=install_rvm_ruby
+    additional_deps=install_rvm_if_ruby_is_outdated
     use_rvm=1
 elif [ "$(os_type)" == "ubuntu" -o "$(os_type)" == "debian" ] || [ "$(os_type)" == "mint" ]; then
     cmd="apt-get install -q --ignore-missing --fix-missing -y"
     file="deps.deb"
-    additional_deps=install_rvm_ruby
+    additional_deps=install_rvm_if_ruby_is_outdated
     use_rvm=1
 elif [ "$(os_type)" == "rhel6" ]; then
     cmd="yum install -y"
     file="deps.yum.RHEL"
-    additional_deps=install_rvm_ruby
+    additional_deps=install_rvm_if_ruby_is_outdated
     use_rvm = 1
 elif [ "$(os_type)" == "rhel7" ] || [ "$(os_type)" == "centos7" ]; then
     cmd="yum install -y"
     file="deps.yum.RHEL7"
-    additional_deps=install_rvm_ruby
+    additional_deps=install_rvm_if_ruby_is_outdated
     use_rvm=1
 else
     exit 3
