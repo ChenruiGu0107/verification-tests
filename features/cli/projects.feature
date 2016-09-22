@@ -26,27 +26,26 @@ Feature: projects related features via cli
       | oc new-project NAME [--display-name=DISPLAYNAME] [--description=DESCRIPTION] [options] |
       | error: must have exactly one argument                                                  |
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    Given a 64 character random string of type :dns is stored into the :proj_name_3 clipboard
-    And evaluation of `"xyz-"` is stored in the :proj_name_4 clipboard
     When I run the :new_project client command with:
       | project_name | <%= cb.proj_name %> |
     Then the step should succeed
+    Given I switch to the second user
     When I run the :new_project client command with:
       | project_name | <%= cb.proj_name %> |
     Then the step should fail
     And the output should contain:
       | project "<%= cb.proj_name %>" already exists |
     When I run the :new_project client command with:
-      | project_name | q |
+      | project_name | <%= rand_str(1,:dns) %> |
     Then the step should fail
     When I run the :new_project client command with:
-      | project_name | <%= cb.proj_name_3 %> |
+      | project_name | <%= rand_str(64,:dns) %> |
     Then the step should fail
     When I run the :new_project client command with:
-      | project_name | ALLUPERCASE |
+      | project_name | ALLUPPERCASE |
     Then the step should fail
     Then the output should contain:
-      | The ProjectRequest "ALLUPERCASE" is invalid. |
+      | The ProjectRequest "ALLUPPERCASE" is invalid. |
     When I run the :new_project client command with:
       | project_name | -abc |
     Then the step should fail
@@ -57,7 +56,6 @@ Feature: projects related features via cli
     Then the step should fail
     And the output should contain:
       | The ProjectRequest "xyz-" is invalid. |
-
     When I run the :new_project client command with:
       | project_name | $pe#cial& |
     Then the step should fail
@@ -575,7 +573,7 @@ Feature: projects related features via cli
     And the output should match:
       | do not have rights.*<%= cb.project3 %> |
     When I run the :projects client command
-    Then the step should succeed   
+    Then the step should succeed
     And the output should match:
       | have one project.*<%= cb.project1 %>   |
     ## delete the only left one and check
@@ -590,7 +588,7 @@ Feature: projects related features via cli
     And the output should not match:
       | <%= cb.project1 %>   |
     When I run the :projects client command
-    Then the step should succeed   
+    Then the step should succeed
     And the output should match:
       | [Yy]ou are not a member of any project |
     When I run the :project client command
@@ -669,13 +667,13 @@ Feature: projects related features via cli
       | <%= cb.project2 %> |
     When I run the :projects client command with:
       | short | true |
-    Then the step should succeed   
+    Then the step should succeed
     And the output should match:
       | <%= cb.project1 %>   |
     ## switch to the only left project and display short name
     ## different with `oc project <project>` which output "Now using project <project> on server"
     When I run the :project client command with:
-      | project_name | <%= cb.project1 %> | 
+      | project_name | <%= cb.project1 %> |
       | short        | true               |
     Then the step should succeed
     And the output should contain:
@@ -695,7 +693,7 @@ Feature: projects related features via cli
       | <%= cb.project1 %>   |
     When I run the :projects client command with:
       | short | true |
-    Then the step should succeed   
+    Then the step should succeed
     And the output should match:
       | not a member of any project |
     When I run the :project client command with:

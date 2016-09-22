@@ -66,7 +66,7 @@ module CucuShift
 
           result << array[rand(36)] # needs to start with non-hyphen
           (length - 2).times { result << array[rand(array.length)] }
-          result << array[rand(36)] # end with non-hyphen
+          result << array[rand(36)] if length > 1# end with non-hyphen
         when :dns952
           # matching regex [a-z]([-a-z0-9]*[a-z0-9])?
           # e.g. service name (up to 24 chars)
@@ -76,7 +76,7 @@ module CucuShift
 
           result << array[rand(26)] # start with letter
           (length - 2).times { result << array[rand(array.length)] }
-          result << array[rand(36)] # end with non-hyphen
+          result << array[rand(36)] if length > 1# end with non-hyphen
         when :num
           result << "%0#{length}d" % rand(10 ** length)
         else # :nospace_sane
