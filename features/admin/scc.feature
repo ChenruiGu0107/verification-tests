@@ -439,3 +439,25 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_seccomp_1.yaml |
     Then the step should succeed
+
+  # @author pruan@redhat.com
+  # @case_id 498208
+  @admin
+  @destructive
+  Scenario: limit the created container to access the hostnetwork via scc
+    Given I have a project
+    # scc restricted should have 'allowHostNetwork: false' as default already
+    Given scc policy "restricted" is restored after scenario
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc498208/pod.json |
+    Then the step should fail
+    And the output should contain:
+      | unable to validate against any security context constraint |
+      | Host ports are not allowed to be used                      |
+    Given as admin I replace resource "scc" named "restricted":
+      | allowHostNetwork: false | allowHostNetwork: true |
+      | allowHostPorts: false   | allowHostPorts: true   |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc498208/pod.json |
+    Then the step should succeed
+
