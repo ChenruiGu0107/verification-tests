@@ -57,7 +57,7 @@ Given /^I run the steps (\d+) times:$/ do |num, steps_string|
     (1..Integer(num)).each { |i|
       cb.i = i
       if eval_found
-        steps steps_string.gsub(eval_regex) { |s| eval $1}
+        steps steps_string.gsub(eval_regex) { |s| "<%= #{$1} %>"}
       else
         steps steps_string
       end
