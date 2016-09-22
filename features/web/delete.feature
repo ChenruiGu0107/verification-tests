@@ -142,3 +142,47 @@ Feature: Delete the resources via web console
       | dc_number        | 1                     |
       | rc_warning       | The deployment details could not be loaded. |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id 534487
+  Scenario: Check deployments and builds of deleted bc/dc on web console
+    Given I have a project
+    When I run the :new_build client command with:
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | image        | openshift/ruby                                |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            ||
+    Then the step should succeed
+
+    Given the "ruby-hello-world-1" build finished
+    When I perform the :delete_resources_buildconfig web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | ruby-hello-world    |
+    Then the step should succeed
+
+    When I perform the :check_builds_of_deleted_buildconfig web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | ruby-hello-world    |
+      | build_number | 2                   |
+    Then the step should succeed
+
+    When I perform the :delete_resources_deploymentconfig web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+    Then the step should succeed
+
+    When I perform the :check_deployments_of_deleted_deploymentconfig web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+      | deployment_number | 2              |
+    Then the step should succeed
