@@ -139,3 +139,109 @@ Feature: oc idle
     When I get project rc named "hello-pod" as YAML
     Then the output should not match:
       | idling.*openshift.io/idled-at |
+
+  # @author chezhang@redhat.com
+  # @case_id 533686
+  Scenario: Idling service with dc
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/test/extended/testdata/idling-echo-server.yaml |
+    Then the step should succeed
+    Given I wait until replicationController "idling-echo-1" is ready
+    And I wait until number of replicas match "2" for replicationController "idling-echo-1"
+    Given 2 pods become ready with labels:
+      | app=idling-echo |
+    When I run the :idle client command with:
+      | svc_name | idling-echo |
+    Then the step should succeed
+    And the output should match:
+      | Idled DeploymentConfig.*idling-echo  |
+    And I wait until number of replicas match "0" for replicationController "idling-echo-1"
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the step should succeed
+    And the output should match:
+      | idling-echo.*none |
+    When I get project dc named "idling-echo" as YAML
+    Then the output should match:
+      | idling.*openshift.io/idled-at |
+    Given I use the "idling-echo" service
+    And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :exec client command with:
+      | pod              | caddy-docker              |
+      | exec_command     | curl                      |
+      | exec_command_arg | <%= cb.service_ip %>:8675 |
+      | _timeout         | 30                        |
+    Then the output should match "GET.*HTTP"
+    Given I wait until number of replicas match "2" for replicationController "idling-echo-1"
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the step should succeed
+    And the output should match:
+      | idling-echo.*\d+.\d+.\d+.\d+:3090,\d+.\d+.\d+.\d+:3090,\d+.\d+.\d+.\d+:8675 |
+    Given 2 pods become ready with labels:
+      | app=idling-echo |
+    When I run the :idle client command with:
+      | svc_name | idling-echo |
+    Then the step should succeed
+    And I wait until number of replicas match "0" for replicationController "idling-echo-1"
+    And I run the :exec client command with:
+      | pod              | caddy-docker                                  |
+      | oc_opts_end      |                                               |
+      | exec_command     | sh                                            |
+      | exec_command_arg | -c                                            |
+      | exec_command_arg | echo hello \| nc -u <%= cb.service_ip %> 3090 |
+      | _timeout         | 20                                            |
+    Given I wait until number of replicas match "2" for replicationController "idling-echo-1"
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the step should succeed
+    And the output should match:
+      | idling-echo.*\d+.\d+.\d+.\d+:3090,\d+.\d+.\d+.\d+:3090,\d+.\d+.\d+.\d+:8675 |
+
+  # @author chezhang@redhat.com
+  # @case_id 533687
+  Scenario: Idling service with rc
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/rc/idle-rc-2.yaml |
+    Then the step should succeed
+    Given I wait until replicationController "hello-pod" is ready
+    And I wait until number of replicas match "2" for replicationController "hello-pod"
+    Given 2 pods become ready with labels:
+      | name=hello-pod |
+    When I run the :idle client command with:
+      | svc_name | hello-svc |
+    Then the step should succeed
+    And the output should match:
+      | Idled ReplicationController.*hello-pod  |
+    And I wait until number of replicas match "0" for replicationController "hello-pod"
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the step should succeed
+    And the output should match:
+      | hello-svc.*none |
+    When I get project rc named "hello-pod" as YAML
+    Then the output should match:
+      | idling.*openshift.io/idled-at |
+    Given I use the "hello-svc" service
+    And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :exec client command with:
+      | pod              | caddy-docker              |
+      | exec_command     | curl                      |
+      | exec_command_arg | <%= cb.service_ip %>:8000 |
+    Then the output should contain "Hello Pod!"
+    Given I wait until number of replicas match "2" for replicationController "hello-pod"
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the step should succeed
+    And the output should match:
+      | hello-svc.*\d+.\d+.\d+.\d+:8080,\d+.\d+.\d+.\d+:8080 |

@@ -592,3 +592,26 @@ Feature: change the policy of user/service account
     And the output should match:
       | <%= project.name%> |
       | Active             |
+
+  # @author chezhang@redhat.com
+  # @case_id 534289
+  @admin
+  Scenario: DaemonSet only support Always restartPolicy
+    Given I have a project
+    Given cluster role "sudoer" is added to the "first" user
+    When I run the :create client command with:
+      | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset-negtive-onfailure.yaml |
+      | as | system:admin |
+    Then the step should fail
+    And the output should match:
+      | Unsupported value: "OnFailure": supported values: Always |
+    When I run the :create client command with:
+      | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset-negtive-never.yaml |
+      | as | system:admin |
+    Then the step should fail
+    And the output should match:
+      | Unsupported value: "Never": supported values: Always |
+    When I run the :create client command with:
+      | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
+      | as | system:admin |
+    Then the step should succeed
