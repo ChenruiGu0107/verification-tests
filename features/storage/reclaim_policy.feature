@@ -2,6 +2,7 @@ Feature: Persistent Volume reclaim policy tests
   # @author jhou@redhat.com
   # @case_id 488979
   @admin
+  @destructive
   Scenario: Recycle reclaim policy for persistent volumes
     # Preparations
     Given I have a project
