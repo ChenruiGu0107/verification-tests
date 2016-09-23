@@ -91,4 +91,4 @@ check_log_context_on_deployed_deployment_page:
 check_log_context_on_pod_page:
   action: goto_one_pod_page
   action: check_log_tab_on_pod_page
-  action: check_log_context
+  action: check_running_log_context

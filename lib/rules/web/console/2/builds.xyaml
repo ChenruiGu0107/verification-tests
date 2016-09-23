@@ -312,7 +312,6 @@ cancel_to_commit_your_changes:
   elements:
   - selector:
       text: Cancel
-    type: a
     op: click
 check_bc_builder_image_stream:
   action: goto_buildconfig_configuration_tab
