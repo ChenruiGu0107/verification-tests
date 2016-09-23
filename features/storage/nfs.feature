@@ -400,6 +400,7 @@ Feature: NFS Persistent Volume
   # @author wehe@redhat.com
   # @case_id 532723
   @admin
+  @destructive
   Scenario: New pod could be running after nfs server lost connection 
     Given I have a project
     And I have a NFS service in the project
