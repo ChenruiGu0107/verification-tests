@@ -1453,3 +1453,92 @@ Feature: Testing haproxy router
       | https://<%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %> |
       | -k |
     Then the output should contain "Hello-OpenShift"
+
+
+  # @author yadu@redhat.com
+  # @case_id 518937 518938
+  @admin
+  @destructive
+  Scenario: Set reload time for haproxy router script - Create routes
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    And I store default router IPs in the :router_ip clipboard
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I store master image version in the clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Given default router replica count is stored in the :router_num clipboard
+    Given default router replica count is restored after scenario
+    And admin ensures "tc-518936" dc is deleted after scenario
+    And admin ensures "tc-518936" service is deleted after scenario
+    When I run the :scale client command with:
+      | resource | dc     |
+      | name     | router |
+      | replicas | 0      |
+    Then the step should succeed
+    When I run the :oadm_router admin command with:
+      | name     | tc-518936                                                                        |
+      | images   | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
+      | replicas | <%= cb.router_num %>                                                             |
+    Then a pod becomes ready with labels:
+      | deploymentconfig=tc-518936 |
+    When I run the :env client command with:
+      | resource | dc/tc-518936  |
+      | e | RELOAD_INTERVAL=100  |
+    Then the step should succeed
+    When I use the "<%= cb.proj1 %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name    | edge-route       |
+      | service | service-unsecure |
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+      | -k |
+    Then the step should succeed
+    And the output should not contain "Hello-OpenShift"
+    And I wait up to 100 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    """
+    When I run the :delete client command with:
+      | object_type       | route      |
+      | object_name_or_id | edge-route |
+    Then the step should succeed
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And I wait up to 100 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+      | -k |
+    Then the step should succeed
+    And the output should not contain "Hello-OpenShift"
+    """
