@@ -1,4 +1,5 @@
 Feature: oc exports related scenarios
+
   # @author pruan@redhat.com
   # @case_id 488095
   Scenario: Export resource as json format by oc export
@@ -22,20 +23,22 @@ Feature: oc exports related scenarios
       | database.*[Cc]onfig           |
       | frontend.*[Cc]onfig.*[Ii]mage |
     And I run the :export client command with:
-      | resource | svc |
-      | name     | frontend |
-      | output_format | json |
+      | resource      | svc      |
+      | name          | frontend |
+      | output_format | json     |
     And evaluation of `JSON.parse(@result[:response])` is stored in the :export_svc clipboard
     Then the expression should be true> cb.export_svc['metadata']['labels']['template'] == "application-template-stibuild"
     Given I save the response to file> svc_output.json
     And I run the :export client command with:
-      | resource | dc |
-      | name     | frontend |
-      | output_format | json |
+      | resource      | dc       |
+      | name          | frontend |
+      | output_format | json     |
     And evaluation of `JSON.parse(@result[:response])` is stored in the :export_dc clipboard
     Then the expression should be true> cb.export_dc['spec']['triggers'].to_s.include? 'ConfigChange'
     Then the expression should be true> cb.export_dc['spec']['triggers'].to_s.include? 'ImageChange'
     Given I save the response to file> dc_output.json
+    When I delete the project
+    Then the step should succeed
     Given I create a new project
     And I run the :create client command with:
       | f | svc_output.json |
@@ -94,6 +97,8 @@ Feature: oc exports related scenarios
     And evaluation of `@result[:response]` is stored in the :export_all clipboard
     Given I save the response to file> export_all.yaml
     Then the expression should be true> cb.export_via_filter == cb.export_all
+    When I delete the project
+    Then the step should succeed
     And I create a new project
     And I run the :create client command with:
       | f | export_all.yaml |
