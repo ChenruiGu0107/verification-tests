@@ -2,22 +2,17 @@ Feature: projects related features via web
 
   # @author xxing@redhat.com
   # @case_id 479613
-  Scenario: Create a project with a valid project name on web console
+  Scenario Outline: Create a project with a valid project name on web console
     When I perform the :new_project web console action with:
-      | project_name | <%= rand_str(5, :dns) %> |
-      | display_name | test                     |
-      | description  | test                     |
+      | project_name | <project_name> |
+      | display_name | <display_name> |
+      | description  | <display_name> |
     Then the step should succeed
-    When I perform the :new_project web console action with:
-      | project_name | <%= rand_str(63, :dns) %> |
-      | display_name | test                      |
-      | description  | test                      |
-    Then the step should succeed
-    When I perform the :new_project web console action with:
-      | project_name | <%= rand_str(2, :dns) %> |
-      | display_name | :null                    |
-      | description  ||
-    Then the step should succeed
+    Examples:
+      | project_name              | display_name |
+      | <%= rand_str(5, :dns) %>  | test         |
+      | <%= rand_str(63, :dns) %> | test         |
+      | <%= rand_str(2, :dns) %>  | :null        |
 
   # @author xxing@redhat.com
   # @case_id 481744
@@ -250,7 +245,7 @@ Feature: projects related features via web
     # delete project with project name on /console page
     When I create a project via web with:
       | display_name | testing project one |
-      | description  || 
+      | description  ||
     Then the step should succeed
     When I perform the :type_project_delete_string web console action with:
       | project_name | testing project one      |
@@ -272,7 +267,7 @@ Feature: projects related features via web
     # delete project with project display name
     When I create a project via web with:
       | display_name | testing project two |
-      | description  || 
+      | description  ||
     Then the step should succeed
     When I perform the :cancel_delete_project web console action with:
       | project_name | testing project two |
