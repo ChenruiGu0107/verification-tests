@@ -426,3 +426,99 @@ Feature: NFS Persistent Volume
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" status becomes :running
+
+  # @author chaoyang@redhat.com
+  # @case_id 533542 534964
+  @admin
+  @destructive
+  Scenario Outline: Check GIDs specified in a PV's annotations to pod's supplemental groups
+    Given I have a project
+    And I have a NFS service in the project
+    When I execute on the pod:
+      | chown | <nfs-uid-gid> | /mnt/data |
+    Then the step should succeed
+    When I execute on the pod:
+      | chmod | -R | 770 | /mnt/data |
+    Then the step should succeed
+
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-gid.json" where:
+      | ["spec"]["nfs"]["server"]                                | <%= service("nfs-service").ip %> |
+      | ["spec"]["nfs"]["path"]                                  | /                                |
+      | ["spec"]["capacity"]["storage"]                          | 1Gi                              |
+      | ["metadata"]["name"]                                     | nfs-<%= project.name %>          |
+      | ["metadata"]["annotations"]["pv.beta.kubernetes.io/gid"] | <pv-gid>                         |
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json" replacing paths:
+      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
+    Then the step should succeed
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/security/pod-supplementalgroup.json" replacing paths:
+      | ["metadata"]["name"]                                         | nfspd-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
+    Then the step should succeed
+    And the pod named "nfspd-<%= project.name %>" becomes ready
+
+    When I execute on the "nfspd-<%= project.name %>" pod:
+      | id | -u |
+    Then the output should contain:
+      | 101 |
+    When I execute on the "nfspd-<%= project.name %>" pod:
+      | id | -G |
+    Then the output should contain 1 times:
+      | <pod-gid> |
+    Given I execute on the "nfspd-<%= project.name %>" pod:
+      | touch | /mnt/nfs/nfs_testfile |
+    Then the step should succeed
+    When I execute on the "nfspd-<%= project.name %>" pod:
+      | ls | -l | /mnt/nfs/nfs_testfile |
+    Then the step should succeed
+
+    Examples:
+      | nfs-uid-gid   | pv-gid | pod-gid |
+      | 1234:1234     | 1234   | 1234    |
+      | 111111:111111 | 111111 | 111111  |
+
+  # @author chaoyang@redhat.com
+  # @case_id 534963
+  @admin
+  Scenario: Permission denied when nfs pv annotaion is not right
+    Given I have a project
+    And I have a NFS service in the project
+    When I execute on the pod:
+      | chown | 1234:1234 | /mnt/data |
+    Then the step should succeed
+    When I execute on the pod:
+      | chmod | -R | 770 | /mnt/data |
+    Then the step should succeed
+
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-gid.json" where:
+      | ["spec"]["nfs"]["server"]                                | <%= service("nfs-service").ip %> |
+      | ["spec"]["nfs"]["path"]                                  | /                                |
+      | ["spec"]["capacity"]["storage"]                          | 1Gi                              |
+      | ["metadata"]["name"]                                     | nfs-<%= project.name %>          |
+      | ["metadata"]["annotations"]["pv.beta.kubernetes.io/gid"] | abc123                           |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json" replacing paths:
+      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
+    Then the step should succeed
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/security/pod-supplementalgroup.json" replacing paths:
+      | ["metadata"]["name"]                                         | nfspd-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
+    Then the step should succeed
+    And the pod named "nfspd-<%= project.name %>" becomes ready
+
+    Given I execute on the "nfspd-<%= project.name %>" pod:
+      | touch | /mnt/nfs/nfs_testfile |
+    Then the step should fail
+    And the output should contain:
+      | Permission denied |
