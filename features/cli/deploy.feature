@@ -1456,6 +1456,7 @@ Feature: deployment related features
     Then the output should match:
       | hooks-2.*Running |
 
+
   # @author mcurlej@redhat.com
   # @case_id 532413
   Scenario: Could revert an application back to a previous deployment by 'oc rollout undo' command
@@ -1578,37 +1579,37 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/extensions/deployment.yaml |
     Then the step should succeed
     When I run the :scale client command with:
-      | resource| deployment |
-      | name | hello-openshift |
-      | replicas | 5 |
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 5               |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | deployment |
-      | resource_name | hello-openshift |
+      | resource      | deployment         |
+      | resource_name | hello-openshift    |
       | template      | {{.spec.replicas}} |
     Then the output should match "5"
     When I run the :scale client command with:
-      | resource| deployment |
-      | name | hello-openshift |
-      | replicas | 2 |
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 2               |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | deployment |
-      | resource_name | hello-openshift |
+      | resource      | deployment         |
+      | resource_name | hello-openshift    |
       | template      | {{.spec.replicas}} |
     Then the output should match "2"
     When I run the :rollout_pause client command with:
-      | resource      | deployment |
-      | name | hello-openshift |
+      | resource | deployment      |
+      | name     | hello-openshift |
     Then the step should succeed
     When I run the :set_env client command with:
       | resource | deployment/hello-openshift |
-      | e        | key=value     |
+      | e        | key=value                  |
     Then the step should succeed
     When I run the :get client command with:
-      | resource  | deployment  |
+      | resource      | deployment      |
       | resource_name | hello-openshift |
-      |  o        | yaml |
+      | o             | yaml            |
     And the expression should be true> @result[:parsed]['metadata']['annotations']['deployment.kubernetes.io/revision'] == "1"
     And the expression should be true> @result[:parsed]['spec']['paused'] == true
     And the expression should be true> @result[:parsed]['spec']['template']['spec']['containers'][0]['env'].include?({"name"=>"key", "value"=>"value"})
@@ -1619,12 +1620,12 @@ Feature: deployment related features
     And the output should not contain:
       | key=value      |
     When I run the :rollout_resume client command with:
-      | resource      | deployment |
-      | name | hello-openshift |
+      | resource | deployment      |
+      | name     | hello-openshift |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | deployment      |
-      | resource_name | hello-openshift |
+      | resource      | deployment                |
+      | resource_name | hello-openshift           |
       | template      | {{.metadata.annotations}} |
     Then the step should succeed
     And the output should contain:
@@ -1636,8 +1637,8 @@ Feature: deployment related features
     And the output should contain:
       | key=value      |
     When I run the :get client command with:
-      | resource      | deployment      |
-      | resource_name | hello-openshift |
+      | resource      | deployment                |
+      | resource_name | hello-openshift           |
       | template      | {{.metadata.annotations}} |
     Then the step should succeed
     And the output should contain:
@@ -1717,3 +1718,41 @@ Feature: deployment related features
     When I get project rc as JSON
     Then the output should not contain "history-limit-2" 
     """
+    
+  # @author mcurlej@redhat.com
+  # @case_id 532414
+  Scenario: Pausing and Resuming a Deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    When I run the :rollout_pause client command with:
+      | resource | dc    |
+      | name     | hooks |
+    Then the step should succeed
+    When I get project dc named "hooks" as YAML
+    Then the step should succeed
+    And the output should match "paused:\s+?true"
+    When I run the :env client command with:
+      | resource | dc/hooks |
+      | e        | TEST=123 |
+    Then the step should succeed
+    When I run the :env client command with:
+      | resource | rc/hooks-1 |
+      | list     | true       |
+    Then the step should succeed
+    And the output should not contain "TEST=123"
+    When I get project rc as YAML
+    Then the step should succeed
+    # Check if that no new rc was created if the dc is paused
+    And the output should not contain "hooks-2"
+    When I run the :rollout_resume client command with:
+      | resource | dc    |
+      | name     | hooks |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :env client command with:
+      | resource | rc/hooks-2 |
+      | list     | true       |
+    Then the step should succeed
+    And the output should contain "TEST=123"
