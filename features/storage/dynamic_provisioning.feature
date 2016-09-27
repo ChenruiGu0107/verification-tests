@@ -2,7 +2,7 @@ Feature: Dynamic provisioning
   # @author lxia@redhat.com
   # @case_id 510362 508987 510359
   @admin
-  Scenario: dynamic provisioning
+  Scenario Outline: dynamic provisioning
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :oadm_new_project admin command with:
       | project_name  | <%= cb.proj_name %>         |
@@ -60,29 +60,33 @@ Feature: Dynamic provisioning
     And I save volume id from PV named "<%= cb.pv_name2 %>" in the :volumeID2 clipboard
     And I save volume id from PV named "<%= cb.pv_name3 %>" in the :volumeID3 clipboard
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc1-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod1-<%= project.name %>       |
+      | ["metadata"]["name"]                                         | mypod1                           |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc2-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod2-<%= project.name %>       |
+      | ["metadata"]["name"]                                         | mypod2                           |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc3-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod3-<%= project.name %>       |
+      | ["metadata"]["name"]                                         | mypod3                           |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
     Then the step should succeed
-    Given 3 pods become ready with labels:
-      | name=frontendhttp |
 
-    When I execute on the "<%= pod(-1).name %>" pod:
-      | touch | /mnt/gce/testfile_1 |
+    Given the pod named "mypod1" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/<cloud_provider>/testfile_1 |
     Then the step should succeed
-    When I execute on the "<%= pod(-2).name %>" pod:
-      | touch | /mnt/gce/testfile_2 |
+    Given the pod named "mypod2" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/<cloud_provider>/testfile_2 |
     Then the step should succeed
-    When I execute on the "<%= pod(-3).name %>" pod:
-      | touch | /mnt/gce/testfile_3 |
+    Given the pod named "mypod3" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/<cloud_provider>/testfile_3 |
     Then the step should succeed
 
     When I run the :delete client command with:
@@ -110,6 +114,12 @@ Feature: Dynamic provisioning
       | <%= cb.volumeID1 %> |
       | <%= cb.volumeID2 %> |
       | <%= cb.volumeID3 %> |
+
+    Examples:
+      | cloud_provider |
+      | cinder         |
+      | ebs            |
+      | gce            |
 
   # @author lxia@redhat.com
   # @case_id 528853
@@ -179,7 +189,7 @@ Feature: Dynamic provisioning
   # @author wehe@redhat.com
   # @case_id 532273 532275 532276
   @admin
-  Scenario: dynamic pvc shows lost after pv is deleted
+  Scenario Outline: dynamic pvc shows lost after pv is deleted
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc1-<%= project.name %> |
@@ -218,29 +228,33 @@ Feature: Dynamic provisioning
     When I get project pvc named "dynamic-pvc3-<%= project.name %>" as JSON
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc1-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod1-<%= project.name %>       |
+      | ["metadata"]["name"]                                         | mypod1                           |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc2-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod2-<%= project.name %>       |
+      | ["metadata"]["name"]                                         | mypod2                           |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc3-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod3-<%= project.name %>       |
+      | ["metadata"]["name"]                                         | mypod3                           |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
     Then the step should succeed
-    Given 3 pods become ready with labels:
-      | name=frontendhttp |
 
-    When I execute on the "<%= pod(-1).name %>" pod:
-      | touch | /mnt/gce/testfile_1 |
+    Given the pod named "mypod1" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/<cloud_provider>/testfile_1 |
     Then the step should succeed
-    When I execute on the "<%= pod(-2).name %>" pod:
-      | touch | /mnt/gce/testfile_2 |
+    Given the pod named "mypod2" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/<cloud_provider>/testfile_2 |
     Then the step should succeed
-    When I execute on the "<%= pod(-3).name %>" pod:
-      | touch | /mnt/gce/testfile_3 |
+    Given the pod named "mypod3" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/<cloud_provider>/testfile_3 |
     Then the step should succeed
 
     Given admin ensures "<%= pvc("dynamic-pvc1-#{project.name}").volume_name(user: admin) %>" pv is deleted
@@ -250,3 +264,8 @@ Feature: Dynamic provisioning
     And the "dynamic-pvc2-<%= project.name %>" PVC becomes :lost within 300 seconds
     And the "dynamic-pvc3-<%= project.name %>" PVC becomes :lost within 300 seconds
 
+    Examples:
+      | cloud_provider |
+      | cinder         |
+      | ebs            |
+      | gce            |
