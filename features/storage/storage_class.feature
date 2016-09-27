@@ -30,7 +30,7 @@ Feature: storageClass related feature
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
       | ["parameters"]["type"]                                                          | <type>                      |
       | ["parameters"]["zone"]                                                          | <zone>                      |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                       |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                     |
     Then the step should succeed
     # "oc get storageclass -o yaml"
     # should contain string 'kind: StorageClass' when there are storageclass
