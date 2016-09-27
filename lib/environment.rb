@@ -66,7 +66,19 @@ module CucuShift
     end
 
     def user_manager
-      @user_manager ||= CucuShift.const_get(opts[:user_manager]).new(self, **opts)
+      @user_manager ||= case opts[:user_manager]
+      when nil, "", "auto"
+        case opts[:user_manager_users]
+        when nil, ""
+          raise "automatic OCP htpasswd user creaton not implemented yet"
+        when /^pool:/
+          PoolUserManager.new(self, **opts)
+        else
+          StaticUserManager.new(self, **opts)
+        end
+      else
+        CucuShift.const_get(opts[:user_manager]).new(self, **opts)
+      end
     end
     alias users user_manager
 
