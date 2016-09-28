@@ -516,3 +516,193 @@ Feature: projects related features via cli
     And a pod becomes ready with labels:
       | name=hello-openshift |
     Then the expression should be true> project.uid_range(user:user).begin == pod.fs_group(user:user)
+
+  # @author xiaocwan@redhat.com
+  # @case_id 529607
+  Scenario: oc project or projects to get project or projects with information
+    Given I create a new project
+    Then evaluation of `project.name` is stored in the :project1 clipboard
+    Given I create a new project
+    Then evaluation of `project.name` is stored in the :project2 clipboard
+    Given I create a new project
+    Then evaluation of `project.name` is stored in the :project3 clipboard
+
+    When I run the :project client command
+    Then the step should succeed
+    And the output should match:
+      | [Uu]sing.*<%= cb.project3 %> |
+    And the output should not match:
+      | <%= cb.project1 %>     |
+      | <%= cb.project2 %>     |
+    When I run the :projects client command
+    Then the step should succeed
+    And the output should match:
+      | \*.*<%= cb.project3 %> |
+      | <%= cb.project1 %>     |
+      | <%= cb.project2 %>     |
+    ## delete the latest project and check
+    When I run the :delete client command with:
+      | object_type       | project            |
+      | object_name_or_id | <%= cb.project3 %> |
+    Then the step should succeed
+    And I wait for the resource "project" named "<%= cb.project3 %>" to disappear
+    When I run the :projects client command
+    Then the step should succeed
+    And the output should not contain:
+      | <%= cb.project3 %>     |
+    And the output should match:
+      | [Yy]ou have access to the following projects |
+      | <%= cb.project1 %>     |
+      | <%= cb.project2 %>     |
+    When I run the :project client command
+    Then the step should fail
+    And the output should match:
+      | do not have rights.*<%= cb.project3 %> |
+    ## delete one and left only one project then check
+    When I run the :delete client command with:
+      | object_type       | project            |
+      | object_name_or_id | <%= cb.project2 %> |
+    Then the step should succeed
+    And I wait for the resource "project" named "<%= cb.project2 %>" to disappear
+    When I run the :get client command with:
+      | resource | projects |
+    Then the step should succeed
+    And the output should not match:
+      | <%= cb.project2 %>   |
+
+    When I run the :project client command
+    Then the step should fail
+    And the output should match:
+      | do not have rights.*<%= cb.project3 %> |
+    When I run the :projects client command
+    Then the step should succeed   
+    And the output should match:
+      | have one project.*<%= cb.project1 %>   |
+    ## delete the only left one and check
+    When I run the :delete client command with:
+      | object_type       | project            |
+      | object_name_or_id | <%= cb.project1 %> |
+    Then the step should succeed
+    And I wait for the resource "project" named "<%= cb.project1 %>" to disappear
+    When I run the :get client command with:
+      | resource | projects |
+    Then the step should succeed
+    And the output should not match:
+      | <%= cb.project1 %>   |
+    When I run the :projects client command
+    Then the step should succeed   
+    And the output should match:
+      | [Yy]ou are not a member of any project |
+    When I run the :project client command
+    Then the step should fail
+    And the output should match:
+      | do not have rights.*<%= cb.project3 %> |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 529608
+  Scenario: oc project or projects to get project or projects without any extra information
+    Given I create a new project
+    Then evaluation of `project.name` is stored in the :project1 clipboard
+    Given I create a new project
+    Then evaluation of `project.name` is stored in the :project2 clipboard
+    Given I create a new project
+    Then evaluation of `project.name` is stored in the :project3 clipboard
+
+    When I run the :project client command with:
+      | short | true |
+    Then the step should succeed
+    And the output should match:
+      | <%= cb.project3 %> |
+    And the output should not match:
+      | <%= cb.project1 %> |
+      | <%= cb.project2 %> |
+    When I run the :projects client command with:
+      | short | true |
+    Then the step should succeed
+    And the output should match:
+      | <%= cb.project1 %> |
+      | <%= cb.project2 %> |
+      | <%= cb.project3 %> |
+    ## delete the latest project and check
+    When I run the :delete client command with:
+      | object_type       | project            |
+      | object_name_or_id | <%= cb.project3 %> |
+    Then the step should succeed
+    And I wait for the resource "project" named "<%= cb.project3 %>" to disappear
+    When I run the :get client command with:
+      | resource | projects |
+    Then the step should succeed
+    And the output should not match:
+      | <%= cb.project3 %>   |
+    When I run the :projects client command with:
+      | short | true |
+    Then the step should succeed
+    And the output should match:
+      | <%= cb.project1 %>     |
+      | <%= cb.project2 %>     |
+    When I run the :project client command with:
+      | short | true |
+    Then the step should succeed
+    And the output should match:
+      | <%= cb.project3 %> |
+    And the output should not match:
+      | <%= cb.project1 %> |
+      | <%= cb.project2 %> |
+    ## delete one and left only one project then check
+    When I run the :delete client command with:
+      | object_type       | project            |
+      | object_name_or_id | <%= cb.project2 %> |
+    Then the step should succeed
+    And I wait for the resource "project" named "<%= cb.project2 %>" to disappear
+    When I run the :get client command with:
+      | resource | projects |
+    Then the step should succeed
+    And the output should not match:
+      | <%= cb.project2 %>   |
+    When I run the :project client command with:
+      | short | true |
+    Then the step should succeed
+    And the output should match:
+      | <%= cb.project3 %> |
+    And the output should not match:
+      | <%= cb.project1 %> |
+      | <%= cb.project2 %> |
+    When I run the :projects client command with:
+      | short | true |
+    Then the step should succeed   
+    And the output should match:
+      | <%= cb.project1 %>   |
+    ## switch to the only left project and display short name
+    ## different with `oc project <project>` which output "Now using project <project> on server"
+    When I run the :project client command with:
+      | project_name | <%= cb.project1 %> | 
+      | short        | true               |
+    Then the step should succeed
+    And the output should contain:
+      | <%= cb.project1 %> |
+    And the output should not contain:
+      | [Nn]ow using project <%= cb.project1 %> |
+    ## delete the only left one and check
+    When I run the :delete client command with:
+      | object_type       | project            |
+      | object_name_or_id | <%= cb.project1 %> |
+    Then the step should succeed
+    And I wait for the resource "project" named "<%= cb.project1 %>" to disappear
+    When I run the :get client command with:
+      | resource | projects |
+    Then the step should succeed
+    And the output should not match:
+      | <%= cb.project1 %>   |
+    When I run the :projects client command with:
+      | short | true |
+    Then the step should succeed   
+    And the output should match:
+      | not a member of any project |
+    When I run the :project client command with:
+      | short | true |
+    Then the step should succeed
+    And the output should match:
+      | <%= cb.project1 %> |
+    And the output should not match:
+      | <%= cb.project3 %> |
+      | <%= cb.project2 %> |
