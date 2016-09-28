@@ -801,3 +801,98 @@ Feature: creating 'apps' with CLI
     And the output should contain:
       | <%= product_docker_repo %>rhel7.1 |
       | <%= product_docker_repo %>rhel7.2 |
+
+  # @author cryan@redhat.com
+  # @case_id 474044
+  Scenario: Create resources with multiple approach via cli
+    Given I have a project
+    And I create the "hello-openshift" directory
+    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json" into the "hello-openshift" dir
+    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/Dockerfile" into the "hello-openshift" dir
+    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello_openshift.go" into the "hello-openshift" dir
+    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/README.md" into the "hello-openshift" dir
+    When I run the :create client command with:
+      | f | hello-openshift/ |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | pods            |
+      | resource_name | hello-openshift |
+    Then the step should succeed
+    When I expose the "hello-openshift" service
+    Then the step should succeed
+    Given the pod named "hello-openshift" status becomes :running
+    Given I wait up to 30 seconds for a web server to become available via the "hello-openshift" route
+    Then the output should contain "Hello OpenShift!"
+    When I run the :delete client command with:
+      | f | hello-openshift/ |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | routes |
+      | all         | true   |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | services |
+      | all         | true     |
+    Then the step should succeed
+    Given I get project routes
+    Then the output should not contain "hello-openshift"
+    Given all existing pods die with labels:
+      | name=hello-openshift |
+    When I run the :create client command with:
+      | f | hello-openshift/hello-pod.json |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | pods            |
+      | resource_name | hello-openshift |
+    Then the step should succeed
+    When I expose the "hello-openshift" service
+    Then the step should succeed
+    Given the pod named "hello-openshift" status becomes :running
+    And I wait up to 30 seconds for a web server to become available via the "hello-openshift" route
+    Then the output should contain "Hello OpenShift!"
+    When I run the :delete client command with:
+      | f | hello-openshift/hello-pod.json |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | routes |
+      | all         | true   |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | services |
+      | all         | true     |
+    Then the step should succeed
+    Given I get project routes
+    Then the output should not contain "hello-openshift"
+    Given all existing pods die with labels:
+      | name=hello-openshift |
+    #The following step relies on _stdin, thus satisfying the TC req for stdin
+    When I run oc create with "hello-openshift/hello-pod.json" replacing paths:
+      | ["metadata"]["name"] | hello-openshift |
+    Then the step should succeed
+    Given the pod named "hello-openshift" status becomes :running
+    When I run the :delete client command with:
+      | f | hello-openshift/hello-pod.json |
+    Then the step should succeed
+    Given all existing pods die with labels:
+      | name=hello-openshift |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+    Given the pod named "hello-openshift" status becomes :running
+    When I run the :delete client command with:
+      | f | hello-openshift/hello-pod.json |
+    Then the step should succeed
+    Given all existing pods die with labels:
+      | name=hello-openshift |
+    Given I create the "jenkins" directory
+    And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json" into the "jenkins" dir
+    #Change template name to distinguish itself from the default jenkins template
+    And I replace lines in "jenkins/jenkins-ephemeral-template.json":
+      | "name": "jenkins-ephemeral" | "name": "jenkins-ephemeral-tc474044" |
+    When I run the :create client command with:
+      | f | hello-openshift/ |
+      | f | jenkins/         |
+    Then the step should succeed
+    Given the pod named "hello-openshift" status becomes :running
+    Given I get project templates
+    Then the output should contain "jenkins-ephemeral-tc474044"

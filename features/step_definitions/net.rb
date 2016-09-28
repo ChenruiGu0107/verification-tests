@@ -32,10 +32,14 @@ When /^I open web server via the(?: "(.+?)")? url$/ do |url|
   @result = CucuShift::Http.get(url: url)
 end
 
-Given /^I download a file from "(.+?)"$/ do |url|
+Given /^I download a file from "(.+?)"(?: into the "(.+?)" dir)?$/ do |url, dl_path|
   @result = CucuShift::Http.get(url: url)
   if @result[:success]
-    file_name = File.basename(URI.parse(url).path)
+    if dl_path
+      file_name = File.join(dl_path, File.basename(URI.parse(url).path))
+    else
+      file_name = File.basename(URI.parse(url).path)
+    end
     File.open(file_name, 'wb') { |f|
       f.write(@result[:response])
     }
