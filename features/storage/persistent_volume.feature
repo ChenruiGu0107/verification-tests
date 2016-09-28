@@ -357,3 +357,13 @@ Feature: Persistent Volume Claim binding policies
     Then the output should contain:
       | ROX |
       | 5Gi |
+
+  # @author lxia@redhat.com
+  # @case_id 533661
+  @admin
+  Scenario: PV creation negative testing
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-default.json |
+    Then the step should fail
+    And the output should contain:
+      | Unsupported value: "Default" |
