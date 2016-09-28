@@ -17,6 +17,7 @@ require 'openshift/replication_controller'
 require 'openshift/deployment_config'
 require 'openshift/replicaset'
 require 'openshift/cluster_role_binding'
+require 'openshift/storage_class'
 module CucuShift
   # @note this is our default cucumber World extension implementation
   class DefaultWorld
@@ -42,6 +43,7 @@ module CucuShift
       @routes = []
       @builds = []
       @pods = []
+      @scs = []  # storageclass
       @pvs = []
       @pvcs = []
       @rcs = []
@@ -223,6 +225,32 @@ module CucuShift
         raise "what service are you talking about?"
       else
         return @services.last
+      end
+    end
+
+    # @return StorageClass by name from scenario cache; with no params given,
+    #   returns last requested StorageClass; otherwise creates a StorageClass object
+    def sc(name = nil, env = nil, switch: true)
+      env ||= self.env
+
+      if name
+        sc = @scs.find {|sc| sc.name == name && sc.env == env}
+        if sc && @scs.last == sc
+          return sc
+        elsif sc
+          @scs << @scs.delete(sc) if switch
+          return sc
+        else
+          # create new CucuShift::StorageClass object with specified name
+          @scs << StorageClass.new(name: name, env: env)
+          return @scs.last
+        end
+      elsif @scs.empty?
+        # we do not create a random StorageClass like with projects because that
+        #   would rarely make sense
+        raise "what StorageClass are you talking about?"
+      else
+        return @scs.last
       end
     end
 
@@ -570,7 +598,8 @@ module CucuShift
         pv: "persistentvolumes",
         svc: "service",
         pvc: "persistentvolumeclaims",
-        cluster_role_binding: "clusterrolebindings"
+        cluster_role_binding: "clusterrolebindings",
+        sc: "storageclass"
       }
       type = shorthands[type.to_sym] if shorthands[type.to_sym]
 
