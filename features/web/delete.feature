@@ -15,6 +15,7 @@ Feature: Delete the resources via web console
       | app_name     | nodejs-sample                              |
       | source_url   | https://github.com/openshift/nodejs-ex.git |
     Given I wait for the "nodejs-sample" service to become ready
+    And I wait until the status of deployment "nodejs-sample" becomes :complete
     When I run the :deploy client command with:
       | deployment_config | nodejs-sample |
       | latest            ||
