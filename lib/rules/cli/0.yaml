@@ -510,6 +510,11 @@
   :cmd: oc project
   :options:
     :project_name: <value>
+    :short:  --short=<value>
+:projects:
+  :cmd: oc projects
+  :options:
+    :short:  --short=<value>
 :proxy:
   :cmd: oc proxy
   :options:
@@ -755,6 +760,7 @@
     :list_webhooks: --list-webhooks=<value>
     :wait: --wait=<value>
     :commit: --commit=<value>
+    :o: --output=<value>
 :status:
   :cmd: oc status
   :options:

@@ -24,3 +24,35 @@ Feature: negative tests
       | unknown command "teg" for "oc" |
       | Did you mean this              |
       | tag                            |
+  
+  # @author xiaocwan@redhat.com
+  # @case_id 533685
+  Scenario: Check output for resource idle command and negative commands
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/rc/idle-rc-1.yaml |
+    Then the step should succeed
+    When I run the :idle client command with:
+      | svc_name | svc/hello-idle |
+      | dry-run  | true           |
+    Then the step should fail
+    And the output should match:
+      | no valid.*resources.*specify endpoints |
+    When I run the :idle client command with:
+      | svc_name | rc/hello-idle  |
+      | dry-run  | true           |
+    Then the step should fail
+    And the output should match:     
+      | no valid.*resources.*specify endpoints |
+    ## idle again
+    Given I wait until number of replicas match "2" for replicationController "hello-idle"
+    And 2 pods become ready with labels:
+      | name=hello-idle |
+    When I run the :idle client command with:
+      | all | true      |
+    Then the step should succeed
+    When I run the :idle client command with:
+      | all | true      |
+    Then the step should fail
+    And the output should match:
+      | [Ee]rror.*no scalable resources |
