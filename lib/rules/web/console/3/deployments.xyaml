@@ -255,3 +255,22 @@ check_warning_info_for_rc_with_multiple_autoscale:
   scripts:
   - command: return document.getElementsByTagName("hpa").length == 2
     expect_result: true
+check_warning_info_when_create_hpa_without_metrics_and_cpu_request:
+  action: goto_one_dc_page
+  action: goto_add_autoscaler_page
+  action: check_no_metrics_warning
+  action: check_no_cpu_req_warning
+check_warning_info_after_create_hpa_without_metrics_and_cpu_request:
+  action: goto_one_dc_page
+  action: check_no_metrics_warning
+  action: check_no_cpu_req_warning
+check_no_metrics_warning:
+  elements:
+  - selector:
+      xpath: //div[contains(.,'Metrics might not be configured by your cluster administrator')]
+  - selector:
+      xpath: //div[contains(.,'Metrics are required for autoscaling')]
+check_no_cpu_req_warning:
+  elements:
+  - selector:
+      xpath: //div[contains(.,'This deployment config does not have any containers with a CPU')]
