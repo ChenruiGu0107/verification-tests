@@ -107,3 +107,14 @@ Feature: GCE specific scenarios
     When I execute on the "<%= pod(-2).name %>" pod:
       | ls | -al | /mnt/gce/ |
     Then the step should succeed
+
+  # @author lxia@redhat.com
+  # @case_id 535238
+  @admin
+  Scenario: PV with invalid gce volume id should be prevented from creating
+    Given admin ensures "gce" pv is deleted after scenario
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-retain-rwx.json |
+    Then the step should fail
+    And the output should contain:
+      | disk not found |
