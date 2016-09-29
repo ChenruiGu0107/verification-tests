@@ -13,7 +13,9 @@ module CucuShift
   autoload :GCE, 'launchers/gce'
   autoload :OpenStack, "launchers/openstack"
   autoload :EnvironmentLauncher, "launchers/environment_launcher"
+
   autoload :LocalProcess, "local_process.rb"
+  autoload :OwnThat, "ownthat.rb"
 
   autoload :ImageStream, "openshift/image_stream"
   autoload :Project, "openshift/project"

@@ -41,16 +41,18 @@ module CucuShift
     end
 
     def clean_up
+      used = users_used
+
       # warn user if any users are skipped in scenario (and avoid confusion)
-      users_used.reject!.with_index { |u, i|
+      used.reject!.with_index { |u, i|
         if u.nil?
           logger.error "user #{i} not used but users with higher index used, please avoid that"
           true
         end
       }
 
-      users_used.each(&:clean_up)
-      users_used.clear
+      used.each(&:clean_up)
+      used.clear
     end
   end
 
@@ -151,5 +153,68 @@ module CucuShift
       @user_specs = []
     end
     alias clean_up clean_state
+  end
+
+  # user manager to reserve users from an OwnThat app pool
+  class PoolUserManager < UserManager
+    attr_reader :pool
+
+    private :pool
+
+    def initialize(env, **opts)
+      super
+      unless opts[:user_manager_users]
+        raise "you need to specify a user pool to reserve user from"
+      end
+
+      @pool = opts[:user_manager_users].match(/^(?:pool:)?(.+)$/)[1]
+      if @pool.empty?
+        raise "user pool should not be empty"
+      end
+
+      @users_used_raw = []
+    end
+
+    private def users_used
+      @users_used_raw.map {|u| u ? u[:user] : nil}
+    end
+
+    private def ownthat
+      @ownthat ||= OwnThat.new
+    end
+
+    # @see UserManager#[]
+    def [](num)
+      unless users_used[num]
+        res = reserve_a_user
+        @users_used_raw[num] = {lock: res}
+        username, creds = res["resource"].split(':', 2)
+        if username.empty?
+          @users_used_raw[num][:user] = User.new(token: creds, env: env)
+        else
+          @users_used_raw[num][:user] = User.new(name: username, password: creds, env: env)
+        end
+      end
+      return users_used[num]
+    end
+
+    private def reserve_a_user
+      res = ownthat.reserve_from_pool(env.api_endpoint_url, pool, "2h")
+      return res || raise("User Pool #{pool} exhausted.")
+    end
+
+    private def release_users
+      @users_used_raw.each do |user|
+        lock = user[:lock]
+        ownthat.release(lock["namespace"], lock["resource"], lock["owner"])
+      end
+
+      @users_used_raw.clear
+    end
+
+    def clean_up
+      super
+      release_users
+    end
   end
 end

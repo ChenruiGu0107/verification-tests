@@ -32,6 +32,10 @@ module CucuShift
       @update_url ||= File.join(locks_url, "by_values")
     end
 
+    def from_pool_url
+      @update_url ||= File.join(locks_url, "from_pool")
+    end
+
     def http_opts(user_opts = {})
       opts = deep_merge(@http_opts, user_opts)
       opts[:headers] ||= {}
@@ -60,16 +64,22 @@ module CucuShift
       when result[:exitstatus] >= 500
         # some server error, good to retry a few times
         if retries > 0
+          sleep 10
           return request(method, payload, retries - 1)
         else
           raise "OwnThat: internal server error while managing lock, see log"
         end
       else
-        raise "unknown error"
+        if result[:error]
+          raise result[:error]
+        else
+          raise "unknown error"
+        end
       end
     end
 
     def reserve(namespace, resource, expires, owner = self.owner)
+      # no need to nest because of wrap_parameters in app controller
       payload = {
         namespace: namespace,
         resource: resource,
@@ -80,7 +90,19 @@ module CucuShift
       request(:post, locks_url, payload)
     end
 
+    def reserve_from_pool(namespace, pool, expires, owner = self.owner)
+      payload = {
+        namespace: namespace,
+        poolname: pool,
+        expires: expires,
+        owner: owner
+      }
+
+      request(:post, from_pool_url, payload)
+    end
+
     def update(namespace, resource, expires, owner = self.owner)
+      # no need to nest because of wrap_parameters in app controller
       payload = {
         namespace: namespace,
         resource: resource,
