@@ -49,9 +49,8 @@ Feature: oc_set_env.feature
       | resource | bc/ruby-sample-build |
       | e        | pe#cial%=1234 |
     Then the step should fail
-    And the output should contain:
-      | Invalid value: "pe#cial%"   |
-      | must be a C identifier   |
+   And the output should contain:
+      | error |
 
   # @author wewang@redhat.com
   # @case_id 520277
