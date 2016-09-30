@@ -70,7 +70,7 @@ module CucuShift
         fmt = v if [:output, :o].include? k
       end
       # JSON is subset of YAML, so we cna just use YAML parser to address both
-      if ['json', 'yaml'].include? fmt
+      if res[:success] && ['json', 'yaml'].include?(fmt)
         res[:parsed] = YAML.load(res[:response])
       end
 
