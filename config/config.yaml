@@ -24,6 +24,9 @@ global:
   # use CUCUSHIFT_TEST_CASE_MANAGER instead of setting here
   # test_case_manager: tcms
 
+  # select browser different from default (firefox)
+  # browser: chrome
+
 environments:
   ose:
     # hosts: use OPENSHIFT_ENV_OSE_HOSTS=host:role1:...,host2:role1:...

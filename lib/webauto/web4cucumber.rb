@@ -64,8 +64,10 @@ require 'watir-webdriver'
       headless
 
       if @browser_type == :firefox
+        logger.info "Launching Firefox"
         @browser = Watir::Browser.new :firefox, :profile => firefox_profile, :http_client=>client
       elsif @browser_type == :chrome
+        logger.info "Launching Chrome"
         @browser = Watir::Browser.new :chrome, desired_capabilities: chrome_profile, switches: chrome_switches
       else
         raise "Not implemented yet"

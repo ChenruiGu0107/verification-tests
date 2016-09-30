@@ -32,6 +32,7 @@ module CucuShift
       e = @executors[user.name] = Web4Cucumber.new(
         logger: logger,
         base_url: env.web_console_url,
+        browser_type: conf[:browser] ? conf[:browser].to_sym : :firefox,
         rules: rulez
       )
 
