@@ -163,3 +163,70 @@ Feature: Testing timeout route
       | https://<%= route("reen-route", service("reen-route")).dns(by: user) %>/delay/5            |
       | -k                                                                                         |
     Then the output should contain "504 Gateway"
+
+  # @author yadu@redhat.com
+  # @case_id 533699
+  @admin
+  Scenario: Set invalid timeout for route
+    Given I have a project
+    When I run the :create client command with:
+      | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource         | route                                   |
+      | resourcename     | service-unsecure                        |
+      | overwrite        | true                                    |
+      | keyval           | haproxy.router.openshift.io/timeout=-3s |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | service-unsecure |
+      | \-A              |
+      | 15               |
+      | haproxy.config   |
+    Then the output should not contain "timeout server  -3s"
+    Given I switch to the first user
+    When I run the :annotate client command with:
+      | resource         | route                                   |
+      | resourcename     | service-unsecure                        |
+      | overwrite        | true                                    |
+      | keyval           | haproxy.router.openshift.io/timeout=abc |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | service-unsecure |
+      | \-A              |
+      | 15               |
+      | haproxy.config   |
+    Then the output should not contain "timeout server  abc"
+    Given I switch to the first user
+    When I run the :annotate client command with:
+      | resource         | route                                   |
+      | resourcename     | service-unsecure                        |
+      | overwrite        | true                                    |
+      | keyval           | haproxy.router.openshift.io/timeout=*^% |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | service-unsecure |
+      | \-A              |
+      | 15               |
+      | haproxy.config   |
+    Then the output should not contain "timeout server  *^%"  
