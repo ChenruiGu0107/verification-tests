@@ -187,7 +187,7 @@ Feature: Testing haproxy router
     #access the route without cookies
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
       | -c |
       | /tmp/cookies |
@@ -198,7 +198,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
@@ -209,7 +209,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
       | -b |
       | /tmp/cookies |
@@ -242,7 +242,7 @@ Feature: Testing haproxy router
     #access the route without cookies
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
       | -c |
@@ -254,7 +254,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
     Then the step should succeed
@@ -266,7 +266,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
       | -b |
@@ -310,7 +310,7 @@ Feature: Testing haproxy router
     #access the route without cookies
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
@@ -325,7 +325,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
@@ -340,7 +340,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
@@ -374,7 +374,7 @@ Feature: Testing haproxy router
       | deploymentconfig=router |
     And I execute on the pod:
       | curl |
-      |  -s  |
+      |  -sS  |
       |  -w  |
       |  %{http_code} |
       |  -u  |
@@ -526,7 +526,7 @@ Feature: Testing haproxy router
     Then the output should not contain "Hello-OpenShift"
     When I execute on the "hello-pod" pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
@@ -548,7 +548,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I execute on the "hello-pod" pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
