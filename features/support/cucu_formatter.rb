@@ -354,6 +354,7 @@ class CucuFormatter
       file_name
     )
     begin
+      html_body = html_body.encode('utf-8', :invalid => :replace, :undef => :replace)
       File.write(file_path, @template.gsub(/#HTML_BODY#/) { html_body })
     rescue => e
       output = "Failed to generate log file for scenario: "
