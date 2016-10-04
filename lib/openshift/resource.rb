@@ -240,8 +240,12 @@ module CucuShift
 
     # TODO: implement fallback `#status?` method
 
+    def self.shortclass
+      self.name.split("::").last
+    end
+
     def shortclass
-      self.class.name.split("::").last
+      self.class.shortclass
     end
 
     ############### take care of object comparison ###############

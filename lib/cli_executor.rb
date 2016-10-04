@@ -34,7 +34,7 @@ module CucuShift
     # @return [String] version string
     def self.get_version_for(user, host)
       res = host.exec_as(user, "oc version")
-      raise "cannot execute on host #{host.hostname} as user #{user}" unless res[:success]
+      raise "cannot execute on host #{host.hostname} as user '#{user}'" unless res[:success]
       return res[:response].scan(/^os?c v(.+)$/)[0][0]
     end
 

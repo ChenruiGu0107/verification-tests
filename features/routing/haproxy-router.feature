@@ -1460,32 +1460,15 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: Set reload time for haproxy router script - Create routes
-    # scale down old and launch a new router
-    Given I switch to cluster admin pseudo user
+    # prepare router
+    Given default router is disabled and replaced by a duplicate
+    And I switch to cluster admin pseudo user
     And I use the "default" project
-    And I store master image version in the clipboard
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Given default router replica count is stored in the :router_num clipboard
-    Given default router replica count is restored after scenario
-    And admin ensures "tc-518936" dc is deleted after scenario
-    And admin ensures "tc-518936" service is deleted after scenario
-    And admin ensures "router-tc-518936-role" clusterrolebinding is deleted after scenario
-    When I run the :scale client command with:
-      | resource | dc     |
-      | name     | router |
-      | replicas | 0      |
+    When I run the :env admin command with:
+      | resource | dc/<%= cb.new_router_dc.name %>         |
+      | e        | RELOAD_INTERVAL=90s                     |
     Then the step should succeed
-    # cmd fails, see https://bugzilla.redhat.com/show_bug.cgi?id=1381378
-    When I run the :oadm_router admin command with:
-      | name     | tc-518936            |
-      | images   | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
-      | replicas | <%= cb.router_num %> |
-    And I run the :env client command with:
-      | resource | dc/tc-518936  |
-      | e | RELOAD_INTERVAL=90s  |
-    Then the step should succeed
-    And I wait until replicationController "tc-518936-2" is ready
+    And I wait until replicationController "<%= cb.new_router_dc.name %>-2" is ready
 
     # prepare services
     Given I switch to the default user

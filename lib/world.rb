@@ -461,7 +461,7 @@ module CucuShift
       project ||= self.project
 
       varname = "@#{clazz::RESOURCE}"
-      clazzname = clazz.name.split("::").last
+      clazzname = clazz.shortclass
       var = instance_variable_get(varname) ||
               instance_variable_set(varname, [])
 
@@ -499,7 +499,7 @@ module CucuShift
       env ||= self.env
 
       varname = "@#{clazz::RESOURCE}"
-      clazzname = clazz.name.split("::").last
+      clazzname = clazz.shortclass
       var = instance_variable_get(varname) ||
               instance_variable_set(varname, [])
 

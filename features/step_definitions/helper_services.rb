@@ -372,3 +372,43 @@ Given /^I have a iSCSI setup in the environment$/ do
     raise "iSCSI initiator setup commands error" unless @result[:success]
   end
 end
+
+Given /^default router is disabled and replaced by a duplicate$/ do
+  ensure_destructive_tagged
+  orig_project = project(0) rescue nil
+  _project = project("default")
+
+  step 'I store master image version in the clipboard'
+  @result = dc("router", _project).ready?(user: admin)
+  unless @result[:success]
+    raise "default router not ready before scenario, fix it first"
+  end
+  step 'default router replica count is stored in the :router_num clipboard'
+  step 'default router replica count is restored after scenario'
+  step 'admin ensures "testroute" dc is deleted after scenario'
+  step 'admin ensures "testroute" service is deleted after scenario'
+  step 'admin ensures "router-testroute-role" clusterrolebinding is deleted after scenario'
+  @result = admin.cli_exec(:scale,
+                           resource: "dc",
+                           name: "router",
+                           replicas: "0",
+                           n: "default")
+  step 'the step should succeed'
+  # cmd fails, see https://bugzilla.redhat.com/show_bug.cgi?id=1381378
+  @result = admin.cli_exec(:oadm_router,
+                           name: "testroute",
+                           replicas: cb.router_num.to_s,
+                           n: "default",
+                           images: product_docker_repo + "openshift3/ose-haproxy-router:" + cb.master_version)
+
+  cb.new_router_dc = dc("testroute", _project)
+  @result = dc.wait_till_status(:complete, admin, 300)
+  unless @result[:success]
+    user.cli_exec(:logs,
+                  resource_name: "dc/#{resource_name}",
+                  n: "default")
+    raise "dc 'testroute' never completed"
+  end
+
+  project(orig_project.name) if orig_project
+end
