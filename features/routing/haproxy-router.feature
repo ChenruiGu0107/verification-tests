@@ -1460,9 +1460,7 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: Set reload time for haproxy router script - Create routes
-    Given I have a project
-    And evaluation of `project.name` is stored in the :proj1 clipboard
-    And I store default router IPs in the :router_ip clipboard
+    # scale down old and launch a new router
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And I store master image version in the clipboard
@@ -1472,55 +1470,77 @@ Feature: Testing haproxy router
     Given default router replica count is restored after scenario
     And admin ensures "tc-518936" dc is deleted after scenario
     And admin ensures "tc-518936" service is deleted after scenario
+    And admin ensures "router-tc-518936-role" clusterrolebinding is deleted after scenario
     When I run the :scale client command with:
       | resource | dc     |
       | name     | router |
       | replicas | 0      |
     Then the step should succeed
+    # cmd fails, see https://bugzilla.redhat.com/show_bug.cgi?id=1381378
     When I run the :oadm_router admin command with:
       | name     | tc-518936            |
       | images   | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | replicas | <%= cb.router_num %> |
-    Then a pod becomes ready with labels:
-      | deploymentconfig=tc-518936 |
-    When I run the :env client command with:
+    And I run the :env client command with:
       | resource | dc/tc-518936  |
-      | e | RELOAD_INTERVAL=120  |
+      | e | RELOAD_INTERVAL=90s  |
     Then the step should succeed
-    And evaluation of `Time.now` is stored in the :reloaded clipboard
-    When I use the "<%= cb.proj1 %>" project
+    And I wait until replicationController "tc-518936-2" is ready
+
+    # prepare services
+    Given I switch to the default user
+    And I have a project
+    And I have a pod-for-ping in the project
+    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
     Then the step should succeed
+
+    # create some route and wait for it to be sure we hit a reload point
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    And I wait up to 95 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl                                                   |
+      | -ksS                                                   |
+      | --resolve                                              |
+      | <%= route("service-unsecure").dns(by: user) %>:80:<%= cb.router_ip[0] %> |
+      | http://<%= route("service-unsecure").dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    """
+    # it is important to use one and the same router
+    # And I wait for a web server to become available via the "service-unsecure" route
+
+    # create route and check changes not applied before RELOAD_INTERVAL reached
     When I run the :create_route_edge client command with:
       | name    | edge-route       |
       | service | service-unsecure |
     Then the step should succeed
 
-    Given I have a pod-for-ping in the project
-    And evaluation of `Time.now - cb.reloaded` is stored in the :blacktime clipboard
-    When I repeat the steps up to <%= cb.blacktime - 10 %> seconds:
+    And I repeat the steps up to 70 seconds:
     """
-    When I execute on the pod:
-      | curl |
+    When I execute on the "<%= cb.ping_pod.name %>" pod:
+      | curl      |
+      | -ksS      |
       | --resolve |
       | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
-      | -k |
     Then the step should succeed
     And the output should not contain "Hello-OpenShift"
     """
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 50 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | curl |
+      | curl      |
+      | -ksS      |
       | --resolve |
       | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
-      | -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     """
@@ -1528,25 +1548,25 @@ Feature: Testing haproxy router
       | object_type       | route      |
       | object_name_or_id | edge-route |
     Then the step should succeed
-    When I repeat the steps up to 110 seconds:
+    And I repeat the steps up to 70 seconds:
     """
     When I execute on the pod:
-      | curl |
+      | curl      |
+      | -ksS      |
       | --resolve |
       | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
-      | -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     """
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 50 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | curl |
+      | curl      |
+      | -ksS      |
       | --resolve |
       | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
-      | -k |
     Then the step should succeed
     And the output should not contain "Hello-OpenShift"
     """
