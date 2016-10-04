@@ -240,6 +240,10 @@ module CucuShift
 
     # TODO: implement fallback `#status?` method
 
+    def shortclass
+      self.class.name.split("::").last
+    end
+
     ############### take care of object comparison ###############
     def ==(resource)
       raise "need to be implemented by subclass"

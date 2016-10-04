@@ -16,6 +16,7 @@ require 'openshift/persistent_volume_claim'
 require 'openshift/replication_controller'
 require 'openshift/deployment_config'
 require 'openshift/replicaset'
+require 'openshift/cluster_role_binding'
 module CucuShift
   # @note this is our default cucumber World extension implementation
   class DefaultWorld
@@ -451,19 +452,22 @@ module CucuShift
     end
 
     # @param clazz [Class] class of project resource
-    # @return [ProjectResource] by name from scenario cache; with no params
-    # given returns last requested PR; otherwise creates a new object
+    # @param name [String, Integer] string name or integer index in cache
+    # @return [ProjectResource] by name from scenario cache or creates a new
+    #   object with the given name; with no params given, returns last
+    #   requested project resource of the clazz type; otherwise raises
     # @note you need the project already created
     def project_resource(clazz, name = nil, project = nil)
       project ||= self.project
 
       varname = "@#{clazz::RESOURCE}"
+      clazzname = clazz.name.split("::").last
       var = instance_variable_get(varname) ||
               instance_variable_set(varname, [])
 
       if Integer === name
         # using integer index does not trigger reorder of list
-        return var[name] || raise("no project resource with index #{name}")
+        return var[name] || raise("no #{clazzname} with index #{name}")
       elsif name
         # using a string name, moves found resource to top of the list
         r = var.find {|r| r.name == name && r.project == project}
@@ -480,10 +484,51 @@ module CucuShift
       elsif var.empty?
         # do not create random project resource like with projects because that
         #   would rarely make sense
-        raise "what project resource are you talking about?"
+        raise "what #{clazzname} are you talking about?"
       else
         return var.last
       end
+    end
+
+    # @param clazz [Class] class of cluster resource
+    # @param name [String, Integer] string name or integer index in cache
+    # @return [ClusterResource] by name from scenario cache or creates a new
+    #   object with the given name; with no params given, returns last
+    #   requested cluster resource of the clazz type; otherwise raises
+    def cluster_resource(clazz, name = nil, env = nil, switch: nil)
+      env ||= self.env
+
+      varname = "@#{clazz::RESOURCE}"
+      clazzname = clazz.name.split("::").last
+      var = instance_variable_get(varname) ||
+              instance_variable_set(varname, [])
+
+      if Integer === name
+        # using integer index does not trigger reorder of list
+        return var[name] || raise("no #{clazzname} with index #{name}")
+      elsif name
+        switch = true if switch.nil?
+
+        r = var.find {|r| r.name == name && r.env == env}
+        if r
+          var << var.delete(pv) if switch
+          return pv
+        else
+          # create new CucuShift::ClusterResource object with specified name
+          var << clazz.new(name: name, env: env)
+          return var.last
+        end
+      elsif var.empty?
+        # we do not create a random PV like with projects because that
+        #   would rarely make sense
+        raise "what #{clazzname} are you talking about?"
+      else
+        return var.last
+      end
+    end
+
+    def cluster_role_binding(name = nil, env = nil)
+      cluster_resource(ClusterRoleBinding, name, env)
     end
 
     # add pods to list avoiding duplicates
@@ -525,7 +570,8 @@ module CucuShift
         rc: "replicationcontrollers",
         pv: "persistentvolumes",
         svc: "service",
-	pvc: "persistentvolumeclaims"
+        pvc: "persistentvolumeclaims",
+        cluster_role_binding: "clusterrolebindings"
       }
       type = shorthands[type.to_sym] if shorthands[type.to_sym]
 
