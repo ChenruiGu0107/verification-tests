@@ -44,7 +44,7 @@ Feature: Testing abrouting
     #access the route without cookies
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
       | -c |
@@ -56,7 +56,7 @@ Feature: Testing abrouting
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
     Then the step should succeed
@@ -68,7 +68,7 @@ Feature: Testing abrouting
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
       | -b |
@@ -122,7 +122,7 @@ Feature: Testing abrouting
     """
     When I execute on the pod:
       | curl                                                                     |
-      | -s                                                                       |
+      | -sS                                                                       |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k                                                                       |
     Then the step should succeed
@@ -141,7 +141,7 @@ Feature: Testing abrouting
     """
     When I execute on the pod:
       | curl                                                                     |
-      | -s                                                                       |
+      | -sS                                                                       |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k                                                                       |
     Then the output should contain "503"
@@ -272,16 +272,16 @@ Feature: Testing abrouting
       | --resolve |
       | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
-      | -k |
+      | -ksS |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
-    Then the expression should be true> cb.accesslength2 == 4
+    Then the expression should be true> cb.accesslength2 == 6
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
-    Then the expression should be true> cb.accesslength1 == 6
+    Then the expression should be true> cb.accesslength1 == 4
     When I run the :set_backends client command with:
       | routename | route-edge             |
       | adjust    | true                   |
@@ -300,7 +300,7 @@ Feature: Testing abrouting
       | --resolve |
       | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
-      | -k |
+      | -ksS |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
 
@@ -308,9 +308,9 @@ Feature: Testing abrouting
       | #{@result[:response].strip} |
     """
     Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength4 clipboard
-    Then the expression should be true> cb.accesslength4 == 2
+    Then the expression should be true> cb.accesslength4 == 8
     Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength3 clipboard
-    Then the expression should be true> cb.accesslength3 == 8
+    Then the expression should be true> cb.accesslength3 == 2
 
 
   # @author yadu@redhat.com
@@ -362,7 +362,7 @@ Feature: Testing abrouting
       | --resolve |
       | <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ |
-      | -k |
+      | -ksS |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the "access.log" file is appended with the following lines:
@@ -390,7 +390,7 @@ Feature: Testing abrouting
       | --resolve |
       | <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ |
-      | -k |
+      | -ksS |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the "access1.log" file is appended with the following lines:
@@ -458,7 +458,7 @@ Feature: Testing abrouting
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
@@ -488,7 +488,7 @@ Feature: Testing abrouting
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |

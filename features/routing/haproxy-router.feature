@@ -187,7 +187,7 @@ Feature: Testing haproxy router
     #access the route without cookies
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
       | -c |
       | /tmp/cookies |
@@ -198,7 +198,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
@@ -209,7 +209,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
       | -b |
       | /tmp/cookies |
@@ -242,7 +242,7 @@ Feature: Testing haproxy router
     #access the route without cookies
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
       | -c |
@@ -254,7 +254,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
     Then the step should succeed
@@ -266,7 +266,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k |
       | -b |
@@ -310,7 +310,7 @@ Feature: Testing haproxy router
     #access the route without cookies
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
@@ -325,7 +325,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
@@ -340,7 +340,7 @@ Feature: Testing haproxy router
     """
     When I execute on the pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-reencrypt", service("route-reencrypt")).dns(by: user) %>/ |
@@ -374,7 +374,7 @@ Feature: Testing haproxy router
       | deploymentconfig=router |
     And I execute on the pod:
       | curl |
-      |  -s  |
+      |  -sS  |
       |  -w  |
       |  %{http_code} |
       |  -u  |
@@ -526,7 +526,7 @@ Feature: Testing haproxy router
     Then the output should not contain "Hello-OpenShift"
     When I execute on the "hello-pod" pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
@@ -548,7 +548,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I execute on the "hello-pod" pod:
       | curl |
-      | -s |
+      | -sS |
       | --resolve |
       | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
@@ -1453,3 +1453,103 @@ Feature: Testing haproxy router
       | https://<%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %> |
       | -k |
     Then the output should contain "Hello-OpenShift"
+
+
+  # @author yadu@redhat.com
+  # @case_id 518937
+  @admin
+  @destructive
+  Scenario: Set reload time for haproxy router script - Create routes
+    # prepare router
+    Given default router is disabled and replaced by a duplicate
+    And I switch to cluster admin pseudo user
+    And I use the "default" project
+    When I run the :env admin command with:
+      | resource | dc/<%= cb.new_router_dc.name %>         |
+      | e        | RELOAD_INTERVAL=90s                     |
+    Then the step should succeed
+    And I wait until replicationController "<%= cb.new_router_dc.name %>-2" is ready
+
+    # prepare services
+    Given I switch to the default user
+    And I have a project
+    And I have a pod-for-ping in the project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+
+    # create some route and wait for it to be sure we hit a reload point
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    And I wait up to 95 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl                                                   |
+      | -ksS                                                   |
+      | --resolve                                              |
+      | <%= route("service-unsecure").dns(by: user) %>:80:<%= cb.router_ip[0] %> |
+      | http://<%= route("service-unsecure").dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    """
+    # it is important to use one and the same router
+    # And I wait for a web server to become available via the "service-unsecure" route
+
+    # create route and check changes not applied before RELOAD_INTERVAL reached
+    When I run the :create_route_edge client command with:
+      | name    | edge-route       |
+      | service | service-unsecure |
+    Then the step should succeed
+
+    And I repeat the steps up to 70 seconds:
+    """
+    When I execute on the "<%= cb.ping_pod.name %>" pod:
+      | curl      |
+      | -ksS      |
+      | --resolve |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should not contain "Hello-OpenShift"
+    """
+    And I wait up to 50 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl      |
+      | -ksS      |
+      | --resolve |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    """
+    When I run the :delete client command with:
+      | object_type       | route      |
+      | object_name_or_id | edge-route |
+    Then the step should succeed
+    And I repeat the steps up to 70 seconds:
+    """
+    When I execute on the pod:
+      | curl      |
+      | -ksS      |
+      | --resolve |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    """
+    And I wait up to 50 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl      |
+      | -ksS      |
+      | --resolve |
+      | <%= route("edge-route", service("edge-route")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should not contain "Hello-OpenShift"
+    """

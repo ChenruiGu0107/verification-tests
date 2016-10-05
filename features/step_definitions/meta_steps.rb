@@ -23,14 +23,14 @@ end
 
 # repeat steps specified in a multi-line string until they pass (that means
 #   until they execute without raising an error)
-Given /^I wait(?: up to ([0-9]+) seconds)? for the steps to pass:$/ do |seconds, steps_string|
+Given /^I wait(?: up to #{NUMBER} seconds)? for the steps to pass:$/ do |seconds, steps_string|
   begin
     logger.dedup_start
     seconds = Integer(seconds) rescue 60
-    repetitions = 0
+    # repetitions = 0
     error = nil
     success = wait_for(seconds) {
-      repetitions += 1
+      # repetitions += 1
       # this message needs to be disabled as it defeats deduping
       # logger.info("Beginning step repetition: #{repetitions}")
       begin
@@ -43,6 +43,22 @@ Given /^I wait(?: up to ([0-9]+) seconds)? for the steps to pass:$/ do |seconds,
     }
 
     raise error unless success
+  ensure
+    logger.dedup_flush
+  end
+end
+
+# note that when steps started before time limit was reached, if they take
+# more time to complete than the limit, total execute time will be longer
+Given /^I repeat the steps up to #{NUMBER} seconds:$/ do |seconds, steps_string|
+  begin
+    logger.dedup_start
+    seconds = Integer(seconds)
+    error = nil
+    wait_for(seconds) {
+      steps steps_string
+      false
+    }
   ensure
     logger.dedup_flush
   end
