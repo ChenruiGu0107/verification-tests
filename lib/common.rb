@@ -46,21 +46,6 @@ module CucuShift
         expand_private_path(path, public_safe: public_safe)
       end
 
-      # @return the desired base docker image tag prefix based on
-      #   PRODUCT_DOCKER_REPO env variable
-      def product_docker_repo
-        if ENV["PRODUCT_DOCKER_REPO"] &&
-            !ENV["PRODUCT_DOCKER_REPO"].empty?
-          ENV["PRODUCT_DOCKER_REPO"]
-        else
-          conf[:product_docker_repo]
-        end
-      end
-
-      def project_docker_repo
-        conf[:project_docker_repo]
-      end
-
       # the 'oc describe xxx' output is key-value formatted with ':' as the
       #  separator.
       def parse_oc_describe(oc_output)

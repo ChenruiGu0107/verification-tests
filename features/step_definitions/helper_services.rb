@@ -399,7 +399,7 @@ Given /^default router is disabled and replaced by a duplicate$/ do
                            name: "testroute",
                            replicas: cb.router_num.to_s,
                            n: "default",
-                           images: "openshift3/ose-haproxy-router:" + cb.master_version)
+                           images: product_docker_repo + "openshift3/ose-haproxy-router:" + cb.master_version)
 
   cb.new_router_dc = dc("testroute", _project)
   @result = dc.wait_till_status(:complete, admin, 300)

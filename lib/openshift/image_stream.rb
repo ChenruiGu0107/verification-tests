@@ -15,6 +15,7 @@ module CucuShift
 
       s = is_hash["status"]
       props[:docker_image_repository] = s["dockerImageRepository"]
+      props[:tags] = s["tags"]
 
       return self # mainly to help ::from_api_object
     end
@@ -37,6 +38,21 @@ module CucuShift
 
     def docker_image_repository(user:, cached: true, quiet: false)
       return get_cached_prop(prop: :docker_image_repository, user: user, cached: cached, quiet: quiet)
+    end
+
+    def tags(user:, cached: true, quiet: false)
+      return get_cached_prop(prop: :tags, user: user, cached: cached, quiet: quiet)
+    end
+
+    # some heuristics to try find latest tag's dockerImageReference
+    def latest_tag_docker_image_reference(user:, cached: true, quiet: false)
+      tags = self.tags(user: user, cached: cached, quiet: quiet)
+      tag = tags.find {|t| t["tag"] == "latest"}
+      unless tag
+        tag = tags.first
+      end
+      reference = tag["items"].first
+      return reference["dockerImageReference"]
     end
   end
 end

@@ -140,6 +140,22 @@ module CucuShift
       opts[:web_console_url] || api_endpoint_url
     end
 
+    # @return docker repo host[:port] used to launch env by checking one of the
+    #   system image streams in the `openshift` project
+    # @note dc/router could be used as well but will require admin
+    def system_docker_repo
+      return @system_docker_repo if @system_docker_repo
+      is = ImageStream.new(name: "jenkins",
+                           project: Project.new(name: "openshift", env: self))
+      image_ref = is.latest_tag_docker_image_reference(user: users[0])
+      first_element = image_ref.split("/", 2).first
+      if first_element.include? "."
+        return @system_docker_repo = first_element + "/"
+      else
+        return @system_docker_repo = ""
+      end
+    end
+
     # some rules and logic to compare given version to current environment
     # @return [Integer] less than 0 when env is older, 0 when it is comparable,
     #   more than 0 when environment is newer
