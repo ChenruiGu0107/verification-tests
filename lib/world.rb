@@ -508,7 +508,6 @@ module CucuShift
         return var[name] || raise("no #{clazzname} with index #{name}")
       elsif name
         switch = true if switch.nil?
-
         r = var.find {|r| r.name == name && r.env == env}
         if r
           var << var.delete(pv) if switch
