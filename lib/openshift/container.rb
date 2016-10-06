@@ -1,24 +1,10 @@
 module CucuShift
   class Container
-    ### example of a api_struct hash
-    #{
-    #    "containerID" => "docker://38e6326014bc3b7ac091e851192c3057dea85582060de07df4f0c659e7e99755",
-    #          "image" => "172.30.52.166:5000/iiknq/docker-build@sha256:8cf0a92211b0f24b1ab84fab54b37e45ee4c4da7bb75bb0cdddcdd5e00f025fd",
-    #        "imageID" => "docker://sha256:d7ed0afa41aec7f3598bcce828ac3fe0444adaeacec180b6ef2b1af2d120d5d3",
-    #      "lastState" => {},
-    #           "name" => "docker-build",
-    #          "ready" => true,
-    #   "restartCount" => 0,
-    #          "state" => {
-    #     "running" => {
-    #       "startedAt" => 2016-08-09 21:56:36 UTC
-    #     }
-    #   }
-    # }
-    def initialize(api_struct, pod)
-      expected_keys = ["containerID", "image", "imageID", "lastState", "name", "ready",  "restartCount", "state", "running"]
-      raise "Hash does not have all the expected valued #{expected_keys}" if expected_keys.all? {|s| api_struct.key? s}
-      @api_struct = api_struct
+    attr_reader :default_user
+
+    def initialize(name:, pod:, default_user:)
+      @name = name
+      @default_user = default_user
       if pod.kind_of? Pod
         @pod = pod
       else
@@ -26,25 +12,58 @@ module CucuShift
       end
     end
 
-    def id
-      return @api_struct['containerID'].split('docker://')[1]
+    # return @Hash information of container mmeatching the @name variable
+    def status(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      container_statuses = @pod.get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)['containerStatuses']
+      stat = {}
+      container_statuses.each do | cs |
+        stat = cs if cs['name'] == @name
+      end
+      return stat
     end
 
-    def image
-      return @api_struct['image']
+    # return @Hash information of container spec matching the @name variable
+    def spec(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      container_spec = @pod.get_cached_prop(prop: :containers, user: user, cached: cached, quiet: quiet)
+      spec = {}
+      container_spec.each do | cs |
+        spec = cs if cs['name'] == @name
+      end
+      return spec
     end
 
-    def image_id
-      return @api_struct['imageID'].split('docker://')[1]
+    ## status related information for the container @name
+    def id(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      res = status(user: user, cached: cached, quiet: quiet)
+      return res['containerID']
     end
 
-    def name
-      return @api_struct['name']
+    def image(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      res = status(user: user, cached: cached, quiet: quiet)
+      return res['image']
     end
 
-    # returns true/false
-    def ready?
-      return @api_struct['ready']
+    def image_id(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      res = status(user: user, cached: cached, quiet: quiet)
+      return res['imageID']
+    end
+
+    def name(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      res = status(user: user, cached: cached, quiet: quiet)
+      return res['name']
+    end
+
+    # returns @Boolean representation of the container state
+    def ready?(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      res = status(user: user, cached: cached, quiet: quiet)
+      return res['ready']  # return @status['ready']
     end
 
     ### TODO: these two methods need to be dynamic, will need to address them later
@@ -55,5 +74,31 @@ module CucuShift
     # def state
     #   return @api_struct['state']
     # end
+
+    ## spec related information for the container
+    def image_pull_policy(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      res = spec(user: user, cached: cached, quiet: quiet)
+      return res['imagePullPolicy']
+    end
+
+    def ports(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      res = spec(user: user, cached: cached, quiet: quiet)
+      return res['ports']
+    end
+
+    def resources(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      res = spec(user: user, cached: cached, quiet: quiet)
+      return res['resources']
+    end
+
+    # return @Hash representation of scc  for example: {"fsGroup"=>1000400000, "runAsUser"=>1000400000, "seLinuxOptions"=>{"level"=>"s0:c20,c10"}}
+    def scc(user: nil, cached: true, quiet: false)
+      user ||= default_user
+      res = spec(user: user, cached: cached, quiet: quiet)
+      return res['securityContext']
+    end
   end
 end

@@ -142,21 +142,25 @@ module CucuShift
       return spec["supplementalGroups"]
     end
 
-    # returns an array of Container objects belonging to a pod
+    # returns [Hash] of Container objects belonging to a pod, keyed by container name
+    #
     def containers(user:, cached: true, quiet: false)
-      res = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
-      containers_raw = res["containerStatuses"]
-      containers = containers_raw.map { |c_hash| Container.new(c_hash, self) }
+      spec = get_cached_prop(prop: :containers, user: user, cached: cached, quiet: quiet)
+      containers = {}
+      spec.each do | container |
+        cname = container['name']
+        containers[cname] = CucuShift::Container.new( name: cname,
+                                                      pod: self,
+                                                      default_user: user)
+      end
       return containers
     end
 
     # return the Container object matched by the lookup parameter
     def container(user:, name:, cached: true, quiet: false)
-      containers = self.containers(user:user, cached: cached, quiet: quiet)
-      containers.each do | container |
-        return container if container.name == name
-      end
-      raise "No container with name #{name} found..."
+      self.containers(user:user, cached: cached, quiet: quiet).fetch(name) {
+        raise "No container with name #{name} found."
+      }
     end
 
     def uid(user, cached: true, quiet: false)

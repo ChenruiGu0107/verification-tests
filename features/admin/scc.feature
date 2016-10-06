@@ -461,3 +461,25 @@ Feature: SCC policy related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc498208/pod.json |
     Then the step should succeed
 
+
+  # @author pruan@redhat.com
+  # @case_id 511602
+  Scenario: Container.securityContext should take precedence when it conflict with PSC
+    Given I have a project
+    And evaluation of `rand project.uid_range(user:user)` is stored in the :scc_uid clipboard
+    And evaluation of `project.uid_range(user:user).begin` is stored in the :proj_scc_uid clipboard
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc511602/pod1.json
+    Then the step should succeed
+    And the pod named "hello-openshift" status becomes :running
+    Then I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json |
+    Then the step should succeed
+    And evaluation of `pod('hello-openshift').container(user: user, name: 'hello-openshift', cached: true).scc['runAsUser']` is stored in the :container_run_as_user clipboard
+    Then the expression should be true> cb.container_run_as_user == cb.scc_uid
+    Given I ensure "hello-openshift" pod is deleted
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc511602/pod2.json
+    Then the step should succeed
+    And the pod named "hello-openshift" status becomes :running
+    And evaluation of `pod('hello-openshift').container(user:user, name: 'hello-openshift').scc['runAsNonRoot']` is stored in the :container_run_as_nonroot clipboard
+    And evaluation of `pod('hello-openshift').sc_run_as_nonroot(user:user)` is stored in the :proj_run_as_nonroot clipboard
+    Then the expression should be true> cb.container_run_as_nonroot 
