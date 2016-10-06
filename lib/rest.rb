@@ -20,7 +20,9 @@ module CucuShift
         unless base_opts
           base_opts = get_base_opts(user: user, auth: auth)
         end
-
+        if opts[:_header]
+          base_opts[:headers].merge!(normalize_header_list(opts.delete(:_header)))
+        end
         logger.info("REST #{req} for user '#{user}', base_opts: #{base_opts}, opts: #{opts}")
         return delegate_rest_request(req, base_opts, opts)
       end
@@ -51,6 +53,26 @@ module CucuShift
         end
 
         return opts
+      end
+
+      # for processing headers passed in by user using a table format
+      # | header | h1=xxx |
+      # | header | h2=yyy |
+      # For example:
+      # | header | Impersonate-User=system:serviceaccount:<%= user.name%>:default
+      # return [Hash] for header to be merged into existing header
+      def self.normalize_header_list(_headers)
+        headers = {}
+        _headers.each do | h |
+          k, v = h.split('=')
+          # RFC https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2 indicate same field-name MAY be present in a message.
+          if headers.keys.include? k
+            headers[k] += ",#{v}"
+          else
+            headers[k] = v
+          end
+        end
+        return headers
       end
 
       # Delegats REST request to relevant REST method
