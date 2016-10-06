@@ -2639,3 +2639,20 @@ Feature: build 'apps' with CLI
       | openshift/python:3.3  | django-ex        |
       | openshift/python:2.7  | django-ex        |
 
+  # @author cryan@redhat.com
+  # @case_id 533696
+  Scenario: forcePull for extended build
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/test-for-s2i-extendbuild/master/extended-bc-forcePull.json |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | extended-build-from-image-forcepull |
+    Then the step should succeed
+    Given the "extended-build-from-image-forcepull-1" build completes
+    When I run the :logs client command with:
+      | resource_name | build/extended-build-from-image-forcepull-1 |
+    Then the step should succeed
+    And the output should contain:
+      | Pulling image "docker.io/uptoknow/extendedbuild_builder:latest" |
+      | Pulling image "docker.io/uptoknow/extendedbuild_runtime:latest" |
