@@ -2656,5 +2656,3 @@ Feature: build 'apps' with CLI
     And the output should contain:
       | Pulling image "docker.io/uptoknow/extendedbuild_builder:latest" |
       | Pulling image "docker.io/uptoknow/extendedbuild_runtime:latest" |
-      | I am assemble inside the builder image,forcePull                |
-      | I'm assemble-runtime inside the runtime image                   |
