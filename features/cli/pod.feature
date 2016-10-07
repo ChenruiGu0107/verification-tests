@@ -186,3 +186,36 @@ Feature: pods related scenarios
       | - SETUID     |
       | - SYS_CHROOT |
     """
+
+  # @author cryan@redhat.com
+  # @case_id 521546
+  # @bug_id 1324396
+  Scenario: Update ActiveDeadlineSeconds for pod
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc521546/hello-pod.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pod                                    |
+      | resource_name | hello-openshift                        |
+      | p             | {"spec":{"activeDeadlineSeconds":101}} |
+    Then the step should fail
+    And the output should contain "must be less than or equal to previous value"
+    When I run the :patch client command with:
+      | resource      | pod                                    |
+      | resource_name | hello-openshift                        |
+      | p             | {"spec":{"activeDeadlineSeconds":0}}   |
+    Then the step should fail
+    And the output should contain "must be greater than 0"
+    When I run the :patch client command with:
+      | resource      | pod                                    |
+      | resource_name | hello-openshift                        |
+      | p             | {"spec":{"activeDeadlineSeconds":5.5}} |
+    Then the step should fail
+    And the output should contain "fractional integer"
+    When I run the :patch client command with:
+      | resource      | pod                                    |
+      | resource_name | hello-openshift                        |
+      | p             | {"spec":{"activeDeadlineSeconds":-5}}  |
+    Then the step should fail
+    And the output should contain "must be greater than 0"
