@@ -1,0 +1,28 @@
+FROM openshift/jenkins-slave-base-centos7
+
+RUN SCL_BASE_PKGS="centos-release-scl scl-utils-build" && \
+    INSTALL_PKGS="rh-ruby23 rh-ror42-rubygem-nokogiri rh-ruby23-ruby-devel wget tar rsync sed" && \
+    yum install -y --enablerepo=centosplus $SCL_BASE_PKGS && \
+    yum install -y --enablerepo=centosplus $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS $SCL_BASE_PKGS && \
+    yum clean all -y && \
+    mkdir -p $HOME/bin
+
+# careful to not add private data as layer will still be present even if later
+# files are deleted; waiting for docker squash layers option
+ADD Gemfile $HOME/cucushift/Gemfile
+ADD tools $HOME/cucushift/tools
+
+RUN scl enable rh-ror42 $HOME/cucushift/tools/install_os_deps.sh
+RUN scl enable rh-ror42 $HOME/cucushift/tools/hack_bundle.rb
+
+# -k is a bad option but can't figure out yet, how to make it flexible and
+# not include sensitive data in public repo
+RUN sed -i -e 's/^\s\+curl\s/  curl -Sk /' /usr/local/bin/run-jnlp-client
+
+RUN chown -R 1001:0 $HOME && chmod -R g+rw $HOME
+
+USER 1001
+
+# we need ruby and some gems from ror
+ENTRYPOINT ["/usr/bin/scl", "enable", "rh-ror42", "/usr/local/bin/run-jnlp-client"]
