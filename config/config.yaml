@@ -16,7 +16,7 @@ global:
   #   here "openshift" means "docker.io/openshift" as docker.io is the default
   #   repo; see examples in features/quickstarts/quickstarts.feature
   project_docker_repo: ""
-  product_docker_repo: registry.access.redhat.com/
+  # product_docker_repo: registry.access.redhat.com/
 
   # use CUCUSHIFT_DEFAULT_ENVIRONMENT instead of setting here
   # default_environment: ose

@@ -620,6 +620,23 @@ module CucuShift
       end
     end
 
+    # @return the desired base docker image tag prefix based on
+    #   PRODUCT_DOCKER_REPO env variable
+    def product_docker_repo(environment = env)
+      if ENV["PRODUCT_DOCKER_REPO"] &&
+          !ENV["PRODUCT_DOCKER_REPO"].empty?
+        ENV["PRODUCT_DOCKER_REPO"]
+      elsif conf[:product_docker_repo]
+        conf[:product_docker_repo]
+      else
+        environment.system_docker_repo
+      end
+    end
+
+    def project_docker_repo
+      conf[:project_docker_repo]
+    end
+
     # Embedded table delimiter is '!' if '|' not used
     # Gherkin more recent than 3.1.2 does support escaping new lines by `\n`.
     #   Also these two escapes are supported: `\|` amd `\\`. This means two
