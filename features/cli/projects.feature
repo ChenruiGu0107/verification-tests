@@ -105,9 +105,10 @@ Feature: projects related features via cli
     Then the output should contain:
       | error: You are not a member of project "notaccessible". |
       | Your projects are:                                      |
-      | * <%= project(0).name %>                              |
-      | * <%= project(1).name %>                              |
-      | * <%= project(2).name %>                              |
+      | * <%= project(0).name %>                                |
+      | * <%= project(1).name %>                                |
+      | * <%= project(2).name %>                                |
+
   # @author haowang@redhat.com
   # @case_id 497401
   Scenario: Indicate when build failed to push in 'oc status'
@@ -575,7 +576,7 @@ Feature: projects related features via cli
     And the output should match:
       | do not have rights.*<%= cb.project3 %> |
     When I run the :projects client command
-    Then the step should succeed   
+    Then the step should succeed
     And the output should match:
       | have one project.*<%= cb.project1 %>   |
     ## delete the only left one and check
@@ -590,7 +591,7 @@ Feature: projects related features via cli
     And the output should not match:
       | <%= cb.project1 %>   |
     When I run the :projects client command
-    Then the step should succeed   
+    Then the step should succeed
     And the output should match:
       | [Yy]ou are not a member of any project |
     When I run the :project client command
@@ -669,13 +670,13 @@ Feature: projects related features via cli
       | <%= cb.project2 %> |
     When I run the :projects client command with:
       | short | true |
-    Then the step should succeed   
+    Then the step should succeed
     And the output should match:
       | <%= cb.project1 %>   |
     ## switch to the only left project and display short name
     ## different with `oc project <project>` which output "Now using project <project> on server"
     When I run the :project client command with:
-      | project_name | <%= cb.project1 %> | 
+      | project_name | <%= cb.project1 %> |
       | short        | true               |
     Then the step should succeed
     And the output should contain:
@@ -695,7 +696,7 @@ Feature: projects related features via cli
       | <%= cb.project1 %>   |
     When I run the :projects client command with:
       | short | true |
-    Then the step should succeed   
+    Then the step should succeed
     And the output should match:
       | not a member of any project |
     When I run the :project client command with:
