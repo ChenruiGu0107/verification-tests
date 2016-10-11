@@ -6,6 +6,7 @@ rubygem-bundler
 rubygem-nokogiri
 
 gcc-c++
+make
 openssl
 
 firefox
