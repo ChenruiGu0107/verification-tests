@@ -418,6 +418,43 @@ jenkins_create_openshift_resources:
     op: click
     type: button
 
+jenkins_delete_openshift_resources:
+  url: /job/<job_name>/configure
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      text: Delete OpenShift Resource(s) <steptype>
+    op: click
+    type: a
+  - selector:
+      xpath: //input[contains(@checkurl,"<deletertype>/checkApiURL")]
+    op: send_keys <apiurl>
+    type: input
+  - selector:
+      xpath: //textarea[contains(@name,"_.types")]
+    op: send_keys <resourcetype>
+    type: textarea
+  - selector:
+      xpath: //textarea[contains(@name,"_.keys")]
+    op: send_keys <resourcekey>
+    type: textarea
+  - selector:
+      xpath: //textarea[contains(@name,"_.values")]
+    op: send_keys <resourceval>
+    type: textarea
+  - selector:
+      xpath: //textarea[contains(@checkurl,"<deletertype>/checkJsonyaml")]
+    op: send_keys <resourcejsonyaml>
+    type: textarea
+  - selector:
+      xpath: //input[contains(@checkurl,"<deletertype>/checkNamespace")]
+    op: send_keys <namespace>
+    type: input
+  - selector:
+      xpath: //button[contains(., 'Save')]
+    op: click
+    type: button
+
 jenkins_install_kubernetes_plugin:
   action: go_to_updates_plugin_manage_page
   scripts:

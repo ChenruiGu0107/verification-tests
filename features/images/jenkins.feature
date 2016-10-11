@@ -163,7 +163,7 @@ Feature: jenkins.feature
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"
     When I perform the :jenkins_create_openshift_resources web action with:
       | job_name  | testplugin                                       |
-      | apiurl    | https://<%= env.master_hosts[0].hostname %>:8443 |
+      | apiurl    | <%= env.api_endpoint_url %>                      |
       | jsonfile  | <%= File.read('hello-pod.json').to_json %>       |
       | namespace | <%= cb.proj2 %>                                  |
     Then the step should succeed
@@ -378,7 +378,7 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_tag_openshift_image web action with:
       | job_name               | testplugin                                       |
-      | apiurl                 | https://<%= env.master_hosts[0].hostname %>:8443 |
+      | apiurl                 | <%= env.api_endpoint_url %>                      |
       | curr_img_tag           | latest                                           |
       | curr_img_tag_is        | ruby                                             |
       | new_img_tag            | newtag                                           |
@@ -425,7 +425,7 @@ Feature: jenkins.feature
     Given evaluation of `@result[:parsed]["spec"]["tags"][0]["from"]["name"].gsub(/ruby@/,'')` is stored in the :imgid clipboard
     When I perform the :jenkins_tag_openshift_image_id_update web action with:
       | job_name             | testplugin                                       |
-      | apiurl               | https://<%= env.master_hosts[0].hostname %>:8443 |
+      | apiurl               | <%= env.api_endpoint_url %>                      |
       | curr_img_tag         | <%= cb.imgid %>                                  |
       | curr_img_tag_is      | ruby                                             |
       | new_img_tag          | newtag                                           |
@@ -506,7 +506,7 @@ Feature: jenkins.feature
     Then the step should succeed
     When I perform the :jenkins_tag_openshift_image web action with:
       | job_name                | testplugin                                       |
-      | apiurl                  | https://<%= env.master_hosts[0].hostname %>:8443 |
+      | apiurl                  | <%= env.api_endpoint_url %>                      |
       | curr_img_tag            | latest                                           |
       | curr_img_tag_is         | ruby                                             |
       | new_img_tag             | newtag                                           |
@@ -811,6 +811,69 @@ Feature: jenkins.feature
     Then the output should match:
       | sample-pipeline-1\s+JenkinsPipeline\s+Running |
     """
+
+  # @author cryan@redhat.com
+  # @case_id 534536 534540 534541
+  Scenario Outline: Delete openshift resources in jenkins with OpenShift Pipeline Jenkins Plugin
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/                                     |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
+    Then the step should succeed
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_create_openshift_resources web action with:
+      | job_name  | testplugin                                 |
+      | apiurl    | <%= env.api_endpoint_url %>                |
+      | jsonfile  | <%= File.read('hello-pod.json').to_json %> |
+      | namespace | <%= project.name %>                        |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name  | testplugin |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=hello-openshift |
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | deletesrc |
+    Then the step should succeed
+    When I perform the :jenkins_delete_openshift_resources web action with:
+      | job_name         | deletesrc                   |
+      | steptype         | <steptype>                  |
+      | deletertype      | <deletertype>               |
+      | apiurl           | <%= env.api_endpoint_url %> |
+      | resourcetype     | <resourcetype>              |
+      | resourcekey      | <resourcekey>               |
+      | resourceval      | <resourceval>               |
+      | resourcejsonyaml | <resourcejsonyaml>          |
+      | namespace        | <%= project.name %>         |
+    When I perform the :jenkins_build_now web action with:
+      | job_name | deletesrc |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | deletesrc |
+      | job_number | 1         |
+      | time_out   | 300       |
+    Then the step should succeed
+    Given I wait for the pod named "hello-openshift" to die regardless of current status
+    Given I get project pods
+    Then the output should not contain "hello-openshift"
+    Examples:
+      | steptype       | resourcetype | resourcekey     | resourceval     | resourcejsonyaml                           | deletertype              |
+      | using Labels   | pod          | name            | hello-openshift |                                            | OpenShiftDeleterLabels   |
+      | by Key         | pod          | hello-openshift |                 |                                            | OpenShiftDeleterList     |
+      | from JSON/YAML |              |                 |                 | <%= File.read('hello-pod.json').to_json %> | OpenShiftDeleterJsonYaml |
+
   # @author wewang@redhat.com
   # @case_id 516502
   Scenario: update build field of openshift v3 plugin of jenkins-1-rhel7
