@@ -85,15 +85,15 @@ Feature: job.feature
   Scenario: Create job with pod parallelism
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
-      | ["spec"]["parallelism"]           | 5    |
+      | ["spec"]["parallelism"]           | 3    |
       | ["spec"]["completions"]           | null |
       | ["spec"]["activeDeadlineSeconds"] | null |
     Then the step should succeed
-    Given 5 pods become ready with labels:
+    Given 3 pods become ready with labels:
       | app=pi |
     When I get project pods with labels:
       | app=pi |
-    Then the output should contain 5 times:
+    Then the output should contain 3 times:
       |  zero- |
     # Check job-pod log
     Given evaluation of `@pods[0].name` is stored in the :pilog clipboard
@@ -131,19 +131,19 @@ Feature: job.feature
     Given all existing pods die with labels:
       | app=pi |
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
-      | ["spec"]["parallelism"]           | 3    |
-      | ["spec"]["completions"]           | 5    |
+      | ["spec"]["parallelism"]           | 2    |
+      | ["spec"]["completions"]           | 3    |
       | ["spec"]["activeDeadlineSeconds"] | null |
     Then the step should succeed
     When I get project pods with labels:
       | app=pi |
-    Then the output should contain 3 times:
+    Then the output should contain 2 times:
       |  zero- |
-    Given 5 pods become ready with labels:
+    Given 3 pods become ready with labels:
       | app=pi |
     When I get project pods with labels:
       | app=pi |
-    Then the output should contain 5 times:
+    Then the output should contain 3 times:
       |  zero- |
     # Create a job with both "parallelism" > "completions"
     When I run the :delete client command with:
@@ -152,20 +152,21 @@ Feature: job.feature
     Then the step should succeed
     Given all existing pods die with labels:
       | app=pi |
+    Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
-      | ["spec"]["parallelism"]           | 5    |
-      | ["spec"]["completions"]           | 3    |
+      | ["spec"]["parallelism"]           | 3    |
+      | ["spec"]["completions"]           | 2    |
       | ["spec"]["activeDeadlineSeconds"] | null |
     Then the step should succeed
     When I get project pods with labels:
       | app=pi |
-    Then the output should contain 3 times:
+    Then the output should contain 2 times:
       |  zero- |
-    Given 3 pods become ready with labels:
+    Given 2 pods become ready with labels:
       | app=pi |
     When I get project pods with labels:
       | app=pi |
-    Then the output should contain 3 times:
+    Then the output should contain 2 times:
       |  zero- |
 
   # @author qwang@redhat.com
