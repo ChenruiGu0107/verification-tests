@@ -29,6 +29,7 @@ Feature: projects related features via web
       | display_name | :null               |
       | description  ||
     Then the step should succeed
+    Given I switch to the second user
     When I perform the :new_project web console action with:
       | project_name | <%= cb.proj_name %> |
       | display_name | :null               |
