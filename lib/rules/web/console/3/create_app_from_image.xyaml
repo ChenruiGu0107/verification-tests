@@ -30,6 +30,12 @@ create_app_from_image_with_bc_env_and_git_options:
   action: create_app_from_image_add_bc_env_vars
   action: create_app_from_image_set_git_options
   action: create_app_from_image_submit
+create_app_from_image_with_bc_env_and_sample_repo:
+  action: create_app_from_image_base_action
+  action: create_app_from_image_try_sample_repo
+  action: create_app_from_image_show_advanced_param
+  action: create_app_from_image_add_bc_env_vars
+  action: create_app_from_image_submit
 create_app_from_image_base_action:
   action: create_app_from_image_navigate
   action: create_app_from_image_default_options
@@ -236,4 +242,9 @@ check_port_in_list:
   elements:
   - selector:
       xpath: //select[@id='routeTargetPort']/*[text()='<target_port>']
+    op: click
+create_app_from_image_try_sample_repo:
+  element:
+    selector:
+      text: Try it
     op: click
