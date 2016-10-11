@@ -86,11 +86,16 @@ Feature: Event related scenarios
     When I run the :new_project client command with:
       | project_name | eventcache532269 |
     Then the step should succeed
-
+    Given I switch to the second user
     When I run the :new_project client command with:
       | project_name | eventcache532269-1 |
     Then the step should succeed
-
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                              |
+      | user_name | <%= user(0, switch: false).name %> |
+      | n         | eventcache532269-1                 |
+    Then the step should succeed
+    Given I switch to the first user
     When I run the :get background client command with:
       | resource | secrets          |
       | o        | name             |
@@ -98,7 +103,7 @@ Feature: Event related scenarios
       | w        | true             |
     Then the step should succeed
 
-    # Cucumber runs fast. If not wait here, oc get --watch would be killed at 
+    # Cucumber runs fast. If not wait here, oc get --watch would be killed at
     # once and have empty output, so wait some time for the output to show up
     Given 20 seconds have passed
     When I terminate last background process
