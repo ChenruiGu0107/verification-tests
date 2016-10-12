@@ -5,9 +5,10 @@ Feature: MariaDB images test
   Scenario Outline: Deploy mariadb image
     Given I have a project
     When I run the :new_app client command with:
-      | name         | mariadb                                        |
-      | docker_image | <%= product_docker_repo %>rhscl/<image>:latest |
-      | env          | MYSQL_ROOT_PASSWORD=test                       |
+      | name              | mariadb                                        |
+      | docker_image      | <%= product_docker_repo %>rhscl/<image>:latest |
+      | env               | MYSQL_ROOT_PASSWORD=test                       |
+      | insecure_registry | true                                           |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=mariadb-1 |
