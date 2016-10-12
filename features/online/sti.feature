@@ -29,12 +29,12 @@ Feature: ONLY ONLINE STI related scripts in this file
       | build_log_context | <error_message> https://mirror.openshift.com/mirror/non-existing/ |
     Then the step should succeed
     Given I perform the :change_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name      | <%= project.name %>                             |
-      | bc_name           | sti-sample                                      |
-      | env_variable_name | <env_name>                                      |
-      | new_env_value     | https://mirror.openshift.com/mirror/<env_value> |
+      | project_name      | <%= project.name %> |
+      | bc_name           | sti-sample          |
+      | env_variable_name | <env_name>          |
+      | new_env_value     | <env_value>         |
     Then the step should succeed
-    When I run the :save_buildconfig_changes web console action
+    When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I click the following "button" element:
       | text  | Start Build |
@@ -54,19 +54,19 @@ Feature: ONLY ONLINE STI related scripts in this file
     Then the step should succeed
 
     Examples: Python
-      | image  | image_tag | env_name      | env_value          | error_message               |
-      | python | 2.7       | PIP_INDEX_URL | python/web/simple/ | Cannot fetch index base URL |
-      | python | 3.3       | PIP_INDEX_URL | python/web/simple/ | Cannot fetch index base URL |
-      | python | 3.4       | PIP_INDEX_URL | python/web/simple/ | Cannot fetch index base URL |
-      | python | 3.5       | PIP_INDEX_URL | python/web/simple/ | Cannot fetch index base URL |
+      | image  | image_tag | env_name      | env_value                                              | error_message               |
+      | python | 2.7       | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ | Cannot fetch index base URL |
+      | python | 3.3       | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ | Cannot fetch index base URL |
+      | python | 3.4       | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ | Cannot fetch index base URL |
+      | python | 3.5       | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ | Cannot fetch index base URL |
 
     Examples: Ruby
-      | image | image_tag | env_name       | env_value | error_message              |
+      | image | image_tag | env_name       | env_value                    | error_message              |
       # ruby 2.0 has no environment variable for mirror url.
-      | ruby  | 2.2       | RUBYGEM_MIRROR | ruby/     | Could not fetch specs from |
-      | ruby  | 2.3       | RUBYGEM_MIRROR | ruby/     | Could not fetch specs from |
+      | ruby | 2.2 | RUBYGEM_MIRROR | https://gems.ruby-china.org/ | Could not fetch specs from |
+      | ruby | 2.3 | RUBYGEM_MIRROR | https://gems.ruby-china.org/ | Could not fetch specs from |
 
     Examples: Perl
-      | image | image_tag | env_name    | env_value  | error_message |
-      | perl  | 5.16      | CPAN_MIRROR | perl/CPAN/ | Fetching      |
-      | perl  | 5.20      | CPAN_MIRROR | perl/CPAN/ | Fetching      |
+      | image | image_tag | env_name    | env_value                                      | error_message |
+      | perl  | 5.16      | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching      |
+      | perl  | 5.20      | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching      |
