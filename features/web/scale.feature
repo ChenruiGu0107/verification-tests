@@ -1,4 +1,5 @@
 Feature: scale related features
+
   # @author yanpzhan@redhat.com
   # @case_id 510220
   Scenario: Could scale up and down on overview page
@@ -25,20 +26,20 @@ Feature: scale related features
       | scaled_number | 1 |
     Then the step should succeed
 
-    #scale up 4 times
-    Given I run the steps 4 times:
+    #scale up 3 times
+    Given I run the steps 3 times:
     """
     When I run the :scale_up_once web console action
     Then the step should succeed
     """
-    #check replicas is 5
-    And I wait until number of replicas match "5" for replicationController "mytest-1"
+    #check replicas is 4
+    And I wait until number of replicas match "4" for replicationController "mytest-1"
     And I perform the :check_pod_scaled_numbers web console action with:
-      | scaled_number | 5 |
+      | scaled_number | 4 |
     Then the step should succeed
 
-    #scale down 3 times
-    Given I run the steps 3 times:
+    #scale down 2 times
+    Given I run the steps 2 times:
     """
     When I run the :scale_down_once web console action
     Then the step should succeed
@@ -48,20 +49,20 @@ Feature: scale related features
     Given I wait 180 seconds for the :check_pod_scaled_numbers web console action to succeed with:
       | scaled_number | 2 |
 
-    #scale up 10 times
-    Given I run the steps 10 times:
+    #scale up 2 times
+    Given I run the steps 2 times:
     """
     When I run the :scale_up_once web console action
     Then the step should succeed
     """
-    And I wait until number of replicas match "12" for replicationController "mytest-1"
-    #check replicas is 12
+    And I wait until number of replicas match "4" for replicationController "mytest-1"
+    #check replicas is 4
     And I perform the :check_pod_scaled_numbers web console action with:
-      | scaled_number | 12 |
+      | scaled_number | 4 |
     Then the step should succeed
 
-    #scale down 10 times
-    Given I run the steps 10 times:
+    #scale down 2 times
+    Given I run the steps 2 times:
     """
     When I run the :scale_down_once web console action
     Then the step should succeed
