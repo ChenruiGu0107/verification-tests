@@ -798,6 +798,29 @@ Feature: Quota related scenarios
       | secrets\\s+9\\s+15                |
       | services\\s+0\\s+10               |
     """
+  # @author cryan@redhat.com
+  # @case_id 528448
+  # @bug_id 1333122
+  @admin
+  Scenario: Quota events for compute resource failures shouldn't be redundant
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc528448/quota.yaml |
+      | n | <%= project.name %>                                                                              |
+    Then the step should succeed
+    Given I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc528448/sample-app-database-dc-resources-large-invalid.json"
+    Then the step should succeed
+    Given I wait until the status of deployment "database" becomes :failed
+    When I run the :get client command with:
+      | resource | event               |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | "database-1-" is forbidden: exceeded quota: myquota, requested: cpu=4,memory=4Gi, used: cpu=400m |
+      | "database-1-" is forbidden: exceeded quota: myquota, requested: cpu=4,memory=4Gi, used: cpu=0    |
+    And the output should not contain 3 times:
+      | "database-1-" is forbidden: exceeded quota: myquota, requested: cpu=4,memory=4Gi, used: cpu=400m |
+      | "database-1-" is forbidden: exceeded quota: myquota, requested: cpu=4,memory=4Gi, used: cpu=0    |
 
   # @author qwang@redhat.com
   # @case_id 519920
@@ -842,7 +865,6 @@ Feature: Quota related scenarios
       | secrets\\s+9\\s+20                |
       | services\\s+0\\s+30               |
     """
-
 
   # @author qwang@redhat.com
   # @case_id 509091
@@ -1259,7 +1281,6 @@ Feature: Quota related scenarios
       | pods\s+1\\s+10 |
       | pods\\s+2\\s+5 |
 
-
   # @author qwang@redhat.com
   # @case_id 533793
   @admin
@@ -1272,7 +1293,6 @@ Feature: Quota related scenarios
       | n      | <%= project.name %>      |
     Then the step should fail
     And the output should contain "spec.scopes: Invalid value: ["BestEffort","NotBestEffort"]: conflicting scopes"
-
 
   # @author qwang@redhat.com
   # @case_id 533794
