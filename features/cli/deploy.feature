@@ -1183,7 +1183,7 @@ Feature: deployment related features
     And I replace resource "dc" named "hooks":
       | latestVersion: 1 | latestVersion: 2 |
     Then the step should succeed
-    Given  I wait up to 30 seconds for the steps to pass:
+    Given  I wait up to 60 seconds for the steps to pass:
     """
     When I run the :deploy client command with:
       | deployment_config | hooks |
