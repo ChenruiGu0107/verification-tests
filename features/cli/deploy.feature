@@ -420,14 +420,16 @@ Feature: deployment related features
     Then the step should succeed
     And the output should contain:
       | Cancelled deployment #1 |
+    Given I wait up to 40 seconds for the steps to pass:
+    """
     When  I run the :describe client command with:
       | resource | dc |
       | name     | test-stop-failed-deployment  |
     Then the step should succeed
-
     Then the output by order should match:
       | Deployment #1 |
       | Status:\\s+Failed  |
+    """
     And I run the :deploy client command with:
       | deployment_config | test-stop-failed-deployment |
       | cancel            | true                        |
