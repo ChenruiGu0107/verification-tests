@@ -1142,11 +1142,14 @@ Feature: deployment related features
     And I replace resource "pod" named "hooks-1-deploy":
       | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 3 |
     Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I run the :deploy client command with:
       | deployment_config | hooks |
     Then the step should succeed
     And the output should match:
       | hooks.*#1.*failed |
+    """
     When I get project rc named "hooks-1" as YAML
     Then the output by order should match:
       | phase: Failed |
@@ -1686,7 +1689,7 @@ Feature: deployment related features
     And the expression should be true> dc('minreadytest').unavailable_replicas(user: user) == 2
     And 40 seconds have passed
     And the expression should be true> dc('minreadytest').available_replicas(user: user) == 2
-  
+
   # @author mcurlej@redhat.com
   # @case_id 532411
   Scenario: Auto cleanup old RCs
@@ -1700,7 +1703,7 @@ Feature: deployment related features
       | resource | dc/history-limit |
       | e        | TEST#{cb.i}=1 |
     Then the step should succeed
-    And I wait until the status of deployment "history-limit" becomes :complete 
+    And I wait until the status of deployment "history-limit" becomes :complete
     """
     When I run the :rollback client command with:
       | deployment_name | history-limit |
@@ -1712,13 +1715,13 @@ Feature: deployment related features
       | resource | dc/history-limit |
       | e        | TEST4=4 |
     Then the step should succeed
-    And I wait until the status of deployment "history-limit" becomes :complete 
+    And I wait until the status of deployment "history-limit" becomes :complete
     And I wait for the steps to pass:
     """
     When I get project rc as JSON
-    Then the output should not contain "history-limit-2" 
+    Then the output should not contain "history-limit-2"
     """
-    
+
   # @author mcurlej@redhat.com
   # @case_id 532414
   Scenario: Pausing and Resuming a Deployment
