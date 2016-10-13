@@ -18,7 +18,7 @@ module CucuShift
 
       props[:created] = m["creationTimestamp"]
       props[:labels] = m["labels"]
-      props[:ip] = s["portalIP"]
+      props[:ip] = s["portalIP"] || s["clusterIP"]
       props[:selector] = s["selector"]
       props[:ports] = s["ports"]
 
