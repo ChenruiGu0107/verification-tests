@@ -39,6 +39,68 @@ Feature: jenkins.feature
       | Dashboard [Jenkins] |
 
   # @author cryan@redhat.com
+  # @case_id 531203
+  Scenario: Using jenkinsfilePath or contextDir with jenkinspipeline strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc531203/samplepipeline.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    Given I get project buildconfigs
+    Then the output should contain:
+      | ruby-sample-build |
+      | sample-pipeline   |
+    When I run the :get client command with:
+      | resource      | bc              |
+      | resource_name | sample-pipeline |
+      | o             | yaml            |
+    Then the output should contain "https://github.com/openshift-qe/jenkins-pipeline-ruby-test.git"
+    And the output should match "jenkinsfilePath:\s+jenkins/pipeline/Jenkinsfile"
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Given the "sample-pipeline-1" build was created
+    And the "sample-pipeline-1" build completes
+    Given I get project builds
+    Then the output should contain:
+      | ruby-sample-build-1 |
+      | sample-pipeline-1   |
+    When I run the :patch client command with:
+      | resource      | bc                                                                                                  |
+      | resource_name | sample-pipeline                                                                                   |
+      | p             | {"spec":{"strategy": {"type": "JenkinsPipeline","jenkinsPipelineStrategy": {"jenkinsfilePath":""}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Given the "sample-pipeline-2" build was created
+    And the "sample-pipeline-2" build completes
+    When I run the :patch client command with:
+      | resource      | bc                                                                                                  |
+      | resource_name | sample-pipeline                                                                                   |
+      | p             | {"spec": {"source": {"contextDir": "jenkins/pipeline","type": "Git"},"strategy": {"type": "JenkinsPipeline","jenkinsPipelineStrategy": {"jenkinsfilePath": ""}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Given the "sample-pipeline-3" build was created
+    And the "sample-pipeline-3" build completes
+    When I run the :patch client command with:
+      | resource      | bc                                                                                                  |
+      | resource_name | sample-pipeline                                                                                   |
+      | p             | {"spec": {"source": {"contextDir": "jenkins","type": "Git"},"strategy": {"type": "JenkinsPipeline","jenkinsPipelineStrategy": {"jenkinsfilePath": "pipeline/Jenkinsfile"}}}} |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Given the "sample-pipeline-4" build was created
+    And the "sample-pipeline-4" build completes
+
+  # @author cryan@redhat.com
   # @case_id 525985
   Scenario: Jenkins service existed with bc of jenkinpipeline strategy
     Given I have a project
