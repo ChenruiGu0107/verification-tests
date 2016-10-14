@@ -16,3 +16,57 @@ Feature: Openshift build and configuration of enviroment variables check
     """
     And the output should contain:
       | OpenShift |
+
+  # @author wewang@redhat.com
+  # @case_id 530156 530157 530158 530159
+  Scenario Outline: Update python image to autoconfigure based on available memory
+    Given I have a project
+    When I create a new application with:
+      | app_repo     | <app_repo>     |
+      | image_stream | <image_stream> |
+    Then the step should succeed
+    And the "django-ex-1" build was created
+    And the "django-ex-1" build completed
+    And I wait for the pod named "django-ex-1-deploy" to die
+    And a pod becomes ready with labels:
+      | app=django-ex          |
+      | deployment=django-ex-1 |
+    When I run the :logs client command with:
+      | resource_name | <%= pod.name %>      |
+    Then the step should succeed
+    And the output should match 4 times:
+      | Booting worker with pid:\\s+[1-9]\d* |
+    When I run the :patch client command with:
+      | resource      | dc        |
+      | resource_name | django-ex |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"django-ex","resources":{"limits":{"memory":"128Mi"}}}]}}}} |   
+    Then the step should succeed
+    And I wait for the pod named "django-ex-2-deploy" to die
+    And a pod becomes ready with labels:
+      | app=django-ex          |
+      | deployment=django-ex-2 |
+    When I run the :logs client command with:
+      | resource_name | <%= pod.name %>     |
+    Then the step should succeed
+    And the output should match 4 times:
+      |Booting worker with pid:\\s+[1-9]\d* |
+    When I run the :env client command with:
+      | resource | dc/django-ex             |
+      | e        | WEB_CONCURRENCY=3        |
+    Then the step should succeed
+    And I wait for the pod named "django-ex-3-deploy" to die
+    And a pod becomes ready with labels:
+      | app=django-ex                       |
+      | deployment=django-ex-3              |
+    When I run the :logs client command with:
+      | resource_name | <%= pod.name %>     |
+    Then the step should succeed
+    And the output should match 3 times:
+      |Booting worker with pid:\\s+[1-9]\d* |
+
+    Examples:
+      | app_repo | image_stream |
+      | https://github.com/openshift/django-ex  | openshift/python:2.7 | 
+      | https://github.com/openshift/django-ex  | openshift/python:3.4 | 
+      | https://github.com/openshift/django-ex  | openshift/python:3.5 | 
+      | https://github.com/openshift/django-ex  | openshift/python:3.3 | 
