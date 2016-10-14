@@ -578,6 +578,7 @@ Feature: secrets related scenarios
     Then the step should succeed
     And the output should contain:
       |buildconfig "ruby-hello-world" created|
+    And the "ruby-hello-world-1" build was created
     Then I run the :delete client command with:
       | object_type       | builds             |
       | object_name_or_id | ruby-hello-world-1 |
@@ -771,7 +772,7 @@ Feature: secrets related scenarios
     Given I get project builds
     Then the output should contain "ruby-hello-world-2"
     Given the "ruby-hello-world-2" build completes
-  
+
   # @author chezhang@redhat.com
   # @case_id 521547
   Scenario: Consume the same Secrets as environment variables in multiple pods
