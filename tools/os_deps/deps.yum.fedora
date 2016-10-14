@@ -1,6 +1,7 @@
 git
 
 gcc-c++
+make
 openssl
 rubygem-bundler
 rubygem-nokogiri
