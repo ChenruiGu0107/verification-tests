@@ -35,24 +35,14 @@ end
 #The following helper step will create a squid proxy, and
 #save the service ip of the proxy pod for later use in the scenario.
 Given /^I have a proxy configured in the project$/ do
-  step %Q/I run the :new_build client command with:/, table(%{
-    | code     | https://github.com/openshift-qe/docker-squid |
-    | strategy | docker                                       |
-    | to       | proxyis                                      |
-    | name     | proxy                                        |
-    })
-  step %Q/the step should succeed/
-  #Prevents a race condition waiting for the build to complete
-  step %Q/the "proxy-1" build was created/
-  step %Q/the "proxy-1" build completes/
   step %Q/I run the :new_app client command with:/, table(%{
-    | image_stream | proxyis |
+    | docker_image | aosqe/squid-proxy |
     })
   step %Q/the step should succeed/
   step %Q/a pod becomes ready with labels:/, table(%{
-    | app=proxyis |
+    | app=squid-proxy |
     })
-  step %Q/I wait for the "proxyis" service to become ready/
+  step %Q/I wait for the "squid-proxy" service to become ready/
   step %Q/evaluation of `service.ip` is stored in the :proxy_ip clipboard/
 end
 
