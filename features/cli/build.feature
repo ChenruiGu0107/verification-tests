@@ -2640,6 +2640,48 @@ Feature: build 'apps' with CLI
       | openshift/python:2.7  | django-ex        |
 
   # @author cryan@redhat.com
+  # @case_id 533694
+  Scenario: Extended build with scripts come from different location
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/test-for-s2i-extendbuild/master/extended-bc-scripts-in-image.json |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | extended-build-from-image |
+    Then the step should succeed
+    Given the "extended-build-from-image-1" build completes
+    When I run the :logs client command with:
+      | resource_name | builds/extended-build-from-image-1 |
+    Then the step should succeed
+    And the output should contain:
+      | I am assemble inside the builder image,forcePull |
+      | I'm assemble-runtime inside the runtime image    |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/test-for-s2i-extendbuild/master/extended-bc-scripts-in-url.json |
+    And I run the :start_build client command with:
+      | buildconfig | extended-build-from-url |
+    Then the step should succeed
+    Given the "extended-build-from-url-1" build completes
+    When I run the :logs client command with:
+      | resource_name | builds/extended-build-from-url-1 |
+    Then the step should succeed
+    And the output should contain:
+      | I am assemble from url        |
+      | I'm assemble-runtime from url |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/test-for-s2i-extendbuild/master/extended-bc-scripts-in-repo.json |
+    And I run the :start_build client command with:
+      | buildconfig | extended-build-from-repo |
+    Then the step should succeed
+    Given the "extended-build-from-repo-1" build completes
+    When I run the :logs client command with:
+      | resource_name | builds/extended-build-from-repo-1 |
+    Then the step should succeed
+    And the output should contain:
+      | I am assemble inside the source repo |
+      | I'm assemble-runtime in source repo  |
+
+  # @author cryan@redhat.com
   # @case_id 533696
   Scenario: forcePull for extended build
     Given I have a project
@@ -2654,5 +2696,5 @@ Feature: build 'apps' with CLI
       | resource_name | build/extended-build-from-image-forcepull-1 |
     Then the step should succeed
     And the output should contain:
-      | Pulling image "docker.io/uptoknow/extendedbuild_builder:latest" |
-      | Pulling image "docker.io/uptoknow/extendedbuild_runtime:latest" |
+      | Pulling image "docker.io/aosqe/extendedbuild_builder:latest" |
+      | Pulling image "docker.io/aosqe/extendedbuild_runtime:latest" |
