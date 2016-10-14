@@ -17,6 +17,25 @@ Feature: Openshift build and configuration of enviroment variables check
     And the output should contain:
       | OpenShift |
 
+  # @author cryan@redhat.com
+  # @case_id 534871 534872 534869 534870
+  Scenario Outline: Add PIP_INDEX_URL env var to Python S2I
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | openshift/python:<py_image>~https://github.com/openshift/django-ex |
+      | e        | PIP_INDEX_URL=http://not/a/valid/index                             |
+    Then the step should succeed
+    Given the "django-ex-1" build finishes
+    When I run the :logs client command with:
+      | resource_name | bc/django-ex |
+    Then the output should contain "Cannot fetch index base URL http://not/a/valid/index/"
+    Examples:
+      | py_image |
+      | 2.7      |
+      | 3.3      |
+      | 3.4      |
+      | 3.5      |
+
   # @author wewang@redhat.com
   # @case_id 530156 530157 530158 530159
   Scenario Outline: Update python image to autoconfigure based on available memory
@@ -39,7 +58,7 @@ Feature: Openshift build and configuration of enviroment variables check
     When I run the :patch client command with:
       | resource      | dc        |
       | resource_name | django-ex |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"django-ex","resources":{"limits":{"memory":"128Mi"}}}]}}}} |   
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"django-ex","resources":{"limits":{"memory":"128Mi"}}}]}}}} |
     Then the step should succeed
     And I wait for the pod named "django-ex-2-deploy" to die
     And a pod becomes ready with labels:
@@ -66,7 +85,7 @@ Feature: Openshift build and configuration of enviroment variables check
 
     Examples:
       | app_repo | image_stream |
-      | https://github.com/openshift/django-ex  | openshift/python:2.7 | 
-      | https://github.com/openshift/django-ex  | openshift/python:3.4 | 
-      | https://github.com/openshift/django-ex  | openshift/python:3.5 | 
-      | https://github.com/openshift/django-ex  | openshift/python:3.3 | 
+      | https://github.com/openshift/django-ex  | openshift/python:2.7 |
+      | https://github.com/openshift/django-ex  | openshift/python:3.4 |
+      | https://github.com/openshift/django-ex  | openshift/python:3.5 |
+      | https://github.com/openshift/django-ex  | openshift/python:3.3 |
