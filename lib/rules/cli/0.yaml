@@ -831,6 +831,7 @@
     :imagestreamtag: <value>
     :invalid_option: <value>   # for negative testing
     :o: -o <value>
+    :trigger_only: --trigger-only=<value>
 :oadm_ca_create_key_pair:
   :cmd: oadm ca create-key-pair
   :options:

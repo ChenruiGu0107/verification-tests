@@ -45,3 +45,34 @@ Feature: Get the build dependencies
       | [label="ImageStreamTag|<%= cb.proj_name %>/ruby-hello-world:latest"]; |
       | [label="ImageStreamTag|<%= cb.proj1_name %>/ruby-hello-world:latest"]; |
 
+  # @author shiywang@redhat.com
+  # @case_id 472756
+  Scenario: Get the build dependencies for a image repository within one namespace
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                           |
+      | user_name | system:serviceaccount:<%=project.name%>:default |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    And the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    When I run the :oadm_build_chain client command with:
+      | imagestreamtag | origin-ruby-sample:latest |
+    Then the step should succeed
+    And the output should contain:
+      | istag/origin-ruby-sample:latest |
+    When I run the :oadm_build_chain client command with:
+      | imagestreamtag | origin-ruby-sample:latest |
+      | o              | dot                       |
+    Then the step should succeed
+    And the output should contain:
+      | origin-ruby-sample:latest                                             |
+      | label="ImageStreamTag\|<%= project.name %>/origin-ruby-sample:latest" |
+    When I run the :oadm_build_chain client command with:
+      | imagestreamtag | origin-ruby-sample:latest |
+      | trigger_only   | true                      |
+    Then the step should succeed
+    And the output should contain:
+      | istag/origin-ruby-sample:latest |
