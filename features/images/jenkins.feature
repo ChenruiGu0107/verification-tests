@@ -1076,3 +1076,25 @@ Feature: jenkins.feature
       | job_number | 1             |
       | time_out   | 300           |
     Then the step should succeed
+
+  # @author cryan@redhat.com
+  # @case_id 531206
+  Scenario: Using jenkinsfile field with jenkinspipeline strategy
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    Given I get project buildconfigs
+    Then the output should contain 2 times:
+      | 0 |
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Given the "sample-pipeline-1" build was created
+    Given the "ruby-sample-build-1" build was created within 100 seconds
+    And the "ruby-sample-build-1" build completes
