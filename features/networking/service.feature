@@ -22,9 +22,7 @@ Feature: Service related networking scenarios
 
   # @author bmeng@redhat.com
   # @case_id 508149
-  @admin
   Scenario: The packets should be dropped when accessing the service which points to a pod in another project
-    When cluster role "system:endpoint-controller" is added to the "first" user
     ## Create pod in project1 and copy the pod ip
     Given I have a project
     And evaluation of `project.name` is stored in the :project1 clipboard
@@ -58,9 +56,7 @@ Feature: Service related networking scenarios
 
   # @author bmeng@redhat.com
   # @case_id 508150
-  @admin
   Scenario: The packets should be dropped when accessing the service which points to a service in another project
-    When cluster role "system:endpoint-controller" is added to the "first" user
     ## Create pod and service in project1 and copy the service ip
     Given I have a project
     And evaluation of `project.name` is stored in the :project1 clipboard
