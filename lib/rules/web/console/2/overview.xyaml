@@ -44,7 +44,7 @@ check_pod_template_build_link:
 check_pod_template_source_info:
   elements:
   - selector:
-      xpath: //div[contains(@class, 'pod-template-build')]/descendant::div[contains(.,"Source") and contains(.,"Merge pull request")]
+      xpath: //div[contains(@class, 'pod-template-build')]/descendant::div[contains(.,"Source")]
   - selector:
       xpath: //osc-git-link
 check_pod_template_port_info:
