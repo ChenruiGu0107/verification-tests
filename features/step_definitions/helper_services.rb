@@ -35,12 +35,8 @@ end
 #The following helper step will create a squid proxy, and
 #save the service ip of the proxy pod for later use in the scenario.
 Given /^I have a proxy configured in the project$/ do
-  step %Q/I run the :import_image client command with:/, table(%{
-    | image_name | aosqe/squid-proxy |
-    | confirm    | true              |
-    })
   step %Q/I run the :new_app client command with:/, table(%{
-    | image_stream | squid-proxy |
+    | docker_image | aosqe/squid-proxy |
     })
   step %Q/the step should succeed/
   step %Q/a pod becomes ready with labels:/, table(%{
