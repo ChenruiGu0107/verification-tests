@@ -52,6 +52,6 @@ Feature: MariaDB images test
       | innodb_additional_mem_pool_size = 2M |
 
     Examples:
-      | file                                                                                                                            | template                      |
-      | https://raw.githubusercontent.com/wanghaoran1988/v3-testfiles/mariadb_template/image/db-templates/mariadb-100-env-var-test.json | mariadb-100-env-var-test.json |
-      | https://raw.githubusercontent.com/wanghaoran1988/v3-testfiles/mariadb_template/image/db-templates/mariadb-101-env-var-test.json | mariadb-101-env-var-test.json |
+      | file                                                                                                                | template                      |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mariadb-100-env-var-test.json | mariadb-100-env-var-test.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mariadb-101-env-var-test.json | mariadb-101-env-var-test.json |
