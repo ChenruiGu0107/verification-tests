@@ -371,6 +371,7 @@
     :code: --code=<value>
     :context_dir: --context-dir=<value>
     :docker_image: --docker-image=<value>
+    :dry_run: --dry-run=<value>
     :env: --env=<value>
     :file: --file=<value>
     :group: --group=<value>

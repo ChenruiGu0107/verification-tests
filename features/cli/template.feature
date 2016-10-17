@@ -350,3 +350,42 @@ Feature: template related scenarios:
     Then the output should not match:
       | [m\|M]essage:              |
       | Your admin credentials are |
+
+  # @author cryan@redhat.com
+  # @case_id 534517
+  # @bug_id 1248362
+  Scenario: new-app with template/imagestream from the exact namespace
+    Given I have a project
+    When I run the :tag client command with:
+      | source      | openshift/hello-openshift |
+      | dest        | mongodb:latest            |
+      | source_type | docker                    |
+    Then the step should succeed
+    When I run the :export client command with:
+      | resource    | is/mongodb         |
+      | as_template | mongodb-persistent |
+    Then the step should succeed
+    Given I save the output to file> newtemplate.yaml
+    When I run the :create client command with:
+      | f | newtemplate.yaml |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo | openshift/mongodb:latest |
+      | dry_run  | true                     |
+    Then the step should succeed
+    And the output should contain ""mongodb" in project "openshift" under tag "latest""
+    When I run the :new_app client command with:
+      | app_repo | <%= project.name %>/mongodb:latest |
+      | dry_run  | true                               |
+    Then the step should succeed
+    And the output should contain "mongodb under tag "latest" for "<%= project.name %>/mongodb:latest""
+    When I run the :new_app client command with:
+      | app_repo | openshift/mongodb-persistent |
+      | dry_run  | true                         |
+    Then the step should succeed
+    And the output should contain ""mongodb-persistent" in project "openshift" for "openshift/mongodb-persistent""
+    When I run the :new_app client command with:
+      | app_repo | <%= project.name %>/mongodb-persistent |
+      | dry_run  | true                                   |
+    Then the step should succeed
+    And the output should contain "mongodb-persistent for "<%= project.name %>/mongodb-persistent""
