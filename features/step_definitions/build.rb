@@ -1,5 +1,6 @@
-Given /^the #{QUOTED} build was created$/ do |build_name|
-  @result = build(build_name).wait_to_appear(user, 60)
+Given /^the #{QUOTED} build was created(?: within #{NUMBER} seconds)?$/ do |build_name, timeout|
+  timeout = timeout ? Integer(timeout) : 60
+  @result = build(build_name).wait_to_appear(user, timeout)
 
   unless @result[:success]
     raise "build #{build_name} never created"
