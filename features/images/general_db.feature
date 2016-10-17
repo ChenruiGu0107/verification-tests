@@ -78,11 +78,10 @@ Feature: general_db.feature
   Scenario: Verify mongodb can be connect after change admin and user password or re-deployment for ephemeral storage - mongodb-26-rhel7
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-ephemeral-template.json"
-    And I replace lines in "mongodb-ephemeral-template.json":
-      | 3.2 | 2.6 |
     When I run the :new_app client command with:
-      | file | mongodb-ephemeral-template.json  |
-      | param    | MONGODB_ADMIN_PASSWORD=admin |
+      | file  | mongodb-ephemeral-template.json |
+      | param | MONGODB_ADMIN_PASSWORD=admin    |
+      | param | MONGODB_VERSION=2.6             |
     And a pod becomes ready with labels:
       | name=mongodb          |
       | deployment=mongodb-1  |
@@ -157,11 +156,10 @@ Feature: general_db.feature
   Scenario: mongodb persistent template
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-persistent-template.json"
-    And I replace lines in "mongodb-persistent-template.json":
-      |mongodb:3.2|mongodb:2.6|
     Then I run the :new_app client command with:
       | file  |mongodb-persistent-template.json|
       | param | MONGODB_ADMIN_PASSWORD=admin   |
+      | param | MONGODB_VERSION=2.6   |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | pvc                                                                             |
