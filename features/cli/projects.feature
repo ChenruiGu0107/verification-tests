@@ -103,9 +103,10 @@ Feature: projects related features via cli
     Then the output should contain:
       | error: You are not a member of project "notaccessible". |
       | Your projects are:                                      |
-      | * <%= project(0).name %>                              |
-      | * <%= project(1).name %>                              |
-      | * <%= project(2).name %>                              |
+      | * <%= project(0).name %>                                |
+      | * <%= project(1).name %>                                |
+      | * <%= project(2).name %>                                |
+
   # @author haowang@redhat.com
   # @case_id 497401
   Scenario: Indicate when build failed to push in 'oc status'
