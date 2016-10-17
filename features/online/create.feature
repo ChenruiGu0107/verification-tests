@@ -131,3 +131,15 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | template                   | service_name |
       | eap70-mysql-persistent-s2i | eap-app      |
       | sso70-mysql-persistent     | sso          |
+
+  # @author etrott@redhat.com
+  # @case_id 534850
+  Scenario: Create Laravel application with a MySQL database using default template laravel-mysql-example
+    Given I have a project
+    Then I run the :new_app client command with:
+      | template | laravel-mysql-example |
+    Then the step should succeed
+    And all pods in the project are ready
+    Then the step should succeed
+    And I wait for the "laravel-mysql-example" service to become ready
+    Then I wait for a web server to become available via the "laravel-mysql-example" route
