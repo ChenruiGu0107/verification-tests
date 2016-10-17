@@ -2640,6 +2640,18 @@ Feature: build 'apps' with CLI
       | openshift/python:2.7  | django-ex        |
 
   # @author cryan@redhat.com
+  # @case_id 533695
+  Scenario: Extended build with artifacts defined from runtime image label
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/test-for-s2i-extendbuild/master/extended-bc-artifacts-from-image.json |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | extended-bc-artifacts-from-image |
+    Then the step should succeed
+    Given the "extended-bc-artifacts-from-image-1" build completes
+
+  # @author cryan@redhat.com
   # @case_id 533694
   Scenario: Extended build with scripts come from different location
     Given I have a project
