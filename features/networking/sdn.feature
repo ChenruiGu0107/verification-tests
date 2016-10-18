@@ -145,7 +145,7 @@ Feature: SDN related networking scenarios
     And the node network is verified
     And the node service is verified
     When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) \| sed -n -e 's/^.*note://p' \| cut -c 1,2 |
+      | (ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) \| sed -n -e 's/^.*note://p' \| cut -c 1,2 |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :plugin_type clipboard
     When I run commands on the host:
