@@ -33,7 +33,7 @@ module CucuShift
       props[:created] = m["creationTimestamp"] # already [Time]
 
       props[:spec] = s
-
+      props[:status] = build_hash['status']
       return self # mainly to help ::from_api_object
     end
 

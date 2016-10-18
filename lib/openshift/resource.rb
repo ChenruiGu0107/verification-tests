@@ -139,11 +139,11 @@ module CucuShift
           logger.warn("#{self.class}} does not cache status")
         end
         if res[:success]
-          return props[:status] = res[:parsed]["status"]
+          return props[:status]
         elsif res[:response].include?('not found')
           return props[:status] = {"phase" => "Missing"}
         else
-          raise "cannot get #{self.class::RESOURCE} #{name}: #{res[:response]}"
+          logger.warn("cannot get #{self.class::RESOURCE} #{name}: #{res[:response]}")
         end
       end
     end
@@ -171,7 +171,6 @@ module CucuShift
           raise "some requested statuses are unknown: #{unknown_statuses}"
         end
       end
-
       res[:success] = status.include? matched_status
       return res
     end
