@@ -228,6 +228,21 @@ module CucuShift
       return res
     end
 
+    # subclasses need to implement #delete method
+    def ensure_deleted(by:, wait: 30, **del_opts)
+      result = delete(by: by)
+
+      if visible?(user: by, quiet: true)
+        result = delete(by: by)
+        raise "cannot delete #{self.class} #{name}" unless result[:success]
+        unless disappeared?(by, wait)
+          raise "#{self.class} #{name} did not disappear within #{wait} sec"
+        end
+      else
+        logger.info "#{self.class} #{name} seems to be gone already"
+      end
+    end
+
     # @param from_status [Symbol] the status we currently see
     # @param to_status [Array, Symbol] the status(es) we check whether current
     #   status can change to

@@ -33,5 +33,10 @@ module CucuShift
       [to_status].flatten.include?(from_status) ||
         ![:failed].include?(from_status)
     end
+
+    def reclaim_policy(user: nil, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec['persistentVolumeReclaimPolicy']
+    end
   end
 end

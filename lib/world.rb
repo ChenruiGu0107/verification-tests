@@ -228,32 +228,6 @@ module CucuShift
       end
     end
 
-    # @return StorageClass by name from scenario cache; with no params given,
-    #   returns last requested StorageClass; otherwise creates a StorageClass object
-    def sc(name = nil, env = nil, switch: true)
-      env ||= self.env
-
-      if name
-        sc = @scs.find {|sc| sc.name == name && sc.env == env}
-        if sc && @scs.last == sc
-          return sc
-        elsif sc
-          @scs << @scs.delete(sc) if switch
-          return sc
-        else
-          # create new CucuShift::StorageClass object with specified name
-          @scs << StorageClass.new(name: name, env: env)
-          return @scs.last
-        end
-      elsif @scs.empty?
-        # we do not create a random StorageClass like with projects because that
-        #   would rarely make sense
-        raise "what StorageClass are you talking about?"
-      else
-        return @scs.last
-      end
-    end
-
     # @return PV by name from scenario cache; with no params given,
     #   returns last requested PV; otherwise creates a PV object
     def pv(name = nil, env = nil, switch: true)
@@ -558,6 +532,10 @@ module CucuShift
       cluster_resource(ClusterRoleBinding, name, env)
     end
 
+    def storage_class(name = nil, env = nil)
+      cluster_resource(StorageClass, name, env)
+    end
+
     # add pods to list avoiding duplicates
     def cache_pods(*new_pods)
       new_pods.each {|p| @pods.delete(p); @pods << p}
@@ -599,7 +577,7 @@ module CucuShift
         svc: "service",
         pvc: "persistentvolumeclaims",
         cluster_role_binding: "clusterrolebindings",
-        sc: "storageclass"
+        storage_class: "storageclasses"
       }
       type = shorthands[type.to_sym] if shorthands[type.to_sym]
 

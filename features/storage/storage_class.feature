@@ -73,17 +73,10 @@ Feature: storageClass related feature
       | ["spec"]["resources"]["requests"]["storage"]                           | <size>                  |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
-    When I get project pvc named "pvc-<%= project.name %>" as JSON
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]['status']['capacity']['storage'] == "<size>"
-    And the expression should be true> @result[:parsed]['status']['accessModes'][0] == "ReadWriteOnce"
-    When I run the :get admin command with:
-      | resource      | pv                                                |
-      | resource_name | <%= pvc.volume_name(user: admin, cached: true) %> |
-      | o             | json                                              |
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]['spec']['persistentVolumeReclaimPolicy'] == "Delete"
+    And the "<%= pvc.name %>" PVC becomes :bound
+    And the expression should be true> pvc.capacity(user: user) == "<size>"
+    And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
+    And the expression should be true> pv(pvc.volume_name(user: admin)).reclaim_policy == "Delete"
     # ToDo
     # check storage size info
     # check storage type info
@@ -105,7 +98,7 @@ Feature: storageClass related feature
     Then the step should succeed
     Given I ensure "pod-<%= project.name %>" pod is deleted
     Given I ensure "pvc-<%= project.name %>" pvc is deleted
-    And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 300 seconds
+    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
 
     Examples:
       | provisioner | type        | zone          | is-default | size |

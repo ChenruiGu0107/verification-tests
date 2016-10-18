@@ -28,18 +28,12 @@ When /^admin creates a StorageClass from "([^"]*)" where:$/ do |location, table|
   @result = CucuShift::StorageClass.create(by: admin, spec: sc_hash)
 
   if @result[:success]
-    @scs << @result[:resource]
+    @storageclasses << @result[:resource]
 
     # register mandatory clean-up
     _sc = @result[:resource]
     _admin = admin
-    teardown_add {
-      @result = _sc.delete(by: _admin)
-      if !@result[:success] &&
-          @result[:response] !~ /storage.*#{_sc.name}.*not found/i
-        raise "could not remove StorageClass: #{_sc.name}"
-      end
-    }
+    teardown_add { _sc.ensure_deleted(user: _admin) }
   else
     logger.error(@result[:response])
     raise "failed to create StorageClass from: #{location}"
