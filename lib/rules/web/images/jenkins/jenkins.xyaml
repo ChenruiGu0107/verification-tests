@@ -488,6 +488,38 @@ jenkins_login:
     type: button
   action: jenkins_verify_logged_in
 
+jenkins_scale_openshift_deployment:
+  url: /job/<job_name>/configure
+  elements:
+  - selector:
+      xpath: //button[contains(., 'Add build step')]
+    op: click
+    type: button
+  - selector:
+      text: Scale OpenShift Deployment
+    op: click
+    type: a
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftScaler/checkApiURL")]
+    op: send_keys <apiurl>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftScaler/checkDepCfg")]
+    op: send_keys <depcfg>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftScaler/checkNamespace")]
+    op: send_keys <namespace>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftScaler/checkReplicaCount")]
+    op: send_keys <replicacount>
+    type: input
+  - selector:
+      xpath: //button[contains(., 'Save')]
+    op: click
+    type: button
+
 jenkins_trigger_sample_openshift_build:
   url: /job/<job_name>/configure
   elements:

@@ -768,6 +768,61 @@ Feature: jenkins.feature
       | ruby-20    | openshift3/ruby-20-rhel7:latest | # Install the rubygems \n bundle install --path=./vendor \n # Execute simple unit test \n bundle exec rake test |
       | nodejs-010 | openshift3/nodejs-010-rhel7     | npm -v                                                                                                          |
 
+  # @author cryan@redhat.com
+  # @case_id 515424
+  Scenario: Testing workflow using openshift v3 plugin of jenkins-1-rhel7
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role              | admin                                             |
+      | serviceaccountraw | system:serviceaccount:<%= project.name %>:default |
+      | n                 | <%= project.name%>                                |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/wewang58/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build was created
+    And the "ruby22-sample-build-1" build completes
+    And a pod becomes ready with labels:
+      | name=jenkins |
+    And I get project routes
+    Then the output should contain "jenkins"
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
+    Then the step should succeed
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | test |
+    Then the step should succeed
+    When I perform the :jenkins_scale_openshift_deployment web action with:
+      | job_name     | test                        |
+      | apiurl       | <%= env.api_endpoint_url %> |
+      | depcfg       | frontend                    |
+      | namespace    | <%= project.name%>          |
+      | replicacount | 3                           |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | test |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | test |
+      | job_number | 1    |
+      | time_out   | 300  |
+    Then the step should succeed
+    Given I get project dc
+    Then the output should match "frontend\s+1\s+3"
+    Given I get project rc
+    Then the output should match "frontend-1\s+3\s+3"
+    Given I get project pods
+    Then the output should contain 3 times:
+      | frontend-1 |
+
   # @author wewang@redhat.com
   # @case_id  515423
   Scenario: Test jenkins post-build actions 
