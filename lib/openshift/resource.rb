@@ -139,7 +139,7 @@ module CucuShift
           logger.warn("#{self.class}} does not cache status")
         end
         if res[:success]
-          return props[:status] || res[:parsed]["status"]
+          return props[:status] = res[:parsed]["status"]
         elsif res[:response].include?('not found')
           return props[:status] = {"phase" => "Missing"}
         else

@@ -1912,9 +1912,6 @@ Feature: build 'apps' with CLI
       | app_repo       | aosqe/ruby-20-centos7:user0~https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     Given the "ruby-hello-world-1" build completes
-    When I run the :logs client command with:
-      | resource_name  | build/ruby-hello-world-1 |
-    Then the step should succeed
     When I replace resource "bc" named "ruby-hello-world":
       | user0          | usernon     |
     Then the step should succeed
@@ -1922,10 +1919,6 @@ Feature: build 'apps' with CLI
       | user0          | usernon    |
     Then the step should succeed
     Given the "ruby-hello-world-2" build completes
-    When I run the :logs client command with:
-      | resource_name  | build/ruby-hello-world-2 |
-    Then the step should succeed
-    And the output should match "latest.*digest"
     When I replace resource "bc" named "ruby-hello-world":
       | usernon        | userroot    |
     Then the step should succeed
@@ -1933,10 +1926,6 @@ Feature: build 'apps' with CLI
       | usernon        | userroot    |
     Then the step should succeed
     Given the "ruby-hello-world-3" build completes
-    When I run the :logs client command with:
-      | resource_name  | build/ruby-hello-world-3 |
-    Then the step should succeed
-    Then the output should match "latest.*digest"
     When I replace resource "bc" named "ruby-hello-world":
       | userroot       | userdefault |
     Then the step should succeed
@@ -1944,10 +1933,6 @@ Feature: build 'apps' with CLI
       | userroot       | userdefault |
     Then the step should succeed
     Given the "ruby-hello-world-4" build completes
-    When I run the :logs client command with:
-      | resource_name  | build/ruby-hello-world-4 |
-    Then the step should succeed
-    Then the output should match "latest.*digest"
     When I replace resource "bc" named "ruby-hello-world":
       | userdefault    | user1001    |
     Then the step should succeed
@@ -1955,10 +1940,6 @@ Feature: build 'apps' with CLI
       | userdefault    | user1001    |
     Then the step should succeed
     Given the "ruby-hello-world-5" build completes
-    When I run the :logs client command with:
-      | resource_name  | build/ruby-hello-world-5 |
-    Then the step should succeed
-    And the output should match "latest.*digest"
 
   # @author cryan@redhat.com
   # @case_id 526204
