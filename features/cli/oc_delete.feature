@@ -152,7 +152,7 @@ Feature: oc_delete.feature
   Scenario: Delete resources with multiple approach via cli
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
-    Given the "ruby-sample-build-1" build finished
+    Then the step should succeed
     When I run the :delete client command with:
       | object_type | pods,services |
       | l | template=application-template-stibuild |
