@@ -470,6 +470,7 @@ module CucuShift
           end
 
           dns_record = "*.#{dns_component}"
+          dyn.dyn_delete_matching_records(dns_record) if task[:overwrite]
           fqdn = dyn.dyn_create_a_records(dns_record, ips)
           if task[:store_in]
             erb_binding.local_variable_set task[:store_in].to_sym, fqdn
