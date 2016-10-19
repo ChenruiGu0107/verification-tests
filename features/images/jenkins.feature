@@ -1118,6 +1118,71 @@ Feature: jenkins.feature
     Then the output should contain "true"
 
   # @author cryan@redhat.com
+  # @case_id 532328
+  Scenario: Make jenkins slave configurable when do jenkinspipeline strategy with maven slave
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | bc                                                                                                                                                                                                                                                                                         |
+      | resource_name | sample-pipeline                                                                                                                                                                                                                                                                            |
+      | p             | {"spec" : {"strategy": {"jenkinsPipelineStrategy": {"jenkinsfile": "node('maven') {\\nstage 'build'\\nopenshiftBuild(buildConfig: 'ruby-sample-build', showBuildLogs: 'true')\\nstage 'deploy'\\nopenshiftDeploy(deploymentConfig: 'frontend')\\nstage 'Check mvn version'\\nsh 'mvn -v'\\n}"}}}} |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+        | name=jenkins         |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
+    Then the step should succeed
+    When I perform the :jenkins_update_cloud_image web action with:
+      | currentimgval | openshift/jenkins-slave-maven-centos7                          |
+      | cloudimage    | <%= product_docker_repo %>openshift3/jenkins-slave-maven-rhel7 |
+    Then the step should succeed
+    When I perform the :jenkins_check_pipeline_script web action with:
+      | job_name  | sample-pipeline |
+      | checktext | 'mvn -v'        |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | jenkins=slave |
+    Given the "sample-pipeline-1" build completes
+    When I perform the :jenkins_verify_job_text web action with:
+      | job_name   | sample-pipeline |
+      | job_number | 1               |
+      | checktext  | Apache Maven    |
+      | time_out   | 300             |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | bc                                                                                                                                                                                                                                                                                         |
+      | resource_name | sample-pipeline                                                                                                                                                                                                                                                                            |
+      | p             | {"spec" : {"strategy": {"jenkinsPipelineStrategy": {"jenkinsfile": "node('unexist') {\\nstage 'build'\\nopenshiftBuild(buildConfig: 'ruby-sample-build', showBuildLogs: 'true')\\nstage 'deploy'\\nopenshiftDeploy(deploymentConfig: 'frontend')\\nstage 'Check mvn version'\\nsh 'mvn -v'\\n}"}}}} |
+    Then the step should succeed
+    When I perform the :jenkins_add_pod_template web action with:
+      | podname  | unexist        |
+      | podlabel | unexist        |
+      | podimage | unexist:latest |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_text web action with:
+      | job_name   | sample-pipeline |
+      | job_number | 2               |
+      | checktext  | is offline      |
+      | time_out   | 300             |
+    Then the step should succeed
+
+  # @author cryan@redhat.com
   # @case_id 529770
   Scenario: Show annotation when deployment triggered by image built from jenkins pipeline
     Given I have a project
