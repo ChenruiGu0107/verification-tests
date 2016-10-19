@@ -1070,6 +1070,100 @@ Feature: jenkins.feature
     Then the output should contain "true"
 
   # @author cryan@redhat.com
+  # @case_id 529770
+  Scenario: Show annotation when deployment triggered by image built from jenkins pipeline
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                           |
+      | user_name | system:serviceaccount:<%=project.name%>:default |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/                                     |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin                           |
+      | password | <%= cb.jenkins_password %>      |
+    Then the step should succeed
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | <%= project.name %>             |
+    Then the step should succeed
+    When I perform the :jenkins_create_openshift_build_trigger web action with:
+      | job_name      | <%= project.name %>         |
+      | api_endpoint  | <%= env.api_endpoint_url %> |
+      | build_config  | frontend                    |
+      | store_project | <%= project.name %>         |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name      | <%= project.name %>         |
+    Then the step should succeed
+    Given the "frontend-1" build completes
+    And a pod becomes ready with labels:
+      | name=frontend |
+    When I run the :get client command with:
+      | resource      | replicationcontrollers |
+      | resource_name | frontend-1             |
+      | o             | yaml                   |
+    And the output should contain:
+      | job/<%= project.name %>        |
+      | openshift.io/jenkins-build-uri |
+
+  # @author cryan@redhat.com
+  # @case_id 529771
+  Scenario: Show annotation when deployment triggered by jenkins pipeline
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                           |
+      | user_name | system:serviceaccount:<%=project.name%>:default |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/                                     |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin                           |
+      | password | <%= cb.jenkins_password %>      |
+    Then the step should succeed
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | <%= project.name %>             |
+    Then the step should succeed
+    When I perform the :jenkins_create_openshift_deployment_trigger web action with:
+      | job_name         | <%= project.name %>         |
+      | api_endpoint     | <%= env.api_endpoint_url %> |
+      | deploymentconfig | frontend                    |
+      | store_project    | <%= project.name %>         |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name      | <%= project.name %>         |
+    Then the step should succeed
+    Given the "frontend-1" build completes
+    And a pod becomes ready with labels:
+      | name=frontend |
+    When I run the :get client command with:
+      | resource      | replicationcontrollers |
+      | resource_name | frontend-1             |
+      | o             | yaml                   |
+    And the output should contain:
+      | job/<%= project.name %>        |
+      | openshift.io/jenkins-build-uri |
+
+  # @author cryan@redhat.com
   # @case_id 534542
   Scenario: Verify openshift build deployment and service in jenkins pipeline plugin
     Given I have a project

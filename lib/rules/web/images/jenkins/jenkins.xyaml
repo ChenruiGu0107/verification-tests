@@ -393,6 +393,28 @@ jenkins_create_openshift_build_trigger:
     op: send_keys <store_project>
   action: jenkins_click_save_button
 
+jenkins_create_openshift_deployment_trigger:
+  action: goto_configure_page
+  action: jenkins_click_add_build_step_button
+  elements:
+  - selector:
+      text: Trigger OpenShift Deployment
+    type: a
+    op: click
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeployer/checkApiURL")]
+    type: input
+    op: send_keys <api_endpoint>
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeployer/checkDepCfg")]
+    type: input
+    op: send_keys <deploymentconfig>
+  - selector:
+      xpath: //input[contains(@checkurl,"OpenShiftDeployer/checkNamespace")]
+    type: input
+    op: send_keys <store_project>
+  action: jenkins_click_save_button
+
 jenkins_create_openshift_resources:
   url: /job/<job_name>/configure
   action: jenkins_click_add_build_step_button
