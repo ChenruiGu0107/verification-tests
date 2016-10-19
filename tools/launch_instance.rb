@@ -349,6 +349,16 @@ module CucuShift
       @dns_component ||= CucuShift::Dynect.gen_timed_random_component
     end
 
+    def dns_component=(value)
+      if value =~ /^\d{4}-|^fixed-/ &&
+         ( !value.include?(".") || value.end_with?(".") )
+        @dns_component = value
+        logger.warn "User specified DNS component: #{value}"
+      else
+        raise "accepting only FQDN ending with dot or a single DNS component without any dots; both matching /^\d{4}-|^fixed-/"
+      end
+    end
+
     def launch_host_group(host_group, common_launch_opts, user_data_vars: {})
       # generate instance names
       host_name_prefix = common_launch_opts[:name_prefix]
@@ -438,6 +448,8 @@ module CucuShift
     # performs an installation task
     def installation_task(task, erb_binding: binding, config_dir: nil)
       case task[:type]
+      when "force_domain"
+        self.dns_component = task[:name]
       when "dns_hostnames"
         begin
           changed = false
