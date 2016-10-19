@@ -769,6 +769,54 @@ Feature: jenkins.feature
       | nodejs-010 | openshift3/nodejs-010-rhel7     | npm -v                                                                                                          |
 
   # @author cryan@redhat.com
+  # @case_id 529769
+  Scenario: Show annotation when build triggered by jenkins pipeline
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role              | admin                                             |
+      | serviceaccountraw | system:serviceaccount:<%= project.name %>:default |
+      | n                 | <%= project.name%>                                |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | name=jenkins |
+    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin                      |
+      | password | <%= cb.jenkins_password %> |
+    Then the step should succeed
+    When I perform the :jenkins_create_freestyle_job web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_create_openshift_build_trigger web action with:
+      | job_name | testplugin |
+      | api_endpoint  | <%= env.api_endpoint_url %> |
+      | build_config  | frontend                    |
+      | store_project | <%= project.name %>         |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | testplugin |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | testplugin |
+      | job_number | 1          |
+      | time_out   | 300        |
+    Then the step should succeed
+    Given the "frontend-1" build completes
+    When I run the :describe client command with:
+      | resource | build      |
+      | name     | frontend-1 |
+    Then the output should contain "job/testplugin"
+
+  # @author cryan@redhat.com
   # @case_id 515424
   Scenario: Testing workflow using openshift v3 plugin of jenkins-1-rhel7
     Given I have a project
