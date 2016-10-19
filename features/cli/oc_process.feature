@@ -32,3 +32,41 @@ Feature: oc_process.feature
     And the step should fail
     And the output should contain:
       | nvalid character |
+
+  # @author cryan@redhat.com
+  # @case_id 534958
+  # @bug_id 1375275
+  Scenario: Deal with multiple equal signs or commas in parameter with oc process or oc new-app
+    Given I have a project
+    When I run the :process client command with:
+      | f        | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | template | ADMIN_PASSWORD=-Dfoo=bar -Dbar=foo                                                                               |
+      | template | MYSQL_PASSWORD=-Dfoo2=bar -Dbar2=foo                                                                             |
+    Then the step should succeed
+    And the output should not contain "invalid parameter assignment"
+    And the output should contain:
+      | "value": "-Dfoo=bar -Dbar=foo    |
+      | "value": "-Dfoo2=bar -Dbar2=foo" |
+    When I run the :new_app client command with:
+      | file    | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | p       | "ADMIN_PASSWORD=-Dfoo=bar -Dbar=foo,MYSQL_PASSWORD=-Dfoo2=bar -Dbar2=foo"                                        |
+      | dry_run | true                                                                                                             |
+    Then the step should succeed
+    And the output should contain:
+      | ADMIN_PASSWORD=-Dfoo=bar -Dbar=foo   |
+      | MYSQL_PASSWORD=-Dfoo2=bar -Dbar2=foo |
+    When I run the :new_app client command with:
+      | file    | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | p       | "ADMIN_PASSWORD=1,2,3","MYSQL_PASSWORD=4,5,6"                                                                    |
+      | dry_run | true                                                                                                             |
+    Then the step should succeed
+    And the output should not contain "error: environment variables must be of the form key=value"
+    And the output should contain:
+      | ADMIN_PASSWORD=1,2,3 |
+      | MYSQL_PASSWORD=4,5,6 |
+    When I run the :new_app client command with:
+      | file    | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | p       | ADMIN_PASSWORD=1,2,MYSQL_PASSWORD=4,5                                                                            |
+      | dry_run | true                                                                                                             |
+    Then the step should fail
+    And the output should contain "environment variables must be of the form key=value"
