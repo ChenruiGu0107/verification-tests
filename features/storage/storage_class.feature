@@ -73,10 +73,10 @@ Feature: storageClass related feature
       | ["spec"]["resources"]["requests"]["storage"]                           | <size>                  |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
-    And the "<%= pvc.name %>" PVC becomes :bound
+    And the "pvc-<%= project.name %>" PVC becomes :bound
     And the expression should be true> pvc.capacity(user: user) == "<size>"
     And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
-    And the expression should be true> pv(pvc.volume_name(user: admin)).reclaim_policy == "Delete"
+    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
     # ToDo
     # check storage size info
     # check storage type info

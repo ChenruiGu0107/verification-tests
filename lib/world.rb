@@ -43,7 +43,7 @@ module CucuShift
       @routes = []
       @builds = []
       @pods = []
-      @scs = []  # storageclass
+      @storageclasses = []
       @pvs = []
       @pvcs = []
       @rcs = []
