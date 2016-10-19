@@ -136,14 +136,14 @@ module CucuShift
       else
         res = get(user: user, quiet: quiet)
         if cached && !props[:status]
-          logger.warn("#{self.class}} does not cache status")
+          raise "#{self.class}} does not cache status"
         end
         if res[:success]
           return props[:status]
         elsif res[:response].include?('not found')
           return props[:status] = {"phase" => "Missing"}
         else
-          logger.warn("cannot get #{self.class::RESOURCE} #{name}: #{res[:response]}")
+          raise "cannot get #{self.class::RESOURCE} #{name}: #{res[:response]}"
         end
       end
     end
