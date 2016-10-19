@@ -33,11 +33,8 @@ Feature: Postgresql images test
   # @case_id 528404 528405 529315
   Scenario Outline: Check memory limits env vars when pod is set with memory limit - postgresql
     Given I have a project
-    When I run the :run client command with:
-      | name   | psql                                                                         |
-      | image  | <%= product_docker_repo %><image>                                            |
-      | limits | memory=256Mi                                                                 |
-      | env    | POSTGRESQL_USER=user,POSTGRESQL_PASSWORD=redhat,POSTGRESQL_DATABASE=sampledb |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc528404/dc.json" replacing paths:
+      | ["spec"]["template"]["spec"]["containers"][0]["image"] | <image> |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=psql-1 |
@@ -47,7 +44,6 @@ Feature: Postgresql images test
     Given I execute on the pod:
       | grep | effective_cache_size | /var/lib/pgsql/openshift-custom-postgresql.conf |
     Then the output should contain "effective_cache_size = 128MB"
-
     Examples:
       | image                          |
       | openshift3/postgresql-92-rhel7 |
@@ -58,10 +54,15 @@ Feature: Postgresql images test
   # @case_id 528407 528406 529327
   Scenario Outline: Use customized values for memory limits env vars - postgresql
     Given I have a project
-    When I run the :run client command with:
-      | name   | psql                                                                         |
-      | image  | <%= product_docker_repo %><image>                                            |
-      | env    | POSTGRESQL_USER=user,POSTGRESQL_PASSWORD=redhat,POSTGRESQL_DATABASE=sampledb,POSTGRESQL_SHARED_BUFFERS=16MB,POSTGRESQL_EFFECTIVE_CACHE_SIZE=64MB |
+    When I run the :new_app client command with:
+      | name              | psql                                 |
+      | docker_image      | <%= product_docker_repo %><image>    |
+      | env               | POSTGRESQL_USER=user                 |
+      | env               | POSTGRESQL_PASSWORD=redhat           |
+      | env               | POSTGRESQL_DATABASE=sampledbt        |
+      | env               | POSTGRESQL_SHARED_BUFFERS=16MB       |
+      | env               | POSTGRESQL_EFFECTIVE_CACHE_SIZE=64MB |
+      | insecure_registry | true                                 |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=psql-1 |
@@ -71,7 +72,6 @@ Feature: Postgresql images test
     Given I execute on the pod:
       | grep | -i | effective_cache_size | /var/lib/pgsql/openshift-custom-postgresql.conf |
     Then the output should contain "effective_cache_size = 64MB"
-
     Examples:
       | image                          |
       | openshift3/postgresql-92-rhel7 |
@@ -101,4 +101,3 @@ Feature: Postgresql images test
       | openshift3/postgresql-92-rhel7 |
       | rhscl/postgresql-94-rhel7      |
       | rhscl/postgresql-95-rhel7      |
-
