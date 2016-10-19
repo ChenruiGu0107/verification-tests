@@ -24,9 +24,20 @@ module CucuShift
       status?(user: user, status: :bound, quiet: quiet, cached: cached)
     end
 
-    def volume_name(user: nil, cached: false, quiet: false)
+    def volume_name(user: nil, cached: true, quiet: false)
       spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
       return spec['volumeName']
+    end
+
+    def capacity(user: nil, cached: true, quiet: false)
+      status = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
+      # I guess would be nil when not bound
+      return status.dig('capacity', 'storage')
+    end
+
+    def access_modes(user: nil, cached: true, quiet: false)
+      status = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
+      return status['accessModes']
     end
   end
 end

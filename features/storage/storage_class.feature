@@ -25,7 +25,7 @@ Feature: storageClass related feature
   @destructive
   Scenario Outline: No dynamic provision when no default storage class
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" replacing paths:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
       | ["parameters"]["type"]                                                          | <type>                      |
@@ -52,3 +52,55 @@ Feature: storageClass related feature
     Examples:
       | provisioner | type   | zone          |
       | gce-pd      | pd-ssd | us-central1-a |
+
+  # @author lxia@redhat.com
+  # @case_id 534816 534817
+  @admin
+  @destructive
+  Scenario Outline: storage class provisioner
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
+      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
+      | ["parameters"]["type"]                                                          | <type>                      |
+      | ["parameters"]["zone"]                                                          | <zone>                      |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | <is-default>                |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"]                           | <size>                  |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+    And the expression should be true> pvc.capacity(user: user) == "<size>"
+    And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
+    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
+    # ToDo
+    # check storage size info
+    # check storage type info
+    # check storage zone info
+    # gcloud compute disks describe --zone <zone> diskNameViaPvInfo
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas               |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=frontendhttp |
+    When I execute on the pod:
+      | ls | -ld | /mnt/iaas/ |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/iaas/testfile |
+    Then the step should succeed
+    Given I ensure "pod-<%= project.name %>" pod is deleted
+    Given I ensure "pvc-<%= project.name %>" pvc is deleted
+    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+
+    Examples:
+      | provisioner | type        | zone          | is-default | size |
+      | gce-pd      | pd-ssd      | us-central1-a | false      | 1Gi  |
+      | gce-pd      | pd-standard | us-central1-a | false      | 2Gi  |

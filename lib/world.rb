@@ -17,6 +17,7 @@ require 'openshift/replication_controller'
 require 'openshift/deployment_config'
 require 'openshift/replicaset'
 require 'openshift/cluster_role_binding'
+require 'openshift/storage_class'
 module CucuShift
   # @note this is our default cucumber World extension implementation
   class DefaultWorld
@@ -42,6 +43,7 @@ module CucuShift
       @routes = []
       @builds = []
       @pods = []
+      @storageclasses = []
       @pvs = []
       @pvcs = []
       @rcs = []
@@ -530,6 +532,10 @@ module CucuShift
       cluster_resource(ClusterRoleBinding, name, env)
     end
 
+    def storage_class(name = nil, env = nil)
+      cluster_resource(StorageClass, name, env)
+    end
+
     # add pods to list avoiding duplicates
     def cache_pods(*new_pods)
       new_pods.each {|p| @pods.delete(p); @pods << p}
@@ -570,7 +576,8 @@ module CucuShift
         pv: "persistentvolumes",
         svc: "service",
         pvc: "persistentvolumeclaims",
-        cluster_role_binding: "clusterrolebindings"
+        cluster_role_binding: "clusterrolebindings",
+        storage_class: "storageclasses"
       }
       type = shorthands[type.to_sym] if shorthands[type.to_sym]
 
