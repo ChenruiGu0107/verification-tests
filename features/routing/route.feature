@@ -843,3 +843,100 @@ Feature: Testing route
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
+
+  # @author zzhao@redhat.com
+  # @case_id 533921
+  @admin
+  Scenario: Don't health check for idle service
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    Given I use the "service-unsecure" service
+    And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
+    Given I use the "service-secure" service
+    And evaluation of `service.ip(user: user)` is stored in the :service_secure_ip clipboard
+    When I expose the "service-unsecure" service
+    When I run the :create_route_edge client command with:
+      | name    | edge-route       |
+      | service | service-unsecure |
+    Then the step should succeed
+    #passthrough route
+    When I run the :create_route_passthrough client command with:
+      | name    | route-pass     |
+      | service | service-secure |
+    Then the step should succeed
+    #reencrypt route
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    Then the step should succeed
+    When I run the :create_route_reencrypt client command with:
+      | name | route-reencrypt |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
+      | service | service-secure |
+      | cert | route_reencrypt-reen.example.com.crt |
+      | key | route_reencrypt-reen.example.com.key |
+      | cacert | route_reencrypt.ca |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I execute on the pod:
+      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain 4 times:
+      | check inter 5000ms |
+
+    Given I switch to the first user
+    When I run the :idle client command with:
+      | svc_name | service-unsecure |
+    Then the step should succeed
+    Given 6 seconds have passed
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the step should succeed
+    And the output should match:
+       | service-secure.*none   |
+       | service-unsecure.*none | 
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I execute on the <%=cb.router_pod %> pod:
+      | grep | <%=cb.service_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should not contain "check inter"
+    When I wait up to 600 seconds for a web server to become available via the "service-unsecure" route
+    And I execute on the <%=cb.router_pod %> pod:
+      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain 4 times:
+      | check inter 5000ms |
+
+    Given I switch to the first user
+    When I run the :idle client command with:
+      | svc_name | service-secure |
+    Then the step should succeed
+    Given 6 seconds have passed
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the step should succeed
+    And the output should match:
+       | service-secure.*none   |
+       | service-unsecure.*none |
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I execute on the <%=cb.router_pod %> pod:
+      | grep | <%=cb.service_secure_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should not contain "check inter"
+    When I wait up to 600 seconds for a secure web server to become available via the "route-pass" route
+    And I execute on the <%=cb.router_pod %> pod:
+      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain 4 times:
+      | check inter 5000ms |
