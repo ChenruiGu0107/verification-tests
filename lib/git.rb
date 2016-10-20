@@ -122,5 +122,11 @@ module CucuShift
       raise "Can't get git commit id" unless res[:success]
       return res[:response].split(' ')[0].strip()
     end
+
+    # @param [String], the remote tracked repo to delete from the local repo
+    def remove_remote(remote)
+      raise "No git remote specified to remove" unless remote
+      exec "git remote remove #{remote}"
+    end
   end
 end
