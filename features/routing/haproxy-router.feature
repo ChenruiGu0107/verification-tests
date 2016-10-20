@@ -1553,3 +1553,49 @@ Feature: Testing haproxy router
     Then the step should succeed
     And the output should not contain "Hello-OpenShift"
     """
+
+  # @author bmeng@redhat.com
+  # @case_id 533076
+  Scenario: Limit the number of TCP connection per IP in specified time period
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name | route-pass |
+      | service | service-secure |
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | bash | -c | for i in {1..10} ; do curl -ksS --resolve <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
+    Then the output should contain 10 times:
+      | Hello-OpenShift |
+    And the output should not contain "(35)"
+
+    When I run the :annotate client command with:
+      | resource | route |
+      | resourcename | route-pass |
+      | keyval | haproxy.router.openshift.io/rate-limit-connections=true |
+      | keyval | haproxy.router.openshift.io/rate-limit-connections.rate-tcp=5 |
+    Then the step should succeed
+
+    When I execute on the pod:
+      | bash | -c | for i in {1..10} ; do curl -ksS --resolve <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
+    Then the output should contain 4 times:
+      | Hello-OpenShift |
+    And the output should contain 6 times:
+      | (35) |
+
+    Given 6 seconds have passed
+    When I execute on the pod:
+      | bash | -c | for i in {1..10} ; do curl -ksS --resolve <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
+    Then the output should contain 4 times:
+      | Hello-OpenShift |
+    And the output should contain 6 times:
+      | (35) |
