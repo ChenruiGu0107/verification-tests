@@ -187,32 +187,30 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     Given a pod becomes ready with labels:
       |deploymentconfig=busybox|
-    When I get project pods
-    Then the step should succeed
     When I execute on the pod:
       |sh|
       |-c|
-      |mknod /tmp/sda b 8 0 && echo ok|
+      |mknod /tmp/sda b 8 0|
     Then the output should match "Operation not permitted"
     When I execute on the pod:
       |sh|
       |-c|
-      |touch /tmp/random && chown :$RANDOM /tmp/random && echo ok|
+      |touch /tmp/random && chown :$RANDOM /tmp/random|
     Then the output should match "Operation not permitted"
     When I execute on the pod:
       |sh|
       |-c|
-      |touch /tmp/random && chown 0 /tmp/random && echo ok|
+      |touch /tmp/random && chown 0 /tmp/random|
     Then the output should match "Operation not permitted"
     When I execute on the pod:
       |sh|
       |-c|
-      |chroot /tmp && echo ok|
+      |chroot /tmp|
     Then the output should match "Operation not permitted"
     When I execute on the pod:
       |sh|
       |-c|
-      |kill -9 1 && if [[ `ls /proc/\|grep ^1$` == "" ]]; then echo ok;else echo "not ok"; fi;|
+      |kill -9 1 && [ ! -d /proc/1 ] && echo ok \|\| echo "not ok"|
     Then the output should match "not ok"
 
   # @author pruan@redhat.com
@@ -482,4 +480,4 @@ Feature: SCC policy related scenarios
     And the pod named "hello-openshift" status becomes :running
     And evaluation of `pod('hello-openshift').container(user:user, name: 'hello-openshift').scc['runAsNonRoot']` is stored in the :container_run_as_nonroot clipboard
     And evaluation of `pod('hello-openshift').sc_run_as_nonroot(user:user)` is stored in the :proj_run_as_nonroot clipboard
-    Then the expression should be true> cb.container_run_as_nonroot 
+    Then the expression should be true> cb.container_run_as_nonroot
