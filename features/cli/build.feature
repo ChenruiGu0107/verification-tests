@@ -2589,6 +2589,27 @@ Feature: build 'apps' with CLI
       | resource name may not be empty |
 
   # @author cryan@redhat.com
+  # @case_id 533608
+  # @bug_id 1357674
+  Scenario: Create new build from git repository without origin remote defined
+    Given I have a project
+    When I git clone the repo "https://github.com/openshift/ruby-hello-world"
+    Then the step should succeed
+    When I remove the remote repository "origin" from the "ruby-hello-world" repo
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | app_repo | ruby-hello-world |
+    Then the step should succeed
+    When I get project bc
+    Then the output should contain "Binary"
+    When I run the :new_build client command with:
+      | app_repo | ruby-hello-world |
+      | to       | test             |
+    When I get project bc
+    Then the output should contain 2 times:
+      | Binary |
+
+  # @author cryan@redhat.com
   # @case_id 534545 534546 534547 534548 534549 534550 534551 534576 534577 534578 534579
   # @bug_id 1368114
   Scenario Outline: image build behind proxy

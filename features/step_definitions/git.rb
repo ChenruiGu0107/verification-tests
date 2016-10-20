@@ -38,3 +38,14 @@ When /^I commit all changes in repo "([^"]*)" with message "([^"]+)"$/ do | spec
   git.add(files:nil, :all => true)
   git.commit(:msg => message)
 end
+
+Given /^I remove the remote repository "([^"]*)" from the "([^"]+)" repo$/ do |remote, spec|
+  if spec.include? "://" or spec.include? "@"
+    raise "invalid remote repo name, please specify remote repo name, not url"
+  else
+    uri = nil
+    dir = spec
+  end
+  git = CucuShift::Git.new(uri: uri, dir: dir)
+  git.remove_remote(remote)
+end
