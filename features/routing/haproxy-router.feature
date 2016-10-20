@@ -1572,7 +1572,7 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
-    When I execute on the "hello-pod" pod:
+    When I execute on the pod:
       | bash | -c | for i in {1..10} ; do curl -ksS --resolve <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
     Then the output should contain 10 times:
       | Hello-OpenShift |
@@ -1585,7 +1585,7 @@ Feature: Testing haproxy router
       | keyval | haproxy.router.openshift.io/rate-limit-connections.rate-tcp=5 |
     Then the step should succeed
 
-    When I execute on the "hello-pod" pod:
+    When I execute on the pod:
       | bash | -c | for i in {1..10} ; do curl -ksS --resolve <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
     Then the output should contain 4 times:
       | Hello-OpenShift |
@@ -1593,7 +1593,7 @@ Feature: Testing haproxy router
       | (35) |
 
     Given 6 seconds have passed
-    When I execute on the "hello-pod" pod:
+    When I execute on the pod:
       | bash | -c | for i in {1..10} ; do curl -ksS --resolve <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
     Then the output should contain 4 times:
       | Hello-OpenShift |
