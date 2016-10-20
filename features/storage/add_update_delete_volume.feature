@@ -440,10 +440,8 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | app=mydb |
     #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
-    When I get project pvc named "nfsc-<%= project.name %>" as YAML
-    Then the step should succeed
-    And the expression should be true> @result[:parsed]['status']['accessModes'][0] == "ReadWriteMany"
-    And the expression should be true> @result[:parsed]['status']['capacity']['storage'] == "5Gi"
+    And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteMany"
+    And the expression should be true> pvc.capacity(user: user) == "5Gi"
 
     #Verify the pod has mounted the nfs
     When I execute on the pod:
