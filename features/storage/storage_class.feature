@@ -28,8 +28,6 @@ Feature: storageClass related feature
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
-      | ["parameters"]["type"]                                                          | <type>                      |
-      | ["parameters"]["zone"]                                                          | <zone>                      |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                     |
     Then the step should succeed
     # "oc get storageclass -o yaml"
@@ -50,8 +48,8 @@ Feature: storageClass related feature
     And the "pvc-<%= project.name %>" PVC status is :pending
 
     Examples:
-      | provisioner | type   | zone          |
-      | gce-pd      | pd-ssd | us-central1-a |
+      | provisioner |
+      | gce-pd      |
 
   # @author lxia@redhat.com
   # @case_id 534816 534817
@@ -59,7 +57,7 @@ Feature: storageClass related feature
   @destructive
   Scenario Outline: storage class provisioner
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
       | ["parameters"]["type"]                                                          | <type>                      |
