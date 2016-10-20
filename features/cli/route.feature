@@ -116,3 +116,54 @@ Feature: route related features via cli
       | wait   | true |
     And the output should contain:
       | Hello from OpenShift v3 |
+
+  # @author cryan@redhat.com
+  # @case_id 535239
+  # @bug_id 1374772
+  Scenario: haproxy config information should be clean when changing the service to another route
+    Given I have a project
+    #Create PodA & serviceA
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
+    Then the step should succeed
+
+    #Create PodB & serviceB
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker-2.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-2.json |
+    Then the step should succeed
+
+    Given a pod becomes ready with labels:
+      | name=caddy-docker |
+    And a pod becomes ready with labels:
+      | name=caddy-docker-2 |
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    #Enable roundrobin mode for haproxy to more reliably trigger the bug
+    When I run the :patch client command with:
+      | resource      | routes                                                                            |
+      | resource_name | service-unsecure                                                                  |
+      | p             | {"metadata":{"annotations":{"haproxy.router.openshift.io/balance":"roundrobin"}}} |
+    Then the step should succeed
+    When I open web server via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift-1 http-8080"
+    When I run the :patch client command with:
+      | resource      | routes                                         |
+      | resource_name | service-unsecure                               |
+      | p             | {"spec":{"to":{"name": "service-unsecure-2"}}} |
+    Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I open web server via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift-2 http-8080"
+    """
+    And I run the steps 10 times:
+    """
+    When I open web server via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift-2 http-8080"
+    """
