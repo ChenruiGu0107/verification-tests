@@ -999,6 +999,7 @@
     :replicas: --replicas=<value>
     :default_cert: --default-cert=<value>
     :host_network: --host-network=<value>
+    :n: -n <value>
 :openshift_version:
   :cmd: openshift version
   :expected:
