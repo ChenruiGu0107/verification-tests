@@ -102,3 +102,28 @@ Feature: storageClass related feature
       | provisioner | type        | zone          | is-default | size |
       | gce-pd      | pd-ssd      | us-central1-a | false      | 1Gi  |
       | gce-pd      | pd-standard | us-central1-a | false      | 2Gi  |
+
+  # @author lxia@redhat.com
+  # @case_id 534824
+  @admin
+  @destructive
+  Scenario: Do not allow creation of GCE PDs in unmanaged zones
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+      | ["metadata"]["name"]   | sc-<%= project.name %> |
+      | ["parameters"]["zone"] | europe-west1-d         |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc/pvc-<%= project.name %> |
+    Then the output should contain:
+      | ProvisioningFailed |
+      | Failed to provision volume with StorageClass "sc-<%= project.name %>" |
+      | does not manage zone "europe-west1-d" |
+    """
