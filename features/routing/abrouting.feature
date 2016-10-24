@@ -186,41 +186,52 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | (20%) |
       | (80%) |
-    Given I run the steps 10 times:
+    Given I have a pod-for-ping in the project
+    Given I run the steps 20 times:
     """
-    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    When I execute on the pod:
+      | curl      |
+      | --resolve |
+      | -sS       |
+      | <%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
     Then the step should succeed
-    Then the output should contain "Hello-OpenShift"
+    And the output should contain "Hello-OpenShift"
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
-    Then the expression should be true> cb.accesslength2 == 8
+    Then the expression should be true> cb.accesslength2 == 16
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
-    Then the expression should be true> cb.accesslength1 == 2
+    Then the expression should be true> cb.accesslength1 == 4
     When I run the :set_backends client command with:
       | routename | service-unsecure      |
       | adjust    | true                  |
-      | service   | service-unsecure=+20% |
+      | service   | service-unsecure=-10% |
     Then the step should succeed
     When I run the :set_backends client command with:
       | routename | service-unsecure      |
     Then the step should succeed
     Then the output should contain 1 times:
-      | (40%) |
-      | (60%) |
-    Given I run the steps 10 times:
+      | (10%) |
+      | (90%) |
+    Given I run the steps 20 times:
     """
-    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    When I execute on the pod:
+      | curl      |
+      | --resolve |
+      | -sS       |
+      | <%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
     Then the step should succeed
-    Then the output should contain "Hello-OpenShift"
+    And the output should contain "Hello-OpenShift"
     And the "access1.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
     Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength4 clipboard
-    Then the expression should be true> cb.accesslength4 == 6
+    Then the expression should be true> cb.accesslength4 == 18
     Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength3 clipboard
-    Then the expression should be true> cb.accesslength3 == 4
+    Then the expression should be true> cb.accesslength3 == 2
 
 
   # @author yadu@redhat.com
@@ -265,7 +276,7 @@ Feature: Testing abrouting
       | 60 |
       | 80 |
     Given I have a pod-for-ping in the project
-    Given I run the steps 10 times:
+    Given I run the steps 20 times:
     """
     When I execute on the pod:
       | curl |
@@ -279,9 +290,9 @@ Feature: Testing abrouting
       | #{@result[:response].strip} |
     """
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
-    Then the expression should be true> cb.accesslength2 == 6
+    Then the expression should be true> cb.accesslength2 == 12
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
-    Then the expression should be true> cb.accesslength1 == 4
+    Then the expression should be true> cb.accesslength1 == 8
     When I run the :set_backends client command with:
       | routename | route-edge             |
       | adjust    | true                   |
@@ -292,8 +303,7 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | (20%) |
       | (80%) |
-    Then the step should succeed
-    Given I run the steps 10 times:
+    Given I run the steps 20 times:
     """
     When I execute on the pod:
       | curl |
@@ -308,9 +318,9 @@ Feature: Testing abrouting
       | #{@result[:response].strip} |
     """
     Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength4 clipboard
-    Then the expression should be true> cb.accesslength4 == 8
+    Then the expression should be true> cb.accesslength4 == 16
     Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength3 clipboard
-    Then the expression should be true> cb.accesslength3 == 2
+    Then the expression should be true> cb.accesslength3 == 4
 
 
   # @author yadu@redhat.com
@@ -355,7 +365,7 @@ Feature: Testing abrouting
       | (20%) |
       | (80%) |
     Given I have a pod-for-ping in the project
-    Given I run the steps 10 times:
+    Given I run the steps 20 times:
     """
     When I execute on the pod:
       | curl |
@@ -369,9 +379,9 @@ Feature: Testing abrouting
       | #{@result[:response].strip} |
     """
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
-    Then the expression should be true> cb.accesslength2 == 8
+    Then the expression should be true> cb.accesslength2 == 16
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
-    Then the expression should be true> cb.accesslength1 == 2
+    Then the expression should be true> cb.accesslength1 == 4
     When I run the :set_backends client command with:
       | routename | route-pass            |
       | adjust    | true                  |
@@ -383,7 +393,7 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | (40%) |
       | (60%) |
-    Given I run the steps 10 times:
+    Given I run the steps 20 times:
     """
     When I execute on the pod:
       | curl |
@@ -397,9 +407,9 @@ Feature: Testing abrouting
       | #{@result[:response].strip} |
     """
     Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength4 clipboard
-    Then the expression should be true> cb.accesslength4 == 6
+    Then the expression should be true> cb.accesslength4 == 12
     Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength3 clipboard
-    Then the expression should be true> cb.accesslength3 == 4
+    Then the expression should be true> cb.accesslength3 == 8
 
 
   # @author yadu@redhat.com
@@ -504,3 +514,124 @@ Feature: Testing abrouting
     Then the expression should be true> cb.accesslength4 == 9
     Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength3 clipboard
     Then the expression should be true> cb.accesslength3 == 1
+
+  # @author yadu@redhat.com
+  # @case_id 531405
+  Scenario: Set negative backends weight for ab routing
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-2.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name    | route-edge       |
+      | service | service-unsecure |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                          |
+      | resourcename | route-edge                                     |
+      | overwrite    | true                                           |
+      | keyval       | haproxy.router.openshift.io/balance=roundrobin |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-edge             |
+      | service   | service-unsecure=abc   |
+      | service   | service-unsecure-2=*^% |
+    Then the step should fail
+    And the output should contain:
+      | invalid argument        |
+      | WEIGHT must be a number |
+    When I run the :set_backends client command with:
+      | routename | route-edge             |
+      | service   | service-unsecure=-80   |
+      | service   | service-unsecure-2=-20 |
+    Then the step should fail
+    And the output should contain:
+      | negative percentages are not allowed |
+    When I run the :set_backends client command with:
+      | routename | route-edge             |
+      | service   | service-unsecure=80    |
+      | service   | service-unsecure-2=20  |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-edge          |
+      | adjust    | true                |
+      | service   | service-secure=-$   |
+    Then the step should fail
+    And the output should contain:
+      | invalid argument        |
+      | WEIGHT must be a number |
+
+  # @author yadu@redhat.com
+  # @case_id 534317
+  Scenario: Set backends weight for edge route
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker-2.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker-3.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-2.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-3.json |
+    Then the step should succeed
+    Given I wait for the "service-unsecure" service to become ready
+    Given I wait for the "service-unsecure-2" service to become ready
+    Given I wait for the "service-unsecure-3" service to become ready
+    When I run the :create_route_edge client command with:
+      | name    | route-edge       |
+      | service | service-unsecure |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                          |
+      | resourcename | route-edge                                     |
+      | overwrite    | true                                           |
+      | keyval       | haproxy.router.openshift.io/balance=roundrobin |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-edge           |
+      | service   | service-unsecure=2   |
+      | service   | service-unsecure-2=3 |
+      | service   | service-unsecure-3=5 |
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | route-edge  |
+    Then the step should succeed
+    Then the output should contain:
+      | 20% |
+      | 30% |
+      | 50% |
+    Given I have a pod-for-ping in the project
+    Given I run the steps 20 times:
+    """
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -ksS |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the "access.log" file is appended with the following lines:
+      | #{@result[:response].strip} |
+    """
+    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-3")}.length` is stored in the :accesslength3 clipboard
+    Then the expression should be true> cb.accesslength3 == 10
+    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
+    Then the expression should be true> cb.accesslength2 == 6
+    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
+    Then the expression should be true> cb.accesslength1 == 4
