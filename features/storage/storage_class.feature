@@ -127,3 +127,33 @@ Feature: storageClass related feature
       | Failed to provision volume with StorageClass "sc-<%= project.name %>" |
       | does not manage zone "europe-west1-d" |
     """
+
+  # @author lxia@redhat.com
+  # @case_id 534825 534826
+  @admin
+  @destructive
+  Scenario Outline: PVC request storage class with specific provisioner
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"] | sc-<%= project.name %> |
+      | ["provisioner"]      | <provisioner>          |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc/pvc-<%= project.name %> |
+    Then the output should contain:
+      | <str1> |
+      | <str2> |
+    """
+    And the "pvc-<%= project.name %>" PVC status is :pending
+
+    Examples:
+      | provisioner           | str1                 | str2 |
+      | manual                | ExternalProvisioning | provisioned either manually or via external software |
+      | kubernetes.io/unknown | ProvisioningFailed   | no volume plugin matched                             |
