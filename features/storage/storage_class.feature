@@ -127,3 +127,73 @@ Feature: storageClass related feature
       | Failed to provision volume with StorageClass "sc-<%= project.name %>" |
       | does not manage zone "europe-west1-d" |
     """
+
+  # @author lxia@redhat.com
+  # @case_id 534825 534826
+  @admin
+  @destructive
+  Scenario Outline: PVC request storage class with specific provisioner
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"] | sc-<%= project.name %> |
+      | ["provisioner"]      | <provisioner>          |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc/pvc-<%= project.name %> |
+    Then the output should contain:
+      | <str1> |
+      | <str2> |
+    """
+    And the "pvc-<%= project.name %>" PVC status is :pending
+
+    Examples:
+      | provisioner           | str1                 | str2 |
+      | manual                | ExternalProvisioning | provisioned either manually or via external software |
+      | kubernetes.io/unknown | ProvisioningFailed   | no volume plugin matched                             |
+
+  # @author lxia@redhat.com
+  # @case_id 534822 536520 536521
+  @admin
+  @destructive
+  Scenario Outline: New creation PVC failed when multiple classes are set as default
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc1-<%= project.name %>     |
+      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                        |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc2-<%= project.name %>     |
+      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                        |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
+      | ["metadata"]["name"] | should-fail-<%= project.name %> |
+    Then the step should fail
+    And the output should match:
+      | Internal error occurred |
+      | ([2-9]\|[1-9][0-9]+) default StorageClasses were found |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc2-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc2-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc1-<%= project.name %>" PVC becomes :bound
+    And the "pvc2-<%= project.name %>" PVC becomes :bound
+
+    Examples:
+      | provisioner |
+      | gce-pd      |
+      | aws-ebs     |
+      | cinder      |
