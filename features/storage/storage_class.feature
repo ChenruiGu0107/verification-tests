@@ -20,7 +20,7 @@ Feature: storageClass related feature
     And the "pvc-<%= project.name %>" PVC status is :pending
 
   # @author lxia@redhat.com
-  # @case_id 535042
+  # @case_id 535042 536528 536529
   @admin
   @destructive
   Scenario Outline: No dynamic provision when no default storage class
@@ -50,6 +50,8 @@ Feature: storageClass related feature
     Examples:
       | provisioner |
       | gce-pd      |
+      | aws-ebs     |
+      | cinder      |
 
   # @author lxia@redhat.com
   # @case_id 534816 534817
@@ -191,6 +193,36 @@ Feature: storageClass related feature
     Then the step should succeed
     And the "pvc1-<%= project.name %>" PVC becomes :bound
     And the "pvc2-<%= project.name %>" PVC becomes :bound
+
+    Examples:
+      | provisioner |
+      | gce-pd      |
+      | aws-ebs     |
+      | cinder      |
+
+  # @author lxia@redhat.com
+  # @case_id 534821 536531 536532
+  @admin
+  @destructive
+  Scenario Outline: New created PVC without specifying storage class use default class when only one class is marked as default
+    # check there are no default StorageClass
+    When I run the :get admin command with:
+      | resource | storageclass |
+      | o        | yaml         |
+    Then the step should succeed
+    And the output should not contain:
+      | is-default-class: "true" |
+    Given I have a project
+    # create one as default StorageClass
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
+      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                        |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
 
     Examples:
       | provisioner |
