@@ -1,9 +1,9 @@
 Feature: storageClass related feature
   # @author lxia@redhat.com
-  # @case_id 534820
+  # @case_id 534820 534823 536564
   @admin
   @destructive
-  Scenario: No dynamic provision when no storage class
+  Scenario Outline: PVC modification after creating storage class
     Given I have a project
     # "oc get storageclass -o yaml"
     # should not contain string 'kind: StorageClass' when there are no storageclass
@@ -18,6 +18,31 @@ Feature: storageClass related feature
     And the "pvc-<%= project.name %>" PVC becomes :pending
     Given 30 seconds have passed
     And the "pvc-<%= project.name %>" PVC status is :pending
+
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
+      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                        |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                    |
+      | resource_name | pvc-<%= project.name %>                                |
+      | p             | {"metadata":{"labels":{"<%= project.name %>":"test"}}} |
+    Then the step should succeed
+    Given 30 seconds have passed
+    And the "pvc-<%= project.name %>" PVC status is :pending
+    When I run the :patch client command with:
+      | resource      | pvc                                                                                               |
+      | resource_name | pvc-<%= project.name %>                                                                           |
+      | p             | {"metadata":{"annotations":{"volume.beta.kubernetes.io/storage-class":"sc-<%= project.name %>"}}} |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    Examples:
+      | provisioner |
+      | gce-pd      |
+      | aws-ebs     |
+      | cinder      |
 
   # @author lxia@redhat.com
   # @case_id 535042 536528 536529
