@@ -286,21 +286,6 @@ Feature: check page info related
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
-    #When I perform the :create_app_from_image web console action with:
-     # | project_name | <%= project.name %>   |
-      #| image_name   | php                   |
-      #| image_tag    | 5.6                   |
-      #| namespace    | <%= project.name %>   |
-      #| app_name     | php56                 |
-      #| source_url   | https://github.com/openshift/cakephp-ex.git |
-    #Then the step should succeed
-    #Given the "php56-1" build completed
-    #Given I wait for the "php56" service to become ready
-    #Given the "php56" image stream becomes ready
-    #When I run the :get client command with:
-     # | resource      | imagestream |
-      #| resource_name | php56       |
-    #Then the output should contain "latest"
     # check all image stream displayed well on web
     Given the "python" image stream becomes ready
     When I perform the :check_image_streams web console action with:
@@ -330,14 +315,14 @@ Feature: check page info related
     When I get the visible text on web html page
     Then the output should contain:
       | $ sudo docker pull registry/python:2.7 |
-    When I get project istag named "python:2.7" as JSON
-    Then the step should succeed
-    Given evaluation of `@result[:parsed]` is stored in the :pyistag clipboard
+    Given the "python:2.7" image stream tag was created
     When I perform the :check_is_tag_details_tab web console action with:
-      | digest         | <%= cb.pyistag["image"]["metadata"]["name"] %>                     |
-      | docker_version | <%= cb.pyistag["image"]["dockerImageMetadata"]["DockerVersion"] %> |
+      | digest         | <%= image_stream_tag.digest(user: user) %>         |
+      | docker_version | <%= image_stream_tag.docker_version(user: user) %> |
     Then the step should succeed
-    Given evaluation of `anno=[];cb.pyistag["tag"]["annotations"].each{|key,value| anno.push(key.to_s+": "+value.to_s)};anno` is stored in the :isanno clipboard
-    Then the expression should be true> (cb.isanno - browser.text.split("\n")).empty?
-    Given evaluation of `label=[];cb.pyistag["image"]["dockerImageMetadata"]["Config"]["Labels"].each{|key,value| label.push(key.to_s+"="+value.to_s)};label` is stored in the :islabels clipboard
-    Then the expression should be true> (cb.islabels - browser.text.split("\n")).empty?
+    Given evaluation of `anno=[];image_stream_tag.annotations(user: user).each{|key,value| anno.push(key+": "+value)};anno` is stored in the :istaganno clipboard
+    Then the expression should be true> (cb.istaganno - browser.text.split("\n")).empty?
+    Given evaluation of `label=[];image_stream_tag.labels(user: user).each{|key,value| label.push(key+"="+value.to_s)};label` is stored in the :istaglabels clipboard
+    Then the expression should be true> (cb.istaglabels - browser.text.split("\n")).empty?
+    # check istag page  "Config" tab 
+    # TODO

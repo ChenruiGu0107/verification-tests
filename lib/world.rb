@@ -6,6 +6,7 @@ require 'openshift/project'
 require 'openshift/group'
 require 'openshift/job'
 require 'openshift/image_stream'
+require 'openshift/imagestreamtag'
 require 'openshift/service'
 require 'openshift/service_account'
 require 'openshift/route'
@@ -47,6 +48,7 @@ module CucuShift
       @rcs = []
       @dcs = []
       @image_streams = []
+      @image_stream_tags = []
       @rss = []  # replicasets
       # used to store host the user wants to run commands on
       @host = nil
@@ -381,7 +383,7 @@ module CucuShift
           @image_streams << @image_streams.delete(is)
           return is
         else
-          # create new CucuShift::Build object with specified name
+          # create new CucuShift::ImageStream object with specified name
           @image_streams << ImageStream.new(name: name, project: project)
           return @image_streams.last
         end
@@ -392,6 +394,10 @@ module CucuShift
       else
         return @image_streams.last
       end
+    end
+
+    def image_stream_tag(name = nil, project = nil)
+      project_resource(ImageStreamTag, name, project)
     end
 
     # @return [PersistentVolumeClaim] last used PVC from scenario cache;
