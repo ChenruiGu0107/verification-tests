@@ -2589,6 +2589,60 @@ Feature: build 'apps' with CLI
       | resource name may not be empty |
 
   # @author cryan@redhat.com
+  # @case_id 533607
+  # @bug_id 1357674
+  @admin
+  @destructive
+  Scenario: Create new build without git installed
+    Given I have a project
+    #Edit scc to delete git in the pod
+    Given scc policy "restricted" is restored after scenario
+    And as admin I replace resource "scc" named "restricted":
+      | MustRunAsRange | RunAsAny |
+    #Allow oc to run inside the pod
+    When I run the :policy_add_role_to_user client command with:
+      | role           | edit    |
+      | serviceaccount | default |
+    Then the step should succeed
+    #Create a pod to manipulate git/oc
+    When I run the :run client command with:
+      | name    | nogit                                      |
+      | image   | <%= project_docker_repo %>openshift/origin |
+      | env     | POD_NAMESPACE=<%= project.name %>          |
+      | command | true                                       |
+      | cmd     | sleep                                      |
+      | cmd     | 3600                                       |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | run=nogit |
+    Given I execute on the pod:
+      | rm | /usr/bin/git |
+    Then the step should succeed
+    Given I execute on the pod:
+      | bash                                                                                                                              |
+      | -c                                                                                                                                |
+      | cd /tmp; wget --no-check-certificate https://github.com/openshift/ruby-hello-world/archive/master.tar.gz; tar -xvzf master.tar.gz |
+    Then the step should succeed
+    Given I execute on the pod:
+      | oc | new-app | --code=/tmp/ruby-hello-world-master |
+    Then the step should succeed
+    When I get project buildconfigs
+    Then the output should contain "Binary"
+    Given I execute on the pod:
+      | oc | new-app | --code=https://github.com/openshift/ruby-hello-world |
+    Then the step should fail
+    And the output should contain "Cannot find git"
+    Given I execute on the pod:
+      | oc | new-build | /tmp/ruby-hello-world-master | --to=test |
+    When I get project buildconfigs
+    Then the output should contain 2 times:
+      | Binary |
+    Given I execute on the pod:
+      | oc | new-build | https://github.com/openshift/ruby-hello-world |
+    Then the step should fail
+    And the output should contain "Cannot find git"
+
+  # @author cryan@redhat.com
   # @case_id 533608
   # @bug_id 1357674
   Scenario: Create new build from git repository without origin remote defined
