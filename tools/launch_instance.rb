@@ -355,7 +355,7 @@ module CucuShift
         @dns_component = value
         logger.warn "User specified DNS component: #{value}"
       else
-        raise "accepting only FQDN ending with dot or a single DNS component without any dots; both matching /^\d{4}-|^fixed-/"
+        raise "got '#{value}' but allowed only FQDN ending with dot or a single DNS component without any dots; both matching /^\d{4}-|^fixed-/"
       end
     end
 
@@ -500,6 +500,8 @@ module CucuShift
         File.write(inventory, inventory_str)
         run_ansible_playbook(localize(task[:playbook]), inventory,
                              retries: (task[:retries] || 1), env: task[:env])
+      else
+        raise "unsupported installation task: '#{task[:type]}'"
       end
     end
 
