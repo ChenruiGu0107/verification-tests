@@ -104,7 +104,14 @@ end
 #@notes Given a remote (http/s) or local file, run the 'oc process'
 #command followed by the 'oc create' command to save space
 When /^I process and create #{QUOTED}$/ do |file|
- step 'I process and create:', table([["f", file]])
+  step 'I process and create:', table([["f", file]])
+end
+
+#@param template
+#@notes Given a remote (http/s) or local template, run the 'oc process'
+#command followed by the 'oc create' command to save space
+When /^I process and create template #{QUOTED}$/ do |template|
+  step 'I process and create:', table([["template", template]])
 end
 
 # process file/url with parameters, then feed into :create

@@ -15,6 +15,7 @@ Feature: oc_process.feature
       | beforreplace | afterreplace | output                  |
       | expression   | test         | test                    |
       | A-Z          | A-Z0-z       | invalid range specified |
+
   # @author haowang@redhat.com
   # @case_id 474030
   Scenario: "oc process" handles invalid json file
@@ -32,6 +33,33 @@ Feature: oc_process.feature
     And the step should fail
     And the output should contain:
       | nvalid character |
+
+  # @author cryan@redhat.com
+  # @case_id 534516
+  # @bug_id 1253736
+  Scenario: oc process can handle different namespace's template
+    Given I have a project
+    When I process and create template "openshift//jenkins-persistent"
+    Then the step should succeed
+    When I process and create template "openshift/template/mongodb-persistent"
+    Then the step should succeed
+    When I run the :process client command with:
+      | template | jenkins-persistent |
+      | n        | openshift          |
+    Then the step should fail
+    And the output should contain "cannot create"
+    When I run the :process client command with:
+      | template | template/jenkins-persistent |
+    Then the step should fail
+    And the output should contain "could not be found"
+    When I run the :process client command with:
+      | template | jenkins-persistent |
+    Then the step should fail
+    And the output should contain "could not be found"
+    When I run the :process client command with:
+      | template | openshift/jenkins-persistent |
+    Then the step should fail
+    And the output should contain "invalid resource"
 
   # @author cryan@redhat.com
   # @case_id 534958
