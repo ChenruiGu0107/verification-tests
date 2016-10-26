@@ -72,8 +72,14 @@ module CucuShift
       return resp, data
     end
 
+    # @return [String] FQDN of given record; if record ends with dot, then
+    #   return just the name, otherwise appends default suffix to name
+    def fqdn(name)
+      name.end_with?('.') ? name[0..-2] : "#{name}.#{@domain_suffix}"
+    end
+
     def dyn_create_a_records(record, target, auth_token=@auth_token, retries=@@dyn_retries)
-      fqdn = record.end_with?('.') ? record[0..-2] : "#{record}.#{@domain_suffix}"
+      fqdn = fqdn(record)
       path = "ARecord/#{@zone}/#{fqdn}/"
       # Create the A records
       [target].flatten.each { |target|

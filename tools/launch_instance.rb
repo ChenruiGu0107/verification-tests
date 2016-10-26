@@ -349,6 +349,16 @@ module CucuShift
       @dns_component ||= CucuShift::Dynect.gen_timed_random_component
     end
 
+    def dns_component=(value)
+      if value =~ /^\d{4}-|^fixed-/ &&
+         ( !value.include?(".") || value.end_with?(".") )
+        @dns_component = value
+        logger.warn "User specified DNS component: #{value}"
+      else
+        raise "got '#{value}' but allowed only FQDN ending with dot or a single DNS component without any dots; both matching /^\d{4}-|^fixed-/"
+      end
+    end
+
     def launch_host_group(host_group, common_launch_opts, user_data_vars: {})
       # generate instance names
       host_name_prefix = common_launch_opts[:name_prefix]
@@ -438,6 +448,8 @@ module CucuShift
     # performs an installation task
     def installation_task(task, erb_binding: binding, config_dir: nil)
       case task[:type]
+      when "force_domain"
+        self.dns_component = task[:name]
       when "dns_hostnames"
         begin
           changed = false
@@ -470,6 +482,7 @@ module CucuShift
           end
 
           dns_record = "*.#{dns_component}"
+          dyn.dyn_delete_matching_records(dns_record) if task[:overwrite]
           fqdn = dyn.dyn_create_a_records(dns_record, ips)
           if task[:store_in]
             erb_binding.local_variable_set task[:store_in].to_sym, fqdn
@@ -487,6 +500,8 @@ module CucuShift
         File.write(inventory, inventory_str)
         run_ansible_playbook(localize(task[:playbook]), inventory,
                              retries: (task[:retries] || 1), env: task[:env])
+      else
+        raise "unsupported installation task: '#{task[:type]}'"
       end
     end
 
