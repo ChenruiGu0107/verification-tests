@@ -120,7 +120,6 @@ Feature: Service related networking scenarios
   Scenario: tenants can access their own services
     # create pod and service in project1
     Given I have a project
-    And evaluation of `project.name` is stored in the :project1 clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
@@ -130,9 +129,8 @@ Feature: Service related networking scenarios
     Given I wait for the "test-service" service to become ready
 
     # create pod and service in project2
-    Given I create a new project
-    And evaluation of `project.name` is stored in the :project2 clipboard
-    And I use the "<%= cb.project2 %>" project
+    Given I switch to the second user
+    And I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
     Then the step should succeed
@@ -141,18 +139,14 @@ Feature: Service related networking scenarios
     And evaluation of `service.ip(user: user)` is stored in the :service2_ip clipboard
 
     # access service in project2
-    Given I use the "<%= cb.project2 %>" project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
-    And evaluation of `pod.name` is stored in the :ramp_pod clipboard
-    When I execute on the "<%= cb.ramp_pod %>" pod:
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
       | /usr/bin/curl | -k | <%= cb.service2_ip %>:27017 |
     Then the output should contain:
       | Hello OpenShift |
 
     # access service in project1
-    When I execute on the "<%= cb.ramp_pod %>" pod:
+    When I execute on the pod:
       | /usr/bin/curl | --connect-timeout | 4 | <%= cb.service1_ip %>:27017 |
     Then the step should fail
     Then the output should not contain:
