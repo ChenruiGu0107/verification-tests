@@ -429,6 +429,13 @@
     :template: --template=<value>
     :type: --type=<value>
     :quiet: --quiet=<value>
+:observe:
+  :cmd: oc observe <resource> <global_options> <options>
+  :options:
+    :command: <value>
+    :delete: --delete=<value>
+    :names: --names=<value>
+    :oc_opts_end: --
 :oc_secrets_new_basicauth:
   :cmd: oc secrets new-basicauth <secret_name>
   :options:

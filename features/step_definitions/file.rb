@@ -190,3 +190,7 @@ end
 Given /^the #{QUOTED} directory is removed$/ do | dir_name |
   localhost.delete(File.expand_path(dir_name), r: true)
 end
+
+Given /^the #{QUOTED} file is made executable$/ do | filename |
+  FileUtils.chmod("a+x",filename)
+end
