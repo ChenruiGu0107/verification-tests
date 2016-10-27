@@ -161,6 +161,7 @@ Feature: Configuration of environment variables check
 
   # @author cryan@redhat.com haowang@redhat.com
   # @case_id 521464 521463 529329
+  @no-online
   Scenario Outline: Users can override the the env tuned by ruby base image
     Given I have a project
     When I run the :new_app client command with:
