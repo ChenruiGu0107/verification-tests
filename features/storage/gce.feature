@@ -117,4 +117,4 @@ Feature: GCE specific scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-retain-rwx.json |
     Then the step should fail
     And the output should contain:
-      | disk not found |
+      | error querying GCE PD volume |
