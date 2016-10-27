@@ -622,7 +622,7 @@ Feature: deployment related features
 
     Given I wait until the status of deployment "hooks" becomes :complete
     # Workaround: the below steps make a failed deployment instead of --cancel
-    Given I successfully patch resource "dc hooks" with:
+    Given I successfully patch resource "dc/hooks" with:
       | {"spec":{"strategy":{"rollingParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ], "containerName": "hello-openshift" }, "failurePolicy": "Abort" }}}}} |
     When I run the :deploy client command with:
       | deployment_config | hooks |
@@ -633,7 +633,7 @@ Feature: deployment related features
 
     # Remove the pre-hook introduced by the above workaround,
     # otherwise later deployment will always fail
-    Given I successfully patch resource "dc hooks" with:
+    Given I successfully patch resource "dc/hooks" with:
       | {"spec":{"strategy":{"rollingParams":{"pre":null}}}} |
     When I run the :rollback client command with:
       | deployment_name | hooks |
