@@ -590,7 +590,7 @@ module CucuShift
           #Only push tcms tags if there are mismatched scenario tags
           if scenario_tags[case_id] != nil && !scenario_tags[case_id].empty?
             #Only list TCMS tag descrepancies if they are one of the "canonical" tags
-            canonical_tags = ["devenv","destructive","aggressive","sequential","migration", "admin", "vpn", "smoke"]
+            canonical_tags = ["devenv","destructive","aggressive","sequential","migration", "admin", "vpn", "smoke", "no-online", "unix"]
             scenario_tags[case_id].each do |scenario_tag|
               if !tcms_tags[case_id].include?(scenario_tag) && canonical_tags.include?(scenario_tag)
                tcms_missing[case_id].push scenario_tag unless scenario_tag =~ /user/
