@@ -1599,3 +1599,146 @@ Feature: Testing haproxy router
       | Hello-OpenShift |
     And the output should contain 6 times:
       | (35) |
+
+
+  # @author yadu@redhat.com
+  # @case_id 510536
+  @admin
+  @destructive
+  Scenario: Router(in host networking) in a specific namespace should load balance to pods in any namespace
+    Given the env is using multitenant network
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    And I store default router IPs in the :router_ip clipboard
+    Given a "svcaccount.yaml" file is created with the following lines:
+    """
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: dyrouter
+    """
+    When I run the :create client command with:
+      | f | svcaccount.yaml |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    Given SCC "privileged" is added to the "dyrouter" service account
+    And cluster role "cluster-reader" is added to the "system:serviceaccount:<%= cb.proj1 %>:dyrouter" service account
+    And I use the "default" project
+    And I store master image version in the clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Given default router replica count is restored after scenario
+    And admin ensures "tc-testrouter" dc is deleted after scenario
+    And admin ensures "tc-testrouter" service is deleted after scenario
+    When I run the :scale client command with:
+      | resource | dc     |
+      | name     | router |
+      | replicas | 0      |
+    Then the step should succeed
+    When I run the :oadm_router admin command with:
+      | name            | tc-testrouter                                                                    |
+      | images          | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
+      | service_account | dyrouter                                                                         |
+      | n               | <%= cb.proj1 %>                                                                  |
+    Given I switch to the first user
+    And I use the "<%= cb.proj1 %>" project
+    Given I wait for the pod named "tc-testrouter-1-deploy" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=tc-testrouter |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :expose client command with:
+      | resource      | service      |
+      | resource_name | test-service |
+      | name          | route1       |
+    Then the step should succeed
+    When I open web server via the "http://<%= route("route1", service("test-service")).dns(by: user) %>/" url
+    Then the output should contain "Hello OpenShift"
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :expose client command with:
+      | resource      | service      |
+      | resource_name | test-service |
+      | name          | route2       |
+    Then the step should succeed
+    When I open web server via the "http://<%= route("route2", service("test-service")).dns(by: user) %>/" url
+    Then the output should contain "Hello OpenShift"
+
+
+  # @author yadu@redhat.com
+  # @case_id 508985
+  @admin
+  @destructive
+  Scenario: Router(in container networking) in a specific namespace should only load balance to pods in that namespace
+    Given the env is using multitenant network
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given a "svcaccount.yaml" file is created with the following lines:
+    """
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: dyrouter
+    """
+    When I run the :create client command with:
+      | f | svcaccount.yaml |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    Given SCC "privileged" is added to the "dyrouter" service account
+    And cluster role "cluster-reader" is added to the "system:serviceaccount:<%= cb.proj1 %>:dyrouter" service account
+    And I use the "default" project
+    And I store master image version in the clipboard
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Given default router replica count is restored after scenario
+    And admin ensures "tc-testrouter" dc is deleted after scenario
+    And admin ensures "tc-testrouter" service is deleted after scenario
+    When I run the :scale client command with:
+      | resource | dc     |
+      | name     | router |
+      | replicas | 0      |
+    Then the step should succeed
+    When I run the :oadm_router admin command with:
+      | name            | tc-testrouter                                                                    |
+      | images          | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
+      | service_account | dyrouter                                                                         |
+      | n               | <%= cb.proj1 %>                                                                  |
+      | host_network    | false                                                                            |
+    Given I switch to the first user
+    And I use the "<%= cb.proj1 %>" project
+    Given I wait for the pod named "tc-testrouter-1-deploy" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=tc-testrouter |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :expose client command with:
+      | resource      | service      |
+      | resource_name | test-service |
+      | name          | route1       |
+    Then the step should succeed
+    When I open web server via the "http://<%= route("route1", service("test-service")).dns(by: user) %>/" url
+    Then the output should contain "Hello OpenShift"
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :expose client command with:
+      | resource      | service      |
+      | resource_name | test-service |
+      | name          | route2       |    
+    Then the step should succeed
+    When I open web server via the "http://<%= route("route2", service("test-service")).dns(by: user) %>/" url
+    Then the step should fail
+    Then the output should not contain "Hello OpenShift"
