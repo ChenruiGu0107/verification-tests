@@ -98,7 +98,7 @@ Feature: storageClass related feature
       | ["spec"]["resources"]["requests"]["storage"]                           | <size>                  |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
     And the expression should be true> pvc.capacity(user: user) == "<size>"
     And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
     And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
@@ -216,8 +216,8 @@ Feature: storageClass related feature
       | ["metadata"]["name"]                                                   | pvc2-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc2-<%= project.name %>  |
     Then the step should succeed
-    And the "pvc1-<%= project.name %>" PVC becomes :bound
-    And the "pvc2-<%= project.name %>" PVC becomes :bound
+    And the "pvc1-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And the "pvc2-<%= project.name %>" PVC becomes :bound within 120 seconds
 
     Examples:
       | provisioner |
@@ -247,7 +247,7 @@ Feature: storageClass related feature
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
     Examples:
       | provisioner |
