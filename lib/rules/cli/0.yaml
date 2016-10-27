@@ -156,6 +156,13 @@
     :path: --path=<value>
 :create_secret:
   :cmd: oc create secret <createservice_type>
+:create_service:
+  :cmd: oc create service <createservice_type>
+  :options:
+      :clusterip: --clusterip=<value>
+      :name: <value>
+      :tcp: --tcp=<value>
+      :dry_run: --dry-run=<value>
 :create_serviceaccount:
   :cmd: oc create serviceaccount <serviceaccount_name>
 :cucushift_test_do_not_use:
