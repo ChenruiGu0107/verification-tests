@@ -764,6 +764,7 @@ Feature: Testing route
 
   # @author zzhao@redhat.com
   # @case_id 536684
+  # @note requires v3.4+
   Scenario: Default haproxy router should be able to skip invalid cert route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
