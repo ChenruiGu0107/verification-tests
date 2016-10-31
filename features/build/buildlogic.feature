@@ -75,9 +75,6 @@ Feature: buildlogic.feature
     Then the step should succeed
     And the "myapp-1" build was created
     And the "myapp-1" build completed
-    When I run the :build_logs client command with:
-      | build_name | myapp-1 |
-    Then the output should contain "Build does not have an Output defined, no output image was pushed to a registry"
 
   # @author yantan@redhat.com
   # @case_id 520291
