@@ -45,7 +45,7 @@ Feature: projects related features via cli
       | project_name | ALLUPPERCASE |
     Then the step should fail
     Then the output should contain:
-      | The ProjectRequest "ALLUPPERCASE" is invalid. |
+      | The ProjectRequest "ALLUPPERCASE" is invalid |
     When I run the :new_project client command with:
       | project_name | -abc |
     Then the step should fail
@@ -55,12 +55,12 @@ Feature: projects related features via cli
       | project_name | xyz- |
     Then the step should fail
     And the output should contain:
-      | The ProjectRequest "xyz-" is invalid. |
+      | The ProjectRequest "xyz-" is invalid |
     When I run the :new_project client command with:
       | project_name | $pe#cial& |
     Then the step should fail
     And the output should contain:
-      | The ProjectRequest "$pe#cial&" is invalid. |
+      | The ProjectRequest "$pe#cial&" is invalid |
 
   # @author pruan@redhat.com
   # @case_id 478983

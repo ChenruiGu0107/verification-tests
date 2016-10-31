@@ -11,7 +11,7 @@ Feature: oc_portforward.feature
       | pod | hello-openshift |
       | port_spec | :8080 |
     Then the step should fail
-    And the output should contain "Unable to execute command because pod is not running. Current status=Pending"
+    And the output should match "[Uu]nable.+because pod is not running. Current status=Pending"
 
   # @author cryan@redhat.com
   # @case_id 472861
