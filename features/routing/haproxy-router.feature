@@ -89,6 +89,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
     When I run the :create_route_reencrypt client command with:
       | name | route-reen |
       | hostname | <%= rand_str(5, :dns) %>.reen.com |
@@ -104,6 +105,7 @@ Feature: Testing haproxy router
       | service | service-unsecure |
       | cert | route_edge-www.edge.com.crt |
       | key | route_edge-www.edge.com.key |
+      | cacert | ca.pem |
     Then the step should succeed
 
     # get the cert files creation time on router pod
@@ -513,12 +515,14 @@ Feature: Testing haproxy router
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
     When I run the :create_route_edge client command with:
       | name | route-edge |
       | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
       | service | service-unsecure |
       | cert | route_edge-www.edge.com.crt |
       | key | route_edge-www.edge.com.key |
+      | cacert | ca.pem |      
     Then the step should succeed
 
     Given I have a pod-for-ping in the project

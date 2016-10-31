@@ -240,7 +240,8 @@ Feature: Testing route
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
-    
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem" 
+ 
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     And the pod named "hello-pod" becomes ready
@@ -256,6 +257,7 @@ Feature: Testing route
       | service | service-unsecure |
       | cert | route_edge-www.edge.com.crt |
       | key | route_edge-www.edge.com.key |
+      | cacert | ca.pem |
     Then the step should succeed
     When I execute on the pod:
       | curl |
