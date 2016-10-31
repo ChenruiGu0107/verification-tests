@@ -103,7 +103,7 @@ select_namespace:
       xpath: //span[contains(@class,"ui-select-placeholder") and contains(.,"Namespace")]
     op: click
   - selector:
-      xpath: //label[contains(.,"Namespace")]/parent::div[contains(@class, 'form-group')]//a[@class="ui-select-choices-row-inner"]/div[contains(.,'<namespace>')]
+      xpath: //label[contains(.,"Namespace")]/parent::div[contains(@class, 'form-group')]//ul//div[text()='<namespace>']
     op: click
 select_image_stream:
   elements:
@@ -111,7 +111,7 @@ select_image_stream:
       xpath: //span[contains(@class,"ui-select-placeholder") and contains(.,"Image Stream")]
     op: click
   - selector:
-      xpath: //label[contains(.,"Image Stream")]/parent::div[contains(@class, 'form-group')]//a[@class="ui-select-choices-row-inner"]/div[contains(.,'<image_stream_name>')]
+      xpath: //label[contains(.,"Image Stream")]/parent::div[contains(@class, 'form-group')]//ul//div[text()='<image_stream_name>']
     op: click
 select_image_stream_tag:
   elements:
@@ -119,7 +119,7 @@ select_image_stream_tag:
       xpath: //span[contains(@class,"ui-select-placeholder") and contains(.,"Tag")]
     op: click
   - selector:
-      xpath: //label[contains(.,"Tag")]/parent::div[contains(@class, 'form-group')]//a[@class="ui-select-choices-row-inner"]/div[contains(.,'<image_stream_tag>')]
+      xpath: //label[contains(.,"Tag")]/parent::div[contains(@class, 'form-group')]//ul//div[text()='<image_stream_tag>']
     op: click
 set_image_name:
   elements:
