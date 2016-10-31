@@ -7,7 +7,7 @@ create_app_from_template_with_blank_form:
 create_app_from_template_with_label:
   action: fromtemplate_navigate
   action: fromtemplate_param_form
-  action: fromtemplate_set_labels
+  action: add_label_name_and_value
   action: fromtemplate_submit_and_confirm
 create_app_from_template_without_label:
   action: fromtemplate_navigate
@@ -54,16 +54,6 @@ fromtemplate_param_form:
     op: send_keys <param_five>
     type: input
     optional: true
-fromtemplate_set_labels:
-  elements:
-  - selector:
-      xpath: //div[contains(text(),"Each label")]/following-sibling::div//input[@placeholder="Name"]
-    op: send_keys <label_key>
-    type: input
-  - selector:
-      xpath: //div[contains(text(),"Each label")]/following-sibling::div//input[@placeholder="Value"]
-    op: send_keys <label_value>
-    type: input
 clear_param_form:
   elements:
   - selector:

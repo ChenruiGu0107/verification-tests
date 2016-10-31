@@ -28,7 +28,7 @@ deploy_from_image_stream_name_with_env_label:
   action: set_image_name
   action: click_to_search
   action: add_env_name_and_value_on_deploy_image_page
-  action: add_label_name_and_value_on_deploy_image_page
+  action: add_label_name_and_value
   action: submit_to_create
 add_env_name_and_value_on_deploy_image_page:
   elements:
@@ -38,16 +38,6 @@ add_env_name_and_value_on_deploy_image_page:
   - selector:
       xpath: //osc-form-section[@header="Environment Variables"]/descendant::div//input[@placeholder="Value"]
     op: send_keys <env_var_value>
-add_label_name_and_value_on_deploy_image_page:
-  elements:
-  - selector:
-      xpath: //div[contains(text(),"Each label")]/following-sibling::div//input[@placeholder="Name"]
-    op: send_keys <label_key>
-    type: input
-  - selector:
-      xpath: //div[contains(text(),"Each label")]/following-sibling::div//input[@placeholder="Value"]
-    op: send_keys <label_value>
-    type: input
 change_deploy_image_name_to_another:
   elements:
   - selector:

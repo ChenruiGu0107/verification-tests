@@ -69,3 +69,56 @@ Feature: AutoScaler relative cases
       | project_name | <%= project.name %> |
       | dc_name      | nodejs-sample       |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id 533202
+  Scenario: Labels management in edit autoscaler page on web console
+    Given I have a project
+    When I run the :run client command with:
+      | name  | myrun                 |
+      | image | yapei/hello-openshift |
+    Then the step should succeed
+    Given I wait until the status of deployment "myrun" becomes :running
+    When I perform the :add_label_on_edit_autoscaler_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | myrun               |
+      | min_pods     | 1                   |
+      | max_pods     | 10                  |
+      | cpu_req_per  | 55                  |
+      | label_key    | test1               |
+      | label_value  | value1              |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | hpa |
+    Then the step should succeed
+    And the output should contain "myrun"
+    When I perform the :check_hpa_labels_on_other_resources_page web console action with:
+      | project_name | <%= project.name %> |
+      | hpa_name     | myrun               |
+      | label_key    | test1               |
+      | label_value  | value1              |
+    Then the step should succeed
+    When I perform the :update_label_on_edit_autoscaler_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | myrun               |
+      | label_key    | test1               |
+      | new_label_value | value1update     |
+    Then the step should succeed
+    When I perform the :check_hpa_labels_on_other_resources_page web console action with:
+      | project_name | <%= project.name %> |
+      | hpa_name     | myrun               |
+      | label_key    | test1               |
+      | label_value  | value1update        |
+    Then the step should succeed
+    When I perform the :delete_label_on_edit_autoscaler_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | myrun               |
+      | label_key    | test1               |
+    Then the step should succeed
+    When I perform the :check_hpa_labels_on_other_resources_page web console action with:
+      | project_name | <%= project.name %> |
+      | hpa_name     | myrun               |
+      | label_key    | test1               |
+      | label_value  | value1update        |
+    Then the step should fail
+    And the output should contain "element not found"

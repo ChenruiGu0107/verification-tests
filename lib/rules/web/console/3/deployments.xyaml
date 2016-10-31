@@ -163,6 +163,12 @@ goto_add_autoscaler_page:
   - selector:
       xpath: //a[contains(text(), 'Add Autoscaler')]
     op: click
+goto_edit_autoscaler_page:
+  action: click_actions_button
+  elements:
+  - selector:
+      xpath: //a[contains(text(), 'Edit Autoscaler')]
+    op: click
 check_dc_loaded_completely:
   action: goto_one_dc_page
   elements:
@@ -235,6 +241,33 @@ add_autoscaler_set_max_pod_and_cpu_req_per_from_dc_page:
   action: set_max_pod_on_autoscaler_page
   action: set_cpu_request_percentage
   action: save_your_committed_changes
+add_label_on_edit_autoscaler_page:
+  action: goto_one_dc_page
+  action: goto_add_autoscaler_page
+  action: set_min_pod_on_autoscaler_page
+  action: set_max_pod_on_autoscaler_page
+  action: set_cpu_request_percentage
+  action: add_label_key_on_edit_autoscaler_page
+  action: add_label_value_on_edit_autoscaler_page
+  action: save_your_committed_changes
+add_label_key_on_edit_autoscaler_page:
+  elements:
+  - selector:
+      xpath: //div[@ng-if="(!cannotAdd) && addRowLink"]/a
+    op: click
+  - selector:
+      xpath: //div[@ng-repeat="entry in entries"]/following-sibling::div//input[@placeholder="Name"]
+    op: send_keys <label_key>
+add_label_value_on_edit_autoscaler_page:
+  elements:
+  - selector:
+      xpath: //div[@ng-repeat="entry in entries"]/following-sibling::div//input[@placeholder="Value"]
+    op: send_keys <label_value>
+set_min_pod_on_autoscaler_page:
+  elements:
+  - selector:
+      xpath: //input[@name="minReplicas"]
+    op: send_keys <min_pods>
 set_max_pod_on_autoscaler_page:
   elements:
   - selector:
@@ -274,3 +307,50 @@ check_no_cpu_req_warning:
   elements:
   - selector:
       xpath: //div[contains(.,'This deployment config does not have any containers with a CPU')]
+delete_label_on_edit_autoscaler_page:
+  action: goto_one_dc_page
+  action: goto_edit_autoscaler_page
+  action: delete_label_value_on_edit_autoscaler_page
+  action: save_your_committed_changes
+delete_label_value_on_edit_autoscaler_page:
+  elements:
+  - selector:
+      xpath: //div[contains(@class,'key-value-editor-input')]/input
+  scripts:
+    - command: |
+             var label_key = "<label_key>";
+             var rows = document.querySelectorAll('div[class~=key-value-editor-entry]');
+             for (var i=0; i<rows.length; i++) {
+               var inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input');
+               if (inputs[0].value == label_key) {
+                 rows[i].querySelector(".key-value-editor-buttons a").click();
+                 return true;
+               }
+             }
+             return false
+      expect_result: true
+update_label_on_edit_autoscaler_page:
+  action: goto_one_dc_page
+  action: goto_edit_autoscaler_page
+  action: update_label_value_on_edit_autoscaler_page
+  action: save_your_committed_changes
+update_label_value_on_edit_autoscaler_page:
+  elements:
+  - selector: &label_value_field |
+        var id = null
+        var p = new RegExp("<label_key>");
+        var el = document.getElementsByTagName("input");
+        for (var i=0; i<el.length; i++) {
+          if (p.test(el[i].value)) {
+            id = el[i].id;
+            break;
+          }
+        }
+        if (id == null) return null;
+        id = id.replace("-key-", "-value-");
+        return document.getElementById(id);
+    type: js
+    op: clear
+  - selector: *label_value_field
+    type: js
+    op: send_keys <new_label_value>

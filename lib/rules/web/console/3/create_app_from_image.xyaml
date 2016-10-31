@@ -16,7 +16,7 @@ create_app_from_image_change_bc_configchange:
 create_app_from_image_with_label_options:
   action: create_app_from_image_base_action
   action: create_app_from_image_show_advanced_param
-  action: create_app_from_image_add_labels
+  action: add_label_name_and_value
   action: create_app_from_image_submit
 create_app_from_image_with_env_options:
   action: create_app_from_image_base_action
@@ -158,7 +158,7 @@ create_app_from_image_change_scaling_setting:
       name: replicas
     op: send_keys <replica_num>
     type: input
-create_app_from_image_add_labels:
+add_label_name_and_value:
   elements:
   - selector:
       xpath: //label-editor//div[@ng-show='expand']//input[@placeholder="Name"]
