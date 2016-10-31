@@ -941,7 +941,7 @@ Feature: Quota related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc532979/nodeport-svc3.json |
     Then the step should fail
     And the output should match:
-      | Exceeded quota: quota-service.*limited: services.nodeports=2 |
+      | xceeded quota: quota-service.*limited: services.nodeports=2 |
     When I run the :describe client command with:
       | resource | quota         |
       | name     | quota-service |
