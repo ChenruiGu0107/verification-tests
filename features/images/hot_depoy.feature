@@ -40,12 +40,12 @@ Feature: hotdeploy.feature
     Then the step should succeed
     And the "sinatra-hot-deploy-ruby22-1" build was created
     And the "sinatra-hot-deploy-ruby22-1" build completed
-    Given I wait for the "sinatra-hot-deploy-ruby2" service to become ready
+    Given I wait for the "sinatra-hot-deploy-ruby22" service to become ready
     When I execute on the pod:
       | sed | -i | s/Hello/hotdeploy_test/g | app.rb |
     Then the step should succeed
-    When I expose the "sinatra-hot-deploy-ruby2" service
-    Then I wait for a web server to become available via the "sinatra-hot-deploy-ruby2" route
+    When I expose the "sinatra-hot-deploy-ruby22" service
+    Then I wait for a web server to become available via the "sinatra-hot-deploy-ruby22" route
     And the output should contain "hotdeploy_test"
 
     Examples:
