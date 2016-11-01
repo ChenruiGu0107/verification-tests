@@ -1,4 +1,10 @@
 --- # check browse/builds page
+check_buildconfig_edit_page_disabled:
+  elements:
+  - selector:
+      xpath: //button[contains(.,"Save") and @disabled]
+  - selector:
+      xpath: //fieldset[@disabled]
 check_buildconfig_list_page:
   action: goto_builds_page
   element:
@@ -79,6 +85,16 @@ check_rebuild_button:
   elements:
   - selector:
       xpath: //button[@ng-click="cloneBuild()" and text()="Rebuild"]
+click_to_show_advanced_options:
+  elements:
+  - selector:
+      xpath: //a[contains(.,"Show advanced option")]
+    op: click
+click_to_show_source_advanced_options:
+  elements:
+  - selector:
+      xpath: //div[@id="source-url-help"]//a[contains(.,"advanced option")]
+    op: click
 cancel_build_from_pending_status:
   action: check_one_build_inside_bc_page
   elements:
@@ -249,8 +265,6 @@ check_buildconfig_edit_page_loaded_completely:
       xpath: //h3[contains(.,'Image Configuration')]
   - selector:
       xpath: //h3[contains(.,'Environment Variables')]
-  - selector:
-      xpath: //h3[contains(.,'Triggers')]
 add_bc_source_and_destination_paths:
   action: check_buildconfig_edit_page_loaded_completely
   action: choose_image_source_from
@@ -271,22 +285,35 @@ add_env_vars_on_buildconfig_edit_page:
 choose_image_source_from:
   elements:
   - selector:
-      xpath: //select[@ng-model='imageSourceOptions.pickedType']//option[contains(.,'<image_source_from>')]
+      xpath: //label[@for="buildFrom"]/following::div[@ng-model="imageOptions.from.type"]
+    op: click
+  - selector:
+      xpath: //ul[@repeat="type in buildFromTypes"]//span[@class="ui-select-choices-row-inner"]/span[contains(.,'<image_source_from>')]
     op: click
 choose_image_source_namespace:
   elements:
   - selector:
-      xpath: //select[@name='imageSourceNamespace']//option[contains(.,'<image_source_namespace>')]
+      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[@ng-model="istag.namespace"]
+    op: click
+  - selector:
+      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[contains(.,"<image_source_namespace>")]
     op: click
 choose_image_source_is:
   elements:
   - selector:
-      xpath: //select[@name='imageSourceImageStream']//option[contains(.,'<image_source_is>')]
+      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[@ng-model="istag.imageStream"]
+    op: click
+  - selector:
+      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[contains(.,"<image_source_is>")]
     op: click
 choose_image_source_tag:
   elements:
   - selector:
-      xpath: //select[@name='imageSourceTag']//option[contains(.,'<image_source_tag>')]
+      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[@ng-model="istag.tagObject"]
+    op: click
+  - selector:
+      xpath: //istag-select[@model="imageOptions.from.imageStreamTag"]//div[contains(.,"<image_source_tag>")]
+    op: click
 add_image_source_path:
   elements:
   - selector:
@@ -389,21 +416,27 @@ choose_build_image_source_to_docker_image:
   action: check_buildconfig_edit_page_loaded_completely
   elements:
   - selector:
-      xpath: //select[@ng-model='builderOptions.pickedType']//option[contains(.,'Docker Image')]
+      xpath: //label[contains(.,"Build From")]/following::div[@ng-model="imageOptions.from.type"]
+    op: click
+  - selector:
+      xpath: //ul[@repeat="type in buildFromTypes"]//span[@class="ui-select-choices-row-inner"]/span[contains(.,"Docker Image")]
     op: click
 choose_build_image_source_to_image_stream_image:
   action: check_buildconfig_edit_page_loaded_completely
   elements:
   - selector:
-      xpath: //select[@ng-model='builderOptions.pickedType']//option[contains(.,'Stream Image')]
+      xpath: //label[contains(.,"Build From")]/following::div[@ng-model="imageOptions.from.type"]
+    op: click
+  - selector:
+      xpath: //ul[@repeat="type in buildFromTypes"]//span[@class="ui-select-choices-row-inner"]/span[contains(.,"Stream Image")]
     op: click
 add_docker_image_link:
   elements:
   - selector:
-      xpath: //input[@ng-model='builderOptions.pickedDockerImage']
+      xpath: //input[@ng-model="imageOptions.from.dockerImage"]
     op: clear
   - selector:
-      xpath: //input[@ng-model='builderOptions.pickedDockerImage']
+      xpath: //input[@ng-model="imageOptions.from.dockerImage"]
     op: send_keys <docker_image_link>
 edit_build_image_to_docker_image:
   action: choose_build_image_source_to_docker_image
@@ -435,34 +468,45 @@ change_env_vars_on_buildconfig_edit_page:
   action: save_updated_env_value
 set_force_pull_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
+  action: click_to_show_advanced_options
   elements:
   - selector:
       xpath: //input[@ng-model='options.forcePull']
     op: click
 toggle_config_change_trigger_on_bc_edit_page:
+  action: click_to_show_advanced_options
   action: change_bc_run_policy_to_parallel
   action: change_bc_run_policy_to_serial
 change_bc_run_policy_to_parallel:
   elements:
   - selector:
-      xpath: //select[@ng-model="updatedBuildConfig.spec.runPolicy"]/option[contains(.,'Parallel')]
+      xpath: //label[contains(.,"Run policy type")]/following::div[@ng-model="updatedBuildConfig.spec.runPolicy"]
+    op: click
+  - selector:
+      xpath: //ul[@repeat="type in runPolicyTypes"]//span[@class="ui-select-choices-row-inner"]/span[contains(.,"Parallel")]
     op: click
 change_bc_run_policy_to_serial:
   elements:
   - selector:
-      xpath: //select[@ng-model="updatedBuildConfig.spec.runPolicy"]/option[contains(.,'Serial')]
+      xpath: //label[contains(.,"Run policy type")]/following::div[@ng-model="updatedBuildConfig.spec.runPolicy"]
+    op: click
+  - selector:
+      xpath: //ul[@repeat="type in runPolicyTypes"]/li/div[@role="option"][1]
     op: click
 toggle_image_change_trigger_on_bc_edit_page:
+  action: click_to_show_advanced_options
   elements:
   - selector:
       xpath: //input[@ng-model="triggers.builderImageChangeTrigger.present"]
     op: click
 toggle_cache_on_bc_edit_page:
+  action: click_to_show_advanced_options
   elements:
   - selector:
       xpath: //input[@ng-model="options.noCache"]
     op: click
 change_bc_source_repo_ref_on_bc_edit_page:
+  action: click_to_show_source_advanced_options
   elements:
   - selector:
       xpath: //input[@name="sourceRef"]
@@ -471,6 +515,7 @@ change_bc_source_repo_ref_on_bc_edit_page:
       xpath: //input[@name="sourceRef"]
     op: send_keys <source_repo_ref>
 change_bc_source_context_dir_on_bc_edit_page:
+  action: click_to_show_source_advanced_options
   elements:
   - selector:
       xpath: //input[@name="sourceContextDir"]
@@ -481,10 +526,10 @@ change_bc_source_context_dir_on_bc_edit_page:
 add_image_stream_image_on_bc_edit_page:
   elements:
   - selector:
-      xpath: //input[@ng-model="builderOptions.pickedImageStreamImage"]
+      xpath: //input[@ng-model="imageOptions.from.imageStreamImage"]
     op: clear
   - selector:
-      xpath: //input[@ng-model="builderOptions.pickedImageStreamImage"]
+      xpath: //input[@ng-model="imageOptions.from.imageStreamImage"]
     op: send_keys <image_stream_image>
 check_bc_source_ref:
   action: goto_buildconfig_configuration_tab
@@ -538,43 +583,63 @@ edit_bc_binary_input:
 choose_bc_output_image_option_to_docker_image:
   elements:
   - selector:
-      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'Docker Image')]
+      xpath: //label[contains(.,"Push To")]/following::div[@ng-model="imageOptions.to.type"]
+    op: click
+  - selector:
+      xpath: //ul[@repeat="type in pushToTypes"]//span[@class="ui-select-choices-row-inner"]/span[contains(.,"Docker Image")]
     op: click
 choose_bc_output_image_option_to_image_stream:
   elements:
   - selector:
-      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'Stream Tag')]
+      xpath: //label[contains(.,"Push To")]/following::div[@ng-model="imageOptions.to.type"]
+    op: click
+  - selector:
+      xpath: //ul[@repeat="type in pushToTypes"]//span[@class="ui-select-choices-row-inner"]/span[contains(.,"Stream Tag")]
     op: click
 choose_bc_output_image_option_to_none:
   elements:
   - selector:
-      xpath: //select[@ng-model="outputOptions.pickedType"]/option[contains(.,'None')]
+      xpath: //label[contains(.,"Push To")]/following::div[@ng-model="imageOptions.to.type"]
+    op: click
+  - selector:
+      xpath: //ul[@repeat="type in pushToTypes"]//span[@class="ui-select-choices-row-inner"]/span[contains(.,"None")]
     op: click
 choose_output_image_namespace:
   elements:
   - selector:
-      xpath: //select[@ng-model="outputOptions.pickedNamespace"]/option[contains(.,'<output_image_namespace>')]
+      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[@ng-model="istag.namespace"]
+    op: click
+  - selector:
+      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[contains(.,'<output_image_namespace>')]
     op: click
 choose_output_image_is:
   elements:
   - selector:
-      xpath: //select[@ng-model="outputOptions.pickedImageStream"]/option[contains(.,'<output_image_is>')]
+      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[@ng-model="istag.imageStream"]
+    op: click
+  - selector:
+      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[contains(.,'<output_image_is>')]
     op: click
 set_output_image_tag:
   elements:
   - selector:
-      xpath: //input[@ng-model="outputOptions.pickedTag"]
-    op: clear
+      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[@ng-model="istag.tagObject"]
+    op: click
   - selector:
-      xpath: //input[@ng-model="outputOptions.pickedTag"]
+      xpath: //input[@placeholder="Tag"]
     op: send_keys <output_image_tag>
+  - selector:
+      xpath: //span[contains(.,"<output_image_tag>")]
+    op: click
 set_output_docker_image_link:
   elements:
   - selector:
-      xpath: //input[@ng-model="outputOptions.pickedDockerImage"]
+      id: pushToLink
+    type: input
     op: clear
   - selector:
-      xpath: //input[@ng-model="outputOptions.pickedDockerImage"]
+      id: pushToLink
+    type: input
     op: send_keys <output_docker_image_link>
 change_bc_binary_input:
   elements:

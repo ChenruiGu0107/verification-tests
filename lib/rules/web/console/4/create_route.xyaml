@@ -96,7 +96,7 @@ select_target_port:
 show_options_for_secure_route:
   elements:
   - selector:
-      xpath: //a[contains(.,'Show options for secured routes')]
+      xpath: //input[@id="secure-route"]
     op: click
 set_tls_termination:
   elements:

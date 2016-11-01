@@ -1,4 +1,10 @@
 --- # check browse/builds page
+check_buildconfig_edit_page_disabled:
+  elements:
+  - selector:
+      xpath: //button[contains(.,"Save") and @disabled]
+  - selector:
+      xpath: //fieldset[@disabled]
 check_buildconfig_list_page:
   action: goto_builds_page
   element:

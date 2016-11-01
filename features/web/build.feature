@@ -195,12 +195,8 @@ Feature: build related feature on web console
     Then the step should succeed
     When I run the :check_deleted_bc_warn_message web console action
     Then the step should succeed
-    When I get the "disabled" attribute of the "button" web element:
-      | text | Save |
-    Then the output should contain "true"
-    When I get the "disabled" attribute of the "element" web element:
-      | xpath | //fieldset |
-    Then the output should contain "true"
+    When I run the :check_buildconfig_edit_page_disabled web console action
+    Then the step should succeed
 
   # @author yapei@redhat.com
   # @case_id 518658
@@ -250,8 +246,8 @@ Feature: build related feature on web console
       | project_name | <%= project.name %>  |
       | bc_name      | imagesourcebuild     |
     Then the step should succeed
-    When I perform the :choose_image_source_from web console action with:
-      | image_source_from | Image Stream Tag |
+    When I perform the :add_image_source_path web console action with:
+      | source_path | /ust/test |
     Then the step should fail
     And the output should contain "element not found"
     # check image source via CLI

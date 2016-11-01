@@ -278,7 +278,7 @@ Feature: Routes related features on web console
       | http://<%= route("edgerouteredirect", service("service-unsecure")).dns(by: user) %>/ |
       | -k   |
     Then the step should succeed
-    And the output by order should contain:
+    And the output should contain:
       | 302 Found          |
       | Location: https://<%= route("edgerouteredirect", service("service-unsecure")).dns(by: user) %>/ |
       | Hello-OpenShift    |
