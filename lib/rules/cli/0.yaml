@@ -130,6 +130,7 @@
     :dry-run: --dry-run=<value>
     :hard: --hard=<value>
     :scopes: --scopes=<value>
+    :output: --output=<value>
 :create_route_edge:
   :cmd: oc create route edge <name>
   :options:

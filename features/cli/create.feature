@@ -896,3 +896,43 @@ Feature: creating 'apps' with CLI
     Given the pod named "hello-openshift" status becomes :running
     Given I get project templates
     Then the output should contain "jenkins-ephemeral-tc474044"
+
+  # @author xiaocwan@redhat.com
+  # @case_id 533916
+  Scenario: oc create quota with --dry-run and -o
+    Given I have a project
+    When I run the :create_quota client command with:
+      | name     | myquota             |
+      | hard     | pods=10             |
+      | n        | <%= project.name %> |
+      | dry-run  | true                |
+    Then the step should succeed
+    And the output should match:
+      | resourcequota.*myquota.*created.*dry run |
+    When I run the :create_quota client command with:
+      | name     | myquota             |
+      | hard     | pods=10             |
+      | n        | <%= project.name %> |
+      | output   | yaml                |
+      | dry-run  | true                |
+    Then the step should succeed
+    And the output should match:
+      | pods.*10 |
+    When I run the :create_quota client command with:
+      | name     | myquota             |
+      | hard     | pods=10             |
+      | n        | <%= project.name %> |
+      | output   | wide                |
+      | dry-run  | true                |
+    Then the step should succeed
+    And the output should match:
+      | myquota.*unknown |
+    When I run the :create_quota client command with:
+      | name     | myquota             |
+      | hard     | pods=10             |
+      | n        | <%= project.name %> |
+      | output   | name                |
+      | dry-run  | true                |
+    Then the step should succeed
+    And the output should contain:
+      | resourcequota/myquota |
