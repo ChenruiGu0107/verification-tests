@@ -11,9 +11,9 @@ Feature: php image related tests
     Given the "openshift-php-upload-demo-1" build completes
     And a pod becomes ready with labels:
       | app=openshift-php-upload-demo |
-    When I expose the "openshift-php-upload-dem" service
+    When I expose the "openshift-php-upload-demo" service
     Then the step should succeed
-    Given I wait up to 60 seconds for a web server to become available via the "openshift-php-upload-dem" route
+    Given I wait up to 60 seconds for a web server to become available via the "openshift-php-upload-demo" route
     Then the output should contain "OpenShift File Upload Demonstration"
     Given a "test.txt" file is created with the following lines:
     """
