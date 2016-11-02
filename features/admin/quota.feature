@@ -148,7 +148,7 @@ Feature: Quota related scenarios
       | \\S+ |
     When I get project events
     Then the output should match:
-      | Failed quota: quota: must specify cpu,memory |
+      | ailed quota: quota: must specify cpu,memory |
 
   # @author xiaocwan@redhat.com
   # @case_id 481679

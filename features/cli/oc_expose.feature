@@ -171,13 +171,8 @@ Feature: oc_expose.feature
       browse /test
     }
     """
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc529580/dc.yaml"
-    # oc volume -f dc.yaml --add --secret-name=ssl-key  --mount-path=/etc/serving-cert
-    And I run the :volume client command with:
-      | f           | dc.yaml           |
-      | action      | --add             |
-      | secret-name | ssl-key           |
-      | mount-path  | /etc/serving-cert |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc529580/dc.yaml |
     Then the step should succeed
     And I run the :expose client command with:
       | resource      | deploymentconfig |
