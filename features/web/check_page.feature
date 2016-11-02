@@ -278,3 +278,51 @@ Feature: check page info related
     When I perform the :check_standalone_pod_info_on_overview web console action with:
       | pod_name | myrun-pod |
     Then the step should succeed
+
+  # @author xxing@redhat.com
+  # @case_id 533677
+  Scenario: Check ImageStream tag page on web console
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
+    Then the step should succeed
+    # check all image stream displayed well on web
+    Given the "python" image stream becomes ready
+    When I perform the :check_image_streams web console action with:
+      | project_name | <%= project.name %> |
+      | is_name      | php56               |
+    When I get the visible text on web html page
+    Then the output should contain:
+      | jenkins    |
+      | mongodb    |
+      | mariadb    |
+      | mysql      |
+      | nodejs     |
+      | perl       |
+      | php        |
+      | postgresql |
+      | python     |
+      | ruby       |
+    # check the latest image tag
+    When I perform the :check_one_image_stream web console action with:
+      | project_name | <%= project.name %> |
+      | image_name   | python              |
+    Then the step should succeed
+    When I perform the :check_is_tag_basic_page web console action with:
+      | image_name | python |
+      | istag      | 2.7    |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should contain:
+      | $ sudo docker pull registry/python:2.7 |
+    Given the "python:2.7" image stream tag was created
+    When I perform the :check_is_tag_details_tab web console action with:
+      | digest         | <%= image_stream_tag.digest(user: user) %>         |
+      | docker_version | <%= image_stream_tag.docker_version(user: user) %> |
+    Then the step should succeed
+    Given evaluation of `anno=[];image_stream_tag.annotations(user: user).each{|key,value| anno.push(key+": "+value)};anno` is stored in the :istaganno clipboard
+    Then the expression should be true> (cb.istaganno - browser.text.split("\n")).empty?
+    Given evaluation of `label=[];image_stream_tag.labels(user: user).each{|key,value| label.push(key+"="+value.to_s)};label` is stored in the :istaglabels clipboard
+    Then the expression should be true> (cb.istaglabels - browser.text.split("\n")).empty?
+    # check istag page  "Config" tab 
+    # TODO
