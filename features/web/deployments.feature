@@ -275,7 +275,7 @@ Feature: Check deployments function
     When I perform the :check_donut_text_on_overview web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | hello-openshift     |
-      | donut_text   | 1pod                |
+      | donut_text   | 1                   |
     Then the step should succeed
 
   # @author yapei@redhat.com
@@ -320,5 +320,5 @@ Feature: Check deployments function
     When I perform the :check_donut_text_on_overview web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | hello-pod           |
-      | donut_text   | 2pods               |
+      | donut_text   | 2                   |
     Then the step should succeed

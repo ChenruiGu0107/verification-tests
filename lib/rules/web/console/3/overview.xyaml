@@ -83,7 +83,7 @@ check_donut_text_on_overview:
     - command: |
                 var texts = document.querySelectorAll('g[class=c3-chart-arcs] text')
                 for (i=0; i< texts.length; i++) {
-                  if (texts[i].textContent == '<donut_text>') {
+                  if (texts[i].textContent.contains('<donut_text>')) {
                     return true
                     }
                 }
