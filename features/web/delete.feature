@@ -36,21 +36,13 @@ Feature: Delete the resources via web console
     When I perform the :check_deleted_resources web console action with:
       | project_name     | <%= project.name %>   |
       | pod_name         | nodejs-sample-1-build |
-      | pod_warning      | The pod details could not be loaded. |
       | service_name     | nodejs-sample         |
-      | service_warning  | The service details could not be loaded |
       | bc_name          | nodejs-sample         |
-      | bc_warning       | This build configuration can not be found |
       | dc_name          | nodejs-sample         |
-      | dc_warning       | This deployment configuration can not be found |
       | build_name       | nodejs-sample-1       |
-      | build_warning    | The build details could not be loaded. |
       | route_name       | nodejs-sample         |
-      | route_warning    | The route details could not be loaded. |
       | image_name       | nodejs-sample         |
-      | image_warning    | The image stream details could not be loaded. |
       | dc_number        | 1                     |
-      | rc_warning       | The deployment details could not be loaded. |
     Then the step should succeed
 
   # @author wsun@redhat.com
@@ -127,21 +119,13 @@ Feature: Delete the resources via web console
     When I perform the :check_deleted_resources web console action with:
       | project_name     | <%= project.name %>   |
       | pod_name         | nodejs-sample-1-build |
-      | pod_warning      | The pod details could not be loaded. |
       | service_name     | nodejs-sample         |
-      | service_warning  | The service details could not be loaded |
       | bc_name          | nodejs-sample         |
-      | bc_warning       | This build configuration can not be found |
       | dc_name          | nodejs-sample         |
-      | dc_warning       | This deployment configuration can not be found |
       | build_name       | nodejs-sample-1       |
-      | build_warning    | The build details could not be loaded. |
       | route_name       | nodejs-sample         |
-      | route_warning    | The route details could not be loaded. |
       | image_name       | nodejs-sample         |
-      | image_warning    | The image stream details could not be loaded. |
       | dc_number        | 1                     |
-      | rc_warning       | The deployment details could not be loaded. |
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
