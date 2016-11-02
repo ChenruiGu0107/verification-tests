@@ -373,19 +373,19 @@ Feature: template related scenarios:
       | app_repo | openshift/mongodb:latest |
       | dry_run  | true                     |
     Then the step should succeed
-    And the output should contain ""mongodb" in project "openshift" under tag "latest""
+    And the output should contain "openshift"
     When I run the :new_app client command with:
       | app_repo | <%= project.name %>/mongodb:latest |
       | dry_run  | true                               |
     Then the step should succeed
-    And the output should contain "mongodb under tag "latest" for "<%= project.name %>/mongodb:latest""
+    And the output should contain "<%= project.name %>"
     When I run the :new_app client command with:
       | app_repo | openshift/mongodb-persistent |
       | dry_run  | true                         |
     Then the step should succeed
-    And the output should contain ""mongodb-persistent" in project "openshift" for "openshift/mongodb-persistent""
+    And the output should contain "openshift"
     When I run the :new_app client command with:
       | app_repo | <%= project.name %>/mongodb-persistent |
       | dry_run  | true                                   |
     Then the step should succeed
-    And the output should contain "mongodb-persistent for "<%= project.name %>/mongodb-persistent""
+    And the output should contain "<%= project.name %>"

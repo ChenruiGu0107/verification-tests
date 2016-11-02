@@ -122,17 +122,17 @@ Feature: oc tag related scenarios
   Scenario: oc tag gets istag pointing to image of latest revision from the source istag
     Given I have a project
     And evaluation of `project.name` is stored in the :stage clipboard
-    When I run the :new_build client command with:
-      | app_repo | https://github.com/openshift/ruby-hello-world |
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
-    Given the "ruby-hello-world-1" build completes
+    Given the "ruby-sample-build-1" build completes
     When I run the :start_build client command with:
-      | buildconfig | ruby-hello-world |
+      | buildconfig | ruby-sample-build |
     Then the step should succeed
-    Given the "ruby-hello-world-2" build completes
+    Given the "ruby-sample-build-2" build completes
     When I run the :get client command with:
       | resource | istag |
-      | resource_name | ruby-hello-world:latest |
+      | resource_name | origin-ruby-sample:latest |
       | template | {{.image.metadata.name}} |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :img2 clipboard
@@ -140,7 +140,7 @@ Feature: oc tag related scenarios
     Then the step should succeed
     And evaluation of `project.name` is stored in the :prod clipboard
     When I run the :tag client command with:
-      | source       | <%= cb.stage %>/ruby-hello-world:latest |
+      | source       | <%= cb.stage %>/origin-ruby-sample:latest |
       | dest         | <%= cb.prod %>/myis:tag1 |
     Then the step should succeed
     Then the output should match "set to.*<%= cb.img2[0..15] %>"
