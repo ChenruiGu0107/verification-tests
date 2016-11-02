@@ -300,7 +300,18 @@ Feature: secrets related scenarios
       | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret-pod-1.yaml |
     Then the step should succeed
     And the pod named "secret-pod-1" status becomes :running
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                              |
+      | user_name | <%= user(1, switch: false).name %> |
+      | n         | <%= project.name %>                |
+    Then the step should succeed
+    Then I switch to the second user
     When I create a new project
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                              |
+      | user_name | <%= user(0, switch: false).name %> |
+      | n         | <%= project.name %>                |
+    Then the step should succeed
     And I run the :create client command with:
       | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/tc483169/secret2.json |
     And I run the :create client command with:
@@ -314,6 +325,7 @@ Feature: secrets related scenarios
       | namespace        | <%= project(1).name %>        |
     Then the output should contain:
       | password-second |
+    Then I switch to the first user
     When I run the :exec client command with:
       | pod              | secret-pod-1                  |
       | exec_command     | cat                           |
@@ -532,7 +544,7 @@ Feature: secrets related scenarios
 
   # @author xiuwang@redhat.com
   # @case_id 508962
-  Scenario: Build from private repo with/without secret of token --ephemeral gitserver 
+  Scenario: Build from private repo with/without secret of token --ephemeral gitserver
     Given I have a project
     And I have an http-git service in the project
     When I run the :run client command with:
@@ -1356,11 +1368,11 @@ Feature: secrets related scenarios
     Then the step should succeed
 
   # @author wehe@redhat.com
-  # @case_id 533102 
-  Scenario: Consume secret via volume plugin with multiple volumes 
+  # @case_id 533102
+  Scenario: Consume secret via volume plugin with multiple volumes
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | secret      |
@@ -1369,7 +1381,7 @@ Feature: secrets related scenarios
       | data-1:\\s+9\\s+bytes  |
       | data-2:\\s+11\\s+bytes |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/pod-multi-volume.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/pod-multi-volume.yaml |
     Then the step should succeed
     And the pod named "multiv-secret-pod" status becomes :succeeded
     When I run the :logs client command with:
@@ -1380,11 +1392,11 @@ Feature: secrets related scenarios
       | secret-volume/data-1 |
 
   # @author wehe@redhat.com
-  # @case_id 533101 
-  Scenario: Consume same name secretes via volume plugin in different namespaces 
+  # @case_id 533101
+  Scenario: Consume same name secretes via volume plugin in different namespaces
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | secret      |
@@ -1393,7 +1405,7 @@ Feature: secrets related scenarios
       | data-1:\\s+9\\s+bytes  |
       | data-2:\\s+11\\s+bytes |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-pod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-pod.yaml |
     Then the step should succeed
     And the pod named "secret-test-pod" status becomes :succeeded
     When I run the :logs client command with:
@@ -1404,7 +1416,7 @@ Feature: secrets related scenarios
       | secret-volume/data-1 |
     Given I create a new project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | secret      |
@@ -1413,7 +1425,7 @@ Feature: secrets related scenarios
       | data-1:\\s+9\\s+bytes  |
       | data-2:\\s+11\\s+bytes |
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-pod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-pod.yaml |
     Then the step should succeed
     And the pod named "secret-test-pod" status becomes :succeeded
     When I run the :logs client command with:
