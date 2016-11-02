@@ -1,4 +1,5 @@
 Feature: filter on create page
+
   # @author: yapei@redhat.com
   # @case_id: 507525
   Scenario: search and filter for things on the create page
@@ -9,235 +10,101 @@ Feature: filter on create page
     When I perform the :filter_by_tags web console action with:
       | tag_name | instant-app |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | Instant Apps |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | instant-app |
+    Then the step should succeed
     # filter by tag quickstart
     When I perform the :filter_by_tags web console action with:
       | tag_name | quickstart |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | quickstart |
-      | PHP        |
-      | Perl       |
-      | NodeJS     |
-      | Ruby       |
-      | Python     |
-    """
-
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | quickstart |
+    Then the step should succeed
     # filter by tag xPaas
     When I perform the :filter_by_tags web console action with:
       | tag_name | xpaas |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | xPaaS |
-      | jboss |
-      | amq62 |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | xpaas |
+    Then the step should succeed
     # filter by tag java
     When I perform the :filter_by_tags web console action with:
       | tag_name | java |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | java  |
-      | jboss |
-    """
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should not contain:
-      | Python |
-      | Instant Apps |
-      | NodeJS |
-      | PHP |
-      | Other |
-      | Ruby |
-      | Perl |
-      | Databases |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | java |
+    Then the step should succeed
     # filter by tag ruby
     When I perform the :filter_by_tags web console action with:
       | tag_name | ruby |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | Ruby |
-    """
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should not contain:
-      | Python |
-      | NodeJS |
-      | Other |
-      | xPaaS |
-      | Perl |
-      | Databases |
-      | PHP |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | ruby |
+    Then the step should succeed
     # filter by tag perl
     When I perform the :filter_by_tags web console action with:
       | tag_name | perl |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | Perl |
-    """
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should not contain:
-      | Python |
-      | NodeJS |
-      | Other |
-      | Ruby |
-      | Databases |
-      | xPaaS |
-      | PHP |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | perl |
+    Then the step should succeed
     # filter by tag python
     When I perform the :filter_by_tags web console action with:
       | tag_name | python |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | Python |
-    """
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should not contain:
-      | NodeJS |
-      | Perl |
-      | Other |
-      | Ruby |
-      | Databases |
-      | xPaaS |
-      | PHP |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | python |
+    Then the step should succeed
     # filter by tag nodejs
     When I perform the :filter_by_tags web console action with:
       | tag_name | nodejs |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | NodeJS |
-    """
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should not contain:
-      | Perl |
-      | Other |
-      | Python |
-      | Ruby |
-      | Databases |
-      | xPaaS |
-      | PHP |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | nodejs |
+    Then the step should succeed
     # filter by tag database
     When I perform the :filter_by_tags web console action with:
       | tag_name | database |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should contain:
-      | Databases |
-      | mongodb |
-      | mysql |
-      | xPaaS |
-      | eap64 |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | database |
+    Then the step should succeed
     # filter by tag messaging
     When I perform the :filter_by_tags web console action with:
       | tag_name | messaging |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should contain:
-      | messaging |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | messaging |
+    Then the step should succeed
     # filter by tag php
     When I perform the :filter_by_tags web console action with:
       | tag_name | php |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | PHP |
-    """
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should not contain:
-      | Python |
-      | NodeJS |
-      | Other |
-      | xPaaS |
-      | Ruby |
-      | Perl |
-      | Databases |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | php |
+    Then the step should succeed
     When I run the :clear_tag_filters web console action
     Then the step should succeed
     # filter by partial keyword
     When I perform the :filter_by_keywords web console action with:
       | keyword | ph |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should contain:
-      | php |
-      | ephemeral |
-    """
+    When I perform the :check_all_resources_tags_contain web console action with:
+      | tag_name | ph |
+    Then the step should succeed
     When I run the :clear_keyword_filters web console action
     Then the step should succeed
-    When I perform the :filter_by_keywords web console action with:
-      | keyword | php |
-    Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should not contain:
-      | ephemeral |
-    """
-    When I run the :clear_keyword_filters web console action
-    Then the step should succeed
+
     # filter by multi-keywords
     When I perform the :filter_by_keywords web console action with:
       | keyword | quickstart perl |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should match:
-      | dancer-example |
-      | dancer-.+-example |
-    """
+    When I perform the :check_all_resources_tags_contain web console action with:
+      | tag_name | quickstart |
+    Then the step should succeed
+    When I perform the :check_all_resources_tags_contain web console action with:
+      | tag_name | perl |
+    Then the step should succeed
     When I run the :clear_keyword_filters web console action
     Then the step should succeed
     # filter by non-exist keyword
@@ -276,28 +143,15 @@ Feature: filter on create page
     When I perform the :filter_by_keywords web console action with:
       | keyword | quickstart |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should contain:
-      | NodeJS |
-      | Perl   |
-      | PHP    |
-      | Ruby   |
-      | Python |
-    """
+    When I perform the :check_all_resources_tags_contain web console action with:
+      | tag_name | quickstart |
+    Then the step should succeed
     When I perform the :filter_by_tags web console action with:
       | tag_name | nodejs |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
-    """
-    When I get the html of the web page
-    Then the output should not contain:
-      | Perl |
-      | PHP  |
-      | Ruby |
-      | Python |
-    """
+    When I perform the :check_all_resources_tags_include web console action with:
+      | tag_name | nodejs |
+    Then the step should succeed
 
   # @author yanpzhan@redhat.com
   # @case_id 470358
