@@ -29,6 +29,7 @@ Feature: AutoScaler relative cases
     Then the step should succeed
     And the output should contain:
       | ReplicationController/myrun-1 |
+    Given I wait until replicationController "myrun-1" is ready
     When I perform the :check_warning_info_for_rc_with_multiple_autoscale web console action with:
       | project_name | <%= project.name%> |
       | dc_name      | myrun              |
