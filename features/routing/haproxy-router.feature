@@ -1280,10 +1280,6 @@ Feature: Testing haproxy router
       | deploymentconfig=tc-498716 |
     And evaluation of `pod.ip` is stored in the :router_ip clipboard
 
-    Given I run commands on the nodes in the :router_node clipboard:
-      | docker ps \| grep tc-498716 |
-    Then the output should contain "0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp, 0.0.0.0:1936->1936/tcp"
-
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
@@ -1423,10 +1419,6 @@ Feature: Testing haproxy router
     Then the step should succeed
     And a pod becomes ready with labels:
       | deployment=tc-520314-2 |
-
-    Given I run commands on the nodes in the :router_node clipboard:
-      | docker ps \| grep tc-520314 |
-    Then the output should contain "0.0.0.0:<%= cb.http_port %>-><%= cb.http_port %>/tcp, 0.0.0.0:<%= cb.https_port %>-><%= cb.https_port %>/tcp, 0.0.0.0:<%= cb.stats_port %>-><%= cb.stats_port %>/tcp"
 
     Given I switch to the first user
     And I have a project
