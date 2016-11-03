@@ -82,3 +82,133 @@ Feature: Downward API
     And the output should contain:
       | region="r1" |
       | zone="z11"  |
+
+
+  # @author qwang@redhat.com
+  # @case_id 533071
+  @admin
+  Scenario: Using resources downward API via volume plugin should be compatible with metadata downward API
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-metadata-volume-pod.yaml |
+    Then the step should succeed
+    Given the pod named "dapi-resources-metadata-volume-pod" becomes ready
+    When I execute on the pod:
+      | cat | /etc/info/cpu_limit |
+    Then the step should succeed
+    And the output should match "^500$"
+    When I execute on the pod:
+      | cat | /etc/info/cpu_request |
+    Then the step should succeed
+    And the output should match "^1$"
+    When I execute on the pod:
+      | cat | /etc/info/memory_request |
+    Then the step should succeed
+    And the output should match "^64$"
+    When I execute on the pod:
+      | cat | /etc/info/memory_limit |
+    Then the step should succeed
+    And the output should match "^134217728$"
+    When I execute on the pod:
+      | cat | /etc/info/name |
+    Then the step should succeed
+    And the output should contain "dapi-resources-metadata-volume-pod"
+    When I execute on the pod:
+      | cat | /etc/info/namespace |
+    Then the step should succeed
+    And the output should contain "<%= project.name %>"
+    When I execute on the pod:
+      | cat | /etc/info/labels |
+    Then the step should succeed
+    And the output should contain "name="dapi-resources-metadata-volume-pod""
+    When I execute on the pod:
+      | cat | /etc/info/annotations |
+    Then the step should succeed
+    And the output should contain:
+      | kubernetes.io/config.source="api" |
+      | kubernetes.io/config.seen=        |
+    # Test file without requests, use limits as requests by default
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-metadata-volume-pod-without-requests.yaml |
+    Then the step should succeed
+    Given the pod named "dapi-resources-metadata-volume-pod-without-requests" becomes ready
+    When I execute on the pod:
+      | cat | /etc/info/cpu_limit | /etc/info/cpu_request | /etc/info/memory_request | /etc/info/memory_limit |
+    Then the step should succeed
+    And the output should contain "5001128134217728"
+    # Test file without limits, use node capacity as limits by default
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-metadata-volume-pod-without-limits.yaml |
+    Then the step should succeed
+    Given the pod named "dapi-resources-metadata-volume-pod-without-limits" becomes ready
+    When I execute on the pod:
+      | cat | /etc/info/cpu_request | /etc/info/memory_request |
+    Then the step should succeed
+    And the output by order should match:
+      | 250 |
+      | 64  |
+    Given evaluation of `pod("dapi-resources-metadata-volume-pod-without-limits").node_name(user: user)` is stored in the :node clipboard
+    When I run the :get admin command with:
+      | resource      | node           |
+      | resource_name | <%= cb.node %> |
+      | o             | yaml           |
+    Then the step should succeed
+    And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :nodecpulimit clipboard
+    And evaluation of `@result[:parsed]["status"]["capacity"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
+    When I execute on the pod:
+      | cat | /etc/info/cpu_limit |
+    Then the step should succeed
+    And the output should equal "<%= cb.nodecpulimit %>"
+    When I execute on the pod:
+      | cat | /etc/info/memory_limit |
+    Then the step should succeed
+    And the output should equal "<%= cb.nodememorylimit %>"
+
+
+  # @author qwang@redhat.com
+  # @case_id 533069
+  @admin
+  Scenario: Could expose resouces limits and requests via volume plugin from Downward APIs with magics keys
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-volume-magic-keys-pod.yaml |
+    Then the step should succeed
+    Given the pod named "dapi-resources-volume-magic-keys-pod" becomes ready
+    When I execute on the pod:
+      | cat | /etc/resources/cpu_limit | /etc/resources/cpu_request | /etc/resources/memory_request | /etc/resources/memory_limit |
+    Then the step should succeed
+    And the output should contain "500164134217728"
+    # Test file without requests, use limits as requests by default
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-volume-magic-keys-pod-without-requests.yaml |
+    Then the step should succeed
+    Given the pod named "dapi-resources-volume-magic-keys-pod-without-requests" becomes ready
+    When I execute on the pod:
+      | cat | /etc/resources/cpu_limit | /etc/resources/cpu_request | /etc/resources/memory_request | /etc/resources/memory_limit |
+    Then the step should succeed
+    And the output should contain "5001128134217728"
+    # Test file without limits, use node capacity as limits by default
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-volume-magic-keys-pod-without-limits.yaml |
+    Then the step should succeed
+    Given the pod named "dapi-resources-volume-magic-keys-pod-without-limits" becomes ready
+    When I execute on the pod:
+      | cat | /etc/resources/cpu_request | /etc/resources/memory_request |
+    Then the step should succeed
+    And the output by order should match:
+      | 250 |
+      | 64  |
+    Given evaluation of `pod("dapi-resources-volume-magic-keys-pod-without-limits").node_name(user: user)` is stored in the :node clipboard
+    When I run the :get admin command with:
+      | resource      | node           |
+      | resource_name | <%= cb.node %> |
+      | o             | yaml           |
+    Then the step should succeed
+    And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :nodecpulimit clipboard
+    And evaluation of `@result[:parsed]["status"]["capacity"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
+    When I execute on the pod:
+      | cat | /etc/resources/cpu_limit |
+    Then the output should equal "<%= cb.nodecpulimit %>"
+    When I execute on the pod:
+      | cat | /etc/resources/memory_limit |
+    Then the output should equal "<%= cb.nodememorylimit %>"
