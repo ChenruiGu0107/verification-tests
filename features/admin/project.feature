@@ -185,3 +185,35 @@ Feature: project permissions
     And the output should match:
       | [Ii]nvalid value.*env,qa |
 
+  # @author yinzhou@redhat.com
+  # @case_id 511603
+  @admin
+  Scenario: The job and HPA should be deleted when project has been deleted
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/hpa.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml |
+    Then the step should succeed
+    When I delete the project
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I run the :get client command with:
+      | resource | project |
+    Then the output should not contain:
+      | <%= project.name %> |
+    When I run the :get client command with:
+      | resource      | hpa                 |
+      | resource_name | php-apache          |
+      | n             | <%= project.name %> |
+    Then the step should fail
+    Then the output should contain:
+      | not found |
+    When I run the :get client command with:
+      | resource      | job                 |
+      | resource_name | pi                  |
+      | n             | <%= project.name %> |
+    Then the step should fail
+    Then the output should contain:
+      | not found |
