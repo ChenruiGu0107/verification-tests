@@ -1,5 +1,31 @@
 Feature: storageClass related feature
   # @author lxia@redhat.com
+  # @case_id 538926
+  @admin
+  @destructive
+  Scenario: storage class creation negative testing
+    Given admin ensures "slow" storage_class is deleted after scenario
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-invalidAPI.yaml |
+    Then the step should fail
+    And the output should contain:
+      | StorageClass in version "invalid" cannot be handled                       |
+      | no kind "StorageClass" is registered for version "storage.k8s.io/invalid" |
+
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-emptyName.yaml |
+    Then the step should fail
+    And the output should contain:
+      | name or generateName is required |
+
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-invalidName.yaml |
+    Then the step should fail
+    And the output should contain:
+      | Invalid value: "@test@" |
+
+  # @author lxia@redhat.com
   # @case_id 534820 534823 536564
   @admin
   @destructive
