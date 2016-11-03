@@ -71,6 +71,7 @@ module CucuShift
       end
       # JSON is subset of YAML, so we cna just use YAML parser to address both
       if res[:success] && ['json', 'yaml'].include?(fmt)
+        res[:response].gsub!("No resources found.\n","")
         res[:parsed] = YAML.load(res[:response])
       end
 
