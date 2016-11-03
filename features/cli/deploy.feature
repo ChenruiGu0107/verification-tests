@@ -91,8 +91,8 @@ Feature: deployment related features
       | deployment_config | deployment-example |
       | retry             ||
     Then the output should contain:
-      | #1 is Complete; only failed deployments can be retried        |
-      | You can start a new deployment using the --latest option      |
+      | #1 is Complete; only failed deployments can be retried |
+      | You can start a new deployment                         |
     When I get project pod
     Then the output should not contain:
       | deployment-example-1-deploy   |
@@ -279,7 +279,7 @@ Feature: deployment related features
     Then the output should contain:
       | #3 rolled back to hooks-1                                      |
       | Warning: the following images triggers were disabled           |
-      | You can re-enable them with: oc deploy hooks --enable-triggers |
+      | You can re-enable them with |
     And the pod named "hooks-3-deploy" becomes ready
     Given I wait for the pod named "hooks-3-deploy" to die
     When I run the :deploy client command with:
@@ -1530,8 +1530,8 @@ Feature: deployment related features
       | resource_name | hooks |
       | o             | json  |
     Then the step should succeed
-    And the expression should be true> @result[:parsed]['metadata']['generation'] - cb.prev_generation == 1
-    And the expression should be true> @result[:parsed]['status']['observedGeneration'] - cb.prev_observed_generation == 1
+    And the expression should be true> @result[:parsed]['metadata']['generation'] - cb.prev_generation >= 1
+    And the expression should be true> @result[:parsed]['status']['observedGeneration'] - cb.prev_observed_generation >= 1
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] >= @result[:parsed]['metadata']['generation']
 
 
@@ -1670,8 +1670,8 @@ Feature: deployment related features
       | resource_name | deployment-example |
     Then the step should succeed
     And the output should contain:
-      | caused by an image change |
-      | caused by a config change |
+      | image change |
+      | config change |
     When I run the :rollout_history client command with:
       | resource      | dc                 |
       | resource_name | deployment-example |
@@ -1723,7 +1723,7 @@ Feature: deployment related features
     And I wait until the status of deployment "history-limit" becomes :complete
     And I wait for the steps to pass:
     """
-    When I get project rc as JSON
+    When I get project rc 
     Then the output should not contain "history-limit-2"
     """
 

@@ -108,11 +108,13 @@ Feature: oc import-image related feature
     When I run the :create client command with:
       | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/tc510524.json |
     Then the step should succeed
+    Given I wait up to 10 seconds for the steps to pass:
+    """
     When I run the :import_image client command with:
       | image_name | tc510524 |
-    Then the step should fail
     And the output should match:
-      | the repository "aosqe/non-existen-image" was not found, tag "latest" has not been set on repository "aosqe/non-existen-image" |
+      | mport failed |
+    """
 
   # @author wjiang@redhat.com
   # @case_id 510525

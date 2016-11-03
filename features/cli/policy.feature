@@ -284,10 +284,6 @@ Feature: change the policy of user/service account
   Scenario: [origin_platformexp_214] User can view, add , modify and delete specific role to/from new added project via admin role user
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/projectviewservice.json"
-    And I replace lines in "projectviewservice.json":
-      | viewservices | deploy                      |
-      | "services"   | "resourcegroup:deployments" |
-    Then the step should succeed
     When I run the :create client command with:
       | f            | projectviewservice.json     |
     Then the step should succeed
@@ -299,7 +295,6 @@ Feature: change the policy of user/service account
       | name         | default                      |
     Then the step should succeed
     And the output should contain:
-      | resourcegroup:deployments                   |
       | get                                         |
       | list                                        |
       | watch                                       |
@@ -322,7 +317,7 @@ Feature: change the policy of user/service account
 
     When I run the :delete client command with:
       | object_type       | role                    |
-      | object_name_or_id | deploy                  |
+      | object_name_or_id | viewservices            |
     Then the step should succeed
     And the output should contain:
       | deleted          |

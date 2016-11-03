@@ -8,9 +8,9 @@ Feature: rolling deployment related scenarios
     #And I wait until replicationController "hooks-1" is ready
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
-      | resource | replicationcontrollers |
-      | name     | hooks-1                |
-      | replicas | 3                     |
+      | resource | dc    |
+      | name     | hooks |
+      | replicas | 3     |
     #And I wait for the pod named "hooks-1-deploy" to die
     And I replace resource "dc" named "hooks":
       | maxSurge: 25% | maxSurge: 0 |
@@ -69,9 +69,9 @@ Feature: rolling deployment related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
-      | resource | replicationcontrollers |
-      | name     | hooks-1                |
-      | replicas | 3                     |
+      | resource | dc    |
+      | name     | hooks |
+      | replicas | 3     |
     And all pods in the project are ready
     And I replace resource "dc" named "hooks":
       | maxSurge: 25%       | maxSurge: 10%       |
@@ -113,9 +113,9 @@ Feature: rolling deployment related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
     And I wait for the pod named "hooks-1-deploy" to die
     Then I run the :scale client command with:
-      | resource | replicationcontrollers |
-      | name     | hooks-1                |
-      | replicas | 3                     |
+      | resource | dc    |
+      | name     | hooks |
+      | replicas | 3     |
     And all pods in the project are ready
     And I wait up to 120 seconds for the steps to pass:
     """

@@ -153,7 +153,7 @@ Feature: remote registry related scenarios
       | docker pull docker.io/busybox:latest |
     Then the step should succeed
     And I run commands on the host:
-      | docker tag -f docker.io/busybox:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+      | docker tag  docker.io/busybox:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
     Then the step should succeed
     When I run commands on the host:
       | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
@@ -181,7 +181,7 @@ Feature: remote registry related scenarios
       | docker pull docker.io/busybox:latest |
     Then the step should succeed
     And I run commands on the host:
-      | docker tag -f docker.io/busybox:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/testa:prod |
+      | docker tag docker.io/busybox:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/testa:prod |
     Then the step should succeed
     When I run commands on the host:
       | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/testa:prod |
@@ -261,7 +261,7 @@ Feature: remote registry related scenarios
       | tc487929-busybox |
     # this bug prevents us from using docker pull https://bugzilla.redhat.com/show_bug.cgi?id=1347805
     And I run commands on the host:
-       | curl -k -u <%=user.name %>:<token>  <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v<%= cb.etcd_ver.split('.')[0] %>/<%= project.name %>/tc487929-busybox/tags/list |
+       | curl -k -u <%=user.name %>:<token>  <%=cb.registry_scheme%>://<%= cb.integrated_reg_ip %>/v2/<%= project.name %>/tc487929-busybox/tags/list |
     Then the output should contain:
       | authentication required |
     Examples:
@@ -528,8 +528,8 @@ Feature: remote registry related scenarios
       | source       | openshift/hello-openshift  |
       | dest         | mystream2:latest           |
     Then the step should fail
-    And the output should contain:
-      | forbidden: Exceeded quota |
+    And the output should match:
+      | forbidden: [Ee]xceeded quota |
     And I select a random node's host
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     When I run commands on the host:
