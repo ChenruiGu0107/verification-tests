@@ -4,35 +4,35 @@ add_pvc_to_pod:
   action: goto_add_pvc_page
   action: set_mount_path
   action: set_volume_name
-  action: submit_attach
+  action: click_add
 add_pvc_on_rc_page:
   action: goto_one_deployment_page
   action: goto_add_pvc_page
   action: set_mount_path
   action: set_volume_name
-  action: submit_attach
+  action: click_add
 add_pvc_to_all_default_containers:
-  action: goto_one_dc_page
-  action: goto_add_pvc_page
-  action: choose_the_first_pvc
-  action: set_mount_path
-  action: set_volume_name
-  action: submit_attach
-add_pvc_to_one_container:
   action: goto_one_dc_page
   action: goto_add_pvc_page
   action: choose_the_second_pvc
   action: set_mount_path
   action: set_volume_name
+  action: click_add
+add_pvc_to_one_container:
+  action: goto_one_dc_page
+  action: goto_add_pvc_page
+  action: choose_the_first_pvc
+  action: set_mount_path
+  action: set_volume_name
   action: choose_the_first_container
-  action: submit_attach
+  action: click_add
 goto_add_pvc_page:
+  action: click_actions_button
+  action: click_add_storage_link
+click_add_storage_link:
   elements:
   - selector:
-      xpath: //button[contains(text(), 'Actions')]
-    op: click
-  - selector:
-      xpath: //a[contains(text(), 'Attach Storage')]
+      xpath: //a[contains(text(), 'Add Storage')]
     op: click
 choose_the_first_pvc:
   element:
@@ -65,10 +65,10 @@ choose_the_first_container:
   - selector:
       xpath: //div[@class='checkbox ng-scope'][2]/label/input
     op: click
-submit_attach:
+click_add:
   element:
     selector:
-      text: Attach
+      text: Add
     op: click
     type: button
 check_mount_info:

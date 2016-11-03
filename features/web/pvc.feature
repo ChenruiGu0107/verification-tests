@@ -220,8 +220,18 @@ Feature: Add pvc to pod from web related
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
-
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
+      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]       | nfs-2-<%= project.name %>         |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]   | nfsc-2-<%= project.name %> |
+      | ["spec"]["volumeName"] | nfs-2-<%= project.name %>  |
+    Then the step should succeed
+    And the "nfsc-2-<%= project.name %>" PVC becomes bound to the "nfs-2-<%= project.name %>" PV
 
     When I run the :run client command with:
       | name         | mytest                    |
@@ -244,6 +254,8 @@ Feature: Add pvc to pod from web related
       | volume_name  | v1                  |
     Then the step should succeed
 
+    And I wait until the status of deployment "mytest" becomes :complete
+
     When I run the :delete client command with:
       | object_type   | pod                   |
       | l             | label=test            |
@@ -254,12 +266,6 @@ Feature: Add pvc to pod from web related
 
     When I execute on the pod:
       | grep | test | /proc/mounts |
-    Then the step should succeed
-
-    When I run the :volume client command with:
-      | resource      | rc/mytest-1             |
-      | action        | --remove                |
-      | name          | v1                      |
     Then the step should succeed
 
     #Add pvc from dc page
