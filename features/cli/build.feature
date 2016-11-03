@@ -72,46 +72,29 @@ Feature: build 'apps' with CLI
       | ruby-hello-world |
 
   # @author chunchen@redhat.com
-  # @case_id 476356, 476357
+  # @case_id 476356, 476357, 476355
   Scenario Outline: [origin_devexp_288] Push image with Docker credentials for build
     Given I have a project
-    When I run the :new_app client command with:
-      | app_repo        | <app_repo>                  |
-      | context_dir     | <context_dir>               |
-    Then the step should succeed
-    Given the "<first_build_name>" build was created
-    And the "<first_build_name>" build completed
-    When I run the :describe client command with:
-      | resource        | build                       |
-      | name            | <first_build_name>          |
-    Then the output should match:
-      | Status:.*Complete                             |
-      | Push Secret:.*builder\-dockercfg\-[a-zA-Z0-9]+|
     When I run the :new_secret client command with:
-      | secret_name     | sec-push                    |
-      | credential_file | <dockercfg_file>            |
-    Then the step should succeed
-    Given I download a file from "<template_file>"
-    When I replace lines in "<file_name>":
-      | aosqe           |  qeopenshift                |
+      | secret_name     | sec-push            |
+      | credential_file | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
     Then the step should succeed
     When I run the :new_app client command with:
-      | file            | <file_name>                 |
-    Given the "<second_build_name>" build was created
-    And the "<second_build_name>" build completed
+      | file            | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/<template_file> |
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
     When I run the :describe client command with:
-      | resource        | build                       |
-      | name            | <second_build_name>         |
+      | resource        | build               |
+      | name            | ruby-sample-build-1 |
     Then the output should match:
-      | Status:.*Complete                             |
-      | Push Secret:.*sec\-push                       |
-    When I run the :build_logs client command with:
-      | build_name      | <second_build_name>         |
-    Then the output should match "latest.*digest"
+      | Status:.*Complete                     |
+      | Push Secret:.*sec\-push               |
+    
     Examples:
-      | app_repo                                                            | context_dir                  | first_build_name   | second_build_name         | template_file                                                                                                               | dockercfg_file                                                       | file_name |
-      | openshift/python-33-centos7~https://github.com/openshift/sti-python | 3.3/test/standalone-test-app | sti-python-1       | python-sample-build-sti-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476357/application-template-stibuild.json    | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> | application-template-stibuild.json    |
-      | https://github.com/openshift/ruby-hello-world.git                   |                              | ruby-hello-world-1 | ruby-sample-build-1       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc476356/application-template-dockerbuild.json | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> | application-template-dockerbuild.json |
+      | template_file                                  |
+      | tc476357/application-template-stibuild.json    |
+      | tc476356/application-template-dockerbuild.json |
+      | tc476355/application-template-custombuild.json |
 
   # @author xxing@redhat.com
   # @case_id 491409
@@ -2268,10 +2251,6 @@ Feature: build 'apps' with CLI
       | app_repo       | aosqe/ruby-20-centos7:onbuild-user0~https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     Given the "ruby-hello-world-1" build completes
-    When I run the :logs client command with:
-      | resource_name  | build/ruby-hello-world-1 |
-    Then the step should succeed
-    And the output should match "latest.*digest"
 
   # @author haowang@redhat.com
   # @case_id 526207 526206
