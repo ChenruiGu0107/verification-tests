@@ -162,6 +162,7 @@
   :options:
       :clusterip: --clusterip=<value>
       :name: <value>
+      :nodeport: --node-port=<value>
       :tcp: --tcp=<value>
       :dry_run: --dry-run=<value>
 :create_serviceaccount:
