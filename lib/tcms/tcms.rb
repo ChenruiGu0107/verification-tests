@@ -480,5 +480,9 @@ module CucuShift
     def get_plan_info_by_name(plan_name)
       return self.call('TestPlan.filter', {"name"=> plan_name})
     end
+
+    def whoami()
+      return self.call('User.get_me')
+    end
   end
 end

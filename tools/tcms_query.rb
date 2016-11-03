@@ -529,6 +529,17 @@ def report_logs(options, status='FAILED')
   puts table
 end
 
+def create_tcms_run(options)
+  cases = options.cases.split(',').map { |c| c.strip }
+  tcms = options[:tcms]
+  opt = {}
+  opt['summary'] = "Test run created by tcms_query."
+  opt['case'] = cases
+  opt['default_tester'] = tcms.whoami['id']
+  res = tcms.create_run(opt)
+  print "TCMS run created https://tcms.engineering.redhat.com/run/#{res['run_id']}\n"
+end
+
 if __FILE__ == $0
   options = OpenStruct.new
 
@@ -583,6 +594,9 @@ if __FILE__ == $0
     opts.on('-l', '--log [FAILED|PASSED]', String, "get the passed/failed logs URL") do |log_type|
       options.log_type = log_type
     end
+    opts.on('-r', '--create_tcms_run', "create an new tcms run entry in conjunction with the cases specified by -c") do
+      options.create_run=true
+    end
   end.parse!
   tcms = CucuShift::TCMS.new(options.to_h)
   options.tcms = tcms
@@ -605,6 +619,9 @@ if __FILE__ == $0
     report_auto_testcases_by_author(options)
   elsif options.log_type
     report_logs(options, options.log_type)
+  elsif options.create_run
+    raise "You must give a csv list of testcases to be added to the new TCMS run you are creating" unless options.cases
+    create_tcms_run(options)
   else
     cases = print_report(options)
   end
