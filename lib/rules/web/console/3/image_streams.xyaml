@@ -5,33 +5,22 @@ check_empty_image_streams_page:
   - selector: 
       xpath: //tbody[@class='ng-scope']//em[contains(text(), 'No image streams to show')]
 check_image_streams:
-  action: goto_image_streams_page
   elements:
   - selector:
       xpath: //a[ancestor::table and contains(text(), '<is_name>')] 
-check_is_tag_basic_page:
-  elements:
-  - selector:
-      xpath: //a[contains(@href,'<image_name>/<istag>')]
-    type: a
-    op: click
-  - selector:
-      xpath: //li//uib-tab-heading[text()='Details']
-  - selector:
-      xpath: //li//uib-tab-heading[text()='Config']
-  - selector:
-      xpath: //li//uib-tab-heading[text()='Layers']
-check_is_tag_details_tab:
-  elements:
-  - selector:
-      xpath: //dt[text()="Digest"]/ancestor::registry-image-body//dd/tt[contains(text(),'<digest>')]
-  - selector:
-      xpath: //dt[text()="Docker Version"]/ancestor::registry-image-meta//dd[contains(text(),'<docker_version>')]
 check_one_image_stream:
   action: goto_one_image_stream_page
   elements:
   - selector:
-      xpath: //span[contains(text(),'<image_name>')]
+      text: Show annotations
+    op: click
+    type: a
+  - selector:
+      xpath: //td[contains(text(),"openshift.io/image")]
+  - selector:
+      text: Hide annotations
+    op: click
+    type: a
   - selector:
       xpath: //table/tbody//td[@data-title='Tag']/a[text()='latest']
     type: a
