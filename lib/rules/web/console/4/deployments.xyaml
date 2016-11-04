@@ -295,6 +295,17 @@ check_warning_info_after_create_hpa_without_metrics_and_cpu_request:
   action: goto_one_dc_page
   action: check_no_metrics_warning
   action: check_no_cpu_req_warning
+  action: click_edit_resource_link_in_warning_info
+  action: check_edit_resource
+click_edit_resource_link_in_warning_info:
+  elements:
+  - selector:
+      xpath: //a[contains(.,'Edit resource')]
+    op: click
+check_edit_resource:
+  elements:
+  - selector:
+      xpath: //h1[contains(.,'Resource Limits')]
 check_no_metrics_warning:
   elements:
   - selector:
