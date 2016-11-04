@@ -1,5 +1,38 @@
 Feature: storageClass related feature
   # @author lxia@redhat.com
+  # @case_id 538932 538962 538963
+  @admin
+  @destructive
+  Scenario Outline: pre-bound still works with storage class
+    Given I have a project
+    And I have a 1 GB volume and save volume id in the :vid clipboard
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/<path_to_file>" where:
+      | ["metadata"]["name"]                        | pv-<%= project.name %> |
+      | ["spec"]["capacity"]["storage"]             | 1Gi                    |
+      | ["spec"]["accessModes"][0]                  | ReadWriteOnce          |
+      | ["spec"]["<storage_type>"]["<volume_name>"] | <%= cb.vid %>          |
+      | ["spec"]["persistentVolumeReclaimPolicy"]   | Retain                 |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
+      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                        |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+    Examples:
+      | provisioner | storage_type         | volume_name | path_to_file               |
+      | gce-pd      | gcePersistentDisk    | pdName      | gce/pv-default-rwo.json    |
+      | aws-ebs     | awsElasticBlockStore | volumeID    | ebs/pv-rwo.yaml            |
+      | cinder      | cinder               | volumeID    | cinder/pv-rwx-default.json |
+
+  # @author lxia@redhat.com
   # @case_id 538926
   @admin
   @destructive
