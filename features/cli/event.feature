@@ -5,8 +5,15 @@ Feature: Event related scenarios
   Scenario: check event compressed in kube
     Given I have a project
     When I run the :new_app admin command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota_template.yaml        |
-      | param | CPU_VALUE=20,MEM_VALUE=1Gi,PV_VALUE=10,POD_VALUE=10,RC_VALUE=20,RQ_VALUE=1,SECRET_VALUE=10,SVC_VALUE=5 |
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota_template.yaml |
+      | param | CPU_VALUE=20    |
+      | param | MEM_VALUE=1Gi   |
+      | param | PV_VALUE=10     |
+      | param | POD_VALUE=10    |
+      | param | RC_VALUE=20     |
+      | param | RQ_VALUE=1      |
+      | param | SECRET_VALUE=10 |
+      | param | SVC_VALUE=5     |
       | n     | <%= project.name %>            |
     Then the step should succeed
     When  I run the :describe client command with:

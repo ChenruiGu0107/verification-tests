@@ -53,8 +53,8 @@ Feature: Quota related scenarios
     """
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509096/pod-request-limit-invalid-1.yaml
     Then the step should fail
-    And the output should contain:
-      | Failed quota: myquota: must specify cpu,memory |
+    And the output should match:
+      | (?i)Failed quota: myquota: must specify cpu,memory |
     When I run the :describe client command with:
       | resource | quota   |
       | name     | myquota |
@@ -82,9 +82,9 @@ Feature: Quota related scenarios
     """
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509095/pod-request-limit-invalid-2.yaml
     Then the step should fail
-    And the output should contain:
-      | spec.containers[0].resources.limits[cpu]: Invalid value: "500m": must be greater than or equal to request     |
-      | spec.containers[0].resources.limits[memory]: Invalid value: "256Mi": must be greater than or equal to request |
+    And the output should match:
+      | spec.containers\[0\].resources.limits(\[cpu\])?: Invalid value: "500m": must be greater than or equal to( cpu)? request  |
+      | spec.containers\[0\].resources.limits(\[memory\])?: Invalid value: "256Mi": must be greater than or equal to( memory)? request |
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :describe client command with:
@@ -115,8 +115,8 @@ Feature: Quota related scenarios
     """
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509094/pod-request-limit-invalid-3.yaml
     Then the step should fail
-    And the output should contain:
-      | Exceeded quota |
+    And the output should match:
+      | Error from server.*forbidden: (?i)Exceeded quota.* |
     When I run the :describe client command with:
       | resource | quota   |
       | name     | myquota |
@@ -690,8 +690,15 @@ Feature: Quota related scenarios
   Scenario: Could create quota if existing resources exceed to the hard quota but prevent to create further resources
     Given I have a project
     When I run the :new_app admin command with:
-      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota_template.yaml        |
-      | param | CPU_VALUE=0.2,MEM_VALUE=1Gi,PV_VALUE=1,POD_VALUE=2,RC_VALUE=3,RQ_VALUE=3,SECRET_VALUE=5,SVC_VALUE=5 |
+      | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota_template.yaml |
+      | param | CPU_VALUE=0.2  |
+      | param | MEM_VALUE=1Gi  |
+      | param | PV_VALUE=1     |
+      | param | POD_VALUE=2    |
+      | param | RC_VALUE=3     |
+      | param | RQ_VALUE=3     |
+      | param | SECRET_VALUE=5 |
+      | param | SVC_VALUE=5    |
       | n     | <%= project.name %>            |
     Then the step should succeed
     When  I run the :describe client command with:
@@ -710,7 +717,7 @@ Feature: Quota related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509087/mysecret.json |
     Then the step should fail
     And the output should match:
-      | Error from server.*forbidden: Exceeded quota.*    |
+      | Error from server.*forbidden: (?i)Exceeded quota.* |
     When I run the :patch admin command with:
       | resource | quota |
       | resource_name | myquota |
