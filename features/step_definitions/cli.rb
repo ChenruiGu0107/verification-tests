@@ -165,3 +165,45 @@ Given /^I terminate last background process$/ do
   @bg_processes.last.kill_tree
   @result = @bg_processes.last.result
 end
+
+# This step needs flexibly specify table.
+# A. When the expected json is just == the patch json, the step only needs specify one-unit table, like:
+#     | {"spec":{"replicas":2}} |
+# B. Otherwise, the step needs specify four-unit table, like (explained below):
+#     | patch  | {"metadata":{"labels":{"labelname": null}}} |
+#     | expect | {"metadata":{"labels":null}}                |
+# A is the most frequent situation when using oc patch without 'null' in patch json.
+# B is the situation when the expected json != the patch json, though the patch succeeds.
+# E.g. if the resource has ONLY ONE label and we remove it, the "labels" key will be removed together, so
+# the expected json should be {"metadata":{"labels":null}}.
+Given /^I successfully patch resource "(.*)\/(.*)" with:$/ do |resource_type, resource_name, table|
+  if table.raw[1]
+    hash = table.rows_hash
+    patch_json = hash["patch"]
+    expect_hash = YAML.load(hash["expect"])
+  elsif
+    patch_json = table.raw[0][0]
+    expect_hash = YAML.load(patch_json)
+  end
+
+  opts = {resource: resource_type, resource_name: resource_name, p: patch_json}
+  res = user.cli_exec(:patch, **opts)
+  unless res[:success]
+    logger.error(res[:response])
+    raise "Failed to patch #{resource_type} #{resource_name} with #{patch_json}"
+  end
+
+  opts = {resource: resource_type, resource_name: resource_name, o: "yaml", _quiet: true}
+  sec = 30
+  failpath = nil
+  success = wait_for(sec) {
+    failpath = []
+    res = user.cli_exec(:get, **opts)
+    substruct?(expect_hash, res[:parsed], vague_nulls: true, failpath: failpath, exact_arrays: true, null_deletes_key: true)
+  }
+
+  if ! success
+    raise "patch failed to apply at #{failpath}! #{@result[:response]}"
+  end
+end
+

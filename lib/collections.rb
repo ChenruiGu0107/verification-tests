@@ -186,6 +186,75 @@ module CucuShift
       opts_array_to_hash(opts, sym_mode: sym_mode, array_mode: array_mode)
     end
 
+    # @param test_hash [Hash] the hash supposed to be a subhash
+    # @param base_hash [Hash] the hash supposed to contain test_hash
+    # @param failpath [Array, nil] if user supplies an array to this parameter
+    #   it will be filled with the failure path in case test fails
+    # @param null_deletes_key [Boolean] require null keys in test_hash to
+    #   correspond to missing keys in base_hash
+    # @param vague_nulls [Boolean] should we allow empty arrays and hashes be
+    #   treated as equivalent to null values
+    # @param exact_arrays [Boolean] should we look for array exact matches or
+    #   subset; note: when false and there is order dismatch, false result is
+    #   possible even if the struct is a subset
+    # @return [Boolean]
+    # @note: see `Scenario: substructs` in features/test/collections.feature for
+    #   tests
+    def substruct?(test_hash, base_hash, failpath: nil, null_deletes_key: false,
+                 vague_nulls: false, exact_arrays: false)
+
+      recurse = proc { |k, v|
+        success = substruct?(
+            v, base_hash[k],
+            failpath: failpath,
+            null_deletes_key: null_deletes_key,
+            vague_nulls: vague_nulls,
+            exact_arrays: exact_arrays
+          )
+        failpath.unshift(k) if failpath && !success
+        success
+      }
+
+      only_nulls = proc { |h|
+        return h.nil? ||
+          ( Hash === h && h.all? {|k,v| only_nulls === v} ) # ||
+          # ( Array === h && h.all? {|e| only_nulls === e} )
+      }
+
+      case
+      when Hash === test_hash && Hash === base_hash
+        return test_hash.all? { |k,v|
+          if v.nil? && null_deletes_key
+            !base_hash.has_key?(k)
+          else
+            base_hash.has_key?(k) && recurse.call(k, v)
+          end
+        }
+      when Array === test_hash && Array === base_hash
+        return exact_arrays && test_hash.size == base_hash.size &&
+          test_hash == base_hash ||
+          # test_hash.each_with_index.all? { |v,k| recurse.call(k, v) } ||
+
+          !exact_arrays && test_hash.size <= base_hash.size &&
+          test_hash.reduce({success: true, basearry: base_hash.dup}) { |memo, v|
+            if e = memo[:basearry].find {|e| recurse.call(base_hash.find_index(e), v)}
+              memo[:basearry].delete(e)
+              memo
+            else
+              memo[:success] = false
+              break memo
+            end
+          }[:success]
+      when test_hash.nil?
+        return base_hash.nil? ||
+          vague_nulls && Enumerable === base_hash && base_hash.empty?
+      when base_hash.nil?
+        return vague_nulls && null_deletes_key && only_nulls === test_hash
+      else
+        return test_hash == base_hash
+      end
+    end
+
     # helper method to get variables hash from a Cucumber Table#raw
     # @param opts [Hash, Array<String>] array of strings like `VAR=VALUE` pairs
     #   or a Hash; if Hash, no processing is done
