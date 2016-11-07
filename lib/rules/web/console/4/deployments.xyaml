@@ -149,7 +149,7 @@ goto_set_resource_limit_page:
   action: click_actions_button
   elements:
   - selector:
-      xpath: //a[contains(text(), 'Set Resource Limits')]
+      xpath: //a[contains(text(), 'Edit Resource Limits')]
     op: click
 goto_health_check_page:
   action: click_actions_button
@@ -194,7 +194,7 @@ check_dc_config_trigger:
   action: check_dc_loaded_completely
   elements:
   - selector:
-      xpath: //dt[contains(.,"Change of")]/following-sibling::dd[contains(.,'<dc_config_change>')]
+      xpath: //dt[contains(.,"Change Of")]/following-sibling::dd[contains(.,'<dc_config_change>')]
 check_dc_selector:
   action: check_dc_loaded_completely
   elements:
