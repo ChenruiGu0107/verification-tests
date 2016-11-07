@@ -202,7 +202,7 @@ check_build_strategy:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'Build strategy')]/following-sibling::dd[contains(.,'<build_strategy>')]
+      xpath: //dt[contains(.,'Build Strategy')]/following-sibling::dd[contains(.,'<build_strategy>')]
 check_build_trigger:
   action: goto_one_build_page
   elements:

@@ -106,9 +106,9 @@ check_webhook_trigger_doc_link_in_bc_page:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'Generic webhook URL')]/a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/builds.html#webhook-triggers")]
+      xpath: //dt[contains(.,'Generic Webhook URL')]/a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/builds.html#webhook-triggers")]
   - selector:
-      xpath: //dt[contains(.,'GitHub webhook URL')]/a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/builds.html#webhook-triggers")]
+      xpath: //dt[contains(.,'GitHub Webhook URL')]/a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/builds.html#webhook-triggers")]
 check_webhook_trigger_doc_link_in_bc_page_online:
   action: goto_buildconfig_configuration_tab
   elements:
