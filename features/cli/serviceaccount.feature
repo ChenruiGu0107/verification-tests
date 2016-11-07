@@ -737,3 +737,46 @@ Feature: ServiceAccount and Policy Managerment
     Then the output should contain:
       |system:serviceaccount:<%= project.name %>:<%= cb.serviceaccount_name %>|
 
+  # @author yinzhou@redhat.com
+  # @case_id: 526284
+  @admin
+  Scenario: Admin and Editor have the power to impersonate SAs in their namespace
+    Given I have a project
+    And evaluation of `project.name` is stored in the :original_proj clipboard
+    When I give project edit role to the second user
+    When I give project view role to the third user
+    When I switch to the fourth user
+    Given a 5 characters random string of type :dns is stored into the :proj2_name clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.proj2_name %> |
+      | display_name | <%= cb.proj2_name %> |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role          | view                                                   |
+      | user_name     | system:serviceaccount:<%= cb.original_proj %>:default  |
+    Then the step should succeed
+    Given I switch to the first user
+    When I run the :get client command with:
+      | resource | projects |
+    Then the output should contain "<%= cb.original_proj %>"
+    When I run the :get client command with:
+      | resource | projects                                              |
+      | as       | system:serviceaccount:<%= cb.original_proj %>:default |
+    Then the output should contain "<%= cb.proj2_name %>"
+    Given I switch to the second user
+    When I run the :get client command with:
+      | resource | projects |
+    Then the output should contain "<%= cb.original_proj %>"
+    When I run the :get client command with:
+      | resource | projects |
+      | as       | system:serviceaccount:<%= cb.original_proj %>:default |
+    Then the output should contain "<%= cb.proj2_name %>"
+    Given I switch to the third user
+    When I run the :get client command with:
+      | resource | projects |
+    Then the output should contain "<%= cb.original_proj %>"
+    When I run the :get client command with:
+      | resource | projects                                              |
+      | as       | system:serviceaccount:<%= cb.original_proj %>:default |
+    Then the step should fail
+    Then the output should contain "impersonate"
