@@ -83,8 +83,9 @@ Feature: ISCSI volume plugin testing
 
     # Create RW PV/PVC for LUN 0
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pv-read-write.json" where:
-      | ["metadata"]["name"]              | iscsi-rw-<%= project.name %> |
-      | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260      |
+      | ["metadata"]["name"]                      | iscsi-rw-<%= project.name %> |
+      | ["spec"]["iscsi"]["targetPortal"]         | <%= cb.iscsi_ip %>:3260      |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                       |
     And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pvc-read-write.json" replacing paths:
       | ["metadata"]["name"]   | iscsi-rw-<%= project.name %> |
       | ["spec"]["volumeName"] | iscsi-rw-<%= project.name %> |
@@ -93,8 +94,9 @@ Feature: ISCSI volume plugin testing
 
     # Create RO PV/PVC for LUN 1
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pv-read-only.json" where:
-      | ["metadata"]["name"]              | iscsi-ro-<%= project.name %> |
-      | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260      |
+      | ["metadata"]["name"]                      | iscsi-ro-<%= project.name %> |
+      | ["spec"]["iscsi"]["targetPortal"]         | <%= cb.iscsi_ip %>:3260      |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                       |
     And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pvc-read-only.json" replacing paths:
       | ["metadata"]["name"]   | iscsi-ro-<%= project.name %> |
       | ["spec"]["volumeName"] | iscsi-ro-<%= project.name %> |
