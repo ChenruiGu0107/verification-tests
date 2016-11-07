@@ -80,18 +80,23 @@ Feature: Add env variables to image feature
   # @case_id 473391 508068 529314
   Scenario Outline: Add env variables to postgresql image
     Given I have a project
-    When I run the :run client command with:
-      | name  | psql                                                                                                                                      |
-      | image | <image>                                                                                                                                   |
-      | env   | POSTGRESQL_USER=user,POSTGRESQL_PASSWORD=redhat,POSTGRESQL_DATABASE=sampledb,POSTGRESQL_MAX_CONNECTIONS=42,POSTGRESQL_SHARED_BUFFERS=64MB |
+    When I run the :new_app client command with:
+      | name         | psql                           |
+      | docker_image | <image>                        |
+      | env          | POSTGRESQL_USER=user           |
+      | env          | POSTGRESQL_PASSWORD=redhat     |
+      | env          | POSTGRESQL_DATABASE=sampledb   |
+      | env          | POSTGRESQL_MAX_CONNECTIONS=42  |
+      | env          | POSTGRESQL_SHARED_BUFFERS=64MB |
+    Then the step should succeed
     And a pod becomes ready with labels:
-      | run=psql |
+      | deployment=psql-1 |
     When I execute on the pod:
       | env |
     Then the output should contain:
       | POSTGRESQL_SHARED_BUFFERS=64MB |
       | POSTGRESQL_MAX_CONNECTIONS=42  |
-    And I wait for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     When I execute on the pod:
       | bash                           |
@@ -102,7 +107,7 @@ Feature: Add env variables to image feature
     Then the output should contain:
       | shared_buffers |
       | 64MB           |
-    And I wait for the steps to pass:
+    And I wait up to 30 seconds for the steps to pass:
     """
     And I execute on the pod:
       | bash                            |
@@ -151,35 +156,42 @@ Feature: Add env variables to image feature
   # @case_id 527301 527302
   Scenario Outline: Add env var to mysql 55 and 56
     Given I have a project
-    When I run the :run client command with:
-      | name  | mysql                                                  |
-      | image | <image>                                                |
-      | env   | MYSQL_ROOT_PASSWORD=test,MYSQL_MAX_ALLOWED_PACKET=400M |
+    When I run the :new_app client command with:
+      | name         | mysql                         |
+      | docker_image | <image>                       |
+      | env          | MYSQL_ROOT_PASSWORD=test      |
+      | env          | MYSQL_MAX_ALLOWED_PACKET=400M |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | run=mysql |
+      | deployment=mysql-1 |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | cat | /etc/my.cnf.d/tuning.cnf |
     Then the step should succeed
     And the output should contain:
       | max_allowed_packet = 400M |
+    """
     When I run the :delete client command with:
       | all_no_dash |  |
       | all         |  |
     Then the step should succeed
     Given I wait for the pod to die regardless of current status
-    When I run the :run client command with:
-      | name  | mysql                    |
-      | image | <image>                  |
-      | env   | MYSQL_ROOT_PASSWORD=test |
+    When I run the :new_app client command with:
+      | name         | mysql2                   |
+      | docker_image | <image>                  |
+      | env          | MYSQL_ROOT_PASSWORD=test |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | run=mysql |
+      | deployment=mysql2-1 |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | cat | /etc/my.cnf.d/tuning.cnf |
     Then the step should succeed
     And the output should contain:
       | max_allowed_packet = 200M |
+    """
     Examples:
       | image                                                      |
       | <%= product_docker_repo %>openshift3/mysql-55-rhel7:latest |
@@ -189,13 +201,15 @@ Feature: Add env variables to image feature
   # @case_id 529325 529362
   Scenario Outline: mem based auto-tuning mariadb
     Given I have a project
-    When I run the :run client command with:
-      | name  | mariadb                                        |
-      | image | <%= product_docker_repo %>rhscl/<image>:latest |
-      | env   | MYSQL_ROOT_PASSWORD=test                       |
+    When I run the :new_app client command with:
+      | name         | mariadb                                        |
+      | docker_image | <%= product_docker_repo %>rhscl/<image>:latest |
+      | env          | MYSQL_ROOT_PASSWORD=test                       |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | run=mariadb |
+      | deployment=mariadb-1 |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | cat | /etc/my.cnf.d/tuning.cnf |
     Then the output should contain:
@@ -204,19 +218,26 @@ Feature: Add env variables to image feature
       | innodb_buffer_pool_size = 32M |
       | innodb_log_file_size = 8M     |
       | innodb_log_buffer_size = 8M   |
+    """
     When I run the :delete client command with:
       | all_no_dash |  |
       | all         |  |
     Then the step should succeed
     Given I wait for the pod to die regardless of current status
-    When I run the :run client command with:
-      | name   | mariadb                                        |
-      | image  | <%= product_docker_repo %>rhscl/<image>:latest |
-      | env    | MYSQL_ROOT_PASSWORD=test                       |
-      | limits | memory=512Mi                                   |
+    When I run the :new_app client command with:
+      | name         | mariadb2                                       |
+      | docker_image | <%= product_docker_repo %>rhscl/<image>:latest |
+      | env          | MYSQL_ROOT_PASSWORD=test                       |
     Then the step should succeed
+    Given I wait until the status of deployment "mariadb2" becomes :running
+    When I run the :patch client command with:
+      | resource      | dc                                                                                                        |
+      | resource_name | mariadb2                                                                                                  |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"mariadb2","resources":{"limits":{"memory":"512Mi"}}}]}}}} |
     Given a pod becomes ready with labels:
-      | run=mariadb |
+      | deployment=mariadb2-2 |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | cat | /etc/my.cnf.d/tuning.cnf |
     Then the output should contain:
@@ -225,6 +246,7 @@ Feature: Add env variables to image feature
       | innodb_buffer_pool_size = 256M |
       | innodb_log_file_size = 76M     |
       | innodb_log_buffer_size = 76M   |
+    """
     Examples:
       | image             |
       | mariadb-100-rhel7 |

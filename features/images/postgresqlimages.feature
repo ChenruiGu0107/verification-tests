@@ -33,11 +33,21 @@ Feature: Postgresql images test
   # @case_id 528404 528405 529315
   Scenario Outline: Check memory limits env vars when pod is set with memory limit - postgresql
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc528404/dc.json" replacing paths:
-      | ["spec"]["template"]["spec"]["containers"][0]["image"] | <image> |
+    When I run the :new_app client command with:
+      | name         | psql                              |
+      | docker_image | <%= product_docker_repo %><image> |
+      | env          | POSTGRESQL_USER=user              |
+      | env          | POSTGRESQL_PASSWORD=redhat        |
+      | env          | POSTGRESQL_DATABASE=sampledb      |
+    Then the step should succeed
+    Given I wait until the status of deployment "psql" becomes :running
+    When I run the :patch client command with:
+      | resource      | dc                                                                                                             |
+      | resource_name | psql                                                                                                           |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"psql","resources":{"limits":{"memory":"256Mi"}}}]}}}} |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=psql-1 |
+      | deployment=psql-2 |
     And I execute on the pod:
       | grep | shared_buffers | /var/lib/pgsql/openshift-custom-postgresql.conf |
     Then the output should contain "shared_buffers = 64MB"
