@@ -7,14 +7,6 @@ check_log_tab_on_pod_page:
   - selector:
       xpath: //div[@class='log-status']//span[@class='ng-binding' and contains(text(),'<status>')]
     timeout: 300
-check_log_tab_on_running_deployment_page:
-  elements:
-  - selector:
-      xpath: //uib-tab-heading[text()='Logs']
-    op: click
-  - selector:
-      xpath: //div[@class='log-status']/span[contains(.,'Running')]
-    timeout: 300
 check_log_tab_on_deployed_deployment_page:
   elements:
   - selector:
@@ -80,10 +72,6 @@ go_to_end_log:
 open_full_view_log:
   action: open_in_new_window
   action: check_log_context
-check_log_context_on_running_deployment_page:
-  action: goto_one_deployment_page
-  action: check_log_tab_on_running_deployment_page
-  action: check_running_log_context
 check_log_context_on_deployed_deployment_page:
   action: goto_one_deployment_page
   action: check_log_tab_on_deployed_deployment_page
