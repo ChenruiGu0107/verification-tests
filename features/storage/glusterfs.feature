@@ -165,3 +165,33 @@ Feature: Storage of GlusterFS plugin testing
       | f | https://raw.githubusercontent.com/openshift-qe/docker-gluster/master/pod-direct.json |
     Then the step should succeed
     And the pod named "gluster" becomes ready
+
+  # @author jhou@redhat.com
+  # @case_id 534845
+  @admin
+  Scenario: Dynamically provision a GlusterFS volume
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
+      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    # Switch to admin so as to create privileged pod
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/pod.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>     |
+    Then the step should succeed
+    And the pod named "gluster" status becomes :running
+
+    # Test creating files
+    When I execute on the "gluster" pod:
+      | touch | /mnt/gluster/gluster_testfile |
+    Then the step should succeed
+    When I execute on the "gluster" pod:
+      | ls | /mnt/gluster/ |
+    Then the output should contain:
+      | gluster_testfile |

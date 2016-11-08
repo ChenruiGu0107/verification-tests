@@ -39,3 +39,12 @@ When /^admin creates a StorageClass from "([^"]*)" where:$/ do |location, table|
     raise "failed to create StorageClass from: #{location}"
   end
 end
+
+Given(/^I have a StorageClass named "([^"]*)"$/) do | storageclass_name |
+  step %Q/I run the :get admin command with:/, table(%{
+    | resource      | StorageClass         |
+    | resource_name | #{storageclass_name} |
+  })
+
+  step %Q/the step should succeed/
+end
