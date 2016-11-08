@@ -857,10 +857,12 @@ Feature: build 'apps' with CLI
       | tag:\\s+latest |
 
     When I run the :new_build client command with:
-      | code  | ruby-hello-world |
-      | strategy | source        |
-      | e     | key1=value1,key2=value2,key3=value3 |
-      | name  | myruby1          |
+      | code     | ruby-hello-world |
+      | strategy | source           |
+      | e        | key1=value1      |
+      | e        | key2=value2      |
+      | e        | key3=value3      |
+      | name     | myruby1          |
     Then the step should succeed
     And the "myruby1-1" build was created
     And the "myruby1-1" build completed
