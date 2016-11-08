@@ -76,7 +76,7 @@ module CucuShift
         # TODO: check status
         return (snapshots.items.sort_by {|s| s.creation_timestamp}).last
       else
-        raise "Can not find the snapshot: #{snapshots_name}"
+        raise "Can not find the snapshot: #{snapshot_name}"
       end
     end
 
