@@ -73,19 +73,21 @@ Feature: service related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/hello-openshift.json |
     Then the step should succeed
-    When I get project pod named "hello-openshift" as JSON
-    And evaluation of `@result[:parsed]['status']['hostIP']` is stored in the :hostip clipboard
+    And evaluation of `pod('hello-openshift').node_ip(user: user)` is stored in the :hostip clipboard
+    And evaluation of `rand(6000..9000)` is stored in the :hostport clipboard
+    And evaluation of `rand(6000..9000)` is stored in the :hostport2 clipboard
+    And evaluation of `rand(30000..32767)` is stored in the :random_node_port clipboard
     When I run the :create_service client command with:
-      | createservice_type  | nodeport                     |
-      | name                | hello-openshift              |
-      | tcp                 | <%= rand(6000..9000) %>:8080 |
+      | createservice_type | nodeport                |
+      | name               | hello-openshift         |
+      | tcp                | <%= cb.hostport %>:8080 |
     Then the step should succeed
-    When I get project service named "hello-openshift" as JSON
-    And evaluation of `@result[:parsed]['spec']['ports'][0]['nodePort']` is stored in the :hostport clipboard
+    And evaluation of `service('hello-openshift').node_port(user: user, port: cb.hostport)` is stored in the :node_port clipboard
+    Then the step should succeed
     Given I wait for the "hello-openshift" service to become ready
     And I select a random node's host
     When I run commands on the host:
-      | curl <%= cb.hostip %>:<%= cb.hostport %> |
+      | curl <%= cb.hostip %>:<%= cb.node_port %> |
     Then the step should succeed
     And the output should contain:
       | Hello OpenShift! |
@@ -94,15 +96,13 @@ Feature: service related scenarios
       | object_name_or_id | hello-openshift |
     Then the step should succeed
     When I run the :create_service client command with:
-      | createservice_type  | nodeport                     |
-      | name                | hello-openshift              |
-      | nodeport            | <%= rand(30000..32767) %>      |
-      | tcp                 | <%= rand(6000..9000) %>:8080 |
+      | createservice_type | nodeport                   |
+      | name               | hello-openshift            |
+      | nodeport           | <%= cb.random_node_port %> |
+      | tcp                | <%= cb.hostport2 %>:8080   |
     Then the step should succeed
-    When I get project service named "hello-openshift" as JSON
-    And evaluation of `@result[:parsed]['spec']['ports'][0]['nodePort']` is stored in the :hostport2 clipboard
     And I select a random node's host
     When I run commands on the host:
-      | curl <%= cb.hostip %>:<%= cb.hostport2 %> |
+      | curl <%= cb.hostip %>:<%= cb.random_node_port %> |
     Then the step should succeed
 

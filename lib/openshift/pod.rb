@@ -42,7 +42,7 @@ module CucuShift
       props[:ip] = s["podIP"]
       # status should be retrieved on demand but we cache it for the brave
       props[:status] = s
-
+      props[:node_ip] = props[:status]["hostIP"]
 
       return self # mainly to help ::from_api_object
     end
@@ -174,6 +174,11 @@ module CucuShift
     # @note call without parameters only when props are loaded
     def node_name(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :node_name, user: user, cached: cached, quiet: quiet)
+    end
+
+    # @note call without parameters only when props are loaded
+    def node_ip(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :node_ip, user: user, cached: cached, quiet: quiet)
     end
 
     def env_var(name, container: nil, user: nil)
