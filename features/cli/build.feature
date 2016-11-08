@@ -5,9 +5,11 @@ Feature: build 'apps' with CLI
   Scenario: Create a build config from a remote repository using branch
     Given I have a project
     When I run the :new_build client command with:
-      | code           | https://github.com/openshift/ruby-hello-world#beta2 |
-      | e              | key1=value1,key2=value2,key3=value3                 |
-      | image_stream   | openshift/ruby                                      |
+      | code         | https://github.com/openshift/ruby-hello-world#beta2 |
+      | e            | key1=value1                                         |
+      | e            | key2=value2                                         |
+      | e            | key3=value3                                         |
+      | image_stream | openshift/ruby                                      |
     Then the step should succeed
     When I get project bc named "ruby-hello-world" as YAML
     Then the output should match:
