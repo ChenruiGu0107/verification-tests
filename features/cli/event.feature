@@ -156,3 +156,20 @@ Feature: Event related scenarios
     Given 20 seconds have passed
     When I terminate last background process
     And the expression should be true> @result[:response] != "<%= cb.watchevent1 %>"
+
+  # @author dma@redhat.com
+  # @case_id 533910
+  Scenario: Event should show full failed reason when readiness probe failed
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc533910/readiness-probe-exec.yaml |
+    Then the step should succeed
+    Given the pod named "hello-pod" status becomes :running
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pod       |
+      | name     | hello-pod |
+    Then the output should match:
+      | Unhealthy\tReadiness probe failed:.*exec failed.*\/bin\/hello: no such file or directory |
+    """
