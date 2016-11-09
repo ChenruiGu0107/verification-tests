@@ -198,10 +198,9 @@ Feature: oc_volume.feature
       | mount-path  | /etc      |
     Then the step should succeed
     And the output should contain:
-      | replicationcontrollers/myrc1 |
-      | replicationcontrollers/myrc2 |
-      | replicationcontrollers/myrc3 |
-    And evaluation of `@result[:response]` is stored in the :output clipboard
+      | myrc1 |
+      | myrc2 |
+      | myrc3 |
 
     When I run the :volume client command with:
       | resource | rc     |
@@ -236,7 +235,10 @@ Feature: oc_volume.feature
       | all      | true   |
       | action   | --list |
     Then the step should succeed
-    And the output should contain "<%= cb.output %>"
+    And the output should contain:
+      | myrc1 |
+      | myrc2 |
+      | myrc3 |
 
   # @author gpei@redhat.com
   # @case_id 491435
