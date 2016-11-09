@@ -120,7 +120,7 @@ Feature: oc_delete.feature
     When I get project pods
     Then the step should succeed
     And the output should contain "Terminating"
-    Given 10 seconds have passed
+    Given 15 seconds have passed
     When I get project pods
     Then the step should succeed
     And the output should not contain "Terminating"
