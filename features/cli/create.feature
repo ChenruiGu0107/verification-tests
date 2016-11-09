@@ -197,12 +197,15 @@ Feature: creating 'apps' with CLI
       | ruby-helloworld-sample   This example shows how to create a simple ruby application in openshift |
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample |
-      | param    | MYSQL_DATABASE=db1,ADMIN_PASSWORD=pass1|
+      | param    | MYSQL_DATABASE=db1     |
+      | param    | ADMIN_PASSWORD=pass1   |
     Then the step should succeed
-    And I get project dc named "frontend" as YAML
+    When I get project dc named "frontend" as YAML
     Then the output by order should match:
       | name: ADMIN_PASSWORD |
       | value: pass1         |
+    When I get project dc named "database" as YAML
+    Then the output by order should match:
       | name: MYSQL_DATABASE |
       | value: db1           |
 
