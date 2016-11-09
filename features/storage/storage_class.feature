@@ -172,8 +172,7 @@ Feature: storageClass related feature
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas               |
     Then the step should succeed
-    Given a pod becomes ready with labels:
-      | name=frontendhttp |
+    Given the pod named "pod-<%= project.name %>" becomes ready
     When I execute on the pod:
       | ls | -ld | /mnt/iaas/ |
     Then the step should succeed
