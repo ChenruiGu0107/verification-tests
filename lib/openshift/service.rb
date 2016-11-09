@@ -64,5 +64,24 @@ module CucuShift
     def ip(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :ip, user: user, cached: cached, quiet: quiet)
     end
+    # @note call without parameters only when props are loaded
+    # return @Array of ports
+    def ports(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :ports, user: user, cached: cached, quiet: quiet)
+    end
+
+    # @note call without parameters only when props are loaded
+    def node_port(user: nil, port: port, cached: true, quiet: false)
+      node_port = nil
+      ports = get_cached_prop(prop: :ports, user: user, cached: cached, quiet: quiet)
+      ports.each do | p |
+        node_port = p['nodePort'] if p['port'] == port
+      end
+      return node_port
+    end
+
+
+
+
   end
 end

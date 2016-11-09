@@ -65,3 +65,44 @@ Feature: service related scenarios
       | resource_name | hello-pod |
     Then the step should fail
 
+  # @author yinzhou@redhat.com
+  # @case_id 535539
+  @admin
+  Scenario: Create nodeport service
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/hello-openshift.json |
+    Then the step should succeed
+    And evaluation of `pod('hello-openshift').node_ip(user: user)` is stored in the :hostip clipboard
+    And evaluation of `rand(6000..9000)` is stored in the :hostport clipboard
+    And evaluation of `rand(6000..9000)` is stored in the :hostport2 clipboard
+    And evaluation of `rand(30000..32767)` is stored in the :random_node_port clipboard
+    When I run the :create_service client command with:
+      | createservice_type | nodeport                |
+      | name               | hello-openshift         |
+      | tcp                | <%= cb.hostport %>:8080 |
+    Then the step should succeed
+    And evaluation of `service('hello-openshift').node_port(user: user, port: cb.hostport)` is stored in the :node_port clipboard
+    Then the step should succeed
+    Given I wait for the "hello-openshift" service to become ready
+    And I select a random node's host
+    When I run commands on the host:
+      | curl <%= cb.hostip %>:<%= cb.node_port %> |
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift! |
+    When I run the :delete client command with:
+      | object_type       | service         |
+      | object_name_or_id | hello-openshift |
+    Then the step should succeed
+    When I run the :create_service client command with:
+      | createservice_type | nodeport                   |
+      | name               | hello-openshift            |
+      | nodeport           | <%= cb.random_node_port %> |
+      | tcp                | <%= cb.hostport2 %>:8080   |
+    Then the step should succeed
+    And I select a random node's host
+    When I run commands on the host:
+      | curl <%= cb.hostip %>:<%= cb.random_node_port %> |
+    Then the step should succeed
+
