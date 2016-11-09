@@ -244,7 +244,7 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
     nat_matches = [
       'PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
       'POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING',
-      "POSTROUTING -s #{subnet} ! -d #{subnet} -j MASQUERADE"
+      "POSTROUTING -s #{subnet}(.*)-j MASQUERADE"
     ]
     @result = _host.exec_admin("iptables-save -t nat")
     nat_matches.each { |match|
