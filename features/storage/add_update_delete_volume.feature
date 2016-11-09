@@ -7,9 +7,12 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Preparations
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:2.6                                                                       |
-      | env          | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
-      | name         | mydb                                                                                        |
+      | image_stream | openshift/mongodb:2.6      |
+      | env          | MONGODB_USER=tester        |
+      | env          | MONGODB_PASSWORD=xxx       |
+      | env          | MONGODB_DATABASE=testdb    |
+      | env          | MONGODB_ADMIN_PASSWORD=yyy |
+      | name         | mydb                       |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
@@ -161,8 +164,11 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/mongodb:2.6                                                                       |
-      | env          | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
-      | name         | mydb                                                                                        |
+      | env          | MONGODB_USER=tester        |
+      | env          | MONGODB_PASSWORD=xxx       |
+      | env          | MONGODB_DATABASE=testdb    |
+      | env          | MONGODB_ADMIN_PASSWORD=yyy |
+      | name         | mydb                       |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
@@ -272,8 +278,11 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And SCC "privileged" is added to the "system:serviceaccounts" group
     When I run the :new_app client command with:
       | image_stream | openshift/mongodb:2.6                                                                       |
-      | env          | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
-      | name         | mydb                                                                                        |
+      | env          | MONGODB_USER=tester        |
+      | env          | MONGODB_PASSWORD=xxx       |
+      | env          | MONGODB_DATABASE=testdb    |
+      | env          | MONGODB_ADMIN_PASSWORD=yyy |
+      | name         | mydb                       |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
@@ -455,8 +464,11 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | openshift/mongodb:2.6                                                                       |
-      | env          | MONGODB_USER=tester,MONGODB_PASSWORD=xxx,MONGODB_DATABASE=testdb,MONGODB_ADMIN_PASSWORD=yyy |
-      | name         | mydb                                                                                        |
+      | env          | MONGODB_USER=tester        |
+      | env          | MONGODB_PASSWORD=xxx       |
+      | env          | MONGODB_DATABASE=testdb    |
+      | env          | MONGODB_ADMIN_PASSWORD=yyy |
+      | name         | mydb                       |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
