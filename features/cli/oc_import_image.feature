@@ -218,16 +218,18 @@ Feature: oc import-image related feature
       | dest        | <%= project.name %>/ho:latest |
     Then the output should match:
       | [Tt]ag ho:latest |
-    When I get project is as YAML
+    Given I wait up to 15 seconds for the steps to pass:
+    """
+    When I get project is named "ho" as YAML
     Then the output should match:
       | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
-
+    """
     When I run the :import_image client command with:
       | image_name    | ho |
       | loglevel | 6  |
     Then the output should contain:
       | /oapi/v1/namespaces/<%= project.name %>/imagestreams/ho |
-    When I get project is as YAML
+    When I get project is named "ho" as YAML
     Then the output should match:
       | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
 

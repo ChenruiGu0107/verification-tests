@@ -1688,10 +1688,10 @@ Feature: deployment related features
       | revision      | 2                  |
     Then the step should succeed
     And the output should match:
-      | deploymentconfigs\s+".+?"\s+history\s+viewed\s+\(revision:\s+2\) |
-      | Labels:                                                          |
-      | Containers:                                                      |
-      | Annotations:                                                     |
+      | revision     |
+      | Labels:      |
+      | Containers:  |
+      | Annotations: |
 
   # @author pruan@redhat.com
   # @case_id 532415

@@ -11,7 +11,7 @@ Feature: pod related features
     Given a pod becomes ready with labels:
       | app=deployment-example |
     Given the system container id for the pod is stored in the clipboard
-    And evaluation of `pod.container(user: user, name: 'deployment-example').id` is stored in the :container_id clipboard
+    And evaluation of `pod.container(user: user, name: 'deployment-example').id.split(/\//)[2]` is stored in the :container_id clipboard
     When I run commands on the host:
       | docker inspect <%= cb.container_id %> \|grep Mode |
     Then the step should succeed
@@ -49,8 +49,8 @@ Feature: pod related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/container/sharememory.json |
     And the pod named "hello-openshift" becomes ready
     Given the system container id for the pod is stored in the clipboard
-    And evaluation of `pod.container(user: user, name: 'hello-container1').id` is stored in the :container1_id clipboard
-    And evaluation of `pod.container(user: user, name: 'hello-container2').id` is stored in the :container2_id clipboard
+    And evaluation of `pod.container(user: user, name: 'hello-container1').id.split(/\//)[2]` is stored in the :container1_id clipboard
+    And evaluation of `pod.container(user: user, name: 'hello-container2').id.split(/\//)[2]` is stored in the :container2_id clipboard
     When I run commands on the host:
       | docker inspect <%= cb.container1_id %> \|grep dshm|
     Then the step should succeed
@@ -86,7 +86,7 @@ Feature: pod related features
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=disk-pod |
-    And evaluation of `pod.container(user: user, name: 'disk-pod').id` is stored in the :container_id clipboard
+    And evaluation of `pod.container(user: user, name: 'disk-pod').id.split(/\//)[2]` is stored in the :container_id clipboard
     When I run commands on the host:
       | docker inspect <%= cb.container_id %> \|grep only |
     Then the step should succeed
@@ -97,7 +97,7 @@ Feature: pod related features
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=disk-pod-true |
-    And evaluation of `pod.container(user: user, name: 'disk-pod-true').id` is stored in the :container_id_2 clipboard
+    And evaluation of `pod.container(user: user, name: 'disk-pod-true').id.split(/\//)[2]` is stored in the :container_id_2 clipboard
     When I run commands on the host:
       | docker inspect <%= cb.container_id_2 %> \|grep only |
     Then the step should succeed
@@ -125,7 +125,7 @@ Feature: pod related features
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=disk-pod-true |
-    And evaluation of `pod.container(user: user, name: 'disk-pod-true').id` is stored in the :container_id clipboard
+    And evaluation of `pod.container(user: user, name: 'disk-pod-true').id.split(/\//)[2]` is stored in the :container_id clipboard
     When I run commands on the host:
       | docker inspect <%= cb.container_id %> \|grep only |
     Then the step should succeed
