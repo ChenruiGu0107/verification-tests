@@ -216,3 +216,13 @@ Given /^(I|admin) waits? for the #{QUOTED} (\w+) to appear(?: in the the#{OPT_QU
     raise %Q{#{type} "#{name}" did not appear within timeout}
   end
 end
+
+Given(/^I have a "([^"]*)" named "([^"]*)" in the "([^"]*)" namespace$/) do |resource, name, namespace|
+  step %Q/I run the :get admin command with:/, table(%{
+    | resource      | #{resource}  |
+    | resource_name | #{name}      |
+    | namespace     | #{namespace} |
+  })
+
+  step %Q/the step should succeed/
+end

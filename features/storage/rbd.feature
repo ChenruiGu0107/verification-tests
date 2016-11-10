@@ -152,3 +152,93 @@ Feature: Storage of Ceph plugin testing
     And the output should contain:
       | FailedScheduling |
       | NoDiskConflict   |
+
+  # @author jhou@redhat.com
+  # @case_id 539077
+  @admin
+  Scenario: Dynamically provision Ceph RBD volumes
+    Given I have a StorageClass named "cephrbdprovisioner"
+    # The "cephrbd-secret" is "default" namespace is used for volume provision
+    And I run the :get admin command with:
+      | resource      | secret         |
+      | resource_name | cephrbd-secret |
+      | namespace     | default        |
+      | o             | yaml           |
+    # The user secret is retrieved from "cephrbd-secret" for pod mounts
+    And evaluation of `@result[:parsed]["data"]["key"]` is stored in the :secret_key clipboard
+
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
+      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    # Switch to admin so as to create pod with desired FSGroup and SElinux levels
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+      | ["data"]["key"] | <%= cb.secret_key %> |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/pod.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the pod named "rbdpd" becomes ready
+
+    # Test creating files
+    When I execute on the pod:
+      | ls | -lZd | /mnt/rbd/ |
+    Then the output should contain:
+      | 123456               |
+      | svirt_sandbox_file_t |
+
+    When I execute on the pod:
+      | touch | /mnt/rbd/rbd_testfile |
+    Then the step should succeed
+
+    When I execute on the pod:
+      | ls | -l | /mnt/rbd/rbd_testfile |
+    Then the output should contain:
+      | 123456 |
+
+  # @author jhou@redhat.com
+  # @case_id 534848
+  @admin
+  Scenario: Dynamically provisioned rbd volumes should have correct capacity
+    Given I have a StorageClass named "cephrbdprovisioner"
+    # CephRBD provisioner needs secret, verify secret and StorageClass both exists
+    Given I have a "secret" named "cephrbd-secret" in the "default" namespace
+    And I have a project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
+      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
+      | ["spec"]["resources"]["requests"]["storage"]            | 9Gi                    |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    And the expression should be true> pvc.capacity(user: user) == "9Gi"
+
+
+  # @author jhou@redhat.com
+  # @case_id 534849
+  @admin
+  Scenario: Reclaim a dynamically provisioned Ceph RBD volumes
+    Given I have a StorageClass named "cephrbdprovisioner"
+    # CephRBD provisioner needs secret, verify secret and StorageClass both exists
+    Given I have a "secret" named "cephrbd-secret" in the "default" namespace
+    And I have a project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
+      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
+
+    # Test auto deleting PV
+    Given I run the :delete client command with:
+      | object_type       | pvc                     |
+      | object_name_or_id | pvc-<%= project.name %> |
+    And I switch to cluster admin pseudo user
+    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 60 seconds
