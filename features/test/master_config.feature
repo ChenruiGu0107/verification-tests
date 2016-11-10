@@ -1,7 +1,7 @@
 Feature: test master config related steps
   @admin
   Scenario: master config change with multipline parameter
-    Given I modify master config as admin with the following:
+    Given master config is merged with the following hash:
     """
     volumeConfig:
       dynamicProvisioningEnabled: False

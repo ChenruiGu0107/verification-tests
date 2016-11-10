@@ -1,7 +1,6 @@
 # step which interact with master-config.yaml file.
 
-# prefered step to use with modifing the master config.
-Given(/^I modify master config as admin with the following:$/) do |yaml_string|
+Given(/^master config is merged with the following hash:$/) do |yaml_string|
   ensure_admin_tagged
 
   yaml_hash = YAML.load(yaml_string)

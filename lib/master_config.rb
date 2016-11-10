@@ -7,9 +7,7 @@ module CucuShift
 
     # loads the config file from the server and returns it as a hash
     def self.as_hash(env)
-      res = env.master_hosts[0].exec_admin("cat /etc/origin/master/master-config.yaml")
-      self.res_err_check(res)
-      return YAML.load(res[:response])
+      YAML.load raw(env)[:response]
     end
 
     def self.raw(env)
@@ -24,8 +22,6 @@ module CucuShift
       env.master_hosts.each { |master|
         res = master.exec_admin("test -e /etc/origin/master/master-config.yaml.bak")
         if res[:success]
-          # dump escapes non-printable characters, but also double qoutes.
-          # so we gsub them that they are not escaped
           res = master.exec_admin("cat > /etc/origin/master/master-config.yaml", stdin: content)
           self.res_err_check(res)
         else
