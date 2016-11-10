@@ -443,8 +443,12 @@
   :options:
     :command: <value>
     :delete: --delete=<value>
+    :maximum_errors: --maximum-errors=<value>
     :names: --names=<value>
+    :no_headers: --no-headers=<value>
     :oc_opts_end: --
+    :once: --once=<value>
+    :resync_period: --resync-period=<value>
 :oc_secrets_new_basicauth:
   :cmd: oc secrets new-basicauth <secret_name>
   :options:
