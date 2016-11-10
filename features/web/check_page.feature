@@ -128,17 +128,18 @@ Feature: check page info related
       | project_name | <%= project.name %> |
       | pod_name     | pod-dapi-volume     |
     Then the step should succeed
+    Given evaluation of `service_account("default").get_secret_names(by: user).select{|a| a.include?("default-token")}[0]` is stored in the :sname clipboard
     When I get the visible text on web html page
     Then the output should match:
-      | ^podinfo$                                                                      |
-      | Type:\sdownward API                                                            |
-      | Volume file:\smetadata.labels → labels                                         |
-      | Volume file:\smetadata.annotations → annotations                               |
-      | Volume file:\smetadata.name → name                                             |
-      | Volume file:\smetadata.namespace → namespace                                   |
-      | ^<%= service_account("default").get_secret_names(by: user)[0] %>$              |
-      | Type:\ssecret                                                                  |
-      | Secret name:\s<%= service_account("default").get_secret_names(by: user)[0] %>  |
+      | ^podinfo$                                           |
+      | Type:\sdownward API                                 |
+      | Volume [Ff]ile:\smetadata.labels → labels           |
+      | Volume [Ff]ile:\smetadata.annotations → annotations |
+      | Volume [Ff]ile:\smetadata.name → name               |
+      | Volume [Ff]ile:\smetadata.namespace → namespace     |
+      | ^<%= cb.sname %>                                    |
+      | Type:\ssecret                                       |
+      | Secret [Nn]ame:\s<%= cb.sname %>                    |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml |
     Then the step should succeed
@@ -151,12 +152,12 @@ Feature: check page info related
     Then the step should succeed
     When I get the visible text on web html page
     Then the output should match:
-      | ^config-volume$                                                               |
-      | Type:\sconfig map                                                             |
-      | Name:\sspecial-config                                                         |
-      | ^<%= service_account("default").get_secret_names(by: user)[0] %>$             |
-      | Type:\ssecret                                                                 |
-      | Secret name:\s<%= service_account("default").get_secret_names(by: user)[0] %> |
+      | ^config-volume$                  |
+      | Type:\sconfig map                |
+      | Name:\sspecial-config            |
+      | ^<%= cb.sname %>$                |
+      | Type:\ssecret                    |
+      | Secret [Nn]ame:\s<%= cb.sname %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-volume2.yaml |
     Then the step should succeed
@@ -166,13 +167,13 @@ Feature: check page info related
     Then the step should succeed
     When I get the visible text on web html page
     Then the output should match:
-      | ^config-volume$                                                               |
-      | Type:\sconfig map                                                             |
-      | Name:\sspecial-config                                                         |
-      | Key to file:\sspecial.type → path/to/special-key                              |
-      | ^<%= service_account("default").get_secret_names(by: user)[0] %>$             |
-      | Type:\ssecret                                                                 |
-      | Secret name:\s<%= service_account("default").get_secret_names(by: user)[0] %> |
+      | ^config-volume$                                     |
+      | Type:\sconfig map                                   |
+      | Name:\sspecial-config                               |
+      | Key to [Ff]ile:\sspecial.type → path/to/special-key |
+      | ^<%= cb.sname %>$                                   |
+      | Type:\ssecret                                       |
+      | Secret [Nn]ame:\s<%= cb.sname %>                    |
 
   # @author yapei@redhat.com
   # @case_id 477635

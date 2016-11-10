@@ -207,7 +207,7 @@ check_build_trigger:
   action: goto_one_build_page
   elements:
   - selector:
-      xpath: //dt[contains(.,'Triggered by:')]/following-sibling::dd[contains(.,'<trigger_info>')]
+      xpath: //dt[contains(.,'Triggered By:')]/following-sibling::dd[contains(.,'<trigger_info>')]
 enable_webhook_build_trigger:
   action: check_buildconfig_edit_page_loaded_completely
   elements:
@@ -369,7 +369,7 @@ check_build_has_started_message:
 save_your_committed_changes:
   elements:
   - selector:
-      text: Save
+      xpath: //button[contains(text(),'Save') and not(@disabled)]
     type: button
     op: click
 cancel_to_commit_your_changes:
@@ -386,7 +386,7 @@ check_bc_output:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'Output to')]/following-sibling::dd[contains(.,'<bc_output>')]
+      xpath: //dt[contains(.,'Output To')]/following-sibling::dd[contains(.,'<bc_output>')]
 check_bc_github_webhook_trigger:
   action: goto_buildconfig_configuration_tab
   elements:
@@ -626,10 +626,10 @@ set_output_image_tag:
       xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[@ng-model="istag.tagObject"]
     op: click
   - selector:
-      xpath: //input[@placeholder="Tag"]
+      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[@ng-model="istag.tagObject"]//input[@placeholder="Tag"]
     op: send_keys <output_image_tag>
   - selector:
-      xpath: //span[contains(.,"<output_image_tag>")]
+      xpath: //istag-select[@model="imageOptions.to.imageStreamTag"]//div[contains(.,"<output_image_tag>")]
     op: click
 set_output_docker_image_link:
   elements:
