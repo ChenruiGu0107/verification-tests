@@ -199,11 +199,15 @@ Feature: SDN related networking scenarios
     And the node iptables config is verified
     And the node service is restarted on the host after scenario
     When I run commands on the host:
+      | iptables -S -t nat \| grep <%= cb.clusternetwork %> \| cut -d ' ' -f 2- |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :nat_rule clipboard
+    When I run commands on the host:
       | iptables -D INPUT -p udp -m multiport --dport 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
       | iptables -D INPUT -i tun0 -m comment --comment "traffic from docker for internet" -j ACCEPT |
       | iptables -D FORWARD -s <%= cb.clusternetwork %> -j ACCEPT |
       | iptables -D FORWARD -d <%= cb.clusternetwork %> -j ACCEPT |
-      | iptables -t nat -D POSTROUTING -s <%= cb.clusternetwork %> ! -d <%= cb.clusternetwork %> -j MASQUERADE |
+      | iptables -t nat -D <%= cb.nat_rule %> |
     Then the step should succeed
     And I wait up to 35 seconds for the steps to pass:
     """
@@ -222,7 +226,7 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | iptables -S -t nat |
     Then the output should contain:
-      | POSTROUTING -s <%= cb.clusternetwork %> ! -d <%= cb.clusternetwork %> -j MASQUERADE |
+      | <%= cb.nat_rule %> |
 
   # @author bmeng@redhat.com
   # @case_id 528506
@@ -274,7 +278,11 @@ Feature: SDN related networking scenarios
     And the node iptables config is verified
     And the node service is restarted on the host after scenario
     When I run commands on the host:
-      | iptables -t nat -D POSTROUTING -s <%= cb.clusternetwork %> ! -d <%= cb.clusternetwork %> -j MASQUERADE |
+      | iptables -S -t nat \| grep <%= cb.clusternetwork %> \| cut -d ' ' -f 2- |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :nat_rule clipboard
+    When I run commands on the host:
+      | iptables -t nat -D <%= cb.nat_rule %> |
       | iptables -t filter -D OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES |
       | iptables -t nat -S \| grep <%= cb.service_ip %> \| cut -d ' ' -f2- \| xargs -L1 iptables -t nat -D |
     Then the step should succeed
