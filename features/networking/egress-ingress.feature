@@ -12,7 +12,7 @@ Feature: Egress-ingress related networking scenarios
       | resource | pod   |
       | name     | iperf |
     Then the step should succeed
-    And the output should contain "resource value -3000000 is unreasonably"
+    And the output should match "resource .*unreasonably"
     """
 
   # @author yadu@redhat.com
