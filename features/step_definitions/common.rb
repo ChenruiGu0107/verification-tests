@@ -168,7 +168,7 @@ Given /^I wait for the resource "(.+)" named "(.+)" to disappear(?: within (\d+)
     res = user.cli_exec(:get, **opts)
     case res[:response]
     # the resource has terminated which means we are done waiting.
-    when /cannot get projects in project/, /not found/
+    when /cannot get projects in project/, /not found/, /No resources found/
       break true
     end
   }

@@ -167,7 +167,7 @@ Feature: Storage of GlusterFS plugin testing
     And the pod named "gluster" becomes ready
 
   # @author jhou@redhat.com
-  # @case_id 534845
+  # @case_id 534847
   @admin
   Scenario: Dynamically provision a GlusterFS volume
     Given I have a StorageClass named "glusterprovisioner"
@@ -195,3 +195,41 @@ Feature: Storage of GlusterFS plugin testing
       | ls | /mnt/gluster/ |
     Then the output should contain:
       | gluster_testfile |
+
+  # @author jhou@redhat.com
+  # @case_id 534844
+  @admin
+  Scenario: Dynamically provisioned GlusterFS volume should have correct capacity
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
+      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
+      | ["spec"]["resources"]["requests"]["storage"]            | 15Gi                    |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    And the expression should be true> pvc.capacity(user: user) == "15Gi"
+
+  # @author jhou@redhat.com
+  # @case_id 534845
+  @admin
+  Scenario: Reclaim a provisioned GlusterFS volume
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
+      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
+
+    # Test auto deleting PV
+    Given I run the :delete client command with:
+      | object_type       | pvc                     |
+      | object_name_or_id | pvc-<%= project.name %> |
+    And I switch to cluster admin pseudo user
+    And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 60 seconds
