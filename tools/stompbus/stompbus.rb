@@ -1,5 +1,7 @@
 require "stomp"
 require "json"
+require 'io/console' # for reading password without echo
+require 'timeout' # to avoid freezes waiting for user input
 
 class STOMPBus
 
@@ -37,29 +39,37 @@ class STOMPBus
     client.publish(@opts["queue"], msg["body"], msg["header"])
   end
 
-  def subscribe
-
+  # yield [msg] return true if you want message printed to console
+  def subscribe()
     credentials = populate_credentials()
     client = Stomp::Client.new(credentials)
 
-
     client.subscribe(@opts["queue"]) do |msg|
+      if block_given?
+        yield(msg)
+      else
+        STOMPBus.print_msg(msg)
+      end
+    end
+
+    begin
+      puts "Press ctrl + c to exit...\n\n"
+      loop do
+        sleep(100)
+      end
+    rescue Interrupt
+    ensure
+      puts "\nclosing connection!\n"
+    end
+  end
+
+  def self.print_msg(msg)
       puts "------------------------------"
       puts "\nHeaders:\n\n"
       puts msg.headers.to_json
       puts "\nBody:\n\n"
       puts msg.body
       puts "------------------------------"
-    end
-
-    begin
-      puts "Press ctrl + c to exit...\n\n"
-      loop do
-        sleep(1)
-      end
-    rescue Exception
-      puts "\nUnsubscribing from queue!\n"
-    end
   end
 
   def self.show_help()
@@ -85,7 +95,7 @@ json keys body and header: {"header": {}, "body": {}}
 
   # method checks if all required options are in place
   def self.check_opts(opts)
-    req_opts_keys = ["login", "passcode", "host", "port", "ssl", "queue"]
+    req_opts_keys = ["host", "port", "ssl", "queue"]
     miss_opts_keys = []
 
     miss_opts_keys = req_opts_keys - opts.keys
@@ -95,6 +105,17 @@ json keys body and header: {"header": {}, "body": {}}
   end
 
   def populate_credentials()
+    unless @opts["login"]
+      Timeout::timeout(120) {
+        STDERR.puts "STOMP username (timeout in 2 minutes): "
+        @opts["login"] = STDIN.gets.chomp
+      }
+    end
+    unless @opts["passcode"]
+        STDERR.puts "STOMP Password: "
+        @opts["passcode"] = STDIN.noecho(&:gets).chomp
+    end
+
     credentials = {:hosts => [{}], :connect_timeout => 15, :start_timeout => 15, :reliable => false}
 
     req_cred = [:login, :passcode, :host, :port, :ssl]
