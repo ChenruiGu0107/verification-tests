@@ -77,15 +77,17 @@ Feature: oc_process.feature
       | "value": "-Dfoo2=bar -Dbar2=foo" |
     When I run the :new_app client command with:
       | file    | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-      | p       | "ADMIN_PASSWORD=-Dfoo=bar -Dbar=foo,MYSQL_PASSWORD=-Dfoo2=bar -Dbar2=foo"                                        |
+      | p       | ADMIN_PASSWORD=-Dfoo=bar -Dbar=foo   |
+      | p       | MYSQL_PASSWORD=-Dfoo2=bar            |
       | dry_run | true                                                                                                             |
     Then the step should succeed
     And the output should contain:
       | ADMIN_PASSWORD=-Dfoo=bar -Dbar=foo   |
-      | MYSQL_PASSWORD=-Dfoo2=bar -Dbar2=foo |
+      | MYSQL_PASSWORD=-Dfoo2=bar            |
     When I run the :new_app client command with:
       | file    | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-      | p       | "ADMIN_PASSWORD=1,2,3","MYSQL_PASSWORD=4,5,6"                                                                    |
+      | p       | ADMIN_PASSWORD=1,2,3       |
+      | p       | MYSQL_PASSWORD=4,5,6       |             
       | dry_run | true                                                                                                             |
     Then the step should succeed
     And the output should not contain "error: environment variables must be of the form key=value"
@@ -96,5 +98,7 @@ Feature: oc_process.feature
       | file    | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
       | p       | ADMIN_PASSWORD=1,2,MYSQL_PASSWORD=4,5                                                                            |
       | dry_run | true                                                                                                             |
-    Then the step should fail
-    And the output should contain "environment variables must be of the form key=value"
+    # Don't care if the step could be succeed or not
+    # only test if values "will be treated as a single key-value pair"
+    And the output should contain:
+      | treated as a single key-value pair |
