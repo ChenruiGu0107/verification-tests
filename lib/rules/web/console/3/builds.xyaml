@@ -29,13 +29,8 @@ check_one_buildconfig_page:
     selector:
       text: Summary
     type: a
-check_one_buildconfig_page_with_check_config:
-  action: check_one_buildconfig_page
+show_annotations_in_bc_page:
   elements:
-  - selector:
-      text: Configuration
-    type: a
-    op: click
   - selector:
       text: Show annotations
     type: a
@@ -46,25 +41,19 @@ check_one_buildconfig_page_with_check_config:
       text: Hide annotations
     op: click
     type: a
-  - selector:
-      xpath: //a[contains(@href,"github.com")]
-  # Generic webhook URL
-  - selector:
-      xpath: //dt[contains(.,'Generic webhook URL')]
-  # GitHub webhook URL
-  - selector:
-      xpath: //dt[contains(.,'GitHub webhook URL')]
+check_one_buildconfig_page_with_check_config:
+  action: goto_buildconfig_configuration_tab
+  action: show_annotations_in_bc_page
+  action: check_buildconfig_source_repo
+  action: check_bc_generic_webhook_trigger
+  action: check_bc_github_webhook_trigger
+  elements:
   # Manual (CLI):
   - selector:
       xpath: //dt[contains(.,'Manual (CLI):')]
   - selector:
       xpath: //div/input[contains(@value,"oc start-build") and @readonly]
     type: input
-  # Learn more
-  - selector:
-      xpath: //a[contains(@href,"webhook-triggers") and descendant::span[contains(text(),"Learn more")]]
-  - selector:
-      xpath: //a[contains(@href,"starting-a-build") and descendant::span[contains(text(),"Learn more")]]
 check_one_buildconfig_page_with_build_op:
   action: check_one_buildconfig_page_with_check_config
   elements:

@@ -5,27 +5,20 @@ Feature: build related feature on web console
   Scenario: Check the build information from web console
     When I create a new project via web
     Then the step should succeed
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
-    Then the step should succeed
-    Given I wait for the :check_one_image_stream web console action to succeed with:
-      | project_name | <%= project.name %> |
-      | image_name   | python              |
-    When I run the :get client command with:
-      | resource | imageStream |
-      | resource_name | python |
-      | o        | json |
-    Then the output should contain "openshift.io/image"
-    Given I wait for the :create_app_from_image_change_bc_configchange web console action to succeed with:
-      | project_name | <%= project.name %> |
-      | image_name   | python              |
-      | image_tag    | 3.3                 |
-      | namespace    | <%= project.name %> |
-      | app_name     | python-sample       |
+    When I perform the :create_app_from_image_change_bc_configchange web console action with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | python                                     |
+      | image_tag    | 3.3                                        |
+      | namespace    | openshift                                  |
+      | app_name     | python-sample                              |
       | source_url   | https://github.com/openshift/django-ex.git |
+    Then the step should succeed
     When I perform the :check_one_buildconfig_page_with_build_op web console action with:
-      | project_name  | <%= project.name %> |
-      | bc_name       | python-sample |
+      | project_name            | <%= project.name %>                        |
+      | bc_name                 | python-sample                              |
+      | source_repo_url         | https://github.com/openshift/django-ex.git |
+      | generic_webhook_trigger | /generic                                   |
+      | github_webhook_trigger  | /github                                    |
     Then the step should succeed
     Given the "python-sample-1" build was created
     # wait for build finished is ok, does not nessarily to be completed  
