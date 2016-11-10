@@ -71,7 +71,7 @@ module CucuShift
     end
 
     # @note call without parameters only when props are loaded
-    def node_port(user: nil, port: port, cached: true, quiet: false)
+    def node_port(user: nil, port:, cached: true, quiet: false)
       node_port = nil
       ports = get_cached_prop(prop: :ports, user: user, cached: cached, quiet: quiet)
       ports.each do | p |
@@ -79,9 +79,5 @@ module CucuShift
       end
       return node_port
     end
-
-
-
-
   end
 end
