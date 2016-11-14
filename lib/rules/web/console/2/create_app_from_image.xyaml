@@ -231,12 +231,7 @@ create_app_from_image_set_memory_resource_limit:
     op: send_keys <memory_limit>
     type: input
 create_app_from_image_submit:
-  element:
-    selector:
-      text: Create
-      class: btn-primary
-    op: click
-    type: button
+  action: click_create_button
   element:
     selector:
       text: Application created. Continue to overview.

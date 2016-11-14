@@ -642,11 +642,7 @@ Feature: create app on web console related
     When I perform the :delete_env_var web console action with:
       | env_var_key     | testname |
     Then the step should succeed
-    When I get the "disabled" attribute of the "button" web element:
-      | text | Create |
-    Then the output should not contain "true"
-    When I click the following "button" element:
-      | text | Create |
+    When I run the :click_create_button web console action
     Then the step should succeed
     Given I wait until replicationController "frontend-1" is ready
     And I wait for the steps to pass:

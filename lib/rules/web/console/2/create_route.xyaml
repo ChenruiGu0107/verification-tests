@@ -2,7 +2,7 @@
 open_create_route_page_from_overview_page:
   action: goto_overview_page
   elements:
-  - selector: 
+  - selector:
       xpath: //section[@id='service-<service_name>']//a[text()='Create Route']
     op: click
     timeout: 60
@@ -19,15 +19,15 @@ click_create_route_on_routes_page:
       text: Create Route
     type: a
     op: click
-create_unsecured_route_from_service_or_overview_page: 
+create_unsecured_route_from_service_or_overview_page:
   action: set_route_name
-  action: submit_create_route
+  action: click_create_button
 create_route_dont_specify_hostname_from_routes_page:
   action: click_create_route_on_routes_page
   action: choose_service_to_add_route
   action: set_route_name
   action: select_target_port
-  action: submit_create_route
+  action: click_create_button
 create_route_with_path_and_policy_for_insecure_traffic:
   action: set_route_name
   action: set_hostname
@@ -35,14 +35,14 @@ create_route_with_path_and_policy_for_insecure_traffic:
   action: select_target_port
   action: select_tls_termination_type
   action: set_policy_for_insecure_traffic
-  action: submit_create_route
+  action: click_create_button
 create_unsecure_route_without_path:
   action: set_route_name
   action: set_hostname
   action: select_target_port
   action: select_tls_termination_type
   action: set_policy_for_insecure_traffic
-  action: submit_create_route
+  action: click_create_button
 select_tls_termination_type:
   action: show_options_for_secure_route
   action: set_tls_termination
@@ -55,7 +55,7 @@ set_route_name:
   elements:
   - selector:
       id: route-name
-    op: clear 
+    op: clear
     type: input
   - selector:
       id: route-name
@@ -92,10 +92,4 @@ set_policy_for_insecure_traffic:
   elements:
   - selector:
       xpath: //select[@ng-model="route.tls.insecureEdgeTerminationPolicy"]/option[contains(.,"<insecure_traffic_policy>")]
-    op: click
-submit_create_route:
-  elements:
-  - selector:
-      xpath: //button[text()='Create' and not(@disabled)]
-    type: button
     op: click
