@@ -357,3 +357,184 @@ Feature: job.feature
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_long_activeDeadlineSeconds.yaml |
     Then the step should succeed
     And I wait until job "pi" completes
+
+
+  # @author chuyu@redhat.com
+  # @case_id 535535 
+  Scenario: User can schedule a job execution with cron format time
+    Given I have a project
+    When I run the :run client command with:
+       | name    | sj3          	|
+       | image   | busybox    		|
+       | restart | Never 		|
+       | schedule| noescape: "* * * * *"|
+       | sleep   | 300			|
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | scheduledjobs|
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj3  	        |
+       | SCHEDULE | noescap: * * * * *  |
+    When I run the :run client command with:
+       | name    | sj4                  |
+       | image   | busybox              |
+       | restart | Never                |
+       | schedule| noescape: "0 * * * *"|
+       | sleep   | 300                  |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | scheduledjobs|
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj4                  |
+       | SCHEDULE | noescap: 0 * * * *   |
+    When I run the :run client command with:
+       | name    | sj5                   |
+       | image   | busybox               |
+       | restart | Never                 |
+       | schedule| noescape: "* 12 * * *"|
+       | sleep   | 300                   |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | scheduledjobs|
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj5                  |
+       | SCHEDULE | noescap: * 12 * * *  |
+    When I run the :run client command with:
+       | name    | sj6                   |
+       | image   | busybox               |
+       | restart | Never                 |
+       | schedule| noescape: "* * 1 * *" |
+       | sleep   | 300                   |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | scheduledjobs|
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj6                  |
+       | SCHEDULE | noescap: * * 1 * *   |
+    When I run the :run client command with:
+       | name    | sj7                   |
+       | image   | busybox               |
+       | restart | Never                 |
+       | schedule| noescape: "* * * 4 *" |
+       | sleep   | 300                   |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | scheduledjobs|
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj7                  |
+       | SCHEDULE | noescap: * * * 4 *   |
+    When I run the :run client command with:
+       | name    | sj8                   |
+       | image   | busybox               |
+       | restart | Never                 |
+       | schedule| noescape: "* * * * 3" |
+       | sleep   | 300                   |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | scheduledjobs|
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sj8                  |
+       | SCHEDULE | noescap: * * * * 3   |
+    When I run the :run client command with:
+       | name    | sja                   |
+       | image   | busybox               |
+       | restart | Never                 |
+       | schedule| noescape: "0 12 * * *"|
+       | sleep   | 300                   |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | scheduledjobs|
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sja                  |
+       | SCHEDULE | noescap: 0 12 * * *  |
+    When I run the :run client command with:
+       | name    | sjb                     |
+       | image   | busybox                 |
+       | restart | Never                   |
+       | schedule| noescape: "0 12 15 11 3"|
+       | sleep   | 300                     |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | scheduledjobs|
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sjb                    |
+       | SCHEDULE | noescap: 0 12 15 11 3  |
+    When I run the :run client command with:
+       | name    | sjc                     |
+       | image   | busybox                 |
+       | restart | Never                   |
+       | schedule| noescape: "70 12 15 11 3"|
+       | sleep   | 300                     |
+    Then the step should fail
+    And the output should contain:
+       | The ScheduledJob "sjc" is invalid: spec.schedule: Invalid value: "70 12 15 11 3": End of range (70) above maximum (59): 70 |
+    When I run the :run client command with:
+       | name    | sjc                     |
+       | image   | busybox                 |
+       | restart | Never                   |
+       | schedule| noescape: "30 25 15 1 3"|
+       | sleep   | 300                     |
+    Then the step should fail
+    And the output should contain: 
+       | The ScheduledJob "sjc" is invalid: spec.schedule: Invalid value: "30 25 15 1 3": End of range (25) above maximum (23): 25 |
+    When I run the :run client command with:
+       | name    | sjc                     |
+       | image   | busybox                 |
+       | restart | Never                   |
+       | schedule| noescape: "30 8 35 11 3"|
+       | sleep   | 300                     |
+    Then the step should fail
+    And the output should contain:
+       | The ScheduledJob "sjc" is invalid: spec.schedule: Invalid value: "30 8 35 11 3": End of range (35) above maximum (31): 35 |
+    When I run the :run client command with:
+       | name    | sjc                     |
+       | image   | busybox                 |
+       | restart | Never                   |
+       | schedule| noescape: "30 8 1 13 3" |
+       | sleep   | 300                     |
+    Then the step should fail
+    And the output should contain:
+       | The ScheduledJob "sjc" is invalid: spec.schedule: Invalid value: "30 8 1 13 3": End of range (13) above maximum (12): 13 |
+    When I run the :run client command with:
+       | name    | sjc                     |
+       | image   | busybox                 |
+       | restart | Never                   |
+       | schedule| noescape: "30 8 1 8 7"  |
+       | sleep   | 300                     |
+    Then the step should fail
+    And the output should contain:
+       | The ScheduledJob "sjc" is invalid: spec.schedule: Invalid value: "30 8 1 8 7": End of range (7) above maximum (6): 7 |
+    When I run the :run client command with:
+       | name    | sjd                     |
+       | image   | busybox                 |
+       | restart | Never                   |
+       | schedule| noescape: "@every 5m"   |
+       | sleep   | 300                     |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | scheduledjobs|
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sjd                    |
+       | SCHEDULE | noescap: @every 5m     |
+    When I run the :run client command with:
+       | name    | sje                     |
+       | image   | busybox                 |
+       | restart | Never                   |
+       | schedule| noescape: "@daily"      |
+       | sleep   | 300                     |
+    Then the step should succeed
+    When I run the :get client command with:
+       | resource | scheduledjobs|
+    Then the step should succeed
+    And the output should contain:
+       | NAME     | sjd                    |
+       | SCHEDULE | noescap: @daily        |

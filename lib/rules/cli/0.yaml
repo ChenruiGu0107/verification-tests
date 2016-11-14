@@ -619,6 +619,8 @@
     :generator: --generator=<value>
     :limits: --limits=<value>
     :requests: --requests=<value>
+    :schedule: --schedule=<value>
+    :sleep:  -- sleep <value>
     :oc_opt_end: --
     :dry_run: --dry-run
     :-i: --stdin=<value>
