@@ -20,7 +20,7 @@ Feature:Create apps using new_app cmd feature
     And the output should contain "WebSocket connection opened"
 
     Examples:
-      | jws_image |
+      | jws_image                                            |
       | openshift/jboss-webserver30-tomcat7-openshift:latest |
       | openshift/jboss-webserver30-tomcat8-openshift:latest |
 
@@ -34,11 +34,11 @@ Feature:Create apps using new_app cmd feature
     Then the step should succeed
 
     When I run the :describe client command with:
-      | resource | bc               |
+      | resource | bc                |
       | name     | ruby-sample-build |
     Then the output should match:
-      | URL:\\s+https://github.com/openshift/ruby-hello-world.git|
-      | From Image:\\s+ImageStreamTag openshift/ruby:2.0|
+      | URL:\\s+https://github.com/openshift/ruby-hello-world.git |
+      | From Image:\\s+ImageStreamTag openshift/ruby:2.0          |
     And the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     Given I wait for the "frontend" service to become ready
@@ -51,7 +51,7 @@ Feature:Create apps using new_app cmd feature
   Scenario: create resource from imagestream via oc new-app openshift/nodejs-010-rhel7
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | nodejs |
+      | image_stream | nodejs                                     |
       | code         | https://github.com/openshift/nodejs-ex.git |
     Then the step should succeed
     And the "nodejs-ex-1" build was created
@@ -74,7 +74,7 @@ Feature:Create apps using new_app cmd feature
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1-1" build was created
     When I run the :describe client command with:
-      | resource | bc    |
+      | resource | bc               |
       | name     | ruby-hello-world |
     Then the output should contain "https://github.com/xiuwang/ruby-hello-world.git"
     When I run the :describe client command with:
@@ -85,7 +85,7 @@ Feature:Create apps using new_app cmd feature
     Then I run the :new_app client command with:
       | app_repo | https://github.com/openshift/ruby-hello-world.git |
       | app_repo | https://github.com/openshift/ruby-hello-world.git |
-      | l        | app=test |
+      | l        | app=test                                          |
     Then the step should succeed
     When I run the :get client command with:
       | resource | bc |
@@ -97,8 +97,8 @@ Feature:Create apps using new_app cmd feature
   Scenario: Create jenkins resources with oc new-app from imagestream -jenkins-1-rhel7
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | jenkins |
-      | env | JENKINS_PASSWORD=test123 |
+      | image_stream | jenkins                  |
+      | env          | JENKINS_PASSWORD=test123 |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | app=jenkins |

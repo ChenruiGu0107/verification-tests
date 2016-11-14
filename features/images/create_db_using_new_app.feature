@@ -5,7 +5,9 @@ Feature:Create db using new_app cmd feature
     Given I have a project
     When I run the :new_app client command with:
       | image_stream | <image_stream_name> |
-      | env          | MYSQL_USER=user,MYSQL_PASSWORD=pass,MYSQL_DATABASE=db |
+      | env          | MYSQL_USER=user     |
+      | env          | MYSQL_PASSWORD=pass |
+      | env          | MYSQL_DATABASE=db   |
     Then the step should succeed
     Given I wait for the "mysql" service to become ready
     And I wait up to 60 seconds for the steps to pass:
@@ -46,8 +48,11 @@ Feature:Create db using new_app cmd feature
   Scenario Outline: Create mongodb resources from imagestream via oc new-app
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | <image_stream_name> |
-      | env          | MONGODB_USER=user,MONGODB_PASSWORD=pass,MONGODB_DATABASE=db,MONGODB_ADMIN_PASSWORD=pass |
+      | image_stream | <image_stream_name>         |
+      | env          | MONGODB_USER=user           |
+      | env          | MONGODB_PASSWORD=pass       |
+      | env          | MONGODB_DATABASE=db         |
+      | env          | MONGODB_ADMIN_PASSWORD=pass |
     Then the step should succeed
     Given I wait for the "mongodb" service to become ready
     And I wait up to 60 seconds for the steps to pass:
