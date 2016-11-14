@@ -123,7 +123,7 @@ Feature: oc global options (oc options) related scenarios
       | resource       | dc    |
       | user           | no-this-user    |
     Then the step should fail
-    And the output should contain ""system:anonymous" cannot list"
+    And the output should match "[Ee]rror"
     When I run the :get client command with:
       | resource       | dc    |
       | context        | no-this-context |
