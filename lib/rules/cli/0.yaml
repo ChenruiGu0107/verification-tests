@@ -656,6 +656,13 @@
   :options:
     :labels: --labels=<labels>
     :timeout: --timeout=<timeout_seconds>
+:set_backends:
+  :cmd: oc set route-backends
+  :options:
+    :routename: <value>
+    :service: <value>
+    :zero: --zero
+    :adjust: --adjust 
 :set_build_hook:
   :cmd: oc set build-hook <global_options> <options>
   :options:
@@ -700,13 +707,6 @@
     :o: -o <value>
     :f: -f <value>
     :overwrite: --overwrite=<value>
-:set_backends:
-  :cmd: oc set route-backends
-  :options:
-    :routename: <value>
-    :service: <value>
-    :zero: --zero
-    :adjust: --adjust
 :set_image:
   :cmd: oc set image
   :options:
@@ -742,6 +742,18 @@
     :c: -c <value>
     :f: -f <value>
     :l: -l <value>
+    :o: -o <value>
+:set_resources:
+  :cmd: oc set resources
+  :options:
+    :resource: <value>
+    :resourcename: <value>
+    :limits: --limits=<value>
+    :requests: --requests=<value>
+    :local: --local
+    :dryrun: --dry-run
+    :c: -c <value>
+    :f: -f <value>
     :o: -o <value>
 :set_triggers:
   :cmd: oc set triggers
