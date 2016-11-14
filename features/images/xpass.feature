@@ -5,8 +5,9 @@ Feature: xpass.feature
   Scenario: Create jbossamq resource from imagestream via oc new-app - jboss-amq62
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream| jboss-amq-62 |
-      | env         | AMQ_USER=user,AMQ_PASSWORD=passwd |
+      | image_stream | jboss-amq-62        |
+      | env          | AMQ_USER=user       |
+      | env          | AMQ_PASSWORD=passwd |
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=jboss-amq-62 |
@@ -53,8 +54,9 @@ Feature: xpass.feature
       | f | https://raw.githubusercontent.com/jboss-openshift/application-templates/master/secrets/amq-app-secret.json |
     Then the step should succeed
     When I run the :new_app client command with:
-      | template | amq62-ssl |
-      | param    | AMQ_TRUSTSTORE_PASSWORD=password,AMQ_KEYSTORE_PASSWORD=password |
+      | template | amq62-ssl                        |
+      | param    | AMQ_TRUSTSTORE_PASSWORD=password |
+      | param    | AMQ_KEYSTORE_PASSWORD=password   |
     Then the step should succeed
     And a pod becomes ready with labels:
       | application=broker |

@@ -267,9 +267,12 @@ Feature: general_db.feature
     Given I have a project
     When I run the :new_app client command with:
       | docker_image      | <%= product_docker_repo %>rhscl/mongodb-32-rhel7 |
-      | insecure_registry | true      |
-      | name              | mongodb32 |
-      | env               | MONGODB_USER=user,MONGODB_PASSWORD=pass,MONGODB_DATABASE=db,MONGODB_ADMIN_PASSWORD=pass |
+      | insecure_registry | true                                             |
+      | name              | mongodb32                                        |
+      | env               | MONGODB_USER=use                                 |
+      | env               | MONGODB_PASSWORD=pass                            |
+      | env               | MONGODB_DATABASE=db                              |
+      | env               | MONGODB_ADMIN_PASSWORD=pass                      |
     Then the step should succeed
     Given I wait for the "mongodb32" service to become ready
     And I wait up to 60 seconds for the steps to pass:
