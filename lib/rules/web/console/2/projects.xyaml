@@ -17,6 +17,10 @@ check_help_info_on_projects_page:
   #     xpath: //span[contains(.,'<general_message>')]
   - selector:
       xpath: //code[contains(.,'<openshift_command>')]
+confirm_error_for_invalid_project_name:
+  elements:
+  - selector:
+      xpath: //span[contains(.,"Project names may only contain lower-case letters, numbers, and dashes. They may not start or end with a dash")]
 delete_project:
   action: check_project_list
   elements:

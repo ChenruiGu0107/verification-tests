@@ -22,6 +22,10 @@ click_project_display_name:
   - selector:
       xpath: //div[@kind='Project' and @display-name='<project_name>']
     op: click
+confirm_error_for_invalid_project_name:
+  elements:
+  - selector:
+      xpath: //span[contains(.,"Project names may only contain lower-case letters, numbers, and dashes. They may not start or end with a dash")]
 send_delete_string:
   elements:
   - selector:
