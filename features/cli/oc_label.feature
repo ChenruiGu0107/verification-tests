@@ -61,13 +61,11 @@ Feature: oc_label.feature
       | name | hello-openshift |
       | key_val | status= |
     Then the step should fail
-    And the output should contain "invalid label spec"
     When I run the :label client command with:
       | resource | pods |
       | name | hello-openshift |
       | key_val | status=$%@# |
     Then the step should fail
-    And the output should match "invalid label (value|spec)"
     When I run the :label client command with:
       | resource | pods |
       | name | hello-openshift |
