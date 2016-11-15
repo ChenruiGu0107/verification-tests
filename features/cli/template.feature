@@ -130,19 +130,23 @@ Feature: template related scenarios:
   Scenario: Override/set/get values for multiple parameters
     Given I have a project
     When I run the :process client command with:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
-      |parameters|true|
+      | f          | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | parameters | true                                                                                                   |
     And the step succeeded
     And the output should match:
-      |ADMIN_USERNAME\\s+administrator username\\s+expression\\s+<%= Regexp.escape("admin[A-Z0-9]{3}") %>|
-      |ADMIN_PASSWORD\\s+administrator password\\s+expression\\s+<%= Regexp.escape("[a-zA-Z0-9]{8}") %> |
-      |MYSQL_USER\\s+database username\\s+expression\\s+<%= Regexp.escape("user[A-Z0-9]{3}") %>|
-      |MYSQL_PASSWORD\\s+database password\\s+expression\\s+<%= Regexp.escape("[a-zA-Z0-9]{8}") %>|
-      |MYSQL_DATABASE\\s+database name\\s+\\s+root|
+      | ADMIN_USERNAME\\s+administrator username\\s+expression\\s+<%= Regexp.escape("admin[A-Z0-9]{3}") %> |
+      | ADMIN_PASSWORD\\s+administrator password\\s+expression\\s+<%= Regexp.escape("[a-zA-Z0-9]{8}") %>   |
+      | MYSQL_USER\\s+database username\\s+expression\\s+<%= Regexp.escape("user[A-Z0-9]{3}") %>           |
+      | MYSQL_PASSWORD\\s+database password\\s+expression\\s+<%= Regexp.escape("[a-zA-Z0-9]{8}") %>        |
+      | MYSQL_DATABASE\\s+database name\\s+\\s+root                                                        |
 
     When I run the :process client command with:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
-      |v|ADMIN_USERNAME=foo,ADMIN_PASSWORD=bar,MYSQL_USER=test,MYSQL_PASSWORD=cat,MYSQL_DATABASE=mine|
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | v | ADMIN_USERNAME=foo                                                                                     |
+      | v | ADMIN_PASSWORD=bar                                                                                     |
+      | v | MYSQL_USER=test                                                                                        |
+      | v | MYSQL_PASSWORD=cat                                                                                     |
+      | v | MYSQL_DATABASE=mine                                                                                    |
     And the step succeeded
     And the output should match:
       |"name": "ADMIN_USERNAME",\\s+"value": "foo" |
@@ -152,31 +156,39 @@ Feature: template related scenarios:
       |"name": "MYSQL_DATABASE",\\s+"value": "mine"|
 
     When I run the :process client command with:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
-      |v|ADMIN_USERNAME=foo,ADMIN_PASSWORD=bar,MYSQL_USER=test,MYSQL_PASSWORD=cat,MYSQL_DATABASE=mine|
-      |parameters|true|
+      | f          | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | v          | ADMIN_USERNAME=foo                                                                                     |
+      | v          | ADMIN_PASSWORD=bar                                                                                     |
+      | v          | MYSQL_USER=test                                                                                        |
+      | v          | MYSQL_PASSWORD=cat                                                                                     |
+      | v          | MYSQL_DATABASE=mine                                                                                    |
+      | parameters | true                                                                                                   |
     And the step failed
     And the output should contain:
-      |The --parameters flag does not process the template, can't be used with --value|
+      | The --parameters flag does not process the template, can't be used with --value |
 
     Given oc major.minor version is stored in the clipboard
     When I run the :process client command with:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
-      |v|NONEXIST=abcd|
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | v | NONEXIST=abcd                                                                                          |
     Then the expression should be true> @result[:success] == (cb.oc_version.split(".").last.to_i < 3)
     #And the step failed
     And the output should contain:
       |unknown parameter name "NONEXIST"|
 
     And I process and create:
-      |f|https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json|
-      |v|ADMIN_USERNAME=foo,ADMIN_PASSWORD=bar,MYSQL_USER=test,MYSQL_PASSWORD=cat,MYSQL_DATABASE=mine|
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | v | ADMIN_USERNAME=foo                                                                                     |
+      | v | ADMIN_PASSWORD=bar                                                                                     |
+      | v | MYSQL_USER=test                                                                                        |
+      | v | MYSQL_PASSWORD=cat                                                                                     |
+      | v | MYSQL_DATABASE=mine                                                                                    |
     And the step succeeded
     Given the "ruby22-sample-build-1" build completed
     Given I wait for the "frontend" service to become ready
     When I run the :env client command with:
       | resource | pod/<%= pod.name %> |
-      | list  | true |
+      | list     | true                |
     Then the step should succeed
     And the output should contain:
       |ADMIN_USERNAME=foo |
