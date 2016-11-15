@@ -301,7 +301,6 @@ Feature: template related scenarios:
     Then the step should succeed
     And the output should contain:
       | Your admin credentials are |
-      | The username/password are  |
 
   # @author cryan@redhat.com
   # @case_id 533275
