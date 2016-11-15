@@ -9,7 +9,7 @@ module CucuShift
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that can change at any time like status and spec
     def update_from_api_object(dc_hash)
-      m = dc_hash["metadata"]
+      props[:metadata] = m = dc_hash["metadata"]
       s = dc_hash["spec"]
       props[:labels] = m["labels"]
       props[:created] = m["creationTimestamp"] # already [Time]
@@ -38,6 +38,11 @@ module CucuShift
     def access_modes(user: nil, cached: true, quiet: false)
       status = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
       return status['accessModes']
+    end
+
+    def storage_class(user: nil, cached: true, quiet: false)
+      status = get_cached_prop(prop: :metadata, user: user, cached: cached, quiet: quiet).dig("annotations")
+      return status['volume.beta.kubernetes.io/storage-class']
     end
   end
 end
