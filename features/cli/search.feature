@@ -103,7 +103,8 @@ Feature: new-app with --search option
       |Templates (oc new-app --template=<template>)|
       |mongodb-ephemeral|
       |Project: <%= project.name %>|
-      |MongoDB database service, without persistent storage. WARNING: Any data stored will be lost upon pod destruction. Only use this template for testing|
+      |MongoDB database service, without persistent storage.|
+      |WARNING: Any data stored will be lost upon pod destruction. Only use this template for testing|
 
     #Search with --docker-image, --image-stream, --template together
     When I run the :new_app client command with:
