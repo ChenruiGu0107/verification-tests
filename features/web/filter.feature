@@ -298,11 +298,14 @@ Feature: filter on create page
     When I perform the :clear_one_filter web console action with:
       | filter_name | nolabel in (novalue) |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
     When I get the html of the web page
     Then the output should contain:
       | python-sample |
     And the output should not contain:
       | The active filters are hiding all |
+    """
 
     When I perform the :filter_resources_with_non_existing_label web console action with:
       | label_key     | i*s#$$% |
