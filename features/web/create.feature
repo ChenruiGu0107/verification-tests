@@ -457,10 +457,10 @@ Feature: create app on web console related
       | <%= project.name %> |
       | Active              |
     Given cluster role "self-provisioner" is removed from the "system:authenticated:oauth" group
-    When I perform the :check_help_info_on_projects_page web console action with:
+    When I perform the :check_help_info_when_user_have_no_permission web console action with:
       | openshift_command | oadm new-project <projectname> --admin=<%= user.name %> |
     Then the step should succeed
-    When I perform the :check_help_info_on_projects_page web console action with:
+    When I perform the :check_policy_command web console action with:
       | openshift_command | oc policy add-role-to-user <role> <%= user.name %> -n <projectname> |
     Then the step should succeed
     When I get the visible text on web html page
