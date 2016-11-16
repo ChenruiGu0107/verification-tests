@@ -778,6 +778,7 @@
     :claim-name: --claim-name=<value>
     :claim-mode: --claim-mode=<value>
     :claim-size: --claim-size=<value>
+    :claim-class: --claim-class=<value>
     :configmap-name: --configmap-name=<value>
     :all: --all=<value>
     :selector: --selector=<value>

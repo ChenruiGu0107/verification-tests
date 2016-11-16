@@ -546,3 +546,115 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | persistentVolumeClaim:              |
       | claimName: pvc1-<%= project.name %> |
       | claimName: pvc2-<%= project.name %> |
+
+  # @author wehe@redhat.com
+  # @case_id 536533 539535 539536 
+  @admin
+  Scenario Outline: oc set volume with claim-class parameter test 
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
+      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                     |
+    Then the step should succeed
+
+    # new-app
+    When I run the :new_app client command with:
+      | image_stream | openshift/postgresql       |
+      | env          | POSTGRESQL_USER=tester     |
+      | env          | POSTGRESQL_PASSWORD=xxx    |
+      | env          | POSTGRESQL_DATABASE=testdb |
+      | name         | mydb                       |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | app=mydb |
+
+    When I run the :set_volume client command with:
+      | resource      | dc                     |
+      | resource_name | mydb                   |
+      | action        | --add                  |
+      | type          | pvc                    |
+      | claim-mode    | rwo                    |
+      | claim-name    | pvcsc                  |
+      | claim-size    | 1G                     |
+      | name          | gcevolume              |
+      | mount-path    | /opt111                |
+      | claim-class   | sc-<%= project.name %> |
+    Then the step should succeed
+    When I run the :volume client command with:
+      | resource      | dc     |
+      | resource_name | mydb   |
+      | action        | --list |
+    Then the step should succeed
+    Then the output should contain:
+      | pvcsc              |
+      | mounted at /opt111 |
+
+    And I wait for the pod to die regardless of current status
+    And a pod becomes ready with labels:
+      | app=mydb |
+    #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
+    And the "pvcsc" PVC becomes :bound within 120 seconds 
+    And the expression should be true> pvc.storage_class(user: user) == "sc-<%= project.name %>"
+    And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
+    And the expression should be true> pvc.capacity(user: user) == "1Gi"
+
+    #Verify the pod has mounted 
+    When I execute on the pod:
+      | grep | opt111 | /proc/mounts |
+    Then the step should succeed
+
+    Examples:
+      | provisioner |
+      | gce-pd      |
+      | aws-ebs     |
+      | cinder      |
+
+  # @author wehe@redhat.com
+  # @case_id 536534
+  @admin
+  Scenario: Negetive test of oc set volume with claim-class paraters 
+    Given I have a project
+
+    # new-app
+    When I run the :new_app client command with:
+      | image_stream | openshift/postgresql       |
+      | env          | POSTGRESQL_USER=tester     |
+      | env          | POSTGRESQL_PASSWORD=xxx    |
+      | env          | POSTGRESQL_DATABASE=testdb |
+      | name         | mydb                       |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | app=mydb |
+    When I run the :set_volume client command with:
+      | resource      | dc                     |
+      | resource_name | mydb                   |
+      | action        | --add                  |
+      | type          | pvc                    |
+      | claim-mode    | rwo                    |
+      | claim-name    | pvcsc                  |
+      | claim-size    | 1G                     |
+      | name          | gcevolume              |
+      | mount-path    | /opt111                |
+      | claim-class   | sc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvcsc" PVC status is :pending
+
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+      | ["metadata"]["name"] | sc-<%= project.name %> |
+    Then the step should succeed
+
+    When I run the :set_volume client command with:
+      | resource      | dc                     |
+      | resource_name | mydb                   |
+      | action        | --add                  |
+      | type          | pvc                    |
+      | claim-mode    | rwo                    |
+      | claim-name    | pvcsc                  |
+      | name          | gcevolume              |
+      | mount-path    | /opt111                |
+      | claim-class   | sc-<%= project.name %> |
+    Then the step should fail
+    Then the outputs should contain:
+      | must provide --claim-size to create new pvc with claim-class |
+
