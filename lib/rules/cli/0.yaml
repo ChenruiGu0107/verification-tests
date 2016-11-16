@@ -281,6 +281,7 @@
     :output: --output=<value>
     :o: -o <value>
     :path: --path=<value>
+    :hostname: --hostname=<value>
 :extract:
   :cmd: oc extract
   :options:
