@@ -366,47 +366,47 @@ Feature: create app on web console related
     Given the "nodejs" image stream becomes ready
 
     When I perform the :check_port_on_create_page web console action with:
-      | project_name | <%= project.name %>    |
-      | image_name   | nodejs |
-      | image_tag    | 0.10   |
+      | project_name | <%= project.name %> |
+      | image_name   | nodejs              |
+      | image_tag    | 0.10                |
       | namespace    | <%= project.name %> |
-      | target_port  | 5858/TCP |
+      | target_port  | 5858/TCP            |
     Then the step should succeed
 
     When I perform the :check_port_on_create_page web console action with:
-      | project_name | <%= project.name %>    |
-      | image_name   | nodejs |
-      | image_tag    | 0.10   |
+      | project_name | <%= project.name %> |
+      | image_name   | nodejs              |
+      | image_tag    | 0.10                |
       | namespace    | <%= project.name %> |
-      | target_port  | 8080/TCP |
+      | target_port  | 8080/TCP            |
     Then the step should succeed
 
     When I perform the :create_app_from_image_with_port web console action with:
-      | project_name | <%= project.name %>    |
-      | image_name   | nodejs |
-      | image_tag    | 0.10   |
-      | namespace    | <%= project.name %> |
-      | app_name     | nodejs-test         |
+      | project_name | <%= project.name %>                        |
+      | image_name   | nodejs                                     |
+      | image_tag    | 0.10                                       |
+      | namespace    | <%= project.name %>                        |
+      | app_name     | nodejs-test                                |
       | source_url   | https://github.com/openshift/nodejs-ex.git |
-      | target_port  | 8080/TCP |
+      | target_port  | 8080/TCP                                   |
     Then the step should succeed
 
     When I perform the :check_target_port_on_routes_page web console action with:
       | project_name | <%= project.name %> |
-      | target_port  | 8080-tcp |
-      | route_name   | nodejs-test |
+      | target_port  | 8080-tcp            |
+      | route_name   | nodejs-test         |
     Then the step should succeed
 
     When I perform the :check_target_port_on_services_page web console action with:
       | project_name | <%= project.name %> |
-      | target_port  | 8080/TCP |
-      | service_name | nodejs-test |
+      | target_port  | 8080/TCP            |
+      | service_name | nodejs-test         |
     Then the step should succeed
 
     When I perform the :check_target_port_on_services_page web console action with:
       | project_name | <%= project.name %> |
-      | target_port  | 5858/TCP |
-      | service_name | nodejs-test |
+      | target_port  | 5858/TCP            |
+      | service_name | nodejs-test         |
     Then the step should succeed
 
   # @author yapei@redhat.com
@@ -436,7 +436,7 @@ Feature: create app on web console related
       | resource | hpa |
     Then the step should succeed
     And the output should contain:
-      | php-apache |
+      | php-apache      |
       | test-autoscaler |
     When I run the :get client command with:
       | resource | job |
@@ -602,3 +602,229 @@ Feature: create app on web console related
     And the output should contain:
       | dc/python-dfi   |
       | svc/python-dfi  |
+
+  # @author etrott@redhat.com
+  # @case_id 533201
+  Scenario: Labels management in create app from template process on web console
+    When I perform the :new_project web console action with:
+      | project_name | <%= project.name %> |
+      | display_name | test                |
+      | description  | test                |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Then the step should succeed
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                                       |
+      | file_path        | <%= File.join(localhost.workdir, "application-template-stibuild.json") %> |
+      | process_template | false                                                                     |
+      | save_template    | true                                                                      |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | templates           |
+      | n        | <%= project.name %> |
+    Then the output should contain:
+      | ruby-helloworld-sample |
+    When I perform the :create_app_from_template_check_label web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | ruby-helloworld-sample |
+      | namespace     | <%= project.name %>    |
+      | label_key     | test                   |
+      | label_value   | 1234                   |
+    Then the step should succeed
+    When I perform the :add_new_label web console action with:
+      | label_key   | testname  |
+      | label_value | testvalue |
+    Then the step should succeed
+    When I perform the :edit_env_var_value web console action with:
+      | env_variable_name | test        |
+      | new_env_value     | 1234updated |
+    Then the step should succeed
+    When I perform the :delete_env_var web console action with:
+      | env_var_key     | testname |
+    Then the step should succeed
+    When I get the "disabled" attribute of the "button" web element:
+      | text | Create |
+    Then the output should not contain "true"
+    When I click the following "button" element:
+      | text | Create |
+    Then the step should succeed
+    Given I wait until replicationController "frontend-1" is ready
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | all                 |
+      | l        | test=1234updated    |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | bc/ruby-sample-build       |
+      | builds/ruby-sample-build-1 |
+      | is/origin-ruby-sample      |
+      | is/ruby-22-centos7         |
+      | dc/database                |
+      | dc/frontend                |
+      | rc/database-1              |
+      | rc/frontend-1              |
+      | routes/route-edge          |
+      | svc/database               |
+      | svc/frontend               |
+    And the output should not contain:
+      | po/ |
+    """
+
+  # @author etrott@redhat.com
+  # @case_id 533199
+  Scenario: Environment variables and label management in create app from image on web console
+    When I perform the :new_project web console action with:
+      | project_name | <%= project.name %> |
+      | display_name | test                |
+      | description  | test                |
+    Then the step should succeed
+    When I perform the :create_app_from_image_check_label web console action with:
+      | project_name | <%= project.name %>                         |
+      | image_name   | php                                         |
+      | image_tag    | 5.5                                         |
+      | namespace    | openshift                                   |
+      | app_name     | php                                         |
+      | source_url   | https://github.com/openshift/cakephp-ex.git |
+      | git_ref      | :null                                       |
+      | context_dir  | :null                                       |
+      | bc_env_key   | BCkey1                                      |
+      | bc_env_value | BCvalue1                                    |
+      | dc_env_key   | DCkey1                                      |
+      | dc_env_value | DCvalue1                                    |
+      | label_key    | test1                                       |
+      | label_value  | value1                                      |
+    Then the step should succeed
+
+    When I perform the :create_app_from_image_add_bc_env_vars web console action with:
+      | bc_env_key   | BCkey2   |
+      | bc_env_value | BCvalue2 |
+    Then the step should succeed
+    When I perform the :edit_env_var_value web console action with:
+      | env_variable_name | BCkey1         |
+      | new_env_value     | BCvalue1update |
+    Then the step should succeed
+    When I perform the :delete_env_var web console action with:
+      | env_var_key | BCkey2 |
+    Then the step should succeed
+
+    When I perform the :create_app_from_image_add_dc_env_vars web console action with:
+      | dc_env_key   | DCkey2   |
+      | dc_env_value | DCvalue2 |
+    Then the step should succeed
+    When I perform the :create_app_from_image_add_dc_env_vars web console action with:
+      | dc_env_key   | test3!#!   |
+      | dc_env_value | testvalue3 |
+    Then the step should succeed
+    When I run the :confirm_errors_with_invalid_env_var web console action
+    Then the step should succeed
+    When I perform the :delete_env_var web console action with:
+      | env_var_key | test3!#! |
+    Then the step should succeed
+    When I perform the :edit_env_var_value web console action with:
+      | env_variable_name | DCkey2         |
+      | new_env_value     | DCvalue2update |
+    Then the step should succeed
+
+
+    When I perform the :add_new_label web console action with:
+      | label_key   | test2  |
+      | label_value | value2 |
+    Then the step should succeed
+    When I perform the :add_new_label web console action with:
+      | label_key   | test3!#! |
+      | label_value | value3   |
+    Then the step should succeed
+    When I run the :confirm_errors_with_invalid_template_label web console action
+    Then the step should succeed
+    When I get the "disabled" attribute of the "button" web element:
+      | text | Create |
+    Then the output should contain "true"
+    When I perform the :delete_env_var web console action with:
+      | env_var_key | test3!#! |
+    Then the step should succeed
+    When I perform the :edit_env_var_value web console action with:
+      | env_variable_name | test2        |
+      | new_env_value     | value2update |
+    Then the step should succeed
+
+    When I run the :create_app_from_image_submit web console action
+    Then the step should succeed
+
+    When I perform the :check_buildconfig_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | bc_name       | php                 |
+      | env_var_key   | BCkey1              |
+      | env_var_value | BCvalue1update      |
+    Then the step should succeed
+
+    When I perform the :check_build_environment web console action with:
+      | project_name      | <%= project.name %> |
+      | bc_and_build_name | php/php-1           |
+      | env_var_key       | BCkey1              |
+      | env_var_value     | BCvalue1update      |
+    Then the step should succeed
+
+    When I perform the :check_dc_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | php                 |
+      | env_var_key   | DCkey1              |
+      | env_var_value | DCvalue1            |
+    Then the step should succeed
+    When I perform the :check_dc_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | php                 |
+      | env_var_key   | DCkey2              |
+      | env_var_value | DCvalue2update      |
+    Then the step should succeed
+
+    When I perform the :manually_deploy web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | php                 |
+    Then the step should succeed
+    When I perform the :check_deployment_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | php                 |
+      | dc_number     | 1                   |
+      | env_var_key   | DCkey1              |
+      | env_var_value | DCvalue1            |
+    Then the step should succeed
+    When I perform the :check_deployment_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | php                 |
+      | dc_number     | 1                   |
+      | env_var_key   | DCkey2              |
+      | env_var_value | DCvalue2update      |
+    Then the step should succeed
+
+    Given a pod becomes ready with labels:
+      | deploymentconfig=php |
+    Then the step should succeed
+    When I perform the :check_pod_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | pod_name      | <%= pod.name %>     |
+      | env_var_key   | DCkey1              |
+      | env_var_value | DCvalue1            |
+    Then the step should succeed
+    When I perform the :check_pod_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | pod_name      | <%= pod.name %>     |
+      | env_var_key   | DCkey2              |
+      | env_var_value | DCvalue2update      |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource | all                 |
+      | l        | test1=value1        |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | bc/php             |
+      | builds/php-1       |
+      | is/php             |
+      | dc/php             |
+      | rc/php-1           |
+      | routes/php         |
+      | svc/php            |
+      | po/<%= pod.name %> |

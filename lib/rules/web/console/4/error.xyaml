@@ -5,8 +5,8 @@ check_error_page:
       xpath: //h1[contains(.,'Error')]
   - selector:
       xpath: //div[contains(.,'<project_name> does not exist or you are not authorized to view it')]
-check_error_list_project_resources:               
-  url: /console/project/<project_name>/overview 
+check_error_list_project_resources:
+  url: /console/project/<project_name>/overview
   elements:
   - selector:
       xpath: //div[text()='Failed to list builds/v1 (403)']
@@ -19,7 +19,7 @@ check_error_list_project_resources:
   - selector:
       xpath: //div[text()='Failed to list deploymentconfigs/v1 (403)']
   - selector:
-      xpath: //div[text()='Failed to list services/v1 (403)']    
+      xpath: //div[text()='Failed to list services/v1 (403)']
 check_error_notification_on_page:
   elements:
   - selector:
@@ -29,3 +29,18 @@ check_login_error_message:
   - selector:
       xpath: //div[@class='alert alert-danger' and contains(., '<error_message>')]
 
+check_key_editor_validation_error:
+  element:
+    selector:
+      xpath: //span[contains(text(),'alidation error')]
+confirm_errors_with_invalid_template_label:
+  action: check_key_editor_validation_error
+  element:
+    selector:
+        xpath: //span/a[@data-toggle="tooltip" and contains(@title,'valid object label')]
+
+confirm_errors_with_invalid_env_var:
+  action: check_key_editor_validation_error
+  element:
+    selector:
+      xpath: //span/a[@data-toggle="tooltip" and contains(@title,'valid environment variable')]

@@ -140,6 +140,11 @@ wait_latest_build_to_status:
     timeout: 600
 check_buildconfig_environment:
   action: goto_buildconfig_environment_tab
+  action: check_environment_tab
+check_build_environment:
+  action: goto_build_environment_tab
+  action: check_environment_tab
+check_environment_tab:
   elements:
   - selector:
       xpath: //div[contains(@class,'key-value-editor-input')]/input
@@ -195,6 +200,11 @@ enable_webhook_build_trigger:
     op: click
 goto_buildconfig_environment_tab:
   action: goto_one_buildconfig_page
+  action: goto_environment_tab
+goto_build_environment_tab:
+  action: goto_one_build_page
+  action: goto_environment_tab
+goto_environment_tab:
   elements:
   - selector:
       xpath: //uib-tab-heading[contains(.,'Environment')]
@@ -204,6 +214,8 @@ goto_buildconfig_environment_tab:
     optional: true
 delete_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
+  action: delete_env_var
+delete_env_var:
   elements:
   - selector:
       xpath: //div[contains(@class,'key-value-editor-input')]/input
@@ -213,7 +225,7 @@ delete_env_vars_on_buildconfig_edit_page:
              var rows = document.querySelectorAll('div[class~=key-value-editor-entry]')
              for (var i =0; i< rows.length; i++) {
                  var inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input')
-                 if (inputs[0].value == key) {
+                 if (inputs.length==2 && inputs[0].value == key) {
                      rows[i].querySelector(".key-value-editor-buttons a").click()
                      return true
                  }

@@ -143,6 +143,9 @@ goto_deployments_page:
   url: /console/project/<project_name>/browse/deployments
 goto_one_dc_page:
   url: /console/project/<project_name>/browse/deployments/<dc_name>
+goto_one_dc_environment_tab:
+  action: goto_one_dc_page
+  action: goto_environment_tab
 goto_one_standalone_rc_page:
   url: /console/project/<project_name>/browse/deployments-replicationcontrollers/<rc_name>
 goto_set_resource_limit_page:
@@ -180,6 +183,9 @@ check_dc_loaded_completely:
       text: Template
 goto_one_deployment_page:
   url: /console/project/<project_name>/browse/deployments/<dc_name>/<dc_name>-<dc_number>
+goto_one_deployment_environment_tab:
+  action: goto_one_deployment_page
+  action: goto_environment_tab
 check_dc_strategy:
   action: check_dc_loaded_completely
   elements:
@@ -235,6 +241,12 @@ check_specific_deploy_selector:
   elements:
   - selector:
       xpath: //dt[contains(.,'Selectors')]/following-sibling::dd[contains(.,'<specific_deployment_selector>')]
+check_dc_environment:
+  action: goto_one_dc_environment_tab
+  action: check_environment_tab
+check_deployment_environment:
+  action: goto_one_deployment_environment_tab
+  action: check_environment_tab
 add_autoscaler_set_max_pod_and_cpu_req_per_from_dc_page:
   action: goto_one_dc_page
   action: goto_add_autoscaler_page

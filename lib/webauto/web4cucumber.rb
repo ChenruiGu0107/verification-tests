@@ -365,8 +365,12 @@ require 'watir-webdriver'
           raise "cannot #{op} with a value" unless val.empty?
           element.to_subtype.clear
         when "set", "select_value", "append"
-          if element.kind_of?(Watir::Input)
-            raise "maybe you meant to use `send_keys` op"
+          if element.instance_of?(Watir::CheckBox)
+            if val == "true" || val == "false"
+              val = val == "true" ? true : false
+            else
+              raise("you can set only 'true' or 'false' to element of type #{element.class}")
+            end
           end
 
           if element.respond_to? op.to_sym

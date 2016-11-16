@@ -71,6 +71,13 @@ create_app_from_image_set_resource_limit:
   action: create_app_from_image_set_memory_resource_request
   action: create_app_from_image_set_memory_resource_limit
   action: create_app_from_image_submit
+create_app_from_image_check_label:
+  action: create_app_from_image_base_action
+  action: create_app_from_image_try_sample_repo
+  action: create_app_from_image_show_advanced_param
+  action: create_app_from_image_add_bc_env_vars
+  action: create_app_from_image_add_dc_env_vars
+  action: add_label_name_and_value
 # all sub single action
 create_app_from_image_navigate:
   url: /console/project/<project_name>/create/fromimage?imageName=<image_name>&imageTag=<image_tag>&namespace=<namespace>
@@ -161,13 +168,22 @@ create_app_from_image_change_scaling_setting:
 add_label_name_and_value:
   elements:
   - selector:
-      xpath: //label-editor//div[@ng-show='expand']//input[@placeholder="Name"]
+      xpath: (//label-editor//div[@ng-show='expand']//input[@placeholder="Name"])[last()]
     op: send_keys <label_key>
     type: input
   - selector:
-      xpath: //label-editor//div[@ng-show='expand']//input[@placeholder="Value"]
+      xpath: (//label-editor//div[@ng-show='expand']//input[@placeholder="Value"])[last()]
     op: send_keys <label_value>
     type: input
+add_new_label_form:
+  element:
+    selector:
+      text: Add label
+    op: click
+    type: a
+add_new_label:
+  action: add_new_label_form
+  action: add_label_name_and_value
 create_app_from_image_check_cpu_limit_range:
   element:
     selector:

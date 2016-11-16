@@ -16,3 +16,9 @@ goto_one_pod_page:
       xpath: //div[@ng-if="pod"]
 goto_pods_page:
   url: /console/project/<project_name>/browse/pods
+goto_one_pod_environment_tab:
+  action: goto_one_pod_page
+  action: goto_environment_tab
+check_pod_environment:
+  action: goto_one_pod_environment_tab
+  action: check_environment_tab

@@ -13,6 +13,9 @@ create_app_from_template_without_label:
   action: fromtemplate_navigate
   action: fromtemplate_param_form
   action: fromtemplate_submit_and_confirm
+create_app_from_template_check_label:
+  action: fromtemplate_navigate
+  action: add_label_name_and_value
 fromtemplate_submit_and_confirm:
   element:
     selector:
@@ -81,9 +84,38 @@ clear_param_form:
     op: clear
     type: input
     optional: true
-confirm_errors_with_invalid_template_label:
+
+create_from_template_file:
+  action: goto_create_fromfile
+  action: create_from_file
+  element:
+    selector:
+      xpath: //button[contains(text(),'Create') and not(@disabled)]
+    type: button
+    op: click
+  action: process_and_save_template
+
+goto_create_fromfile:
+  url: /console/project/<project_name>/create/?tab=fromFile
+create_from_file:
+  element:
+    selector:
+      xpath: //span[contains(text(),"Browse…")]/input
+    visible: false
+    type: filefield
+    op: set <file_path>
+process_and_save_template:
   elements:
   - selector:
-      xpath: //span[contains(text(),'alidation error')]
+      xpath: //label[strong[text()="Process the template"]]/input
+    type: checkbox
+    op: set <process_template>
   - selector:
-      xpath: //span/a[@data-toggle="tooltip" and contains(@title,'valid object label')]
+      xpath: //label[strong[text()="Save template"]]/input
+    type: checkbox
+    op: set <save_template>
+  - selector:
+      text: Continue
+      class: btn-primary
+    type: button
+    op: click
