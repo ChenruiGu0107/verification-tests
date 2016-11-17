@@ -51,6 +51,17 @@ Given /^I store master (major|image)? version in the#{OPT_SYM} clipboard$/ do |t
   logger.info "Master Version: " + cb[cb_name]
 end
 
+# compares environment version to given version string;
+# only major and minor version is compared, i.e. "3.3" === "3.3.7";
+# Origin style versions (e.g. 1.x) can be compared properly to OCP style
+#   versions (e.g. 3.x); Such that "3.4" === "1.4";
+# Example: Given the master version >= "3.4"
+Given /^the master version ([<>=]=?) #{QUOTED}$/ do |op, ver|
+  unless env.version_cmp(ver, user: user).send(op.to_sym, 0)
+    raise "master version not #{op} #{ver}"
+  end
+end
+
 Given /^the env is using multitenant network$/ do
   ensure_admin_tagged
 
