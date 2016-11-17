@@ -352,3 +352,92 @@ Feature: Testing wildcard routes
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
 
+
+  # @author bmeng@redhat.com
+  # @case_id 539523
+  @admin
+  @destructive
+  Scenario: The route matches more should win the routing
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_unsecure_test.example.com.json |
+    Then the step should succeed
+
+    Given I switch to the second user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    And the pod named "caddy-docker-2" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_unsecure_sub.test.example.com.json |
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    And an 6 characters random string of type :dns952 is stored into the :wildcard_route clipboard
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= cb.wildcard_route %>.test.example.com:80:<%= cb.router_ip[0] %> |
+      | http://<%= cb.wildcard_route %>.test.example.com/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift-1"
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | --resolve |
+      | <%= cb.wildcard_route %>.sub.test.example.com:80:<%= cb.router_ip[0] %> |
+      | http://<%= cb.wildcard_route %>.sub.test.example.com/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift-2"
+
+  # @author bmeng@redhat.com
+  # @case_id 539675
+  @admin
+  @destructive
+  Scenario: Should not be able to create a wildcard enabled route when the host is not specified
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/route_wildcard_no_host.json |
+    Then the step should fail
+    And the output should match "Invalid value.*host name not specified"
