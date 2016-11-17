@@ -37,3 +37,7 @@ Feature: console test
     When I perform the :switch_window_demo web console action with:
       | what | More information |
     Then the step should succeed
+
+  Scenario: navigate to arbitrary web url
+    Given I login via web console
+    When I access the "https://github.com" url in the web browser

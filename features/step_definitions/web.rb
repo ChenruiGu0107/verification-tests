@@ -20,7 +20,7 @@ When /^I run the :(.+?) web( console)? action$/ do |action, console|
 end
 
 # @precondition a `browser` object
-When /^I access the "(.*?)" path in the web (?:console|browser)$/ do |url|
+When /^I access the "(.*?)" (?:path|url) in the web (?:console|browser)$/ do |url|
   @result = browser.handle_url(url)
 end
 
