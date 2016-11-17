@@ -138,7 +138,8 @@ Feature: storageClass related feature
       | cinder      |
 
   # @author lxia@redhat.com
-  # @case_id 534816 534817
+  # @author chaoyang@redhat.com
+  # @case_id 534816 534817 533052 533053 536608
   @admin
   @destructive
   Scenario Outline: storage class provisioner
@@ -181,12 +182,16 @@ Feature: storageClass related feature
     Then the step should succeed
     Given I ensure "pod-<%= project.name %>" pod is deleted
     Given I ensure "pvc-<%= project.name %>" pvc is deleted
+    Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
 
     Examples:
-      | provisioner | type        | zone          | is-default | size |
-      | gce-pd      | pd-ssd      | us-central1-a | false      | 1Gi  |
-      | gce-pd      | pd-standard | us-central1-a | false      | 2Gi  |
+      | provisioner | type        | zone          | is-default | size  |
+      | gce-pd      | pd-ssd      | us-central1-a | false      | 1Gi   |
+      | gce-pd      | pd-standard | us-central1-a | false      | 2Gi   |
+      | aws-ebs     | gp2         | us-east-1d    | false      | 1Gi   |
+      | aws-ebs     | sc1         | us-east-1d    | false      | 500Gi |
+      | aws-ebs     | st1         | us-east-1d    | false      | 500Gi |
 
   # @author lxia@redhat.com
   # @case_id 534824
@@ -339,4 +344,46 @@ Feature: storageClass related feature
       | IsDefaultClass.*No |
       | Annotations.*storageclass.beta.kubernetes.io/is-default-class=false | 
       | Parameters.*type=pd-ssd,zone=us-central1-b |
+
+  # @author chaoyang@redhat.com
+  # @case_id 533050 533054
+  @admin
+  Scenario Outline: PVC with storage class will provision pv with io1 type and 100/20000 iops ebs volume
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
+      | ["metadata"]["name"]        | sc-<%= project.name %> |
+    Then the step should succeed
+    
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"]                           | <size>                  |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And the expression should be true> pvc.capacity(user: user) == "<size>"
+    And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
+    And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas               |
+    Then the step should succeed
+    Given the pod named "pod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | ls | -ld | /mnt/iaas/ |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/iaas/testfile |
+    Then the step should succeed
+    Given I ensure "pod-<%= project.name %>" pod is deleted
+    Given I ensure "pvc-<%= project.name %>" pvc is deleted
+    Given I switch to cluster admin pseudo user
+    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+
+    Examples:
+      | size  |
+      | 4Gi   |
+      | 800Gi |
 
