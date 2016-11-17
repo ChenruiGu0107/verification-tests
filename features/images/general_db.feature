@@ -269,7 +269,7 @@ Feature: general_db.feature
       | docker_image      | <%= product_docker_repo %>rhscl/mongodb-32-rhel7 |
       | insecure_registry | true                                             |
       | name              | mongodb32                                        |
-      | env               | MONGODB_USER=use                                 |
+      | env               | MONGODB_USER=user                                |
       | env               | MONGODB_PASSWORD=pass                            |
       | env               | MONGODB_DATABASE=db                              |
       | env               | MONGODB_ADMIN_PASSWORD=pass                      |
