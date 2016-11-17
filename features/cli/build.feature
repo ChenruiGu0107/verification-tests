@@ -1219,17 +1219,8 @@ Feature: build 'apps' with CLI
     Then the output should contain:
       | ruby-sample-build |
       | Custom |
-    When I run the :patch client command with:
-      | resource | buildconfig |
-      | resource_name | ruby-sample-build |
-      | p | {"spec": {"source": {"git": {"uri": "https://github.com/openshift-qe/ruby-hello-world"}}}} |
-    Then the step should succeed
-    When I run the :start_build client command with:
-      | buildconfig | ruby-sample-build |
-    Then the step should succeed
-    Given the "ruby-sample-build-2" build completes
     When I run the :env client command with:
-      | resource | pod/ruby-sample-build-2-build |
+      | resource | pod/ruby-sample-build-1-build |
       | list | true |
     Then the step should succeed
     And the output should contain:
@@ -1242,9 +1233,9 @@ Feature: build 'apps' with CLI
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
     Then the step should succeed
-    Given the "ruby-sample-build-3" build completes
+    Given the "ruby-sample-build-2" build completes
     When I run the :env client command with:
-      | resource | pod/ruby-sample-build-3-build |
+      | resource | pod/ruby-sample-build-2-build |
       | list | true |
     Then the step should succeed
     And the output should contain:
@@ -2094,7 +2085,6 @@ Feature: build 'apps' with CLI
       | f       | docker-compose-nodejs-examples/02-express-redis-nodemon/docker-compose.yml |
       | dry_run | true                                                                       |
     Then the step should succeed
-    And the output should contain "Success (DRY RUN)"
 
   # @author cryan@redhat.com
   # @case_id 526209
