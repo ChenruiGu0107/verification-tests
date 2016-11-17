@@ -239,20 +239,8 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
     Given I have a pod-for-ping in the project
     And the pod named "hello-pod" becomes ready
-    Given a "policy1.yaml" file is created with the following lines:
-    """
-    apiVersion: v1
-    kind: EgressNetworkPolicy
-    metadata:
-      name: policy1
-    spec:
-      egress:
-      - to:
-          cidrSelector: 0.0.0.0/32
-        type: Deny
-    """
     When I run the :create admin command with:
-      | f | policy1.yaml    |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
     Given I select a random node's host 
@@ -296,20 +284,8 @@ Feature: Egress-ingress related networking scenarios
     When I run the :oadm_pod_network_make_projects_global admin command with:
       | project | <%= cb.proj2 %> |
     Then the step should succeed
-    Given a "policy1.yaml" file is created with the following lines:
-    """
-    apiVersion: v1
-    kind: EgressNetworkPolicy
-    metadata:
-      name: policy1
-    spec:
-      egress:
-      - to:
-          cidrSelector: 0.0.0.0/32
-        type: Deny
-    """
     When I run the :create admin command with:
-      | f | policy1.yaml    |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json |
       | n | <%= cb.proj2 %> |
     Given I select a random node's host
     When I run commands on the host:
@@ -332,3 +308,55 @@ Feature: Egress-ingress related networking scenarios
       | www.google.com | 
    Then the step should succeed
    And the output should contain "HTTP/1.1 200"
+
+  # @author yadu@redhat.com
+  # @case_id 534292
+  @admin
+  @destructive
+  Scenario: EgressNetworkPolicy will not take effect after delete it
+    Given the env is using multitenant network
+    Given I have a project
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl           |
+      | --head         |
+      | www.google.com | 
+    Then the step should succeed
+    And the output should contain "HTTP/1.1 200" 
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    Given I select a random node's host 
+    When I run commands on the host:
+      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
+    Then the step should succeed
+    And the output should contain 1 times:
+      | priority=1   |
+      | actions=drop |
+    When I use the "<%= project.name %>" project
+    When I execute on the pod:
+      | curl           |
+      | --head         |
+      | www.google.com |
+    Then the step should fail
+    And the output should contain "Couldn't resolve host"
+    When I run the :delete admin command with:
+      | object_type       | egressnetworkpolicy |
+      | object_name_or_id | policy1             |
+      | n                 | <%= project.name %> |
+    Then the step should succeed
+    Given I select a random node's host 
+    When I run commands on the host:
+      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
+    Then the step should succeed
+    And the output should not contain:
+      | priority=1   |
+      | actions=drop |
+    When I use the "<%= project.name %>" project
+    When I execute on the pod:
+      | curl           |
+      | --head         |
+      | www.google.com |
+    Then the step should succeed
+    And the output should contain "HTTP/1.1 200"
