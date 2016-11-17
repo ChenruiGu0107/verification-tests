@@ -42,10 +42,7 @@ new_project_form:
       id: description
     op: set <description>
     type: textarea
-  - selector:
-      xpath: //button[text()='Create' and not(@disabled)]
-    op: click
-    type: button
+  action: click_create_button
 ##new_project_fake_action:
   ##element:
     ##selector:

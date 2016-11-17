@@ -1,0 +1,6 @@
+click_create_button:
+  elements:
+  - selector:
+      xpath: //button[contains(text(),"Create") and not(@disabled)]
+    type: button
+    op: click

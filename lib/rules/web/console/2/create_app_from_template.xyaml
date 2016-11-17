@@ -14,11 +14,7 @@ create_app_from_template_without_label:
   action: fromtemplate_param_form
   action: fromtemplate_submit_and_confirm
 fromtemplate_submit_and_confirm:
-  element:
-    selector:
-      xpath: //button[contains(text(),'Create') and contains(@class, 'btn-primary') and not(@disabled)]
-    op: click
-    type: button
+  action: click_create_button
   element:
     selector:
       text: Application created. Continue to overview.

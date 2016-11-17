@@ -17,11 +17,7 @@ create_app_from_template_check_label:
   action: fromtemplate_navigate
   action: add_label_name_and_value
 fromtemplate_submit_and_confirm:
-  element:
-    selector:
-      xpath: //button[contains(text(),'Create') and contains(@class, 'btn-primary') and not(@disabled)]
-    op: click
-    type: button
+  action: click_create_button
   element:
     selector:
       text: Application created. Continue to overview.
@@ -88,11 +84,7 @@ clear_param_form:
 create_from_template_file:
   action: goto_create_fromfile
   action: create_from_file
-  element:
-    selector:
-      xpath: //button[contains(text(),'Create') and not(@disabled)]
-    type: button
-    op: click
+  action: click_create_button
   action: process_and_save_template
 
 goto_create_fromfile:
