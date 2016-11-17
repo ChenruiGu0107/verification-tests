@@ -205,12 +205,24 @@ module CucuShift
       return @minor_version - minor
     end
 
+    def version_ge(version, user:)
+      version_cmp(version, user: user) >= 0
+    end
+
     def version_gt(version, user:)
       version_cmp(version, user: user) > 0
     end
 
+    def version_le(version, user:)
+      version_cmp(version, user: user) <= 0
+    end
+
     def version_lt(version, user:)
       version_cmp(version, user: user) < 0
+    end
+
+    def version_eq(version, user:)
+      version_cmp(version, user: user).equal? 0
     end
 
     # obtain router detals like default router subdomain and router IPs
