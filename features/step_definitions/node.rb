@@ -228,7 +228,7 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
       raise "The iptables deamon verification failed. The deamon is not active!"
     end
     filter_matches = [
-      'INPUT -i tun0 -m comment --comment "traffic from docker for internet" -j ACCEPT',
+      'INPUT -i tun0 -m comment --comment "traffic from(.*)" -j ACCEPT',
       'INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT',
       'OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
       "FORWARD -s #{subnet} -j ACCEPT",

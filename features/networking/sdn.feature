@@ -203,8 +203,12 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :nat_rule clipboard
     When I run commands on the host:
+      | iptables -S \| grep tun0 \| cut -d ' ' -f 2- |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :tun0_rule clipboard
+    When I run commands on the host:
       | iptables -D INPUT -p udp -m multiport --dport 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
-      | iptables -D INPUT -i tun0 -m comment --comment "traffic from docker for internet" -j ACCEPT |
+      | iptables -D <%= cb.tun0_rule %> |
       | iptables -D FORWARD -s <%= cb.clusternetwork %> -j ACCEPT |
       | iptables -D FORWARD -d <%= cb.clusternetwork %> -j ACCEPT |
       | iptables -t nat -D <%= cb.nat_rule %> |
@@ -219,8 +223,8 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | iptables -S -t filter |
     Then the output should contain:
-      | INPUT -i tun0 -m comment --comment "traffic from docker for internet" -j ACCEPT |
       | INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
+      | <%= cb.tun0_rule %> |
       | FORWARD -s <%= cb.clusternetwork %> -j ACCEPT |
       | FORWARD -d <%= cb.clusternetwork %> -j ACCEPT |
     When I run commands on the host:
