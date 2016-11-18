@@ -452,7 +452,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I run the :get client command with:
       | resource      | route |
-    Then the output should contain 10 times:
+    Then the output should contain 7 times:
       | ExtendedValidationFailed |
 
     #create one normal reencyption route to check if it can work after those invalid route
@@ -1160,7 +1160,8 @@ Feature: Testing haproxy router
       | ports | <%= cb.http_port %>:<%= cb.http_port %>,<%= cb.https_port %>:<%= cb.https_port %> |
     When I run the :env client command with:
       | resource | dc/tc-531375 |
-      | e        | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>,ROUTER_SERVICE_HTTPS_PORT=<%= cb.https_port %>  |
+      | e        | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>    |
+      | e        | ROUTER_SERVICE_HTTPS_PORT=<%= cb.https_port %>  |
     Then the step should succeed
     And a pod becomes ready with labels:
       | deployment=tc-531375-2 |
@@ -1415,7 +1416,8 @@ Feature: Testing haproxy router
       | host_network | false |
     When I run the :env client command with:
       | resource | dc/tc-520314 |
-      | e        | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>,ROUTER_SERVICE_HTTPS_PORT=<%= cb.https_port %>  |
+      | e        | ROUTER_SERVICE_HTTP_PORT=<%= cb.http_port %>    |
+      | e        | ROUTER_SERVICE_HTTPS_PORT=<%= cb.https_port %>  |
     Then the step should succeed
     And a pod becomes ready with labels:
       | deployment=tc-520314-2 |

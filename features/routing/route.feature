@@ -814,7 +814,7 @@ Feature: Testing route
     Then the step should succeed
     When I run the :get client command with:
       | resource      | route |
-    Then the output should contain 10 times:
+    Then the output should contain 7 times:
       | ExtendedValidationFailed |
 
     #create one normal reencyption route to check if it can work after those invalid route
