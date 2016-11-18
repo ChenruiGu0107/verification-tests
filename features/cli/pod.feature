@@ -266,3 +266,21 @@ Feature: pods related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_reasonable_percentage.yaml    |
       | n | <%= project.name %>                                                                                                        |
     Then the step should succeed
+ 
+  # @author chuyu@redhat.com
+  # @case_id 536559
+  Given the master version >= "3.4"
+  Scenario: Oauth provider info should be consumed in a pod
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image 	 | aosqe/ruby-ex	|
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | app=ruby-ex      |
+    When I run the :rsh client command with:
+      | pod          | <%= pod.name %> |
+      | _stdin       | curl https://openshift.default.svc/.well-known/oauth-authorization-server -k |
+    Then the step should succeed
+    And the output should contain:
+      | implicit		|
+      | user:list-projects	|
