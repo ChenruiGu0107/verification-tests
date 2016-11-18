@@ -219,3 +219,50 @@ Feature: pods related scenarios
       | p             | {"spec":{"activeDeadlineSeconds":-5}}  |
     Then the step should fail
     And the output should contain "must be greater than 0"
+
+  # @author chuyu@redhat.com
+  # @case_id 538208
+  @admin
+  Scenario: PDB create
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_negative_absolute_number.yaml |
+      | n | <%= project.name %>                                                                                         	       |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_negative_percentage.yaml      |
+      | n | <%= project.name %>                                                                                                        |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_zero_number.yaml	       |
+      | n | <%= project.name %>                                                                                                        |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_zero_percentage.yaml	       |
+      | n | <%= project.name %>                                                                                                        |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_non_absolute_number.yaml      |
+      | n | <%= project.name %>                                                                                                        |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_non_number_percentage.yaml    |
+      | n | <%= project.name %>                                                                                                        |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_more_than_full_percentage.yaml|
+      | n | <%= project.name %>                                                                                                        |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_positive_absolute_number.yaml |
+      | n | <%= project.name %>                                                                                                        |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc538208/pdb_reasonable_percentage.yaml    |
+      | n | <%= project.name %>                                                                                                        |
+    Then the step should succeed
