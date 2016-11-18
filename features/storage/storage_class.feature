@@ -387,3 +387,37 @@ Feature: storageClass related feature
       | 4Gi   |
       | 800Gi |
 
+  # @author jhou@redhat.com
+  # @case_id 535466
+  @admin
+  Scenario: Error messaging for failed provision via StorageClass
+    Given I have a project
+    # Scenario when StorageClass doesn't exist
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | missing |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | foo     |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc/missing |
+    Then the output should contain:
+      | Pending   |
+      | not found |
+    """
+
+    # Scenario when StorageCLass's rest url can't be reached
+    Given admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+      | ["metadata"]["name"]      | sc-<%= project.name %> |
+      | ["parameters"]["resturl"] | http://foo.com/        |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | invalid                |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc/invalid |
+    Then the output should contain:
+      | error creating volume |
+    """
