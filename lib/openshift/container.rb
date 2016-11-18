@@ -38,7 +38,7 @@ module CucuShift
     def id(user: nil, cached: true, quiet: false)
       user ||= default_user
       res = status(user: user, cached: cached, quiet: quiet)
-      return res['containerID'].split("docker://")[1]
+      return res['containerID'].split("docker://").last
     end
 
     def image(user: nil, cached: true, quiet: false)
@@ -50,7 +50,7 @@ module CucuShift
     def image_id(user: nil, cached: true, quiet: false)
       user ||= default_user
       res = status(user: user, cached: cached, quiet: quiet)
-      return res['imageID'].split('sha256:')[1]
+      return res['imageID'].split('sha256:').last
     end
 
     def name(user: nil, cached: true, quiet: false)
