@@ -614,37 +614,40 @@ Feature: deployment related features
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
-
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json"
+    Then the step should succeed
+    And I replace lines in "deployment1.json":
+      | user8Y2 | usernew|     
     Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
-    Then the step should succeed
-
+      | f | deployment1.json |
+    Then the step should succeed   
     Given I wait until the status of deployment "hooks" becomes :complete
+    
     # Workaround: the below steps make a failed deployment instead of --cancel
     Given I successfully patch resource "dc/hooks" with:
-      | {"spec":{"strategy":{"rollingParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ], "containerName": "hello-openshift" }, "failurePolicy": "Abort" }}}}} |
+      | {"spec":{"strategy":{"recreateParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ], "containerName": "hello-openshift" }, "failurePolicy": "Abort" }}}}} |
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            |       |
     Then the step should succeed
     And the output should contain "Started deployment #3"
     And I wait until the status of deployment "hooks" becomes :failed
-
+    
     # Remove the pre-hook introduced by the above workaround,
     # otherwise later deployment will always fail
     Given I successfully patch resource "dc/hooks" with:
-      | {"spec":{"strategy":{"rollingParams":{"pre":null}}}} |
+      | {"spec":{"strategy":{"recreateParams":{"pre":null}}}} |
     When I run the :rollback client command with:
-      | deployment_name | hooks |
+      | deployment_name   | hooks |
     Then the step should succeed
     # Deployment #4
     And the output should contain "rolled back to hooks-2"
 
     Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :rollback client command with:
-      | deployment_name | hooks |
-      | to_version | 1 |
+      | deployment_name   | hooks |
+      | to_version        | 1     |
     Then the step should succeed
     # Deployment #5
     And the output should contain "rolled back to hooks-1"
