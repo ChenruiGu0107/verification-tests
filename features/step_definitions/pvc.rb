@@ -5,6 +5,8 @@ Given /^the#{OPT_QUOTED} PVC becomes #{SYM}(?: within (\d+) seconds)?$/ do |pvc_
   @result = pvc(pvc_name).wait_till_status(status.to_sym, user, timeout)
 
   unless @result[:success]
+    user.cli_exec(:get, resource: "pvc", resource_name: "#{pvc_name}", o: "yaml")
+    user.cli_exec(:describe, resource: "pvc", name: "#{pvc_name}")
     raise "PVC #{pvc_name} never reached status: #{status}"
   end
 end
@@ -13,6 +15,8 @@ Given /^the#{OPT_QUOTED} PVC status is #{SYM}$/ do |pvc_name, status|
   @result = pvc(pvc_name).status?(status: status.to_sym, user: user)
 
   unless @result[:success]
+    user.cli_exec(:get, resource: "pvc", resource_name: "#{pvc_name}", o: "yaml")
+    user.cli_exec(:describe, resource: "pvc", name: "#{pvc_name}")
     raise "PVC #{pvc_name} does not have status: #{status}"
   end
 end
