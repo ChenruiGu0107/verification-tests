@@ -183,31 +183,14 @@ Feature: oc tag related scenarios
       | resource_name | mystream |
       | template      | "{{.spec}};{{range .status.tags}} tag: {{.tag}} {{end}}" |
     Then the step should succeed
-    And the output should contain "map[]; tag: latest  tag: v1"
-
-    When I run the :tag client command with:
-      | source | mystream |
-      | dest   | mystream:v1 |
-      | dest   | mystream:latest |
-    Then the step should succeed
-    When I run the :tag client command with:
-      | source | mystream:latest |
-      | d      | true      |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | is   |
-      | resource_name | mystream |
-      | template      | "{{range .spec.tags}} name: {{.name}} {{end}};{{range .status.tags}} tag: {{.tag}} {{end}}" |
-    Then the step should succeed
-    And the output should contain "name: v1 ; tag: latest  tag: v1"
-    And the output should not contain "name: latest"
+    And the output should contain "map[];"
 
     When I run the :tag client command with:
       | source | mystream:nonexist |
       | d      | true      |
     Then the step should fail
     And the output should contain:
-      | error: destination tag <%= project.name%>/mystream:nonexist does not exist |
+      | not found |
 
   # @author mcurlej@redhat.com
   # @case_id 519469

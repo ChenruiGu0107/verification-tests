@@ -445,8 +445,6 @@ Feature: remote registry related scenarios
     When I run commands on the host:
       | docker pull <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/ruby-ex:latest |
     Then the step should fail
-    And the output should contain:
-      | not found |
     When I run commands on the host:
       | docker tag busybox <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
       | docker push <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
@@ -492,8 +490,6 @@ Feature: remote registry related scenarios
     When I run commands on the host:
       | docker pull <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/ruby-ex:latest |
     Then the step should fail
-    And the output should contain:
-      | not found |
     When I run commands on the host:
       | docker tag busybox <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
       | docker push <%= cb.integrated_reg_ip %>/<%= cb.u1p2 %>/mystream:latest |
