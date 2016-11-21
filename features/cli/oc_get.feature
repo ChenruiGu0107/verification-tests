@@ -53,46 +53,49 @@ Feature: oc get related command
   # @author xiaocwan@redhat.com
   # @case_id 535721
   Scenario Outline: Show friendly message when request resource is empty instead of return nothing
-    When I run the :get client command with:
-      | resource    | <resource-type> |
-    Then the step should fail
-  # This is blocked by bug#1393289, but will pass when next 2 lines are commented
-    And the output should not match:
-      | [Nn]o resources found         |
-    And the output should contain "cannot list"
-
     Given I have a project
     When I run the :get client command with:
       | resource    | <resource-type> |
     Then the step should succeed
     And the output should match:
       | [Nn]o resources found         |
-    When I run the :delete client command with:
-      | object_type       | project              |
-      | object_name_or_id | <%= project.name %>  |
-    Then the step should succeed
 
     Examples:
       | resource-type |
       | bc            |
-      | builds        |
       | configmaps    |
       | ds            |
       | dc            |
-      | deployments   |
       | ev            |
       | ep            |
       | hpa           |
-      | is            |
-      | istag         |
       | jobs          |
       | limits        |
-      | po            |
       | pvc           |
       | policies      |
       | quota         |
       | rs            |
       | rc            |
       | routes        |
-      | svc           |
 
+  # @author xiaocwan@redhat.com
+  # @case_id 539685
+  Scenario Outline: Show friendly message when user can not list in cluster scope
+    Given I have a project
+    When I run the :get client command with:
+      | resource    | <resource-type> |
+    Then the step should fail
+    And the output should contain "cannot list"
+    # This is blocked by bug#1393289, but will pass when next 2 lines are commented
+    And the output should not match:
+      | [Nn]o resources found         |
+
+    Examples:
+      | resource-type    |
+      | user             |
+      | cs               |
+      | ing              |
+      | groups           |
+      | no               |
+      | ns               |
+      | pv               |
