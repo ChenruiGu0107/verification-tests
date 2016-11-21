@@ -182,7 +182,7 @@ Feature: Routes related features on web console
     When I perform the :select_tls_termination_type web console action with:
       | tls_termination_type | Passthrough |
     Then the step should succeed
-    When I run the :submit_create_route web console action
+    When I run the :click_create_button web console action
     Then the step should succeed
     # check route is accessible
     When I execute on the pod:
