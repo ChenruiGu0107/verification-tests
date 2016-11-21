@@ -336,13 +336,13 @@ Feature: storageClass related feature
       | resource | storageclass/sc1-<%= project.name %> |
     Then the output should match:
       | IsDefaultClass.*Yes |
-      | Annotations.*storageclass.beta.kubernetes.io/is-default-class=true | 
-      | Provisioner.*kubernetes.io/gce-pd | 
+      | Annotations.*storageclass.beta.kubernetes.io/is-default-class=true |
+      | Provisioner.*kubernetes.io/gce-pd |
     When I run the :describe admin command with:
       | resource | storageclass/sc-<%= project.name %> |
     Then the output should match:
       | IsDefaultClass.*No |
-      | Annotations.*storageclass.beta.kubernetes.io/is-default-class=false | 
+      | Annotations.*storageclass.beta.kubernetes.io/is-default-class=false |
       | Parameters.*type=pd-ssd,zone=us-central1-b |
 
   # @author chaoyang@redhat.com
@@ -353,7 +353,7 @@ Feature: storageClass related feature
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
       | ["metadata"]["name"]        | sc-<%= project.name %> |
     Then the step should succeed
-    
+
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
@@ -420,4 +420,23 @@ Feature: storageClass related feature
       | resource | pvc/invalid |
     Then the output should contain:
       | error creating volume |
+    """
+
+  # @author lxia@redhat.com
+  # @case_id 538248
+  Scenario: Using both alpha and beta annotation in PVC
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc1-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"]  | sc2-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :pending
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc/pvc-<%= project.name %> |
+    Then the output should contain:
+      | ProvisioningIgnoreAlpha                         |
+      | using "volume.beta.kubernetes.io/storage-class" |
     """
