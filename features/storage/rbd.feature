@@ -169,8 +169,8 @@ Feature: Storage of Ceph plugin testing
 
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
-      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -210,9 +210,9 @@ Feature: Storage of Ceph plugin testing
     And I have a project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
-      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
-      | ["spec"]["resources"]["requests"]["storage"]            | 9Gi                    |
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 9Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -229,8 +229,8 @@ Feature: Storage of Ceph plugin testing
     And I have a project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
-      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 

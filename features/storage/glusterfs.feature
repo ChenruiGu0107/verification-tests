@@ -174,8 +174,8 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
-      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -204,9 +204,9 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
-      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
-      | ["spec"]["resources"]["requests"]["storage"]            | 15Gi                    |
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 15Gi                    |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -220,8 +220,8 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                    | pvc-<%= project.name %> |
-      | ["metadata"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
 
@@ -233,3 +233,92 @@ Feature: Storage of GlusterFS plugin testing
       | object_name_or_id | pvc-<%= project.name %> |
     And I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 60 seconds
+
+  # @author jhou@redhat.com
+  # @case_id 535784
+  @admin
+  Scenario: Dynamically provision a GlusterFS volume using heketi secret
+    # A StorageClass preconfigured on the test env
+    Given I have a StorageClass named "glusterprovisioner1"
+    Given I have a "secret" named "heketi-secret" in the "default" namespace
+    And I have a project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner1     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    # Switch to admin so as to create privileged pod
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/pod.json" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the pod named "gluster" status becomes :running
+
+
+  # @author jhou@redhat.com
+  # @case_id 535055
+  @admin
+  Scenario: Endpoint and service are created/deleted by dynamic provisioner
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    When I run the :get client command with:
+      | resource      | endpoints                               |
+      | resource_name | gluster-dynamic-pvc-<%= project.name %> |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource      | services                                |
+      | resource_name | gluster-dynamic-pvc-<%= project.name %> |
+    Then the step should succeed
+
+  # @author jhou@redhat.com
+  # @case_id 535758
+  @admin
+  Scenario: Should throw meaningful message when deleting a PVC having StorageClass already deleted
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+    And I run the :get admin command with:
+      | resource      | storageclass       |
+      | resource_name | glusterprovisioner |
+      | o             | yaml               |
+    And evaluation of `@result[:parsed]["parameters"]["resturl"]` is stored in the :heketi_url clipboard
+
+    # Create a tmp storageclass using the url
+    Given admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+      | ["metadata"]["name"]      | storageclass-<%= project.name %> |
+      | ["parameters"]["resturl"] | <%= cb.heketi_url %>             |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And admin ensures "<%= pvc.volume_name(user: admin) %>" pv is deleted after scenario
+
+    # Delete StorageClass then delete pvc
+    Given I run the :delete admin command with:
+      | object_type       | storageclass                     |
+      | object_name_or_id | storageclass-<%= project.name %> |
+    And I run the :delete client command with:
+      | object_type       | pvc                     |
+      | object_name_or_id | pvc-<%= project.name %> |
+    When I run the :get admin command with:
+      | resource      | pv                                  |
+      | resource_name | <%= pvc.volume_name(user: admin) %> |
+    Then the output should contain:
+      | Failed |
+    When I run the :describe admin command with:
+      | resource | pv                                  |
+      | name     | <%= pvc.volume_name(user: admin) %> |
+    Then the output should contain:
+      | VolumeFailedDelete                          |
+      | "storageclass-<%= project.name%>" not found |
