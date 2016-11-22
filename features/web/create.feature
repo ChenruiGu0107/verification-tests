@@ -555,7 +555,7 @@ Feature: create app on web console related
     When I perform the :check_deploy_image_name web console action with:
       | image_name | jboss-webserver30-tomcat |
     Then the step should succeed
-    When I run the :submit_to_create web console action
+    When I run the :click_create_button web console action
     Then the step should succeed
     # check created resource
     When I run the :get client command with:
