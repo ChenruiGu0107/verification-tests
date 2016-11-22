@@ -141,3 +141,19 @@ Feature: check settings page on web console
       | resource_type   | Container Memory |
       | default_limit   | 100 MiB          |
     Then the step should succeed
+
+  # @author xxing@redhat.com
+  # @case_id 535708
+  Scenario: Check Openshift Master and Kubernetes Master version on About page
+    Given the master version >= "3.3"
+    When I run the :version client command
+    Then the step should succeed
+    Given evaluation of `@result[:props][:openshift_server_version]` is stored in the :master1 clipboard
+    And evaluation of `@result[:props][:kubernetes_server_version]` is stored in the :kube1 clipboard
+    When I run the :goto_about_page web console action
+    Then the step should succeed
+    When I get the visible text on web html page
+    And evaluation of `@result[:response].scan(/^OpenShift Master:\nv(.+)/)[0][0]` is stored in the :master2 clipboard
+    And evaluation of `@result[:response].scan(/^Kubernetes Master:\nv(.+)/)[0][0]` is stored in the :kube2 clipboard
+    Then the expression should be true> cb.master1 == cb.master2
+    Then the expression should be true> cb.kube1 == cb.kube2
