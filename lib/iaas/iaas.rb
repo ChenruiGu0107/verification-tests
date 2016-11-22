@@ -15,11 +15,11 @@ module CucuShift
 
         case iaas_provider_name
         when "openstack"
-          return {:name => "openstack", :provider => self.init_openstack(env, api_server_args)}
+          return {:type => "openstack", :provider => self.init_openstack(env, api_server_args)}
         when "aws"
-          return {:name => "aws", :provider => self.init_aws(env)}
+          return {:type => "aws", :provider => self.init_aws(env)}
         when "gce"
-          return {:name => "gce", :provider => self.init_gce(env)}
+          return {:type => "gce", :provider => self.init_gce(env)}
         else
           raise "The IAAS provider #{iaas_provider_name} does not exist or is currently not supported by CucuShift!"
         end

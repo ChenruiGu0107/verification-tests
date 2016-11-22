@@ -44,11 +44,9 @@ module CucuShift
         @os_passwd = STDIN.noecho(&:gets).chomp
       end
 
-      @os_tenant_id = ENV['OPENSTACK_TENANT_ID'] || opts[:tenant_id]
+      @os_tenant_id = options[:tenant_id] || ENV['OPENSTACK_TENANT_ID'] || opts[:tenant_id]
       unless @os_tenant_id
-        @os_tenant_name = ENV['OPENSTACK_TENANT_NAME'] || opts[:tenant_name]
-      else
-        @os_tenant_name = nil
+        @os_tenant_name = options[:tenant_name] || ENV['OPENSTACK_TENANT_NAME'] || opts[:tenant_name]
       end
 
       @os_url = ENV['OPENSTACK_URL'] || opts[:url]
@@ -104,15 +102,13 @@ module CucuShift
 
     # Basic token validity check. So we dont generate a new session when we call get_token()
     def token_valid?()
-
-
-      if monotonic_seconds - @token_created_at > 900
+      if monotonic_seconds - @token_verified_at > 900
         params = {:auth => {"tenantName" => self.os_tenant_name, "token" => {"id" => self.os_token}}}
-        @token_created_at = monotonic_seconds
 
         res = self.rest_run(self.os_url, "POST", params, self.os_token)
         if res[:success] && res[:exitstatus] == 200
           logger.info "token found. Using already existing token."
+          @token_verified_at = monotonic_seconds
           return true
         elsif res[:exitstatus] == 404 || res[:exitstatus] == 401
           return false
@@ -153,6 +149,7 @@ module CucuShift
           logger.error res.to_yaml
           raise "Could not obtain proper token"
         end
+        @token_verified_at = monotonic_seconds
         return @os_token
       end
     end
@@ -322,11 +319,10 @@ module CucuShift
     end
 
     def get_volume_by_id(id)
-
       url = self.os_volumes_url + '/' + 'volumes' + '/' + id
       res = self.rest_run(url, "GET", nil, self.os_token)
       if res[:exitstatus] == 200
-          return res
+          return res[:parsed]['volume']
       elsif res[:exitstatus] == 404
           return nil
       else
@@ -334,11 +330,11 @@ module CucuShift
       end
     end
 
-    def get_volume_state(res)
-      if res[:exitstatus] == 200
-        return res[:parsed]['volume']['status']
+    def get_volume_state(vol)
+      if vol
+        return vol['status']
       else
-        raise "#{res[:error]}:\n" << res.to_yaml
+        raise "nil volume given, does your volume exist?"
       end
     end
 
@@ -350,10 +346,7 @@ module CucuShift
 
       case
       when src_name
-          id = get_volume_by_name(src_name)
-        if res.nil?
-          raise "Could not find volume '#{name}'."
-        end
+        id = get_volume_by_name(src_name, return_key: "id")
       when url
         id = url.gsub(%r{^.*/([^/]+)$}, '\\1')
       end
