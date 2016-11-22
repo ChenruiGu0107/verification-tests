@@ -163,7 +163,8 @@ end
 
 # args can be a table where each cell is a command or an argument, or a
 #   multiline string where each line is a command or an argument
-When /^I execute on the(?: "(.+?)")? pod:$/ do |pod_name, raw_args|
+When /^(I execute|admin executes) on the(?: "(.+?)")? pod:$/ do |by, pod_name, raw_args|
+  _user = by.split.first == "admin" ? admin : user
   if raw_args.respond_to? :raw
     # this is table, we don't mind dimentions used by user
     args = raw_args.raw.flatten
@@ -172,7 +173,7 @@ When /^I execute on the(?: "(.+?)")? pod:$/ do |pod_name, raw_args|
     args = raw_args.split("\n").map(&:strip)
   end
 
-  @result = pod(pod_name).exec(*args, as: user)
+  @result = pod(pod_name).exec(*args, as: _user)
 end
 
 # wrapper around  oc logs, keep executing the command until we have an non-empty response
