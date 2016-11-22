@@ -481,3 +481,74 @@ Feature: SCC policy related scenarios
     And evaluation of `pod('hello-openshift').container(user:user, name: 'hello-openshift').scc['runAsNonRoot']` is stored in the :container_run_as_nonroot clipboard
     And evaluation of `pod('hello-openshift').sc_run_as_nonroot(user:user)` is stored in the :proj_run_as_nonroot clipboard
     Then the expression should be true> cb.container_run_as_nonroot
+
+  # @author wjiang@redhat.com
+  # @case_id 518944
+  @admin
+  @destructive
+  Scenario: Cluster-admin can reconcile the bootstrap scc
+    Given system verification steps are used:
+    """
+    When I run the :get admin command with:
+      | resource                | scc              |
+      | o                       | yaml             |
+    Then the step should succeed
+    And the output should not contain:
+      | <%= user.name %>        |
+    And the output should match:
+      | \sanyuid\s              |
+    """
+    And scc policy "anyuid" is restored after scenario
+    When I run the :delete admin command with:
+      | object_type             | scc              |
+      | object_name_or_id       | anyuid           |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource                | scc              |
+    Then the step should succeed
+    And the output should not match:
+      | \sanyuid\s              |
+    When I run the :oadm_policy_add_scc_to_user admin command with:
+      | scc                     | privileged       |
+      | user_name               | <%= user.name %> |
+    Then the step should succeed
+    When I run the :oadm_policy_reconcile_sccs admin command with:
+      | additive_only           | true             |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource                | scc              |
+    Then the step should succeed
+    And the output should not match:
+      | \sanyuid\s              |
+    When I run the :oadm_policy_reconcile_sccs admin command with:
+      | additive_only           | true             |
+      | confirm                 | true             |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource                | scc              |
+      | o                       | yaml             |
+    Then the step should succeed
+    And the output should match:
+      | \sanyuid\s              |
+    And the output should contain:
+      | <%= user.name %>        |
+    When I run the :oadm_policy_reconcile_sccs admin command with:
+      | additive_only           | false            |
+    Then the step should succeed
+    And the output should not contain:
+      | <%= user.name %>        |
+    When I run the :get admin command with:
+      | resource                | scc              |
+      | o                       | yaml             |
+    And the output should contain:
+      | <%= user.name %>        |
+    When I run the :oadm_policy_reconcile_sccs admin command with:
+      | additive_only           | false            |
+      | confirm                 |                  |
+    And the step should succeed
+    When I run the :get admin command with:
+      | resource                | scc              |
+      | o                       | yaml             |
+    Then the step should succeed
+    And the output should not contain:
+      | <%= user.name %>        |
