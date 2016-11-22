@@ -308,18 +308,7 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     And the output should match "Uptime:\s+(\d+\s+min\s+)?\d+\s+sec"
     """
-    Given I wait for the "sti-python" service to become ready
-    And I wait for the steps to pass:
-    """
-    When I run the :exec client command with:
-      | pod              | <%= pod.name %>    |
-      | c                | sti-python         |
-      | oc_opts_end      |                    |
-      | exec_command     | curl               |
-      | exec_command_arg | -sS                |
-      | exec_command_arg | <%= service.url %> |
-    Then the step should succeed
-    """
+
     When I create a new application with:
       | image_stream | openshift/python                      |
       | code         | git://github.com/openshift/sti-python |
@@ -369,18 +358,6 @@ Feature: creating 'apps' with CLI
       | exec_command_arg | -estatus                           |
     Then the step should succeed
     And the output should match "Uptime:\s+(\d+\s+min\s+)?\d+\s+sec"
-    """
-    Given I wait for the "sti-python" service to become ready
-    And I wait for the steps to pass:
-    """
-    When I run the :exec client command with:
-      | pod              | <%= pod.name %>    |
-      | c                | sti-python         |
-      | oc_opts_end      |                    |
-      | exec_command     | curl               |
-      | exec_command_arg | -sS                |
-      | exec_command_arg | <%= service.url %> |
-    Then the step should succeed
     """
 
   # @author pruan@redhat.com
