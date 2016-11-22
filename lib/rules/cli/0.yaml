@@ -712,7 +712,7 @@
   :options:
     :type_name: <value>
     :container_image: <value>
-    :all: --all=<value>  
+    :all: --all=<value>
     :filename: --filename=<value>
     :local: --local=<value>
     :source: --source=<value>
@@ -826,6 +826,9 @@
   :properties:
     :oc_version: !ruby/regexp '/^oc v(.+)$/'
     :kubernetes_version: !ruby/regexp '/kubernetes v(.+)$/'
+  :optional_properties:
+    :kubernetes_server_version: !ruby/regexp '/kubernetes v.+kubernetes v(.+?)$/m'
+    :openshift_server_version: !ruby/regexp '/openshift v(.+)$/'
 :volume:
   :cmd: oc volume
   :options:
