@@ -360,3 +360,110 @@ Feature: Egress-ingress related networking scenarios
       | www.google.com |
     Then the step should succeed
     And the output should contain "HTTP/1.1 200"
+
+  # @author bmeng@redhat.com
+  # @case_id 533251
+  @admin
+  @destructive
+  Scenario: Set EgressNetworkPolicy to limit the pod connection to specific CIDR ranges in different namespaces
+    Given the env is using multitenant network
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+
+    Given I have a pod-for-ping in the project
+    And evaluation of `CucuShift::Common::Net.dns_lookup("github.com")` is stored in the :github_ip clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json"
+    And I replace lines in "limit_policy.json":
+      | 0.0.0.0/0 | <%= cb.github_ip %>/24 |
+    And I run the :create admin command with:
+      | f | limit_policy.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    And I have a pod-for-ping in the project
+
+    Given I create the "policy2" directory
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json" into the "policy2" dir
+    And I replace lines in "policy2/limit_policy.json":
+      | 0.0.0.0/0 | 8.8.8.8/32 |
+    And I run the :create admin command with:
+      | f | policy2/limit_policy.json |
+      | n | <%= cb.proj2 %> |
+    Then the step should succeed
+
+    Given I use the "<%= cb.proj1 %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" replacing paths:
+      | ["metadata"]["name"] | new-hello-pod |
+      | ["metadata"]["labels"]["name"] | new-hello-pod |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=new-hello-pod |
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -I |
+      | --resolve |
+      | github.com:443:<%= cb.github_ip %> |
+      | https://github.com/ |
+      | --connect-timeout |
+      | 5 |
+    Then the step should fail
+    When I execute on the "hello-pod" pod:
+      | ping |
+      | -c1 |
+      | -W2 |
+      | 8.8.8.8 |
+    Then the step should succeed
+    When I execute on the "new-hello-pod" pod:
+      | curl |
+      | -I |
+      | --resolve |
+      | github.com:443:<%= cb.github_ip %> |
+      | https://github.com/ |
+      | --connect-timeout |
+      | 5 |
+    Then the step should fail
+    When I execute on the "new-hello-pod" pod:
+      | curl |
+      | -I |
+      | http://www.baidu.com/ |
+      | --connect-timeout |
+      | 5 |
+    Then the step should succeed
+
+    Given I use the "<%= cb.proj2 %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" replacing paths:
+      | ["metadata"]["name"] | new-hello-pod |
+      | ["metadata"]["labels"]["name"] | new-hello-pod |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=new-hello-pod |
+    When I execute on the "hello-pod" pod:
+      | ping |
+      | -c1 |
+      | -W2 |
+      | 8.8.8.8 |
+    Then the step should fail
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -I |
+      | --resolve |
+      | github.com:443:<%= cb.github_ip %> |
+      | https://github.com/ |
+      | --connect-timeout |
+      | 5 |
+    Then the step should succeed
+    When I execute on the "new-hello-pod" pod:
+      | ping |
+      | -c1 |
+      | -W2 |
+      | 8.8.8.8 |
+    Then the step should fail
+    When I execute on the "new-hello-pod" pod:
+      | curl |
+      | -I |
+      | http://www.baidu.com/ |
+      | --connect-timeout |
+      | 5 |
+    Then the step should succeed
