@@ -15,7 +15,7 @@ deploy_from_image_stream_tag_with_normal_is_and_change_name:
   action: select_image_stream_tag
   action: change_deploy_image_name_to_another
   action: check_deploy_image_name
-  action: submit_to_create
+  action: click_create_button
 deploy_from_image_stream_name_with_nonexist_image:
   action: deploy_image_navigate
   action: choose_image_name_method
@@ -29,7 +29,7 @@ deploy_from_image_stream_name_with_env_label:
   action: click_to_search
   action: add_env_name_and_value_on_deploy_image_page
   action: add_label_name_and_value
-  action: submit_to_create
+  action: click_create_button
 add_env_name_and_value_on_deploy_image_page:
   elements:
   - selector:
@@ -149,8 +149,3 @@ set_name_to_string_end_with_dash:
   action: change_deploy_image_name_to_another
   action: check_error_for_dash_started_or_end_with_dash
   action: check_create_button_disabled
-submit_to_create:
-  elements:
-  - selector:
-      xpath: //button[contains(text(),'Create') and contains(@class, 'btn-primary') and not(@disabled)]
-    op: click
