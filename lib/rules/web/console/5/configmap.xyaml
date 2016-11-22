@@ -1,0 +1,2 @@
+goto_configmaps_page:
+  url: /console/project/<project_name>/browse/config-maps
