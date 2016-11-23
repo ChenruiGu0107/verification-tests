@@ -19,7 +19,6 @@ Feature: ONLY ONLINE Storage related scripts in this file
       | name     | volumetest |
     Then the step should succeed
     And the output should contain:
-      | API error (500):               |
       | mkdir /var/lib/docker/volumes/ |
       | permission denied              |
     When I run the :delete client command with:
