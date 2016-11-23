@@ -10,8 +10,9 @@ Feature: some storage related scenarios
     Then the step should succeed
     And the "ebsc" PVC becomes :bound
     And evaluation of `pvc.volume_name(user: user)` is stored in the :volume_name clipboard
+    And evaluation of `env.iaas[:type]=="gce"?"READY":"available"` is stored in the :status clipboard
     # ready statuses: GCE -> READY, AWS -> available, OS -> available
-    When I verify that the IAAS volume for the "<%= cb.volume_name %>" PV becomes "READY"
+    When I verify that the IAAS volume for the "<%= cb.volume_name %>" PV becomes "<%= cb.status %>"
     Then the step should succeed
     When I run the :delete client command with:
       | object_type | pvc |
