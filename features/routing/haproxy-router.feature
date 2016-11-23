@@ -1814,4 +1814,154 @@ Feature: Testing haproxy router
       |  curl -o /dev/null -D - http://<%= route.dns(by: user) %> -H "Accept-Encoding: gzip" | 
     Then the step should succeed
     And the output should contain "Content-Encoding: gzip"
+  
+
+  # @author: hongli@redhat.com
+  # @case_id: 533922
+  @admin
+  @destructive
+  Scenario: The health check interval of backend can be set by env variable or annotations
+    # set router env (from default 5000ms to 1234ms)  
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And default router deployment config is restored after scenario
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_BACKEND_CHECK_INTERVAL=1234ms |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+
+    Given I switch to the first user
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+
+    # create all types of route
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name    | edge-route       |
+      | service | service-unsecure |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name    | pass-route     |
+      | service | service-secure |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen-route              |
+      | service    | service-secure          |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given 10 seconds have passed
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | -A               |
+      | 32               |
+      | service-unsecure |
+      | haproxy.config   |
+    Then the output should match:
+      | server.*<%=cb.pod_ip %>:8080 check inter 1234ms cookie .* |
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | -A               |
+      | 32               |
+      | edge-route       |
+      | haproxy.config   |
+    Then the output should match:
+      | server.*<%=cb.pod_ip %>:8080 check inter 1234ms cookie .* |
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | -A               |
+      | 32               |
+      | pass-route       |
+      | haproxy.config   |
+    Then the output should match:
+      | server.*<%=cb.pod_ip %>:8443 check inter 1234ms weight 100 |
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | -A               |
+      | 32               |
+      | reen-route       |
+      | haproxy.config   |
+    Then the output should match:
+      | server.*<%=cb.pod_ip %>:8443 ssl check inter 1234ms verify required ca-file .* |
+
+    # annotate all types of route
+    Given I switch to the first user
+    When I run the :annotate client command with:
+      | resource     | route                                                   |
+      | resourcename | service-unsecure                                        |
+      | overwrite    | true                                                    |
+      | keyval       | router.openshift.io/haproxy.health.check.interval=200ms |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                                   |
+      | resourcename | edge-route                                              |
+      | overwrite    | true                                                    |
+      | keyval       | router.openshift.io/haproxy.health.check.interval=300ms |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                                   |
+      | resourcename | pass-route                                              |
+      | overwrite    | true                                                    |
+      | keyval       | router.openshift.io/haproxy.health.check.interval=400ms |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                                   |
+      | resourcename | reen-route                                              |
+      | overwrite    | true                                                    |
+      | keyval       | router.openshift.io/haproxy.health.check.interval=500ms |
+    Then the step should succeed
+
+    # check the backend of route after annotation
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given 10 seconds have passed
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | -A               |
+      | 32               |
+      | service-unsecure |
+      | haproxy.config   |
+    Then the output should match:
+      | server.*<%=cb.pod_ip %>:8080 check inter 200ms cookie .* |
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | -A               |
+      | 32               |
+      | edge-route       |
+      | haproxy.config   |
+    Then the output should match:
+      | server.*<%=cb.pod_ip %>:8080 check inter 300ms cookie .* |
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | -A               |
+      | 32               |
+      | pass-route       |
+      | haproxy.config   |
+    Then the output should match:
+      | server.*<%=cb.pod_ip %>:8443 check inter 400ms weight 100 |
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | -A               |
+      | 32               |
+      | reen-route       |
+      | haproxy.config   |
+    Then the output should match:
+      | server.*<%=cb.pod_ip %>:8443 ssl check inter 500ms verify required ca-file .* |
 
