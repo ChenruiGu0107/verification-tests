@@ -1740,3 +1740,78 @@ Feature: Testing haproxy router
     When I open web server via the "http://<%= route("route2", service("test-service")).dns(by: user) %>/" url
     Then the step should fail
     Then the output should not contain "Hello OpenShift"
+
+  # @author zzhao@redhat.com
+  # @case_id 521765
+  @admin
+  @destructive
+  Scenario: router will not expose host port on node if set turn off that option
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I store master image version in the clipboard
+    Given default router replica count is stored in the :router_num clipboard
+    Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
+      | deploymentconfig=router |
+    Given default router replica count is restored after scenario
+    When I run the :scale client command with:
+      | resource | dc     |
+      | name     | router |
+      | replicas | 0      |
+    Given admin ensures "tc-521765" dc is deleted after scenario
+    And admin ensures "tc-521765" service is deleted after scenario
+    When I run the :oadm_router admin command with:
+      | name | tc-521765 |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
+      | host_network | false |
+      | host_ports | false |
+      | replicas | <%= cb.router_num %> |
+    Then a pod becomes ready with labels:
+      | deploymentconfig=tc-521765 |
+    Given I run commands on the nodes in the :router_node clipboard:
+      | iptables -S -t nat |
+    Then the output should not contain:
+      | hostport 80   |
+      | hostport 443  |
+      | hostport 1936 |
+
+
+  # @author zzhao@redhat.com
+  # @case_id 538271
+  @admin
+  @destructive
+  Scenario: haproxy router can support comression by setting the env
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_ENABLE_COMPRESSION=true  |
+      | e        | ROUTER_COMPRESSION_MIME=text/html text/plain text/css |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | bash | 
+      |  -c  | 
+      |  curl -o /dev/null -D - http://<%= route.dns(by: user) %> -H "Accept-Encoding: gzip" | 
+    Then the step should succeed
+    And the output should contain "Content-Encoding: gzip"
+
