@@ -28,3 +28,14 @@ Feature: dotnet.feature
       | e           | HTTPS_PROXY=http://<%= cb.proxy_ip %>:3128                               |
     Then the step should succeed
     And the "s2i-aspnet-example-1" build completes
+
+  # @author haowang@redhat.com
+  # @case_id 533863
+  Scenario: Create .NET buildconfig with new-build
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo    | https://github.com/redhat-developer/s2i-dotnetcore |
+      | context_dir | 1.0/test/asp-net-hello-world/                      |
+    Then the step should succeed
+    And the "s2i-dotnetcore-1" build was created
+    And the "s2i-dotnetcore-1" build completed
