@@ -13,25 +13,32 @@ module CucuShift
 
     attr_reader :config
 
-    def initialize
+    def initialize(ext_aws_cred = nil)
       @config = conf[:services, :AWS]
 
-      awscred = nil
-      # try to find a suitable Amazon AWS credentials file
-      [ expand_private_path(config[:awscred]),
-      ].each do |cred_file|
-        begin
-          cred_file = File.expand_path(cred_file)
-          logger.info("Using #{cred_file} credentials file.")
-          awscred = Hash[File.read(cred_file).scan(/(.+?)=(.+)/)]
-          break # break if no error was raised above
-        rescue
-          logger.warn("Problem reading credential file #{cred_file}")
-          next # try next configuration file
+      if ext_aws_cred and ext_aws_cred.count == 2
+        awscred = {}
+        awscred["AWSAccessKeyId"] = ext_aws_cred["AWS_ACCESS_KEY_ID"]
+        awscred["AWSSecretKey"] = ext_aws_cred["AWS_SECRET_ACCESS_KEY"]
+
+      else
+        # try to find a suitable Amazon AWS credentials file
+        [ expand_private_path(config[:awscred]),
+        ].each do |cred_file|
+          begin
+            cred_file = File.expand_path(cred_file)
+            logger.info("Using #{cred_file} credentials file.")
+            awscred = Hash[File.read(cred_file).scan(/(.+?)=(.+)/)]
+            break # break if no error was raised above
+          rescue
+            logger.warn("Problem reading credential file #{cred_file}")
+            next # try next configuration file
+          end
         end
       end
 
-      raise "no readable credentials file found" unless awscred
+      raise "no readable credentials file or external credentials config found" unless awscred
+
       Aws.config.update( config[:config_opts].merge({
         credentials: Aws::Credentials.new(
           awscred["AWSAccessKeyId"],
@@ -40,6 +47,7 @@ module CucuShift
       }) )
       client = Aws::EC2::Client.new
       @ec2 = Aws::EC2::Resource.new(client: client)
+
     end
 
     def create_instance(image_id=nil)
@@ -275,6 +283,30 @@ module CucuShift
       end
       raise "should never be here"
     end
+
+    def get_volume_by_openshift_metadata(pv_name, project_name)
+
+      return @ec2.volumes({dry_run: false, filters: [{name: "tag:kubernetes.io/created-for/pv/name", values: [pv_name]},{name: "tag:kubernetes.io/created-for/pvc/namespace", values: [project_name]}]}).first
+    end
+
+    def get_volume_by_id(id)
+      # format the id provided by openshift into a format amazon REST api can work with
+      id = id.split("/")[-1]
+      begin
+        vol = @ec2.volume(id)
+        # the @ec2 will always return a volume object. It will raise an error only when
+        # a method is invoked on the object. Thats why we use if vol.state to check
+        # if the volume exists
+        return vol if vol.state
+      rescue Aws::EC2::Errors::InvalidVolumeNotFound
+        return nil
+      end
+    end
+
+    def get_volume_state(volume)
+        return volume.state
+    end
+
 
     # returns ssh connection
     def get_host(instance, host_opts={}, wait: false)

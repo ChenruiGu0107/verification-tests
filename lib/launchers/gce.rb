@@ -22,6 +22,7 @@ module CucuShift
     def initialize(**opts)
       @config = conf[:services, opts.delete(:service_name) || :GCE]
       @auth_type = opts[:auth_type]
+      @token_json = opts[:token_json] if opts[:token_json]
     end
 
     def compute
@@ -31,6 +32,7 @@ module CucuShift
       @compute.client_options.application_name = "CucuShift"
       @compute.client_options.application_version = GIT_HASH
       # @compute.client_options.proxy_url = ENV['http_proxy'] if ENV['http_proxy']
+
       if config[:json_cred] && (@auth_type.nil? || @auth_type == "json")
         File.open(expand_private_path(config[:json_cred]), "r") do |json_io|
           @compute.authorization = Google::Auth::DefaultCredentials.make_creds(
@@ -42,13 +44,16 @@ module CucuShift
         aopts = config[:signet_opts].dup
         aopts[:signing_key] = OpenSSL::PKey::RSA.new(aopts[:signing_key])
         @compute.authorization = Signet::OAuth2::Client.new(**aopts)
+      elsif @token_json && @auth_type == "token"
+        token_hash = Signet::OAuth2.parse_credentials(@token_json, "application/json")
+        @compute.authorization = Signet::OAuth2::Client.new(token_hash)
       else
         # try to use default auth from environment see:
         # https://github.com/google/google-auth-library-ruby
         auth = Google::Auth.get_application_default(config[:scopes])
         @compute.authorization = auth
       end
-      @compute.authorization.fetch_access_token!
+      @compute.authorization.fetch_access_token! unless @compute.authorization.access_token
       return @compute
     end
 
@@ -79,6 +84,36 @@ module CucuShift
         raise "Can not find the snapshot: #{snapshot_name}"
       end
     end
+
+    def get_volume_by_openshift_metadata(pv_name, project_name)
+      disk_id_regex = ".*\"kubernetes.io/created-for/pv/name\":\"#{pv_name}\".*\"kubernetes.io/created-for/pvc/namespace\":\"#{project_name}\".*"
+      ld = compute.list_disks(@config[:project], @config[:zone], filter: "description eq #{disk_id_regex}").items
+      if ld
+        return ld.first
+      else
+        return nil
+      end
+    end
+
+    def get_volume_by_id(id)
+      # the gem will raise if we request resource which does not exist. We dont want that.
+      # I it will raise with a "notFound" error we return nil. In case of diff. error we raise as normaly.
+      begin
+        return compute.get_disk(@config[:project], @config[:zone], id)
+      rescue Google::Apis::ClientError => e
+        raise e.message unless e.message.include?("was not found") && e.status_code == 404
+        return nil
+      end
+    end
+
+    def get_volume_state(disk)
+      if disk
+       return disk.status
+      else
+        raise "Volume does not exist!"
+      end
+    end
+
 
     # @param names [String, Array<String>] one or more names to launch
     # @param project [String] project name we work with

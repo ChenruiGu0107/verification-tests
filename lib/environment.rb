@@ -293,6 +293,15 @@ module CucuShift
       @nodes = Node.list(user: user)
     end
 
+    # selects the correct configured IAAS provider
+    def iaas
+      # check if we have a ssh connection to the master nodes.
+      self.master_hosts.each { |master|
+        raise "The master node #{master.hostname}, is not accessible via SSH!" unless master.accessible?[:success]
+      }
+      @iaas ||= IAAS.select_provider(self)
+    end
+
     def clean_up
       @user_manager.clean_up if @user_manager
       @hosts.each {|h| h.clean_up } if @hosts

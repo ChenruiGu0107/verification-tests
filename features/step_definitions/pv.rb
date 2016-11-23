@@ -133,3 +133,50 @@ When /^admin creates a PV from "([^"]*)" where:$/ do |location, table|
     raise "failed to create PV from: #{location}"
   end
 end
+
+Given /^I verify that the IAAS volume with id "(.+?)" was deleted(?: within #{NUMBER} seconds)?$/ do |vol_id, timeout|
+  timeout = timeout ? Integer(timeout) : 30
+  ensure_admin_tagged
+
+  success = wait_for(timeout) do
+    !env.iaas[:provider].get_volume_by_id(vol_id)
+  end
+  raise "volume with id #{vol_id} was not deleted!" unless success
+end
+
+Given /^I verify that the IAAS volume with id "(.+?)" has status "(.+?)"(?: within #{NUMBER} seconds)?$/ do |vol_id, status, timeout|
+  timeout = timeout ? Integer(timeout) : 30
+  ensure_admin_tagged
+
+  actual_status = ""
+  success = wait_for(timeout) do
+    vol = env.iaas[:provider].get_volume_by_id(vol_id)
+    if vol.nil?
+      raise "the volume with id #{vol_id} does not exist!"
+    else
+      actual_status = env.iaas[:provider].get_volume_state(vol)
+      actual_status == status
+    end
+  end
+  raise "the volume with id #{vol_id} has not the status '#{status}' the current status is '#{actual_status}'." unless success
+end
+
+Given /^I verify that the IAAS volume for the "(.+?)" PV was deleted(?: within #{NUMBER} seconds)?$/ do |pv_name, timeout|
+  timeout = timeout ? Integer(timeout) : 30
+  ensure_admin_tagged
+
+  success = wait_for(timeout) do
+    !env.iaas[:provider].get_volume_by_openshift_metadata(pv_name, project.name)
+  end
+  raise "the IAAS volume bound to PV name #{pv_name} was not deleted!" unless success
+end
+
+Given /^I verify that the IAAS volume for the "(.+?)" PV becomes "(.+?)"(?: within #{NUMBER} seconds)?$/ do |pv_name, status, timeout|
+  timeout = timeout ? Integer(timeout) : 30
+  ensure_admin_tagged
+
+  step %Q/I save volume id from PV named "#{pv_name}" in the clipboard/
+  step %Q/the step should succeed/
+  step %Q/I verify that the IAAS volume with id "#{cb.volume}" has status "#{status}" within #{timeout} seconds/
+  step %Q/the step should succeed/
+end
