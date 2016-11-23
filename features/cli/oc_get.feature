@@ -49,3 +49,53 @@ Feature: oc get related command
     And the output should contain:
       | dc/database    |
       | svc/database   |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 535721
+  Scenario Outline: Show friendly message when request resource is empty instead of return nothing
+    Given I have a project
+    When I run the :get client command with:
+      | resource    | <resource-type> |
+    Then the step should succeed
+    And the output should match:
+      | [Nn]o resources found         |
+
+    Examples:
+      | resource-type |
+      | bc            |
+      | configmaps    |
+      | ds            |
+      | dc            |
+      | ev            |
+      | ep            |
+      | hpa           |
+      | jobs          |
+      | limits        |
+      | pvc           |
+      | policies      |
+      | quota         |
+      | rs            |
+      | rc            |
+      | routes        |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 539685
+  Scenario Outline: Show friendly message when user can not list in cluster scope
+    Given I have a project
+    When I run the :get client command with:
+      | resource    | <resource-type> |
+    Then the step should fail
+    And the output should contain "cannot list"
+    # This is blocked by bug#1393289, but will pass when next 2 lines are commented
+    And the output should not match:
+      | [Nn]o resources found         |
+
+    Examples:
+      | resource-type    |
+      | user             |
+      | cs               |
+      | ing              |
+      | groups           |
+      | no               |
+      | ns               |
+      | pv               |
