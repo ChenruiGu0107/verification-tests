@@ -44,6 +44,8 @@ module CucuShift
       case opts[:stdin]
       when nil
         res[:in] = :close
+      when :empty, ":empty"
+        res[:in] = IO.pipe[0]
       when IO, Symbol
         res[:in] = opts[:stdin]
       when String

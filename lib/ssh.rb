@@ -239,11 +239,14 @@ module CucuShift
               res[:error] = RuntimeError.new(err)
             }
 
-            if opts[:stdin]
+            case opts[:stdin]
+            when :empty, ":empty"
+              keep_stdin_open = true
+            else
               channel.send_data opts[:stdin].to_s
             end
 
-            channel.eof!
+            channel.eof! unless keep_stdin_open
           end
         end
 
