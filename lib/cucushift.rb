@@ -22,6 +22,7 @@ module CucuShift
   autoload :ImageStream, "openshift/image_stream"
   autoload :Project, "openshift/project"
   autoload :ClusterRoleBinding, "openshift/cluster_role_binding"
+  autoload :Master, "openshift/master"
 
   HOME = File.expand_path(__FILE__ + "/../..")
   PRIVATE_DIR = ENV['CUCUSHIFT_PRIVATE_DIR'] || File.expand_path(HOME + "/private")

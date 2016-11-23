@@ -7,3 +7,4 @@ Feature: test master config related steps
       dynamicProvisioningEnabled: False
     """
     Then the step should succeed
+    And the master service is restarted on all master nodes

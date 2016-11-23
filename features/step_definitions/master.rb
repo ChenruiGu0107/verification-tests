@@ -1,6 +1,6 @@
 # step which interact with master-config.yaml file.
 
-Given(/^master config is merged with the following hash:$/) do |yaml_string|
+Given /^master config is merged with the following hash:$/ do |yaml_string|
   ensure_admin_tagged
 
   yaml_hash = YAML.load(yaml_string)
@@ -35,3 +35,8 @@ end
 #  }
 #end
 
+Given /^the master service is restarted on all master nodes$/ do
+  env.master_hosts.each { |master|
+    CucuShift::Master.new(master).restart_master_service()
+  }
+end

@@ -53,7 +53,11 @@ module CucuShift
           res = master.exec_admin("cat /etc/origin/master/master-config.yaml.bak > /etc/origin/master/master-config.yaml")
           if res[:success]
             res = master.exec_admin("rm /etc/origin/master/master-config.yaml.bak")
-            self.res_err_check(res)
+            if res[:success]
+              CucuShift::Master.new(master).restart_master_service()
+            else
+              self.res_err_check(res)
+            end
           else
             self.res_err_check(res)
           end
@@ -72,6 +76,7 @@ module CucuShift
         raise res[:stderr]
       end
     end
+
 
   end
 
