@@ -41,7 +41,6 @@ delete_resources_route_with_viewer:
 delete_resources_imagestream_with_viewer:
   action: goto_one_image_stream_page
   action: delete_resource_with_viewer
- 
 delete_resources_pod:
   action: goto_one_pod_page
   action: delete_resource
@@ -66,20 +65,6 @@ delete_resources_route:
 delete_resources_imagestream:
   action: goto_one_image_stream_page
   action: delete_resource
-delete_resource:
-  elements:
-  - selector:
-      text: Actions
-    type: button
-    op: click
-  - selector:
-      text: Delete
-    type: a
-    op: click     
-  - selector:
-      text: Delete
-    type: button
-    op: click
 delete_resource_with_viewer:
   element:
     # viewer cannot find "Actions","Delete"
