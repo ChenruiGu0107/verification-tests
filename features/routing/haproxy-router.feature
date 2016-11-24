@@ -1965,3 +1965,50 @@ Feature: Testing haproxy router
     Then the output should match:
       | server.*<%=cb.pod_ip %>:8443 ssl check inter 500ms verify required ca-file .* |
 
+  # @author zzhao@redhat.com
+  # @case_id 530592
+  @admin
+  @destructive
+  Scenario: Set timeout http-request for haproxy
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %> |
+      | i                |                 |
+      | oc_opts_end      |                 |
+      | exec_command     | nc              |
+      | exec_command_arg | -i16            |
+      | exec_command_arg | 127.0.0.1       |
+      | exec_command_arg | 80              |
+      | _stdin           | :empty          |
+    Then the output should contain "408 Request Time-out"
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %> |
+      | i                |                 |
+      | oc_opts_end      |                 |
+      | exec_command     | nc              |
+      | exec_command_arg | -i11            |
+      | exec_command_arg | 127.0.0.1       |
+      | exec_command_arg | 80              |
+      | _stdin           | :empty          |
+    Then the output should not contain "408 Request Time-out"
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_SLOWLORIS_TIMEOUT=5s |
+    Then the step should succeed
+    And I wait for the pod named "<%= pod.name %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %> |
+      | i                |                 |
+      | oc_opts_end      |                 |
+      | exec_command     | nc              |
+      | exec_command_arg | -i11            |
+      | exec_command_arg | 127.0.0.1       |
+      | exec_command_arg | 80              |
+      | _stdin           | :empty          |
+    Then the output should contain "408 Request Time-out"
