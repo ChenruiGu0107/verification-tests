@@ -269,3 +269,31 @@ Feature: Dynamic provisioning
       | cinder         |
       | ebs            |
       | gce            |
+
+  # @author jhou@redhat.com
+  # @case_id 536025 536026 536027
+  @admin
+  @destructive
+  Scenario Outline: No volume and PV provisioned when provisioner is disabled
+    Given I have a project
+    And master config is merged with the following hash:
+    """
+    volumeConfig:
+      dynamicProvisioningEnabled: False
+    """
+    And admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"] | storageclass-<%= project.name %> |
+      | ["provisioner"]      | kubernetes.io/<provisioner>      |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %>  |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+    Then the step should succeed
+    When 30 seconds have passed
+    Then the "dynamic-pvc-<%= project.name %>" PVC status is :pending
+
+    Examples:
+      | provisioner |
+      | aws-ebs     |
+      | gce-pd      |
+      | cinder      |
+
