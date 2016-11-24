@@ -4,3 +4,12 @@ click_create_button:
       xpath: //button[contains(text(),"Create") and not(@disabled)]
     type: button
     op: click
+click_cancel:
+  elements:
+  - selector:
+      text: Cancel
+    op: click
+check_save_button_disabled:
+  elements:
+  - selector:
+      xpath: //button[@disabled='disabled' and text()='Save']

@@ -144,7 +144,7 @@ Feature: build related feature on web console
       | bc_name                  | ruby-sample-build   |
       | changing_source_repo_url | https://github.com/yapei/test-ruby-hello-world |
     Then the step should succeed
-    When I run the :cancel_to_commit_your_changes web console action
+    When I run the :click_cancel web console action
     Then the step should succeed
     When I perform the :check_buildconfig_source_repo web console action with:
       | project_name    | <%= project.name %>  |

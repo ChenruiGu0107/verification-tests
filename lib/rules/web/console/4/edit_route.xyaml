@@ -211,15 +211,11 @@ goto_edit_route_page:
 save_edit_route:
   action: save_your_committed_changes
 cancel_edit_route:
-  action: cancel_to_commit_your_changes
+  action: click_cancel
 check_warning_info_for_path:
   elements:
   - selector:
       xpath: //span[contains(., "Path must start with")]
-check_save_button_disabled:
-  elements:
-  - selector:
-      xpath: //button[@disabled='disabled' and text()='Save']
 check_path_on_route_page:
   elements:
   - selector:

@@ -287,7 +287,7 @@ save_your_committed_changes:
       text: Save
     type: button
     op: click
-cancel_to_commit_your_changes:
+click_cancel:
   elements:
   - selector:
       text: Cancel

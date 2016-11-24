@@ -29,7 +29,7 @@ save_edit_general_informantion:
   action: save_your_committed_changes
 cancel_edit_general_informantion:
   action: edit_general_information
-  action: cancel_to_commit_your_changes
+  action: click_cancel
   action: check_specific_project_info
 check_settings_page:
   action: goto_settings_page

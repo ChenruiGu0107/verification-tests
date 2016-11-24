@@ -134,7 +134,7 @@ cancel_scale_down_to_zero:
       xpath: //a[@title='Scale down']
     op: click
     type: a
-  action: cancel_to_commit_your_changes
+  action: click_cancel
 check_scale_down_disabled:
   elements:
   - selector:

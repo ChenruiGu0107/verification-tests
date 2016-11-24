@@ -26,7 +26,7 @@ manually_deploy:
       xpath: //strong[contains(text(),'has started')]
 cancel_deployments:
   action: goto_one_deployment_page
-  action: cancel_to_commit_your_changes
+  action: click_cancel
   elements:
   - selector:
       xpath: //strong[contains(text(),'Cancelling deployment')]
