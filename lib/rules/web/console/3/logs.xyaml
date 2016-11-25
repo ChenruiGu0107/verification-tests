@@ -33,7 +33,7 @@ check_deployed_log_context:
 check_no_log_info:
   elements:
   - selector:
-      xpath: //log-viewer[@resource="builds/log"]//h2[contains(.,'<no_log_one>')]      
+      xpath: //log-viewer[@resource="builds/log"]//h2[contains(.,'<no_log_one>')]
     timeout: 180
   - selector:
       xpath: //log-viewer[@resource="builds/log"]//p[contains(.,'<no_log_two>')]
@@ -63,7 +63,7 @@ stop_follow_log:
 go_to_top_log:
   elements:
   - selector:
-      xpath: //div[@class='log-view']//a[contains(text(),'Go to top')]
+      xpath: //div[contains(@class,'log-view')]//a[contains(text(),'Go to top')]
     op: click
 go_to_end_log:
   elements:

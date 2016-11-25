@@ -21,7 +21,7 @@ Feature: build related feature on web console
       | github_webhook_trigger  | /github                                    |
     Then the step should succeed
     Given the "python-sample-1" build was created
-    # wait for build finished is ok, does not nessarily to be completed  
+    # wait for build finished is ok, does not nessarily to be completed
     Given the "python-sample-1" build finished
     When I perform the :check_one_build_inside_bc_page web console action with:
       | project_name            | <%= project.name %> |
@@ -567,8 +567,8 @@ Feature: build related feature on web console
     Then the step should succeed
     # edit bc
     When I perform the :change_bc_source_repo_url web console action with:
-      | project_name    | <%= project.name %>  |
-      | bc_name         | ruby-sample          |
+      | project_name             | <%= project.name %>                       |
+      | bc_name                  | ruby-sample                               |
       | changing_source_repo_url | https://github.com/openshift/s2i-ruby.git |
     Then the step should succeed
     When I run the :save_your_committed_changes web console action
@@ -596,19 +596,19 @@ Feature: build related feature on web console
     Then the step should succeed
     # check bc after make changes
     When I perform the :check_buildconfig_source_repo web console action with:
-      | project_name       | <%= project.name %>  |
-      | bc_name            | ruby-sample          |
-      | source_repo_url    | https://github.com/openshift/s2i-ruby |
+      | project_name    | <%= project.name %>                   |
+      | bc_name         | ruby-sample                           |
+      | source_repo_url | https://github.com/openshift/s2i-ruby |
     Then the step should succeed
     When I perform the :check_bc_source_ref web console action with:
-      | project_name       | <%= project.name %>  |
-      | bc_name            | ruby-sample          |
-      | source_ref         | mfojtik-patch-1      |
+      | project_name | <%= project.name %> |
+      | bc_name      | ruby-sample         |
+      | source_ref   | mfojtik-patch-1     |
     Then the step should succeed
     When I perform the :check_bc_source_context_dir web console action with:
-      | project_name       | <%= project.name %>  |
-      | bc_name            | ruby-sample          |
-      | source_context_dir | 2.2/test             |
+      | project_name       | <%= project.name %> |
+      | bc_name            | ruby-sample         |
+      | source_context_dir | 2.2/test            |
     Then the step should succeed
     When I run the :describe client command with:
       | resource      | bc/ruby-sample |
@@ -631,9 +631,9 @@ Feature: build related feature on web console
       | Binary.*on build |
     # change Binary Input
     When I perform the :edit_bc_binary_input web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby                 |
-      | bc_binary      | hello-world-ruby.zip |
+      | project_name | <%= project.name %>  |
+      | bc_name      | ruby                 |
+      | bc_binary    | hello-world-ruby.zip |
     Then the step should succeed
     When I run the :save_your_committed_changes web console action
     Then the step should succeed
@@ -644,23 +644,23 @@ Feature: build related feature on web console
       | Binary.*provided as.*hello-world-ruby.zip.*on build |
     # add Env Vars
     When I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby                 |
-      | env_var_key    | binarykey            |
-      | env_var_value  | binaryvalue          |
+      | project_name  | <%= project.name %> |
+      | bc_name       | ruby                |
+      | env_var_key   | binarykey           |
+      | env_var_value | binaryvalue         |
     Then the step should succeed
     When I run the :save_your_committed_changes web console action
     Then the step should succeed
     When I perform the :check_buildconfig_environment web console action with:
-      | project_name   | <%= project.name %>  |
-      | bc_name        | ruby                 |
-      | env_var_key    | binarykey            |
-      | env_var_value  | binaryvalue          |
+      | project_name  | <%= project.name %> |
+      | bc_name       | ruby                |
+      | env_var_key   | binarykey           |
+      | env_var_value | binaryvalue         |
     Then the step should succeed
     # for Binary build, there should be no webhook triggers
     When I perform the :enable_webhook_build_trigger web console action with:
-      | project_name  | <%= project.name %>  |
-      | bc_name       | ruby                 |
+      | project_name | <%= project.name %> |
+      | bc_name      | ruby                |
     Then the step should fail
     And the output should contain "element not found"
 
@@ -745,9 +745,9 @@ Feature: build related feature on web console
 
     Given the "ruby-hello-world-1" build becomes :running
     When I perform the :check_build_log_tab web console action with:
-      | project_name   | <%= project.name %> |
+      | project_name      | <%= project.name %>                 |
       | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
-      | build_status_name | Running             |
+      | build_status_name | Running                             |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
       | build_log_context | unning |
@@ -764,9 +764,9 @@ Feature: build related feature on web console
 
     Given the "ruby-hello-world-1" build becomes :complete
     When I perform the :check_build_log_tab web console action with:
-      | project_name   | <%= project.name %> |
+      | project_name      | <%= project.name %>                 |
       | bc_and_build_name | ruby-hello-world/ruby-hello-world-1 |
-      | build_status_name | Complete             |
+      | build_status_name | Complete                            |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
       | build_log_context | uccessful |
@@ -787,9 +787,9 @@ Feature: build related feature on web console
     Then the step should succeed
     Given the "ruby-hello-world-2" build becomes :cancelled
     When I perform the :check_build_log_tab web console action with:
-      | project_name   | <%= project.name %> |
+      | project_name      | <%= project.name %>                 |
       | bc_and_build_name | ruby-hello-world/ruby-hello-world-2 |
-      | build_status_name | Cancelled             |
+      | build_status_name | Cancelled                           |
     Then the step should succeed
     When I perform the :check_no_log_info web console action with:
       | no_log_one | Logs are not available |
@@ -804,9 +804,9 @@ Feature: build related feature on web console
     Then the step should succeed
     Given the "ruby-hello-world-3" build becomes :failed
     When I perform the :check_build_log_tab web console action with:
-      | project_name   | <%= project.name %> |
+      | project_name      | <%= project.name %>                 |
       | bc_and_build_name | ruby-hello-world/ruby-hello-world-3 |
-      | build_status_name | Failed             |
+      | build_status_name | Failed                              |
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
       | build_log_context | error: failed to fetch requested repository "https://github.com/openshift/nonexist" |
@@ -890,3 +890,172 @@ Feature: build related feature on web console
       | template_file | build_strategy |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525737/application-template-custombuild.json | Custom |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525738/application-template-stibuild.json    | Source |
+
+  # @author etrott@redhat.com
+  # @case_id 534705
+  Scenario: Check Build,Deployment,Pod logs and Events on Monitoring
+    When I create a new project via web
+    Then the step should succeed
+    Given I perform the :create_app_from_image_with_sample_repo web console action with:
+      | project_name | <%= project.name %> |
+      | image_name   | nodejs              |
+      | image_tag    | latest              |
+      | namespace    | openshift           |
+      | app_name     | nodejs-app          |
+    Then the step should succeed
+    When I perform the :wait_latest_build_to_status web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | nodejs-app          |
+      | build_status | running             |
+    Then the step should succeed
+    When I perform the :set_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | All                 |
+    Then the step should succeed
+    When I perform the :expand_resource_logs_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Builds              |
+      | resource_name | nodejs-app-1        |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :go_to_top_log web console action
+    Then the step should succeed
+    """
+    When I run the :open_in_new_window web console action
+    Then the step should succeed
+    Given the "nodejs-app-1" build finished
+    Given I wait until the status of deployment "nodejs-app" becomes :complete
+    When I run the :start_build client command with:
+      | buildconfig | nodejs-app |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deployment=nodejs-app-2 |
+    Then the step should succeed
+    When I perform the :hide_older_resources_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Builds              |
+      | resource_name | nodejs-app-1        |
+    Then the step should succeed
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Builds              |
+      | resource_name | nodejs-app-2        |
+    Then the step should succeed
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Deployments         |
+      | resource_name | nodejs-app-1        |
+    Then the step should succeed
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Deployments         |
+      | resource_name | nodejs-app-2        |
+    Then the step should succeed
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Pods                |
+      | resource_name | nodejs-app-1-build  |
+    Then the step should succeed
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Pods                |
+      | resource_name | nodejs-app-2-build  |
+    Then the step should succeed
+    When I run the :view_details_on_monitoring web console action
+    Then the step should succeed
+    Given the expression should be true> browser.url.end_with? "/browse/events"
+
+    When I perform the :set_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Builds              |
+    Then the step should succeed
+    When I perform the :check_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Builds              |
+    Then the step should succeed
+    When I perform the :check_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Deployments         |
+    Then the step should fail
+    When I perform the :check_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Pods                |
+    Then the step should fail
+
+    When I perform the :set_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Deployments         |
+    Then the step should succeed
+    When I perform the :check_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Deployments         |
+    Then the step should succeed
+    When I perform the :check_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Builds              |
+    Then the step should fail
+    When I perform the :check_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Pods                |
+    Then the step should fail
+
+    When I perform the :set_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Pods                |
+    Then the step should succeed
+    When I perform the :check_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Pods                |
+    Then the step should succeed
+    When I perform the :check_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Builds              |
+    Then the step should fail
+    When I perform the :check_resource_type_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Deployments         |
+    Then the step should fail
+
+    When I perform the :filter_by_name_on_monitoring web console action with:
+      | project_name | <%= project.name %> |
+      | filter_name  | nodejs              |
+    Then the step should succeed
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Builds              |
+      | resource_name | nodejs-app-2        |
+    Then the step should succeed
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Deployments         |
+      | resource_name | nodejs-app-2        |
+    Then the step should succeed
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Pods                |
+      | resource_name | <%= pod.name %>     |
+    Then the step should succeed
+
+    When I perform the :filter_by_name_on_monitoring web console action with:
+      | project_name | <%= project.name %> |
+      | filter_name  | test                |
+    Then the step should succeed
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Builds              |
+      | resource_name | nodejs-app-2        |
+    Then the step should fail
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Deployments         |
+      | resource_name | nodejs-app-2        |
+    Then the step should fail
+    When I perform the :check_resource_on_monitoring web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_type | Pods                |
+      | resource_name | nodejs-app-2-build  |
+    Then the step should fail
