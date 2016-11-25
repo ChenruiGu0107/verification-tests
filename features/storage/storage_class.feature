@@ -440,3 +440,126 @@ Feature: storageClass related feature
       | ProvisioningIgnoreAlpha                         |
       | using "volume.beta.kubernetes.io/storage-class" |
     """
+    
+  # @author chaoyang@redhat.com
+  # @case_id 533056 536609
+  @admin
+  Scenario Outline: PVC with storage class will not provision pv with st1/sc1 type ebs volume if request size is wrong
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %> |
+      | ["provisioner"]                                                                 | kubernetes.io/aws-ebs  |
+      | ["parameters"]["type"]                                                          | <type>                 |
+      | ["parameters"]["zone"]                                                          | us-east-1d             |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"]                           | <size>                  |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """ 
+    When I run the :describe client command with:
+      | resource | pvc/pvc-<%= project.name %> |
+    Then the output should contain:
+      | ProvisioningFailed    |
+      | InvalidParameterValue |
+      | <errorMessage>        |
+    """
+   
+    Examples:
+      | type | size | errorMessage                  |
+      | sc1  | 5Gi  | at least 500 GiB              |
+      | st1  | 17Ti | too large for volume type st1 |
+
+  # @author chaoyang@redhat.com
+  # @case_id 533055
+  @admin
+  Scenario: PVC with storage class will not provision io1 pv with wrong parameters for aws ebs volume
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
+      | ["metadata"]["name"]        | sc1-<%=project.name%> |
+      | ["parameters"]["iopsPerGB"] | 400000                |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 4Gi                      |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """ 
+    When I run the :describe client command with:
+      | resource | pvc/pvc1-<%= project.name %> |
+    And the output should contain:
+      | Pending               |
+      | ProvisioningFailed    |
+      | InvalidParameterValue |
+      | maximum is 50         |
+    """
+
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
+      | ["metadata"]["name"]        | sc2-<%=project.name%> |
+      | ["parameters"]["iopsPerGB"] | 40                    |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc2-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 3Gi                      |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc2-<%= project.name %>  |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """ 
+    When I run the :describe client command with:
+      | resource | pvc/pvc2-<%= project.name %> |
+    And the output should contain:
+      | Pending                |
+      | ProvisioningFailed     |
+      | InvalidParameterValue  |
+      | at least 4 GiB in size |
+    """
+
+  # @author chaoyang@redhat.com
+  # @case_id 533051
+  @admin
+  Scenario: PVC with storage class won't provisioned pv if no storage class or wrong storage class object
+    Given I have a project
+    # No sc exists
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 4Gi                      |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc/pvc1-<%= project.name %> |
+    And the output should contain:
+      | ProvisioningFailed                               |
+      | StorageClass "sc1-<%= project.name %>" not found |
+    """
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %> |
+      | ["provisioner"]                                                                 | kubernetes.io/aws-ebs  |
+      | ["parameters"]["type"]                                                          | <type>                 |
+      | ["parameters"]["zone"]                                                          | us-east-1d             |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc2-<%= project.name %>          |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                     |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 4Gi                               |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-notexisted-<%= project.name %> |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc/pvc2-<%= project.name %> |
+    And the output should contain:
+      | ProvisioningFailed                                         |
+      | StorageClass "sc-notexisted-<%= project.name %>" not found |
+    """
