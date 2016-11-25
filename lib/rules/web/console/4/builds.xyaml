@@ -30,16 +30,11 @@ check_one_buildconfig_page:
       text: Summary
     type: a
 show_annotations_in_bc_page:
+  action: click_show_annotations
   elements:
   - selector:
-      text: Show annotations
-    type: a
-    op: click
-  - selector:
       xpath: //td[contains(text(),"openshift.io/")]
-  - selector:
-      text: Hide annotations
-    op: click
+  action: click_hide_annotations
 check_one_buildconfig_page_with_check_config:
   action: goto_buildconfig_configuration_tab
   action: show_annotations_in_bc_page

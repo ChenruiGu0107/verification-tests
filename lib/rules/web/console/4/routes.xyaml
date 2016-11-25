@@ -39,17 +39,12 @@ check_basic_content_on_route_page:
 check_a_route_detail_page:
   action: goto_one_route_page
   action: check_basic_content_on_route_page
+  action: click_show_annotations
   elements:
   - selector:
-      text: Show annotations
-    type: a
-    op: click
-  - selector:
       xpath: //td[text()='openshift.io/generated-by']
-  - selector:
-      text: Hide annotations
-    type: a
-    op: click
+  action: click_hide_annotations
+  elements:
   - selector:
       xpath: //a[contains(text(),'<service_name>')]
     op: click
