@@ -1577,10 +1577,20 @@ Feature: build 'apps' with CLI
     When I run the :new_app client command with:
       | code | https://github.com/openshift-qe/ruby-cgroup-test |
     Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | buildconfig                                                                                                         |
+      | resource_name | ruby-cgroup-test                                                                                                    |
+      | p             | {"spec":{"resources": {"requests": {"cpu": "600m","memory": "200Mi"},"limits": {"cpu": "800m","memory": "200Mi"}}}} |
     And the "ruby-cgroup-test-1" build was created
-    Given the "ruby-cgroup-test-1" build completed
+    When I run the :cancel_build client command with:
+      | build_name | ruby-cgroup-test-1 |
+    Then the step should succeed
+    And I run the :start_build client command with:
+      | buildconfig | ruby-cgroup-test |
+    And the "ruby-cgroup-test-2" build was created
+    Given the "ruby-cgroup-test-2" build completed
     When I run the :build_logs client command with:
-      | build_name  | ruby-cgroup-test-1 |
+      | build_name  | ruby-cgroup-test-2 |
     And the output should contain:
       | RUN cp -r /sys/fs/cgroup/cpuacct,cpu/cpu* /tmp                     |
       | RUN cp -r /sys/fs/cgroup/memory/memory.limit_in_bytes /tmp/memlimit|
@@ -1592,10 +1602,10 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     """
     And the output should contain:
-      |92233720369152|
-      |2             |
-      |100000        |
-      |-1            |
+        | 209715200      |
+        | 614            |
+        | 100000         |
+        | 80000          |
 
   # @author haowang@redhat.com
   # @case_id 512264
