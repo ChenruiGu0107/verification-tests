@@ -1,4 +1,132 @@
 Feature: oc_set_resources.feature
+
+  # @author hongli@redhat.com
+  # @case_id 536676
+  Scenario: Set CPU and memory limits by oc set resources
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+    Then the step should succeed
+    And the pod named "hooks-1-deploy" becomes ready
+    Given I wait for the pod named "hooks-1-deploy" to die
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | o             | yaml  |
+    Then the step should succeed
+    And the output should not contain:
+      | limits:     |
+      | cpu.*       |
+      | memory.*    |
+      | requests:   |
+      | cpu.*       |
+      | memory.*    |
+
+    # set limits/requests for resource
+    When I run the :set_resources client command with:
+      | resource     | dc                    |
+      | resourcename | hooks                 |
+      | limits       | cpu=200m,memory=512Mi |
+      | requests     | cpu=100m,memory=256Mi |
+    Then the step should succeed
+    And the pod named "hooks-2-deploy" becomes ready
+    Given I wait for the pod named "hooks-2-deploy" to die
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | o             | yaml  |
+    Then the step should succeed
+    And the output should contain:
+      | resources:    |
+      | limits:       |
+      | cpu: 200m     |
+      | memory: 512Mi |
+      | requests:     |
+      | cpu: 100m     |
+      | memory: 256Mi |
+    When I run the :get client command with:
+      | resource      | pod  |
+      | o             | yaml |
+    Then the step should succeed
+    And the output should contain:
+      | resources:    |
+      | limits:       |
+      | cpu: 200m     |
+      | memory: 512Mi |
+      | requests:     |
+      | cpu: 100m     |
+      | memory: 256Mi |
+
+    # remove the limits/requests
+    When I run the :set_resources client command with:
+      | resource     | dc             |
+      | resourcename | hooks          |
+      | limits       | cpu=0,memory=0 |
+      | requests     | cpu=0,memory=0 |
+    Then the step should succeed
+    And the pod named "hooks-3-deploy" becomes ready
+    Given I wait for the pod named "hooks-3-deploy" to die
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | o             | yaml  |
+    Then the step should succeed
+    And the output should contain:
+      | resources:    |
+      | limits:       |
+      | cpu: "0"      |
+      | memory: "0"   |
+      | requests:     |
+      | cpu: "0"      |
+      | memory: "0"   |
+    When I run the :get client command with:
+      | resource      | pod  |
+      | o             | yaml |
+    Then the step should succeed
+    And the output should contain:
+      | resources:    |
+      | limits:       |
+      | cpu: "0"      |
+      | memory: "0"   |
+      | requests:     |
+      | cpu: "0"      |
+      | memory: "0"   |
+
+    # set limits only
+    When I run the :set_resources client command with:
+      | resource     | dc                    |
+      | resourcename | hooks                 |
+      | limits       | cpu=200m,memory=512Mi |
+      | o            | yaml                  |
+    Then the step should succeed
+    And the pod named "hooks-4-deploy" becomes ready
+    Given I wait for the pod named "hooks-4-deploy" to die
+    When I run the :get client command with:
+      | resource      | dc    |
+      | resource_name | hooks |
+      | o             | yaml  |
+    Then the step should succeed
+    And the output should contain:
+      | resources:    |
+      | limits:       |
+      | cpu: 200m     |
+      | memory: 512Mi |
+      | requests:     |
+      | cpu: "0"      |
+      | memory: "0"   |
+    When I run the :get client command with:
+      | resource      | pod  |
+      | o             | yaml |
+    Then the step should succeed
+    And the output should contain:
+      | resources:    |
+      | limits:       |
+      | cpu: 200m     |
+      | memory: 512Mi |
+      | requests:     |
+      | cpu: "0"      |
+      | memory: "0"   |
+
   # @author yadu@redhat.com
   # @case_id 536677
   Scenario: Set invalid vlaue for CPU and memory limits
