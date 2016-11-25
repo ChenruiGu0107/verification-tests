@@ -1364,3 +1364,49 @@ Feature: Quota related scenarios
       | Burstable  |
     And the output should match:
       | Guaranteed |
+
+
+  # @author qwang@redhat.com
+  # @case_id 536679
+  @admin
+  Scenario: Negative test for requests.storage of quota
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name   | my-quota             |
+      | hard   | requests.storage=1.5 |
+      | n      | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :create_quota admin command with:
+      | name   | my-quota-1             |
+      | hard   | requests.storage=1/2Gi |
+      | n      | <%= project.name %>    |
+    Then the step should fail
+    And the output should contain "quantities must match the regular expression"
+    When I run the :create_quota admin command with:
+      | name   | my-quota-2            |
+      | hard   | requests.storage=-2Gi |
+      | n      | <%= project.name %>   |
+    Then the step should fail
+    And the output should contain "must be greater than or equal to 0"
+    When I run the :create_quota admin command with:
+      | name   | my-quota-3             |
+      | hard   | requests.storage=abcGi |
+      | n      | <%= project.name %>    |
+    Then the step should fail
+    And the output should contain "quantities must match the regular expression"
+    When I run the :create_quota admin command with:
+      | name   | my-quota-4          |
+      | hard   | requests.storage=   |
+      | n      | <%= project.name %> |
+    Then the step should fail
+    And the output should contain "quantities must match the regular expression"
+    When I run the :describe client command with:
+      | resource  | quota    |
+    Then the output should match:
+      | requests.storage\\s+0\\s+1500m |
+    And the output should not contain:
+      | my-quota-1 |
+      | my-quota-2 |
+      | my-quota-3 |
+      | my-quota-4 |
+
