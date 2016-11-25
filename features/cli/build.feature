@@ -91,7 +91,7 @@ Feature: build 'apps' with CLI
     Then the output should match:
       | Status:.*Complete                     |
       | Push Secret:.*sec\-push               |
-    
+
     Examples:
       | template_file                                  |
       | tc476357/application-template-stibuild.json    |
@@ -959,6 +959,7 @@ Feature: build 'apps' with CLI
       | resource_name | ruby22-sample-build |
       | p | {"spec": {"source": {"git": {"uri": "git://github.com/openshift-qe/ruby-cgroup-test.git","ref":"memlarge"}}}} |
     Then the step should succeed
+    And the "ruby22-sample-build-1" build was created
     Then I run the :delete client command with:
       | object_type       | builds                |
       | object_name_or_id | ruby22-sample-build-1 |
