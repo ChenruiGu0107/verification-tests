@@ -27,10 +27,8 @@ add_pvc_to_one_container:
   action: choose_the_first_container
   action: submit_attach
 goto_add_pvc_page:
+  action: click_actions_button
   elements:
-  - selector:
-      xpath: //button[contains(text(), 'Actions')]
-    op: click
   - selector:
       xpath: //a[contains(text(), 'Attach Storage')]
     op: click

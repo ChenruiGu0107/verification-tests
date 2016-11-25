@@ -1,3 +1,9 @@
+click_actions_button:
+  elements:
+  - selector:
+      text: Actions
+    type: button
+    op: click  
 click_create_button:
   elements:
   - selector:
@@ -9,7 +15,16 @@ click_cancel:
   - selector:
       text: Cancel
     op: click
+click_delete:
+  elements:
+  - selector:
+      text: Delete
+    op: click
 check_save_button_disabled:
   elements:
   - selector:
       xpath: //button[@disabled='disabled' and text()='Save']
+delete_resource:
+  action: click_actions_button
+  action: click_delete
+  action: click_delete
