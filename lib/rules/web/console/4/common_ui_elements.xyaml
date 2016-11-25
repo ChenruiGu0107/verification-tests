@@ -3,7 +3,12 @@ click_actions_button:
   - selector:
       text: Actions
     type: button
-    op: click  
+    op: click
+click_add:
+  element:
+    selector:
+      xpath: //button[contains(text(),"Add") and not(@disabled)]
+    op: click
 click_create_button:
   elements:
   - selector:
@@ -29,6 +34,11 @@ click_show_annotations:
   elements:
   - selector:
       text: Show annotations
+    op: click
+click_save_button:
+  elements:
+  - selector:
+      xpath: //button[contains(text(),'Save') and not(@disabled)]
     op: click
 check_save_button_disabled:
   elements:
