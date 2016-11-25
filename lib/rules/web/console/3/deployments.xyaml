@@ -289,8 +289,6 @@ check_warning_info_for_rc_with_multiple_autoscale:
   action: goto_one_deployment_page
   elements:
   - selector:
-      xpath: //div[contains(@class, "alert") and contains(.,"More than one autoscaler is scaling this resource")]
-  - selector:
       xpath: //div[contains(@class, "alert") and contains(.,"This deployment is scaled by both a deployment configuration and an autoscaler")]
   scripts:
   - command: return document.getElementsByTagName("hpa").length == 2
