@@ -1,0 +1,10 @@
+--- # check membership page
+
+goto_membership_page:
+  url: /console/project/<project_name>/membership
+
+check_membership_no_permission_page:
+  action: goto_membership_page
+  element:
+    selector:
+      xpath: //h1[contains(.,"Membership")]
