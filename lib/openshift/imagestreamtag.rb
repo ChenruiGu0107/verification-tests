@@ -25,7 +25,7 @@ module CucuShift
     end
     
     def annotations(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :metadata, user: user, cached: cached, quiet: quiet).dig("annotations")
+      return get_cached_prop(prop: :image, user: user, cached: cached, quiet: quiet).dig("metadata", "annotations")
     end
 
     def labels(user:, cached: true, quiet: false)

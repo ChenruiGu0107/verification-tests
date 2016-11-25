@@ -1,7 +1,6 @@
 Feature: check image streams page
   # @author yapei@redhat.com
   # @case_id 511646
-
   Scenario: check image stream page
     # create project on web
     When I create a new project via web
@@ -9,7 +8,6 @@ Feature: check image streams page
     When I perform the :check_empty_image_streams_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-
     # create image streams via CLI
     Given I use the "<%= project.name %>" project
     Then I run the :create client command with:
@@ -26,7 +24,6 @@ Feature: check image streams page
       | postgresql |
       | python  |
       | ruby    |
-
     # check all image stream displayed well on web
     When I perform the :check_image_streams web console action with:
       | is_name | jenkins |
@@ -55,24 +52,14 @@ Feature: check image streams page
     When I perform the :check_image_streams web console action with:
       | is_name | ruby |
     Then the step should succeed
-
     # check one specific image
     When I perform the :check_one_image_stream web console action with:
       | project_name | <%= project.name %> |
       | image_name   |  nodejs |
     Then the step should succeed
-    And I click the following "a" element:
-      | text | Show annotations |
-    When I get the html of the web page
-    Then the output should match:
-      | openshift.io/image.dockerRepositoryCheck |
-
-    And I click the following "a" element:
-      | text | Hide annotations |
     When I get the html of the web page
     Then the output should not match:
       | openshift.io/image.dockerRepositoryCheck |
-
     # delete one image stream via CLI
     When I run the :delete client command with:
       | object_type | is |

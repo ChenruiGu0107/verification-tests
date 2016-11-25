@@ -26,11 +26,59 @@ check_is_tag_details_tab:
       xpath: //dt[text()="Digest"]/ancestor::registry-image-body//dd/tt[contains(text(),'<digest>')]
   - selector:
       xpath: //dt[text()="Docker Version"]/ancestor::registry-image-meta//dd[contains(text(),'<docker_version>')]
+  scripts:
+  - command: |
+        var el = document.querySelectorAll('dd[ng-repeat="(name, value) in image.metadata.annotations"]')
+        var value = []
+        for (var i=0; i<el.length; i++) {
+          value.push(el[i].textContent)
+        }
+        return value.toString() == <annotations>
+    expect_result: true
+  - command: |
+        var el = document.querySelectorAll('dd[ng-repeat="(name, value) in labels"] tt')
+        var value = []
+        for (var i=0; i<el.length; i++) {
+          value.push(el[i].textContent)
+        }
+        return value.toString() == <labels>
+    expect_result: true
 check_is_tag_config_tab:
   elements:
   - selector:
       xpath: //li//uib-tab-heading[text()='Config']
     op: click
+  - selector:
+      xpath: //dt[contains(text(),'Command:')]/../dd/code[contains(text(),'<config_cmd>')]
+  - selector:
+      xpath: //dd[@ng-if="config.User" and contains(text(),'<run_as>')]
+  - selector:
+      xpath: //dd[@ng-if="config.WorkingDir" and contains(text(),'<workdir>')]
+  - selector:
+      xpath: //dd[contains(@ng-repeat,"config.ExposedPorts") and contains(text(),'<ports>')]
+  scripts:
+  - command: |
+        var el = document.querySelectorAll('dd[ng-repeat="env in config.Env"] tt')
+        var value = []
+        for (var i=0; i<el.length; i++) {
+          value.push(el[i].textContent)
+        }
+        return value.toString() == <config_env>
+    expect_result: true
+check_is_tag_layers_tab:
+  element:
+    selector:
+      xpath: //li//uib-tab-heading[text()='Layers']
+    op: click
+  scripts:
+  - command: |
+        var el = document.querySelectorAll('li[ng-repeat="layer in layers"] p')
+        var value = []
+        for (var i=0; i<el.length; i++) {
+          value.push(el[i].innerHTML)
+        }
+        return value.length.toString() == <layers_len>
+    expect_result: true
 check_one_image_stream:
   action: goto_one_image_stream_page
   elements:
@@ -39,7 +87,7 @@ check_one_image_stream:
     op: click
     type: a
   - selector:
-      xpath: //td[contains(text(),"openshift.io/image")]
+      xpath: //td[contains(text(),"openshift.io")]
   - selector:
       text: Hide annotations
     op: click

@@ -287,23 +287,7 @@ Feature: check page info related
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-rhel7.json |
     Then the step should succeed
-    # check all image stream displayed well on web
     Given the "python" image stream becomes ready
-    When I perform the :check_image_streams web console action with:
-      | project_name | <%= project.name %> |
-      | is_name      | php56               |
-    When I get the visible text on web html page
-    Then the output should contain:
-      | jenkins    |
-      | mongodb    |
-      | mariadb    |
-      | mysql      |
-      | nodejs     |
-      | perl       |
-      | php        |
-      | postgresql |
-      | python     |
-      | ruby       |
     # check the latest image tag
     When I perform the :check_one_image_stream web console action with:
       | project_name | <%= project.name %> |
@@ -318,12 +302,50 @@ Feature: check page info related
       | $ sudo docker pull registry/python:2.7 |
     Given the "python:2.7" image stream tag was created
     When I perform the :check_is_tag_details_tab web console action with:
-      | digest         | <%= image_stream_tag.digest(user: user) %>         |
-      | docker_version | <%= image_stream_tag.docker_version(user: user) %> |
+      | digest         | <%= image_stream_tag.digest(user: user) %>                                                                             |
+      | docker_version | <%= image_stream_tag.docker_version(user: user) %>                                                                     |
+      | annotations    | <%= anno=[];image_stream_tag.annotations(user: user).each{\|key,value\| anno.push(key+": "+value)};anno %>             |
+      | labels         | <%= label=[];image_stream_tag.labels(user: user).each{\|key,value\| label.push(key + "=" + (key == "build-date" ? value.iso8601(6) : value))};label %> |
     Then the step should succeed
-    Given evaluation of `anno=[];image_stream_tag.annotations(user: user).each{|key,value| anno.push(key+": "+value)};anno` is stored in the :istaganno clipboard
-    Then the expression should be true> (cb.istaganno - browser.text.split("\n")).empty?
-    Given evaluation of `label=[];image_stream_tag.labels(user: user).each{|key,value| label.push(key+"="+value.to_s)};label` is stored in the :istaglabels clipboard
-    Then the expression should be true> (cb.istaglabels - browser.text.split("\n")).empty?
     # check istag page  "Config" tab 
-    # TODO
+    When I perform the :check_is_tag_config_tab web console action with:
+      | config_cmd | <%= image_stream_tag.config_cmd(user: user).join(" ") %>  |
+      | run_as     | <%= image_stream_tag.config_user(user: user) %>           |
+      | workdir    | <%= image_stream_tag.workingdir(user: user) %>            |  
+      | ports      | <%= image_stream_tag.exposed_ports(user: user).keys[0] %> |
+      | config_env | <%= image_stream_tag.config_env(user: user) %>            |
+    Then the step should succeed
+    When I perform the :check_is_tag_layers_tab web console action with:
+      | layers_len | <%= image_stream_tag.image_layers(user: user).length %> |
+    Then the step should succeed
+    # Generated IS
+    Given the "php" image stream becomes ready
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>                         |
+      | image_name   | php                                         |
+      | image_tag    | 5.6                                         |
+      | namespace    | <%= project.name %>                         |
+      | app_name     | php56                                       |
+      | source_url   | https://github.com/openshift/cakephp-ex.git |
+    Then the step should succeed
+    Given the "php56-1" build completed
+    Given I wait for the "php56" service to become ready
+    Given the "php56" image stream becomes ready
+    When I perform the :goto_one_image_stream_page web console action with:
+      | project_name | <%= project.name %> |
+      | image_name   | php56               |
+    Then the step should succeed 
+    When I perform the :check_is_tag_basic_page web console action with:
+      | image_name | php56     |
+      | istag      | latest    |
+    Then the step should succeed
+    Given the "php56:latest" image stream tag was created
+    When I perform the :check_is_tag_details_tab web console action with:
+      | digest         | <%= image_stream_tag.digest(user: user) %>                                                                             |
+      | docker_version | <%= image_stream_tag.docker_version(user: user) %>                                                                     |
+      | annotations    | <%= anno=[];image_stream_tag.annotations(user: user).each{\|key,value\| anno.push(key+": "+value)};anno %>             |
+      | labels         | <%= label=[];image_stream_tag.labels(user: user).each{\|key,value\| label.push(key + "=" + (key == "build-date" ? value.iso8601(6) : value))};label %> |
+    Then the step should succeed
+    When I perform the :check_is_tag_layers_tab web console action with:
+      | layers_len | <%= image_stream_tag.image_layers(user: user).length %> |
+    Then the step should succeed
