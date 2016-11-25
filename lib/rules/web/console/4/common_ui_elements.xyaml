@@ -20,6 +20,16 @@ click_delete:
   - selector:
       text: Delete
     op: click
+click_hide_annotations:
+  elements:
+  - selector:
+      text: Hide annotations
+    op: click
+click_show_annotations:
+  elements:
+  - selector:
+      text: Show annotations
+    op: click
 check_save_button_disabled:
   elements:
   - selector:

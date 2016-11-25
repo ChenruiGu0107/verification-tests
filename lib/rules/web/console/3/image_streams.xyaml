@@ -81,17 +81,12 @@ check_is_tag_layers_tab:
     expect_result: true 
 check_one_image_stream:
   action: goto_one_image_stream_page
+  action: click_show_annotations
   elements:
   - selector:
-      text: Show annotations
-    op: click
-    type: a
-  - selector:
       xpath: //td[contains(text(),"openshift.io")]
-  - selector:
-      text: Hide annotations
-    op: click
-    type: a
+  action: click_hide_annotations
+  elements:
   - selector:
       xpath: //table/tbody//td[@data-title='Tag']/a[text()='latest']
     type: a
