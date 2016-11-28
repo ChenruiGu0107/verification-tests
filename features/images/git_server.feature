@@ -117,8 +117,8 @@ Feature: git server related scenarios
     Then the step should succeed
     And the output should contain:
       | master -> master |
-    And the "ruby-sample-build-2" build was created
-    And the "ruby-sample-build-2" build completed
+    And the "ruby-hello-world-2" build was created
+    And the "ruby-hello-world-2" build completed
     And a pod becomes ready with labels:
       | deployment=git-1 |
     Then I run the :delete client command with:
@@ -131,6 +131,6 @@ Feature: git server related scenarios
       | cd /tmp/ruby-hello-world/; touch testfile1; git add testfile1; git commit -m "change: add testfile1"; git push openshift master |
     Then the step should fail
     And I run the :get client command with:
-      | resource      | build               |
-      | resource_name | ruby-sample-build-3 |
+      | resource      | build              |
+      | resource_name | ruby-hello-world-3 |
     Then the step should fail
