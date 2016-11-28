@@ -223,24 +223,21 @@ Feature: Routes related features on web console
     Then the step should succeed
 
     # check route function
-    Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | curl |
-      | https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/test/ |
-      | -c |
-      | /tmp/cookie.txt |
-      | -k |
-    Then the output should contain "Hello-OpenShift-Path-Test"
-    When I execute on the pod:
-      | curl |
-      | https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/ |
-      | -k |
-    Then the output should contain "Application is not available"
-    When I execute on the pod:
-      | curl |
-      | https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/none/ |
-      | -k |
-    Then the output should contain "Application is not available"
+    When I access the "https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/test/" url in the web browser
+    Then the step should succeed
+    When I perform the :check_response_string web console action with:
+      | response_string | Hello-OpenShift-Path-Test |
+    Then the step should succeed
+    When I access the "https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/" url in the web browser
+    Then the step should succeed
+    When I perform the :check_response_string web console action with:
+      | response_string | Application is not available |
+    Then the step should succeed
+    When I access the "https://<%= route("edgepathroute", service("edgepathroute")).dns(by: user) %>/none" url in the web browser
+    Then the step should succeed
+    When I perform the :check_response_string web console action with:
+      | response_string | Application is not available |
+    Then the step should succeed
 
   # @author yapei@redhat.com
   # @case_id 511907
@@ -270,18 +267,12 @@ Feature: Routes related features on web console
     Then the step should succeed
 
     # check route function
-    Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | curl |
-      | -v   |
-      | -L   |
-      | http://<%= route("edgerouteredirect", service("service-unsecure")).dns(by: user) %>/ |
-      | -k   |
+    When I access the "http://<%= route("edgerouteredirect", service("service-unsecure")).dns(by: user) %>/" url in the web browser
     Then the step should succeed
-    And the output should contain:
-      | 302 Found          |
-      | Location: https://<%= route("edgerouteredirect", service("service-unsecure")).dns(by: user) %>/ |
-      | Hello-OpenShift    |
+    Given the expression should be true> browser.url.start_with? "https"
+    When I perform the :check_response_string web console action with:
+      | response_string | Hello-OpenShift |
+    Then the step should succeed
 
   # @author yapei@redhat.com
   # @case_id 511909
@@ -311,25 +302,16 @@ Feature: Routes related features on web console
     Then the step should succeed
 
     # check route function
-    Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | curl |
-      | -v   |
-      | -L   |
-      | http://<%= route("edgerouteallow", service("service-unsecure")).dns(by: user) %>/ |
-      | -k   |
+    When I access the "http://<%= route("edgerouteallow", service("service-unsecure")).dns(by: user) %>/" url in the web browser
     Then the step should succeed
-    And the output should contain:
-      | Hello-OpenShift |
-    When I execute on the pod:
-      | curl |
-      | -v   |
-      | -L   |
-      | https://<%= route("edgerouteallow", service("service-unsecure")).dns(by: user) %>/ |
-      | -k   |
+    When I perform the :check_response_string web console action with:
+      | response_string | Hello-OpenShift |
     Then the step should succeed
-    And the output should contain:
-      | Hello-OpenShift |
+    When I access the "https://<%= route("edgerouteallow", service("service-unsecure")).dns(by: user) %>/" url in the web browser
+    Then the step should succeed
+    When I perform the :check_response_string web console action with:
+      | response_string | Hello-OpenShift |
+    Then the step should succeed
 
   # @author yanpzhan@redhat.com
   # @case_id 526534

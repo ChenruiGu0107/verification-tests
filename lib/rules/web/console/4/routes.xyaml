@@ -4,7 +4,10 @@ check_empty_routes_page:
   elements:
   - selector:
       xpath: //tbody[@class='ng-scope']//em[contains(text(), 'No routes to show')]
-
+check_response_string:
+  elements:
+  - selector:
+      xpath: //body[contains(.,"<response_string>")]
 check_route_name:
   action: goto_routes_page
   elements:
