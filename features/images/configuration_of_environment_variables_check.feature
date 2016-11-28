@@ -169,16 +169,22 @@ Feature: Configuration of environment variables check
     Given 1 pods become ready with labels:
       | app=rails-ex |
     When I run the :env client command with:
-      | resource | dc/rails-ex |
-      | e | PUMA_MIN_THREADS=1,PUMA_MAX_THREADS=14,PUMA_WORKERS=5 |
+      | resource | dc/rails-ex         |
+      | e        | PUMA_MIN_THREADS=1  |
+      | e        | PUMA_MAX_THREADS=14 |
+      | e        | PUMA_WORKERS=5      |
     Given 1 pods become ready with labels:
       | deployment=rails-ex-2 |
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I run the :logs client command with:
       | resource_name | pod/<%= pod.name %>|
     Then the output should contain:
       | Min threads: 1     |
       | max threads: 14    |
       | Process workers: 5 |
+    """
+
     Examples:
       | imagestream        |
       | openshift/ruby:2.0 |
