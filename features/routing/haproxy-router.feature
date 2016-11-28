@@ -278,6 +278,84 @@ Feature: Testing haproxy router
     And the expression should be true> cb.first_access == @result[:response]
     """
 
+  # @author hongli@redhat.com 
+  # @case_id: 533909
+  Scenario: Should use the same cookies for secure and insecure access when insecureEdgeTerminationPolicy set to allow for edge route
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name            | route-edge              |
+      | service         | service-unsecure        |
+      | insecure_policy | Allow                   |
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | -sS |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -k |
+      | -c |
+      | /tmp/cookie |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+
+    Given I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -sS |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access != @result[:response]
+    """
+
+    #access the insecure edge route with cookies
+    Given I run the steps 6 times:
+    """
+    When I execute on the pod:
+      | curl |
+      | -sS |
+      | http://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -b |
+      | /tmp/cookie |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access == @result[:response]
+    """
+
+    # set to Redirect policy
+    When I run the :patch client command with:
+      | resource      | route                                                           |
+      | resource_name | route-edge                                                      |
+      | p             | {"spec":{"tls": { "insecureEdgeTerminationPolicy":"Redirect"}}} |
+    Then the step should succeed
+
+    #access the insecure edge route with cookies
+    Given I run the steps 6 times:
+    """
+    When I execute on the pod:
+      | curl |
+      | -ksSL |
+      | http://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -b |
+      | /tmp/cookie |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access == @result[:response]
+    """
+
   # @author bmeng@redhat.com
   # @case_id 489259
   Scenario: haproxy cookies based sticky session for reencrypt termination routes

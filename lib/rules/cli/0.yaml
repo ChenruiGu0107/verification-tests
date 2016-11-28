@@ -140,6 +140,7 @@
     :key: --key=<value>
     :cacert: --ca-cert=<value>
     :path: --path=<value>
+    :insecure_policy: --insecure-policy=<value>
 :create_route_passthrough:
   :cmd: oc create route passthrough <name>
   :options:
