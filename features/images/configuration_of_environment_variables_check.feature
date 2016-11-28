@@ -166,16 +166,17 @@ Feature: Configuration of environment variables check
     When I run the :new_app client command with:
       | app_repo | <imagestream>~https://github.com/openshift/rails-ex |
     Then the step should succeed
-    Given 1 pods become ready with labels:
+    Given the "rails-ex-1" build completes
+    Given a pod becomes ready with labels:
       | app=rails-ex |
     When I run the :env client command with:
       | resource | dc/rails-ex         |
       | e        | PUMA_MIN_THREADS=1  |
       | e        | PUMA_MAX_THREADS=14 |
       | e        | PUMA_WORKERS=5      |
-    Given 1 pods become ready with labels:
+    Given a pod becomes ready with labels:
       | deployment=rails-ex-2 |
-    And I wait up to 30 seconds for the steps to pass:
+    Given I wait up to 30 seconds for the steps to pass:
     """
     When I run the :logs client command with:
       | resource_name | pod/<%= pod.name %>|
@@ -184,7 +185,6 @@ Feature: Configuration of environment variables check
       | max threads: 14    |
       | Process workers: 5 |
     """
-
     Examples:
       | imagestream        |
       | openshift/ruby:2.0 |
