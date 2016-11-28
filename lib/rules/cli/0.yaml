@@ -176,6 +176,7 @@
   :options:
      :resource: <value>
      :keep_annotations: --keep-annotations
+     :keep_init_containers: --keep-init-containers=<value>
      :keep_liveness: --keep-liveness
      :keep_readiness: --keep-readiness
      :one_container: --one-container=<value>
