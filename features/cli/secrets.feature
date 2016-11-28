@@ -1434,3 +1434,50 @@ Feature: secrets related scenarios
     And the output should contain:
       | value-1              |
       | secret-volume/data-1 |
+
+  # @author yinzhou@redhat.com
+  # @case_id 491404
+  Scenario: Use well-formed pull secret with incorrect credentials will fail to build and deploy
+    Given I have a project
+    And I run the :new_build client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world |
+      | name     | test |
+    Then the step should succeed
+
+    Given the "test-1" build completed
+    # Get user1's image as private docker image. Format is like: 172.31.168.158:5000/<project>/<istream>
+    Then evaluation of `image_stream("test").docker_image_repository(user: user)` is stored in the :user1_image clipboard
+
+    Given I switch to the second user
+    And I create a new project
+
+    When I run the :run client command with:
+      | name      | frontend   |
+      | image     | <%= cb.user1_image %>   |
+      | dry_run   |            |
+      | -o        | yaml       |
+    Then the step should succeed
+    And I save the output to file> dc.yaml
+
+    # Use well-formed pull secret with incorrect credentials
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    When I run the :oc_secrets_new_dockercfg client command with:
+      |secret_name      |test                       |
+      |docker_email     |serviceaccount@redhat.com  |
+      |docker_password  |password                   |
+      |docker_server    |<%= cb.integrated_reg_ip %>|
+      |docker_username  |username                   |
+    Then the step should succeed
+
+    When I run oc create with "dc.yaml" replacing paths:
+      | ["spec"]["template"]["spec"]["containers"][0]["imagePullPolicy"] | Always       |
+      | ["spec"]["template"]["spec"]["imagePullSecrets"]                 | - name: test |
+    Then the step should succeed
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | pod     |
+    Then the step should succeed
+    And the output should match "frontend-1-.*(ImagePullBackOff|ErrImagePull)"
+    """
+
