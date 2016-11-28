@@ -125,10 +125,12 @@ Feature: creating 'apps' with CLI
   Scenario: Create application from template via cli
     Given I have a project
     When I run the :create client command with:
-      |f| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json |
     And I create a new application with:
-      |template|ruby-helloworld-sample|
-      |param   |MYSQL_USER=admin,MYSQL_PASSWORD=admin,MYSQL_DATABASE=xxingtest|
+      | template | ruby-helloworld-sample   |
+      | param    | MYSQL_USER=admin         |
+      | param    | MYSQL_PASSWORD=admin     |
+      | param    | MYSQL_DATABASE=xxingtest |
     Then the step should succeed
     When I expose the "frontend" service
     Then I wait for a web server to become available via the "frontend" route
