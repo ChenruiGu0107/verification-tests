@@ -118,7 +118,7 @@ Feature:policy related features on web console
     When I get the visible text on web html page
     Then the output should contain "oute"
     And the output should not match:
-      | [Cc]reate [Rr]oute | 
+      | [Cc]reate [Rr]oute |
     """
     # 3.3 does not have pipeline page and will stay on last page
     When I perform the :check_pipline_no_permission_page web console action with:
@@ -132,10 +132,10 @@ Feature:policy related features on web console
     Then the step should succeed
     When I run the :create client command with:
       | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :create client command with:
       | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pvc-rox.json |
-    Then the step should succeed 
+    Then the step should succeed
     # when build is running, check bc and build page, check buttons and links
     Given the "ruby-sample-build-1" build becomes :running
     Given I switch to the second user
@@ -305,4 +305,3 @@ Feature:policy related features on web console
     Then the output should contain "o grouped service"
     And the output should not contain "Group Service"
     """
-  
