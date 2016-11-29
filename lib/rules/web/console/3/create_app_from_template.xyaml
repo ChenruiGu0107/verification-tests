@@ -84,9 +84,10 @@ clear_param_form:
 create_from_template_file:
   action: goto_create_fromfile
   action: create_from_file
+create_from_template_file_with_error:
+  action: create_from_template_file
   action: click_create_button
-  action: process_and_save_template
-
+  action: check_error_message_on_create_fromfile
 goto_create_fromfile:
   url: /console/project/<project_name>/create/?tab=fromFile
 create_from_file:
@@ -111,3 +112,7 @@ process_and_save_template:
       class: btn-primary
     type: button
     op: click
+check_error_message_on_create_fromfile:
+  element:
+    selector:
+      text: <error_message>

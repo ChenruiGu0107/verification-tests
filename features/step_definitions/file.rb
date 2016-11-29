@@ -93,7 +93,7 @@ end
 #
 #    Given I backup the "/home/gusun/test/file" file
 #
-Given(/^I backup the file>(.+)$/) do |file|
+Given(/^I backup the file "(.+)"$/) do |file|
   file.strip!
   filename = File.basename(file)
 
@@ -110,7 +110,7 @@ end
 #
 #    Given I restore the "/home/gusun/test/file" file
 #
-Given /^I restore the file>(.+)$/ do |file|
+Given /^I restore the file "(.+)"$/ do |file|
   file.strip!
   filename = File.basename(file)
 
