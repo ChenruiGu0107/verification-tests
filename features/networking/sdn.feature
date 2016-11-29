@@ -366,3 +366,47 @@ Feature: SDN related networking scenarios
     And the output should not contain:
       | arp_tpa=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1 |
       | nw_dst=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1  |
+
+  # @author bmeng@redhat.com
+  # @case_id 483195
+  @admin
+  @destructive
+  Scenario: The openshift master should handle the node subnet when the node added/removed
+    Given environment has at least 2 nodes
+    And I select a random node's host
+    And the node labels are restored after scenario
+    And the node network is verified
+    And the node service is verified
+    When I run the :get admin command with:
+      | resource | hostsubnet |
+    Then the step should succeed
+    And the output should contain "<%= node.name %>"
+    When I run the :delete admin command with:
+      | object_type | node |
+      | object_name_or_id | <%= node.name %> |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | hostsubnet |
+    Then the step should succeed
+    And the output should not contain "<%= node.name %>"
+    Given the node service is restarted on the host
+    When I run the :get admin command with:
+      | resource | hostsubnet |
+    Then the step should succeed
+    And the output should contain "<%= node.name %>"
+    When I run the :get admin command with:
+      | resource | hostsubnet |
+      | template | {{(index .items 0).subnet}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :node0_ip clipboard
+    When I run the :get admin command with:
+      | resource | hostsubnet |
+      | template | {{(index .items 1).subnet}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :node1_ip clipboard
+    When I run commands on the host:
+      | ping -c 2 $(echo "<%= cb.node0_ip %>" \| sed 's/.\{4\}$/1/g') |
+    Then the step should succeed
+    When I run commands on the host:
+      | ping -c 2 $(echo "<%= cb.node1_ip %>" \| sed 's/.\{4\}$/1/g') |
+    Then the step should succeed
