@@ -2090,3 +2090,55 @@ Feature: Testing haproxy router
       | exec_command_arg | 80              |
       | _stdin           | :empty          |
     Then the output should contain "408 Request Time-out"
+
+  # @author zzhao@redhat.com
+  # @case_id 530549
+  @admin
+  @destructive
+  Scenario: haproxy logs can be sent to syslog for hostnetwork mode
+    Given admin stores in the :router_node clipboard the nodes backing pods in project "default" labeled:
+      | deploymentconfig=router |
+    And system verification steps are used:
+    """
+    Given I run commands on the nodes in the :router_node clipboard:
+      | systemctl is-active rsyslog.service |
+    Then the step should succeed
+    And I run commands on the nodes in the :router_node clipboard:
+      | ls /etc/rsyslog.d/haproxy.conf      |
+    Then the step should fail
+    """
+
+    And I register clean-up steps:
+    """
+    Given I run commands on the nodes in the :router_node clipboard:
+      | rm -f /etc/rsyslog.d/haproxy.conf /var/log/haproxy.log |
+    Then the step should succeed
+    """
+    When I run commands on the nodes in the :router_node clipboard:
+      | echo -e  "\$ModLoad imudp\n\$UDPServerRun 514\nlocal1.* /var/log/haproxy.log\nhaproxy.* /var/log/haproxy.log" >/etc/rsyslog.d/haproxy.conf   |
+      | systemctl restart rsyslog |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_SYSLOG_ADDRESS=127.0.0.1 |
+      | e        | ROUTER_LOG_LEVEL=debug          |
+    Then the step should succeed
+    And I wait for the pod named "<%= pod.name %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/route_pass.json |
+    Then the step should succeed
+
+    Given I run commands on the nodes in the :router_node clipboard:
+      | cat /var/log/haproxy.log  |
+    Then the output should contain "route-passthrough started"
