@@ -33,9 +33,9 @@ Feature: buildlogic.feature
   Scenario: Build with specified Dockerfile via new-build -D
     Given I have a project
     When I run the :new_build client command with:
-      | D     | FROM centos:7\nRUN yum install -y httpd              |
-      | to    | myappis                                              |
-      | name  | myapp                                                |
+      | D    | FROM centos:7\nRUN echo "hello" |
+      | to   | myappis                         |
+      | name | myapp                           |
     Then the step should succeed
     And the "myapp-1" build was created
     And the "myapp-1" build completed
