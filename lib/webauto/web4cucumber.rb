@@ -490,7 +490,7 @@ require 'watir-webdriver'
     # @param [Hash] opts hash options to use for replacement
     # @return [String] the value match in the opts[key]
     private def replace_angle_brackets(str, opts)
-      return str.gsub(/<([a-z_]+)>/) { |m|
+      return str.gsub(/<([a-z0-9_]+)>/) { |m|
         opts[m[1..-2].to_sym] || m
       }
     end
