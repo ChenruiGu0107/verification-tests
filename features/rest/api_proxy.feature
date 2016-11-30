@@ -41,6 +41,9 @@ Feature: Api proxy related cases
     And a pod becomes ready with labels:
       | app=client-cert |
     # check https service proxy
+    # there need slowdown the network
+    And I wait up to 60 seconds for the steps to pass:
+    """
     When I perform the :proxy_get_request_to_resource rest request with:
       | project_name  | <%= project.name %> |
       | protocol_type | https               |
@@ -50,6 +53,7 @@ Feature: Api proxy related cases
     Then the step should succeed
     And the output should match:
       |system:master-proxy|
+    """
     # check https pod proxy
     When I perform the :proxy_get_request_to_resource rest request with:
       | project_name  | <%= project.name %> |
