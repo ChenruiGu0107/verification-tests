@@ -145,3 +145,17 @@ Feature: Return description with cli
     Then the output should contain:
       | "kind": "Service"  |
       | "apiVersion": "v1" |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 539580
+  Scenario: oc describe event should not duplicate same output for no description
+    Given I log the message>  this scenario is only for oc 3.4+
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/b1983988/examples/jenkins/jenkins-ephemeral-template.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | event    |
+    Then the step should fail
+    And the output should not match:
+      | no description.* [Ee]vent.*\n\s+no description.* [Ee]vent |
