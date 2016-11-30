@@ -9,11 +9,11 @@ Given /^I select a random node's host$/ do
   @host = node.host
 end
 
-Given /^I store the schedulable nodes in the#{OPT_SYM} clipboard$/ do |cbname|
+Given /^I store the( schedulable)? nodes in the#{OPT_SYM} clipboard$/ do |schedulable, cbname|
   ensure_admin_tagged
   cbname = 'nodes' unless cbname
   cb[cbname] =
-    CucuShift::Node.get_matching(user: admin) { |n, n_hash| n.schedulable? }
+    CucuShift::Node.get_matching(user: admin) { |n, n_hash| !schedulable || n.schedulable? }
   @nodes.reject! {|n| cb[cbname].include? n}
   @nodes.concat cb[cbname].shuffle
 end
@@ -36,9 +36,9 @@ Given /^(I|admin) stores? in the#{OPT_SYM} clipboard the nodes backing pods(?: i
   cb[cbname] = node_names.map { |n| node(n) }
 end
 
-Given /^environment has( at least| at most) (\d+) schedulable nodes?$/ do |cmp, num|
+Given /^environment has( at least| at most) (\d+)( schedulable)? nodes?$/ do |cmp, num, schedulable|
   ensure_admin_tagged
-  nodes = CucuShift::Node.get_matching(user: admin) { |n, hash| n.schedulable? }
+  nodes = CucuShift::Node.get_matching(user: admin) { |n, hash| !schedulable || n.schedulable?}
   @nodes.concat (nodes.shuffle - @nodes)
 
   case cmp
