@@ -284,7 +284,8 @@ Feature: xpass.feature
     Then the step should succeed
     When I run the :new_app client command with:
       | template | amq62-persistent-ssl |
-      | param    | AMQ_TRUSTSTORE_PASSWORD=password,AMQ_KEYSTORE_PASSWORD=password |
+      | param    | AMQ_TRUSTSTORE_PASSWORD=password |
+      | param    | AMQ_KEYSTORE_PASSWORD=password   |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | pvc                                                                             |
