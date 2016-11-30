@@ -282,7 +282,7 @@ check_build_has_started_message:
   elements:
   - selector:
       xpath: //strong[@ng-if='alert.message' and contains(.,'has started')]
-save_your_committed_changes:
+click_save_button:
   elements:
   - selector:
       text: Save

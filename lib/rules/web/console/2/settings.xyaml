@@ -79,7 +79,7 @@ cancel_edit_general_informantion:
   action: check_specific_project_info
 save_edit_general_informantion:
   action: edit_general_information
-  action: save_your_committed_changes
+  action: click_save_button
   action: check_specific_project_info
 check_quota_scope_type:
   action: goto_settings_page

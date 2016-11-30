@@ -34,7 +34,7 @@ Feature: ONLY ONLINE STI related scripts in this file
       | env_variable_name | <env_name>          |
       | new_env_value     | <env_value>         |
     Then the step should succeed
-    When I run the :save_your_committed_changes web console action
+    When I run the :click_save_button web console action
     Then the step should succeed
     When I click the following "button" element:
       | text  | Start Build |

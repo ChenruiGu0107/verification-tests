@@ -362,12 +362,6 @@ check_build_has_started_message:
   elements:
   - selector:
       xpath: //span[@ng-if='alert.message' and contains(.,'has started')]
-save_your_committed_changes:
-  elements:
-  - selector:
-      xpath: //button[contains(text(),'Save') and not(@disabled)]
-    type: button
-    op: click
 check_bc_builder_image_stream:
   action: goto_buildconfig_configuration_tab
   elements:

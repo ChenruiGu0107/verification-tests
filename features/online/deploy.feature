@@ -50,7 +50,7 @@ Feature: ONLY ONLINE Deployment related scripts in this file
       | amount_unit     | MiB      |
       | resource_amount | 300      |
     Then the step should succeed
-    When I run the :save_your_committed_changes web console action
+    When I run the :click_save_button web console action
     Then the step should succeed
     Given I wait for the pod named "dctest-2-deploy" to die
     And a pod becomes ready with labels:
@@ -114,7 +114,7 @@ Feature: ONLY ONLINE Deployment related scripts in this file
       | amount_unit     | MiB                    |
       | resource_amount | 300                    |
     Then the step should succeed
-    When I run the :save_your_committed_changes web console action
+    When I run the :click_save_button web console action
     Then the step should succeed
     When I run the :scale client command with:
       | resource | replicationcontrollers |

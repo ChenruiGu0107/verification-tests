@@ -247,7 +247,7 @@ add_autoscaler_set_max_pod_and_cpu_req_per_from_dc_page:
   action: goto_add_autoscaler_page
   action: set_max_pod_on_autoscaler_page
   action: set_cpu_request_percentage
-  action: save_your_committed_changes
+  action: click_save_button
 add_label_on_edit_autoscaler_page:
   action: goto_one_dc_page
   action: goto_add_autoscaler_page
@@ -256,7 +256,7 @@ add_label_on_edit_autoscaler_page:
   action: set_cpu_request_percentage
   action: add_label_key_on_edit_autoscaler_page
   action: add_label_value_on_edit_autoscaler_page
-  action: save_your_committed_changes
+  action: click_save_button
 add_label_key_on_edit_autoscaler_page:
   elements:
   - selector:
@@ -327,7 +327,7 @@ delete_label_on_edit_autoscaler_page:
   action: goto_one_dc_page
   action: goto_edit_autoscaler_page
   action: delete_label_value_on_edit_autoscaler_page
-  action: save_your_committed_changes
+  action: click_save_button
 delete_label_value_on_edit_autoscaler_page:
   elements:
   - selector:
@@ -349,7 +349,7 @@ update_label_on_edit_autoscaler_page:
   action: goto_one_dc_page
   action: goto_edit_autoscaler_page
   action: update_label_value_on_edit_autoscaler_page
-  action: save_your_committed_changes
+  action: click_save_button
 update_label_value_on_edit_autoscaler_page:
   elements:
   - selector: &label_value_field |

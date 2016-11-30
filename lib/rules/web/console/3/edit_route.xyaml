@@ -207,7 +207,7 @@ goto_edit_route_page:
       xpath: //a[text()='Edit']
     op: click
 save_edit_route:
-  action: save_your_committed_changes
+  action: click_save_button
 cancel_edit_route:
   action: click_cancel
 check_warning_info_for_path:

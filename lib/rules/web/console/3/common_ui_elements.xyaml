@@ -30,6 +30,11 @@ click_show_annotations:
   - selector:
       text: Show annotations
     op: click
+click_save_button:
+  elements:
+  - selector:
+      xpath: //button[contains(text(),'Save') and not(@disabled)]
+    op: click
 check_save_button_disabled:
   elements:
   - selector:

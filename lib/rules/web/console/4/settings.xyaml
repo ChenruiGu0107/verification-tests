@@ -26,7 +26,7 @@ edit_general_information:
     op: set <new_description>
 save_edit_general_informantion:
   action: edit_general_information
-  action: save_your_committed_changes
+  action: click_save_button
 cancel_edit_general_informantion:
   action: edit_general_information
   action: click_cancel
