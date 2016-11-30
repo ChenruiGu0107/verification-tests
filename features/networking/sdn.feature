@@ -297,3 +297,27 @@ Feature: SDN related networking scenarios
     Then the output should match:
       | KUBE-SERVICES -d <%= cb.service_ip %>/32 -p tcp -m comment --comment ".*/service-unsecure:http cluster IP" -m tcp --dport 27017 |
     """
+
+  # @author bmeng@redhat.com
+  # @case_id 529568
+  @admin
+  @destructive
+  Scenario: Node cannot start when there is network plugin mismatch with master service
+    Given I select a random node's host
+    And the node service is verified
+    And the node network is verified
+    And the node service is restarted on the host after scenario
+    And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
+    And the network plugin is switched on the node
+    When I run commands on the host:
+      | systemctl restart atomic-openshift-node |
+    Then the step should fail
+    When I run commands on the host:
+      | systemctl status atomic-openshift-node |
+    Then the step should fail
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node -n 20 |
+    Then the output should contain "detected network plugin mismatch"
+    """
