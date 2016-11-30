@@ -124,6 +124,8 @@ Feature:policy related features on web console
     When I perform the :check_pipline_no_permission_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should not contain "Add to Project"
 
     # project admin create some resources for the project
     Given I switch to the first user
@@ -254,15 +256,21 @@ Feature:policy related features on web console
     When I perform the :check_membership_no_permission_page web console action with:
       | project_name     | <%= project.name %>   |
     Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should not contain "Edit"
 
     # secret and one secret page
     When I perform the :check_secret_no_permission_page web console action with:
       | project_name     | <%= project.name %>   |
     Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should not contain "Create Secret"
     When I perform the :check_one_secret_no_permission_page web console action with:
       | project_name     | <%= project.name %>   |
       | secret           | test-secrets          |
     Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should not contain "Actions"
     # pvc and one pvc page
     When I perform the :goto_storage_page web console action with:
       | project_name     | <%= project.name %>   |
