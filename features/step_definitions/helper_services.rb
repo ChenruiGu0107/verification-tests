@@ -60,14 +60,13 @@ Given /^I have LDAP service in my project$/ do
       })
     step %Q/the step should succeed/
     step %Q/I wait until replicationController "ldapserver-1" is ready/
-    step %Q/I get project pods as YAML/
-    step %Q/the step should succeed/
-    step %Q/evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :ldap_pod_name clipboard/
+
+    cb.ldap_pod = CucuShift::Pod.get_labeled(["run", "ldapserver"], user: user, project: project).first
+    cb.ldap_pod_name = cb.ldap_pod.name
+    cache_pods cb.ldap_pod
+
     # Init the test data in ldap server.
-    step %Q/I run the :rsh client command with:/, table(%{
-      | pod    | <%= cb.ldap_pod_name %>                                                                                                                                                                                            |
-      | _stdin | curl -Ss https://raw.githubusercontent.com/openshift/origin/master/images/openldap/contrib/init.ldif > /tmp/init.ldif && ldapadd -x -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin -f /tmp/init.ldif |
-      })
+    @result = cb.ldap_pod.exec("bash", "-c", "curl -Ss https://raw.githubusercontent.com/openshift/origin/master/images/openldap/contrib/init.ldif | ldapadd -x -h 127.0.0.1 -p 389 -D cn=Manager,dc=example,dc=com -w admin", as: user)
     step %Q/the step should succeed/
 
     # Port forword ldapserver to local
