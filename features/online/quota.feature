@@ -22,6 +22,6 @@ Feature: ONLY ONLINE Quota related scripts in this file
     # If the the output of expr1-4 is indeed based on the override ratio, then it's a bug.
     Examples:
       | path     | filename                  | podname              | expr1 | expr2 | expr3 | expr4 |
-      | tc517567 | pod-limit-request.yaml    | pod-limit-request    | 1170m | 600Mi | 70m   | 360Mi |
-      | tc517576 | pod-limit-memory.yaml     | pod-limit-memory     | 584m  | 300Mi | 35m   | 180Mi |
+      | tc517567 | pod-limit-request.yaml    | pod-limit-request    | 1171m | 600Mi | 70m   | 360Mi |
+      | tc517576 | pod-limit-memory.yaml     | pod-limit-memory     | 585m  | 300Mi | 35m   | 180Mi |
       | tc517577 | pod-no-limit-request.yaml | pod-no-limit-request | 1     | 512Mi | 60m   | 307Mi |
