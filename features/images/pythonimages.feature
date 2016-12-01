@@ -38,6 +38,7 @@ Feature: Openshift build and configuration of enviroment variables check
 
   # @author wewang@redhat.com
   # @case_id 530156 530157 530158 530159
+  @no-online
   Scenario Outline: Update python image to autoconfigure based on available memory
     Given I have a project
     When I create a new application with:

@@ -26,6 +26,7 @@ Feature: phpimages.feature
 
   # @author wzheng@redhat.com
   # @case_id 526520,526521
+  @no-online
   Scenario Outline: Update php image to autoconfigure based on available memory
     Given I have a project
     When I run the :create client command with:
