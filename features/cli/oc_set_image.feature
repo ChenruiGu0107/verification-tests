@@ -1,4 +1,46 @@
-Feature: oc set image related feature
+Feature: oc set image related tests
+
+  # @author cryan@redhat.com
+  # @case_id 535237
+  Scenario: oc set image to update pod with certain label
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml"
+    When I run the :create client command with:
+      | f | dc-with-two-containers.yaml |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | dc     |
+      | name     | dctest |
+      | replicas | 2      |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | deployment=dctest-1 |
+    When I run the :tag client command with:
+      | source | aosqe/hello-openshift          |
+      | dest   | <%= project.name%>/test:latest |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | pods                 |
+      | name     | <%= @pods[0].name %> |
+      | key_val  | test=1234            |
+    Then the step should succeed
+    When I run the :set_image client command with:
+      | resource | pod                                      |
+      | keyval   | dctest-1=<%= project.name %>/test:latest |
+      | l        | test=1234                                |
+    Then the step should succeed
+    And the output should contain ""<%= @pods[0].name %>" image updated"
+    When I run the :describe client command with:
+      | resource | pod                  |
+      | name     | <%= @pods[0].name %> |
+    Then the step should succeed
+    And the output should match " Image:\s+aosqe/hello-openshift"
+    When I run the :describe client command with:
+      | resource | pod                  |
+      | name     | <%= @pods[1].name %> |
+    Then the step should succeed
+    And the output should not match " Image:\s+aosqe/hello-openshift"
+
   # @author xiaocwan@redhat.com
   # @case_id 536469
   @admin

@@ -664,7 +664,7 @@
     :routename: <value>
     :service: <value>
     :zero: --zero
-    :adjust: --adjust 
+    :adjust: --adjust
 :set_build_hook:
   :cmd: oc set build-hook <global_options> <options>
   :options:
@@ -712,6 +712,9 @@
 :set_image:
   :cmd: oc set image
   :options:
+    :keyval: <value>
+    :l: -l <value>
+    :resource: <value>
     :type_name: <value>
     :container_image: <value>
     :all: --all=<value>
@@ -721,7 +724,6 @@
     :output: --output=<value>
     :record: --record=<value>
     :selector: --selector=<value>
-    :all: --all=<value>
 :set_probe:
   :cmd: oc set probe <global_options> <options>
   :options:
