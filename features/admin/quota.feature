@@ -1365,6 +1365,50 @@ Feature: Quota related scenarios
     And the output should match:
       | Guaranteed |
 
+  # @author cryan@redhat.com
+  # @case_id 509088
+  # @bug_id 1293836
+  @admin
+  Scenario: Resource quota value should not be fractional value
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509088/quota-1.yaml |
+      | n | <%= project.name %>                                                                            |
+    Then the step should fail
+    And the output should contain 6 times:
+      | must be an integer |
+    When I run the :describe admin command with:
+      | resource | quota   |
+      | name     | quota-1 |
+    Then the step should fail
+    And the output should contain "not found"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509088/quota-2.yaml |
+      | n | <%= project.name %>                                                                            |
+    Then the step should fail
+    And the output should contain "quantities must match the regular expression"
+    When I run the :describe admin command with:
+      | resource | quota   |
+      | name     | quota-2 |
+    Then the step should fail
+    And the output should contain "not found"
+
+  # @author cryan@redhat.com
+  # @case_id 509089
+  @admin
+  Scenario: Resource quota value should not be negative
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc509089/negquota.yaml |
+      | n | <%= project.name %>                                                                             |
+    Then the step should fail
+    And the output should match 8 times:
+      | must be greater than or equal to 0 |
+    When I run the :describe client command with:
+      | resource | quota    |
+      | name     | negquota |
+    Then the step should fail
+    And the output should contain "not found"
 
   # @author qwang@redhat.com
   # @case_id 536679
@@ -1409,4 +1453,3 @@ Feature: Quota related scenarios
       | my-quota-2 |
       | my-quota-3 |
       | my-quota-4 |
-
