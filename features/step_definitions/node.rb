@@ -323,3 +323,21 @@ Given /^the host is rebooted and I wait it(?: up to (\d+) seconds)? to become av
   timeout = timeout ? Integer(timeout) : 200
   @host.reboot_checked(timeout: timeout)
 end
+
+Given /^the network plugin is switched on the#{OPT_QUOTED} node$/ do |node_name|
+  ensure_admin_tagged
+
+  _node = node(node_name)
+  _host = _node.host
+  @result = _host.exec('ovs-ofctl dump-flows br0 -O openflow13 || docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13')
+
+  if @result[:success] && @result[:response] =~ /table=253.*actions=note:01/
+    logger.info "Switch plguin from multitenant to subnet"
+    @result = _host.exec("sed -i 's/multitenant/subnet/g' /etc/origin/node/node-config.yaml")
+    raise "failed to switch plugin in node config" unless @result[:success]
+  else
+    logger.info "Switch plguin from subnet to multitenant"
+    @result = _host.exec("sed -i 's/subnet/multitenant/g' /etc/origin/node/node-config.yaml")
+    raise "failed to switch plugin in node config" unless @result[:success]
+  end
+end
