@@ -326,6 +326,18 @@ module CucuShift
       @iaas ||= IAAS.select_provider(self)
     end
 
+    def master_services
+      @master_services ||= self.master_hosts.map { |host|
+        CucuShift::Platform::MasterService.new(host, self)
+      }
+    end
+
+    def node_services
+      @node_services ||= self.node_hosts.map { |host|
+        CucuShift::Platform::NodeService.new(host, self)
+      }
+    end
+
     def clean_up
       @user_manager.clean_up if @user_manager
       @hosts.each {|h| h.clean_up } if @hosts

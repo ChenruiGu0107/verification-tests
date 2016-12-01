@@ -41,6 +41,12 @@ module CucuShift
       raise("no host mapping for #{self.name}")
     end
 
+    def service
+      @service = env.node_services.find { |service|
+        service.host.hostname == self.host.hostname
+      }
+    end
+
     def schedulable?(user: nil, cached: true, quiet: false)
       spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
       return !spec['unschedulable']

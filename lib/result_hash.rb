@@ -10,5 +10,14 @@ module CucuShift
   #   * props          # some optional properties obtained from the operation
   #   * error          # error that caused operation failure
   class ResultHash < Hash
+
+      def self.aggregate_results(results)
+        # if one of the commands fail it will be returned
+        final_result = results.find {|r| !r[:success]}
+        # if everything passes the last result will be returned that the service is running
+        # else the failed step will be returned
+        final_result ||= results[-1]
+        return final_result
+      end
   end
 end

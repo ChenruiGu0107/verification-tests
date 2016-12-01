@@ -269,3 +269,130 @@ Given /^the#{OPT_QUOTED} node labels are restored after scenario$/ do |node_name
     _admin.cli_exec(:label, opts)
   }
 end
+
+Given /^config of all(?: (schedulable))? nodes is merged with the following hash:$/ do |host_type, yaml_string|
+  ensure_admin_tagged
+  ensure_destructive_tagged
+
+  yaml_hash = YAML.load(yaml_string)
+  _services = []
+  if host_type == "schedulable"
+    _services = env.node_services.select { |service|
+      service.schedulable?
+    }
+  else
+    _services = env.node_services
+  end
+
+  _services.each { |service|
+    service_config = service.config
+    if service_config.exists?
+      config_hash = service_config.as_hash()
+      CucuShift::Collections.deep_merge!(config_hash, yaml_hash)
+      config = config_hash.to_yaml
+      logger.info config
+      service_config.backup()
+      @result = service_config.update(config)
+
+      teardown_add {
+        service_config.restore()
+      }
+    else
+      logger.info "The node config file does not exists on this node!"
+    end
+  }
+end
+
+Given /^node#{OPT_QUOTED} config is merged with the following hash:$/ do |node_name, yaml_string|
+  ensure_admin_tagged
+  ensure_destructive_tagged
+  _node = node(node_name)
+
+  service_config = _node.service.config
+  if service_config.exists?
+    config_hash = service_config.as_hash()
+    CucuShift::Collections.deep_merge!(config_hash, yaml_hash)
+    config = config_hash.to_yaml
+    logger.info config
+    service_config.backup()
+    @result = service_config.update(config)
+
+    teardown_add {
+      service_config.restore()
+    }
+  else
+    logger.info "The node config file does not exists on this node!"
+  end
+
+end
+
+Given /^all nodes config is restored$/ do
+  ensure_admin_tagged
+  env.node_services.each { |service|
+    @result = service.config.restore()
+  }
+end
+
+
+Given /^node#{OPT_QUOTED} config is restored from backup$/ do |node_name|
+  ensure_admin_tagged
+  @result = node(node_name).service.config.restore()
+end
+
+Given /^I store the value of path (.+?) of current node config in the#{OPT_SYM} clipboard$/ do |path, cb_name|
+  ensure_admin_tagged
+  raise "Have to specify a node in a previous step!" unless node
+  config_hash = node.service.config.as_hash()
+  cb_name ||= "config_value"
+  cb[cb_name] = eval "config_hash#{path}"
+end
+
+
+Given /^the node service is restarted on all(?: (schedulable))? nodes$/ do |host_type|
+  ensure_destructive_tagged
+
+  env.node_services.each { |service|
+    if service.config.exists?
+      if host_type == "schedulable"
+        service.restart_all(raise: true) if service.schedulable?
+      else
+        service.restart_all(raise: true)
+      end
+    else
+      logger.info "The node config file does not exists on this node!"
+    end
+  }
+end
+
+Given /^the node service is restarted on node#{OPT_QUOTED}$/ do |node_name|
+  ensure_destructive_tagged
+  node(node_name).service.restart_all(raise: true)
+end
+
+Given /^I try to restart the node service on all(?: (schedulable))? nodes$/ do |host_type|
+  ensure_destructive_tagged
+  results = []
+
+  env.node_services.each { |service|
+    if service.config.exists?
+      if host_type == "schedulable"
+        results.push(service.restart_all) if service.schedulable?
+      else
+        results.push(service.restart_all)
+      end
+    else
+      logger.info "The node config file does not exists on this node!"
+    end
+  }
+
+  @result = CucuShift::ResultHash.aggregate_results(results)
+  # aggregate all the responses from all masters
+  @result[:response] = results.map { |r| r[:response] }
+  # aggregate all the exit statust from all masters
+  @result[:exitstatus] = results.map { |r| r[:exitstatus] }
+end
+
+Given /^I try to restart the node service on node#{OPT_QUOTED}$/ do |node_name|
+  ensure_destructive_tagged
+  @results = node(node_name).service.restart_all
+end
