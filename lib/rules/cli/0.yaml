@@ -119,6 +119,7 @@
   :options:
     :f: -f <value>
     :filename: --filename=<value>
+    :record: --record=<value>
 :create_configmap:
   :cmd: oc create configmap
   :options:

@@ -13,41 +13,41 @@ Feature: Check deployments function
     And evaluation of `"hooks"` is stored in the :dc_name clipboard
     When I perform the :wait_latest_deployments_to_deployed web console action with:
       | project_name | <%= project.name %> |
-      | dc_name      | <%= cb.dc_name %>  |
+      | dc_name      | <%= cb.dc_name %>   |
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :complete
     # manually trigger deploy after deployments is "Deployed"
     When I perform the :manually_deploy web console action with:
       | project_name | <%= project.name %> |
-      | dc_name      | <%= cb.dc_name %>  |
+      | dc_name      | <%= cb.dc_name %>   |
     Then the step should succeed
     When I perform the :wait_latest_deployments_to_status web console action with:
       | project_name | <%= project.name %> |
-      | dc_name      | <%= cb.dc_name %>  |
-      | status_name  | Running |
+      | dc_name      | <%= cb.dc_name %>   |
+      | status_name  | Running             |
     Then the step should succeed
     And I get the "disabled" attribute of the "button" web element:
       | text | Deploy |
     Then the output should contain "true"
     When I perform the :wait_latest_deployments_to_deployed web console action with:
       | project_name | <%= project.name %> |
-      | dc_name      | <%= cb.dc_name %>  |
+      | dc_name      | <%= cb.dc_name %>   |
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :complete
     # cancel deployments
     When I perform the :manually_deploy web console action with:
       | project_name | <%= project.name %> |
-      | dc_name      | <%= cb.dc_name %>  |
+      | dc_name      | <%= cb.dc_name %>   |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :running
     When I perform the :cancel_deployments web console action with:
       | project_name | <%= project.name %> |
-      | dc_name      | <%= cb.dc_name %>  |
-      | dc_number    | 3 |
+      | dc_name      | <%= cb.dc_name %>   |
+      | dc_number    | 3                   |
     Then the step should succeed
     When I perform the :wait_latest_deployments_to_status web console action with:
       | project_name | <%= project.name %> |
-      | dc_name      | <%= cb.dc_name %>  |
+      | dc_name      | <%= cb.dc_name %>   |
       | status_name  | Cancelled           |
     Then the step should succeed
 
@@ -345,3 +345,106 @@ Feature: Check deployments function
       | resource_file |  click_operation | resource_type | resource_name | add_storage_operation | chk_volume_resource_type | chk_volume_resource_name | check_mount_operation |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536590/k8s-deployment.yaml | click_to_goto_one_deployment_page | k8s_deployments_name | hello-openshift | add_storage_to_k8s_deployments | deployment | hello-openshift | check_mount_info_on_one_deployment_page |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536589/replica-set.yaml    | click_to_goto_one_replicaset_page | k8s_replicasets_name | frontend        | add_storage_to_k8s_replicasets | replicaset | frontend | check_mount_info_on_one_replicaset_page |
+
+  # @author etrott@redhat.com
+  # @case_id 536600
+  Scenario: Check k8s deployments on Overview and Monitoring page
+    Given the master version >= "3.4"
+    Given I create a new project
+    When I run the :create client command with:
+      | f      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml |
+      | record | true                                                                                                         |
+    Then the step should succeed
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_overview_tile web console action with:
+      | resource_type | Deployment                |
+      | resource_name | hello-openshift           |
+      | port_number   | 80/TCP                    |
+      | image_name    | openshift/hello-openshift |
+      | version       | #1                        |
+      | scaled_number | 4                         |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                                  |
+      | resource_name | hello-openshift                                                                                             |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"yapei/hello-openshift", "name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+    When I perform the :check_overview_tile web console action with:
+      | resource_type | Deployment            |
+      | resource_name | hello-openshift       |
+      | port_number   | 80/TCP                |
+      | image_name    | yapei/hello-openshift |
+      | version       | #2                    |
+      | scaled_number | 4                     |
+    Then the step should succeed
+    Given I run the steps 2 times:
+    """
+    When I run the :scale_up_once web console action
+    Then the step should succeed
+    """
+    When I perform the :check_pod_scaled_numbers web console action with:
+      | scaled_number | 6 |
+    Then the step should succeed
+
+    Given I run the steps 4 times:
+    """
+    When I run the :scale_down_once web console action
+    Then the step should succeed
+    """
+    When I perform the :check_pod_scaled_numbers web console action with:
+      | scaled_number | 2 |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                                       |
+      | resource_name | hello-openshift                                                                                                  |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"yapei/hello-openshift-test", "name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+    When I perform the :goto_monitoring_page web console action with:
+      | project_name  | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_image_name_on_monitoring web console action with:
+      | resource_type | Deployments               |
+      | image_name    | openshift/hello-openshift |
+    Then the step should fail
+    When I perform the :check_image_name_on_monitoring web console action with:
+      | resource_type | Deployments           |
+      | image_name    | yapei/hello-openshift |
+    Then the step should fail
+    When I perform the :check_image_name_on_monitoring web console action with:
+      | resource_type | Deployments                |
+      | image_name    | yapei/hello-openshift-test |
+    Then the step should succeed
+    When I run the :click_on_hide_older_resources web console action
+    Then the step should succeed
+    When I perform the :check_image_name_on_monitoring web console action with:
+      | resource_type | Deployments               |
+      | image_name    | openshift/hello-openshift |
+    Then the step should succeed
+    When I perform the :check_image_name_on_monitoring web console action with:
+      | resource_type | Deployments           |
+      | image_name    | yapei/hello-openshift |
+    Then the step should succeed
+    When I perform the :check_image_name_on_monitoring web console action with:
+      | resource_type | Deployments                |
+      | image_name    | yapei/hello-openshift-test |
+    Then the step should succeed
+    When I perform the :expand_resource_logs_by_image web console action with:
+      | resource_type | Deployments           |
+      | image_name    | yapei/hello-openshift |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should contain:
+      | Logs are not available for replica sets. |
+    When I perform the :expand_resource_logs_by_image web console action with:
+      | resource_type | Deployments                |
+      | image_name    | yapei/hello-openshift-test |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should contain:
+      | To see application logs, view the logs for one of the replica set's |
+    And I click the following "a" element:
+      | text  | pods |
+    Then the step should succeed
+    Given the expression should be true> browser.url.start_with? "#{browser.base_url}/console/project/#{project.name}/browse/pods"
