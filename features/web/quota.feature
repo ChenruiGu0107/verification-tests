@@ -197,3 +197,221 @@ Feature: functions about resourcequotas
     When I perform the :check_quota_warning_for_scaling_on_overview_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id 536552
+  @admin
+  Scenario: Show warning/error info if quota exceeded when create resource by deploying image on web console
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name | myquota                                 |
+      | hard | cpu=50m,memory=80Mi,pods=5,services=3   |
+      | n    | <%= project.name %>                     |
+    Then the step should succeed
+
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+
+    When I perform the :deploy_from_image_stream_tag_with_normal_is_and_change_name web console action with:
+      | project_name          | <%= project.name %> |
+      | namespace             | openshift           |
+      | image_stream_name     | python              |
+      | image_stream_tag      | 3.4                 |
+      | new_deploy_image_name | python-dfi          |
+      | image_name            | python-dfi          |
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota |
+    Then the step should fail
+
+    When I perform the :deploy_from_image_stream_name_with_env_label web console action with:
+      | project_name          | <%= project.name %>   |
+      | image_deploy_from     | aosqe/hello-openshift |
+      | env_var_key           | myenv                 |
+      | env_var_value         | my-env-value          |
+      | label_key             | mylabel               |
+      | label_value           | my-hello-openshift    |
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota |
+    Then the step should fail 
+
+    When I run the :run client command with:
+      | name      | mypod                  |
+      | image     | aosqe/hello-openshift  |
+      | limits    | cpu=50m,memory=80Mi    |
+      | generator | run-pod/v1             |
+    Then the step should succeed
+
+    When I perform the :deploy_from_image_stream_name_with_env_label web console action with:
+      | project_name          | <%= project.name %>          |
+      | image_deploy_from     | aosqe/hello-openshift-fedora |
+      | env_var_key           | myenv                        |
+      | env_var_value         | my-env-value                 |
+      | label_key             | mylabel                      |
+      | label_value           | my-hello-openshift           |
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota for CPU (request) on pods |
+    Then the step should succeed
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+    When I perform the :deploy_from_image_stream_tag_with_normal_is_and_change_name web console action with:
+      | project_name          | <%= project.name %> |
+      | namespace             | openshift           |
+      | image_stream_name     | python              |
+      | image_stream_tag      | 3.4                 |
+      | new_deploy_image_name | pythontest          |
+      | image_name            | pythontest          |
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota for CPU (request) on pods |
+    Then the step should succeed
+    And I run the :click_create_anyway web console action
+    Then the step should succeed
+
+    When I perform the :deploy_from_image_stream_name_with_env_label web console action with:
+      | project_name          | <%= project.name %>   |
+      | image_deploy_from     | aosqe/hello-openshift |
+      | env_var_key           | myenv                 |
+      | env_var_value         | my-env-value          |
+      | label_key             | mylabel               |
+      | label_value           | my-hello-openshift    |
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota of 3 services in this project |
+    Then the step should succeed
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+    And I wait for the steps to pass:
+    """
+    When I perform the :deploy_from_image_stream_tag_with_normal_is_and_change_name web console action with:
+      | project_name          | <%= project.name %> |
+      | namespace             | openshift           |
+      | image_stream_name     | python              |
+      | image_stream_tag      | 3.4                 |
+      | new_deploy_image_name | pythontwo           |
+      | image_name            | pythontwo           |
+    Then the step should succeed
+    """
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota of 3 services in this project |
+    Then the step should succeed
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id 536553
+  @admin
+  Scenario: Show warning/error info if quota exceeded when create resource from image/template on web console
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name | myquota                                 |
+      | hard | cpu=50m,memory=80Mi,pods=5,services=4   |
+      | n    | <%= project.name %>                     |
+    Then the step should succeed
+
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+
+    When I perform the :create_app_from_template_without_label web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | ruby-helloworld-sample |
+      | namespace     | <%= project.name %>    |
+      | param_one     | :null  |
+      | param_two     | :null  |
+      | param_three   | :null  |
+      | param_four    | :null  |
+      | param_five    | :null  |
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota |
+    Then the step should fail
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>   |
+      | image_name   | nodejs                |
+      | image_tag    | 0.10                  |
+      | namespace    | openshift             |
+      | app_name     | nodejs-sample1        |
+      | source_url   | https://github.com/openshift/nodejs-ex |
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota |
+    Then the step should fail
+
+    When I run the :run client command with:
+      | name      | mypod                  |
+      | image     | aosqe/hello-openshift  |
+      | limits    | cpu=50m,memory=80Mi    |
+      | generator | run-pod/v1             |
+    Then the step should succeed
+
+    When I perform the :create_app_from_template_without_label web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | ruby-helloworld-sample |
+      | namespace     | <%= project.name %>    |
+      | param_one     | :null  |
+      | param_two     | :null  |
+      | param_three   | :null  |
+      | param_four    | :null  |
+      | param_five    | :null  |
+    Then the step should fail
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota for CPU (request) on pods |
+    Then the step should succeed
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>   |
+      | image_name   | nodejs                |
+      | image_tag    | 0.10                  |
+      | namespace    | openshift             |
+      | app_name     | nodejs-sample2        |
+      | source_url   | https://github.com/openshift/nodejs-ex |
+    Then the step should fail
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota for CPU (request) on pods |
+    Then the step should succeed
+    And I run the :click_create_anyway web console action
+    Then the step should succeed
+
+    When I perform the :create_app_from_template_without_label web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | ruby-helloworld-sample |
+      | namespace     | <%= project.name %>    |
+      | param_one     | :null  |
+      | param_two     | :null  |
+      | param_three   | :null  |
+      | param_four    | :null  |
+      | param_five    | :null  |
+    Then the step should fail
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota of 4 services in this project |
+    Then the step should succeed
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+    When I perform the :create_app_from_image web console action with:
+      | project_name | <%= project.name %>   |
+      | image_name   | nodejs                |
+      | image_tag    | 0.10                  |
+      | namespace    | openshift             |
+      | app_name     | nodejs-sample3        |
+      | source_url   | https://github.com/openshift/nodejs-ex |
+    Then the step should fail
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota of 4 services in this project |
+    Then the step should succeed
+    And I run the :click_cancel web console action
+    Then the step should succeed
