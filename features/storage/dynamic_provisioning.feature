@@ -174,16 +174,16 @@ Feature: Dynamic provisioning
   @admin
   Scenario: Check only one pv created for one pvc for dynamic provisioner
     Given I have a project
-    And I run the steps 100 times:
+    And I run the steps 30 times:
     """
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-ERB.json
     Then the step should succeed
     """
-    Given 100 PVCs become :bound within 600 seconds with labels:
+    Given 30 PVCs become :bound within 600 seconds with labels:
       | name=dynamic-pvc-<%= project.name %> |
     When I run the :get admin command with:
       | resource | pv |
-    Then the output should contain 100 times:
+    Then the output should contain 30 times:
       | <%= project.name %> |
 
   # @author wehe@redhat.com
