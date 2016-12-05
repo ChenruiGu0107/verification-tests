@@ -242,15 +242,7 @@ Feature: Testing route
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem" 
  
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
-    Given I execute on the pod:
-      | wget |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | -O |
-      | /tmp/ca.pem |
-    Then the step should succeed
+    Given I have a pod-for-ping in the project
     When I run the :create_route_edge client command with:
       | name | route-edge |
       | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
@@ -289,15 +281,7 @@ Feature: Testing route
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
     Then the step should succeed
     
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
-    Given I execute on the pod:
-      | wget |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | -O |
-      | /tmp/ca.pem |
-    Then the step should succeed
+    Given I have a pod-for-ping in the project
     When I run the :create_route_passthrough client command with:
       | name | passthrough-route |
       | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
@@ -330,15 +314,7 @@ Feature: Testing route
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
 
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
-    Given I execute on the pod:
-      | wget |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | -O |
-      | /tmp/ca.pem |
-    Then the step should succeed 
+    Given I have a pod-for-ping in the project
     When I run the :create_route_reencrypt client command with:
       | name | route-reencrypt |
       | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
@@ -461,15 +437,7 @@ Feature: Testing route
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
 
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
-    Given I execute on the pod:
-      | wget |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | -O |
-      | /tmp/ca.pem |
-    Then the step should succeed
+    Given I have a pod-for-ping in the project
     When I run the :create_route_reencrypt client command with:
       | name | route-recrypt |
       | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
@@ -512,9 +480,7 @@ Feature: Testing route
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
     And the step should succeed
    
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
     When I run the :create_route_reencrypt client command with:
       | name | no-cert |
       | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
