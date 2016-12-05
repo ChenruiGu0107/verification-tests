@@ -192,9 +192,12 @@ Feature: kubelet restart and node restart
     And the host is rebooted and I wait it to become available
 
     # verify previous created files still exist
+    And I wait up to 120 seconds for the steps to pass:
+    """
     When I execute on the "mypod1" pod:
       | ls | /mnt/<platform>/testfile_before_restart_1 |
     Then the step should succeed
+    """
     When I execute on the "mypod2" pod:
       | ls | /mnt/<platform>/testfile_before_restart_2 |
     Then the step should succeed
