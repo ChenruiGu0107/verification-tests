@@ -610,3 +610,213 @@ Feature: change the policy of user/service account
       | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/daemon/daemonset.yaml |
       | as | system:admin |
     Then the step should succeed
+
+  # @author chaoyang@redhat.com
+  # @case_id 538206
+  @admin
+  Scenario: Basic user could not get deeper storageclass object info
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %> |
+      | ["provisioner"]                                                                 | kubernetes.io/aws-ebs  |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | storageclass |
+    Then the step should succeed
+    And the output should contain:
+      | sc-<%= project.name %> | 
+
+    When I run the :get client command with:
+      | resource      | storageclass           |
+      | resource_name | sc-<%= project.name %> |
+      | o             | yaml                   |
+    Then the step should fail
+    And the output should contain:
+      | cannot get storage.k8s.io.storageclasses at the cluster scope |
+    
+    When I run the :describe client command with:
+      | resource | storageclass           |
+      | name     | sc-<%= project.name %> |
+    Then the step should fail
+    And the output should contain:
+      | cannot get storage.k8s.io.storageclasses at the cluster scope |
+
+    When I run the :delete client command with:
+      | object_type       | storageclass           |
+      | object_name_or_id | sc-<%= project.name %> |
+    And the output should contain:
+      | cannot delete storage.k8s.io.storageclasses at the cluster scope |
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml |
+    Then the step should fail
+    And the output should contain:
+      | cannot create storage.k8s.io.storageclasses at the cluster scope |
+
+  # @author chaoyang@redhat.com
+  # @case_id 538207
+  @admin
+  Scenario: User with role storage-admin can check deeper storageclass object info
+    Given I have a project
+    And admin ensures "sc-<%= project.name %>" storageclasses is deleted after scenario
+    Given cluster role "storage-admin" is added to the "first" user
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml"
+    Then I replace lines in "storageclass-io1.yaml":
+      | foo | sc-<%= project.name %> |
+    Then I run the :create client command with:
+      | f | storageclass-io1.yaml |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource | storageclass |
+    Then the step should succeed
+    And the output should contain:
+      | sc-<%= project.name %> |
+
+    When I run the :get client command with:
+      | resource      | storageclass           |
+      | resource_name | sc-<%= project.name %> |
+      | o             | yaml                   |
+    Then the step should succeed
+
+    When I run the :describe client command with:
+      | resource | storageclass           |
+      | name     | sc-<%= project.name %> |
+    Then the step should succeed
+    
+    # Update storageclass
+    Then I replace lines in "storageclass-io1.yaml":
+      | 25 | 30 |
+
+    Then I run the :replace client command with:
+      | f     | storageclass-io1.yaml |
+      | force | true                  |
+    And the step should succeed
+
+    When I run the :describe client command with:
+      | resource | storageclass           |
+      | name     | sc-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | iopsPerGB=30 |
+
+    # Delete storageclass
+    When I run the :delete client command with:
+      | object_type       | storageclass           |
+      | object_name_or_id | sc-<%= project.name %> |
+    Then the step should succeed
+    Then I wait for the resource "storageclass" named "sc-<%= project.name %>" to disappear within 60 seconds
+
+  # @author chaoyang@redhat.com
+  # @case_id 538273
+  @admin
+  Scenario: User with role storage-admin can check deeper pv object info
+    Given I have a project
+    And admin ensures "pv-<%= project.name %>" pv is deleted after scenario
+    Given cluster role "storage-admin" is added to the "first" user
+    And I have a 1 GB volume and save volume id in the :volumeID clipboard
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pv-rwo.yaml"
+    Then I replace lines in "pv-rwo.yaml":
+      | ebs                           | pv-<%= project.name %> |
+      | 10Gi                          | 1Gi                    |
+      | aws://us-east-1d/vol-e69f0b1c | <%= cb.volumeID %>     |
+    Then I run the :create client command with:
+      | f | pv-rwo.yaml |
+    And the step should succeed
+
+    When I run the :get client command with:
+      | resource | pv |
+    Then the step should succeed
+    And the output should contain:
+      | pv-<%= project.name %> |
+
+    When I run the :get client command with:
+      | resource      | pv                     |
+      | resource_name | pv-<%= project.name %> |
+      | o             | yaml                   |
+    Then the step should succeed
+
+    When I run the :describe client command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+    Then the step should succeed
+
+    Then I replace lines in "pv-rwo.yaml":
+      | ReadWriteOnce | ReadWriteMany |
+
+    When I run the :replace client command with:
+      | f     | pv-rwo.yaml |
+      | force | true        |
+    And the step should succeed 
+
+    When I run the :describe client command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | RWX |
+    And the output should not contain:
+      | RWO |
+     
+    When I run the :delete client command with:
+      | object_type       | pv                    |
+      | object_name_or_id | pv-<%=project.name %> |
+    Then the step should succeed
+    Then I wait for the resource "pv" named "pv-<%= project.name %>" to disappear within 60 seconds
+
+  # @author chaoyang@redhat.com
+  # @case_id 538274
+  @admin
+  Scenario: User with role storage-admin can get pvc object info
+    Given I have a project
+    Given cluster role "storage-admin" is added to the "first" user
+
+    When I switch to the second user
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :project clipboard
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/pvc.yaml" 
+    And I replace lines in "pvc.yaml":
+      | ebsc | pvc-<%= cb.project %> |
+    And the step should succeed
+
+    Then I run the :create client command with:
+      | f | pvc.yaml |
+    And the step should succeed
+
+    When I switch to the first user
+
+    When I run the :get client command with:
+      | resource | pvc               |
+      | n        | <%= cb.project %> |
+    And the step should succeed
+    And the output should contain:
+      | pvc-<%= cb.project %> |
+
+    When I run the :describe client command with:
+      | resource | pvc                   |
+      | name     | pvc-<%= cb.project %> |
+      | n        | <%= cb.project %>     |
+    Then the step should succeed
+
+    And I replace lines in "pvc.yaml":
+      | ReadWriteOnce | ReadWriteMany |
+
+    When I run the :replace client command with:
+      | f     | pvc.yaml          |
+      | force | true              |
+      | n     | <%= cb.project %> |
+    And the step should fail
+    And the output should contain:
+      | User "<%= user.name %>" cannot delete persistentvolumeclaims |
+    
+    When I run the :delete client command with:
+      | object_type       | pvc                   |
+      | object_name_or_id | pvc-<%= cb.project %> |
+      | n                 | <%= cb.project %>     |
+    And the step should fail
+    And the output should contain:
+      | User "<%= user.name %>" cannot delete persistentvolumeclaims |
