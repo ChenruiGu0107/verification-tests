@@ -1,4 +1,12 @@
 #--------filter function ----------
+check_all_resources_tags_include:
+  scripts:
+  - command: return document.evaluate('count(//div[@class="catalog"]/div)=count(//div[@class="catalog"]/div[//div/a[@title="Filter by tag <tag_name>"]])', document, null, XPathResult.ANY_TYPE, null )["booleanValue"];
+    expect_result: true
+check_all_resources_tags_contain:
+  scripts:
+  - command: return document.evaluate('count(//div[@class="catalog"]/div)=count(//div[@class="catalog"]/div[//div/a[contains(.,"<tag_name>")]])', document, null, XPathResult.ANY_TYPE, null )["booleanValue"];
+    expect_result: true
 filter_resources:
   elements:
   - selector:
