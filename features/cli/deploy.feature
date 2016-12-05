@@ -11,7 +11,7 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :running
     When  I run the :deploy client command with:
       | deployment_config | hooks |
-      | cancel            ||
+      | cancel            |       |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :failed
     When I run the :deploy client command with:
@@ -19,7 +19,7 @@ Feature: deployment related features
     Then the output should match "hooks.*#1.*failed"
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | retry             ||
+      | retry             |       |
     Then the output should contain "etried #1"
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :deploy client command with:
@@ -41,15 +41,15 @@ Feature: deployment related features
       | hooks.*|
     When I run the :rollback client command with:
       | deployment_name | hooks-1 |
-      | dry_run         ||
+      | dry_run         |         |
     Then the output should match:
       | Strategy:\\s+Rolling |
     When I run the :rollback client command with:
       | deployment_name         | hooks-1 |
-      | dry_run                 ||
-      | change_scaling_settings ||
-      | change_strategy         ||
-      | change_triggers         ||
+      | dry_run                 |         |
+      | change_scaling_settings |         |
+      | change_strategy         |         |
+      | change_triggers         |         |
     Then the output should match:
       | Triggers:\\s+Config   |
       | Strategy:\\s+Recreate |
@@ -69,33 +69,33 @@ Feature: deployment related features
       | deployment_config | deployment-example |
     Then the output should match "deployment-example.+#1.+deployed"
     When  I run the :describe client command with:
-      | resource | dc |
+      | resource | dc                 |
       | name     | deployment-example |
     Then the output should match:
-      | Deployment\\s+#1.*latest |
+      | Deployment\\s+#1.*latest  |
       | Status:\\s+Complete       |
       | Pods Status:\\s+1 Running |
     When I run the :deploy client command with:
       | deployment_config | deployment-example |
-      | cancel            ||
+      | cancel            |                    |
     Then the output should contain "No deployments are in progress"
     When I run the :deploy client command with:
       | deployment_config | deployment-example |
     Then the output should match "deployment-example.+#1.+deployed"
     When I run the :describe client command with:
-      | resource | dc |
+      | resource | dc                 |
       | name     | deployment-example |
     Then the output should match:
       | Status:\\s+Complete |
     When I run the :deploy client command with:
       | deployment_config | deployment-example |
-      | retry             ||
+      | retry             |                    |
     Then the output should contain:
       | #1 is Complete; only failed deployments can be retried |
       | You can start a new deployment                         |
     When I get project pod
     Then the output should not contain:
-      | deployment-example-1-deploy   |
+      | deployment-example-1-deploy |
 
   # @author xxing@redhat.com
   # @case_id 454714
@@ -107,25 +107,25 @@ Feature: deployment related features
       | error: non-exist |
     When I run the :rollback client command with:
       | deployment_name         | non-exist |
-      | change_strategy         ||
-      | change_triggers         ||
-      | change_scaling_settings ||
+      | change_strategy         |           |
+      | change_triggers         |           |
+      | change_scaling_settings |           |
     Then the output should contain:
       | error: non-exist |
     When I run the :rollback client command with:
       | deployment_name         | non-exist |
-      | change_strategy         ||
-      | change_triggers         ||
-      | change_scaling_settings ||
-      | dry_run                 ||
+      | change_strategy         |           |
+      | change_triggers         |           |
+      | change_scaling_settings |           |
+      | dry_run                 |           |
     Then the output should contain:
       | error: non-exist |
     When I run the :rollback client command with:
       | deployment_name         | non-exist |
       | output                  | yaml      |
-      | change_strategy         ||
-      | change_triggers         ||
-      | change_scaling_settings ||
+      | change_strategy         |           |
+      | change_triggers         |           |
+      | change_scaling_settings |           |
     Then the output should contain:
       | error: non-exist |
 
@@ -144,7 +144,7 @@ Feature: deployment related features
       | hooks\\s+0 |
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest            ||
+      | latest            |       |
     Then the output should contain "Started deployment #1"
     # Wait the deployment till complete
     And the pod named "hooks-1-deploy" becomes ready
@@ -154,7 +154,7 @@ Feature: deployment related features
     Then the output should match "hooks.+#1.+deployed"
     When I get project dc named "hooks"
     Then the output should match:
-      | hooks\\s+1                        |
+      | hooks\\s+1 |
     # Make the edit action
     When I get project dc named "hooks" as JSON
     And I save the output to file>hooks.json
@@ -164,7 +164,7 @@ Feature: deployment related features
       | f | hooks.json |
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest            ||
+      | latest            |       |
     Then the output should contain "Started deployment #2"
     When I get project dc named "hooks" as YAML
     Then the output should contain:
@@ -185,16 +185,16 @@ Feature: deployment related features
       | hooks.*|
     When I run the :rollback client command with:
       | deployment_name         | hooks-1 |
-      | output                  | json  |
+      | output                  | json    |
     #Show the container config only
     Then the output should match:
       | "value": "Plqe5Wev" |
     When I run the :rollback client command with:
       | deployment_name         | hooks-1 |
-      | output                  | yaml  |
-      | change_strategy         ||
-      | change_triggers         ||
-      | change_scaling_settings ||
+      | output                  | yaml    |
+      | change_strategy         |         |
+      | change_triggers         |         |
+      | change_scaling_settings |         |
     Then the output should match:
       | replicas:\\s+1        |
       | type:\\s+Recreate     |
@@ -224,10 +224,10 @@ Feature: deployment related features
       | "replicas": 2             |
       | "value": "Plqe5Wevchange" |
     When I run the :rollback client command with:
-      | deployment_name         | hooks-1 |
-      | change_triggers         ||
+      | deployment_name         | hooks-1                   |
+      | change_triggers         |                           |
       | change_scaling_settings | <change_scaling_settings> |
-      | change_strategy         | <change_strategy> |
+      | change_strategy         | <change_strategy>         |
     Then the output should contain:
       | #3 rolled back to hooks-1 |
     And the pod named "hooks-3-deploy" becomes ready
@@ -297,7 +297,7 @@ Feature: deployment related features
       | "type": "ImageChange" |
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | enable_triggers   ||
+      | enable_triggers   |       |
     Then the output should contain:
       | Enabled image triggers |
 
@@ -319,14 +319,14 @@ Feature: deployment related features
       | Error\\s+.*\\s+"notreal" not found |
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | retry | true |
+      | retry             | true  |
     Then the step should fail
     And the output should contain:
       | only failed deployments can be retried |
     Given I wait for the pod named "hooks-1-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest            |true |
+      | latest            | true  |
     When I get project dc named "hooks" as JSON
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 2
 
@@ -357,29 +357,29 @@ Feature: deployment related features
     When I get project dc named "hooks" as YAML
     And I save the output to file>hooks.yaml
     And I replace lines in "hooks.yaml":
-      | 200 | 10 |
+      | 200              | 10               |
       | latestVersion: 1 | latestVersion: 2 |
     When I run the :replace client command with:
-      | f      | hooks.yaml |
+      | f | hooks.yaml |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :running
     When I run the :deploy client command with:
-      | deployment_config      | hooks |
+      | deployment_config | hooks |
     Then the step should succeed
     And the output should contain:
       | hooks #2 deployment pending on update |
-      | hooks #1 deployment running |
+      | hooks #1 deployment running           |
     And I wait until the status of deployment "hooks" becomes :complete
     And I run the :describe client command with:
-      | resource | dc |
+      | resource | dc    |
       | name     | hooks |
     Then the step should succeed
     And the output should match:
-      | Latest Version:\\s+2|
+      | Latest Version:\\s+2 |
       | Deployment\\s+#2\\s+ |
-      | Status:\\s+Complete |
-      | Deployment #1:   |
-      | Status:\\s+Complete |
+      | Status:\\s+Complete  |
+      | Deployment #1:       |
+      | Status:\\s+Complete  |
 
 
   # @author pruan@redhat.com
@@ -401,7 +401,7 @@ Feature: deployment related features
       | deployment_config | hooks |
     Then the step should succeed
     And a pod becomes ready with labels:
-      | deployment=hooks-1 |
+      | deployment=hooks-1     |
       | deploymentconfig=hooks |
 
   # @author pruan@redhat.com
@@ -423,11 +423,11 @@ Feature: deployment related features
     Given I wait up to 40 seconds for the steps to pass:
     """
     When  I run the :describe client command with:
-      | resource | dc |
+      | resource | dc                           |
       | name     | test-stop-failed-deployment  |
     Then the step should succeed
     Then the output by order should match:
-      | Deployment #1 |
+      | Deployment #1      |
       | Status:\\s+Failed  |
     """
     And I run the :deploy client command with:
@@ -473,19 +473,19 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :running
     And I run the :deploy client command with:
       | deployment_config | hooks |
-      | cancel            ||
+      | cancel            |       |
     Then the step should succeed
     And the output should match:
       | [Cc]ancelled deployment #1 |
     And I wait until the status of deployment "hooks" becomes :failed
     And I run the :deploy client command with:
       | deployment_config | hooks |
-      | retry | |
+      | retry             |       |
     Then the output should match:
       | etried #1 |
     And I run the :describe client command with:
-      | resource | dc |
-      | name | hook |
+      | resource | dc   |
+      | name     | hook |
     Then the step should succeed
     And I run the :deploy client command with:
       | deployment_config | hooks |
@@ -502,7 +502,7 @@ Feature: deployment related features
     """
     And I run the :deploy client command with:
       | deployment_config | hooks |
-      | cancel            ||
+      | cancel            |       |
     Then the step should succeed
     """
     And the output should match:
@@ -510,12 +510,12 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :failed
     And I run the :deploy client command with:
       | deployment_config | hooks |
-      | retry | |
+      | retry             |       |
     Then the output should match:
       | etried #1 |
     And I run the :describe client command with:
-      | resource | dc |
-      | name | hook |
+      | resource | dc   |
+      | name     | hook |
     Then the step should succeed
     And I run the :deploy client command with:
       | deployment_config | hooks |
@@ -530,7 +530,7 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest            |true |
+      | latest            | true  |
     And I wait until the status of deployment "hooks" becomes :complete
     And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
       | latestVersion: 2 | latestVersion: -1 |
@@ -544,16 +544,16 @@ Feature: deployment related features
       | latestVersion: 2 | latestVersion: 0 |
     Then the step should fail
     When I run the :get client command with:
-      | resource      | dc    |
-      | resource_name | hooks |
+      | resource      | dc                        |
+      | resource_name | hooks                     |
       | template      | {{.status.latestVersion}} |
     Then the output should match "2"
     And I replace resource "dc" named "hooks":
       | latestVersion: 2 | latestVersion: 5 |
     Then the step should fail
     When I run the :get client command with:
-      | resource      | dc    |
-      | resource_name | hooks |
+      | resource      | dc                        |
+      | resource_name | hooks                     |
       | template      | {{.status.latestVersion}} |
     Then the output should match "2"
 
@@ -580,12 +580,12 @@ Feature: deployment related features
       | resource | dc    |
       | name     | hooks |
     And the output by order should contain:
-      | Deployment #3 (latest): |
+      | Deployment #3 (latest):   |
       |  Status:		Complete      |
-      | Deployment #2:          |
+      | Deployment #2:            |
       |  Status:		Complete      |
-      | Deployment #1:          |
-      | Status:		Complete       |
+      | Deployment #1:            |
+      | Status:		Complete        |
     And I replace resource "rc" named "hooks-2":
       | Complete | Running |
     Then the step should succeed
@@ -601,11 +601,11 @@ Feature: deployment related features
       | name     | hooks |
     And the output by order should contain:
       | Deployment #4 (latest): |
-      | Status:		Complete       |
+      | Status:		Complete      |
       | Deployment #3:          |
-      | Status:		Failed         |
+      | Status:		Failed        |
       | Deployment #2:          |
-      | Status:		Failed         |
+      | Status:		Failed        |
 
   # @author cryan@redhat.com
   # @case_id 497366
@@ -672,21 +672,21 @@ Feature: deployment related features
       |hooks.*onfig |
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest ||
+      | latest            |       |
     Then the step should fail
     And the output should contain:
-      | error |
+      | error       |
       | in progress |
     Given I wait for the pod named "hooks-1-deploy" to die
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest ||
+      | latest            |       |
     Then the step should succeed
     # Given I wait for the pod named "hooks-2-deploy" to die
     When I get project dc named "hooks"
     Then the step should succeed
     And the output should match:
-      |NAME          |
+      |NAME         |
       |hooks.*onfig |
     # This deviate form the testplan a little in that we are not doing more than one deploy, which should be sufficient since we are checking two deployments already (while the testcase called for 5)
 
@@ -700,61 +700,61 @@ Feature: deployment related features
     Then the step should succeed
     Given I wait for the pod named "database-1-deploy" to die
     When I run the :deploy client command with:
-      | deployment_config | database |
-      | n | <%= project.name %> |
-      | latest ||
+      | deployment_config | database            |
+      | n                 | <%= project.name %> |
+      | latest            |                     |
     Then the step should succeed
     Given I wait for the pod named "database-2-deploy" to die
     When I run the :deploy client command with:
-      | deployment_config | database |
-      | n | <%= project.name %> |
-      | latest ||
+      | deployment_config | database            |
+      | n                 | <%= project.name %> |
+      | latest            |                     |
     Then the step should succeed
     Given I wait for the pod named "database-3-deploy" to die
     When I run the :deploy client command with:
-      | deployment_config | database |
-      | n | <%= project.name %> |
-      | latest ||
+      | deployment_config | database            |
+      | n                 | <%= project.name %> |
+      | latest            |                     |
     Then the step should succeed
     Given I wait for the pod named "database-4-deploy" to die
     When I run the :deploy client command with:
-      | deployment_config | database |
-      | n | <%= project.name %> |
-      | latest ||
+      | deployment_config | database            |
+      | n                 | <%= project.name %> |
+      | latest            |                     |
     Then the step should succeed
     Given I wait for the pod named "database-5-deploy" to die
     When I run the :deploy client command with:
-      | deployment_config | database |
-      | n | <%= project.name %> |
-      | latest ||
+      | deployment_config | database            |
+      | n                 | <%= project.name %> |
+      | latest            |                     |
     Then the step should succeed
     Given I wait for the pod named "database-6-deploy" to die
     When I run the :deploy client command with:
-      | deployment_config | database |
-      | n | <%= project.name %> |
-      | latest ||
+      | deployment_config | database            |
+      | n                 | <%= project.name %> |
+      | latest            |                     |
     Then the step should succeed
     Given I wait for the pod named "database-7-deploy" to die
     When I run the :deploy client command with:
-      | deployment_config | database |
-      | n | <%= project.name %> |
-      | latest ||
+      | deployment_config | database            |
+      | n                 | <%= project.name %> |
+      | latest            |                     |
     Then the step should succeed
     Given I wait for the pod named "database-8-deploy" to die
     When I run the :deploy client command with:
-      | deployment_config | database |
-      | n | <%= project.name %> |
-      | latest ||
+      | deployment_config | database            |
+      | n                 | <%= project.name %> |
+      | latest            |                     |
     Then the step should succeed
     Given I wait for the pod named "database-9-deploy" to die
     When I run the :deploy client command with:
-      | deployment_config | database |
-      | n | <%= project.name %> |
-      | cancel ||
+      | deployment_config | database            |
+      | n                 | <%= project.name %> |
+      | cancel            |                     |
     Then the step should succeed
     When I run the :get client command with:
-      | resource | rc |
-      | n | <%= project.name %> |
+      | resource | rc                  |
+      | n        | <%= project.name %> |
     Then the step should succeed
     And the output should contain:
       | database-1 |
@@ -768,7 +768,7 @@ Feature: deployment related features
       | keep_younger_than | 1m |
     Then the step should succeed
     And the output should match:
-      |NAMESPACE\\s+NAME|
+      |NAMESPACE\\s+NAME                   |
       |<%= project.name %>\\s+database-\\d+|
     When I run the :oadm_prune_deployments admin command with:
       | confirm | false |
@@ -782,7 +782,7 @@ Feature: deployment related features
     # check deploy log when deploying
     Given I have a project
     When I run the :run client command with:
-      |  name  | hooks   |
+      |  name  | hooks                                                     |
       | image  | <%= project_docker_repo %>openshift/hello-openshift:latest|
     Then the step should succeed
     Given the pod named "hooks-1-deploy" becomes ready
@@ -825,25 +825,25 @@ Feature: deployment related features
   Scenario: A/B Deployment
     Given I have a project
     When I run the :new_app client command with:
-      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
-      | name         | ab-example-a |
-      | l            | ab-example=true |
-      | env          | SUBTITLE=shardA |
+      | docker_image | <%= project_docker_repo %>openshift/deployment-example |
+      | name         | ab-example-a                                           |
+      | l            | ab-example=true                                        |
+      | env          | SUBTITLE=shardA                                        |
     Then the step should succeed
     When I run the :expose client command with:
       | resource      | deploymentconfig |
-      | resource_name | ab-example-a |
-      | name          | ab-example   |
-      | selector      | ab-example=true |
+      | resource_name | ab-example-a     |
+      | name          | ab-example       |
+      | selector      | ab-example=true  |
     Then the step should succeed
     When I expose the "ab-example" service
     Then I wait for a web server to become available via the "ab-example" route
     And the output should contain "shardA"
     When I run the :new_app client command with:
-      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
-      | name         | ab-example-b |
-      | l            | ab-example=true |
-      | env          | SUBTITLE=shardB |
+      | docker_image | <%= project_docker_repo %>openshift/deployment-example |
+      | name         | ab-example-b                                           |
+      | l            | ab-example=true                                        |
+      | env          | SUBTITLE=shardB                                        |
     Then the step should succeed
     Then I run the :scale client command with:
       | resource | deploymentconfig |
@@ -871,18 +871,18 @@ Feature: deployment related features
   Scenario: Blue-Green Deployment
     Given I have a project
     When I run the :new_app client command with:
-      | docker_image   | <%= project_docker_repo %>openshift/deployment-example:v1 |
-      | name         | bluegreen-example-old |
+      | docker_image | <%= project_docker_repo %>openshift/deployment-example:v1 |
+      | name         | bluegreen-example-old                                     |
     Then the step should succeed
     When I run the :new_app client command with:
-      | docker_image   | <%= project_docker_repo %>openshift/deployment-example:v2 |
-      | name         | bluegreen-example-new |
+      | docker_image | <%= project_docker_repo %>openshift/deployment-example:v2 |
+      | name         | bluegreen-example-new                                     |
     Then the step should succeed
     #When I expose the "bluegreen-example-old" service
     When I run the :expose client command with:
-      | resource | svc |
+      | resource      | svc                   |
       | resource_name | bluegreen-example-old |
-      | name     | bluegreen-example |
+      | name          | bluegreen-example     |
     Then the step should succeed
     #And I wait for a web server to become available via the route
     When I use the "bluegreen-example-old" service
@@ -911,7 +911,7 @@ Feature: deployment related features
       | hooks.*onfig |
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest ||
+      | latest            |       |
     Then the step should succeed
     When I get project dc named "hooks"
     Then the output should match:
@@ -928,14 +928,14 @@ Feature: deployment related features
     And I get project pod named "hooks-1-hook-pre" as YAML
     And the output should match:
       | mountPath:\\s+/var/lib/origin |
-      | emptyDir:\\s+{} |
-      | name:\\s+dataem |
+      | emptyDir:\\s+{}               |
+      | name:\\s+dataem               |
     When the pod named "hooks-1-hook-post" becomes ready
     And I get project pod named "hooks-1-hook-post" as YAML
     And the output should match:
       | mountPath:\\s+/var/lib/origin |
-      | emptyDir:\\s+{} |
-      | name:\\s+dataem |
+      | emptyDir:\\s+{}               |
+      | name:\\s+dataem               |
 
   # @author pruan@redhat.com
   # @case_id 483177, 483178
@@ -952,8 +952,8 @@ Feature: deployment related features
       Then the expression should be true> @result[:parsed]['status']['containerStatuses'][0]['restartCount'] > 1
     """
     Examples:
-      | file_name | pod_name |
-      | pre.json  | hooks-1-hook-pre |
+      | file_name | pod_name          |
+      | pre.json  | hooks-1-hook-pre  |
       | post.json | hooks-1-hook-post |
 
   # @author cryan@redhat.com
@@ -992,7 +992,7 @@ Feature: deployment related features
     """
     When I get project pods
     Then the output should contain:
-      | NAME           |
+      | NAME            |
       | hooks-1-hook-pre|
     """
 
@@ -1050,7 +1050,7 @@ Feature: deployment related features
 
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest            ||
+      | latest            |       |
     And I wait until number of replicas match "10" for replicationController "hooks-1"
 #      And 10 pods become ready with labels:
 #        |name=mysql|
@@ -1068,15 +1068,15 @@ Feature: deployment related features
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/Inline-logs.json |
     And I run the :logs client command with:
-      | f | true |
+      | f             | true     |
       | resource_name | dc/hooks |
     Then the output should contain:
-      | pre: |
+      | pre:                                 |
       | Can't read /etc/scl/prefixes/mysql55 |
-      | pre: Success |
-      | post: |
+      | pre: Success                         |
+      | post:                                |
       | Can't read /etc/scl/prefixes/mysql55 |
-      | post: Success |
+      | post: Success                        |
 
   # @author yinzhou@redhat.com
   # @case_id 433309
@@ -1089,9 +1089,9 @@ Feature: deployment related features
     Given I wait until the status of deployment "frontend" becomes :complete
     When I get project dc named "frontend" as YAML
     Then the output by order should match:
-      | causes:         |
-      | - imageTrigger: |
-      | from: |
+      | causes:           |
+      | - imageTrigger:   |
+      | from:             |
       | type: ImageChange |
 
   # @author yinzhou@redhat.com
@@ -1109,8 +1109,8 @@ Feature: deployment related features
     When I get project dc named "deployment-example" as YAML
     Then the output by order should match:
       | terminationGracePeriodSeconds: 36 |
-      | causes:         |
-      | - type: ConfigChange |
+      | causes:                           |
+      | - type: ConfigChange              |
 
   # @author yinzhou@redhat.com
   # @case_id 515919
@@ -1143,8 +1143,8 @@ Feature: deployment related features
     When I get project rc named "hooks-1" as YAML
     Then the output by order should match:
       | phase: Complete |
-      | status: |
-      | replicas: 0 |
+      | status:         |
+      | replicas: 0     |
 
   # @author yinzhou@redhat.com
   # @case_id 518648
@@ -1168,8 +1168,8 @@ Feature: deployment related features
     When I get project rc named "hooks-1" as YAML
     Then the output by order should match:
       | phase: Failed |
-      | status: |
-      | replicas: 0 |
+      | status:       |
+      | replicas: 0   |
 
   # @author pruan@redhat.com
   # @case_id 518650
@@ -1225,17 +1225,17 @@ Feature: deployment related features
     Given I wait until number of replicas match "2" for replicationController "hooks"
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest | true |
+      | latest            | true  |
     Then the step should succeed
     Given the pod named "hooks-2-deploy" is present
     When I run the :patch client command with:
-      | resource      | pod |
-      | resource_name | hooks-2-deploy            |
+      | resource      | pod                                   |
+      | resource_name | hooks-2-deploy                        |
       | p             | {"spec":{"activeDeadlineSeconds": 5}} |
     Then the step should succeed
     When I run the :patch client command with:
-      | resource      |dc |
-      | resource_name | hooks |
+      | resource      |dc                        |
+      | resource_name | hooks                    |
       | p             | {"spec":{"replicas": 4}} |
     Then the step should succeed
     When I get project pod named "hooks-2-deploy" as JSON
@@ -1252,7 +1252,7 @@ Feature: deployment related features
     When I get project pods
     And the output should contain:
       | DeadlineExceeded |
-      | hooks-1 |
+      | hooks-1          |
 
   # @author yinzhou@redhat.com
   # @case_id 481677
@@ -1269,7 +1269,7 @@ Feature: deployment related features
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-with-resources.json |
-      | n | <%= project.name %>  |
+      | n | <%= project.name %> |
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -1300,7 +1300,7 @@ Feature: deployment related features
     And I wait until the status of deployment "frontend" becomes :complete
     When I get project dc named "frontend" as JSON
     Then the output should contain:
-      | lastTriggeredImage     |
+      | lastTriggeredImage |
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
@@ -1325,7 +1325,7 @@ Feature: deployment related features
     And I wait until the status of deployment "frontend" becomes :complete
     When I get project dc named "frontend" as JSON
     Then the output should contain:
-      | lastTriggeredImage     |
+      | lastTriggeredImage |
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build |
@@ -1345,7 +1345,7 @@ Feature: deployment related features
   Scenario: app deploy successfully with correct registry credentials
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo        | centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world.git |
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
     Given the "ruby-hello-world-1" build was created
     Given the "ruby-hello-world-1" build completed
@@ -1360,7 +1360,7 @@ Feature: deployment related features
     And I commit all changes in repo "dummy" with message "test"
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
-      | from_dir    | dummy |
+      | from_dir    | dummy            |
     Then the step should succeed
     Given the "ruby-hello-world-2" build completed
     And I wait until the status of deployment "ruby-hello-world" becomes :complete
@@ -1368,7 +1368,7 @@ Feature: deployment related features
     And the output should contain "zhouying"
     When I run the :rollback client command with:
       | deployment_name | ruby-hello-world |
-      | to_version | 1 |
+      | to_version      | 1                |
     Then the step should succeed
     And I wait until the status of deployment "ruby-hello-world" becomes :complete
     Then I wait for a web server to become available via the "ruby-hello-world" route
@@ -1386,7 +1386,7 @@ Feature: deployment related features
     When I get project dc named "frontend" as JSON
     Then the output should contain:
       | lastTriggeredImage     |
-      | "latestVersion": 1 |
+      | "latestVersion": 1     |
     """
     And evaluation of `@result[:parsed]['spec']['triggers'][0]['imageChangeParams']['lastTriggeredImage']` is stored in the :imagestreamimage clipboard
     When I run the :start_build client command with:
@@ -1408,7 +1408,7 @@ Feature: deployment related features
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/build-deploy-without-configchange.json"
     And I replace lines in "build-deploy-without-configchange.json":
-      |"automatic": true|"automatic": false|
+      | "automatic": true | "automatic": false |
     When I process and create "build-deploy-without-configchange.json"
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
@@ -1416,7 +1416,7 @@ Feature: deployment related features
     """
     When I get project dc named "frontend" as JSON
     Then the output should contain:
-      | lastTriggeredImage     |
+      | lastTriggeredImage |
     And the output should not contain:
       | "latestVersion": 1 |
     """
@@ -1449,7 +1449,7 @@ Feature: deployment related features
     Then the step should succeed
     When I run the :deploy client command with:
       | deployment_config | deployment-example |
-      | latest            ||
+      | latest            |                    |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
     When I get project dc named "deployment-example" as JSON
@@ -1465,7 +1465,7 @@ Feature: deployment related features
     Given status becomes :succeeded of exactly 1 pods labeled:
       | name=hello-openshift |
     When I run the :env client command with:
-      | resource | dc/hooks |
+      | resource | dc/hooks                   |
       | e        | MYSQL_PASSWORD=update12345 |
     Then the step should succeed
     When I get project dc named "hooks" as JSON
@@ -1561,7 +1561,7 @@ Feature: deployment related features
     And the output should contain:
       | hello-openshift |
     When I run the :patch client command with:
-      | resource      | deployment |
+      | resource      | deployment      |
       | resource_name | hello-openshift |
       | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","ports":[{"containerPort":80}]}]}}}} |
     Then the step should succeed
@@ -1572,14 +1572,14 @@ Feature: deployment related features
     Then the step should succeed
     And the output should match "^80$"
     When I run the :get client command with:
-      | resource      | deployment      |
-      | resource_name | hello-openshift |
+      | resource      | deployment                |
+      | resource_name | hello-openshift           |
       | template      | {{.metadata.annotations}} |
     Then the step should succeed
     And the output should contain:
       | deployment.kubernetes.io/revision:2 |
     When I run the :delete client command with:
-      | object_type | deployment |
+      | object_type       | deployment      |
       | object_name_or_id | hello-openshift |
     Then the step should succeed
     Given 30 seconds have passed
@@ -1656,7 +1656,7 @@ Feature: deployment related features
       | all      | true |
       | list     | true |
     And the output should contain:
-      | key=value      |
+      | key=value |
     When I run the :get client command with:
       | resource      | deployment                |
       | resource_name | hello-openshift           |
@@ -1683,7 +1683,7 @@ Feature: deployment related features
       | resource_name | deployment-example |
     Then the step should succeed
     And the output should contain:
-      | image change |
+      | image change  |
       | config change |
     When I run the :rollout_history client command with:
       | resource      | dc                 |
@@ -1719,7 +1719,7 @@ Feature: deployment related features
     """
     When I run the :env client command with:
       | resource | dc/history-limit |
-      | e        | TEST#{cb.i}=1 |
+      | e        | TEST#{cb.i}=1    |
     Then the step should succeed
     And I wait until the status of deployment "history-limit" becomes :complete
     """
@@ -1731,7 +1731,7 @@ Feature: deployment related features
       | couldn't find deployment for rollback  |
     When I run the :env client command with:
       | resource | dc/history-limit |
-      | e        | TEST4=4 |
+      | e        | TEST4=4          |
     Then the step should succeed
     And I wait until the status of deployment "history-limit" becomes :complete
     And I wait for the steps to pass:
@@ -1826,13 +1826,13 @@ Feature: deployment related features
     And the output should match "NewReplicationControllerAvailable"
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest            ||
+      | latest            |       |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
     When  I run the :deploy client command with:
       | deployment_config | hooks |
-      | cancel            ||
+      | cancel            |       |
     And I run the :get client command with:
       | resource      | dc                                       |
       | resource_name | hooks                                    |
@@ -1850,7 +1850,7 @@ Feature: deployment related features
     Then the step should succeed
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest            ||
+      | latest            |       |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | dc                                       |
