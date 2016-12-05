@@ -156,3 +156,44 @@ Feature: functions about resourcequotas
       | resource_type | Pods |
       | used_value    | 0    |
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id 536550
+  @admin
+  Scenario: Show warning info on overview page if quota is met
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name | myquota                    |
+      | hard | cpu=1,memory=1Gi,pods=5   |
+      | n    | <%= project.name %>        |
+    Then the step should succeed
+
+    When I run the :run client command with:
+      | name      | myrc                  |
+      | image     | aosqe/hello-openshift |
+      | limits    | cpu=20m,memory=50Mi   |
+      | generator | run/v1                |
+    Then the step should succeed
+
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | myrc                   |
+      | replicas | 5                      |
+    Then the step should succeed
+
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+
+    When I run the :check_quota_warning_on_overview_page web console action
+    Then the step should succeed
+
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | myrc                   |
+      | replicas | 8                      |
+    Then the step should succeed
+
+    When I perform the :check_quota_warning_for_scaling_on_overview_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
