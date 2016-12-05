@@ -17,6 +17,7 @@
   :log_dir: --log_dir=<value>
   :log_flush_frequency: --log_flush_frequency=<value>
   :logtostderr: --logtostderr=<value>
+  :request-timeout: --request-timeout=<value>
   :server: --server=<value>
   :stderrthreshold: --stderrthreshold=<value>
   :token: --token=<value>
@@ -303,6 +304,7 @@
     :no_headers: --no-headers=<value>
     :o: -o <value>
     :output: --output=<value>
+    :raw: --raw=<value>
     :resource_name: <value>
     :show_label: --show-labels=<value>
     :sort_by: --sort-by=<value>

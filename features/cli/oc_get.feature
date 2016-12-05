@@ -99,3 +99,25 @@ Feature: oc get related command
       | no               |
       | ns               |
       | pv               |
+
+  # @author xxia@redhat.com
+  # @case_id 533912
+  Scenario: Get raw URI with oc as a wrapper of curl
+    Given I have a project
+    When I run the :get client command with:
+      | resource   | :false             |
+      | raw        | /oapi/v1/users/~   |
+    Then the step should succeed
+    Given the output is parsed as YAML
+    Then evaluation of `@result[:parsed]` is stored in the :raw_content clipboard
+
+    When I perform the :get_user rest request with:
+      | username   | ~         |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed] == cb.raw_content
+
+    When I run the :get client command with:
+      | resource   | :false    |
+      | raw        | /apijk    |
+    Then the step should fail
+

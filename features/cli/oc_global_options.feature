@@ -286,3 +286,45 @@ Feature: oc global options (oc options) related scenarios
     When I execute on the pod:
       | oc  | get | dc  | --match-server-version |
     Then the step should succeed
+
+  # @author xxia@redhat.com
+  # @case_id 536512
+  Scenario: Check the timeout for API request within oc/oadm command
+    Given I have a project
+    # Prepare a DC for below test
+    When I run the :run client command with:
+      | name  | mydc       |
+      | image | <%= project_docker_repo %>aosqe/hello-openshift |
+    Then the step should succeed
+
+    When I run the :create client command with:
+      | f                | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+      | request-timeout  | 1ms                                                                                               |
+    Then the step should fail
+    And the output should match "request canceled.*imeout"
+
+    Given a pod becomes ready with labels:
+      | deployment=mydc-1 |
+    When I run the :scale client command with:
+      | resource         | dc    |
+      | name             | mydc  |
+      | replicas         | 2     |
+      | request-timeout  | 1ms   |
+    Then the step should fail
+    And the output should match "request canceled.*imeout"
+
+    When I run the :oadm_add_role_to_user client command with:
+      | role_name        | view               |
+      | user_name        | <%= user.name %>   |
+      | request-timeout  | 1ms                |
+    Then the step should fail
+    And the output should match "request canceled.*imeout"
+
+    When I run the :port_forward client command with:
+      | request-timeout  | 60s                |
+      | pod              | <%= pod.name %>    |
+      | port_spec        | :8080              |
+      | _timeout         | 70                 |
+    # Choose _timeout > 60s, which means the cmd does not timeout within 60s
+    Then the step should have timed out
+
