@@ -1,3 +1,15 @@
+add_storage_to_k8s_deployments:
+  action: click_actions_button
+  action: click_add_storage_link
+  action: set_mount_path
+  action: set_volume_name
+  action: click_add
+add_storage_to_k8s_replicasets:
+  action: click_actions_button
+  action: click_add_storage_link
+  action: set_mount_path
+  action: set_volume_name
+  action: click_add
 check_latest_deployment_version:
   action: goto_one_dc_page
   element:
@@ -81,6 +93,38 @@ cancel_edit_replicas_on_rc_page:
       xpath: //a[@title='Cancel']
     type: a
     op: click
+click_on_one_deployment:
+  elements:
+  - selector:
+      xpath: //h3[contains(.,"Deployments")]/following::a[contains(.,'<k8s_deployments_name>')]
+    op: click
+click_on_one_replicaset:
+  elements:
+  - selector:
+      xpath: //h3[contains(.,"Replica Sets")]/following::a[contains(.,'<k8s_replicasets_name>')]
+    op: click
+click_to_goto_deployments_page:
+  action: goto_overview_page
+  elements:
+  - selector:
+      xpath: //a[@data-toggle="dropdown" and contains(.,"Applications")]
+    op: click
+  - selector:
+      xpath: //div[contains(@class,"dropdown-menu")]//a[contains(.,"Deployments")]
+    op: click
+click_to_goto_one_deployment_page:
+  action: click_to_goto_deployments_page
+  action: click_on_one_deployment
+click_to_goto_one_replicaset_page:
+  action: click_to_goto_deployments_page
+  action: click_on_one_replicaset
+click_pvc_link_on_dc_page:
+  elements:
+  - selector:
+      xpath: //a[contains(.,"<pvc_name>")]
+    op: click
+  - selector:
+      xpath: //h1[contains(.,"<pvc_name>")]
 click_specific_no_of_deploy:
   action: goto_one_dc_page
   element:
@@ -206,6 +250,12 @@ check_dc_replicas:
   elements:
   - selector:
       xpath: //dt[contains(.,'Replicas')]/following-sibling::dd//span[contains(.,'<dc_replicas>')]
+check_mount_info_on_one_deployment_page:
+  action: click_to_goto_one_deployment_page
+  action: check_mount_info
+check_mount_info_on_one_replicaset_page:
+  action: click_to_goto_one_replicaset_page
+  action: check_mount_info
 check_standalone_rc_replicas:
   action: goto_one_standalone_rc_page
   elements:

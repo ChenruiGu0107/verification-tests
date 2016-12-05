@@ -302,3 +302,46 @@ Feature: Check deployments function
       | dc_name      | hello-pod           |
       | donut_text   | 2                   |
     Then the step should succeed
+
+  # @author yapei@redhat.com
+  # @case_id 536597 536589
+  Scenario Outline: Attach storage for k8s deployment and replicasets
+    Given I have a project
+    When I run the :create client command with:
+      | f | <resource_file> |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
+    Then the step should succeed
+    When I perform the :<click_operation> web console action with:
+      | project_name         | <%= project.name %> |
+      | <resource_type>      | <resource_name>     |
+    Then the step should succeed
+    When I perform the :<add_storage_operation> web console action with:
+      | mount_path  |  /hello-openshift-data |
+      | volume_name | hello-openshift-volume |
+    Then the step should succeed
+    When I perform the :check_mount_info web console action with:
+      | mount_path  |  /hello-openshift-data |
+      | volume_name | hello-openshift-volume |
+    Then the step should succeed
+    When I perform the :click_pvc_link_on_dc_page web console action with:
+      | pvc_name | nfsc |
+    Then the step should succeed
+    And the expression should be true> browser.url.include? "browse/persistentvolumeclaims"
+    When I run the :volume client command with:
+      | resource      | <chk_volume_resource_type> |
+      | resource_name | <chk_volume_resource_name> |
+      | action        | --remove                   |
+      | name          | hello-openshift-volume     |
+    Then the step should succeed
+    When I perform the :<check_mount_operation> web console action with:
+      | project_name         | <%= project.name %> |
+      | <resource_type>      | <resource_name>     |
+      | mount_path  |  /hello-openshift-data |
+      | volume_name | hello-openshift-volume |
+    Then the step should fail
+    Examples:
+      | resource_file |  click_operation | resource_type | resource_name | add_storage_operation | chk_volume_resource_type | chk_volume_resource_name | check_mount_operation |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536590/k8s-deployment.yaml | click_to_goto_one_deployment_page | k8s_deployments_name | hello-openshift | add_storage_to_k8s_deployments | deployment | hello-openshift | check_mount_info_on_one_deployment_page |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536589/replica-set.yaml    | click_to_goto_one_replicaset_page | k8s_replicasets_name | frontend        | add_storage_to_k8s_replicasets | replicaset | frontend | check_mount_info_on_one_replicaset_page |

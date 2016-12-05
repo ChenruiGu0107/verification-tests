@@ -68,6 +68,6 @@ choose_the_first_container:
 check_mount_info:
   elements:
   - selector:
-      xpath: //span[contains(text(), <volume_name>)]
+      xpath: //span[contains(text(), "<volume_name>")]
   - selector:
-      xpath: //span[contains(text(), <mount_path>)]
+      xpath: //span[contains(text(), "<mount_path>")]
