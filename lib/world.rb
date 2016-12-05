@@ -20,6 +20,7 @@ require 'openshift/replicaset'
 require 'openshift/cluster_role_binding'
 require 'openshift/storage_class'
 require 'openshift/host_subnet'
+require 'openshift/cluster_resource_quota'
 module CucuShift
   # @note this is our default cucumber World extension implementation
   class DefaultWorld
@@ -46,6 +47,7 @@ module CucuShift
       @builds = []
       @pods = []
       @hostsubnets = []
+      @clusterresourcequotas = []
       @storageclasses = []
       @pvs = []
       @pvcs = []
@@ -544,6 +546,10 @@ module CucuShift
       cluster_resource(HostSubnet, name, env)
     end
 
+    def cluster_resource_quota(name = nil, env = nil)
+      cluster_resource(ClusterResourceQuota, name, env)
+    end
+
     def storage_class(name = nil, env = nil)
       cluster_resource(StorageClass, name, env)
     end
@@ -590,6 +596,7 @@ module CucuShift
         pvc: "persistentvolumeclaims",
         cluster_role_binding: "clusterrolebindings",
         host_subnet: "hostsubnets",
+        cluster_resource_quota: "clusterresourcequotas",
         storage_class: "storageclasses"
       }
       type = shorthands[type.to_sym] if shorthands[type.to_sym]
