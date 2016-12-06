@@ -321,3 +321,48 @@ Feature: SDN related networking scenarios
       | journalctl -l -u atomic-openshift-node -n 20 |
     Then the output should contain "detected network plugin mismatch"
     """
+
+  # @author hongli@redhat.com
+  # @case_id 536669
+  @admin
+  Scenario: Can get a hostsubnet for F5 from the cluster CIDR
+    Given an 8 characters random string of type :dns952 is stored into the :hostsubnet_name clipboard
+    And admin ensures "f5-<%= cb.hostsubnet_name %>" host_subnet is deleted after scenario
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/f5-hostsubnet.json" replacing paths:
+       | ["metadata"]["name"] | f5-<%= cb.hostsubnet_name %> |
+       | ["host"]             | f5-<%= cb.hostsubnet_name %> |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | hostsubnet                   |
+      | resource_name | f5-<%= cb.hostsubnet_name %> |
+      | o             | yaml                         |
+    Then the step should succeed
+    And the output should contain:
+      | pod.network.openshift.io/fixed-vnid-host: "0" |
+    And the output should not contain:
+      | pod.network.openshift.io/assign-subnet |
+    And evaluation of `@result[:parsed]['hostIP']` is stored in the :hostip clipboard
+    And evaluation of `@result[:parsed]['subnet']` is stored in the :subnet clipboard
+
+    Given I select a random node's host
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    Then the step should succeed
+    And the output should contain:
+      | arp_tpa=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1 |
+      | nw_dst=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1  |
+
+    # delete the hostsubnet
+    When I run the :delete client command with:
+      | object_type       | hostsubnet |
+      | object_name_or_id | f5-<%= cb.hostsubnet_name %> |
+    Then the step should succeed
+
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    Then the step should succeed
+    And the output should not contain:
+      | arp_tpa=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1 |
+      | nw_dst=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1  |
