@@ -2112,10 +2112,11 @@ Feature: Testing haproxy router
     """
     Given I run commands on the nodes in the :router_node clipboard:
       | rm -f /etc/rsyslog.d/haproxy.conf /var/log/haproxy.log |
+      | systemctl restart rsyslog                              |
     Then the step should succeed
     """
     When I run commands on the nodes in the :router_node clipboard:
-      | echo -e  "\$ModLoad imudp\n\$UDPServerRun 514\nlocal1.* /var/log/haproxy.log\nhaproxy.* /var/log/haproxy.log" >/etc/rsyslog.d/haproxy.conf   |
+      | echo -e  "\$ModLoad imudp\n\$UDPServerRun 514\nlocal1.* /var/log/haproxy.log\nhaproxy.* /var/log/haproxy.log" >/etc/rsyslog.d/haproxy.conf |
       | systemctl restart rsyslog |
     Then the step should succeed
 
