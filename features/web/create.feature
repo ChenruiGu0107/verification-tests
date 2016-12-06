@@ -2,10 +2,16 @@ Feature: create app on web console related
 
   # @author xxing@redhat.com
   # @case_id 497608
+  @admin
   Scenario: create app from template with custom build on web console
     When I create a project via web with:
       | display_name | :null               |
       | description  ||
+    Then the step should succeed
+    When I run the :policy_add_role_to_user admin command with:
+      | role            | system:build-strategy-custom |
+      | user name       |   <%= user.name %>           |
+      | n               |   <%= project.name %>        |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |

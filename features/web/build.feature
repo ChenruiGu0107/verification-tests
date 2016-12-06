@@ -374,8 +374,14 @@ Feature: build related feature on web console
 
   # @author yapei@redhat.com
   # @case_id 518654
+  @admin
   Scenario: Modify buildconfig settings for custom strategy
     Given I create a new project
+    When I run the :policy_add_role_to_user admin command with:
+      | role            | system:build-strategy-custom |
+      | user name       |   <%= user.name %>           |
+      | n               |   <%= project.name %>        |
+    Then the step should succeed
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json"
     Then the step should succeed
     When I run the :describe client command with:
@@ -864,8 +870,14 @@ Feature: build related feature on web console
 
   # @author: yapei@redhat.com
   # @case_id 525737 525738
+  @admin
   Scenario Outline: Check settings for build with no inputs
     Given I have a project
+    When I run the :policy_add_role_to_user admin command with:
+      | role            | system:build-strategy-custom |
+      | user name       |   <%= user.name %>           |
+      | n               |   <%= project.name %>        |
+    Then the step should succeed
     When I run the :new_app client command with:
       | file | <template_file> |
     Then the step should succeed
