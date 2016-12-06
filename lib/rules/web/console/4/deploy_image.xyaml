@@ -46,10 +46,6 @@ change_deploy_image_name_to_another:
   - selector:
       xpath: //input[@id="name"]
     op: send_keys <new_deploy_image_name>
-check_create_button_disabled:
-  elements:
-  - selector:
-      xpath: //button[@disabled='disabled' and text()='Create']
 check_deploy_image_name:
   scripts:
   - command: return document.getElementById("name").value == "<image_name>"

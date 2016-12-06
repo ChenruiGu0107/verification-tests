@@ -202,10 +202,7 @@ check_two_services_weight_on_route_page:
       xpath: //td[contains(., '<second_svc_name>')]/following::td[contains(text(), '<weight_two>')]
 goto_edit_route_page:
   action: click_actions_button
-  elements:
-  - selector:
-      xpath: //a[text()='Edit']
-    op: click
+  action: click_edit
 save_edit_route:
   action: click_save_button
 cancel_edit_route:
