@@ -25,7 +25,7 @@ Feature: Openshift build and configuration of enviroment variables check
       | app_repo | openshift/python:<py_image>~https://github.com/openshift/django-ex |
       | e        | PIP_INDEX_URL=http://not/a/valid/index                             |
     Then the step should succeed
-    Given the "django-ex-1" build finishes
+    Given the "django-ex-1" build failed
     When I run the :logs client command with:
       | resource_name | bc/django-ex |
     Then the output should contain "Cannot fetch index base URL http://not/a/valid/index/"

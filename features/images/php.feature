@@ -36,3 +36,23 @@ Feature: php image related tests
       | image |
       | 55    |
       | 56    |
+
+  # @author dyan@redhat.com
+  # @case_id 540188 540189 540189
+  Scenario Outline: Add COMPOSER_MIRROR env var to Php S2I
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo    | openshift/php:<image>~https://github.com/openshift/cakephp-ex |
+      | context_dir | /app/Plugin/DebugKit                                          |
+      | e           | COMPOSER_MIRROR=http://not/a/valid/index                      |
+    Then the step should succeed
+    Given the "cakephp-ex-1" build failed
+    When I run the :logs client command with:
+      | resource_name | bc/cakephp-ex |
+    Then the output should contain "not allow connections to http://not/a/valid/index/"
+    Examples:
+      | image |
+      | 5.5   |
+      | 5.6   |
+      | 7.0   |
+
