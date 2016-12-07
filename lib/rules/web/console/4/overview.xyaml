@@ -1,7 +1,7 @@
 #---check project overview page
 check_project_overview_without_resource:
   action: goto_overview_page
-  #check value in the select box 
+  #check value in the select box
   elements:
   - selector:
       text: Get started with your project.
@@ -19,7 +19,7 @@ check_build_info_on_overview_page:
       xpath: //div[@class="builds-block" and contains(.,"<build_status>")]
 check_deployment_config_link_info_on_overview:
   elements:
-  - selector: 
+  - selector:
       xpath: //span[contains(.,'Deployment')]/following::a[contains(@href,"project/<project_name>/browse/deployments/<dc_name>")]
 check_deployments_link_info_on_overview:
   elements:
@@ -36,7 +36,7 @@ check_pod_info_on_overview:
 check_pod_template_image_link:
   elements:
   - selector:
-      xpath: //div[contains(@class, 'pod-template-image')]/descendant::a[contains(@href,"project/<project_name>/browse/images/<image_name>")] 
+      xpath: //div[contains(@class, 'pod-template-image')]/descendant::a[contains(@href,"project/<project_name>/browse/images/<image_name>")]
 check_pod_template_build_link:
   elements:
   - selector:
@@ -111,7 +111,7 @@ scale_up_once:
   - selector:
       xpath: //a[@title='Scale up']
     op: click
-    type: a 
+    type: a
 scale_down_once:
   elements:
   - selector:
@@ -139,3 +139,35 @@ check_scale_down_disabled:
   elements:
   - selector:
       xpath: //a[@class='disabled' and @aria-disabled='true']/span[text()='Scale down']
+
+group_services:
+  elements:
+  - selector:
+      xpath: //overview-service[div//a[text()="<primary_service_name>"]]//a[span[contains(text(),"Group service to <primary_service_name>")]]/i
+    op: click
+  - selector:
+      xpath: //div[@title="Choose a service"]/div/span
+    op: click
+  - selector:
+      xpath: //div[contains(@class,"ui-select-choices-row") and */div[text()="<service_name>"]]
+    op: click
+  - selector:
+      text: OK
+    op: click
+remove_service_from_group:
+  elements:
+  - selector:
+      xpath: //overview-service[div//a[text()="<service_name>"]]//a[span[contains(text(),"Remove <service_name> from service group")]]
+    op: click
+  - selector:
+      text: Remove
+    type: button
+    op: click
+check_service_group_with_route:
+  element:
+    selector:
+      xpath: //div[contains(@class,"service-group-with-route-row") and overview-service-group//a[starts-with(@href,"http://<primary_service_name>-<project_name>")]]//div[@class="service-name"]//a[text()="<service_name>"]
+check_service_group_entry:
+  element:
+    selector:
+      xpath: //div[@class="overview-services" and overview-service[contains(@class,"primary-service") and div//div[@class="service-name"]//a[text()="<primary_service_name>"]]]//div[@class="service-name"]//a[text()="<service_name>"]
