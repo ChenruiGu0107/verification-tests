@@ -114,6 +114,9 @@ Feature: Dynamic provisioning
       | <%= cb.volumeID1 %> |
       | <%= cb.volumeID2 %> |
       | <%= cb.volumeID3 %> |
+    And I verify that the IAAS volume with id "<%= cb.volumeID1 %>" was deleted
+    And I verify that the IAAS volume with id "<%= cb.volumeID2 %>" was deleted
+    And I verify that the IAAS volume with id "<%= cb.volumeID3 %>" was deleted
 
     Examples:
       | cloud_provider |
