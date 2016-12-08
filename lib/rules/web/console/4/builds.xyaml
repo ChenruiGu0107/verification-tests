@@ -366,7 +366,7 @@ check_bc_builder_image_stream:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'Builder image stream')]/following-sibling::dd[contains(.,'<builder_image_streams>')]
+      xpath: //dt[contains(.,'Builder Image')]/following-sibling::dd[contains(.,'<builder_image_streams>')]
 check_bc_output:
   action: goto_buildconfig_configuration_tab
   elements:
@@ -386,12 +386,12 @@ check_bc_image_change_trigger:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'New image for')]/following-sibling::dd[contains(.,'<image_change_trigger>')]
+      xpath: //dt[contains(.,'New Image For')]/following-sibling::dd[contains(.,'<image_change_trigger>')]
 check_bc_config_change_trigger:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'Config change for')]/following-sibling::dd[contains(.,'<config_change_trigger>')]
+      xpath: //dt[contains(.,'Config Change For')]/following-sibling::dd[contains(.,'<config_change_trigger>')]
 check_bc_config_change_trigger_exist:
   action: goto_buildconfig_configuration_tab
   elements:
