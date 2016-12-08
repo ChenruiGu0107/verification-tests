@@ -2143,3 +2143,86 @@ Feature: Testing haproxy router
     Given I run commands on the nodes in the :router_node clipboard:
       | cat /var/log/haproxy.log  |
     Then the output should contain "route-passthrough started"
+
+  # @author bmeng@redhat.com
+  # @case_id 489260
+  Scenario: haproxy hash based sticky session for tcp mode passthrough routes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name | route-pass |
+      | service | service-secure |
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | -ksS |
+      | https://<%= route("route-pass", service("service-secure")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    Given I run the steps 6 times:
+    """
+    When I execute on the pod:
+      | curl |
+      | -ksS |
+      | https://<%= route("route-pass", service("service-secure")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access == @result[:response]
+    """
+
+  # @author bmeng@redhat.com
+  # @case_id 529120
+  Scenario: Set balance leastconn for passthrough routes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name | route-pass |
+      | service | service-secure |
+    Then the step should succeed
+
+    When I run the :annotate client command with:
+      | resource | route |
+      | resourcename | route-pass |
+      | keyval | haproxy.router.openshift.io/balance=leastconn |
+      | overwrite | true |
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | -ksS |
+      | https://<%= route("route-pass", service("service-secure")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    Given I wait for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -ksS |
+      | https://<%= route("route-pass", service("service-secure")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> cb.first_access != @result[:response]
+    """
