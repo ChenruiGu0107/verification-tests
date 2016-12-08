@@ -341,3 +341,18 @@ Given /^the network plugin is switched on the#{OPT_QUOTED} node$/ do |node_name|
     raise "failed to switch plugin in node config" unless @result[:success]
   end
 end
+
+Given /^the#{OPT_QUOTED} node labels are restored after scenario$/ do |node_name|
+  ensure_admin_tagged
+  _node = node(node_name)
+  _admin = admin
+
+  step 'evaluation of `#{_node.labels}` is stored in the :node_labels clipboard'
+  logger.info "Node labels are stored in clipboard"
+
+  teardown_add {
+    labels = cb.node_labels.map {|k,v| [:key_val, k + "=" + v] }
+    opts = [ [:resource, 'node'], [:name, _node.name], [:overwrite, true], *labels ]
+    _admin.cli_exec(:label, opts)
+  }
+end
