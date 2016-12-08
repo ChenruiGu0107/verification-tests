@@ -128,6 +128,7 @@ Feature: Downward API
       | kubernetes.io/config.source="api" |
       | kubernetes.io/config.seen=        |
     # Test file without requests, use limits as requests by default
+    Given I ensure "dapi-resources-metadata-volume-pod" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-metadata-volume-pod-without-requests.yaml |
     Then the step should succeed
@@ -137,6 +138,7 @@ Feature: Downward API
     Then the step should succeed
     And the output should contain "5001128134217728"
     # Test file without limits, use node capacity as limits by default
+    Given I ensure "dapi-resources-metadata-volume-pod-without-requests" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-metadata-volume-pod-without-limits.yaml |
     Then the step should succeed
@@ -179,6 +181,7 @@ Feature: Downward API
     Then the step should succeed
     And the output should contain "500164134217728"
     # Test file without requests, use limits as requests by default
+    Given I ensure "dapi-resources-volume-magic-keys-pod" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-volume-magic-keys-pod-without-requests.yaml |
     Then the step should succeed
@@ -188,6 +191,7 @@ Feature: Downward API
     Then the step should succeed
     And the output should contain "5001128134217728"
     # Test file without limits, use node capacity as limits by default
+    Given I ensure "dapi-resources-volume-magic-keys-pod-without-requests" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-volume-magic-keys-pod-without-limits.yaml |
     Then the step should succeed
