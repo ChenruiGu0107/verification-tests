@@ -325,3 +325,65 @@ Feature: general_db.feature
     """
     And the output should contain:
       | 3.2 |
+
+  # @author haowang@redhat.com
+  # @case_id 538278
+  Scenario: Mongodb replica petset example with persistent storage
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/sclorg/mongodb-container/master/examples/petset/mongodb-petset-persistent.yaml |
+      | p    | MONGODB_USER=user                                                                                                |
+      | p    | MONGODB_PASSWORD=pass                                                                                            |
+      | p    | MONGODB_DATABASE=db                                                                                              |
+      | p    | MONGODB_ADMIN_PASSWORD=pass                                                                                      |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | mongo-data-mongodb-0                                                            |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "mongo-data-mongodb-0" PVC becomes :bound within 300 seconds
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | mongo-data-mongodb-1                                                            |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "mongo-data-mongodb-1" PVC becomes :bound within 300 seconds
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | mongo-data-mongodb-2                                                            |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "mongo-data-mongodb-2" PVC becomes :bound within 300 seconds
+    And 3 pods become ready with labels:
+      | name=mongodb |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the "mongodb-0" pod:
+      | bash                                                               |
+      | -c                                                                 |
+      | mongo db -uuser -ppass --eval "db.db.insert({'name':'openshift'})" |
+    Then the step should succeed
+    """
+    When I execute on the "mongodb-0" pod:
+      | bash                                                       |
+      | -c                                                         |
+      | mongo db -uuser -ppass --eval "printjson(db.db.findOne())" |
+    Then the step should succeed
+    And the output should contain:
+      | name      |
+      | openshift |
+    When I run the :delete client command with:
+      | object_type | pods |
+      | all         |      |
+    Then the step should succeed
+    And 3 pods become ready with labels:
+      | name=mongodb |
+    When I execute on the "mongodb-0" pod:
+      | bash |
+      | -c   |
+      | mongo db -uuser -ppass --eval "rs.slaveOk(),printjson(db.db.findOne())" |
+    Then the step should succeed
+    And the output should contain:
+      | name      |
+      | openshift |
