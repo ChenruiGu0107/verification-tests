@@ -262,3 +262,61 @@ Feature: oc set image related tests
     And the output should match:
       | <%= cb.dc_image_id %>\\s+<none>   |
       | <%= cb.ruby_image_id %>\\s+<none> |
+
+
+  # @author: yinzhou@redhat.com
+  # @case_id: 532760
+  @admin
+  Scenario: Could add/remove signatures to the images
+    Given I have a project
+    When I run the :tag client command with:
+      | source      | docker.io/openshift/hello-openshift   |
+      | dest        | <%= project.name %>/ho:latest         |
+    Then the step should succeed
+    And evaluation of `image_stream("ho").latest_tag_docker_image_reference(user:user).split("@").last` is stored in the :image_id clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/imagesignature.yaml"
+    Then the step should succeed
+    When I run the :create client command with:
+      | f        | imagesignature.yaml |
+      | loglevel | 6                   |
+    Then the step should fail
+    When I run the :delete client command with:
+      | object_type | imagesignature |
+      | object_name_or_id | <%= cb.image_id %>@imagesignaturetest |
+    Then the step should fail
+    Given cluster role "system:image-signer" is added to the "first" user
+    And I replace lines in "imagesignature.yaml":
+      | name: ["metadata"]@["name"] | name:  <%= cb.image_id %>@imagesignaturetest |
+    When I run the :create client command with:
+      | f        | imagesignature.yaml |
+      | loglevel | 6                   |
+    Then the step should succeed
+    And the output should match:
+      | POST (.+)imagesignatures |
+    When I run the :get admin command with:
+      | resource      | image              |
+      | resource_name | <%= cb.image_id %> |
+      | o             | yaml               |
+    Then the step should succeed
+    Then the output should contain:
+      | signatures |
+      | name: <%= cb.image_id %>@imagesignaturetest |
+    And I replace lines in "imagesignature.yaml":
+      | name:  <%= cb.image_id %>@imagesignaturetest | name: <%= cb.image_id %>@imagesignaturetest2 |
+      | - 25 | - 20 | 
+    When I run the :create client command with:
+      | f | imagesignature.yaml |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource      | image              |
+      | resource_name | <%= cb.image_id %> |
+      | o             | yaml               |
+    Then the step should succeed
+    Then the output should contain:
+      | signatures |
+      | name: <%= cb.image_id %>@imagesignaturetest  |
+      | name: <%= cb.image_id %>@imagesignaturetest2 |
+    When I run the :delete client command with:
+      | object_type | imagesignature |
+      | object_name_or_id | <%= cb.image_id %>@imagesignaturetest2 |
+    Then the step should succeed
