@@ -1,7 +1,7 @@
 #---check project overview page
 check_project_overview_without_resource:
   action: goto_overview_page
-  #check value in the select box 
+  #check value in the select box
   elements:
   - selector:
       text: Get started with your project.
@@ -19,7 +19,7 @@ check_build_info_on_overview_page:
       xpath: //div[@class="builds-block" and contains(.,"<build_status>")]
 check_deployment_config_link_info_on_overview:
   elements:
-  - selector: 
+  - selector:
       xpath: //span[contains(.,'Deployment')]/following::a[contains(@href,"project/<project_name>/browse/deployments/<dc_name>")]
 check_deployments_link_info_on_overview:
   elements:
@@ -36,7 +36,7 @@ check_pod_info_on_overview:
 check_pod_template_image_link:
   elements:
   - selector:
-      xpath: //div[contains(@class, 'pod-template-image')]/descendant::a[contains(@href,"project/<project_name>/browse/images/<image_name>")] 
+      xpath: //div[contains(@class, 'pod-template-image')]/descendant::a[contains(@href,"project/<project_name>/browse/images/<image_name>")]
 check_pod_template_build_link:
   elements:
   - selector:
@@ -127,7 +127,7 @@ scale_up_once:
   - selector:
       xpath: //a[@title='Scale up']
     op: click
-    type: a 
+    type: a
 scale_down_once:
   elements:
   - selector:

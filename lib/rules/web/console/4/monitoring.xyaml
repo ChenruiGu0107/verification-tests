@@ -10,13 +10,20 @@ set_resource_type_on_monitoring:
   - selector:
       xpath: //div[span/div[text()="<resource_type>"]]
     op: click
-expand_resource_logs_on_monitoring:
+expand_resource_logs:
   element:
     selector:
       xpath: //div[h2[text()="<resource_type>"]]/div/div[//a[text()="<resource_name>"]]
     op: click
-hide_older_resources_on_monitoring:
+expand_resource_logs_by_image:
+  element:
+    selector:
+      xpath: //div[h2[text()="<resource_type>"]]/div/div[div//image-names//span[text()="<image_name>"]]
+    op: click
+click_on_hide_older_resources_on_monitoring:
   action: goto_monitoring_page
+  action: click_on_hide_older_resources
+click_on_hide_older_resources:
   element:
     selector:
       xpath: //label[contains(., "Hide older resources")]/input
@@ -29,6 +36,10 @@ check_resource_type_on_monitoring:
   element:
     selector:
       xpath: //div[h2[text()="<resource_type>"]]
+check_image_name_on_monitoring:
+  element:
+    selector:
+      xpath: //div[h2[text()="<resource_type>"]]//image-names/span[text()="<image_name>"]
 filter_by_name_on_monitoring:
   action: goto_monitoring_page
   element:

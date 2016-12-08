@@ -10,13 +10,15 @@ set_resource_type_on_monitoring:
   - selector:
       xpath: //div[a/div[text()="<resource_type>"]]
     op: click
-expand_resource_logs_on_monitoring:
+expand_resource_logs:
   element:
     selector:
       xpath: //div[h2[text()="<resource_type>"]]/div/div[//a[text()="<resource_name>"]]
     op: click
-hide_older_resources_on_monitoring:
+click_on_hide_older_resources_on_monitoring:
   action: goto_monitoring_page
+  action: click_on_hide_older_resources
+click_on_hide_older_resources:
   element:
     selector:
       xpath: //label[contains(., "Hide older resources")]/input

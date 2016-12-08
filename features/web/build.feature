@@ -924,7 +924,7 @@ Feature: build related feature on web console
       | project_name  | <%= project.name %> |
       | resource_type | All                 |
     Then the step should succeed
-    When I perform the :expand_resource_logs_on_monitoring web console action with:
+    When I perform the :expand_resource_logs web console action with:
       | project_name  | <%= project.name %> |
       | resource_type | Builds              |
       | resource_name | nodejs-app-1        |
@@ -944,7 +944,7 @@ Feature: build related feature on web console
     And a pod becomes ready with labels:
       | deployment=nodejs-app-2 |
     Then the step should succeed
-    When I perform the :hide_older_resources_on_monitoring web console action with:
+    When I perform the :click_on_hide_older_resources_on_monitoring web console action with:
       | project_name  | <%= project.name %> |
     Then the step should succeed
     When I perform the :check_resource_on_monitoring web console action with:
