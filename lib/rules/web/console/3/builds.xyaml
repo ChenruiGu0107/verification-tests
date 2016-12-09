@@ -185,7 +185,15 @@ check_build_trigger:
   action: goto_one_build_page
   elements:
   - selector:
-      xpath: //dt[contains(.,'Triggered by:')]/following-sibling::dd[contains(.,'<trigger_info>')]
+      xpath: //dt[contains(.,'Triggered by:')]/following-sibling::dd[contains(normalize-space(),'<trigger_info>')]
+check_build_hidden_secret:
+  action: goto_one_build_page
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Triggered by:')]/following-sibling::dd//a[contains(.,'show obfuscated secret')]
+    op: click
+  - selector:
+      xpath: //dt[contains(.,'Triggered by:')]/following-sibling::dd[contains(.,'<hidden_text>')]
 enable_webhook_build_trigger:
   action: check_buildconfig_edit_page_loaded_completely
   elements:
