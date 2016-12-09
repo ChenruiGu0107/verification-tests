@@ -17,19 +17,18 @@ deploy_from_image_stream_tag_with_normal_is_and_change_name:
   action: check_deploy_image_name
   action: click_create_button
 deploy_from_image_stream_name_with_nonexist_image:
-  action: deploy_image_navigate
-  action: choose_image_name_method
-  action: set_image_name
-  action: click_to_search
+  action: deploy_from_image_stream_name_search_image
   action: check_error_for_nonexist_image
 deploy_from_image_stream_name_with_env_label:
-  action: deploy_image_navigate
-  action: choose_image_name_method
-  action: set_image_name
-  action: click_to_search
+  action: deploy_from_image_stream_name_search_image
   action: add_env_name_and_value_on_deploy_image_page
   action: add_label_name_and_value
   action: click_create_button
+deploy_from_image_stream_name_search_image:
+  action: deploy_image_navigate
+  action: choose_image_name_method
+  action: set_image_name
+  action: click_to_search
 add_env_name_and_value_on_deploy_image_page:
   elements:
   - selector:
@@ -86,7 +85,7 @@ choose_image_name_method:
 click_to_search:
   elements:
   - selector:
-      xpath: //button[@ng-click="findImage()"]
+      xpath: //button[@ng-click="findImage()" and not(@disabled)]
     op: click
 deploy_image_navigate:
   url: /console/project/<project_name>/create
@@ -96,7 +95,6 @@ deploy_image_navigate:
     op: click
   - selector:
       xpath: //p[contains(.,'Deploy an existing image from an image stream tag or Docker pull spec')]
-    op: click
 select_namespace:
   elements:
   - selector:
