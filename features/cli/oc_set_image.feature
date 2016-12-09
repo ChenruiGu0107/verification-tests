@@ -209,3 +209,24 @@ Feature: oc set image related tests
     And the output should match:
       | dctest-1:\n.*[Ii]mage.*openshift/hello-openshift    |
       | dctest-2:\n.*[Ii]mage.*openshift/hello-openshift    |
+
+  # @author: yinzhou@redhat.com
+  # @case_id: 533222
+  @admin
+  Scenario: Can not prune image by conflicted condition flags
+    Given I have a project
+    Given cluster role "system:image-signer" is added to the "first" user
+    Then the step should succeed
+    When I run the :oadm_prune_images client command with:
+      | confirm               | false |
+      | keep_younger_than     | 1m    |
+      | prune_over_size_limit | true  |
+    Then the step should fail
+    And the output should match " cannot be specified with "
+    When I run the :oadm_prune_images client command with:
+      | confirm               | false |
+      | keep_tag_revisions    | 1     |
+      | prune_over_size_limit | true  |
+    Then the step should fail
+    And the output should match " cannot be specified with "
+
