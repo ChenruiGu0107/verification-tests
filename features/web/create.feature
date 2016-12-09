@@ -903,3 +903,18 @@ Feature: create app on web console related
       | file_path        | <%= File.join(localhost.workdir, "deployment1.json") %> |
       | error_message    | Invalid kind (DeploymentConfig) or API version (<none>) |
     Then the step should succeed
+      
+  # @author yapei@redhat.com
+  # @case_id 509068
+  Scenario: web console:parameter requirement check works correctly
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I perform the :create_app_from_template_with_required_field_empty web console action with:
+      | project_name  | <%= project.name %>    |
+      | template_name | ruby-helloworld-sample |
+      | namespace     | <%= project.name %>    |
+    Then the step should fail
+    When I run the :check_error_info_for_required_field web console action
+    Then the step should succeed
