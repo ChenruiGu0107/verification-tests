@@ -6,6 +6,8 @@ Feature: oc build related scenarios
     When I run the :new_app client command with:
       | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json |
     Then the step should succeed
+    Given the "ruby-22-centos7" image stream becomes ready
+    And the "origin-ruby-sample" image stream becomes ready
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build   |
       | o           | name                |
