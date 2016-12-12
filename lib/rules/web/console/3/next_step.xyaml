@@ -37,6 +37,10 @@ check_complete_with_error_info_on_next_page:
       text: Completed, with errors
   - selector:
       text: Things you can do
+check_error_alert_message_on_next_page:
+  element:
+    selector:
+      xpath: //div[span[contains(@class,"pficon-error-circle-o")]]/span[contains(text(),'<message>')]
 check_template_message_on_next_page:
   elements:
   - selector:

@@ -830,3 +830,76 @@ Feature: create app on web console related
       | routes/php         |
       | svc/php            |
       | po/<%= pod.name %> |
+
+  # @author etrott@redhat.com
+  # @case_id 529149
+  Scenario: Add resources missing some required fields to project
+    When I perform the :new_project web console action with:
+      | project_name | <%= project.name %> |
+      | display_name | test                |
+      | description  | test                |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Then the step should succeed
+    Given I backup the file "application-template-stibuild.json"
+    And I replace lines in "application-template-stibuild.json":
+      | "name": "ruby-helloworld-sample", | |
+    Then the step should succeed
+    When I perform the :create_from_template_file_with_error web console action with:
+      | project_name     | <%= project.name %>                                                       |
+      | file_path        | <%= File.join(localhost.workdir, "application-template-stibuild.json") %> |
+      | error_message    | Resource name is missing in metadata field.                               |
+    Then the step should succeed
+
+    Given I restore the file "application-template-stibuild.json"
+    And I replace lines in "application-template-stibuild.json":
+      | "uri": "https://github.com/openshift/ruby-hello-world.git" | |
+    Then the step should succeed
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                                       |
+      | file_path        | <%= File.join(localhost.workdir, "application-template-stibuild.json") %> |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    When I perform the :process_and_save_template web console action with:
+      | process_template | true  |
+      | save_template    | false |
+    Then the step should succeed
+    """
+    And I wait for the steps to pass:
+    """
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    """
+    When I run the :check_complete_with_error_info_on_next_page web console action
+    Then the step should succeed
+    When I perform the :check_error_alert_message_on_next_page web console action with:
+      | message | Cannot create build config "ruby-sample-build". |
+    Then the step should succeed
+    When I perform the :check_error_alert_message_on_next_page web console action with:
+      | message | BuildConfig "ruby-sample-build" is invalid: spec.source.git.uri: Required value. |
+    Then the step should succeed
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json"
+    Then the step should succeed
+    Given I backup the file "deployment1.json"
+    And I replace lines in "deployment1.json":
+      | "name": "hooks", | |
+    Then the step should succeed
+    When I perform the :create_from_template_file_with_error web console action with:
+      | project_name     | <%= project.name %>                                     |
+      | file_path        | <%= File.join(localhost.workdir, "deployment1.json") %> |
+      | error_message    | Resource name is missing in metadata field.             |
+    Then the step should succeed
+
+    Given I restore the file "deployment1.json"
+    And I replace lines in "deployment1.json":
+      | "apiVersion": "v1", | |
+    Then the step should succeed
+    When I perform the :create_from_template_file_with_error web console action with:
+      | project_name     | <%= project.name %>                                     |
+      | file_path        | <%= File.join(localhost.workdir, "deployment1.json") %> |
+      | error_message    | Invalid kind (DeploymentConfig) or API version (<none>) |
+    Then the step should succeed
