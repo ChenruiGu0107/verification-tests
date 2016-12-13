@@ -1,20 +1,8 @@
 #-------create route on web console-------
-open_create_route_page_from_overview_page:
-# workaround for 3.3 due to no Create Route on overview
-  action: goto_one_service_page
-  elements:
-  - selector:
-      text: Create route
-    type: a
-    op: click
 open_create_route_page_from_service_page:
   action: goto_one_service_page
-  elements:
-  - selector:
-      text: Create route
-    type: a
-    op: click
-click_create_route_on_routes_page:
+  action: click_create_route
+click_create_route:
   elements:
   - selector:
       text: Create Route
@@ -24,7 +12,7 @@ create_unsecured_route_from_service_or_overview_page:
   action: set_route_name
   action: click_create_button
 create_route_dont_specify_hostname_from_routes_page:
-  action: click_create_route_on_routes_page
+  action: click_create_route
   action: choose_service_to_add_route
   action: set_route_name
   action: select_target_port
