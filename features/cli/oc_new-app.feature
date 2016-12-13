@@ -10,3 +10,26 @@ Feature: oc new-app related scenarios
     And the output should not contain:
       | parsing        |
       | invalid syntax |
+
+  # @author yapei@redhat.com
+  # @case_id 509066
+  Scenario: cli:parameter requirement check works correctly
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Given I backup the file "application-template-stibuild.json"
+    And I replace lines in "application-template-stibuild.json":
+      | "value": "root" | "value": "" |
+    When I run the :new_app client command with:
+      | file | application-template-stibuild.json |
+    Then the step should fail
+    And the output should match:
+      | [Ee]rror.*is required and must be specified |
+    
+    Given I restore the file "application-template-stibuild.json"
+    When I run oc create over "application-template-stibuild.json" replacing paths:
+      | ["parameters"][4]["value"]    | ""    |
+      | ["parameters"][4]["required"] | false |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | template | ruby-helloworld-sample |
+    Then the step should succeed
