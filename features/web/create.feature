@@ -624,7 +624,15 @@ Feature: create app on web console related
       | file_path        | <%= File.join(localhost.workdir, "application-template-stibuild.json") %> |
       | process_template | false                                                                     |
       | save_template    | true                                                                      |
+    And I wait for the steps to pass:
+    """
+    When I run the :click_create_button web console action
     Then the step should succeed
+    When I perform the :process_and_save_template web console action with:
+      | process_template | false |
+      | save_template    | true  |
+    Then the step should succeed
+    """
     When I run the :get client command with:
       | resource | templates           |
       | n        | <%= project.name %> |
