@@ -657,7 +657,7 @@ Feature: jenkins.feature
       | from       | openshift/ruby-22-centos7 |
       | confirm    | true                      |
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
+      | rules    | lib/rules/web/images/jenkins/                                     |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     When I perform the :jenkins_login web action with:
       | username | admin                      |

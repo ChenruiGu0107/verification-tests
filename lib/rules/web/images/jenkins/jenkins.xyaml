@@ -523,7 +523,7 @@ jenkins_click_download_install_button:
     type: button
     op: click
 
-jenkins_login:
+jenkins_standard_login:
   url: /login
   elements:
   - selector:
@@ -540,6 +540,30 @@ jenkins_login:
     op: click
     type: button
   action: jenkins_verify_logged_in
+
+jenkins_oauth_login:
+  url: /securityRealm/commenceLogin?from=%2F
+  elements:
+  - selector:
+      text: Login with OpenShift
+    op: click
+    type: a
+  - selector:
+      id: inputUsername
+    op: send_keys <username>
+    type: input
+  - selector:
+      id: inputPassword
+    op: send_keys <password>
+    type: input
+  - selector:
+      text: Log In
+    op: click
+    type: button
+  - selector:
+      value: Allow selected permissions
+    op: click
+    type: input
 
 jenkins_scale_openshift_deployment:
   url: /job/<job_name>/configure
