@@ -2758,3 +2758,27 @@ Feature: build 'apps' with CLI
     And the output should contain:
       | Pulling image "docker.io/aosqe/extendedbuild_builder:latest" |
       | Pulling image "docker.io/aosqe/extendedbuild_runtime:latest" |
+
+  # @author cryan@redhat.com
+  # @case_id 539699
+  Scenario: Handle build naming collisions
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world.git |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc539699/build.yaml"
+    And I replace lines in "build.yaml":
+      | replacestr/ | <%= product_docker_repo %> |
+    When I run the :create client command with:
+      | f | build.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should fail
+    And the output should contain:
+      | already exists |
+      | Retry building |
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    Given the "ruby-hello-world-3" build was created
