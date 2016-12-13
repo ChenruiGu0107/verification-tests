@@ -56,3 +56,118 @@ Feature: negative tests
     Then the step should fail
     And the output should match:
       | [Ee]rror.*no scalable resources |
+
+  # @author xiaocwan@redhat.com
+  # @case_id 535718
+  Scenario: Improved CLI command guide
+    Given I log the message>  this scenario is only for oc 3.4+
+    When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
+      | arg             | abcd           |
+    Then the step should fail
+    And the output should match:
+      | unknown command |
+      | oc --help       |
+
+    # oc status negative
+    When I run the :status client command
+    Then the step should fail
+    And the output should match:
+      | cannot get projects in project.*default |   
+    Given I have a project
+    When I run the :status client command
+    Then the step should succeed
+    And the output should match:
+      | [Yy]ou have no  |
+      | oc new-app      |  
+    # follow output instruction to test `oc new-app`
+    
+    # oc new-app negative/positive oc status positive
+    When I run the :new_app client command
+    Then the step should fail
+    And the output should match:
+      | [Ee]rror.*[Yy]ou must specify    |
+      | oc new-app -L                    |
+      | oc new-app -S                    |
+      | oc new-app -h                    |
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I run the :status client command
+    Then the step should succeed
+    And the output should match:
+      | use.*oc status -v                |
+    When I run the :status client command with:
+      | v     |                          |
+    Then the step should succeed
+    And the output should contain:
+      | oc describe <resource>/<name>    |
+      | oc get all                       |
+    # follow output instruction to test `oc describe` and `oc get`
+    
+    # oc describe negative
+    When I run the :describe client command with:
+      | resource | :false |
+    Then the step should fail
+    And the output should match:
+      | type of resource.*include        |
+      | buildconfigs.*bc                 |
+      | [Ee]rror.*[Rr]equired resource   |
+      | oc describe -h                   |
+    # oc get negative
+    When I run the :get client command with:
+      | resource | :false |
+    Then the step should fail
+    And the output should match:
+      | type of resource.*include        |
+      | buildconfigs.*bc                 |
+      | [Ee]rror.*[Rr]equired resource   |
+      | oc get -h                        |
+      | oc explain <resource>            |
+    # follow output instruction to test `oc explain`
+
+    # oc explain negative
+    When I run the :explain client command
+    Then the step should fail
+    And the output should match:
+      | type of resource.*include        |
+      | buildconfigs.*bc                 |
+      | [Ee]rror.*[Rr]equired resource   |
+      | oc explain -h                    |
+
+    # oc start-build negative
+    When I run the :start_build client command
+    Then the step should fail
+    And the output should match:  
+      | [Ee]rror.*build config           |
+      | specify build name.*--from-build |
+      | oc get bc                        |
+      | oc start-build -h                |
+
+    # oc deploy negative
+    When I run the :deploy client command with:
+      | deployment_config | :false |
+    Then the step should fail
+    And the output should match:   
+      | [Ee]rror.*deployment config.*required |
+      | oc get dc                        |
+      | oc deploy -h                     |
+
+    # oc expose negative
+    When I run the :expose client command with:
+      | resource         | :false        |
+      | resource_name    | :false        |
+    Then the step should fail
+    And the output should match: 
+      | [Ee]rror.*must provide.*resource |
+      | [Ee]xample resource.*include     |
+      | oc expose -h                     |
+
+    # oc logs should not only prompt message about pod
+    # there is bug: #https://bugzilla.redhat.com/show_bug.cgi?id=1391838
+    When I run the :logs client command with:
+      | resource_name | :false |
+    Then the step should fail
+    And the output should contain:
+      | bc              |
+      | dc              |
+    
