@@ -39,6 +39,26 @@ Feature: jenkins.feature
       | Dashboard [Jenkins] |
 
   # @author cryan@redhat.com
+  # @case_id 525984
+  Scenario: Jenkins service created with bc of jenkinpipeline strategy
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/fabric8io/openshift-jenkins-sync-plugin/master/src/test/resources/sampleBC.yml |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I wait for the "jenkins" service to become ready
+    When I use the "jenkins" service
+    When I open secure web server via the "jenkins" route
+    Then the output should contain "hudson"
+    When I run the :delete client command with:
+      | object_type       | bc   |
+      | object_name_or_id | edam |
+    Then the step should succeed
+    Given I get project pods
+    Then the output should contain "jenkins"
+
+  # @author cryan@redhat.com
   # @case_id 531203
   Scenario: Using jenkinsfilePath or contextDir with jenkinspipeline strategy
     Given I have a project
@@ -129,6 +149,10 @@ Feature: jenkins.feature
     And the output should contain:
       | edam  |
       | edam1 |
+    When I run the :create client command with:
+      | f | sampleBC.yml |
+    Then the step should fail
+    And the output should contain "already exists"
 
   # @author shiywang@redhat.com
   # @case_id 515420
@@ -353,6 +377,92 @@ Feature: jenkins.feature
     And the "frontend-1" build completes
     And a pod becomes ready with labels:
       | <%= env.version_gt("3.2", user: user) ? "name" : "app" %>=frontend |
+    #Ensure the Jenkins job completes, wait for the frontend-prod pod
+    And a pod becomes ready with labels:
+      | deployment=frontend-prod-1 |
+    And I get project services
+    Then the output should contain:
+      | frontend-prod |
+      | frontend      |
+      | jenkins       |
+    Given I get project deploymentconfigs
+    Then the output should contain:
+      | frontend-prod |
+      | frontend      |
+      | jenkins       |
+    Given I get project is
+    Then the output should contain:
+      | <%= project.name %>/nodejs-010-rhel7     |
+      | <%= project.name %>/origin-nodejs-sample |
+      | prod                                     |
+    When I run the :describe client command with:
+      | resource | builds     |
+      | name     | frontend-1 |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | OpenShift%20Sample |
+    Then the step should succeed
+    Given the "frontend-2" build was created
+    And the "frontend-2" build completes
+    Given I get project is
+    Then the output should contain:
+      | <%= project.name %>/nodejs-010-rhel7     |
+      | <%= project.name %>/origin-nodejs-sample |
+      | prod                                     |
+
+  # @author cryan@redhat.com
+  # @case_id 508754
+  Scenario: Trigger build of application from jenkins job with persistent volume
+    Given I have a project
+    When I run the :new_app client command with:
+      | file         | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-persistent-template.json |
+      | env          | JENKINS_PASSWORD=test                                                                                       |
+      | env          | OPENSHIFT_ENABLE_OAUTH=false                                                                                |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | jenkins                                                                         |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "jenkins" PVC becomes :bound within 300 seconds
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
+    When I give project edit role to the default service account
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    When I execute on the pod:
+      |  id | -u |
+    Then the step should succeed
+    #Check that the user is not root, or 0 id
+    Then the expression should be true> Integer(@result[:response]) > 0
+    Given I have a browser with:
+      | rules    | lib/rules/web/images/jenkins/      |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_login web action with:
+      | username | admin |
+      | password | test  |
+    Then the step should succeed
+    When I perform the :jenkins_trigger_sample_openshift_build web action with:
+      | job_name                 | OpenShift%20Sample          |
+      | scaler_apiurl            | <%= env.api_endpoint_url %> |
+      | scaler_namespace         | <%= project.name %>         |
+      | builder_apiurl           | <%= env.api_endpoint_url %> |
+      | builder_namespace        | <%= project.name %>         |
+      | deploy_verify_apiurl     | <%= env.api_endpoint_url %> |
+      | deploy_verify_namespace  | <%= project.name %>         |
+      | service_verify_apiurl    | <%= env.api_endpoint_url %> |
+      | service_verify_namespace | <%= project.name %>         |
+      | image_tagger_apiurl      | <%= env.api_endpoint_url %> |
+      | image_tagger_namespace   | <%= project.name %>         |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | OpenShift%20Sample |
+    Then the step should succeed
+    Given the "frontend-1" build was created
+    And the "frontend-1" build completes
+    And a pod becomes ready with labels:
+      | deploymentconfig=frontend |
     #Ensure the Jenkins job completes, wait for the frontend-prod pod
     And a pod becomes ready with labels:
       | deployment=frontend-prod-1 |
