@@ -120,6 +120,12 @@
     :f: -f <value>
     :filename: --filename=<value>
     :record: --record=<value>
+:create_clusterresourcequota:
+  :cmd: oc create clusterresourcequota <name>
+  :options:
+    :hard: --hard=<value>
+    :annotation-selector: --project-annotation-selector=<value>
+    :label-selector: --project-label-selector=<value>
 :create_configmap:
   :cmd: oc create configmap
   :options:

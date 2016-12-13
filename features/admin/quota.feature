@@ -1453,3 +1453,32 @@ Feature: Quota related scenarios
       | my-quota-2 |
       | my-quota-3 |
       | my-quota-4 |
+
+
+  # @author qwang@redhat.com
+  # @case_id 534967
+  @admin
+  Scenario: Annotation selector supports special characters
+    Given I have a project
+    Given admin ensures "crq-<%= project.name %>" cluster_resource_quota is deleted after scenario
+    When I run the :create_clusterresourcequota admin command with:
+      | name                | crq-<%= project.name %>                             |
+      | hard                | pods=10                                             |
+      | annotation-selector | openshift.io/requester=usertest~!#%^&*1@example.com |
+    Then the step should succeed
+    When I run the :annotate admin command with:
+      | resource     | namespace                                           |
+      | resourcename | <%= project.name %>                                 |
+      | overwrite    | true                                                |
+      | keyval       | openshift.io/requester=usertest~!#%^&*1@example.com |  
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :describe admin command with:
+      | resource | clusterresourcequotas   |
+      | name     | crq-<%= project.name %> |
+    Then the output should match:
+      | openshift.io/requester:usertest\~\!\#\%\^\&\*1@example.com |
+      | pods\\s+1\\s+10                                            |
