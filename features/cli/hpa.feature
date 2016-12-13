@@ -112,3 +112,34 @@ Feature: hpa scale
       | hello-openshift.*80%.*1\\s+5  |
     And a pod becomes ready with labels:
       | run=hello-openshift           |
+
+  # @author chezhang@redhat.com
+  # @case_id 521544
+  Scenario: Creates autoscaler for replication controller with invalid value
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/rc-hello-openshift.yaml |
+    Then the step should succeed
+    Given I wait until replicationController "hello-openshift" is ready
+    When I run the :autoscale client command with:
+      | name | rc/hello-openshift |
+      | min  | 15                 |
+      | max  | 10                 |
+    Then the step should fail
+    And the output should match:
+      | MAXPODS must be larger or equal to.*MINPODS |
+    When I run the :autoscale client command with:
+      | name | rc/hello-openshift |
+      | max  | 0                  |
+      | max  | 0                  |
+     Then the step should fail
+    And the output should match:
+      | MAXPODS is required and must be at least 1 |
+    When I run the :autoscale client command with:
+      | name | rc/hello-openshift |
+      | min  | -2                 |
+      | max  | -5                 |
+     Then the step should fail
+    And the output should match:
+      | MAXPODS is required and must be at least 1 |
+      | MAXPODS must be larger or equal to.*MINPODS |
