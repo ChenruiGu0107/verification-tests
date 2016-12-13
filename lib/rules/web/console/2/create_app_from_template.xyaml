@@ -13,6 +13,14 @@ create_app_from_template_without_label:
   action: fromtemplate_navigate
   action: fromtemplate_param_form
   action: fromtemplate_submit_and_confirm
+create_app_from_template_with_required_field_empty:
+  action: fromtemplate_navigate
+  action: clear_param_4
+  action: fromtemplate_submit_and_confirm
+check_error_info_for_required_field:
+  element:
+    selector:
+      xpath: //div[contains(.,"is required")]
 fromtemplate_submit_and_confirm:
   action: click_create_button
   element:
@@ -91,6 +99,12 @@ clear_param_form:
     op: clear
     type: input
     optional: true
+clear_param_4:
+  element:
+    selector:
+      id: param-4
+    op: clear
+    type: input
 confirm_errors_with_invalid_template_label:
   elements:
   - selector:
