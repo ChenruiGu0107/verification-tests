@@ -1085,6 +1085,8 @@
     :host_network: --host-network=<value>
     :host_ports: --host-ports=<value>
     :n: -n <value>
+:oadm_top_images:
+  :cmd: oadm top images
 :openshift_version:
   :cmd: openshift version
   :expected:

@@ -232,3 +232,33 @@ Feature: oc set image related tests
     Then the step should fail
     And the output should match " cannot be specified with "
 
+
+  # @author: yinzhou@redhat.com
+  # @case_id: 533221
+  @admin
+  Scenario: Admin can understand/manage image use and prune unreferenced image
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    Then the step should succeed
+    And I wait until the status of deployment "deployment-example" becomes :complete
+    When I run the :new_app client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    Given the "ruby-ex-1" build was created
+    Given the "ruby-ex-1" build completed
+    And evaluation of `image_stream("deployment-example").latest_tag_docker_image_reference(user: user).split("@").last` is stored in the :dc_image_id clipboard
+    And evaluation of `image_stream("ruby-ex").latest_tag_docker_image_reference(user: user).split("@").last` is stored in the :ruby_image_id clipboard
+    Given cluster role "system:image-pruner" is added to the "first" user
+    When I run the :oadm_top_images client command
+    And the output should match:
+      | <%= cb.dc_image_id %>\\s+<%= project.name %>\/deployment-example \(latest\) |
+      | <%= cb.ruby_image_id %>\\s+<%= project.name %>\/ruby-ex \(latest\)          |
+    When I run the :delete client command with:
+      | object_type | all  |
+      | all         | true |
+    Then the step should succeed
+    When I run the :oadm_top_images client command
+    And the output should match:
+      | <%= cb.dc_image_id %>\\s+<none>   |
+      | <%= cb.ruby_image_id %>\\s+<none> |
