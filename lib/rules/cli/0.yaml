@@ -82,7 +82,6 @@
   :options:
     :cert: --certificate-authority=<value>
     :embed: --embed-certs=<value>
-    :insecure: --insecure-skip-tls-verify=<value>
     :server: --server=<value>
 :config_set_context:
   :cmd: oc config set-context <name>
