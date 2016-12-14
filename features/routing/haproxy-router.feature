@@ -621,13 +621,18 @@ Feature: Testing haproxy router
       | name | service-unsecure |
       | key_val | router=router1 |
     Then the step should succeed
+    And I wait up to 15 seconds for the steps to pass:
+    """
     When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
     Then the output should contain "Hello-OpenShift"
+    """
     When I run the :label client command with:
       | resource | route |
       | name | route-edge |
       | key_val | router=router1 |
     Then the step should succeed
+    And I wait up to 15 seconds for the steps to pass:
+    """
     When I execute on the "hello-pod" pod:
       | curl |
       | -sS |
@@ -637,7 +642,7 @@ Feature: Testing haproxy router
       | -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
-
+    """
 
   # @author zzhao@redhat.com
   # @case_id 516834
@@ -1255,17 +1260,22 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
-
+    And I wait up to 15 seconds for the steps to pass:
+    """
     When I open web server via the "http://<%= route.dns(by: user) %>" url
     Then the output should contain "Hello-OpenShift"
+    """
     When I open web server via the "http://<%= route.dns(by: user) %>:<%= cb.http_port %>" url
     Then the output should contain "Hello-OpenShift"
     When I run the :create_route_edge client command with:
       | name | edge-route |
       | service | service-unsecure |
     Then the step should succeed
+    And I wait up to 15 seconds for the steps to pass:
+    """
     When I open secure web server via the "edge-route" route
     Then the output should contain "Hello-OpenShift"
+    """
 
     Given I have a pod-for-ping in the project
     When I execute on the pod:
