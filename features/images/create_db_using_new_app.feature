@@ -1,6 +1,6 @@
 Feature:Create db using new_app cmd feature
   # @author dyan@redhat.com
-  # @case_id 509028, 509030
+  # @case_id 509028, 509030, 536380
   Scenario Outline: Create mysql resources from imagestream via oc new-app
     Given I have a project
     When I run the :new_app client command with:
@@ -35,11 +35,12 @@ Feature:Create db using new_app cmd feature
       | -c             |
       | mysql -h $MYSQL_SERVICE_HOST -uuser -ppass  -e "use db;select * from test" |
     Then the output should contain:
-      | name |
+      | name      |
       | openshift |
 
     Examples:
       | image_stream_name |
+      | mysql:5.7         |
       | mysql:5.6         |
       | mysql:5.5         |
 
