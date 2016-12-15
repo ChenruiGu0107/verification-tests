@@ -67,6 +67,7 @@ Feature: oc set image related tests
   # @author xiaocwan@redhat.com
   # @case_id 535232
   Scenario: oc set image to update existed image for container with --source
+    Given I log the message> this scenario is only valid for oc 3.4
     Given I have a project
     ## 1.  Create pod container(s) and ISs for project
     When I run the :create client command with:
@@ -101,7 +102,8 @@ Feature: oc set image related tests
     And the output should match:
       | dctest-1:\n.*[Ii]mage.*openshift/origin-pod         |
       | dctest-2:\n.*[Ii]mage.*openshift/hello-openshift    |
-    Given all pods in the project are ready
+    Given a pod becomes ready with labels:
+      | deployment=dctest-2 |
     When I run the :describe client command with:
       | resource        | pod                               |
     Then the step should succeed
