@@ -87,3 +87,16 @@ Feature: cacert related scenarios
     Given the "openshift.local.config/master/ca.crt" cert file is parsed into the clipboard
     And evaluation of `cb.cert.issuer.to_s.split('@')[1]` is stored in the :cert_id_new clipboard
     Then the expression should be true> cb.cert_id_new != cb.cert_id_old
+
+  # @author chuyu@redhat.com
+  # @case_id 457805
+  @admin
+  Scenario: The user should be specific user of specific group when access api with certificate
+    Given I use the "<%= env.master_hosts.first.hostname %>" node
+    And I run commands on the host:
+      | curl -k <%= env.api_endpoint_url %>/oapi/v1/users/~ --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
+    Then the step should succeed
+    And the output should contain:
+      | "name": "system:admin"  |
+      | "groups":               |
+      | "system:cluster-admins" | 

@@ -194,3 +194,126 @@ Feature: test master config related steps
       | latest            |                    |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
+
+    # @author: chuyu@redhat.com
+    # @case_id: 519545
+    @admin
+    @destructive
+    Scenario: Configure openshift to consume extended identity attributes from auth proxy
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - name: my_request_header_provider
+        challenge: true
+        login: true
+        mappingMethod: claim
+        provider:
+          apiVersion: v1
+          kind: RequestHeaderIdentityProvider
+          challengeURL: "https://www.example.com/challenging-proxy/oauth/authorize?${query}"
+          loginURL: "https://www.example.com/login-proxy/oauth/authorize?${query}"
+          headers:
+          - X-Remote-User
+          - SSO-User
+          emailHeaders:
+          - X-Remote-User-Email
+          nameHeaders:
+          - X-Remote-User-Display-Name
+          preferredUsernameHeaders:
+          - X-Remote-User-Login
+    """
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    And I select a random node's host
+    When I run commands on the host:
+      | curl <%= env.api_endpoint_url %>/oauth/authorize?response_type=token\&client_id=openshift-challenging-client -H "SSO-User: email" -H "X-Remote-User-Email: email@redhat.com" -k -I |
+    Then the step should succeed
+    And the output should contain:
+      | Location:     |
+      | Set-Cookie:   |
+      | Content-Type: |
+    When I run the :get admin command with:
+      | resource      | identity |
+      | o             | yaml     |
+    Then the step should succeed
+    And the output should contain "email: email@redhat.com"
+    When I run commands on the host:
+      | curl <%= env.api_endpoint_url %>/oauth/authorize?response_type=token\&client_id=openshift-challenging-client -H "SSO-User: display" -H "X-Remote-User-Display-Name: display user" -k -I |
+    Then the step should succeed
+    And the output should contain:
+      | Location:     |
+      | Set-Cookie:   |
+      | Content-Type: |
+    When I run the :get admin command with:
+      | resource      | users    |
+    Then the step should succeed
+    And the output should contain:
+      | FULL NAME     | display user                       |
+      | IDENTITIES    | my_request_header_provider:display |
+    When I run the :get admin command with:
+      | resource      | identity |
+    Then the step should succeed
+    And the output should contain:
+      | NAME          | my_request_header_provider:display |
+      | USER NAME     | display                            |
+    When I run commands on the host:
+      | curl <%= env.api_endpoint_url %>/oauth/authorize?response_type=token\&client_id=openshift-challenging-client -H "SSO-User: testlogin" -H "X-Remote-User-Login: login" -k -I |
+    Then the step should succeed
+    And the output should contain:
+      | Location:     |
+      | Set-Cookie:   |
+      | Content-Type: |
+    When I run the :get admin command with:
+      | resource      | users    |
+    Then the step should succeed
+    And the output should contain:
+      | NAME          | login                                |
+      | IDENTITIES    | my_request_header_provider:testlogin |
+    When I run the :get admin command with:
+      | resource      | identity |
+    Then the step should succeed
+    And the output should contain:
+      | NAME          | my_request_header_provider:testlogin |
+      | USER NAME     | login                                |
+
+  # @author: chuyu@redhat.com
+  # @case_id: 509118
+  @admin
+  @destructive
+  Scenario: User can login when user exists and references identity which does not exist
+    Given the user has all owned resources cleaned
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        mappingMethod: claim
+        name: anypassword
+        provider:
+          apiVersion: v1
+          kind: AllowAllPasswordIdentityProvider
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 509118_user                 |
+      | password | password                    |
+    Then the step should succeed
+    When I run the :delete admin command with:
+      | object_type       | identity                |
+      | object_name_or_id | anypassword:509118_user |
+    Then the step should succeed
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 509118_user                 |
+      | password | password                    |
+    Then the step should succeed
