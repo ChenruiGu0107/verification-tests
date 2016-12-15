@@ -152,3 +152,35 @@ check_scale_down_disabled:
   elements:
   - selector:
       xpath: //a[@class='disabled' and @aria-disabled='true']/span[text()='Scale down']
+
+group_services:
+  elements:
+  - selector:
+      xpath: //overview-service[div//a[text()="<primary_service_name>"]]//a[span[contains(text(),"Group service to <primary_service_name>")]]/i
+    op: click
+  - selector:
+      xpath: //div[@title="Choose a service"]/div/span
+    op: click
+  - selector:
+      xpath: //div[contains(@class,"ui-select-choices-row") and */div[text()="<service_name>"]]
+    op: click
+  - selector:
+      text: OK
+    op: click
+remove_service_from_group:
+  elements:
+  - selector:
+      xpath: //overview-service[div//a[text()="<service_name>"]]//a[span[contains(text(),"Remove <service_name> from service group")]]
+    op: click
+  - selector:
+      text: Remove
+    type: button
+    op: click
+check_service_group_with_route:
+  element:
+    selector:
+      xpath: //div[contains(@class,"service-group-with-route-row") and overview-service-group//a[starts-with(@href,"http://<primary_service_name>-<project_name>")]]//div[@class="service-name"]//a[text()="<service_name>"]
+check_service_group_entry:
+  element:
+    selector:
+      xpath: //div[@class="overview-services" and overview-service[contains(@class,"primary-service") and div//div[@class="service-name"]//a[text()="<primary_service_name>"]]]//div[@class="service-name"]//a[text()="<service_name>"]
