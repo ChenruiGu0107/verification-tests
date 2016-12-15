@@ -185,3 +185,17 @@ Feature: Check oc status cli
     And I run the :status client command
     Then the output should not contain:
       | use 'oc status -v' to see details |
+
+  # @author yapei@redhat.com
+  # @case_id 497401
+  Scenario: Indicate when build failed to push in 'oc status'
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc544375/ruby22rhel7-template-docker.json.failtopush"
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | ruby22rhel7-template-docker.json.failtopush |
+    Then the step should succeed
+    Given the "ruby22-sample-build-1" build becomes :running
+    And I run the :status client command
+    Then the output should contain:
+      | can't push to image |

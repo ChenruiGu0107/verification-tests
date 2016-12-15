@@ -107,31 +107,6 @@ Feature: projects related features via cli
       | * <%= project(1).name %>                                |
       | * <%= project(2).name %>                                |
 
-  # @author haowang@redhat.com
-  # @case_id 497401
-  Scenario: Indicate when build failed to push in 'oc status'
-    Given I have a project
-    When I run the :status client command
-    Then the step should succeed
-    And the output should contain:
-      | <%= project.name %> |
-      |no services |
-      |Run 'oc new-app' to create an application|
-    When I run the :new_app client command with:
-      | app_repo | https://github.com/openshift/ruby-hello-world |
-      | l | app=ruby |
-    Then the step should succeed
-    And the output should contain:
-      | WARNING |
-      | No Docker registry has been configured with the server |
-    Given the "ruby-hello-world-1" build was created
-    When I run the :status client command
-    Then the step should succeed
-    And the output should contain:
-      | can't push to image |
-      | Warning |
-      | administrator has not configured the integrated Docker registry |
-
   # @author yapei@redhat.com
   # @case_id 476297
   Scenario: Could delete all resources when delete the project
