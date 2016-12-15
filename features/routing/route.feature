@@ -393,6 +393,12 @@ Feature: Testing route
       | object_type       | route            |
       | object_name_or_id | service-unsecure |
     Then the step should succeed
+    # make sure the route is deleted and not accessible
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= cb.unsecure %>/test/" url
+    Then the output should not contain "Hello-OpenShift-Path-Test"
+    """
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json"
     And I replace lines in "route_unsecure.json":
       | unsecure.example.com | <%= cb.unsecure %> |
