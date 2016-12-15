@@ -113,6 +113,14 @@
     - "kind: Config"
   :optional_properties:
     :current_context: !ruby/regexp '/^current-context: (.+)/'
+:convert:
+  :cmd: oc convert
+  :options:
+    :file: -f <value>
+    :local: --local=<value>
+    :o: -o <value>
+    :output_version: --output-version=<value>
+    :recursive: --recursive=<value>
 :create:
   :cmd: oc create
   :options:
