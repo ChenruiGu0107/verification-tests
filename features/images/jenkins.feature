@@ -155,15 +155,18 @@ Feature: jenkins.feature
     And the output should contain "already exists"
 
   # @author shiywang@redhat.com
-  # @case_id 515420
-  Scenario: Build with new parameter which is configged
+  # @case_id 515420 536389
+  Scenario Outline: Build with new parameter which is configged
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
       | role      | admin                                           |
       | user_name | system:serviceaccount:<%=project.name%>:default |
     Then the step should succeed
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json                  |
+      | p    | JENKINS_IMAGE_STREAM_TAG=jenkins:<ver>                                                                                      |
+    Then the step should succeed
+    When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
     And I wait for the "jenkins" service to become ready
@@ -173,13 +176,10 @@ Feature: jenkins.feature
     Then the output should contain "Jenkins"
     And the output should not contain "ready to work"
     """
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
-      | base_url | https://<%= route.dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I log in to jenkins
     Then the step should succeed
     Given I wait up to 60 seconds for the steps to pass:
     """
@@ -191,6 +191,7 @@ Feature: jenkins.feature
     Then the output should contain "OpenShift Pipeline Jenkins Plugin"
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %> |
+      | time_out | 300                 |
     Then the step should succeed
     When I perform the :jenkins_add_build_string_parameter web action with:
       | job_name         | <%= project.name %> |
@@ -215,6 +216,10 @@ Feature: jenkins.feature
     And I run the :get client command with:
       | resource | build |
     Then the output should not contain "frontend-2"
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
   # @case_id 515421
