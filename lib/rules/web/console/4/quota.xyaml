@@ -1,4 +1,13 @@
 # ---------quota related feature-----------
+check_quota_warning_info_when_submit_create:
+  elements:
+  - selector:
+      xpath: //span[contains(text(),'<prompt_info>')]
+click_create_anyway:
+  elements:
+  - selector:
+      text: Create Anyway
+    op: click
 check_quota_warning_on_overview_page:
   elements:
   - selector:
