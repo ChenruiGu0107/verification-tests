@@ -180,10 +180,10 @@ Feature: functions about resource limits on pod
       | namespace      | openshift                                  |
       | app_name       | python-limit-demo                          |
       | source_url     | https://github.com/openshift/django-ex.git |
-      | cpu_request    | <%= rand_str(3, :dns) %>                   |
+      | cpu_request    | e<%= rand_str(3, :dns) %>                  |
       | cpu_limit      | -<%= rand_str(3, :num) %>                  |
       | memory_request | -<%= rand_str(3, :num) %>                  |
-      | memory_limit   | <%= rand_str(3) %>                         |
+      | memory_limit   | e<%= rand_str(3) %>                        |
     Then the step should fail
     When I get the visible text on web html page
     Then the output should contain 2 times:
