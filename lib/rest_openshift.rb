@@ -131,7 +131,23 @@ module CucuShift
         return Http.request(**base_opts, method: "POST")
       end
 
+      def self.post_pod_security_policy_self_subject_reviews(base_opts, opts)
+        base_opts[:payload] = File.read(expand_path(opts[:payload_file]))
+        populate("/namespaces/<project_name>/podsecuritypolicyselfsubjectreviews", base_opts, opts)
+        return perform(**base_opts, method: "POST")
+      end
 
+      def self.post_pod_security_policy_subject_reviews(base_opts, opts)
+        base_opts[:payload] = File.read(expand_path(opts[:payload_file]))
+        populate("/namespaces/<project_name>/podsecuritypolicysubjectreviews", base_opts, opts)
+        return perform(**base_opts, method: "POST")
+      end
+
+      def self.post_pod_security_policy_reviews(base_opts, opts)
+        base_opts[:payload] = File.read(expand_path(opts[:payload_file]))
+        populate("/namespaces/<project_name>/podsecuritypolicyreviews", base_opts, opts)
+        return perform(**base_opts, method: "POST")
+      end
 
     end
   end
