@@ -93,12 +93,13 @@ Feature:Create apps using new_app cmd feature
     And the output should not contain "ruby-hello-world-1"
 
   # @author cryan@redhat.com
-  # @case_id 509050
-  Scenario: Create jenkins resources with oc new-app from imagestream -jenkins-1-rhel7
+  # @case_id 509050 536387
+  Scenario Outline: Create jenkins resources with oc new-app from imagestream
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | jenkins                  |
+      | image_stream | jenkins:<ver>            |
       | env          | JENKINS_PASSWORD=test123 |
+      | p            | OAUTH_ENABLED=false      |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | app=jenkins |
@@ -106,16 +107,16 @@ Feature:Create apps using new_app cmd feature
     Then the step should succeed
     #Checking for 'ready to work' to disappear; this shows that
     #jenkins is ready to accept user/pass
-    Given I wait up to 60 seconds for the steps to pass:
+    Given I wait up to 300 seconds for the steps to pass:
     """
     When I open web server via the "http://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
     Then the output should contain "Jenkins"
     And the output should not contain "ready to work"
     """
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/     |
-      | base_url | http://<%= route.dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
+      | rules    | lib/rules/web/images/jenkins_<ver>/                              |
+      | base_url | http://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    When I perform the :jenkins_standard_login web action with:
       | username | admin   |
       | password | test123 |
     Then the step should succeed
@@ -123,6 +124,10 @@ Feature:Create apps using new_app cmd feature
     """
     Then the expression should be true> /Dashboard \[Jenkins\]/ =~ browser.title
     """
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author xiuwang@redhat.com
   # @case_id 529321
