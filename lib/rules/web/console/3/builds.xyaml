@@ -358,16 +358,26 @@ check_bc_output:
   elements:
   - selector:
       xpath: //dt[contains(.,'Output to')]/following-sibling::dd[contains(.,'<bc_output>')]
+check_github_webhook_trigger:
+  element:
+    selector:
+      xpath: //input[contains(@value,'<github_webhook_trigger>') and @readonly]
+check_generic_webhook_trigger:
+  element:
+    selector:
+      xpath: //input[contains(@value,'<generic_webhook_trigger>') and @readonly]
 check_bc_github_webhook_trigger:
   action: goto_buildconfig_configuration_tab
-  elements:
-  - selector:
-      xpath: //dt[contains(.,'GitHub webhook URL')]/following::input[contains(@value,'<github_webhook_trigger>') and @readonly]
+  action: check_github_webhook_trigger
+check_bc_github_webhook_trigger_on_bc_edit_page:
+  action: goto_buildconfig_edit_page
+  action: check_github_webhook_trigger
 check_bc_generic_webhook_trigger:
   action: goto_buildconfig_configuration_tab
-  elements:
-  - selector:
-      xpath: //dt[contains(.,'Generic webhook URL')]/following::input[contains(@value,'<generic_webhook_trigger>') and @readonly]
+  action: check_generic_webhook_trigger
+check_bc_generic_webhook_trigger_on_bc_edit_page:
+  action: goto_buildconfig_edit_page
+  action: check_generic_webhook_trigger
 check_bc_image_change_trigger:
   action: goto_buildconfig_configuration_tab
   elements:
