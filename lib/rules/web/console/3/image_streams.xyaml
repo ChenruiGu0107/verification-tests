@@ -39,7 +39,9 @@ check_is_tag_details_tab:
         var el = document.querySelectorAll('dd[ng-repeat="(name, value) in labels"] tt')
         var value = []
         for (var i=0; i<el.length; i++) {
-          value.push(el[i].textContent)
+          if (el[i].textContent.indexOf("build-date=") == -1) {
+            value.push(el[i].textContent)
+          }
         }
         return value.toString() == <labels>
     expect_result: true

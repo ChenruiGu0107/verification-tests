@@ -302,10 +302,10 @@ Feature: check page info related
       | $ sudo docker pull registry/python:2.7 |
     Given the "python:2.7" image stream tag was created
     When I perform the :check_is_tag_details_tab web console action with:
-      | digest         | <%= image_stream_tag.digest(user: user) %>                                                                             |
-      | docker_version | <%= image_stream_tag.docker_version(user: user) %>                                                                     |
-      | annotations    | <%= anno=[];image_stream_tag.annotations(user: user).each{\|key,value\| anno.push(key+": "+value)};anno %>             |
-      | labels         | <%= label=[];image_stream_tag.labels(user: user).each{\|key,value\| label.push(key + "=" + (key == "build-date" ? value.iso8601(6) : value))};label %> |
+      | digest         | <%= image_stream_tag.digest(user: user) %>                                                                                          |
+      | docker_version | <%= image_stream_tag.docker_version(user: user) %>                                                                                  |
+      | annotations    | <%= anno=[];image_stream_tag.annotations(user: user).each{\|key,value\| anno.push(key+": "+value)};anno %>                          |
+      | labels         | <%= label=[];image_stream_tag.labels(user: user).each{\|key,value\| label.push(key + "=" + value) if(key != "build-date")};label %> |
     Then the step should succeed
     # check istag page  "Config" tab 
     When I perform the :check_is_tag_config_tab web console action with:
@@ -341,10 +341,10 @@ Feature: check page info related
     Then the step should succeed
     Given the "php56:latest" image stream tag was created
     When I perform the :check_is_tag_details_tab web console action with:
-      | digest         | <%= image_stream_tag.digest(user: user) %>                                                                             |
-      | docker_version | <%= image_stream_tag.docker_version(user: user) %>                                                                     |
-      | annotations    | <%= anno=[];image_stream_tag.annotations(user: user).each{\|key,value\| anno.push(key+": "+value)};anno %>             |
-      | labels         | <%= label=[];image_stream_tag.labels(user: user).each{\|key,value\| label.push(key + "=" + (key == "build-date" ? value.iso8601(6) : value))};label %> |
+      | digest         | <%= image_stream_tag.digest(user: user) %>                                                                                          |
+      | docker_version | <%= image_stream_tag.docker_version(user: user) %>                                                                                  |
+      | annotations    | <%= anno=[];image_stream_tag.annotations(user: user).each{\|key,value\| anno.push(key+": "+value)};anno %>                          |
+      | labels         | <%= label=[];image_stream_tag.labels(user: user).each{\|key,value\| label.push(key + "=" + value) if(key != "build-date")};label %> |
     Then the step should succeed
     When I perform the :check_is_tag_layers_tab web console action with:
       | layers_len | <%= image_stream_tag.image_layers(user: user).length %> |
