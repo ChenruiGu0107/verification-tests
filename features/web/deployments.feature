@@ -448,3 +448,104 @@ Feature: Check deployments function
       | text  | pods |
     Then the step should succeed
     Given the expression should be true> browser.url.start_with? "#{browser.base_url}/console/project/#{project.name}/browse/pods"
+
+  # @author yapei@redhat.com
+  # @case_id 528860
+  Scenario: Create,Edit and Delete HPA from the deployment config page
+    Given I have a project
+    When I run the :run client command with:
+      | name         | myrun                 |
+      | image        | aosqe/hello-openshift |
+    Then the step should succeed
+    Given I wait until the status of deployment "myrun" becomes :running
+    # create autoscaler
+    When I perform the :add_autoscaler_set_max_pod_and_cpu_req_per_from_dc_page web console action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | myrun               |
+      | max_pods      | 10                  |
+      | cpu_req_per   | 60                  |
+    Then the step should succeed
+    When I perform the :check_autoscaler_min_pods web console action with:
+      | min_pods      | 1                   |
+    Then the step should succeed
+    When I perform the :check_autoscaler_max_pods web console action with:
+      | max_pods      | 10                  |
+    Then the step should succeed
+    When I perform the :check_autoscaler_cpu_request_target web console action with:
+      | cpu_request_target  | 60%                 |
+    Then the step should succeed
+    When I perform the :check_autoscaler_min_pods_on_rc_page web console action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | myrun               |
+      | dc_number     | 1                   |
+      | min_pods      | 1                   |
+    Then the step should succeed
+    When I perform the :check_autoscaler_max_pods_on_rc_page web console action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | myrun               |
+      | dc_number     | 1                   |
+      | max_pods      | 10                  |
+    Then the step should succeed
+    When I perform the :check_autoscaler_cpu_request_target_on_rc_page web console action with:
+      | project_name        | <%= project.name %> |
+      | dc_name             | myrun               |
+      | dc_number           | 1                   |
+      | cpu_request_target  | 60                  |
+    Then the step should succeed
+    When I perform the :check_dc_link_in_autoscaler_on_rc_page web console action with:
+      | project_name        | <%= project.name %> |
+      | dc_name             | myrun               |
+      | dc_number           | 1                   |
+    Then the step should succeed
+    # update autoscaler
+    When I perform the :update_min_max_cpu_request_for_autoscaler_from_dc_page web console action with:
+      | project_name       | <%= project.name %> |
+      | dc_name            | myrun               |
+      | min_pods           |  2                  |
+      | max_pods           | 15                  |
+      | cpu_req_per        | 85                  |
+    Then the step should succeed
+    When I perform the :check_autoscaler_min_pod_on_overview_page web console action with:
+      | project_name  | <%= project.name %> |
+      | min_pods      | 2                   |
+    Then the step should succeed
+    When I perform the :check_autoscaler_max_pod_on_overview_page web console action with:
+      | project_name  | <%= project.name %> |
+      | max_pods      | 15                  |
+    Then the step should succeed
+    When I perform the :manually_deploy web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | myrun               |
+    Then the step should succeed
+    When I perform the :wait_latest_deployments_to_status web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | myrun               |
+      | status_name  | Active              |
+    Then the step should succeed
+    When I perform the :check_autoscaler_min_pods_on_rc_page web console action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | myrun               |
+      | dc_number     | 2                   |
+      | min_pods      | 2                   |
+    Then the step should succeed
+    When I perform the :check_autoscaler_max_pods_on_rc_page web console action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | myrun               |
+      | dc_number     | 2                   |
+      | max_pods      | 15                  |
+    Then the step should succeed
+    When I perform the :check_autoscaler_cpu_request_target_on_rc_page web console action with:
+      | project_name        | <%= project.name %> |
+      | dc_name             | myrun               |
+      | dc_number           | 2                   |
+      | cpu_request_target  | 85                  |
+    Then the step should succeed
+    # delete autoscaler
+    When I perform the :delete_autoscaler_from_dc_page web console action with:
+      | project_name       | <%= project.name %> |
+      | dc_name            | myrun               |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource  | hpa |
+    Then the step should succeed
+    And the output should not contain "myrun"

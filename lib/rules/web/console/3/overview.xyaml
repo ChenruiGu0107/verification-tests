@@ -9,6 +9,16 @@ check_project_overview_without_resource:
       class: dropdown-toggle
     type: button
     op: click
+check_autoscaler_min_pod_on_overview_page:
+  action: goto_overview_page
+  element:
+    selector:
+       xpath: //div[contains(.,'Autoscaled')]/span[contains(.,'min') and contains(.,'<min_pods>')]
+check_autoscaler_max_pod_on_overview_page:
+  action: goto_overview_page
+  element:
+    selector:
+       xpath: //div[contains(.,'Autoscaled')]/span[contains(.,'max') and contains(.,'<max_pods>')]
 check_build_info_on_overview_page:
   elements:
   - selector:
