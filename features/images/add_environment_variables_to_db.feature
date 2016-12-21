@@ -157,10 +157,11 @@ Feature: Add env variables to image feature
   Scenario Outline: Add env var to mysql 55 and 56
     Given I have a project
     When I run the :new_app client command with:
-      | name         | mysql                         |
-      | docker_image | <image>                       |
-      | env          | MYSQL_ROOT_PASSWORD=test      |
-      | env          | MYSQL_MAX_ALLOWED_PACKET=400M |
+      | name              | mysql                         |
+      | docker_image      | <image>                       |
+      | env               | MYSQL_ROOT_PASSWORD=test      |
+      | env               | MYSQL_MAX_ALLOWED_PACKET=400M |
+      | insecure_registry | true                          |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=mysql-1 |
@@ -178,9 +179,10 @@ Feature: Add env variables to image feature
     Then the step should succeed
     Given I wait for the pod to die regardless of current status
     When I run the :new_app client command with:
-      | name         | mysql2                   |
-      | docker_image | <image>                  |
-      | env          | MYSQL_ROOT_PASSWORD=test |
+      | name              | mysql2                   |
+      | docker_image      | <image>                  |
+      | env               | MYSQL_ROOT_PASSWORD=test |
+      | insecure_registry | true                     |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=mysql2-1 |
@@ -202,9 +204,10 @@ Feature: Add env variables to image feature
   Scenario Outline: mem based auto-tuning mariadb
     Given I have a project
     When I run the :new_app client command with:
-      | name         | mariadb                                        |
-      | docker_image | <%= product_docker_repo %>rhscl/<image>:latest |
-      | env          | MYSQL_ROOT_PASSWORD=test                       |
+      | name              | mariadb                                        |
+      | docker_image      | <%= product_docker_repo %>rhscl/<image>:latest |
+      | env               | MYSQL_ROOT_PASSWORD=test                       |
+      | insecure_registry | true                                           |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | deployment=mariadb-1 |
@@ -225,14 +228,15 @@ Feature: Add env variables to image feature
     Then the step should succeed
     Given I wait for the pod to die regardless of current status
     When I run the :new_app client command with:
-      | name         | mariadb2                                       |
-      | docker_image | <%= product_docker_repo %>rhscl/<image>:latest |
-      | env          | MYSQL_ROOT_PASSWORD=test                       |
+      | name              | mariadb2                                       |
+      | docker_image      | <%= product_docker_repo %>rhscl/<image>:latest |
+      | env               | MYSQL_ROOT_PASSWORD=test                       |
+      | insecure_registry | true                                           |
     Then the step should succeed
     Given I wait until the status of deployment "mariadb2" becomes :running
     When I run the :patch client command with:
-      | resource      | dc                                                                                                        |
-      | resource_name | mariadb2                                                                                                  |
+      | resource      | dc                                                                                                            |
+      | resource_name | mariadb2                                                                                                      |
       | p             | {"spec":{"template":{"spec":{"containers":[{"name":"mariadb2","resources":{"limits":{"memory":"512Mi"}}}]}}}} |
     Given a pod becomes ready with labels:
       | deployment=mariadb2-2 |
