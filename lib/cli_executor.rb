@@ -186,10 +186,10 @@ module CucuShift
       #   instead of setting insecure SSL
       if user.cached_tokens.size == 0
         ## login with username and password and generate a bearer token
-        res = executor.run(:login, username: user.name, password: user.password, insecure: "true", server: user.env.api_endpoint_url, config: user_config, _timeout: LOGIN_TIMEOUT)
+        res = executor.run(:login, username: user.name, password: user.password, skip_tls_verify: "true", server: user.env.api_endpoint_url, config: user_config, _timeout: LOGIN_TIMEOUT)
       else
         ## login with existing token
-        res = executor.run(:login, token: user.cached_tokens.first.token, insecure: "true", server: user.env.api_endpoint_url, config: user_config)
+        res = executor.run(:login, token: user.cached_tokens.first.token, skip_tls_verify: "true", server: user.env.api_endpoint_url, config: user_config)
       end
       unless res[:success]
         logger.error res[:response]

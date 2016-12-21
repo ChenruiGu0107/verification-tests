@@ -155,7 +155,7 @@ Feature: oc global options (oc options) related scenarios
       | server   | <%= env.api_endpoint_url %>         |
       | token    | <%= user.get_bearer_token.token %>  |
       | ca       | ca.crt      |
-      | insecure | true        |
+      | skip_tls_verify | true |
       | config   | new.config  |
     Then the step should succeed
     When I run the :config_view client command with:
@@ -164,14 +164,14 @@ Feature: oc global options (oc options) related scenarios
     And the output should match "certificate-authority: .*ca.crt"
 
     When I run the :whoami client command with:
-      | insecure | true        |
+      | skip_tls_verify | true |
       | config   | new.config  |
     Then the step should succeed
 
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
       | token    | <%= user.get_bearer_token.token %>  |
-      | insecure | true        |
+      | skip_tls_verify | true |
       | config   | 2.config    |
     Then the step should succeed
 
@@ -191,7 +191,7 @@ Feature: oc global options (oc options) related scenarios
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
       | token    | <%= user.get_bearer_token.token %>  |
-      | insecure | true        |
+      | skip_tls_verify | true |
       | config   | new.config  |
     Then the step should succeed
 
@@ -208,7 +208,7 @@ Feature: oc global options (oc options) related scenarios
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
       | token    | <%= user.get_bearer_token.token %>  |
-      | insecure | true        |
+      | skip_tls_verify | true |
       | config   | new.config  |
     Then the step should succeed
     # The current context is replaced, i.e., is not 'previous' context any more

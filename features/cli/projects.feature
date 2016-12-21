@@ -449,7 +449,7 @@ Feature: projects related features via cli
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>         |
       | token    | <%= user.get_bearer_token.token %>  |
-      | insecure | true                  |
+      | skip_tls_verify | true           |
       | config   | new_config_file       |
     Then the step should succeed
     And the output should contain:

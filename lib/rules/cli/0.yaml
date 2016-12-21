@@ -9,7 +9,7 @@
   :h: -h
   :help: --help
   :user: --user=<value>
-  :insecure: --insecure-skip-tls-verify=<value>
+  :skip_tls_verify: --insecure-skip-tls-verify=<value>
   :match-server-version: --match-server-version=<value>
   :namespace: --namespace=<value>
   :n: -n <value>
@@ -848,6 +848,7 @@
     :source_type: --source=<value>
     :alias: --alias=<value>
     :d: --delete=<value>
+    :insecure: --insecure=<value>
 :types:
   :cmd: oc types
 :version:

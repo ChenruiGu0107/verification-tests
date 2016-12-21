@@ -37,7 +37,7 @@ Feature: oc_login.feature
       | u | <%= user.name %>     |
       | p | <%= user.password %> |
       | config   | dummy.kubeconfig |
-      | insecure | true |
+      | skip_tls_verify | true   |
     Then the step should succeed
     When I run the :config client command with:
       | subcommand | view |

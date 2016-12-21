@@ -282,3 +282,24 @@ Feature: oc tag related scenarios
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=deadbeef533103 |
+
+  # @author yinzhou@redhat.com
+  # @case_id 519470
+  @admin
+  Scenario: The image import controller should only import the necessary tag for specific docker image
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type  | docker                            |
+      | source       | aosqe/ssh-git-server:git-20150525 |
+      | dest         | ssh-git-server:git-20150525       |
+      | insecure     | true                              |
+    Then the step should succeed
+    Given I use the "<%= env.master_hosts.first.hostname %>" node
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-master --since "1 min ago" \| grep partial=true |
+    Then the step should succeed
+    And the output should contain:
+      | Importing stream <%= project.name %>/ssh-git-server partial=true |
+    When I get project is named "ssh-git-server" as YAML
+    And the expression should be true> @result[:parsed]['spec']['tags'].size == 1
+

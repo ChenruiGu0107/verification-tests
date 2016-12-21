@@ -90,7 +90,7 @@ Feature: test master config related steps
       | server   | <%= env.api_endpoint_url %> |
       | username | user                        |
       | password | password                    |
-      | insecure | true                        |
+      | skip_tls_verify | true                 |
     Then the step should succeed
     When I run the :get admin command with:
       | resource | users        |

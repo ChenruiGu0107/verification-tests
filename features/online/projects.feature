@@ -36,7 +36,7 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
       | server   | <%= env.api_endpoint_url %>         |
       | token    | <%= user.get_bearer_token.token %>  |
       | config   | new_config_file                     |
-      | insecure | true                                |
+      | skip_tls_verify | true                         |
     Then the step should succeed
     And the output should contain:
       | You have one project on this server: "<%= project.name %>" |
@@ -46,7 +46,7 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
       | server   | <%= env.api_endpoint_url %>        |
       | token    | <%= user.get_bearer_token.token %> |
       | config   | new_config_file                    |
-      | insecure | true                               |
+      | skip_tls_verify | true                         |
     Then the step should succeed
     And the output should contain:
       | You don't have any projects. You can try to create a new project |

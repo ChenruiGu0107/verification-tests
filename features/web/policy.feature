@@ -84,7 +84,7 @@ Feature:policy related features on web console
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>        |
       | token    | <%= user.get_bearer_token.token %> |
-      | insecure | true                               |
+      | skip_tls_verify | true                        |
       | config   | new.config                         |
     Then the step should succeed
     And the output should not contain:
