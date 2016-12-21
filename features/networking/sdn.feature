@@ -410,3 +410,41 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | ping -c 2 $(echo "<%= cb.node1_ip %>" \| sed 's/.\{4\}$/1/g') |
     Then the step should succeed
+
+  # @author zzhao@redhat.com
+  # @case_id 515697
+  @admin
+  Scenario: ovs-port should be deleted after delete pods
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    And the pod named "hello-pod" becomes ready
+    And evaluation of `pod.container(user: user, name: 'hello-pod').id` is stored in the :container_id clipboard
+    And evaluation of `pod("hello-pod").node_name(user: user)` is stored in the :pod_node clipboard
+    Then I use the "<%= cb.pod_node %>" node
+    When I run commands on the host:
+      | docker inspect <%= cb.container_id %> \|grep Pid |
+    Then the step should succeed
+    And evaluation of `/"Pid":\s+(\d+)/.match(@result[:response])[1]` is stored in the :user_container_pid clipboard
+    When I run commands on the host:
+      | nsenter -n -t <%= cb.user_container_pid %> -- ethtool -S eth0 \| sed -n -e 's/.*peer_ifindex: //p' |
+    Then the step should succeed
+    And evaluation of `@result[:response].strip` is stored in the :ifindex clipboard
+    When I run commands on the host:
+      | ip a \| grep "<%= cb.ifindex %>:" \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
+    Then the output should contain "veth"
+    And evaluation of `@result[:response].strip` is stored in the :veth_index clipboard
+    When I run commands on the host:
+      | (ovs-ofctl -O openflow13 show br0 \|\| docker exec openvswitch ovs-ofctl -O openflow13 show br0) |
+    Then the output should contain "<%= cb.veth_index %>"
+    When I run the :delete client command with:
+      | object_type       | pods      |
+      | object_name_or_id | hello-pod |
+    Then the step should succeed
+    Then I wait for the resource "pod" named "hello-pod" to disappear within 12 seconds
+    When I run commands on the host:
+      | ip a s <%= cb.veth_index %>: |
+    Then the step should fail
+    When I run commands on the host:
+      | (ovs-ofctl -O openflow13 show br0 \|\| docker exec openvswitch ovs-ofctl -O openflow13 show br0) |
+    Then the output should not contain "<%= cb.veth_index %>"
