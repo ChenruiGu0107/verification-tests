@@ -636,3 +636,62 @@ Feature: Check deployments function
     When I perform the :check_pod_scaled_numbers web console action with:
       | scaled_number | 2 |
     Then the step should succeed
+    
+  # @author yapei@redhat.com
+  # @case_id 536602
+  Scenario: Pause and Resume Deployment Configuration
+    Given the master version >= "3.4"
+    Given I have a project
+    When I run the :run client command with:
+      | name         | myrun                 |
+      | image        | aosqe/hello-openshift |
+    Then the step should succeed
+    Given I wait until the status of deployment "myrun" becomes :complete
+    When I perform the :check_latest_deployment_version web console action with:
+      | project_name              | <%= project.name %> |
+      | dc_name                   | myrun               |
+      | latest_deployment_version | 1                   |
+    Then the step should succeed
+    When I perform the :pause_deployment_configuration web console action with:
+      | project_name       | <%= project.name %> |
+      | dc_name            | myrun               |
+    Then the step should succeed
+    When I perform the :check_pause_message_on_dc_page web console action with:
+      | project_name       | <%= project.name %> |
+      | dc_name            | myrun               |
+    Then the step should succeed
+    When I perform the :check_pause_message_on_overview_page web console action with:
+      | project_name       | <%= project.name %> |
+    Then the step should succeed
+    When I run the :set_env client command with:
+      | resource | dc/myrun  |
+      | e        | test=1234 |
+    Then the step should succeed
+    When I perform the :check_latest_deployment_version web console action with:
+      | project_name              | <%= project.name %> |
+      | dc_name                   | myrun               |
+      | latest_deployment_version | 1                   |
+    Then the step should succeed
+    When I perform the :click_resume_on_overview_page web console action with:
+      | project_name              | <%= project.name %> |
+    Then the step should succeed
+    Given the pod named "myrun-2-deploy" becomes ready
+    And I wait for the pod named "myrun-2-deploy" to die
+    And a pod becomes ready with labels:
+      | deployment=myrun-2 |
+    When I perform the :check_latest_deployment_version web console action with:
+      | project_name              | <%= project.name %> |
+      | dc_name                   | myrun               |
+      | latest_deployment_version | 2                   |
+    Then the step should succeed
+    When I run the :set_env client command with:
+      | resource | dc/myrun  |
+      | e        | value=ago |
+    Then the step should succeed
+    Given the pod named "myrun-3-deploy" becomes ready
+    And I wait for the pod named "myrun-3-deploy" to die
+    When I perform the :check_latest_deployment_version web console action with:
+      | project_name              | <%= project.name %> |
+      | dc_name                   | myrun               |
+      | latest_deployment_version | 3                   |
+    Then the step should succeed

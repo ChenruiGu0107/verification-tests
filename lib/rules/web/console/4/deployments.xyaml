@@ -103,6 +103,16 @@ click_on_one_replicaset:
   - selector:
       xpath: //h3[contains(.,"Replica Sets")]/following::a[contains(.,'<k8s_replicasets_name>')]
     op: click
+click_on_pause_deployment:
+  elements:
+  - selector:
+      xpath: //a[@role="button" and contains(.,'Pause Deployment')]
+    op: click
+click_on_resume_deployment:
+  elements:
+  - selector:
+      xpath: //a[@role="button" and contains(.,'Resume Deployment')]
+    op: click
 click_to_goto_deployments_page:
   action: goto_overview_page
   elements:
@@ -285,6 +295,23 @@ check_deployment_idle_text:
       xpath: //deployment-donut//span[contains(.,'Idled')]
   - selector:
       xpath: //deployment-donut//a[contains(.,'Start <previous_replicas> pod')]
+check_pause_message_on_dc_page:
+  action: goto_one_dc_page
+  action: check_pause_message_related_with_dc_on_dc_page
+  action: check_general_message_for_pause_on_dc_page
+  action: check_resume_deployment_option_exist_on_dc_page
+check_pause_message_related_with_dc_on_dc_page:
+  element:
+    selector:
+      xpath: //strong[contains(.,'<dc_name> is paused')]
+check_general_message_for_pause_on_dc_page:
+  element:
+    selector:
+       xpath: //div[contains(.,'This will stop any new deployments and deployment triggers from running until resumed')]
+check_resume_deployment_option_exist_on_dc_page:
+  element:
+    selector:
+      xpath: //a[@role="button" and contains(.,'Resume deployment')]
 check_standalone_rc_idle_text:
   action: goto_one_standalone_rc_page
   elements:
@@ -465,6 +492,10 @@ delete_label_value_on_edit_autoscaler_page:
              }
              return false
       expect_result: true
+pause_deployment_configuration:
+  action: goto_one_dc_page
+  action: click_actions_button
+  action: click_on_pause_deployment
 update_min_max_cpu_request_for_autoscaler_from_dc_page:
   action: goto_one_dc_page
   action: click_edit_autoscaler_link
