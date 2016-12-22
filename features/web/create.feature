@@ -527,6 +527,7 @@ Feature: create app on web console related
       | is/hello-openshift  |
       | dc/hello-openshift  |
       | svc/hello-openshift |
+      | po/hello-openshift  |
     When I run the :env client command with:
       | resource | dc/hello-openshift |
       | list     | true               |
@@ -608,6 +609,7 @@ Feature: create app on web console related
     And the output should contain:
       | dc/python-dfi   |
       | svc/python-dfi  |
+      | po/python-dfi   |
 
   # @author etrott@redhat.com
   # @case_id 533201
