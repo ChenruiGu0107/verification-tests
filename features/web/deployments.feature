@@ -311,7 +311,7 @@ Feature: Check deployments function
       | f | <resource_file> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo-ui.json |
     Then the step should succeed
     When I perform the :<click_operation> web console action with:
       | project_name         | <%= project.name %> |
