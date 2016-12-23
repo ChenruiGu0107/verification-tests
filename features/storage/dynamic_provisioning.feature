@@ -284,6 +284,7 @@ Feature: Dynamic provisioning
     volumeConfig:
       dynamicProvisioningEnabled: False
     """
+    And the master service is restarted on all master nodes
     And admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | storageclass-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/<provisioner>      |
