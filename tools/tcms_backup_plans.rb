@@ -80,6 +80,21 @@ module CucuShift
         end
       end
 
+      command :restore_automated do |c|
+        c.syntax = "#{$0} restore_automated [options]"
+        c.description = 'restore is_automated status of test cases for a plan'
+        c.option('-p', '--plan-ids PLAN_IDS', 'comma separated list of plans to restore')
+        c.option('-b', '--backup BACKUP_ARCHIVE', 'backup archive to restore from')
+        c.option('--doit', 'actually perform the operation; dry run otherwise')
+        c.action do |args, options|
+          restore_automated(
+            options.plan_ids.split(',').map{|id| Integer(id)},
+            options.backup,
+            options.doit
+          )
+        end
+      end
+
       command :tags do |c|
         c.syntax = "#{$0} tags -b <backup_file.gz>"
         c.description = 'reports discrepancies between scenario and TCMS tags'
@@ -241,6 +256,42 @@ module CucuShift
         commands.each_slice(100) { |command_slice|
           tcms.multicall(*command_slice)
         }
+      else
+        puts "DRY Run, nothing changed"
+      end
+    end
+
+    # @param plan_ids [Array<integer>] plan IDs to restore
+    # @param backup_archive [String] path to backup archive
+    # @param perform [Boolean] should we actually perform the restore or dry run
+    def restore_automated(plan_ids, backup_archive, perform=false)
+      backup_struct = load_yaml_from_gz(backup_archive)
+      missing_plans = plan_ids - backup_struct.keys
+      unless missing_plans.empty?
+        raise "we don't have backup of plans: #{missing_plans}"
+      end
+
+      puts "Restoring Automated Status for TestCases in plans: #{plan_ids}"
+      cases_to_change = {}
+      plan_ids.each do |plan_id|
+        plan_cases = backup_struct[plan_id]
+        cur_cases = tcms.filter_cases_by_id(plan_cases.map{|c| c['case_id']})
+        plan_cases.each do |tcase|
+          cur_case = cur_cases.find { |c| c['case_id'] == tcase['case_id'] }
+          if cur_case['is_automated'] != tcase['is_automated']
+            (cases_to_change[tcase['is_automated']] ||= []) << tcase['case_id']
+          end
+        end
+      end
+
+      puts "nothing to restore" if cases_to_change.empty?
+      cases_to_change.each do |status, cases|
+        puts "Updating #{cases.size} to automated status #{status}."
+      end
+      if perform
+        cases_to_change.each do |status, cases|
+          tcms.update_testcases(cases, {"is_automated" => status})
+        end
       else
         puts "DRY Run, nothing changed"
       end
