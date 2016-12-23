@@ -320,7 +320,7 @@ Given /^the#{OPT_QUOTED} node service is verified$/ do |node_name|
 end
 
 Given /^the host is rebooted and I wait it(?: up to (\d+) seconds)? to become available$/ do |timeout|
-  timeout = timeout ? Integer(timeout) : 200
+  timeout = timeout ? Integer(timeout) : 300
   @host.reboot_checked(timeout: timeout)
 end
 
