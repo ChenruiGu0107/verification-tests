@@ -7,7 +7,7 @@ module CucuShift
     module Net
       extend BaseHelper
 
-      # @return single DNS entry for a hostname
+      # @return [String, Array<String>] DNS entry/ies for a hostname
       def self.dns_lookup(hostname, af: Socket::AF_INET, multi: false)
         res = Socket.getaddrinfo(hostname, 0, af, Socket::SOCK_STREAM, nil, Socket::AI_CANONNAME)
 
@@ -26,6 +26,17 @@ module CucuShift
         end
 
         return res[0][2] # btw this might be same IP if reverse entry missing
+      end
+
+      # @return [Array<String>, false] array of hostnames or false when DNS
+      #   was never resolved
+      def self.wait_dns_resolvable(hostname, af: Socket::AF_INET,
+                                   multi: true, timeout: 120)
+        res = false
+        wait_for(timeout) {
+          res = dns_lookup(hostname, af: af, multi: multi) rescue false
+        }
+        return res
       end
 
       # wait until TCP connection to host/port pair can be established
