@@ -353,32 +353,36 @@ Feature: build 'apps' with CLI
     When I get project buildconfigs
     Then the step should succeed
     And the output should contain "ruby22-sample-build"
+    And the "ruby22-sample-build-1" build was created
+    When I run the :cancel_build client command with:
+      | build_name | ruby22-sample-build-1 |
+    Then the "ruby22-sample-build-1" build was cancelled
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
-      | follow | true |
-      | wait   | true |
-      | _timeout | 120|
+      | follow      | true                |
+      | wait        | true                |
+      | _timeout    | 120                 |
     And the output should contain:
       | Installing application source |
       | Building your Ruby application from source |
     When I run the :start_build client command with:
       | from_build | ruby22-sample-build-1 |
-      | follow | true |
-      | wait   | true |
-      | _timeout | 120|
+      | follow     | true                  |
+      | wait       | true                  |
+      | _timeout   | 120                   |
     And the output should contain:
-      | Installing application source |
+      | Installing application source              |
       | Building your Ruby application from source |
     When I run the :patch client command with:
-      | resource | buildconfig |
-      | resource_name | ruby22-sample-build |
-      | p | {"spec":{"source":{"git":{"uri":"https://nondomain.com"}}}} |
+      | resource      | buildconfig                                                 |
+      | resource_name | ruby22-sample-build                                         |
+      | p             | {"spec":{"source":{"git":{"uri":"https://nondomain.com"}}}} |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
-      | follow | true |
-      | wait   | true |
-      | _timeout | 120|
+      | follow      | true                |
+      | wait        | true                |
+      | _timeout    | 120                 |
     Then the output should contain "unable to access 'https://nondomain.com/"
 
   # @author cryan@redhat.com
