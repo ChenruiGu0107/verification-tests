@@ -475,3 +475,23 @@ Feature: oc related features
       | --sort-by=           |
       | --template=          |
 
+  # @author xiaocwan@redhat.com
+  # @case_id 535720
+  Scenario: oc help command to guide user to get help info for subcommands
+    When I run the :help client command with:
+      | command_name       | set             |
+    Then the step should succeed
+    And the output should match:
+      | Configure application resources      |
+      | oc set COMMAND                       |
+      | route-backends                       |
+      | Use.*oc set <command> --help.*for    |
+      | Use.*oc options.*for                 |
+    When I run the :help client command with:
+      | command_name       | set             |
+      | command_name       | route-backends  |
+    Then the step should succeed
+    And the output should match:
+      | oc set route-backends ROUTENAME      |
+      | oc set route-backends web            |
+      | Use.*oc options.*for                 |    
