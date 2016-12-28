@@ -143,3 +143,7 @@ check_error_message_on_membership:
   element:
     selector:
       text: The role "<role>" has already been granted to "<name>".
+check_permission_error_on_membership:
+  element:
+    selector:
+      text: You do not have permission to view roles in this project. 

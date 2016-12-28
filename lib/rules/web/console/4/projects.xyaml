@@ -78,3 +78,30 @@ check_project_deleted_message:
   - selector:
       xpath: //span[contains(.,"'<project_name>' was marked for deletion")]
     type: a
+check_project_search_box:
+  action: goto_projects_page
+  elements:
+  - selector:
+      xpath: //input[contains(@id,'search-projects')]
+clear_input_box:
+  elements:
+  - selector:
+      xpath: //button[contains(@ng-if,'search.text')]
+    op: click    
+search_project:
+  elements:
+  - selector:
+      xpath: //input[contains(@id,'search-projects')]
+    op: send_keys <input_str>
+check_project_creator:
+  action: goto_projects_page
+  elements:
+  - selector:
+      xpath:  //a[contains(.,<project_name>)]/parent::h2[contains(@class,'h1')]/following::small[1]/span[contains(.,"by <creator>")]
+    timeout: 300
+click_project_membership:
+  elements:
+  - selector:
+      xpath:  //a[contains(@ng-href,'project/<project_name>/membership')]
+    op: click
+    timeout: 300

@@ -349,3 +349,167 @@ Feature: check page info related
     When I perform the :check_is_tag_layers_tab web console action with:
       | layers_len | <%= image_stream_tag.image_layers(user: user).length %> |
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id 538299
+  Scenario: Improve Project list/selection page - check and search project 
+    Given the master version >= "3.4"
+    When I run the :new_project client command with:
+      | project_name | 9-xiaocwan                  |
+      | display_name | a display name              |
+      | description  | b description name          |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | my-project                  |
+      | display_name | c, d, e , display           |
+      | description  | q, w, e description         |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | zzz-project                 |
+      | display_name | f,g,h,display               |
+      | description  | r,t,y,description           |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | 09-xiaocwan                 |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | a-xiaocwan                  |
+      | description  | zzz description for a-xiaoc |
+    Then the step should succeed
+    When I run the :new_project client command with:
+      | project_name | z-xiaocwan                  |
+      | display_name | 0a display for z-xiaocwan   |
+    Then the step should succeed
+
+    ## check search box button exist first, following steps will use it directly
+    When I run the :check_project_search_box web console action
+    Then the step should succeed
+
+    When I perform the :search_project web console action with:
+      | input_str    | 9               |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get the html of the web page
+    Then the output should not contain:
+      | a-xiaocwan                     |
+      | z-xiaocwan                     |
+    And the output should contain:
+      | 09-xiaocwan                    |
+      | a display name                 | 
+    """
+
+    ## After first search, check clear search box, 
+    ## after this check, following steps will use it directly because page will not refresh
+    When I run the :clear_input_box web console action
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get the html of the web page
+    Then the output should contain:
+      | 0a display for z-xiaocwan      |
+      | a display name                 |
+      | a-xiaocwan                     |
+      | c, d, e , display              |
+      | f,g,h,display                  |
+    """
+
+    When I perform the :search_project web console action with:
+      | input_str    | name            |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get the html of the web page
+    Then the output should not contain "09-xiaocwan"
+    And the output should contain:
+      | a display name                 |
+    """
+
+    When I run the :clear_input_box web console action
+    And I perform the :search_project web console action with:
+      | input_str    | zzz             |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get the html of the web page
+    Then the output should not contain "z-xiaocwan"
+    And the output should contain:
+      | zzz-project                    |
+      | zzz description for a-xiaoc    |
+    """
+    
+    When I run the :clear_input_box web console action
+    And  I perform the :search_project web console action with:
+      | input_str    | my-             |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get the html of the web page
+    Then the output should not contain "zzz-project"
+    And the output should contain:
+      | c, d, e , display  |
+    """
+    
+    When I run the :clear_input_box web console action
+    And I perform the :search_project web console action with:
+      | input_str    | d, e            |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get the html of the web page
+    Then the output should not contain "z-xiaocwan"
+    And the output should contain:
+      | c, d, e , display              |
+    """
+    
+    When I run the :clear_input_box web console action
+    And I perform the :search_project web console action with:
+      | input_str    | t,y             |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get the html of the web page
+    Then the output should not contain "9-xiaocwan"
+    And the output should contain:
+      | f,g,h,display                  |
+    """
+
+  # @author xiaocwan@redhat.com
+  # @case_id 544856
+  Scenario: Improve Project list/selection page - show creater and edit membership 
+    Given the master version >= "3.4"
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role       | admin                                       |
+      | user_name  | <%= user(1, switch: false).name %>          |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role       | view                                        |
+      | user_name  | <%= user(2, switch: false).name %>          |
+    Then the step should succeed
+    When I perform the :check_project_creator web console action with:
+      | project_name | <%= project.name %> |
+      | creator      | <%= user.name %>    |
+    Then the step should succeed
+
+    Given I switch to the second user
+    When I perform the :check_project_creator web console action with:
+      | project_name | <%= project.name %> |
+      | creator      | <%= user(0, switch: false).name %>        |
+    Then the step should succeed
+    When I perform the :click_project_membership web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :edit_membership web console action
+    Then the step should succeed
+
+    Given I switch to the third user
+    When I perform the :check_project_creator web console action with:
+      | project_name | <%= project.name %> |
+      | creator      | <%= user(0, switch: false).name %>        |
+    Then the step should succeed
+     When I perform the :click_project_membership web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I run the :check_permission_error_on_membership web console action
+    Then the step should succeed
