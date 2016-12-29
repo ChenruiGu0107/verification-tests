@@ -488,3 +488,50 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     And the output should contain "200"
     """
+
+  # @author: yadu@redhat.com
+  # @case_id: 522148
+  @admin
+  @destructive
+  Scenario: Restart master service could fix the invalid ip in hostip
+    Given I select a random node's host
+    Given hostsubnet "<%= node.name %>" is restored after scenario
+    Given I switch to cluster admin pseudo user
+    When I run the :get client command with:
+      | resource      | hostsubnet       |
+      | resource_name | <%= node.name %> |
+      | o             | yaml             |
+    Then the step should succeed
+    And evaluation of `@result[:parsed]['hostIP']` is stored in the :hostip clipboard
+    And I save the output to file>hostsubnet.yaml
+    And I replace lines in "hostsubnet.yaml":
+      | hostIP: <%= cb.hostip %> | hostIP: 8.8.8.8 |
+    When I run the :replace client command with:
+      | f | hostsubnet.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | hostsubnet       |
+      | resource_name | <%= node.name %> |
+    Then the step should succeed
+    And the output should contain "8.8.8.8"
+    And the master service is restarted on all master nodes
+    When I run the :get client command with:
+      | resource      | hostsubnet       |
+      | resource_name | <%= node.name %> |
+    Then the step should succeed
+    And the output should not contain "8.8.8.8"
+    And the output should contain:
+      | <%= cb.hostip %> | 
+
+  # @author: yadu@redhat.com
+  # @case_id: 515698
+  @admin
+  @destructive
+  Scenario: Master can be started normally when unset serviceNetworkCIDR
+    Given master config is merged with the following hash:
+    """
+    networkConfig:
+      serviceNetworkCIDR: null
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
