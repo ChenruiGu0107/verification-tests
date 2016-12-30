@@ -13,6 +13,7 @@ default: --profile devel
 debug: --profile _debug --profile devel
 devel: --profile _devel <%= default_args %>
 tcms: CUCUSHIFT_TEST_CASE_MANAGER=tcms <%= tcms_args %>
+polarshift: CUCUSHIFT_TEST_CASE_MANAGER=polarshift <%= tcms_args %>
 
 _debug: CUCUSHIFT_LOG_LEVEL=debug
 _devel: CUCUSHIFT_DEBUG_AFTER_FAIL=true CUCUSHIFT_DEBUG_ATTACHER_TIMEOUT=true

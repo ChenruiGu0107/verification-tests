@@ -170,10 +170,13 @@ module CucuShift
 
       # @param updates [Array<Hash>]
       def update_caseruns(project_id, run_id, updates)
+        unless Array === updates
+          updates = [updates]
+        end
         Http.request(
           method: :post,
           url: "#{base_url}project/#{project_id}/run/#{run_id}/records",
-          payload: updates.to_json,
+          payload: {case_records: updates}.to_json,
           raise_on_error: false,
           **common_opts
         )

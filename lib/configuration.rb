@@ -97,6 +97,7 @@ module CucuShift
       opts.all? {|o| val = val[o]}
       return val
     end
+    alias :dig :[]
 
     # instanciates optional class based on optional_classes configuration key
     def get_optional_class_instance(keyword)

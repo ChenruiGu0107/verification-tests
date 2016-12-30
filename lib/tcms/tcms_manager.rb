@@ -167,7 +167,7 @@ module CucuShift
     end
 
     # executed from within the attacher thread to actually upload/attach log;
-    #   for workitem format, see [#attach_scenario_artifacts]
+    #   for workitem format, see [#handle_formatter_artifacts]
     def handle_attach(workitem)
       job, dir = workitem
       relative_path = File.join(*TIME_SUFFIX)

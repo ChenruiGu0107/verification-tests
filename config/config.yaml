@@ -79,6 +79,12 @@ optional_classes:
     include_path: tcms/tcms_manager
     class: CucuShift::TCMSManager
     opts: {}
+  polarshift_tc_manager:
+    include_path: test_case_manager
+    class: CucuShift::TestCaseManager
+    opts:
+      test_suite_class: CucuShift::PolarShift::TestSuite
+      test_suite_opts: {}
 services:
   AWS:
     create_opts:
