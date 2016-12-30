@@ -160,7 +160,7 @@ Feature: Configuration of environment variables check
       | test8=\$\$\$\$\$\$\$\(zzhao\)   |
 
   # @author cryan@redhat.com haowang@redhat.com
-  # @case_id 521464 521463 529329
+  # @case_id 521464 529329
   @no-online
   Scenario Outline: Users can override the the env tuned by ruby base image
     Given I have a project
@@ -188,6 +188,34 @@ Feature: Configuration of environment variables check
     """
     Examples:
       | imagestream        |
-      | openshift/ruby:2.0 |
       | openshift/ruby:2.2 |
       | openshift/ruby:2.3 |
+
+  # @author haowang@redhat.com
+  # @case_id 521463
+  Scenario: Users can override the the env tuned by ruby base image -ruby-20-rhel7
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521461/template.json |
+    Then the step should succeed
+    Given the "rails-ex-1" build was created
+    And the "rails-ex-1" build completed
+    Given 1 pods become ready with labels:
+      | app=rails-ex          |
+      | deployment=rails-ex-1 |
+    When I run the :env client command with:
+      | resource | dc/rails-ex         |
+      | e        | PUMA_MIN_THREADS=1  |
+      | e        | PUMA_MAX_THREADS=14 |
+      | e        | PUMA_WORKERS=5      |
+    Given a pod becomes ready with labels:
+      | deployment=rails-ex-2 |
+    Given I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name | pod/<%= pod.name %>|
+    Then the output should contain:
+      | Min threads: 1     |
+      | max threads: 14    |
+      | Process workers: 5 |
+    """
