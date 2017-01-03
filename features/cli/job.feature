@@ -538,3 +538,39 @@ Feature: job.feature
     And the output should contain:
        | NAME     | sjd                    |
        | SCHEDULE | noescap: @daily        |
+  # @author geliu@redhat.com
+  # @case_id 535534
+  Scenario: The subsequent scheduled job should be suspend when set suppend flag to true
+    Given I have a project
+    When I run the :run client command with:
+      | name    | sj1       |
+      | image   | busybox   |
+      | restart | Never     |
+      | schedule| * * * * * |
+      | sleep   | 30        |
+    Then the step should succeed
+    Then status becomes :running of 1 pods labeled:  
+      | run=sj1 | 
+    When I run the :patch client command with:
+      | resource      | scheduledjob              |
+      | resource_name | sj1                       |
+      | p             | {"spec":{"suspend":true}} |
+    Then the step should succeed
+    Given 60 seconds have passed
+    When I run the :delete client command with:
+      | object_type | pod             |
+      | l           | run=sj1         |
+    Then the step should succeed
+    Given 60 seconds have passed
+    When I get project pods as JSON
+    And evaluation of `@result[:parsed]['items']` is stored in the :podlist clipboard
+    And the expression should be true> cb.podlist.empty? 
+    When I run the :patch client command with:
+      | resource      | scheduledjob               |
+      | resource_name | sj1                        |
+      | p             | {"spec":{"suspend":false}} |
+    Then the step should succeed
+    Then status becomes :running of 1 pods labeled:
+      | run=sj1 |
+    
+    
