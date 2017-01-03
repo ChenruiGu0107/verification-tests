@@ -416,12 +416,9 @@ Feature: SDN related networking scenarios
   @admin
   Scenario: ovs-port should be deleted after delete pods
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    And the pod named "hello-pod" becomes ready
+    And I have a pod-for-ping in the project
+    Then I use the "<%= pod.node_name(user: user) %>" node
     And evaluation of `pod.container(user: user, name: 'hello-pod').id` is stored in the :container_id clipboard
-    And evaluation of `pod("hello-pod").node_name(user: user)` is stored in the :pod_node clipboard
-    Then I use the "<%= cb.pod_node %>" node
     When I run commands on the host:
       | docker inspect <%= cb.container_id %> \|grep Pid |
     Then the step should succeed
@@ -431,7 +428,7 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     And evaluation of `@result[:response].strip` is stored in the :ifindex clipboard
     When I run commands on the host:
-      | ip a \| grep "<%= cb.ifindex %>:" \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
+      | ip addr show if<%= cb.ifindex %> \| head -1 \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
     Then the output should contain "veth"
     And evaluation of `@result[:response].strip` is stored in the :veth_index clipboard
     When I run commands on the host:
@@ -448,3 +445,46 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | (ovs-ofctl -O openflow13 show br0 \|\| docker exec openvswitch ovs-ofctl -O openflow13 show br0) |
     Then the output should not contain "<%= cb.veth_index %>"
+
+  # @author zzhao@redhat.com
+  # @case_id 526626
+  @admin
+  @destructive
+  Scenario: The pod veth ports can be recovered when openvswitch restart
+    Given I have a project
+    And I have a pod-for-ping in the project
+    Then I use the "<%= pod.node_name(user: user) %>" node
+    And evaluation of `pod.container(user: user, name: 'hello-pod').id` is stored in the :container_id clipboard
+    When I run commands on the host:
+      | docker inspect <%= cb.container_id %> \|grep Pid |
+    Then the step should succeed
+    And evaluation of `/"Pid":\s+(\d+)/.match(@result[:response])[1]` is stored in the :user_container_pid clipboard
+    When I run commands on the host:
+      | nsenter -n -t <%= cb.user_container_pid %> -- ethtool -S eth0 \| sed -n -e 's/.*peer_ifindex: //p' |
+    Then the step should succeed
+    And evaluation of `@result[:response].strip` is stored in the :ifindex clipboard
+    When I run commands on the host:
+      | ip addr show if<%= cb.ifindex %> \| head -1 \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
+    Then the output should contain "veth"
+    And evaluation of `@result[:response].strip` is stored in the :veth_index clipboard
+    When I run commands on the host:
+      | (ovs-ofctl -O openflow13 show br0 \|\| docker exec openvswitch ovs-ofctl -O openflow13 show br0) |
+    Then the output should contain "<%= cb.veth_index %>"
+
+    When I run commands on the host:
+      | systemctl restart openvswitch |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | (ovs-ofctl -O openflow13 show br0 \|\| docker exec openvswitch ovs-ofctl -O openflow13 show br0) |
+    Then the output should contain "<%= cb.veth_index %>"
+    """
+    #check the pod can access external network
+    And I wait up to 300 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | curl -sS -w %{http_code} http://www.youdao.com -o /dev/null |
+    Then the step should succeed
+    And the output should contain "200"
+    """
