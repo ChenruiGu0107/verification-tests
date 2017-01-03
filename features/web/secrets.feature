@@ -45,13 +45,14 @@ Feature: web secrets related
       | secret_type       | pullSecret |
       | secret_name       | dockerhub1 |
     Then the step should succeed
-    When I perform the :add_another_pull_secret_with_image_registry_credentials web console action with:
-      | secret_type       | pullSecret            |
-      | new_secret_name   | dockerhub2            |
-      | new_docker_server | private2.registry.com |
-      | new_docker_user   | anyuser2              |
-      | new_docker_passwd | 12345678              |
-      | new_docker_email  | any2@example.com      |
+    When I perform the :add_another_pull_secret_with_image_registry_credential web console action with:
+      | secret_type       | pullSecret                |
+      | auth_type         | Image Registry Credential |
+      | new_secret_name   | dockerhub2                |
+      | new_docker_server | private2.registry.com     |
+      | new_docker_user   | anyuser2                  |
+      | new_docker_passwd | 12345678                  |
+      | new_docker_email  | any2@example.com          |
     Then the step should succeed
     When I run the :click_create_button web console action
     Then the step should succeed
@@ -103,10 +104,11 @@ Feature: web secrets related
     Then the step should succeed
     # Add Source Secret
     When I perform the :add_new_source_secret_with_basic_authentication web console action with:
-      | secret_type     | gitSecret |
-      | new_secret_name | gitsecret |
-      | username        | gituser   |
-      | password_token  | 12345678  |
+      | secret_type     | gitSecret            |
+      | new_secret_name | gitsecret            |
+      | auth_type       | Basic Authentication |
+      | username        | gituser              |
+      | password_token  | 12345678             |
     Then the step should succeed
     # Add Pull Secret
     When I perform the :select_one_secret_from_box web console action with:
@@ -114,13 +116,14 @@ Feature: web secrets related
       | secret_name | dockerhub1 |
     Then the step should succeed
     # Add Push Secret
-    When I perform the :add_new_push_secret_with_image_registry_credentials web console action with:
-      | secret_type       | pushSecret            |
-      | new_secret_name   | dockerhub2            |
-      | new_docker_server | private2.registry.com |
-      | new_docker_user   | anyuser2              |
-      | new_docker_passwd | 12345678              |
-      | new_docker_email  | any2@example.com      |
+    When I perform the :add_new_push_secret_with_image_registry_credential web console action with:
+      | secret_type       | pushSecret                |
+      | auth_type         | Image Registry Credential |
+      | new_secret_name   | dockerhub2                |
+      | new_docker_server | private2.registry.com     |
+      | new_docker_user   | anyuser2                  |
+      | new_docker_passwd | 12345678                  |
+      | new_docker_email  | any2@example.com          |
     Then the step should succeed
     # Add Build Secret
     When I perform the :select_one_build_secret_from_box web console action with:
@@ -189,4 +192,119 @@ Feature: web secrets related
       | dockerhub1 |
       | dockerhub2 |
       | mysecret-1 |
-      | mysecret-2 | 
+      | mysecret-2 |
+
+  # @author xxing@redhat.com
+  # @case_id 536667
+  Scenario: Create secret via create secret page
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/credential/.gitconfig"
+    Given a "ssh_private_key" file is created with the following lines:
+      | <%= CucuShift::SSH::Helper.gen_rsa_key.to_pem %> |
+    # Create Source Secret of Basic Authentication type
+    When I perform the :create_source_secret_upload_gitconfig_with_basic_authentication web console action with:
+      | project_name    | <%= project.name %>              |
+      | secret_type     | Source Secret                    |
+      | auth_type       | Basic Authentication             |
+      | new_secret_name | gitsecret                        |
+      | username        | gituser                          |
+      | password_token  | 12345678                         |
+      | checkbox_option | gitconfig                        |
+      | is_check        | true                             |
+      | file_type       | gitconfig                        |
+      | file_path       | <%= expand_path(".gitconfig") %> |
+    Then the step should succeed
+    When I perform the :set_link_secret_to_sa web console action with:
+      | checkbox_option | linkSecret |
+      | is_check        | true       |
+      | sa_name         | builder    |
+    Then the step should succeed
+    When I run the :click_create_secret_button web console action
+    Then the step should succeed
+    
+    When I run the :extract client command with:
+      | resource | secret/gitsecret |
+      | confirm  | true             |
+    Then the step should succeed
+    Given evaluation of `File.read("username")` is stored in the :gituser clipboard
+    Then  the expression should be true> cb.gituser == "gituser"
+    Given evaluation of `File.read("password")` is stored in the :gitpasswd clipboard
+    Then  the expression should be true> cb.gitpasswd == "12345678"
+    When I run the :get client command with:
+      | resource      | sa      |
+      | resource_name | builder |
+      | o             | yaml    |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]["secrets"].include?({"name"=>"gitsecret"})
+    # Create Source Secret of SSH Authentication type
+    When I perform the :create_source_secret_upload_sshkey_with_ssh_authentication web console action with:
+      | project_name    | <%= project.name %>                   |
+      | secret_type     | Source Secret                         |
+      | new_secret_name | sshkey                                |
+      | auth_type       | SSH Key                               |
+      | file_type       | private-key                           |
+      | file_path       | <%= expand_path("ssh_private_key") %> |
+    Then the step should succeed
+    When I perform the :set_link_secret_to_sa web console action with:
+      | checkbox_option | linkSecret |
+      | is_check        | true       |
+      | sa_name         | default    |
+    Then the step should succeed
+    When I run the :click_create_secret_button web console action
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource      | sa      |
+      | resource_name | default |
+      | o             | yaml    |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]["secrets"].include?({"name"=>"sshkey"})
+    # Create Image Secret of Image Registry Credential Authentication type
+    When I run the :click_create_secret_on_secrets_page web console action
+    Then the step should succeed
+    When I perform the :create_image_secret_with_image_registry_credential web console action with:
+      | secret_type       | Image Secret              |
+      | auth_type         | Image Registry Credential |
+      | new_secret_name   | dockerhub                 |
+      | new_docker_server | private.registry.com      |
+      | new_docker_user   | anyuser                   |
+      | new_docker_passwd | 12345678                  |
+      | new_docker_email  | any@example.com           |
+    Then the step should succeed
+    When I perform the :set_link_secret_to_sa web console action with:
+      | checkbox_option | linkSecret |
+      | is_check        | true       |
+      | sa_name         | builder    |
+    Then the step should succeed
+    When I run the :click_create_secret_button web console action
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource      | sa      |
+      | resource_name | builder |
+      | o             | yaml    |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]["imagePullSecrets"].include?({"name"=>"dockerhub"})
+    # Create Image Secret of Configuration File Authentication Type
+    When I perform the :create_image_secret_upload_dockercfg_with_configuration_file_authentication web console action with:
+      | project_name    | <%= project.name %>                                                  |
+      | secret_type     | Image Secret                                                         |
+      | new_secret_name | dockerconfig                                                         |
+      | auth_type       | Configuration File                                                   |
+      | file_type       | docker-config                                                        |
+      | file_path       | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
+    Then the step should succeed
+    When I perform the :set_link_secret_to_sa web console action with:
+      | checkbox_option | linkSecret |
+      | is_check        | true       |
+      | sa_name         | deployer   |
+    Then the step should succeed
+    When I run the :click_create_secret_button web console action
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource      | sa       |
+      | resource_name | deployer |
+      | o             | yaml     |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]["imagePullSecrets"].include?({"name"=>"dockerconfig"})
