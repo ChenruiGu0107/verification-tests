@@ -336,10 +336,10 @@ Feature: Check deployments function
       | name          | hello-openshift-volume     |
     Then the step should succeed
     When I perform the :<check_mount_operation> web console action with:
-      | project_name         | <%= project.name %> |
-      | <resource_type>      | <resource_name>     |
-      | mount_path  |  /hello-openshift-data |
-      | volume_name | hello-openshift-volume |
+      | project_name    | <%= project.name %>    |
+      | <resource_type> | <resource_name>        |
+      | mount_path      | /hello-openshift-data  |
+      | volume_name     | hello-openshift-volume |
     Then the step should fail
     Examples:
       | resource_file |  click_operation | resource_type | resource_name | add_storage_operation | chk_volume_resource_type | chk_volume_resource_name | check_mount_operation |
@@ -353,7 +353,7 @@ Feature: Check deployments function
     Given I create a new project
     When I run the :create client command with:
       | f      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml |
-      | record | true                                                                                                         |
+      | record | true                                                                                                           |
     Then the step should succeed
     When I perform the :goto_overview_page web console action with:
       | project_name | <%= project.name %> |
@@ -363,21 +363,31 @@ Feature: Check deployments function
       | resource_name | hello-openshift           |
       | port_number   | 80/TCP                    |
       | image_name    | openshift/hello-openshift |
-      | version       | #1                        |
       | scaled_number | 4                         |
+    Then the step should succeed
+    When I perform the :check_latest_deployment_version_on_overview web console action with:
+      | resource_type | Deployment      |
+      | resource_name | hello-openshift |
+      | version       | #1              |
     Then the step should succeed
     When I run the :patch client command with:
       | resource      | deployment                                                                                                  |
       | resource_name | hello-openshift                                                                                             |
       | p             | {"spec":{"template":{"spec":{"containers":[{"image":"yapei/hello-openshift", "name":"hello-openshift"}]}}}} |
     Then the step should succeed
+    Given 4 pods become ready with labels:
+      | app=hello-openshift |
     When I perform the :check_overview_tile web console action with:
       | resource_type | Deployment            |
       | resource_name | hello-openshift       |
       | port_number   | 80/TCP                |
       | image_name    | yapei/hello-openshift |
-      | version       | #2                    |
       | scaled_number | 4                     |
+    Then the step should succeed
+    When I perform the :check_latest_deployment_version_on_overview web console action with:
+      | resource_type | Deployment      |
+      | resource_name | hello-openshift |
+      | version       | #2              |
     Then the step should succeed
     Given I run the steps 2 times:
     """
@@ -393,6 +403,8 @@ Feature: Check deployments function
     When I run the :scale_down_once web console action
     Then the step should succeed
     """
+    Given 2 pods become ready with labels:
+      | app=hello-openshift |
     When I perform the :check_pod_scaled_numbers web console action with:
       | scaled_number | 2 |
     Then the step should succeed
@@ -549,3 +561,78 @@ Feature: Check deployments function
       | resource  | hpa |
     Then the step should succeed
     And the output should not contain "myrun"
+
+  # @author etrott@redhat.com
+  # @case_id 536601
+  Scenario: Check ReplicaSet on Overview and ReplicaSet page
+    Given the master version >= "3.4"
+    Given I create a new project via web
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536601/replicaset.yaml |
+    Then the step should succeed
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_overview_tile web console action with:
+      | resource_type | Replica Set               |
+      | resource_name | frontend                  |
+      | port_number   | 8080/TCP                  |
+      | image_name    | openshift/hello-openshift |
+      | scaled_number | 3                         |
+    Then the step should succeed
+    And I click the following "a" element:
+      | text  | frontend |
+    Then the step should succeed
+    Given the expression should be true> browser.url.start_with? "#{browser.base_url}/console/project/#{project.name}/browse/rs"
+    When I perform the :click_to_goto_one_replicaset_page web console action with:
+      | project_name         | <%= project.name %> |
+      | k8s_replicasets_name | frontend            |
+    Then the step should succeed
+    When I perform the :check_label web console action with:
+      | label_key   | app       |
+      | label_value | guestbook |
+    Then the step should succeed
+    When I perform the :check_label web console action with:
+      | label_key   | tier     |
+      | label_value | frontend |
+    Then the step should succeed
+    When I perform the :check_rs_details web console action with:
+      | project_name       | <%= project.name %>   |
+      | rs_selectors_key   | tier                  |
+      | rs_selectors_value | frontend              |
+      | replicas           | 3 current / 3 desired |
+    Then the step should succeed
+    When I perform the :check_pods_number_in_table web console action with:
+      | pods_number | 3 |
+    Then the step should succeed
+    When I run the :scale_up_once web console action
+    Then the step should succeed
+    When I perform the :check_replicas web console action with:
+      | replicas | 4 current / 4 desired |
+    Then the step should succeed
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_pod_scaled_numbers web console action with:
+      | scaled_number | 4 |
+    Then the step should succeed
+    When I perform the :click_to_goto_one_replicaset_page web console action with:
+      | project_name         | <%= project.name %> |
+      | k8s_replicasets_name | frontend            |
+    Then the step should succeed
+    Given I run the steps 2 times:
+    """
+    When I run the :scale_down_once web console action
+    Then the step should succeed
+    """
+    Given 2 pods become ready with labels:
+      | app=guestbook |
+    When I perform the :check_replicas web console action with:
+      | replicas | 2 current / 2 desired |
+    Then the step should succeed
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_pod_scaled_numbers web console action with:
+      | scaled_number | 2 |
+    Then the step should succeed

@@ -61,7 +61,7 @@ check_pod_template_port_info:
   elements:
   - selector:
       xpath: //div[contains(@class,"pod-template-ports")]/descendant::div[contains(.,"Ports") and contains(.,"<port_number>")]
-check_latest_version:
+check_latest_deployment_version_on_overview:
   element:
     selector:
       xpath: //div[@class="overview-tile" and //div[@class="overview-tile-header" and //div[normalize-space(text())="<resource_type>" and //a[normalize-space(text())="<resource_name>"]]]]//span[contains(@class, "shield-number") and contains(text(), "<version>")]
@@ -72,7 +72,6 @@ check_pod_template_image:
 check_overview_tile:
   action: check_pod_template_image
   action: check_pod_template_port_info
-  action: check_latest_version
   action: check_pod_scaled_numbers
 check_standalone_rc_info_on_overview:
   elements:

@@ -245,14 +245,31 @@ check_dc_selector:
   elements:
   - selector:
       xpath: //dt[contains(.,'Selectors')]/following-sibling::dd[contains(.,'<dc_selectors_key>=<dc_selectors_value>')]
+check_replicas:
+  element:
+    selector:
+      xpath: //dt[contains(.,'Replicas')]/following-sibling::dd//span[contains(.,'<replicas>')]
 check_dc_replicas:
   action: check_dc_loaded_completely
   elements:
   - selector:
       xpath: //dt[contains(.,'Replicas')]/following-sibling::dd//span[contains(.,'<dc_replicas>')]
+check_rs_selector:
+  elements:
+  - selector:
+      xpath: //dt[contains(.,'Selectors')]/following-sibling::dd[contains(.,'<rs_selectors_key>=<rs_selectors_value>')]
+  - selector:
+      xpath: //dt[contains(.,"Selectors")]/following-sibling::dd[selector//div[normalize-space(text())="<rs_selectors_key> in" and span[text()="<rs_selectors_value>"]]]
 check_mount_info_on_one_deployment_page:
   action: click_to_goto_one_deployment_page
   action: check_mount_info
+check_rs_details:
+  action: check_rs_selector
+  action: check_replicas
+check_pods_number_in_table:
+  element:
+    selector:
+      xpath: //pods-table[count(table/tbody)=<pods_number>]
 check_mount_info_on_one_replicaset_page:
   action: click_to_goto_one_replicaset_page
   action: check_mount_info
@@ -422,6 +439,10 @@ check_no_cpu_req_warning:
   elements:
   - selector:
       xpath: //div[contains(.,'This deployment config does not have any containers with a CPU')]
+check_label:
+  element:
+    selector:
+      xpath: //span[contains(@class, "label-pair") and a[contains(@class, "label-key") and text()="<label_key>"] and a[contains(@class, "label-value") and text()="<label_value>"]]
 delete_label_on_edit_autoscaler_page:
   action: goto_one_dc_page
   action: goto_edit_autoscaler_page
