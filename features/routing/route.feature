@@ -912,3 +912,44 @@ Feature: Testing route
       | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
     Then the output should contain 4 times:
       | check inter 5000ms |
+
+  # @author yadu@redhat.com
+  # @case_id 544877
+  Scenario: Generated route host DNS segment should not exceed 63 characters
+    Given a 47 characters random string of type :dns is stored into the :proj_name1 clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.proj_name1 %> |
+    Then the step should succeed
+    When I use the "<%= cb.proj_name1 %>" project
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed     
+    And all pods in the project are ready
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | route |
+    Then the step should succeed
+    And the output should contain "InvalidHost"
+    
+    When I delete the project
+    Then the step should succeed
+
+    Given a 46 characters random string of type :dns is stored into the :proj_name2 clipboard
+    When I run the :new_project client command with:
+      | project_name | <%= cb.proj_name2 %> |
+    Then the step should succeed
+    When I use the "<%= cb.proj_name2 %>" project
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed     
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    And I wait for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
