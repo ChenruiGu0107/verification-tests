@@ -2620,7 +2620,7 @@ Feature: build 'apps' with CLI
       | cd /tmp; wget --no-check-certificate https://github.com/openshift/ruby-hello-world/archive/master.tar.gz; tar -xvzf master.tar.gz |
     Then the step should succeed
     Given I execute on the pod:
-      | oc | new-app | --code=/tmp/ruby-hello-world-master |
+      | oc | new-app | --code=/tmp/ruby-hello-world-master | --name=test-no-git |
     Then the step should succeed
     When I get project buildconfigs
     Then the output should contain "Binary"
