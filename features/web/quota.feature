@@ -415,3 +415,223 @@ Feature: functions about resourcequotas
     Then the step should succeed
     And I run the :click_cancel web console action
     Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id 536551
+  @admin
+  Scenario: Show warning/error info if quota exceeded when create resource by importing yaml/json file on web console
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name | myquota                                 |
+      | hard | cpu=50m,memory=80Mi,pods=5,services=1   |
+      | n    | <%= project.name %>                     |
+    Then the step should succeed
+
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+
+    When I run the :run client command with:
+      | name      | mypod                  |
+      | image     | aosqe/hello-openshift  |
+      | limits    | cpu=50m,memory=80Mi    |
+      | generator | run-pod/v1             |
+    Then the step should succeed
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json"
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                     |
+      | file_path        | <%= File.join(localhost.workdir, "deployment1.json") %> |
+    Then the step should succeed
+
+    And I wait for the steps to pass:
+    """
+    And I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota for CPU (request) on pods |
+    Then the step should succeed
+    """
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                     |
+      | file_path        | <%= File.join(localhost.workdir, "deployment1.json") %> |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    And I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota for memory (request) on pods |
+    Then the step should succeed
+    """
+    And I run the :click_create_anyway web console action
+    Then the step should succeed
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/multi-portsvc.json"
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                       |
+      | file_path        | <%= File.join(localhost.workdir, "multi-portsvc.json") %> |
+    Then the step should succeed
+
+    And I wait for the steps to pass:
+    """
+    And I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota of 1 service in this project |
+    Then the step should succeed
+    """
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id 536554
+  @admin
+  @destructive
+  Scenario: Show warning/error info if quota exceeded when create resource on web console with both project quota and cluster quota set on project
+    Given I have a project
+    And I create a new project
+    When I run the :label admin command with:
+      | resource | namespace |
+      | name     | <%= project.name %> |
+      | name     | <%= project(0, switch: false).name %> |
+      | key_val  | testcrq=one |
+    Then the step should succeed
+
+    #clusterquota is applied to projects
+    And I register clean-up steps:
+    """
+    When I run the :delete admin command with:
+      | object_type       | clusterresourcequota    |
+      | object_name_or_id | crq-<%= project.name %> |
+    Then the step should succeed
+    """
+    When I run the :create_clusterresourcequota admin command with:
+      | name           | crq-<%= project.name %>                |
+      | hard           | pods=3,memory=1Gi,cpu=800m,secrets=18  |
+      | label-selector | testcrq=one                            |
+    Then the step should succeed
+
+    #project quota is set to the first project
+    When I run the :create_quota admin command with:
+      | name | myquota                                 |
+      | hard | cpu=50m,memory=80Mi,pods=5,services=1   |
+      | n    | <%= project.name %>                     |
+    Then the step should succeed
+
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/project-quota/limits.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+
+    # check quota warning info on overview page
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+
+    When I run the :check_quota_warning_on_overview_page web console action
+    Then the step should succeed
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml"
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                       |
+      | file_path        | <%= File.join(localhost.workdir, "secret.yaml") %> |
+    Then the step should succeed
+
+    And I wait for the steps to pass:
+    """
+    And I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota of 18 secrets in this project |
+    Then the step should succeed
+    """
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+    # check quota warning info in another project
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project(0, switch: false).name %> |
+    Then the step should succeed
+    When I run the :check_quota_warning_on_overview_page web console action
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project(0, switch: false).name %>              |
+      | file_path        | <%= File.join(localhost.workdir, "secret.yaml") %> |
+    Then the step should succeed
+
+    And I wait for the steps to pass:
+    """
+    And I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota of 18 secrets in this project |
+    Then the step should succeed
+    """
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+  # @author yanpzhan@redhat.com
+  # @case_id 536555
+  @admin
+  Scenario Outline: Show warning/error info if quotas with scopes exceeded on web console
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc536555/quota-<type>.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc536555/pod-<type>.yaml" replacing paths:
+      | ["metadata"]["name"]   | pod1 |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc536555/pod-<type>.yaml" replacing paths:
+      | ["metadata"]["name"]   | pod2 |
+    Then the step should succeed
+
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name%> |
+    Then the step should succeed
+
+    When I run the :check_quota_warning_on_overview_page web console action
+    Then the step should succeed
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/tc536555/pod-<type>.yaml"
+    Then the step should succeed
+
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                       |
+      | file_path        | <%= File.join(localhost.workdir, "pod-<type>.yaml") %> |
+    Then the step should succeed
+
+    And I wait for the steps to pass:
+    """
+    And I run the :click_create_button web console action
+    Then the step should succeed
+    And I perform the :check_quota_warning_info_when_submit_create web console action with:
+      | prompt_info | You are at your quota of 2 pods in this project |
+    Then the step should succeed
+    """
+    And I run the :click_cancel web console action
+    Then the step should succeed
+
+    Examples:
+      | type           |
+      | besteffort     |
+      | notbesteffort  |
+      | terminating    |
+      | notterminating |
