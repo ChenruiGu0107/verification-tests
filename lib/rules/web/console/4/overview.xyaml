@@ -39,6 +39,18 @@ check_view_log_link_info_on_overview:
   elements:
   - selector:
       xpath: //a[contains(text(),'View Log') and contains(@href, "project/<project_name>/browse/builds/<bc_name>/<bc_build_id>?tab=logs")]
+check_pause_message_on_overview_page:
+  action: goto_overview_page
+  action: check_general_pause_message_on_overview_page
+  action: check_resume_option_exist_on_overview_page
+check_general_pause_message_on_overview_page:
+  element:
+    selector:
+       xpath: //div[contains(.,'Deployment is paused')]
+check_resume_option_exist_on_overview_page:
+  element:
+    selector:
+      xpath: //a[@role="button" and contains(.,'Resume')]
 check_pod_info_on_overview:
   scripts:
   - command: return document.querySelector("text[class='c3-chart-arcs-title']").textContent.contains('<pod_display>')
@@ -110,6 +122,14 @@ check_idle_donut_text_on_overview:
   scripts:
     - command: return document.querySelectorAll('text[class=c3-chart-arcs-title] tspan')[0].innerHTML.contains("Idle")
       expect_result: true
+click_resume:
+  element:
+    selector:
+      xpath: //a[@role="button" and contains(.,'Resume')]
+    op: click 
+click_resume_on_overview_page:
+  action: goto_overview_page
+  action: click_resume
 click_wake_up_option_on_overview:
   action: goto_overview_page
   elements:
