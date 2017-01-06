@@ -84,6 +84,8 @@ module CucuShift
         test_case.location.file
       end
 
+      # @return [String] name of this scenario or if this is an example from
+      #   an Outline, then the name of the Scenario Outline
       def name
         # btw we can also use #match_name? but this should be faster for us
         example? ? test_case.source[-3].name : test_case.name
@@ -105,6 +107,7 @@ module CucuShift
         end
       end
 
+      # @return [Integer] number of examples contained in the whole Outline
       def examples_size
         if example?
           outline = test_case.source[-3]
@@ -113,15 +116,20 @@ module CucuShift
         end
       end
 
+      # @return [String] name of the examples table this scenario is part of
       def examples_table_name
         test_case.source[-2].name if example?
       end
 
+      # @return [Integer] number of examples contained in the examples table
+      #   this scenario is part of
       def examples_table_size
         test_case.source[-2].example_rows.size if example?
       end
 
-      def args
+      # @return [Hash] the arguments from the examples table associated with
+      #   this example
+      def example_args
         test_case.source.last.instance_variable_get(:@data) if example?
       end
 

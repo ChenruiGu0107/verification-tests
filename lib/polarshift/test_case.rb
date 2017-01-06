@@ -90,6 +90,7 @@ module CucuShift
       def complete?
         @complete
       end
+
       private def complete=(value)
         @complete = value
       end
@@ -138,7 +139,7 @@ module CucuShift
               else
                 return false
               end
-            elsif scenario.args == automation_args
+            elsif scenario.example_args == automation_args
               # we want a single example from an outline
               scenarios << scenario
               self.complete = true
