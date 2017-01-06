@@ -13,6 +13,7 @@ module CucuShift
   autoload :GCE, 'launchers/gce'
   autoload :OpenStack, "launchers/openstack"
   autoload :EnvironmentLauncher, "launchers/environment_launcher"
+  autoload :PolarShift, "polarshift/autoload"
 
   autoload :LocalProcess, "local_process.rb"
   autoload :OwnThat, "ownthat.rb"

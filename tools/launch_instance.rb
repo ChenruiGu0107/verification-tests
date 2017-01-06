@@ -516,6 +516,7 @@ module CucuShift
       vars[:instances_name_prefix] = launched_instances_name_prefix
       raise "specify 'template' in variables" unless vars[:template]
 
+      # this can be a URL or a PATH
       config_dir = File.dirname config
       config_dir = nil if config_dir == "."
       hosts = []
