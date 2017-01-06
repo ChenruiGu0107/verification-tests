@@ -48,6 +48,9 @@ check_save_button_disabled:
   elements:
   - selector:
       xpath: //button[@disabled='disabled' and text()='Save']
+click_to_goto_edit_page:
+  action: click_actions_button
+  action: click_edit
 delete_resource:
   action: click_actions_button
   action: click_delete

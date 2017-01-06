@@ -197,6 +197,40 @@ goto_one_dc_environment_tab:
   action: goto_environment_tab
 goto_one_standalone_rc_page:
   url: /console/project/<project_name>/browse/deployments-replicationcontrollers/<rc_name>
+update_container_image_name:
+  elements:
+  - selector:
+      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//div[label[@for="imageName"]]/input
+    op: clear
+  - selector:
+      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//div[label[@for="imageName"]]/input
+    op: send_keys <image_name>
+set_autostart_deployment_checkbox:
+  element:
+    selector:
+      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//label[normalize-space()="Automatically start new deployments when an image stream tag is updated."]/input
+    type: checkbox
+    op: set <deployment_autostart>
+set_image_change_trigger:
+  elements:
+  - selector:
+      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//div[label[text()="Namespace"]]//div/span
+    op: click
+  - selector:
+      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//div[label[text()="Namespace"]]//div[text()="<namespace>"]
+    op: click
+  - selector:
+      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//div[label[text()="Image Stream"]]//div/span
+    op: click
+  - selector:
+      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//div[label[text()="Image Stream"]]//div[text()="<image_stream>"]
+    op: click
+  - selector:
+      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//div[label[text()="Tag"]]//div/span
+    op: click
+  - selector:
+      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//div[label[text()="Tag"]]//div[text()="<tag>"]
+    op: click
 goto_set_resource_limit_page:
   action: click_actions_button
   elements:
@@ -250,6 +284,11 @@ check_dc_config_trigger:
   elements:
   - selector:
       xpath: //dt[contains(.,"Change Of")]/following-sibling::dd[contains(.,'<dc_config_change>')]
+check_dc_image_trigger:
+  action: check_dc_loaded_completely
+  element:
+    selector:
+      xpath: //dt[contains(.,"New Image For")]/following-sibling::dd[contains(.,'<dc_image>')]
 check_dc_selector:
   action: check_dc_loaded_completely
   elements:
@@ -470,6 +509,11 @@ check_label:
   element:
     selector:
       xpath: //span[contains(@class, "label-pair") and a[contains(@class, "label-key") and text()="<label_key>"] and a[contains(@class, "label-value") and text()="<label_value>"]]
+check_dc_image_stream:
+  action: check_dc_loaded_completely
+  element:
+    selector:
+      xpath: //div[@class="pod-template" and div[contains(text(), "<container_name>")]]//span[text()="<image_stream>"]
 delete_label_on_edit_autoscaler_page:
   action: goto_one_dc_page
   action: goto_edit_autoscaler_page

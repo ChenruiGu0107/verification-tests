@@ -636,7 +636,7 @@ Feature: Check deployments function
     When I perform the :check_pod_scaled_numbers web console action with:
       | scaled_number | 2 |
     Then the step should succeed
-    
+
   # @author yapei@redhat.com
   # @case_id 536602
   Scenario: Pause and Resume Deployment Configuration
@@ -694,4 +694,76 @@ Feature: Check deployments function
       | project_name              | <%= project.name %> |
       | dc_name                   | myrun               |
       | latest_deployment_version | 3                   |
+    Then the step should succeed
+
+  # @author etrott@redhat.com
+  # @case_id 539681
+  Scenario: DC Image Configuration on web console
+    Given the master version >= "3.4"
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+    Then the step should succeed
+    Given I wait until the status of deployment "dctest" becomes :complete
+    When I perform the :goto_one_dc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | dctest              |
+    Then the step should succeed
+
+    When I run the :click_to_goto_edit_page web console action
+    Then the step should succeed
+    When I perform the :update_container_image_name web console action with:
+      | container_name | dctest-1              |
+      | image_name     | aosqe/hello-openshift |
+    Then the step should succeed
+    When I perform the :set_autostart_deployment_checkbox web console action with:
+      | container_name       | dctest-2 |
+      | deployment_autostart | true     |
+    Then the step should succeed
+    When I perform the :set_image_change_trigger web console action with:
+      | container_name | dctest-2  |
+      | namespace      | openshift |
+      | image_stream   | php       |
+      | tag            | 5.5       |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+
+    Then the step should succeed
+    When I perform the :check_dc_image_stream web console action with:
+      | project_name   | <%= project.name %>   |
+      | dc_name        | dctest                |
+      | container_name | dctest-1              |
+      | image_stream   | aosqe/hello-openshift |
+    Then the step should succeed
+    When I perform the :check_dc_image_stream web console action with:
+      | project_name   | <%= project.name %>     |
+      | dc_name        | dctest                  |
+      | container_name | dctest-2                |
+      | image_stream   | openshift3/php-55-rhel7 |
+    Then the step should succeed
+    When I perform the :check_dc_image_trigger web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | dctest              |
+      | dc_image     | openshift/php:5.5   |
+    Then the step should succeed
+    Given I wait until the status of deployment "dctest" becomes :complete
+
+    When I run the :click_to_goto_edit_page web console action
+    Then the step should succeed
+    When I perform the :set_autostart_deployment_checkbox web console action with:
+      | container_name       | dctest-1 |
+      | deployment_autostart | true     |
+    Then the step should succeed
+    When I perform the :set_image_change_trigger web console action with:
+      | container_name | dctest-1  |
+      | namespace      | openshift |
+      | image_stream   | nodejs    |
+      | tag            | 0.10      |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I perform the :check_dc_image_trigger web console action with:
+      | project_name | <%= project.name %>   |
+      | dc_name      | dctest                |
+      | dc_image     | openshift/nodejs:0.10 |
     Then the step should succeed
