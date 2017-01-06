@@ -467,7 +467,7 @@ jenkins_create_openshift_resources:
     op: send_keys <namespace>
     type: input
   - selector:
-      id: yui-gen31-button
+      xpath: //button[contains(., 'Save')]
     op: click
     type: button
 
@@ -757,7 +757,7 @@ jenkins_tag_openshift_image:
     op: send_keys <destinationnamespace>
     type: input
   - selector:
-      xpath: (//td[contains(., "authorization token")])[last()-1]/following-sibling::td[1]/input
+      xpath: //input[contains(@checkurl,"OpenShiftImageTagger/checkAuthToken")]
     op: send_keys <auth_token>
     type: input
   - selector:
@@ -811,6 +811,12 @@ jenkins_update_cloud_image:
   action: jenkins_click_save_button
 
 jenkins_verify_job_success:
+  url: /job/<job_name>
+  elements:
+  - selector:
+      xpath: //a[contains(@class,'build-link') and contains(.,"#<job_number>")]
+    timeout: <time_out>
+    visible: true
   url: /job/<job_name>/<job_number>/console
   elements:
   - selector:

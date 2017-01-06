@@ -59,14 +59,12 @@ Feature: jenkins.feature
     Then the output should contain "jenkins"
 
   # @author cryan@redhat.com
-  # @case_id 531203
-  Scenario: Using jenkinsfilePath or contextDir with jenkinspipeline strategy
+  # @case_id 531203 536414
+  Scenario Outline: Using jenkinsfilePath or contextDir with jenkinspipeline strategy
     Given I have a project
+    And I have an ephemeral jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc531203/samplepipeline.json |
-    Then the step should succeed
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
@@ -119,6 +117,10 @@ Feature: jenkins.feature
     Then the step should succeed
     Given the "sample-pipeline-4" build was created
     And the "sample-pipeline-4" build completes
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
   # @case_id 525985
@@ -162,10 +164,7 @@ Feature: jenkins.feature
       | role      | admin                                           |
       | user_name | system:serviceaccount:<%=project.name%>:default |
     Then the step should succeed
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json                  |
-      | p    | JENKINS_IMAGE_STREAM_TAG=jenkins:<ver>                                                                                      |
-    Then the step should succeed
+    Given I have an ephemeral jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
@@ -222,28 +221,22 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 515421
-  Scenario: Create a new job in jenkins with OpenShift Pipeline Jenkins Plugin
+  # @case_id 515421 536390
+  Scenario Outline: Create a new job in jenkins with OpenShift Pipeline Jenkins Plugin
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I give project admin role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     Then the step should succeed
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
+    Given I have an ephemeral jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+    Given I log in to jenkins
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
@@ -263,29 +256,30 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=hello-openshift |
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 527335
-  Scenario: jenkins plugin can tag image in the same project
+  # @case_id 527335 536401
+  Scenario Outline: jenkins plugin can tag image in the same project
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
+    And I have an ephemeral jenkins v<ver> application
     Given a pod becomes ready with labels:
       | name=jenkins |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     When I run the :import_image client command with:
-      | image_name | ruby                     |
-      | from       | wewang58/ruby-22-centos7 |
-      | confirm    | true                     |
+      | image_name | ruby                  |
+      | from       | aosqe/ruby-22-centos7 |
+      | confirm    | true                  |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | is   |
@@ -293,10 +287,7 @@ Feature: jenkins.feature
       | o             | yaml |
     Then the step should succeed
     And evaluation of `@result[:parsed]["status"]["tags"][0]["items"][0]["image"]` is stored in the :shasum clipboard
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+    Given I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
     Then the step should succeed
@@ -334,21 +325,22 @@ Feature: jenkins.feature
       | o             | json   |
     Then the step should succeed
     Then the expression should be true> @result[:parsed]["spec"]["tags"][0]["from"]["name"] == "ruby:latest"
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 498667
-  Scenario: Trigger build of application from jenkins job with ephemeral volume
+  # @case_id 498667 536384
+  Scenario Outline: Trigger build of application from jenkins job with ephemeral volume
     Given I have a project
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
+    And I have an ephemeral jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     When I give project edit role to the default service account
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     When I execute on the pod:
       |  id | -u |
     Then the step should succeed
@@ -356,12 +348,9 @@ Feature: jenkins.feature
     #The regex below should match any number greater than 0
     And the output should match "^[1-9][0-9]*$"
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+    And I log in to jenkins
     When I perform the :jenkins_trigger_sample_openshift_build web action with:
       | job_name                 | OpenShift%20Sample          |
       | scaler_apiurl            | <%= env.api_endpoint_url %> |
@@ -414,6 +403,10 @@ Feature: jenkins.feature
       | <%= project.name %>/nodejs-010-rhel7     |
       | <%= project.name %>/origin-nodejs-sample |
       | prod                                     |
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
   # @case_id 508754
@@ -502,35 +495,29 @@ Feature: jenkins.feature
       | prod                                     |
 
   # @author cryan@redhat.com
-  # @case_id 527297
-  Scenario: jenkins plugin can tag image in different projects use destination project token
+  # @case_id 527297 536399
+  Scenario Outline: jenkins plugin can tag image in different projects use destination project token
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
+    And I have an ephemeral jenkins v<ver> application
     Given a pod becomes ready with labels:
       | name=jenkins |
     When I run the :import_image client command with:
       | image_name | ruby                      |
       | from       | openshift/ruby-22-centos7 |
       | confirm    | true                      |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin    |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+    Given I log in to jenkins
     When I create a new project
     Then the step should succeed
     And evaluation of `project.name` is stored in the :proj2 clipboard
 
     When I run the :policy_add_role_to_user client command with:
       | role              | edit                                          |
-      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:default |
-      | n | <%= cb.proj2 %> |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:jenkins |
+      | n                 | <%= cb.proj2 %>                               |
     Then the step should succeed
     When I run the :policy_add_role_to_user client command with:
       | role              | edit                                          |
@@ -544,7 +531,7 @@ Feature: jenkins.feature
     Then the step should succeed
     When I run the :policy_add_role_to_user client command with:
       | role              | edit                                          |
-      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:default |
+      | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:jenkins |
       | n                 | <%= cb.proj1 %>                               |
     Then the step should succeed
 
@@ -645,29 +632,27 @@ Feature: jenkins.feature
       | newtag           |
       | ImageStreamImage |
       | ruby@            |
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 527298
-  Scenario: jenkins plugin can tag image in different projects use jenkins project token
+  # @case_id 527298 536400
+  Scenario Outline: jenkins plugin can tag image in different projects use jenkins project token
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
+    And I have an ephemeral jenkins v<ver> application
     Given a pod becomes ready with labels:
       | name=jenkins |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     When I run the :import_image client command with:
       | image_name | ruby                      |
       | from       | openshift/ruby-22-centos7 |
       | confirm    | true                      |
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/                                     |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+    And I log in to jenkins
     Given I find a bearer token of the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     Given evaluation of `service_account.get_bearer_token.token` is stored in the :token1 clipboard
     When I create a new project
@@ -676,7 +661,7 @@ Feature: jenkins.feature
     When I run the :policy_add_role_to_user client command with:
       | role              | edit                                          |
       | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:jenkins |
-      | n | <%= cb.proj2 %> |
+      | n                 | <%= cb.proj2 %>                               |
     Then the step should succeed
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
@@ -766,38 +751,44 @@ Feature: jenkins.feature
       | newtag           |
       | ImageStreamImage |
       | ruby@            |
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author shiywang@redhat.com
   # @case_id 516504
-  Scenario: Check verbose logging in build field of openshift v3 plugin of jenkins-1-rhel7
+  Scenario Outline: Check verbose logging in build field of openshift v3 plugin
     Given I have a project
     When I give project admin role to the default service account
     Then the step should succeed
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json                  |
-    Then the step should succeed
+    Given I have an ephemeral jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/                                     |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+    Given I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %> |
     Then the step should succeed
     When I perform the :jenkins_check_logging_build_step_verbose web action with:
       | job_name | <%= project.name %> |
     Then the step should succeed
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author shiywang@redhat.com
   # @case_id 520288 520287 520286
+  # NOTE: The behavior outlined here is now outdated, and should be refactored
+  # in accordance with:
+  # https://github.com/openshift/origin/tree/master/examples/jenkins#advanced
+  # Until then, the missing master-slave scripts can be found in v3-testfiles.
   Scenario Outline: Use Jenkins as S2I builder and with Kubernetes Slaves
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
@@ -805,8 +796,8 @@ Feature: jenkins.feature
       | user_name | system:serviceaccount:<%=project.name%>:default |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/master-slave/jenkins-slave-template.json  |
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/master-slave/jenkins-master-template.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc520288/jenkins-slave-template.json  |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc520288/jenkins-master-template.json |
     Then the step should succeed
     When I perform the :create_app_from_template_with_blank_form web console action with:
       | project_name  | <%= project.name %>                                       |
@@ -845,20 +836,12 @@ Feature: jenkins.feature
     Then the output should contain "Jenkins"
     And the output should not contain "ready to work"
     """
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Then the step should succeed
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
-      | base_url | https://<%= route.dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+      | rules    | lib/rules/web/images/jenkins_2/                                   |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    And I log in to jenkins
     When I run the :jenkins_install_kubernetes_plugin web action
-    Then the step should succeed
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
     Then the step should succeed
     When I run the :jenkins_check_kubernetes_plugin web action
     Then the step should succeed
@@ -884,12 +867,10 @@ Feature: jenkins.feature
       | nodejs-010 | openshift3/nodejs-010-rhel7     | npm -v                                                                                                          |
 
   # @author cryan@redhat.com
-  # @case_id 529769
-  Scenario: Show annotation when build triggered by jenkins pipeline
+  # @case_id 529769 536411
+  Scenario Outline: Show annotation when build triggered by jenkins pipeline
     Given I have a project
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
+    And I have an ephemeral jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -900,14 +881,10 @@ Feature: jenkins.feature
     Then the step should succeed
     And a pod becomes ready with labels:
       | name=jenkins |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+    And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
     Then the step should succeed
@@ -930,21 +907,23 @@ Feature: jenkins.feature
       | resource | build      |
       | name     | frontend-1 |
     Then the output should contain "job/testplugin"
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 515424
-  Scenario: Testing workflow using openshift v3 plugin of jenkins-1-rhel7
+  # @case_id 515424 536393
+  Scenario Outline: Testing workflow using openshift v3 plugin
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
       | role              | admin                                             |
       | serviceaccountraw | system:serviceaccount:<%= project.name %>:default |
       | n                 | <%= project.name%>                                |
     Then the step should succeed
+    Given I have an ephemeral jenkins v<ver> application
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/wewang58/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
     Then the step should succeed
     Given the "ruby22-sample-build-1" build was created
     And the "ruby22-sample-build-1" build completes
@@ -952,14 +931,10 @@ Feature: jenkins.feature
       | name=jenkins |
     And I get project routes
     Then the output should contain "jenkins"
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+    And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | test |
     Then the step should succeed
@@ -985,39 +960,30 @@ Feature: jenkins.feature
     Given I get project pods
     Then the output should contain 3 times:
       | frontend-1 |
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author wewang@redhat.com
-  # @case_id  515423
-  Scenario: Test jenkins post-build actions 
+  # @case_id 515423
+  Scenario: Test jenkins post-build actions
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     Then the step should succeed
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
+    Given I have an ephemeral jenkins v2 application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
-    And I wait for the "jenkins" service to become ready
-    Given I wait up to 60 seconds for the steps to pass:
-    """ 
-    When I open web server via the "https://<%= route("jenkins", service("jenkins")).dns(by: user) %>/login" url
-    Then the output should contain "Jenkins"
-    And the output should not contain "ready to work"
-    When I run the :env client command with:
-      | resource | dc/jenkins |
-      | list     | true       |
-    Then the step should succeed
-    And evaluation of `/JENKINS_PASSWORD=(.*)/.match(@result[:response])[1]` is stored in the :jenkins_password clipboard
-    """
+    And a pod becomes ready with labels:
+      | name=jenkins |
+    And I get project routes
+    Then the output should contain "jenkins"
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
-      | base_url | https://<%= route.dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin    |
-      | password | <%= cb.jenkins_password %> | 
-    Then the step should succeed
+      | rules    | lib/rules/web/images/jenkins_2/                                   |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    And I log in to jenkins
     When I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run the :new_app client command with:
@@ -1041,7 +1007,7 @@ Feature: jenkins.feature
     When I perform the :jenkins_build_now web action with:
       | job_name  | cancelbuildjob |
     Then the step should succeed
-    And the "ruby-sample-build-2" build was cancelled 
+    And the "ruby-sample-build-2" build was cancelled
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | canceldeploymentjob |
     Then the step should succeed
