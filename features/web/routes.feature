@@ -59,7 +59,7 @@ Feature: Routes related features on web console
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
-    When I perform the :open_create_route_page_from_overview_page web console action with:
+    When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |
       | service_name | service-unsecure   |
     Then the step should succeed
@@ -126,7 +126,7 @@ Feature: Routes related features on web console
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    When I perform the :open_create_route_page_from_overview_page web console action with:
+    When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |
       | service_name | service-unsecure   |
     Then the step should succeed
@@ -172,7 +172,7 @@ Feature: Routes related features on web console
       | /tmp/ca.pem |
     Then the step should succeed
     # create passthrough route on web console
-    When I perform the :open_create_route_page_from_overview_page web console action with:
+    When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |
       | service_name | service-secure     |
     Then the step should succeed
@@ -209,7 +209,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
     # create edge route with path on web console
-    When I perform the :open_create_route_page_from_overview_page web console action with:
+    When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |
       | service_name | service-unsecure   |
     Then the step should succeed
@@ -254,7 +254,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
     # create edge route with policy for insecure traffic set to redirect
-    When I perform the :open_create_route_page_from_overview_page web console action with:
+    When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |
       | service_name | service-unsecure   |
     Then the step should succeed
@@ -289,7 +289,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
     # create edge route with policy for insecure traffic set to allow
-    When I perform the :open_create_route_page_from_overview_page web console action with:
+    When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |
       | service_name | service-unsecure   |
     Then the step should succeed
