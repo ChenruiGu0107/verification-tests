@@ -45,17 +45,30 @@ Feature: Openshift build and configuration of enviroment variables check
       | app_repo     | <app_repo>     |
       | image_stream | <image_stream> |
     Then the step should succeed
+    When I run the :set_probe client command with:
+      | resource  | dc/django-ex |
+      | readiness |              |
+      | open_tcp  | 8080         |
+    Then the step should succeed
     And the "django-ex-1" build was created
     And the "django-ex-1" build completed
     And I wait for the pod named "django-ex-1-deploy" to die
     And a pod becomes ready with labels:
       | app=django-ex          |
       | deployment=django-ex-1 |
-    When I run the :logs client command with:
-      | resource_name | <%= pod.name %>      |
+    When I execute on the pod:
+      | bash            |
+      | -c              |
+      | cgroup-limits \| grep NUMBER_OF_CORES \| cut -d = -f 2 |
     Then the step should succeed
-    And the output should match 4 times:
-      | Booting worker with pid:\\s+[1-9]\d* |
+    Given evaluation of `@result[:response].strip.to_i` is stored in the :number_of_cores clipboard
+    When I execute on the pod:
+      | bash     |
+      | -c       |
+      | ps -ef \| grep gunicorn \| grep -v grep \| wc -l |
+    Then the step should succeed
+    Given evaluation of `@result[:response].strip.to_i` is stored in the :number_of_python_progress clipboard
+    And the expression should be true> cb.number_of_cores * 2 + 1 == cb.number_of_python_progress
     When I run the :patch client command with:
       | resource      | dc        |
       | resource_name | django-ex |
@@ -65,11 +78,19 @@ Feature: Openshift build and configuration of enviroment variables check
     And a pod becomes ready with labels:
       | app=django-ex          |
       | deployment=django-ex-2 |
-    When I run the :logs client command with:
-      | resource_name | <%= pod.name %>     |
+    When I execute on the pod:
+      | bash            |
+      | -c              |
+      | cgroup-limits \| grep NUMBER_OF_CORES \| cut -d = -f 2 |
     Then the step should succeed
-    And the output should match 4 times:
-      |Booting worker with pid:\\s+[1-9]\d* |
+    Given evaluation of `@result[:response].strip.to_i` is stored in the :number_of_cores clipboard
+    When I execute on the pod:
+      | bash     |
+      | -c       |
+      | ps -ef \| grep gunicorn \| grep -v grep \| wc -l |
+    Then the step should succeed
+    Given evaluation of `@result[:response].strip.to_i` is stored in the :number_of_python_progress clipboard
+    Then the expression should be true> (8 > cb.number_of_cores ? cb.number_of_cores * 2 : 8) == cb.number_of_python_progress - 1
     When I run the :env client command with:
       | resource | dc/django-ex             |
       | e        | WEB_CONCURRENCY=3        |
@@ -78,11 +99,13 @@ Feature: Openshift build and configuration of enviroment variables check
     And a pod becomes ready with labels:
       | app=django-ex                       |
       | deployment=django-ex-3              |
-    When I run the :logs client command with:
-      | resource_name | <%= pod.name %>     |
+    When I execute on the pod:
+      | bash     |
+      | -c       |
+      | ps -ef \| grep gunicorn \| grep -v grep \| wc -l |
     Then the step should succeed
-    And the output should match 3 times:
-      |Booting worker with pid:\\s+[1-9]\d* |
+    Given evaluation of `@result[:response].strip.to_i` is stored in the :number_of_python_progress clipboard
+    And the expression should be true> 4 == cb.number_of_python_progress
 
     Examples:
       | app_repo | image_stream |
