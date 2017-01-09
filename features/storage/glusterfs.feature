@@ -322,3 +322,160 @@ Feature: Storage of GlusterFS plugin testing
     Then the output should contain:
       | VolumeFailedDelete                          |
       | "storageclass-<%= project.name%>" not found |
+
+  # @author jhou@redhat.com
+  # @case_id 544344
+  @admin
+  Scenario: Using invalid gidMax/gidMin in the StorageClass
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    # Create a StorageCLass for GlusterFS provisioner where gidMin > gidMax
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+      | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["gidMin"]  | 2001                                                             |
+      | ["parameters"]["gidMax"]  | 2000                                                             |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the output should contain:
+      | Pending                          |
+      | Failed to provision              |
+      | must have gidMax value >= gidMin |
+    """
+
+    # Create a StorageCLass for GlusterFS provisioner where gidMin/gidMax has negative values
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+      | ["metadata"]["name"]      | storageclass-neg-<%= project.name %>                             |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["gidMin"]  | -10000                                                           |
+      | ["parameters"]["gidMax"]  | -1000                                                            |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-neg-<%= project.name %>          |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-neg-<%= project.name %> |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc                         |
+      | name     | pvc-neg-<%= project.name %> |
+    Then the output should contain:
+      | Pending       |
+      | invalid value |
+    """
+
+  # @author jhou@redhat.com
+  # @case_id 544937
+  @admin
+  Scenario: Pods should be assigned a valid GID using GlusterFS dynamic provisioner
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+      | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["gidMin"]  | 3333                                                             |
+      | ["parameters"]["gidMax"]  | 33333                                                            |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1                             |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+
+    # Verify PV is annotated with inhitial gidMin 3333
+    When I run the :get admin command with:
+      | resource      | pv                                 |
+      | resource_name | <%= pvc.volume_name(user: user) %> |
+      | o             | yaml                               |
+    Then the output should contain:
+      | pv.beta.kubernetes.io/gid: "3333" |
+
+    # Verify Pod is assigned gid 3333
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/pod_gid.json" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                    |
+    Then the step should succeed
+    Given the pod named "pod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | id | -G |
+    Then the output should contain:
+      | 3333 |
+    When I execute on the pod:
+      | ls | -ld | /mnt/gluster |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/gluster/tc508054 |
+    Then the step should succeed
+
+    # Pod should work as well having its supplementalGroups set to 3333 explicitly
+    Given I ensure "pod-<%= project.name %>" pod is deleted
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/pod_gid.json" replacing paths:
+      | ["metadata"]["name"]                                         | pod1-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1                     |
+      | ["spec"]["securityContext"]["supplementalGroups"]            | [3333]                   |
+    Then the step should succeed
+    Given the pod named "pod1-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | id | -G |
+    Then the output should contain:
+      | 3333 |
+    When I execute on the pod:
+      | ls | -ld | /mnt/gluster |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/gluster/tc508054 |
+    Then the step should succeed
+
+  # @author jhou@redhat.com
+  # @case_id 544341
+  @admin
+  Scenario: Dynamic provisioner should not provision PV/volume with duplicate gid
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+      | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["gidMin"]  | 5555                                                             |
+      | ["parameters"]["gidMax"]  | 5555                                                             |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1                             |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+
+    # The 2nd PVC can't provision any because GID range is full
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc2                             |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pvc  |
+      | name     | pvc2 |
+    Then the output should contain:
+      | Pending                                      |
+      | failed to reserve gid from table: range full |
+    """
+
+    # Verify the queued pending PVC could provision when the GID is released
+    Given I ensure "pvc1" pvc is deleted
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    And the "pvc2" PVC becomes :bound
+    """
+    And admin ensures "<%= pvc('pvc2').volume_name(user: admin) %>" pv is deleted after scenario

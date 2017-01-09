@@ -16,9 +16,14 @@ module CucuShift
       end
 
       props[:uid] = m["uid"]
-      props[:spec] = sc_hash["spec"]
+      props[:parameters] = sc_hash["parameters"]
 
       return self # mainly to help ::from_api_object
+    end
+
+    def rest_url(user: nil, cached: true, quiet: false)
+      param = get_cached_prop(prop: :parameters, user: user, cached: cached, quiet: quiet)
+      return param["resturl"]
     end
   end
 end
