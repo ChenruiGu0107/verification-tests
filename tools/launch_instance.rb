@@ -457,11 +457,11 @@ module CucuShift
           erb_binding.local_variable_get(:hosts).each do |host|
             if !host.has_hostname?
               changed = true
-              host[:fix_hostnames] = true
               dns_record = host[:cloud_instance_name] || rand_str(3, :dns)
               dns_record = dns_record.gsub("_","-")
               dns_record = "#{dns_record}.#{dns_component}"
-              dyn.dyn_create_a_records(dns_record, host.ip)
+              host.update_hostname dyn.dyn_create_a_records(dns_record, host.ip)
+              host[:fix_hostnames] = true
             end
           end
           dyn.publish if changed
