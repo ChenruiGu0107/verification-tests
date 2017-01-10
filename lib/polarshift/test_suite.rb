@@ -23,15 +23,16 @@ module CucuShift
         end
 
         type, items = spec.split(':', 2)
-        items = items.split(',')
-        validate_ids items
+        items = items.split(',').map(&:strip)
 
         case type
         when "case", "cases"
           raise "specify at least one test case" unless items.size > 0
+          validate_std_ids items
           @test_run = TestRun.for_cases(items, project_id, request)
         when "run"
           raise "we support only a single test run" unless items.size == 1
+          validate_run_ids items
           @test_run = TestRun.for_run(items.first, project_id, request)
         else
           raise "don't know how to handle test cases spec '#{type}'"
@@ -50,10 +51,19 @@ module CucuShift
         test_run.virtual?
       end
 
-      def validate_ids(ids)
+      def validate_std_ids(ids)
         ids.each do |id|
           unless id =~ /\A[-a-zA-Z0-9]+\z/
             raise("parameter #{id} should match /\\A[-a-zA-Z0-9]+\\z/")
+          end
+        end
+      end
+
+      def validate_run_ids(ids)
+        ids.each do |id|
+          re = /\A[-a-zA-Z0-9 _]+\z/
+          unless id =~ re
+            raise("parameter #{id} should match #{re}")
           end
         end
       end
