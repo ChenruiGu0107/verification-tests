@@ -953,3 +953,18 @@ Feature: Testing route
     Then the step should succeed
     And I wait for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
+
+  # @author: yadu@redhat.com
+  # @case_id: 497904
+  Scenario: Customize the default routing subdomain
+    Given I have a project
+    Given I store default router subdomain in the :subdomain clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :get client command with: 
+      | resource      | route |
+    Then the output should contain:
+      | <%= cb.subdomain %> |
