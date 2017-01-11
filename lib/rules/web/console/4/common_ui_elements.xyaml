@@ -7,6 +7,11 @@ click_actions_button:
 click_add:
   element:
     selector:
+      xpath: //a[text()="Add" and not(@disabled)]
+    op: click
+click_add_button:
+  element:
+    selector:
       xpath: //button[contains(text(),"Add") and not(@disabled)]
     op: click
 click_create_button:

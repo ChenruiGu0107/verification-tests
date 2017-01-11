@@ -767,3 +767,131 @@ Feature: Check deployments function
       | dc_name      | dctest                |
       | dc_image     | openshift/nodejs:0.10 |
     Then the step should succeed
+
+  # @author xxing@redhat.com
+  # @case_id 536585
+  Scenario: Environment handling on DC edit page
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+    Then the step should succeed
+    Given I wait until the status of deployment "dctest" becomes :complete
+    # Add env var for each container
+    When I perform the :goto_edit_dc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | dctest              |
+    Then the step should succeed
+    When I perform the :add_env_var_for_dc_container web console action with:
+      | container_name | dctest-1 |
+      | env_var_key    | env1     |
+      | env_var_value  | value1   |
+    Then the step should succeed
+    When I perform the :add_env_var_for_dc_container web console action with:
+      | container_name | dctest-2 |
+      | env_var_key    | _TEST    |
+      | env_var_value  | 2        |
+    Then the step should succeed
+    When I perform the :add_env_var_for_dc_container web console action with:
+      | container_name | dctest-2 |
+      | env_var_key    | env21    |
+      | env_var_value  | value21  |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    # Check Environment tab
+    When I run the :goto_environment_tab web console action
+    Then the step should succeed
+    When I perform the :check_env_tab_for_dc_container web console action with:
+      | container_name | dctest-1 |
+      | env_var_key    | env1     |
+      | env_var_value  | value1   |
+    Then the step should succeed
+    When I perform the :check_env_tab_for_dc_container web console action with:
+      | container_name | dctest-2 |
+      | env_var_key    | env21    |
+      | env_var_value  | value21  |
+    Then the step should succeed
+    When I perform the :check_env_tab_for_dc_container web console action with:
+      | container_name | dctest-2 |
+      | env_var_key    | _TEST    |
+      | env_var_value  | 2        |
+    Then the step should succeed
+    Given I wait until the status of deployment "dctest" becomes :complete
+    # Update & delete env var
+    When I run the :click_to_goto_edit_page web console action
+    Then the step should succeed
+    When I perform the :edit_env_var_value web console action with:
+      | env_variable_name | env1 |
+      | new_env_value     | value1update |
+    Then the step should succeed
+    When I perform the :delete_env_var web console action with:
+      | env_var_key | env21 |
+    Then the step should succeed
+    When I perform the :edit_env_var_key web console action with:
+      | env_var_value | value1update |
+      | new_env_key   | env11        |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    # Check Environment tab
+    When I run the :goto_environment_tab web console action
+    Then the step should succeed
+    When I perform the :check_env_tab_for_dc_container web console action with:
+      | container_name | dctest-1       |
+      | env_var_key    | env11          |
+      | env_var_value  | value1update   |
+    Then the step should succeed
+    When I perform the :check_env_tab_for_dc_container web console action with:
+      | container_name | dctest-2 |
+      | env_var_key    | env21    |
+      | env_var_value  | value21  |
+    Then the step should fail
+    When I perform the :check_env_tab_for_dc_container web console action with:
+      | container_name | dctest-2 |
+      | env_var_key    | _TEST    |
+      | env_var_value  | 2        |
+    Then the step should succeed
+
+  # @author xxing@redhat.com
+  # @case_id 539678
+  Scenario: Change Deployment Stategy from Rolling to Custom on web console
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/rolling.json |
+    Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :complete
+    When I perform the :goto_edit_dc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+    Then the step should succeed
+    When I perform the :select_dc_strategy_type web console action with:
+      | strategy_type | Custom |
+    Then the step should succeed
+    When I run the :check_dc_custom_strategy_settings web console action
+    Then the step should succeed
+    When I run the :click_add_pre_lifecycle_hook web console action
+    Then the step should fail
+    When I perform the :set_dc_custom_strategy_settings web console action with:
+      | image_name    | aosqe/hello-openshift |
+      | cmd_line      | echo "hello"          |
+      | env_var_key   | env1                  |
+      | env_var_value | value1                |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I perform the :check_dc_strategy web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | hooks               |
+      | dc_strategy  | Custom              |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should not contain "Hooks"
+    When I run the :describe client command with:
+      | resource | deploymentConfig |
+      | name     | hooks            |
+    Then the step should succeed
+    And the output should match:
+      | Strategy:\s+Custom             |
+      | Image:\s+aosqe/hello-openshift |
+      | Environment:\s+env1=value1     |
+      | Command:\s+echo "hello"        |
