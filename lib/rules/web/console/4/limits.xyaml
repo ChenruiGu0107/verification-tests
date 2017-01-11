@@ -2,8 +2,18 @@
 check_limits_on_dc_page:
   action: goto_one_dc_page
   action: check_limits_in_pod_template
+check_limits_on_k8s_deployment_page:
+  action: goto_one_k8s_deployment_page
+  action: check_limits_in_pod_template
+check_limits_on_k8s_replicaset_page:
+  action: goto_one_k8s_replicaset_page
+  action: check_limits_in_pod_template
 check_limits_on_rc_page:
   action: goto_one_deployment_page
+  action: check_limits_in_pod_template
+check_limits_on_specific_replica_set_page:
+  action: goto_one_k8s_deployment_page
+  action: click_on_specific_version_of_replica_set
   action: check_limits_in_pod_template
 check_limits_on_pod_page:
   action: goto_one_pod_page
@@ -33,6 +43,12 @@ check_warn_info_for_rc_resource_setting:
       xpath: //div[@ng-if="showPodWarning" and contains(.,'<rc_resource_setting_warn_info>')]
 goto_set_resource_limits_for_dc:
   action: goto_one_dc_page
+  action: goto_set_resource_limit_page
+goto_set_resource_limits_for_k8s_deployment:
+  action: goto_one_k8s_deployment_page
+  action: goto_set_resource_limit_page
+goto_set_resource_limits_for_k8s_replicaset:
+  action: goto_one_k8s_replicaset_page
   action: goto_set_resource_limit_page
 goto_set_resource_limits_for_rc:
   action: goto_one_standalone_rc_page
