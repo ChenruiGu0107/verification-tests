@@ -83,6 +83,32 @@ module CucuShift
       return props[prop]
     end
 
+    # subclasses need to implement #delete method
+    def delete_graceful(by:)
+      res = delete(by: by)
+
+      # this will actually fail for mising project when run by a regular user;
+      # we can override this method in project.rb but I'm thinking that
+      #  ensuring project deleted is not a regular user's job, just like
+      #  user cannot ensure PVs are deleted
+      res[:success] = res[:success] || res[:response].include?("not found")
+
+      return res
+    end
+
+    def ensure_deleted(user: , wait: 60)
+      res = delete_graceful(by: user)
+
+      unless res[:success]
+        raise "cannot delete #{self.class} #{name}"
+      end
+      unless disappeared?(user, wait)
+        raise "#{self.class} #{name} did not disappear within #{wait} sec"
+      end
+
+      return res
+    end
+
     # @return [CucuShift::ResultHash]
     def wait_to_appear(user, seconds = 30)
       res = {}
@@ -225,21 +251,6 @@ module CucuShift
         "seconds:\n#{res[:response]}"
 
       return res
-    end
-
-    # subclasses need to implement #delete method
-    def ensure_deleted(by:, wait: 30, **del_opts)
-      result = delete(by: by)
-
-      if visible?(user: by, quiet: true)
-        result = delete(by: by)
-        raise "cannot delete #{self.class} #{name}" unless result[:success]
-        unless disappeared?(by, wait)
-          raise "#{self.class} #{name} did not disappear within #{wait} sec"
-        end
-      else
-        logger.info "#{self.class} #{name} seems to be gone already"
-      end
     end
 
     # @param from_status [Symbol] the status we currently see
