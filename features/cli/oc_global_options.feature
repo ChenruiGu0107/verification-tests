@@ -247,6 +247,7 @@ Feature: oc global options (oc options) related scenarios
     When I run the :run client command with:
       | name      | mydc   |
       | image     | <%= project_docker_repo %>openshift/origin  |
+      | env       | KUBECONFIG=/tmp/cfg  |
       | dry_run   |        |
       | -o        | yaml   |
       | command   | true   |
@@ -268,23 +269,41 @@ Feature: oc global options (oc options) related scenarios
     When I run the :create client command with:
       | f         | dc_volume.yaml   |
     Then the step should succeed
+    # So far, the above steps are just for creating a pod.
+    # That pod is for containing old oc for testing "--match-server-version"
 
-    When I run the :policy_add_role_to_user client command with:
-      | role           | view        |
-      | serviceaccount | default     |
+    When I run the :config_view client command
     Then the step should succeed
-    # So far, the above steps are preparation steps
+    And evaluation of `@result[:response]` is stored in the :cfg clipboard
 
     Given a pod becomes ready with labels:
       | deploymentconfig=mydc |
+    # Write current kube config into the file specified in above env var KUBECONFIG
+    # This KUBECONFIG file is prepared for below CLI execution
+    When I execute on the pod:
+      | sh | -c | echo '<%= cb.cfg %>' > /tmp/cfg |
+    Then the step should succeed
+
+    # Get oc that has different version from server side
+    When I execute on the pod:
+      | wget | https://github.com/openshift/origin/releases/download/v1.0.6/openshift-origin-v1.0.6-2695cdc-linux-amd64.tar.gz | -O | /tmp/oc_old.tgz |
+    Then the step should succeed
+    When I execute on the pod:
+      | mkdir  | /tmp/oc_old |
+    Then the step should succeed
+    When I execute on the pod:
+      | tar  | xzf | /tmp/oc_old.tgz | -C | /tmp/oc_old |
+    Then the step should succeed
+    # So far all above steps are just workaound for preparing a place old oc can be run
+
     # Kubernetes resource
     When I execute on the pod:
-      | oc  | get | pod | --match-server-version |
+      | /tmp/oc_old/oc  | get | pod | --match-server-version |
     Then the step should fail
     And the output should match "server version.*differs from client version"
     # OpenShift resource
     When I execute on the pod:
-      | oc  | get | dc  | --match-server-version |
+      | /tmp/oc_old/oc  | get | dc  | --match-server-version |
     Then the step should succeed
 
   # @author xxia@redhat.com
