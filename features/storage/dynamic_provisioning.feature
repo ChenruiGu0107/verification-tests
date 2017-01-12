@@ -65,26 +65,27 @@ Feature: Dynamic provisioning
       | ["metadata"]["name"]                                         | mypod1                           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
     Then the step should succeed
+    And the pod named "mypod1" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/<cloud_provider>/testfile_1 |
+    Then the step should succeed
+
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc2-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod2                           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
     Then the step should succeed
+    And the pod named "mypod2" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/<cloud_provider>/testfile_2 |
+    Then the step should succeed
+    
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc3-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod3                           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
     Then the step should succeed
-
-    Given the pod named "mypod1" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/<cloud_provider>/testfile_1 |
-    Then the step should succeed
-    Given the pod named "mypod2" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/<cloud_provider>/testfile_2 |
-    Then the step should succeed
-    Given the pod named "mypod3" becomes ready
+    And the pod named "mypod3" becomes ready
     When I execute on the pod:
       | touch | /mnt/<cloud_provider>/testfile_3 |
     Then the step should succeed
@@ -93,6 +94,7 @@ Feature: Dynamic provisioning
       | object_type | pod |
       | all         |     |
     Then the step should succeed
+
     When I run the :delete client command with:
       | object_type | pvc |
       | all         |     |
@@ -231,38 +233,10 @@ Feature: Dynamic provisioning
     When I get project pvc named "dynamic-pvc3-<%= project.name %>" as JSON
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc1-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod1                           |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
-    Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc2-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod2                           |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
-    Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc3-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod3                           |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
-    Then the step should succeed
-
-    Given the pod named "mypod1" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/<cloud_provider>/testfile_1 |
-    Then the step should succeed
-    Given the pod named "mypod2" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/<cloud_provider>/testfile_2 |
-    Then the step should succeed
-    Given the pod named "mypod3" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/<cloud_provider>/testfile_3 |
-    Then the step should succeed
-
     Given admin ensures "<%= pvc("dynamic-pvc1-#{project.name}").volume_name(user: admin) %>" pv is deleted
     And admin ensures "<%= pvc("dynamic-pvc2-#{project.name}").volume_name(user: admin) %>" pv is deleted
     And admin ensures "<%= pvc("dynamic-pvc3-#{project.name}").volume_name(user: admin) %>" pv is deleted
+
     Then the "dynamic-pvc1-<%= project.name %>" PVC becomes :lost within 300 seconds
     And the "dynamic-pvc2-<%= project.name %>" PVC becomes :lost within 300 seconds
     And the "dynamic-pvc3-<%= project.name %>" PVC becomes :lost within 300 seconds

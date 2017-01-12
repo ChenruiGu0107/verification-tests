@@ -52,27 +52,27 @@ Feature: kubelet restart and node restart
       | ["metadata"]["name"]                                         | mypod1                           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                  |
     Then the step should succeed
+    And the pod named "mypod1" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/<platform>/testfile_before_restart_1 |
+    Then the step should succeed
+
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc2-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod2                           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                  |
     Then the step should succeed
+    And the pod named "mypod2" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/<platform>/testfile_before_restart_2 |
+    Then the step should succeed
+
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc3-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod3                           |
       | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                  |
     Then the step should succeed
-
-    # write to the mounted storage
-    Given the pod named "mypod1" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/<platform>/testfile_before_restart_1 |
-    Then the step should succeed
-    Given the pod named "mypod2" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/<platform>/testfile_before_restart_2 |
-    Then the step should succeed
-    Given the pod named "mypod3" becomes ready
+    And the pod named "mypod3" becomes ready
     When I execute on the pod:
       | touch | /mnt/<platform>/testfile_before_restart_3 |
     Then the step should succeed
@@ -81,13 +81,18 @@ Feature: kubelet restart and node restart
     Given I use the "<%= cb.nodes[0].name %>" node
     And the node service is restarted on the host
 
+    And I wait up to 120 seconds for the steps to pass:
+    # verify previous created files still exist
+    """
     # verify previous created files still exist
     When I execute on the "mypod1" pod:
       | ls | /mnt/<platform>/testfile_before_restart_1 |
     Then the step should succeed
+
     When I execute on the "mypod2" pod:
       | ls | /mnt/<platform>/testfile_before_restart_2 |
     Then the step should succeed
+
     When I execute on the "mypod3" pod:
       | ls | /mnt/<platform>/testfile_before_restart_3 |
     Then the step should succeed
@@ -96,12 +101,15 @@ Feature: kubelet restart and node restart
     When I execute on the "mypod1" pod:
       | touch | /mnt/<platform>/testfile_after_restart_1 |
     Then the step should succeed
+
     When I execute on the "mypod2" pod:
       | touch | /mnt/<platform>/testfile_after_restart_2 |
     Then the step should succeed
+
     When I execute on the "mypod3" pod:
       | touch | /mnt/<platform>/testfile_after_restart_3 |
     Then the step should succeed
+    """
 
     Examples:
       | platform |
