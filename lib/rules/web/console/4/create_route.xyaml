@@ -1,6 +1,7 @@
 #-------create route on web console-------
 open_create_route_page_from_service_page:
   action: goto_one_service_page
+  action: click_actions_button
   action: click_create_route
 click_create_route:
   elements:
