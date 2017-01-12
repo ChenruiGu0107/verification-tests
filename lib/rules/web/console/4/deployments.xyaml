@@ -139,6 +139,11 @@ click_to_goto_one_deployment_page:
 click_to_goto_one_replicaset_page:
   action: click_to_goto_deployments_page
   action: click_on_one_replicaset
+click_to_show_dc_advanced_image_options:
+  element:
+    selector:
+      xpath: //a[contains(text(),'advanced image options')]
+    op: click
 click_pvc_link_on_dc_page:
   elements:
   - selector:

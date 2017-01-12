@@ -308,3 +308,211 @@ Feature: web secrets related
       | o             | yaml     |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["imagePullSecrets"].include?({"name"=>"dockerconfig"})
+
+  # @author xxing@redhat.com
+  # @case_id 544854
+  Scenario: Prompt invalid input when creating secret in web
+    Given I have a project
+    When I perform the :goto_create_secret_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :set_created_secret_name web console action with:
+      | new_secret_name | user_|
+    Then the step should succeed
+    When I perform the :select_created_secret_type web console action with:
+      | secret_type     | Source Secret |
+    Then the step should succeed
+    When I run the :check_error_prompt_when_input_secret_name web console action
+    Then the step should succeed
+    When I perform the :create_image_secret_common_action_with_configuration_file_authentication web console action with:
+      | project_name    | <%= project.name %> |
+      | secret_type     | Image Secret        |
+      | auth_type       | Configuration File  |
+      | new_secret_name | dockerhub           |
+    Then the step should succeed
+    When I perform the :set_docker_configuration_file_textarea web console action with:
+      | text_content | abcd |
+    Then the step should succeed
+    When I run the :check_error_prompt_when_set_secret_configuration_file web console action
+    Then the step should succeed
+    # Fail here unless bug 1404147 is merged
+    When I perform the :create_image_secret_with_image_registry_credential web console action with:
+      | secret_type       | Image Secret              |
+      | new_secret_name   | dockerhub                 |
+      | auth_type         | Image Registry Credential |
+      | new_docker_server | docker.io                 |
+      | new_docker_user   | user1                     |
+      | new_docker_passwd | 12345678                  |
+      | new_docker_email  | any                       |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should match "must be in the form of user@domain"
+
+  # @author xxing@redhat.com
+  # @case_id 536665
+  Scenario: Add secrets to docker strategy BC
+    Given I have a project
+    Given a "secretfile1" file is created with the following lines:
+      | first test |
+    Given a "secretfile2" file is created with the following lines:
+      | second test |
+    When I run the :new_secret client command with:
+      | secret_name     | mysecret-1  |
+      | credential_file | secretfile1 |
+    Then the step should succeed
+    When I run the :new_secret client command with:
+      | secret_name     | mysecret-2  |
+      | credential_file | secretfile2 |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Then the step should succeed
+    When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | ruby-sample-build   |
+    Then the step should succeed
+    When I run the :click_to_show_advanced_options web console action
+    Then the step should succeed
+    When I perform the :select_one_build_secret_from_box web console action with:
+      | secret_name | mysecret-1 |
+    Then the step should succeed
+    When I run the :click_add_another_build_secret_link web console action
+    Then the step should succeed
+    When I perform the :select_one_build_secret_from_box web console action with:
+      | secret_name | mysecret-2 |
+    Then the step should succeed
+    When I perform the :set_build_secret_destinationdir web console action with:
+      | destinationdir | /tmp |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I run the :check_error_prompt_when_set_dockerbuild_secret_destinationdir web console action
+    Then the step should succeed
+
+  # @author xxing@redhat.com
+  # @case_id 536664
+  @admin
+  Scenario: Add secrets to custom strategy BC
+    Given I have a project
+    Given a "secretfile1" file is created with the following lines:
+      | secret1 test |
+    Given a "secretfile2" file is created with the following lines:
+      | secret2 test |
+    When I run the :new_secret client command with:
+      | secret_name     | mysecret1  |
+      | credential_file | secretfile1 |
+    Then the step should succeed
+    When I run the :new_secret client command with:
+      | secret_name     | mysecret2  |
+      | credential_file | secretfile2 |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user admin command with:
+      | role      | system:build-strategy-custom |
+      | user_name | <%= user.name %>             |
+      | n         | <%= project.name %>          |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
+    Then the step should succeed
+    When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
+      | project_name | <%= project.name %> |
+      | bc_name      | ruby-sample-build   |
+    Then the step should succeed
+    When I run the :click_to_show_advanced_options web console action
+    Then the step should succeed
+    When I perform the :select_one_build_secret_from_box web console action with:
+      | secret_name | mysecret1 |
+    Then the step should succeed
+    When I perform the :set_custom_build_secet_mountpath web console action with:
+      | mountpath | testdir/exam1 |
+    Then the step should succeed
+    When I run the :click_add_another_build_secret_link web console action
+    Then the step should succeed
+    When I perform the :select_one_build_secret_from_box web console action with:
+      | secret_name | mysecret2 |
+    Then the step should succeed
+    When I perform the :set_custom_build_secet_mountpath web console action with:
+      | mountpath | /tmp/exam2 |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | buildConfig       |
+      | resource_name | ruby-sample-build |
+      | o             | yaml              |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]["spec"]["strategy"]["customStrategy"]["secrets"].include?({"mountPath"=>"testdir/exam1", "secretSource"=>{"name"=>"mysecret1"}})
+    And the expression should be true> @result[:parsed]["spec"]["strategy"]["customStrategy"]["secrets"].include?({"mountPath"=>"/tmp/exam2", "secretSource"=>{"name"=>"mysecret2"}})
+
+  # @author xxing@redhat.com
+  # @case_id 540247
+  Scenario: Add/remove secrets in DC editor page
+    Given I have a project
+    When I run the :run client command with:
+      | name  | mydc                  |
+      | image | aosqe/hello-openshift |
+    Then the step should succeed
+    Given I wait until the status of deployment "mydc" becomes :complete
+    When I run the :oc_secrets_new_dockercfg client command with:
+      | secret_name     | dockerhub1           |
+      | docker_server   | private.registry.com |
+      | docker_username | anyuser1             |
+      | docker_password | 12345678             |
+      | docker_email    | any1@example.com     |
+    Then the step should succeed
+    When I run the :oc_secrets_new_dockercfg client command with:
+      | secret_name     | dockerhub2           |
+      | docker_server   | private.registry.com |
+      | docker_username | anyuser2             |
+      | docker_password | 12345678             |
+      | docker_email    | any2@example.com     |
+    Then the step should succeed
+    When I perform the :goto_edit_dc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | mydc                |
+    Then the step should succeed
+    When I run the :click_to_show_dc_advanced_image_options web console action
+    Then the step should succeed
+    When I perform the :select_one_secret_from_box web console action with:
+      | secret_type | pullSecret |
+      | secret_name | dockerhub1 |
+    Then the step should succeed
+    When I perform the :click_add_another_secret_link web console action with:
+      | secret_type | pullSecret |
+    Then the step should succeed
+    When I perform the :select_one_secret_from_box web console action with:
+      | secret_type | pullSecret |
+      | secret_name | dockerhub2 |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | mydc             |
+      | o             | yaml             |
+    Then the step should succeed
+    And the expression should be true> a=@result[:parsed]["spec"]["template"]["spec"]["imagePullSecrets"].include?({"name"=>"dockerhub1"})
+    And the expression should be true> a=@result[:parsed]["spec"]["template"]["spec"]["imagePullSecrets"].include?({"name"=>"dockerhub2"})
+    Given I wait until the status of deployment "mydc" becomes :complete
+    When I perform the :goto_edit_dc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | mydc                |
+    Then the step should succeed
+    When I run the :click_to_show_dc_advanced_image_options web console action
+    Then the step should succeed
+    Given I run the steps 2 times:
+    """
+    When I perform the :click_remove_secret web console action with:
+      | secret_type | pullSecret |
+    Then the step should succeed
+    """
+    When I run the :click_save_button web console action
+    Then the step should succeed 
+    When I run the :get client command with:
+      | resource      | deploymentConfig |
+      | resource_name | mydc             |
+      | o             | yaml             |
+    Then the step should succeed
+    And the output should not contain:
+      | dockerhub1 |
+      | dockerhub2 |
