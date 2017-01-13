@@ -148,6 +148,10 @@ check_pod_scaled_numbers:
   elements:
   - selector:
       xpath: //*[name()='tspan'][@class='donut-title-big-pf'][text()='<scaled_number>']
+check_pod_scaled_numbers_under_specified_resource:
+  elements:
+  - selector:
+      xpath: //div[normalize-space(text())="<resource_type>"]/a[text()='<resource_name>']/following::*[name()='tspan'][@class='donut-title-big-pf'][text()='<scaled_number>'][1]
 scale_up_once:
   elements:
   - selector:
@@ -181,7 +185,6 @@ check_scale_down_disabled:
   elements:
   - selector:
       xpath: //a[@class='disabled' and @aria-disabled='true']/span[text()='Scale down']
-
 group_services:
   elements:
   - selector:
@@ -213,3 +216,6 @@ check_service_group_entry:
   element:
     selector:
       xpath: //div[@class="overview-services" and overview-service[contains(@class,"primary-service") and div//div[@class="service-name"]//a[text()="<primary_service_name>"]]]//div[@class="service-name"]//a[text()="<service_name>"]
+check_petset_on_overview_page:
+  action: goto_overview_page
+  action: check_pod_scaled_numbers_under_specified_resource
