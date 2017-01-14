@@ -966,7 +966,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author wewang@redhat.com
-  # @case_id 515423
+  # @case_id 515423 536392
   Scenario: Test jenkins post-build actions
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
