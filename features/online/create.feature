@@ -88,11 +88,11 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | jws30-tomcat8-mongodb-persistent-s2i | jws-app  | MAVEN_MIRROR_URL | https://repo1.maven.org/maven2/ | Downloading: https://mirror.openshift.com/nexus/content/groups/public | Downloading: https://repo1.maven.org/maven2/ |
       | eap64-mysql-persistent-s2i           | eap-app  | MAVEN_MIRROR_URL | https://repo1.maven.org/maven2/ | Downloading: https://mirror.openshift.com/nexus/content/groups/public | Downloading: https://repo1.maven.org/maven2/ |
     Examples: CPAN
-      | template             | app-name             | env_name    | env_var_value                                  | default_env_log                       | custom_env_log                                          |
-      | dancer-mysql-example | dancer-mysql-example | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching http://www.cpan.org/authors/ | Fetching https://mirror.openshift.com/mirror/perl/CPAN/ |
+      | template                | app-name                | env_name    | env_var_value                                  | default_env_log                       | custom_env_log                                          |
+      | dancer-mysql-persistent | dancer-mysql-persistent | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching http://www.cpan.org/authors/ | Fetching https://mirror.openshift.com/mirror/perl/CPAN/ |
     Examples: PIP
-      | template             | app-name             | env_name      | env_var_value                                          | default_env_log | custom_env_log                                             |
-      | django-psql-example  | django-psql-example  | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ |                 | Downloading https://mirror.openshift.com/mirror/python/web |
+      | template               | app-name                | env_name      | env_var_value                                          | default_env_log | custom_env_log                                             |
+      | django-psql-persistent | django-psql-persistent  | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ |                 | Downloading https://mirror.openshift.com/mirror/python/web |
 
   # @author etrott@redhat.com
   # @case_id 532961
