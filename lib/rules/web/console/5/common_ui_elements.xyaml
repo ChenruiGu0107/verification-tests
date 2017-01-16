@@ -16,6 +16,14 @@ check_save_button_disabled:
   elements:
   - selector:
       xpath: //button[@disabled='disabled' and text()='Save']
+choose_resource_type:
+  elements:
+  - selector:
+      xpath: //div[@title='Choose a resource']
+    op: click
+  - selector:
+      xpath: //div[span/div[text()='<resource_type>']]
+    op: click
 click_actions_button:
   elements:
   - selector:
@@ -57,6 +65,31 @@ click_on_details_tab:
   element:
     selector:
       xpath: //uib-tab-heading[contains(.,'Details')]
+    op: click
+click_on_environment_tab:
+  element:
+    selector:
+      xpath: //uib-tab-heading[contains(.,'Environment')]
+    op: click
+click_on_events_tab:
+  element:
+    selector:
+      xpath: //uib-tab-heading[contains(.,'Events')]
+    op: click
+click_on_history_tab:
+  element:
+    selector:
+      xpath: //uib-tab-heading[contains(.,'History')]
+    op: click
+click_on_logs_tab:
+  element:
+    selector:
+      xpath: //uib-tab-heading[contains(.,'Logs')]
+    op: click
+click_on_terminal_tab:
+  element:
+    selector:
+      xpath: //uib-tab-heading[contains(.,'Terminal')]
     op: click
 click_delete:
   elements:

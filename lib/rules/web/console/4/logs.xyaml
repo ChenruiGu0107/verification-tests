@@ -1,17 +1,13 @@
 #---------check log feature--------------
 check_log_tab_on_pod_page:
+  action: click_on_logs_tab
   elements:
-  - selector:
-      xpath: //uib-tab-heading[text()='Logs']
-    op: click
   - selector:
       xpath: //div[@class='log-status']//span[@class='ng-binding' and contains(text(),'<status>')]
     timeout: 300
 check_log_tab_on_deployed_deployment_page:
+  action: click_on_logs_tab
   elements:
-  - selector:
-      xpath: //uib-tab-heading[text()='Logs']
-    op: click
   - selector:
       xpath: //div[@class='log-status']/span[contains(.,'Active')]
     timeout: 300

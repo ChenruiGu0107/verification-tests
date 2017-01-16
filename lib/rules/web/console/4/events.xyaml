@@ -35,10 +35,7 @@ check_event_tab_on_standalone_rc_page:
   action: goto_one_standalone_rc_page
   action: check_event_tab
 check_event_tab:
-  elements:
-  - selector:
-      xpath: //uib-tab-heading[text()='Events']
-    op: click
+  action: click_on_events_tab
 check_event_message:
   element:
     selector:

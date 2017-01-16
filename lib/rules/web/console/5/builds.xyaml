@@ -17,10 +17,8 @@ check_build_log_content:
     timeout: 300
 check_build_log_tab:
   action: goto_one_build_page
+  action: click_on_logs_tab
   elements:
-    - selector:
-        xpath: //div[@ng-if='build']//uib-tab-heading[text()='Logs']
-      op: click
     - selector:
         xpath: //div[@class='log-status']//span[contains(.,'<build_status_name>')]
       timeout: 300
@@ -78,11 +76,6 @@ click_to_show_source_advanced_options:
   elements:
   - selector:
       xpath: //div[@id="source-url-help"]//a[contains(.,"advanced option")]
-    op: click
-click_on_history_tab:
-  element:
-    selector:
-      xpath: //uib-tab-heading[contains(.,'History')]
     op: click
 cancel_build_from_pending_status:
   action: check_one_build_inside_bc_page
@@ -241,10 +234,8 @@ goto_build_environment_tab:
   action: goto_one_build_page
   action: goto_environment_tab
 goto_environment_tab:
+  action: click_on_environment_tab
   elements:
-  - selector:
-      xpath: //uib-tab-heading[contains(.,'Environment')]
-    op: click
   - selector:
       xpath: //environment
     optional: true
