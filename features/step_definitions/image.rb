@@ -24,8 +24,7 @@ Given /^I have an?( ephemeral| persistent)? jenkins v#{NUMBER} application$/ do 
   if lt34 || !user.password?
     step %Q/I run the :new_app client command with:/, table(%{
       | file | #{template}                                 |
-      | env  | ENABLE_OAUTH=false                          |
-      | env  | JENKINS_PASSWORD=password                   |
+      | p    | ENABLE_OAUTH=false                          |
       | p    | JENKINS_IMAGE_STREAM_TAG=jenkins:#{version} |
       })
     step 'the step should succeed'
