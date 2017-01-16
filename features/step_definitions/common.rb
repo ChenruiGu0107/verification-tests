@@ -187,15 +187,7 @@ Given /^(I|admin) ensures? #{QUOTED} (\w+) is deleted(?: from the#{OPT_QUOTED} p
   _resource = resource(name, type, project_name: project_name)
   _seconds = 60
   p = proc {
-    if _resource.visible?(user: _user, quiet: true)
-      @result = _resource.delete(by: _user)
-      raise "cannot delete #{type} #{name}" unless @result[:success]
-      unless _resource.disappeared?(_user, _seconds)
-        raise "#{type} #{name} did not disappear within #{_seconds} seconds"
-      end
-    else
-      logger.info "#{type} #{name} seems to be gone already"
-    end
+    @result = _resource.ensure_deleted(user: _user, wait: _seconds)
   }
 
   if after
