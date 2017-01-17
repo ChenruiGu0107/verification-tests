@@ -356,14 +356,14 @@ Feature: Routes related features on web console
       | project_name | <%= project.name%>   |
       | route_name | service-unsecure-route |
       | tls_termination_type | Passthrough  |
-      | termination_type | passthrough  |
+      | termination_type | assthrough       |
     Then the step should succeed
 
     When I perform the :edit_route_to_other_tls_termination web console action with:
       | project_name | <%= project.name%>   |
       | route_name | service-unsecure-route |
       | tls_termination_type | Edge         |
-      | termination_type |     edge         |
+      | termination_type |     dge          |
     Then the step should succeed
 
     When I perform the :edit_route_with_path web console action with:

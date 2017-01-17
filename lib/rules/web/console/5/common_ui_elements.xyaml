@@ -1,0 +1,67 @@
+click_actions_button:
+  elements:
+  - selector:
+      text: Actions
+    type: button
+    op: click
+click_add:
+  element:
+    selector:
+      xpath: //a[text()="Add" and not(@disabled)]
+    op: click
+click_add_button:
+  element:
+    selector:
+      xpath: //button[contains(text(),"Add") and not(@disabled)]
+    op: click
+click_create_button:
+  elements:
+  - selector:
+      xpath: //button[contains(text(),"Create") and not(@disabled)]
+    type: button
+    op: click
+click_cancel:
+  elements:
+  - selector:
+      text: Cancel
+    op: click
+click_delete:
+  elements:
+  - selector:
+      text: Delete
+    op: click
+click_hide_annotations:
+  elements:
+  - selector:
+      text: Hide Annotations
+    op: click
+click_show_annotations:
+  elements:
+  - selector:
+      text: Show Annotations
+    op: click
+click_edit:
+  element:
+    selector:
+      xpath: //a[text()='Edit']
+    op: click
+click_save_button:
+  elements:
+  - selector:
+      xpath: //button[contains(text(),'Save') and not(@disabled)]
+    op: click
+check_create_button_disabled:
+  elements:
+  - selector:
+      xpath: //button[@disabled='disabled' and text()='Create']
+check_save_button_disabled:
+  elements:
+  - selector:
+      xpath: //button[@disabled='disabled' and text()='Save']
+click_to_goto_edit_page:
+  action: click_actions_button
+  action: click_edit
+delete_resource:
+  action: click_actions_button
+  action: click_delete
+  action: click_delete
