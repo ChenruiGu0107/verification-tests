@@ -29,10 +29,7 @@ check_details_section_exists:
       xpath: //h3[contains(.,'Details')]
 check_one_buildconfig_page:
   action: goto_one_buildconfig_page
-  element:
-    selector:
-      text: Summary
-    type: a
+  action: click_on_history_tab
 check_triggers_section_exists:
   element:
     selector:
@@ -70,9 +67,7 @@ check_one_buildconfig_page_with_build_op:
 check_one_build_inside_bc_page:
   # <bc_and_build_name> contains two "/",e.g. bc/build/
   action: goto_one_build_page
-  elements:
-  - selector:
-      text: Show annotations
+  action: click_show_annotations
 check_rebuild_button:
   elements:
   - selector:
@@ -86,6 +81,11 @@ click_to_show_source_advanced_options:
   elements:
   - selector:
       xpath: //div[@id="source-url-help"]//a[contains(.,"advanced option")]
+    op: click
+click_on_history_tab:
+  element:
+    selector:
+      xpath: //uib-tab-heading[contains(.,'History')]
     op: click
 click_on_configuration_tab:
   element:
