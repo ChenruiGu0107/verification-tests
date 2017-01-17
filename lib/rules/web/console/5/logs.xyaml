@@ -33,21 +33,24 @@ check_deployed_log_context:
 check_no_log_info:
   elements:
   - selector:
-      xpath: //log-viewer[@resource="builds/log"]//h2[contains(.,'<no_log_one>')]
+      xpath: //log-viewer//h2[contains(.,'<no_log_one>')]
     timeout: 180
   - selector:
-      xpath: //log-viewer[@resource="builds/log"]//p[contains(.,'<no_log_two>')]
+      xpath: //log-viewer//p[contains(.,'<no_log_two>')]
     timeout: 180
 open_in_new_window:
   elements:
   - selector:
-      text: Expand log
+      text: Expand
     type: a
     op: click
 select_a_container:
   elements:
   - selector:
-      xpath: //select[@id='selectLogContainer']//option[contains(text(),'<container_name>')]
+      xpath: //div[@input-id='selectLogContainer']
+    op: click
+  - selector:
+      xpath: //span/div[contains(text(),'<container_name>')]
     op: click
 follow_log:
   elements:
@@ -58,17 +61,17 @@ follow_log:
 stop_follow_log:
   elements:
   - selector:
-      xpath: //div[@class='log-view']//a/span[contains(text(),'Stop following')]
+      xpath: //div[@class='log-view']//a/span[contains(text(),'Stop Following')]
     op: click
 go_to_top_log:
   elements:
   - selector:
-      xpath: //div[contains(@class,'log-view')]//a[contains(text(),'Go to top')]
+      xpath: //div[contains(@class,'log-view')]//a[contains(text(),'Go to Top')]
     op: click
 go_to_end_log:
   elements:
   - selector:
-      xpath: //div[@class='log-view']//a[contains(text(),'Go to end')]
+      xpath: //div[@class='log-view']//a[contains(text(),'Go to End')]
     op: click
 open_full_view_log:
   action: open_in_new_window

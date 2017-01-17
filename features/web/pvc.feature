@@ -405,8 +405,8 @@ Feature: Add pvc to pod from web related
       | storage_size    | 100                        |
     Then the step should succeed
 
-    # Check invalid pvc name one character
-    When I perform the :create_pvc_with_invalid_value_and_check web console action with:
+    # Check invalid pvc name one character(min length)
+    When I perform the :create_pvc_with_min_length_and_check web console action with:
       | project_name    | <%= project.name %>      |
       | pvc_name        | <%= rand_str(1, :dns) %> |
       | storage_size    | 100                      |
