@@ -118,5 +118,5 @@ set_policy_for_insecure_traffic:
       xpath: //div[@ng-model="route.tls.insecureEdgeTerminationPolicy"]
     op: click
   - selector:
-      xpath: //div/span/span/span[contains(.,"<insecure_traffic_policy>")]
+      xpath: //div/span/span[contains(.,"<insecure_traffic_policy>")]
     op: click
