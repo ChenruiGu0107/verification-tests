@@ -475,7 +475,7 @@ Feature: job.feature
        | sleep   | 300                     |
     Then the step should fail
     And the output should contain:
-       | The ScheduledJob "sjc" is invalid: spec.schedule: Invalid value: "70 12 15 11 3": End of range (70) above maximum (59): 70 |
+       | Invalid value: "70 12 15 11 3": End of range (70) above maximum (59): 70 |
     When I run the :run client command with:
        | name    | sjc                     |
        | image   | busybox                 |
@@ -484,7 +484,7 @@ Feature: job.feature
        | sleep   | 300                     |
     Then the step should fail
     And the output should contain: 
-       | The ScheduledJob "sjc" is invalid: spec.schedule: Invalid value: "30 25 15 1 3": End of range (25) above maximum (23): 25 |
+       | Invalid value: "30 25 15 1 3": End of range (25) above maximum (23): 25 |
     When I run the :run client command with:
        | name    | sjc                     |
        | image   | busybox                 |
@@ -493,7 +493,7 @@ Feature: job.feature
        | sleep   | 300                     |
     Then the step should fail
     And the output should contain:
-       | The ScheduledJob "sjc" is invalid: spec.schedule: Invalid value: "30 8 35 11 3": End of range (35) above maximum (31): 35 |
+       | Invalid value: "30 8 35 11 3": End of range (35) above maximum (31): 35 |
     When I run the :run client command with:
        | name    | sjc                     |
        | image   | busybox                 |
@@ -502,7 +502,7 @@ Feature: job.feature
        | sleep   | 300                     |
     Then the step should fail
     And the output should contain:
-       | The ScheduledJob "sjc" is invalid: spec.schedule: Invalid value: "30 8 1 13 3": End of range (13) above maximum (12): 13 |
+       | Invalid value: "30 8 1 13 3": End of range (13) above maximum (12): 13 |
     When I run the :run client command with:
        | name    | sjc                     |
        | image   | busybox                 |
@@ -511,7 +511,7 @@ Feature: job.feature
        | sleep   | 300                     |
     Then the step should fail
     And the output should contain:
-       | The ScheduledJob "sjc" is invalid: spec.schedule: Invalid value: "30 8 1 8 7": End of range (7) above maximum (6): 7 |
+       | Invalid value: "30 8 1 8 7": End of range (7) above maximum (6): 7 |
     When I run the :run client command with:
        | name    | sjd                     |
        | image   | busybox                 |
@@ -538,6 +538,7 @@ Feature: job.feature
     And the output should contain:
        | NAME     | sjd                    |
        | SCHEDULE | noescap: @daily        |
+
   # @author geliu@redhat.com
   # @case_id 535534
   Scenario: The subsequent scheduled job should be suspend when set suppend flag to true
