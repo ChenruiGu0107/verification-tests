@@ -409,8 +409,8 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 508754
-  Scenario: Trigger build of application from jenkins job with persistent volume
+  # @case_id 508754 536386
+  Scenario Outline: Trigger build of application from jenkins job with persistent volume
     Given I have a project
     When I run the :new_app client command with:
       | file         | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-persistent-template.json |
@@ -435,11 +435,9 @@ Feature: jenkins.feature
     #Check that the user is not root, or 0 id
     Then the expression should be true> Integer(@result[:response]) > 0
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/      |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin |
-      | password | test  |
+    And I log in to jenkins
     Then the step should succeed
     When I perform the :jenkins_trigger_sample_openshift_build web action with:
       | job_name                 | OpenShift%20Sample          |
@@ -493,6 +491,10 @@ Feature: jenkins.feature
       | <%= project.name %>/nodejs-010-rhel7     |
       | <%= project.name %>/origin-nodejs-sample |
       | prod                                     |
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
   # @case_id 527297 536399
@@ -967,12 +969,12 @@ Feature: jenkins.feature
 
   # @author wewang@redhat.com
   # @case_id 515423 536392
-  Scenario: Test jenkins post-build actions
+  Scenario Outline: Test jenkins post-build actions
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     Then the step should succeed
-    Given I have an ephemeral jenkins v2 application
+    Given I have an ephemeral jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
@@ -981,7 +983,7 @@ Feature: jenkins.feature
     And I get project routes
     Then the output should contain "jenkins"
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins_2/                                   |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     And I log in to jenkins
     When I create a new project
@@ -993,41 +995,46 @@ Feature: jenkins.feature
     And the "ruby-sample-build-1" build completes
     When I give project edit role to the system:serviceaccount:<%= cb.proj1 %>:jenkins service account
     When I run the :start_build client command with:
-      |buildconfig|ruby-sample-build|
+      | buildconfig | ruby-sample-build |
     Then the step should succeed
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | cancelbuildjob |
     Then the step should succeed
     When I perform the :jenkins_post_cancel_build_from_job web action with:
-      | job_name  |  cancelbuildjob                                  |
-      | api_endpoint | <%= env.api_endpoint_url %>                   |
-      | store_project| <%= cb.proj2 %>                               |
-      | build_config | ruby-sample-build                             |
+      | job_name      |  cancelbuildjob                               |
+      | api_endpoint  | <%= env.api_endpoint_url %>                   |
+      | store_project | <%= cb.proj2 %>                               |
+      | build_config  | ruby-sample-build                             |
     Then the step should succeed
     When I perform the :jenkins_build_now web action with:
-      | job_name  | cancelbuildjob |
+      | job_name | cancelbuildjob |
     Then the step should succeed
+    And the "ruby-sample-build-2" build was created
     And the "ruby-sample-build-2" build was cancelled
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | canceldeploymentjob |
     Then the step should succeed
     When I perform the :jenkins_cancel_deployment_from_job web action with:
-      | job_name  | canceldeploymentjob                              |
-      | api_endpoint | <%= env.api_endpoint_url %>                   |
-      | deployment_config  | database                                |
-      | store_project | <%= cb.proj2 %>                              |
+      | job_name          | canceldeploymentjob         |
+      | api_endpoint      | <%= env.api_endpoint_url %> |
+      | deployment_config | database                    |
+      | store_project     | <%= cb.proj2 %>             |
     Then the step should succeed
     When I run the :deploy client command with:
       | deployment_config | database |
-      | latest | true |
+      | latest            | true     |
     Then the step should succeed
     When I perform the :jenkins_build_now web action with:
-      | job_name  | canceldeploymentjob |
+      | job_name | canceldeploymentjob |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | rc   |
+      | resource | rc |
     And the output should match:
       | database-2+\s+0+\s+0 |
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
   # @case_id 533683

@@ -391,7 +391,7 @@ jenkins_create_freestyle_job:
     type: a
   - selector:
       value: hudson.model.FreeStyleProject
-    type: input
+    type: radio
     op: click
   - selector:
       id: name
