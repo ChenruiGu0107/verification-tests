@@ -914,6 +914,18 @@
     :overwrite: --overwrite=<value>
     :private_key: --private-key=<value>
     :public_key: --public-key=<value>
+:oadm_ca_create_master_cert:
+  :cmd: oadm ca create-master-certs
+  :options:
+    :certificate-authority: --certificate-authority=<value>
+    :cert-dir: --cert-dir=<value>
+    :expire-days: --expire-days=<value>
+    :hostnames: --hostnames=<value>
+    :master: --master=<value>
+    :public-master: --public-master=<value>
+    :signer-expire-days: --signer-expire-days=<value>
+    :overwrite: --overwrite=<value>
+    :signer-name: --signer-name=<value>
 :oadm_ca_create_signer_cert:
   :cmd: oadm ca create-signer-cert
   :options:
