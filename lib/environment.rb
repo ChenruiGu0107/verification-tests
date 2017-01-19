@@ -156,44 +156,53 @@ module CucuShift
       end
     end
 
+    # helper parser
+    def parse_version(ver_str)
+      ver = ver_str.sub(/^v/,"")
+      if ver !~ /^[\d.]+$/
+        raise "version '#{ver}' does not match /^[\d.]+$/"
+      end
+      ver = ver.split(".").reject(&:empty?).map(&:to_i)
+      [ver[0], ver[1]]
+    end
+
+    # returns the major and minor version using REST
+    # @return raw version, major and minor number
+    def get_version(user:)
+      obtained = user.rest_request(:version)
+      if obtained[:request_opts][:url].include?("/version/openshift") &&
+          !obtained[:success]
+        # seems like pre-3.3 version, lets hardcode to 3.2
+        obtained[:props] = {}
+        obtained[:props][:openshift] = "v3.2"
+        @major_version = obtained[:props][:major] = 3
+        @minor_version = obtained[:props][:minor] = 2
+      elsif obtained[:success]
+        @major_version = obtained[:props][:major].to_i
+        @minor_version = obtained[:props][:minor].to_i
+      else
+        raise "error getting version: #{obtained[:error].inspect}"
+      end
+      return obtained[:props][:openshift].sub(/^v/,""), @major_version.to_s, @minor_version.to_s
+    end
+
     # some rules and logic to compare given version to current environment
     # @return [Integer] less than 0 when env is older, 0 when it is comparable,
     #   more than 0 when environment is newer
     # @note for compatibility reasons we only compare only major and minor
     def version_cmp(version, user:)
-      # helper parser
-      parse_version = proc do |ver_str; ver|
-        ver = ver_str.sub(/^v/,"")
-        if ver !~ /^[\d.]+$/
-          raise "version '#{ver}' does not match /^[\d.]+$/"
-        end
-        ver = ver.split(".").reject(&:empty?).map(&:to_i)
-        [ver[0], ver[1]]
-      end
-
       # figure out local environment version
       if @major_version && @minor_version
         # all is fine already
       elsif opts[:version]
         # enforced environment version
-        @major_version, @minor_version = parse_version.call(opts[:version])
+        @major_version, @minor_version = parse_version(opts[:version])
       else
         # try to obtain version
-        obtained = user.rest_request(:version)
-        if obtained[:request_opts][:url].include?("/version/openshift") &&
-            !obtained[:success]
-          # seems like pre-3.3 version, lets hardcode to 3.1
-          @major_version = 3
-          @minor_version = 1
-        elsif obtained[:success]
-          @major_version = obtained[:props][:major].to_i
-          @minor_version = obtained[:props][:minor].to_i
-        else
-          raise "error getting version: #{obtained[:error].inspect}"
-        end
+        raw_version, @majore_version, @minor_version = get_version(user)
       end
 
-      major, minor = parse_version.call(version)
+      major, minor = parse_version(version)
 
       # presently handle only major ver `3`for OCP and `1` for origin
       bad_majors = [@major_version, major] - [1,3]

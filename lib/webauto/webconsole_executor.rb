@@ -39,38 +39,43 @@ module CucuShift
       unless @rules
         e.replace_rules(RULES_DIR + get_master_version(user) + "/")
         @rules = Collections.deep_freeze(e.rules)
-        res = logout(user)
-        unless res[:success]
-          raise  "logout from web console failed:\n" + res[:response]
+        unless e.is_new?
+          res = logout(user)
+          unless res[:success]
+            raise  "logout from web console failed:\n" + res[:response]
+          end
         end
-
         @version_browser = e
       end
 
       return e
     end
 
-    def get_master_version(user)
-
-      res = login(user)
-      unless res[:success]
-        raise "can not login via web console:\n" + res[:response]
-      end
-
-      res = executor(user).run_action(:get_master_version_from_webconsole)
-      unless res[:success]
-        raise "can not get the specific rule version:\n" + res[:response]
-      end
-
-      @version = executor(user).text.scan(/^OpenShift Master:\nv(.+)/)[0][0]
-      # CliExecutor::rules_version
-      v = @version.split('.')
-      if v.first == '3' && v[1..2].all? {|e| e =~ /^[0-9]+$/} && v[3]
-        # version like v3.0.0.0-32-g3ae1d27, i.e. return version 0
-        return v[1]
+    def get_master_version(user, via_rest: true)
+      if via_rest
+        @version, major, minor = env.get_version(user: user)
+        return minor
       else
-        # version like v1.0.2, i.e. return version 0
-        return v[1]
+        res = login(user)
+        unless res[:success]
+          raise "can not login via web console:\n" + res[:response]
+        end
+
+        res = executor(user).run_action(:get_master_version_from_webconsole)
+        unless res[:success]
+          raise "can not get the specific rule version:\n" + res[:response]
+        end
+
+        @version = executor(user).text.scan(/^OpenShift Master:\nv(.+)/)[0][0]
+        # CliExecutor::rules_version
+        v = @version.split('.')
+        if v.first == '3' && v[1..2].all? {|e| e =~ /^[0-9]+$/} && v[3]
+          # version like v3.0.0.0-32-g3ae1d27, i.e. return version 0
+          return v[1]
+        else
+          # version like v1.0.2, i.e. return version 0
+          return v[1]
+        end
       end
     end
 
