@@ -20,6 +20,10 @@ module CucuShift
       end
 
       def self.for_cases(case_ids, project, request)
+        # When running with cases that usually means changes to the case have
+        #   been recently made. This means in most situations we need to
+        #   refresh the cases from Polarion to avoid frustration.
+        request.refresh_cases_wait(project, case_ids)
         cases = request.get_cases_smart(project, case_ids)
         return self.new({
           "virtual" => true,
