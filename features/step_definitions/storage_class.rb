@@ -33,7 +33,7 @@ When /^admin creates a StorageClass from "([^"]*)" where:$/ do |location, table|
     # register mandatory clean-up
     _sc = @result[:resource]
     _admin = admin
-    teardown_add { _sc.ensure_deleted(by: _admin) }
+    teardown_add { _sc.ensure_deleted(user: _admin) }
   else
     logger.error(@result[:response])
     raise "failed to create StorageClass from: #{location}"
