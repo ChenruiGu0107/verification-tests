@@ -267,5 +267,6 @@ check_port_in_list:
 create_app_from_image_try_sample_repo:
   element:
     selector:
-      text: Try it
+      #xpath: //a[contains(text(), 'Try It')]
+      text: Try It
     op: click
