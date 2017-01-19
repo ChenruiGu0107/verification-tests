@@ -1069,20 +1069,14 @@ Feature: jenkins.feature
   # @case_id 534536 534540 534541
   Scenario Outline: Delete openshift resources in jenkins with OpenShift Pipeline Jenkins Plugin
     Given I have a project
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
+    Given I have an ephemeral jenkins v<jenkins_version> application
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"
     Given a pod becomes ready with labels:
       | name=jenkins |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/                                     |
+      | rules    | lib/rules/web/images/jenkins_<jenkins_version>/                   |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+    And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | testplugin |
     Then the step should succeed
@@ -1122,47 +1116,45 @@ Feature: jenkins.feature
     Given I get project pods
     Then the output should not contain "hello-openshift"
     Examples:
-      | steptype       | resourcetype | resourcekey     | resourceval     | resourcejsonyaml                           | deletertype              |
-      | using Labels   | pod          | name            | hello-openshift |                                            | OpenShiftDeleterLabels   |
-      | by Key         | pod          | hello-openshift |                 |                                            | OpenShiftDeleterList     |
-      | from JSON/YAML |              |                 |                 | <%= File.read('hello-pod.json').to_json %> | OpenShiftDeleterJsonYaml |
+      | steptype       | resourcetype | resourcekey     | resourceval     | resourcejsonyaml                           | deletertype              | jenkins_version |
+      | using Labels   | pod          | name            | hello-openshift |                                            | OpenShiftDeleterLabels   | 1               |
+      | by Key         | pod          | hello-openshift |                 |                                            | OpenShiftDeleterList     | 1               |
+      | from JSON/YAML |              |                 |                 | <%= File.read('hello-pod.json').to_json %> | OpenShiftDeleterJsonYaml | 1               |
+      | steptype       | resourcetype | resourcekey     | resourceval     | resourcejsonyaml                           | deletertype              | jenkins_version |
+      | using Labels   | pod          | name            | hello-openshift |                                            | OpenShiftDeleterLabels   | 2               |
+      | by Key         | pod          | hello-openshift |                 |                                            | OpenShiftDeleterList     | 2               |
+      | from JSON/YAML |              |                 |                 | <%= File.read('hello-pod.json').to_json %> | OpenShiftDeleterJsonYaml | 2               |
 
   # @author wewang@redhat.com
   # @case_id 516502
-  Scenario: update build field of openshift v3 plugin of jenkins-1-rhel7
+  Scenario Outline: update build field of openshift v3 plugin
     Given I have a project
     When I give project admin role to the default service account
     Then the step should succeed
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
-    Given a pod becomes ready with labels:
+    Given I have an ephemeral jenkins v<ver> application
+    And a pod becomes ready with labels:
       | name=jenkins |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
-    Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/                                     |
+    And I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                           |
-      | password | <%= cb.jenkins_password %>      |
-    Then the step should succeed
+    And I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %>             |
     Then the step should succeed
     When I perform the :jenkins_check_build_fields web action with:
-      | job_name | <%= project.name %>             |
-      | api_endpoint  | <%= env.api_endpoint_url %>|
-      | build_config  | frontend |
-      | name_space    | <%= project.name %>        |
-      | token         | 12345                      |
-      | commit_hash   | 456789                     |
+      | job_name     | <%= project.name %>         |
+      | api_endpoint | <%= env.api_endpoint_url %> |
+      | build_config | frontend                    |
+      | name_space   | <%= project.name %>         |
+      | token        | 12345                       |
+      | commit_hash  | 456789                      |
     Then the step should succeed
     #update post-build action
     When I perform the :jenkins_check_post_build_fields web action with:
-      | job_name      | <%= project.name %>        |
-      | api_endpoint  | <%= env.api_endpoint_url %>|
-      | store_project | <%= project.name %>        |
-      | build_config  | frontend                   |
+      | job_name      | <%= project.name %>         |
+      | api_endpoint  | <%= env.api_endpoint_url %> |
+      | store_project | <%= project.name %>         |
+      | build_config  | frontend                    |
     Then the step should succeed
     When I perform the :goto_configure_page web action with:
       | job_name      | <%= project.name %>        |
@@ -1186,7 +1178,7 @@ Feature: jenkins.feature
       | xpath | //div[contains(@descriptorid, 'OpenShiftBuilder')]//td[contains(text(),"Allow for verbose logging during this build step plug-in")]/following-sibling::td[1]/input[1]              |
     Then the output should contain "true"
     When I get the "value" attribute of the "input" web element:
-      | xpath | //div[contains(@descriptorid, 'OpenShiftBuilder')]//td[contains(text(),"Pipe the build logs from OpenShift to the Jenkins console")]/following-sibling::td[1]/input[1]             | 
+      | xpath | //div[contains(@descriptorid, 'OpenShiftBuilder')]//td[contains(text(),"Pipe the build logs from OpenShift to the Jenkins console")]/following-sibling::td[1]/input[1]             |
     Then the output should contain "true"
     When I get the "value" attribute of the "input" web element:
       | xpath | //div[contains(@descriptorid, 'OpenShiftBuilder')]//td[contains(text(),"Verify whether any deployments triggered by this build's output fired")]/following-sibling::td[1]/input[1] |
@@ -1204,6 +1196,10 @@ Feature: jenkins.feature
     When I get the "value" attribute of the "input" web element:
       | xpath | //div[contains(@descriptorid, 'OpenShiftBuildCanceller')]//td[contains(text(),"Allow for verbose logging during this build step plug-in")]/following-sibling::td[1]/input[1]       |
     Then the output should contain "true"
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
   # @case_id 532328
