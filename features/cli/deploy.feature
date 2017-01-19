@@ -1116,16 +1116,18 @@ Feature: deployment related features
   # @case_id 515919
   Scenario: Start new deployment when deployment running
     Given I have a project
-    When I run the :new_app client command with:
-      | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/sleepv1.json |
     Then the step should succeed
-    Given I wait until the status of deployment "deployment-example" becomes :running
-    And I replace resource "dc" named "deployment-example":
+    Given I wait until the status of deployment "hooks" becomes :running
+    And I replace resource "dc" named "hooks":
       | latestVersion: 1 | latestVersion: 2 |
     Then the step should succeed
+    Given the pod named "hooks-2-deploy" status becomes :running
     When I run the :deploy client command with:
-      | deployment_config | deployment-example |
-    Then the output should match "cancelled.*newer.*running"
+      | deployment_config | hooks |
+    Then the step should succeed
+    And the output should match ".*newer.*running"
 
   # @author yinzhou@redhat.com
   # @case_id 518647
@@ -1781,7 +1783,7 @@ Feature: deployment related features
 
   # @author yinzhou@redhat.com
   # @case_id 527299 527300
-  Scenario Outline: custom deployment for Recreate strategy
+  Scenario Outline: custom deployment for Recreate/Rolling strategy
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/<file> |

@@ -144,8 +144,8 @@ Feature: Quota related scenarios
       | eployment.*onfig.*reated            |
 
     When I get project pods
-    Then the output should not match:
-      | \\S+ |
+    Then the output should match:
+      | No resources found |
     When I get project events
     Then the output should match:
       | ailed quota: quota: must specify cpu,memory |
