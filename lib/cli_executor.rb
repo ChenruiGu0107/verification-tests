@@ -33,7 +33,13 @@ module CucuShift
     # @param host [CucuShift::Host] the host to execute command on
     # @return [String] version string
     def self.get_version_for(user, host)
-      res = host.exec_as(user, "oc version")
+      fake_config = Tempfile.new
+      fake_config.close
+
+      res = host.exec_as(user, "oc version --config=#{fake_config.path}")
+
+      fake_config.unlink
+
       raise "cannot execute on host #{host.hostname} as user '#{user}'" unless res[:success]
       return res[:response].scan(/^os?c v(.+)$/)[0][0]
     end
