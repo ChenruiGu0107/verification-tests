@@ -209,7 +209,7 @@ check_build_hidden_secret:
   action: goto_one_build_page
   elements:
   - selector:
-      xpath: //dt[contains(.,'Triggered By:')]/following-sibling::dd//a[contains(.,'show obfuscated secret')]
+      xpath: //dt[contains(.,'Triggered By:')]/following-sibling::dd//a[contains(.,'Show Obfuscated Secret')]
     op: click
   - selector:
       xpath: //dt[contains(.,'Triggered By:')]/following-sibling::dd[contains(.,'<hidden_text>')]

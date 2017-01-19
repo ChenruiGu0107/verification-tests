@@ -1128,20 +1128,20 @@ Feature: build related feature on web console
     # Check build #3
     Given the "ruby-sample-build-3" build was created
     When I perform the :check_build_trigger web console action with:
-      | project_name      | <%= project.name %>                     |
-      | bc_and_build_name | ruby-sample-build/ruby-sample-build-3   |
-      | trigger_info      | Generic webhook: no revision information, show obfuscated secret |
+      | project_name      | <%= project.name %>                      |
+      | bc_and_build_name | ruby-sample-build/ruby-sample-build-3    |
+      | trigger_info      | Generic webhook: no revision information |
     Then the step should succeed
 
     Examples:
       # Check build trigger info when the trigger is generic webhook on web
       | type    | path              | file              | header1 | header2 | url_before                   | url_after                                       | trigger_info |
-      | generic | generic/testdata/ | push-generic.json |         |         | git://mygitserver/myrepo.git | git://github.com/openshift/ruby-hello-world.git | Generic webhook: Random act of kindness e79d887 authored by Jon Doe, show obfuscated secret |
+      | generic | generic/testdata/ | push-generic.json |         |         | git://mygitserver/myrepo.git | git://github.com/openshift/ruby-hello-world.git | Generic webhook: Random act of kindness e79d887 authored by Jon Doe |
 
     Examples:
       # Check build trigger info when the trigger is github webhook on web
       | type    | path              | file           | header1        | header2 | url_before | url_after | trigger_info |
-      | github  | github/testdata/  | pushevent.json | X-Github-Event | push    |            |           | GitHub webhook: Added license e79d887 authored by Anonymous User, show obfuscated secret |
+      | github  | github/testdata/  | pushevent.json | X-Github-Event | push    |            |           | GitHub webhook: Added license e79d887 authored by Anonymous User |
 
   # @author: yapei@redhat.com
   # @case_id: 538973
