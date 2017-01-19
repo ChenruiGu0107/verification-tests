@@ -968,3 +968,90 @@ Feature: Testing route
       | resource      | route |
     Then the output should contain:
       | <%= cb.subdomain %> |
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-11036
+  Scenario: Add http and https redirect support for passthrough and reencrypt termination	
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    # Create passthrough termination route
+    When I run the :create_route_passthrough client command with:
+      | name     | myroute |
+      | service  | service-secure     |
+    Then the step should succeed
+    # Set insecureEdgeTerminationPolicy to Redirect
+    When I run the :patch client command with:
+      | resource      | route              |
+      | resource_name | myroute            |
+      | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Redirect"}}} |
+    Then the step should succeed
+    # Acess the route
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | -v |
+      | -L |
+      | http://<%= route("myroute", service("service-secure")).dns(by: user) %>/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+      | HTTP/1.1 302 Found |
+      | Location: https:// |
+    
+    When I run the :patch client command with:
+      | resource      | route              |
+      | resource_name | myroute            |
+      | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Allow"}}} |
+    Then the step should fail
+    And the output should contain "acceptable values are None, Redirect, or empty"
+ 
+    #create reencrypt termination route
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen |
+      | service    | service-secure     |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    # Set insecureEdgeTerminationPolicy to Redirect
+    When I run the :patch client command with:
+      | resource      | route           |
+      | resource_name | reen            |
+      | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Redirect"}}} |
+    Then the step should succeed
+    # Acess the route
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -v |
+      | -L |
+      | http://<%= route("reen", service("service-secure")).dns(by: user) %>/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+      | HTTP/1.1 302 Found |
+      | Location: https:// |
+    """    
+    When I run the :patch client command with:
+      | resource      | route           |
+      | resource_name | reen            |
+      | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Allow"}}} |
+    Then the step should succeed
+    # Acess the route
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | http://<%= route("reen", service("service-secure")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    """
