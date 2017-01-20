@@ -121,3 +121,20 @@ Feature: oc get related command
       | raw        | /apijk    |
     Then the step should fail
 
+  # @author yapei@redhat.com
+  # @case_id OCP-12887
+  Scenario: Check HPA resource is included in 'all' alias
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/php-dc.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/hpa.yaml    |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | all |
+    Then the step should succeed
+    And the output should contain "hpa/php-apache"
+    When I run the :delete client command with:
+      | object_type | all  |
+      | all         | true |
+    Then the step should succeed
+    And the output should match "horizontalpodautoscaler.*php-apache.*deleted"
