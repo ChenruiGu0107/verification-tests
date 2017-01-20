@@ -129,14 +129,16 @@ goto_buildconfig_configuration_tab:
       xpath: //h3[contains(.,'Configuration')]
   - selector:
       xpath: //h3[contains(.,'Triggers')]
-start_build_base_on_buildconfig:
-  action: check_one_buildconfig_page
+click_start_build_button:
   element:
     selector:
       text: Start Build
       class: btn-default
     type: button
     op: click
+start_build_base_on_buildconfig:
+  action: check_one_buildconfig_page
+  action: click_start_build_button
 wait_latest_build_to_status:
   action: goto_one_buildconfig_page
   element:
@@ -656,3 +658,19 @@ change_bc_binary_input:
       id: binaryAsBuild
     type: input
     op: send_keys <bc_binary>
+check_start_build_button_not_disabled:
+  elements: 
+  - selector:
+      xpath: //button[@ng-click="startBuild()" and not(@disabled)]
+check_bc_runpolicy:
+  action: goto_buildconfig_configuration_tab
+  action: check_runPolicy
+check_runPolicy:
+  elements: 
+  - selector:
+      xpath: //div[@class="run-policy"]//dd[contains(., "<run_policy>")]
+check_one_build_status:
+  elements:
+  - selector:
+      xpath:  //a[contains(., "#<number>")]/ancestor::tr/td[contains(., "<status>")]
+    timeout: 180

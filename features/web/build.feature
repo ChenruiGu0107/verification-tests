@@ -1181,3 +1181,50 @@ Feature: build related feature on web console
       | bc_name        | ruby-sample-build    |
       | generic_webhook_trigger | <%= cb.generic_webhook[0].scan(/oapi.*/)[0] %>  |
     Then the step should succeed
+    
+  # @author: xiaocwan@redhat.com
+  # @case_id: 535052 526575 526576
+  Scenario Outline: Check BC page when runPolicy set to Serial Parallel and SerialLatestOnly
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc526202/bc.json"
+    Then the step should succeed
+    And I replace lines in "bc.json":
+      | Parallel | <runpolicy> |
+    # trigger builds and check the runPolicy from web console
+    When I run the :create client command with:
+      | f | bc.json   |
+    Then the step should succeed
+    When I perform the :check_bc_runpolicy web console action with:
+      | project_name  | <%= project.name %>     |
+      | bc_name       | ruby-ex                 |
+      | run_policy    | <display_run_policy>    |
+    Then the step should succeed
+    # build #1 may be finished already, so start build #2 and #3, check start button
+    When I perform the :goto_one_build_page web console action with:
+      | project_name      | <%= project.name %> |
+      | bc_and_build_name | ruby-ex             |
+    Then the step should succeed 
+    When I run the :click_start_build_button web console action 
+    Then the step should succeed
+    When I run the :check_start_build_button_not_disabled web console action
+    Then the step should succeed
+
+    When I run the :click_start_build_button web console action
+    Then the step should succeed
+    When I run the :check_start_build_button_not_disabled web console action
+    Then the step should succeed
+
+    # check build #2 and #3 together as soon as builds start up
+    When I perform the :check_one_build_status web console action with:
+      | number | 2                   |
+      | status | <build2_status>     |
+    Then the step should succeed
+    When I perform the :check_one_build_status web console action with:
+      | number | 3                   |
+      | status | <build3_status>     |
+    Then the step should succeed
+    Examples:
+      | runpolicy         | display_run_policy | build2_status   | build3_status |
+      | Serial            | Serial             | Running         | New           |
+      | Parallel          | Parallel           | Running         | Running       |
+      | SerialLatestOnly  | Serial latest only | Cancelled       | Running       |
