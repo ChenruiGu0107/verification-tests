@@ -262,7 +262,10 @@ create_app_without_route:
 check_port_in_list:
   elements:
   - selector:
-      xpath: //select[@id='routeTargetPort']/*[text()='<target_port>']
+      xpath: //div[@input-id='routeTargetPort']
+    op: click
+  - selector:
+      xpath: //span[contains(text(),'<target_port>')]
     op: click
 create_app_from_image_try_sample_repo:
   element:

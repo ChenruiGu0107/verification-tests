@@ -759,14 +759,21 @@ Feature: build related feature on web console
       | build_log_context | unning |
     Then the step should succeed
 
+    #The "follow" click sometimes failed to show the "stop following" on 3.5, so add wait steps here
+    And I wait for the steps to pass:
+    """
     When I run the :follow_log web console action
     Then the step should succeed
     When I run the :stop_follow_log web console action
     Then the step should succeed
+    """
+    And I wait for the steps to pass:
+    """
     When I run the :follow_log web console action
     Then the step should succeed
     When I run the :go_to_top_log web console action
     Then the step should succeed
+    """
 
     Given the "ruby-hello-world-1" build becomes :complete
     When I perform the :check_build_log_tab web console action with:

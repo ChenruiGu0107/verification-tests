@@ -20,7 +20,7 @@ check_one_pvc_detail:
   action: goto_one_pvc_page
   elements:
   - selector: 
-      xpath: //h1[contains(text(),'<pvc_name>')]
+      xpath: //h1[contains(.,'<pvc_name>')]
   - selector:
       xpath: //dt[text()='Status:']
   - selector:
@@ -55,6 +55,7 @@ create_pvc_with_invalid_value_and_check:
   action: set_pvc_name
   action: set_storage_size
   action: check_create_button_disabled
+create_pvc_with_min_length_and_check: {}
 check_prompt_info_for_pvc:
   elements:
   - selector:
@@ -95,5 +96,8 @@ set_storage_size:
 set_storage_unit:
   elements:
   - selector:
-      xpath: //select[@name='unit']/option[@label='<storage_unit>']
+      xpath: //div[@ng-model='claim.unit']
+    op: click
+  - selector:
+      xpath: //span[contains(text(),'<storage_unit>')]
     op: click

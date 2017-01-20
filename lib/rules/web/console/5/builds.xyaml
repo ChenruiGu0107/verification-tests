@@ -13,7 +13,7 @@ check_buildconfig_list_page:
 check_build_log_content:
   element:
     selector:
-      xpath: //log-viewer[@resource="builds/log"]//td[contains(.,'<build_log_context>')]
+      xpath: //td[contains(.,'<build_log_context>')]
     timeout: 300
 check_build_log_tab:
   action: goto_one_build_page
