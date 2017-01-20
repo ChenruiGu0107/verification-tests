@@ -152,6 +152,10 @@ module CucuShift
           end
         end
       end
+
+      def logger
+        request.logger
+      end
     end
   end
 end
