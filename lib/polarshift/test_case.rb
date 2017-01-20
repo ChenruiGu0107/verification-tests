@@ -119,7 +119,7 @@ module CucuShift
           if automation_file == scenario.file &&
              automation_scenario == scenario.name
             if automation_args && !scenario.example?
-              logger "case #{id} mismatch with scenario type, will never run"
+              logger.error "case #{id} mismatch with scenario type, will never run"
               return false
             elsif !scenario.example?
               scenarios << scenario
