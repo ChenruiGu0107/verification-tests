@@ -54,7 +54,7 @@ check_builds_of_deleted_buildconfig:
   - selector:
       xpath: //tbody
   scripts:
-  - command: return document.querySelectorAll("tbody").length == <build_number>
+  - command: return document.querySelectorAll("tbody tr").length == <build_number>
     expect_result: true
   elements:
   - selector:
@@ -68,7 +68,7 @@ check_deployments_of_deleted_deploymentconfig:
   - selector:
       xpath: //tbody
   scripts:
-  - command: return document.querySelectorAll("tbody").length == <deployment_number>
+  - command: return document.querySelectorAll("tbody tr").length == <deployment_number>
     expect_result: true
   elements:
   - selector:

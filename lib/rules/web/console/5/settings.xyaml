@@ -5,7 +5,7 @@ check_general_information:
 check_specific_project_info:
   elements:
   - selector:
-      xpath: //a[contains(@href,"<project_name>") and text()="<display_name>"]
+      xpath: //a[contains(@href,"<project_name>") and contains(.,"<display_name>")]
     type: a
   - selector:
       xpath: //span[text()="<description>"]
