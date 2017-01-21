@@ -199,8 +199,11 @@ module CucuShift
         @major_version, @minor_version = parse_version(opts[:version])
       else
         # try to obtain version
-        raw_version, @majore_version, @minor_version = get_version(user)
+        raw_version, @major_version, @minor_version = get_version(user: user)
       end
+
+      @major_version = Integer(@major_version)
+      @minor_version = Integer(@minor_version)
 
       major, minor = parse_version(version)
 
