@@ -33,7 +33,7 @@ module CucuShift
     # @param host [CucuShift::Host] the host to execute command on
     # @return [String] version string
     def self.get_version_for(user, host)
-      fake_config = Tempfile.new
+      fake_config = Tempfile.new("kubeconfig")
       fake_config.close
 
       res = host.exec_as(user, "oc version --config=#{fake_config.path}")
