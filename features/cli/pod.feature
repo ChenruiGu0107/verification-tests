@@ -284,3 +284,50 @@ Feature: pods related scenarios
     And the output should contain:
       | implicit		|
       | user:list-projects	|
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-12897 
+  @admin
+  Scenario: PDB create with beta1
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_negative_absolute_number.yaml |
+      | n | <%= project.name %>                                                                                                |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_negative_percentage.yaml |
+      | n | <%= project.name %>                                                                                           |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_zero_number.yaml |
+      | n | <%= project.name %>                                                                                   |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_zero_percentage.yaml |
+      | n | <%= project.name %>                                                                                       |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_non_absolute_number.yaml |
+      | n | <%= project.name %>                                                                                           |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_non_number_percentage.yaml |
+      | n | <%= project.name %>                                                                                             |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_more_than_full_percentage.yaml |
+      | n | <%= project.name %>                                                                                                 |
+    Then the step should fail
+    And the output should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_positive_absolute_number.yaml |
+      | n | <%= project.name %>                                                                                                |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_reasonable_percentage.yaml |
+      | n | <%= project.name %>                                                                                             |
+    Then the step should succeed
