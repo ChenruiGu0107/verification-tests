@@ -843,6 +843,9 @@ jenkins_verify_logged_in:
 jenkins_verify_openshift_build:
   url: /job/<job_name>/configure
   action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
   - selector:
       text: Verify OpenShift Build
@@ -865,6 +868,9 @@ jenkins_verify_openshift_build:
 jenkins_verify_openshift_deployment:
   url: /job/<job_name>/configure
   action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
   - selector:
       text: Verify OpenShift Deployment
@@ -887,6 +893,9 @@ jenkins_verify_openshift_deployment:
 jenkins_verify_openshift_service:
   url: /job/<job_name>/configure
   action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
   - selector:
       text: Verify OpenShift Service

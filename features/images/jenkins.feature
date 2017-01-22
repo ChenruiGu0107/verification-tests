@@ -1365,27 +1365,36 @@ Feature: jenkins.feature
       |  2  |
 
   # @author cryan@redhat.com
-  # @case_id 534542
-  Scenario: Verify openshift build deployment and service in jenkins pipeline plugin
+  # @case_id 534542 536427
+  # @note This scenario will fail as of 1/17/17 due to a deprecation
+  # of spec.portalIP in the jenkins templates, and a shift in the
+  # jenkins plugin to use spec.portalIP.
+  # https://github.com/openshift/origin/commit/e0c8f93be1bf173f5932796c4d3cbd96310b4de7
+  # The plugin should be rebuilt shortly, and we can retest sometime after 1
+  # week beyond 1/17/17 for a passing result.
+  # The attendant github issue can be tracked here:
+  # https://github.com/openshift/jenkins-plugin/issues/122
+  Scenario Outline: Verify openshift build deployment and service in jenkins pipeline plugin
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+    When I run the :policy_add_role_to_user client command with:
+      | role           | edit            |
+      | serviceaccount | jenkins         |
+      | n              | <%= cb.proj1 %> |
     Then the step should succeed
+    Given I have an ephemeral jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/application-template.json |
     Then the step should succeed
-    When I run the :policy_add_role_to_user client command with:
-      | role           | edit    |
-      | serviceaccount | jenkins |
-    Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    And I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     And I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/                                     |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    Given I switch to the second user
     And I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    And I use the "<%= cb.proj2 %>" project
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
@@ -1395,10 +1404,8 @@ Feature: jenkins.feature
       | serviceaccountraw | system:serviceaccount:<%= cb.proj1 %>:jenkins |
       | n                 | <%= cb.proj2 %>                               |
     Then the step should succeed
-    When I perform the :jenkins_login web action with:
-      | username | admin                      |
-      | password | <%= cb.jenkins_password %> |
-    Then the step should succeed
+    Given I switch to the first user
+    Given I log in to jenkins
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | openshifttest |
     Then the step should succeed
@@ -1406,17 +1413,17 @@ Feature: jenkins.feature
       | job_name  | openshifttest               |
       | apiurl    | <%= env.api_endpoint_url %> |
       | bldcfg    | ruby-sample-build           |
-      | namespace | <%= project.name %>         |
+      | namespace | <%= cb.proj2 %>             |
     When I perform the :jenkins_verify_openshift_deployment web action with:
       | job_name     | openshifttest               |
       | apiurl       | <%= env.api_endpoint_url %> |
       | deployconfig | frontend                    |
-      | namespace    | <%= project.name %>         |
+      | namespace    | <%= cb.proj2 %>             |
     When I perform the :jenkins_verify_openshift_service web action with:
       | job_name  | openshifttest               |
       | apiurl    | <%= env.api_endpoint_url %> |
       | svcname   | frontend                    |
-      | namespace | <%= project.name %>         |
+      | namespace | <%= cb.proj2 %>             |
     Then the step should succeed
     When I perform the :jenkins_build_now web action with:
       | job_name | openshifttest |
@@ -1426,6 +1433,10 @@ Feature: jenkins.feature
       | job_number | 1             |
       | time_out   | 300           |
     Then the step should succeed
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @author cryan@redhat.com
   # @case_id 531206

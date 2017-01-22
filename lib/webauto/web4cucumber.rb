@@ -613,7 +613,7 @@ require 'watir-webdriver'
 
     def execute_script(script)
       unless script.include?("return")
-        raise "The script not contain the keyword return"
+        raise "The script does not contain the keyword return"
       end
       browser.execute_script(script)
     end
