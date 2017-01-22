@@ -1314,12 +1314,10 @@ Feature: jenkins.feature
       | openshift.io/jenkins-build-uri |
 
   # @author cryan@redhat.com
-  # @case_id 529771
-  Scenario: Show annotation when deployment triggered by jenkins pipeline
+  # @case_id 529771 536413
+  Scenario Outline: Show annotation when deployment triggered by jenkins pipeline
     Given I have a project
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
+    Given I have an ephemeral jenkins v<ver> application
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
     Then the step should succeed
@@ -1329,17 +1327,19 @@ Feature: jenkins.feature
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
-    Given I save the jenkins password of dc "jenkins" into the :jenkins_password clipboard
     Given I have a browser with:
-      | rules    | lib/rules/web/images/jenkins/                                     |
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
-    When I perform the :jenkins_login web action with:
-      | username | admin                           |
-      | password | <%= cb.jenkins_password %>      |
+    And I log in to jenkins
     Then the step should succeed
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %>             |
     Then the step should succeed
+    When I perform the :jenkins_create_openshift_build_trigger web action with:
+      | job_name      | <%= project.name %>         |
+      | api_endpoint  | <%= env.api_endpoint_url %> |
+      | build_config  | frontend                    |
+      | store_project | <%= project.name %>         |
     When I perform the :jenkins_create_openshift_deployment_trigger web action with:
       | job_name         | <%= project.name %>         |
       | api_endpoint     | <%= env.api_endpoint_url %> |
@@ -1347,7 +1347,7 @@ Feature: jenkins.feature
       | store_project    | <%= project.name %>         |
     Then the step should succeed
     When I perform the :jenkins_build_now web action with:
-      | job_name      | <%= project.name %>         |
+      | job_name | <%= project.name %> |
     Then the step should succeed
     Given the "frontend-1" build completes
     And a pod becomes ready with labels:
@@ -1359,6 +1359,10 @@ Feature: jenkins.feature
     And the output should contain:
       | job/<%= project.name %>        |
       | openshift.io/jenkins-build-uri |
+    Examples:
+      | ver |
+      |  1  |
+      |  2  |
 
   # @author cryan@redhat.com
   # @case_id 534542

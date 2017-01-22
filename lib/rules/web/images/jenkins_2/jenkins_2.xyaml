@@ -426,6 +426,9 @@ jenkins_create_openshift_build_trigger:
 jenkins_create_openshift_deployment_trigger:
   action: goto_configure_page
   action: jenkins_click_add_build_step_button
+  scripts:
+  - command: return document.getElementsByClassName("yuimenuitemlabel")[document.getElementsByClassName("yuimenuitemlabel").length-1].scrollIntoView(true)
+    expect_result: ~
   elements:
   - selector:
       text: Trigger OpenShift Deployment
