@@ -294,3 +294,56 @@ Feature: oc import-image related feature
       |  /nginx   |
       |  /app     |
 
+  # @author geliu@redhat.com
+  # @case_id OCP-12765
+  Scenario: Allow imagestream request deployment config triggers by different mode('TagreferencePolicy':source/local)
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                       |
+      | source      | openshift/deployment-example |
+      | dest        | deployment-example:latest    |
+    Then the output should match:
+      | [Tt]ag deployment-example:latest           |
+    When I run the :new_app client command with:
+      | image_stream | deployment-example:latest   |
+    Then the output should match:
+      | .*[Ss]uccess.*|
+    When I run the :get client command with:
+      | resource        | imagestreams |
+    Then the output should match: 
+      | .*deployment-example.* |
+    When I run the :get client command with:
+      | resource_name   | deployment-example |
+      | resource        | dc                 |
+      | o               | yaml               |
+    Then the output should match: 
+      |[Ll]astTriggeredImage.*deployment-example@sha256.*|
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all         ||
+    Then the step should succeed
+    When I run the :tag client command with:
+      | source_type | docker                       |
+      | source      | openshift/deployment-example |
+      | dest        | deployment-example:latest    |
+    Then the output should match:
+      | [Tt]ag deployment-example:latest           |
+    When I run the :patch client command with:
+      | resource      | istag                                        |
+      | resource_name | deployment-example:latest                    |
+      | p             | {"tag":{"referencePolicy":{"type":"Local"}}} |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | image_stream | deployment-example:latest   |
+    Then the output should match:
+      | .*[Ss]uccess.* |
+    When I run the :get client command with:
+      | resource        | imagestreams |
+    Then the output should match:
+      | .*deployment-example.* |
+    When I run the :get client command with:
+      | resource_name   | deployment-example |
+      | resource        | dc                 |
+      | o               | yaml               |
+    Then the output should match:
+      | [Ll]astTriggeredImage.*:.*<%= project.name %>\/deployment-example@sha256.*|
