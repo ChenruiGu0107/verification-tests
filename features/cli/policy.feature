@@ -820,3 +820,38 @@ Feature: change the policy of user/service account
     And the step should fail
     And the output should contain:
       | User "<%= user.name %>" cannot delete persistentvolumeclaims |
+
+  # @author chaoyang@redhat.com
+  # @case_id 538270
+  @admin
+  Scenario: Basic user could not get pv object info
+    Given I have a project
+    And I have a 1 GB volume and save volume id in the :vid clipboard
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pv-rwo.yaml" where:
+      | ["metadata"]["name"]                         | pv-<%= project.name %> |
+      | ["spec"]["capacity"]["storage"]              | 1Gi                    |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce          |
+      | ["spec"]["awsElasticBlockStore"]["volumeID"] | <%= cb.vid %>          |
+      | ["spec"]["persistentVolumeReclaimPolicy"]    | Retain                 |
+    Then the step should succeed
+
+    Then I run the :get client command with:
+      | resource      | pv                     |
+      | resource_name | pv-<%= project.name %> |
+    And the step should fail
+    And the output should contain:
+      | User "<%= user.name %>" cannot get persistentvolumes at the cluster scope |
+
+    When I run the :describe client command with:
+      | resource | pv                     |
+      | name     | pv-<%= project.name %> |
+    And the step should fail
+    And the output should contain:
+      | User "<%= user.name %>" cannot get persistentvolumes at the cluster scope |
+
+    When I run the :delete client command with:
+      | object_type       | pv                     |
+      | object_name_or_id | pv-<%= project.name %> |
+    And the step should fail
+    And the output should contain:
+      | User "<%= user.name %>" cannot delete persistentvolumes at the cluster scope |
