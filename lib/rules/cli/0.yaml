@@ -610,6 +610,7 @@
   :cmd: oc rsh <global_options> <options>
   :options:
     :app_name: <value>
+    :no_tty: --no-tty=<value>
     :c: --container=<value>
     :command: <value>
     :pod: <value>
