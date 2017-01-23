@@ -1,3 +1,21 @@
+check_create_button_disabled:
+  elements:
+  - selector:
+      xpath: //button[@disabled='disabled' and text()='Create']
+check_error_for_invalid_value:
+  elements:
+    - selector:
+          xpath: //span[contains(.,"must consist of lower-case letters, numbers, periods, and hyphens")]
+    - selector:
+          xpath: //span[contains(.,"must start and end with a letter or a number")]
+check_error_for_long_value:
+  elements:
+    - selector:
+          xpath: //span[contains(.,"n't be longer than 253 characters")]
+check_save_button_disabled:
+  elements:
+  - selector:
+      xpath: //button[@disabled='disabled' and text()='Save']
 click_actions_button:
   elements:
   - selector:
@@ -55,14 +73,6 @@ click_save_button:
   - selector:
       xpath: //button[contains(text(),'Save') and not(@disabled)]
     op: click
-check_create_button_disabled:
-  elements:
-  - selector:
-      xpath: //button[@disabled='disabled' and text()='Create']
-check_save_button_disabled:
-  elements:
-  - selector:
-      xpath: //button[@disabled='disabled' and text()='Save']
 click_to_goto_edit_page:
   action: click_actions_button
   action: click_edit
