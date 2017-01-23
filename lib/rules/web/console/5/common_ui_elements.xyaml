@@ -25,6 +25,11 @@ click_cancel:
   - selector:
       text: Cancel
     op: click
+click_on_configuration_tab:
+  element:
+    selector:
+      xpath: //uib-tab-heading[contains(.,'Configuration')]
+    op: click
 click_delete:
   elements:
   - selector:

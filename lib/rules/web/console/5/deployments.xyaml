@@ -259,6 +259,12 @@ goto_health_check_page:
   - selector:
       xpath: //a[contains(text(), 'Edit Health Checks')]
     op: click
+goto_k8s_deployment_health_check_page:
+  action: goto_one_k8s_deployment_page
+  action: goto_health_check_page
+goto_k8s_replicaset_health_check_page:
+  action: goto_one_k8s_replicaset_page
+  action: goto_health_check_page
 goto_add_autoscaler_page:
   action: click_actions_button
   elements:

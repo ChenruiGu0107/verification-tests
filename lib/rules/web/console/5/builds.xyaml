@@ -87,11 +87,6 @@ click_on_history_tab:
     selector:
       xpath: //uib-tab-heading[contains(.,'History')]
     op: click
-click_on_configuration_tab:
-  element:
-    selector:
-      xpath: //uib-tab-heading[contains(.,'Configuration')]
-    op: click
 cancel_build_from_pending_status:
   action: check_one_build_inside_bc_page
   elements:

@@ -10,6 +10,12 @@ add_storage_to_k8s_replicasets:
   action: set_mount_path
   action: set_volume_name
   action: click_add_button
+goto_k8s_deployment_health_check_page:
+  action: goto_one_k8s_deployment_page
+  action: goto_health_check_page
+goto_k8s_replicaset_health_check_page:
+  action: goto_one_k8s_replicaset_page
+  action: goto_health_check_page
 check_latest_deployment_version:
   action: goto_one_dc_page
   element:

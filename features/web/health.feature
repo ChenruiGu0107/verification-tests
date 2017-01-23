@@ -118,3 +118,171 @@ Feature: Health related feature on web console
       | kind | resource_name | cont_1           | cont_2                 | action_name                 |
       | dc   | dctest        | dctest-1         | dctest-2               | goto_one_dc_page            |
       | rc   | rctest        | hello-openshift  | hello-openshift-fedora | goto_one_standalone_rc_page |
+
+  # @author: yapei@redhat.com
+  # @case_id: OCP-11993
+  Scenario: Health Check for k8s deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536593/deployment-with-two-containers.yaml |
+    Then the step should succeed
+    Given 4 pods become ready with labels:
+      | app=hello-openshift |
+    When I perform the :goto_k8s_deployment_health_check_page web console action with:
+      | project_name        | <%= project.name %> |
+      | k8s_deployment_name | hello-openshift     |
+    Then the step should succeed
+    # Add 'TCP Socket' type Readiness Probe for container 'hello-openshift'
+    When I perform the :add_socket_probe_and_define_delay_and_timeout web console action with:
+      | container_name        | hello-openshift |
+      | health_kind           | readiness       |
+      | probe_type            | TCP Socket      |
+      | port                  | 80              |
+      | initial_delay_seconds | 5               |
+      | timeout               | 10              |
+    Then the step should succeed
+    # Add 'Container Command' type Liveness Probe for container 'hello-openshift'
+    When I perform the :add_command_probe web console action with:
+      | container_name | hello-openshift   |
+      | health_kind    | liveness          |
+      | probe_type     | Container Command |
+      | command_arg    | cd /etc           |
+    Then the step should succeed
+    When I perform the :add_another_arg_of_command_probe web console action with:
+      | container_name | hello-openshift   |
+      | health_kind    | liveness          |
+      | command_arg    | ls /etc/hosts     |
+    Then the step should succeed
+    # Add 'HTTP' Readiness Probe for container 'hello-openshift-fedora'
+    When I perform the :add_http_probe web console action with:
+      | container_name | hello-openshift-fedora |
+      | health_kind    | readiness              |
+      | probe_type     | HTTP                   |
+      | path           | /health                |
+      | port           | 8080                   |
+    Then the step should succeed
+    # Add 'Container Command' Liveness Probe for container 'hello-openshift-fedora'
+    When I perform the :add_command_probe web console action with:
+      | container_name | hello-openshift-fedora |
+      | health_kind    | liveness               |
+      | probe_type     | Container Command      |
+      | command_arg    | ls                     |
+    Then the step should succeed
+    When I perform the :add_another_arg_of_command_probe web console action with:
+      | container_name | hello-openshift-fedora |
+      | health_kind    | liveness               |
+      | command_arg    | -l                     |
+    Then the step should succeed   
+    When I perform the :add_another_arg_of_command_probe web console action with:
+      | container_name | hello-openshift-fedora |
+      | health_kind    | liveness               |
+      | command_arg    | /usr/bin/sh            |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    # check Readiness and Liveness Probe on k8s deployment page
+    When I run the :goto_check_k8s_deployment_health_probe web console action
+    Then the step should succeed
+    When I perform the :check_health_probe web console action with:
+      | container_name   | hello-openshift                                               |
+      | readiness_probe  | Readiness Probe: Open socket on port 80 5s delay, 10s timeout |
+      | liveness_probe   | Liveness Probe: cd /etc ls /etc/hosts                         |
+    Then the step should succeed
+    When I perform the :check_health_probe web console action with:
+      | container_name   | hello-openshift-fedora                         |
+      | readiness_probe  | Readiness Probe: GET /health on port 8080      |
+      | liveness_probe   | Liveness Probe: ls -l /usr/bin/sh              |
+    Then the step should succeed    
+    When I perform the :goto_k8s_deployment_health_check_page web console action with:
+      | project_name        | <%= project.name %> |
+      | k8s_deployment_name | hello-openshift     |
+    Then the step should succeed
+    When I perform the :remove_probe web console action with:
+      | container_name | hello-openshift |
+      | health_kind    | readiness       |
+    Then the step should succeed    
+    When I perform the :remove_probe web console action with:
+      | container_name | hello-openshift-fedora |
+      | health_kind    | liveness               |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    # Check info after remove
+    When I run the :goto_check_k8s_deployment_health_probe web console action
+    Then the step should succeed
+    When I perform the :check_readiness_probe web console action with:
+      | container_name   | hello-openshift                                               |
+      | readiness_probe  | Readiness Probe: Open socket on port 80 5s delay, 10s timeout |
+    Then the step should fail
+    When I perform the :check_liveness_probe web console action with:
+      | container_name   | hello-openshift-fedora            |
+      | liveness_probe   | Liveness Probe: ls -l /usr/bin/sh | 
+    Then the step should fail
+
+  # @author: yapei@redhat.com
+  # @case_id: OCP-12100
+  Scenario: Health Check for k8s replicaset
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536594/replicaset-with-two-containers.yaml |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | app=guestbook |
+    When I perform the :goto_k8s_replicaset_health_check_page web console action with:
+      | project_name         | <%= project.name %> |
+      | k8s_replicaset_name  | frontend            |
+    Then the step should succeed
+    # Add 'Container Command' type Liveness Probe for container 'hello-openshift'
+    When I perform the :add_command_probe web console action with:
+      | container_name | hello-openshift   |
+      | health_kind    | liveness          |
+      | probe_type     | Container Command |
+      | command_arg    | cd /etc           |
+    Then the step should succeed
+    When I perform the :add_another_arg_of_command_probe web console action with:
+      | container_name | hello-openshift   |
+      | health_kind    | liveness          |
+      | command_arg    | ls /etc/hosts     |
+    Then the step should succeed
+    # Add 'HTTP' Readiness Probe for container 'hello-openshift-fedora'
+    When I perform the :add_http_probe web console action with:
+      | container_name | hello-openshift-fedora |
+      | health_kind    | readiness              |
+      | probe_type     | HTTP                   |
+      | path           | /health                |
+      | port           | 8080                   |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    # check Readiness and Liveness Probe on k8s replicaset page
+    When I perform the :check_liveness_probe web console action with:
+      | container_name   | hello-openshift                       |
+      | liveness_probe   | Liveness Probe: cd /etc ls /etc/hosts |
+    Then the step should succeed
+    When I perform the :check_readiness_probe web console action with:
+      | container_name   | hello-openshift-fedora                    |
+      | readiness_probe  | Readiness Probe: GET /health on port 8080 |
+    Then the step should succeed    
+    When I perform the :goto_k8s_replicaset_health_check_page web console action with:
+      | project_name        | <%= project.name %> |
+      | k8s_replicaset_name | frontend            |
+    Then the step should succeed
+    When I perform the :remove_probe web console action with:
+      | container_name | hello-openshift |
+      | health_kind    | liveness        |
+    Then the step should succeed    
+    When I perform the :remove_probe web console action with:
+      | container_name | hello-openshift-fedora |
+      | health_kind    | readiness              |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    # Check info after remove
+    When I perform the :check_liveness_probe web console action with:
+      | container_name   | hello-openshift                       |
+      | readiness_probe  | Liveness Probe: cd /etc ls /etc/hosts |
+    Then the step should fail
+    When I perform the :check_readiness_probe web console action with:
+      | container_name   | hello-openshift-fedora                    |
+      | liveness_probe   | Readiness Probe: GET /health on port 8080 | 
+    Then the step should fail
