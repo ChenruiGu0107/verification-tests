@@ -25,6 +25,10 @@ goto_create_from_image_next_page:
       text: Next Steps
   - selector:
       text: Command line tools
+check_command_line_tools_instruc_exist:
+  element:
+    selector:
+      text: Command line tools
 check_complete_info_on_next_page:
   elements:
   - selector:
@@ -41,6 +45,10 @@ check_error_alert_message_on_next_page:
   element:
     selector:
       xpath: //div[span[contains(@class,"pficon-error-circle-o")]]/span[contains(text(),'<message>')]
+check_making_code_changes_instruc_exists:
+  element:
+    selector:
+      text: Making code changes
 check_template_message_on_next_page:
   elements:
   - selector:
@@ -83,3 +91,6 @@ check_parameter_value:
                }
                return matched
       expect_result: true
+check_help_and_sug_on_next_step_page:
+  action: check_command_line_tools_instruc_exist
+  action: check_making_code_changes_instruc_exists
