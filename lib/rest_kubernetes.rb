@@ -73,6 +73,13 @@ module CucuShift
         populate("/proxy/namespaces/<project_name>/<resource_type>/<protocol_type>:<resource_name>:<port_name>#{opts[:app_path]}", base_opts, opts)
         return perform(**base_opts, method: "GET")
       end
+
+      def self.create_pod_eviction(base_opts, opts)
+        base_opts[:payload] = File.read(expand_path(opts[:payload_file]))
+        populate("/namespaces/<project_name>/pods/<pod_name>/eviction", base_opts, opts)
+        return perform(**base_opts, method: "POST")
+      end
+
     end
   end
 end
