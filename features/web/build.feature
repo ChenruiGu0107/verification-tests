@@ -1183,7 +1183,7 @@ Feature: build related feature on web console
     Then the step should succeed
     
   # @author: xiaocwan@redhat.com
-  # @case_id: 535052 526575 526576
+  # @case_id: OCP-10286,OCP-11584,OCP-11277
   Scenario Outline: Check BC page when runPolicy set to Serial Parallel and SerialLatestOnly
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc526202/bc.json"
