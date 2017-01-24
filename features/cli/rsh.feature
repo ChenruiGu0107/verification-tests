@@ -91,7 +91,7 @@ Feature: rsh.feature
     And the output should contain "Error: unknown flag: --label"
 
   # @author xiaocwan@redhat.com
-  # @case_id OCP-9965
+  # @case_id OCP-10510
   Scenario: Improved CLI command guide - negative
     When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg       | rsh              |
