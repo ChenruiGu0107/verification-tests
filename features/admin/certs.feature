@@ -100,3 +100,28 @@ Feature: cacert related scenarios
       | "name": "system:admin"  |
       | "groups":               |
       | "system:cluster-admins" | 
+
+  # @author geliu@redhat.com
+  # @case_id OCP-10527
+  @admin
+  Scenario: oadm create-master-certs need to check FQDN for master and public-master options
+    Given I create the "certdir" directory
+    When I run the :oadm_ca_create_master_cert client command with:
+      | hostnames     | "localhost,console.cluster.openshift.com" |
+      | master        | localhost                                 |
+      | public-master | localhost                                 |
+      | overwrite     | false                                     |
+      | cert-dir      | certdir                                   |
+    Then the step should fail
+    And the output should match:
+    | .*error.*master must be a valid URL.*|
+    When I run the :oadm_ca_create_master_cert client command with:
+      | hostnames     | "localhost,console.cluster.openshift.com" |
+      | master        | https:\\localhost:8443                    |
+      | public-master | localhost                                 |
+      | overwrite     | false                                     |
+      | cert-dir      | certdir                                   |
+    Then the step should fail 
+    And the output should match:
+      | .*error.*public master must be a valid URL.* |
+    And the expression should be true> not File.exist?("certdir/master.server.crt")
