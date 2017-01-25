@@ -23,6 +23,10 @@ check_key_editor_validation_error:
   element:
     selector:
       xpath: //span[contains(text(),'alidation error')]
+check_template_not_existed_with_error_message:
+  element:
+    selector:
+      xpath: //span[@ng-if="alert.message"][contains(.,'The requested template "<template_name>" could not be loaded.')]
 confirm_errors_with_invalid_template_label:
   action: check_key_editor_validation_error
   element:

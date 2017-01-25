@@ -58,3 +58,17 @@ Feature: Independent link related scenarios
     Then the step should succeed
     When I run the :create_app_from_image_submit web console action
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-11037
+  Scenario: Create app with nonexistent resource template on external page
+    Given the master version >= "3.5"
+    Given I have a project
+    # create app by template from external page
+    When I perform the :goto_create_from_template_external_page web console action with:
+      | template_name  | ruby-helloworld-sample         |
+      | paramsmap      | {"ADMIN_USERNAME":"adminuser"} |
+    Then the step should succeed
+    When I perform the :check_template_not_existed_with_error_message web console action with:
+      | template_name  | ruby-helloworld-sample         |
+    Then the step should succeed
