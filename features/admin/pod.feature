@@ -412,12 +412,12 @@ Feature: pod related features
     Given I register clean-up steps:
     """
     I run the :oadm_manage_node admin command with:
-      | node_name   | noescape: <%= nodelist =[] ; cb.nodes.map(&:name).join(" ") %> |
+      | node_name   | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
       | schedulable | true                                                           |
     the step should succeed
     """
     When I run the :oadm_manage_node admin command with:
-      | node_name   | noescape: <%= nodelist =[] ; cb.nodes.each {\|node\| nodelist.push(node.name)}; nodelist.join(" ") %> |
+      | node_name   | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
       | schedulable | false                                                                                                 |
     Then the step should succeed
     When I run the :create client command with:
