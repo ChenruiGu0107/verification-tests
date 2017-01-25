@@ -6,7 +6,7 @@
 Given /^I save the jenkins password of dc #{QUOTED} into the#{OPT_SYM} clipboard$/ do
 end
 
-Given /^I have an?( ephemeral| persistent)? jenkins v#{NUMBER} application$/ do |type, version|
+Given /^I have an?( ephemeral| persistent| custom)? jenkins v#{NUMBER} application(?: from #{QUOTED})?$/ do |type, version, cust_templ|
   if type.nil?
     type = "ephemeral"
   else
@@ -19,19 +19,24 @@ Given /^I have an?( ephemeral| persistent)? jenkins v#{NUMBER} application$/ do 
   #Check if 3.4. if so, use oauth (only present in 3.4), else, use standard login
   #Note: upon app creation, new-app may show "Enable OAuth in Jenkins=true", as
   #only the env var is changed during the substitution below.
-  template = "https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-#{type}-template.json"
+  source = ""
+  if type == "custom"
+    source = "| file | #{cust_templ} |"
+  else
+    source = "| template | jenkins-#{type} |"
+  end
 
   if lt34 || !user.password?
     step %Q/I run the :new_app client command with:/, table(%{
-      | file | #{template}                                 |
-      | p    | ENABLE_OAUTH=false                          |
-      | p    | JENKINS_IMAGE_STREAM_TAG=jenkins:#{version} |
+      #{source}
+      | p | ENABLE_OAUTH=false                          |
+      | p | JENKINS_IMAGE_STREAM_TAG=jenkins:#{version} |
       })
     step 'the step should succeed'
   else
     step %Q/I run the :new_app client command with:/, table(%{
-      | file | #{template}                                 |
-      | p    | JENKINS_IMAGE_STREAM_TAG=jenkins:#{version} |
+      #{source}
+      | p | JENKINS_IMAGE_STREAM_TAG=jenkins:#{version} |
       })
     step 'the step should succeed'
   end
