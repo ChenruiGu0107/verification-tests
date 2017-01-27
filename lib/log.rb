@@ -150,6 +150,23 @@ module CucuShift
       @@runtime.puts(msg)
     end
 
+    # supports embedding content similar with same semantics as Cucumber
+    def embed(src, mime_type, label)
+      if @@runtime.respond_to? :embed
+        @@runtime.embed src, mime_type, label
+      else
+        if !src.kind_of?(String) || src.empty?
+          @@runtime.puts "empty embedding??"
+        elsif (File.file?(src) rescue false)
+          @@runtime.puts "See #{File.absolute_path(src)}"
+        elsif src =~ /\A[[:print:]]*\z/
+          @@runtime.puts "Embedded #{mime_type} data labeled #{label}:\n#{src}"
+        else
+          @@runtime.puts "Unrecognized #{mime_type} data labeled #{label} (Base64):\n#{Base64.encode64 src}"
+        end
+      end
+    end
+
     def reset_dedup
       @dup_buffer.reset if @dup_buffer
     end

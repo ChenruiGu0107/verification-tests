@@ -3,6 +3,8 @@ require 'psych'
 require 'uri'
 require 'watir-webdriver'
 
+require "base64"
+
   class Web4Cucumber
     attr_reader :base_url, :browser_type, :logger, :rules
 
@@ -397,14 +399,14 @@ require 'watir-webdriver'
       end
     end
 
-    # TODO
+    # another option would be to save to file but not sure where to store
+    #   as most formatters do not relocate the file
     def take_screenshot
-      #FileUtils.mkdir_p("screenshots")
-      #screenshot = File.join("screenshots", "error.png")
-      #@@b.driver.save_screenshot(screenshot)
-      #File::open("screenshots/output.html", 'w') {
-      #  |f| f.puts(@@b.html).
-      #}
+      filename = Time.now.iso8601
+      # screenshot = %{data:image/png;base64,#{browser.screenshot.base64}}
+      # logger.embed screenshot, "application/octet-stream", "#{filename}-screenshot.png"
+      logger.embed browser.screenshot.base64, "image/png;base64", "#{filename}-screenshot.png"
+      logger.embed Base64.strict_encode64(browser.html), "text/html;base64", "#{filename}.html"
     end
 
     def get_elements(type, selector)
@@ -625,6 +627,18 @@ require 'watir-webdriver'
       alias error info
       alias warn info
       alias debug info
+
+      def embed(src, mime_type, label)
+        if !src.kind_of?(String) || src.empty?
+          Kernel.puts "empty embedding??"
+        elsif (File.file?(src) rescue false)
+          Kernel.puts "See #{File.absolute_path(src)}"
+        elsif src =~ /\A[[:print:]]*\z/
+          Kernel.puts "Embedded #{mime_type} data labeled #{label}:\n#{src}"
+        else
+          Kernel.puts "Unrecognized #{mime_type} data labeled #{label} (Base64):\n#{Base64.encode64 src}"
+        end
+      end
     end
 
     class CAN_APPEND

@@ -6,6 +6,7 @@ end
 
 require 'pathname'
 require 'cucumber'
+require 'base64'
 require 'fileutils'
 require 'uri'
 require 'cgi' # to escape html content
@@ -16,6 +17,7 @@ require 'common' # mainly localhost is used
 
 module CucuShift
   # custom Cucumber HTML formatter that also cooperates with test case manager
+  # TODO: new API https://github.com/cucumber/cucumber-ruby/pull/851/files/
 class CucuFormatter
   include Common::Helper
 
@@ -133,9 +135,52 @@ class CucuFormatter
     @step_messages.push(message.to_s)
   end
 
-  def embed(src, mime_type, _label)
-    # TODO: see https://github.com/cucumber/cucumber-ruby/pull/851/files/
-    #   https://github.com/cucumber/cucumber-ruby/blob/master/lib/cucumber/formatter/html.rb
+  def embed(src, mime_type, label)
+    # official html embedding:
+    # https://github.com/cucumber/cucumber-ruby/blob/master/lib/cucumber/formatter/html.rb
+    # some discussion about current official HTML formatter behavior
+    # https://github.com/cucumber/cucumber-ruby/issues/775
+    # Namely we may want to create attachments in `html_report` dor to work fine
+    #   with the official HTML formatter and then attach this as external file
+    #   regardless if `src` is a file path or data.
+
+    label = CGI.escapeHTML(label)
+
+    if (File.file?(src) rescue false)
+      FileUtils.cp src scenario_artifacts_dir
+      basename = CGI.escapeHTML(File.basename(src))
+      link = %[<a href="#{basename}">#{label}</a>]
+    elsif src =~ /\Adata:image\/(png|gif|jpg|jpeg);base64,[A-Za-z0-9+\/]+=*\z/
+      ## image Data URI
+      link = %[<img src="#{src}" alt="#{label}"/>}]
+    elsif src =~ /\Adata:[-a-zA-Z0-9_]+\/[-a-zA-Z0-9_+.;=]+;base64,[A-Za-z0-9+\/]+=*\z/
+      ## random type Data URI
+      link = %[<a href="#{src}">#{label}</a>]
+    elsif mime_type =~ /\Aimage\/(png|gif|jpg|jpeg)\z/
+      ## raw image data
+      link = %[<img src="data:#{mime_type};base64,#{Base64.strict_encode64 src}" alt="#{label}"/>}]
+    elsif mime_type =~ /\A[-a-zA-Z0-9_]+\/[-a-zA-Z0-9_+.;=]+;base64\z/ &&
+          src =~ /\A[A-Za-z0-9+\/]+=*\z/
+      ## Base64 encoded raw data
+      if mime_type =~ /\Aimage\/(png|gif|jpg|jpeg)/
+        link = %[<img src="data:#{mime_type},#{src}" alt="#{label}"/>]
+      else
+        link = %[<a href="data:#{mime_type},#{src}">#{label}</a>]
+      end
+    else
+      ## random raw data
+      unless mime_type =~ /^[-a-zA-Z0-9_]+\/[-a-zA-Z0-9_+.;=]+$/
+        mime_type = "application/octet-stream"
+      end
+      link = %[<a href="data:#{mime_type};base64,#{Base64.strict_encode64 src}">#{label}</a>]
+    end
+    msg = %Q[<div class="step_line_container step_line_info">#{link}</div>\n]
+
+    def msg.html_ready?
+      true
+    end
+
+    @step_messages << msg
   end
 
   ################## END FORMATTER HOOKS ####################
@@ -221,6 +266,24 @@ class CucuFormatter
     end
   end
 
+  def build_step_text_line(step_line)
+    step_line = CGI.escapeHTML(step_line).lines.to_a.join('<br />')
+    if step_line =~ /ERROR>/
+      css_class = 'step_line_error'
+    elsif step_line =~ /WARN>/
+      css_class = 'step_line_warn'
+    else
+      css_class = 'step_line_info'
+    end
+    step_line.gsub!(/[^[:print:]]\[\d+m/, '') # remove ascii color codes
+    step_line.sub!(/[A-Z]+>\s*/, '')
+    if step_line =~ /(?<=\[)\d+:\d+:\d+(?=\])/
+      time_stamp = Regexp.last_match.to_s
+      step_line.sub!(/\[\d+:\d+:\d+\]/, %Q[<span class="time_stamp">#{time_stamp}</span>])
+    end
+    %Q[<div class="step_line_container #{css_class}">#{step_line}</div>\n]
+  end
+
   def build_step(step_hash)
     # multiline args
     if step_hash[:multiline_arg]
@@ -244,21 +307,11 @@ class CucuFormatter
     end
     # step messages
     step_lines = step_hash[:messages].map do |step_line|
-      step_line = CGI.escapeHTML(step_line).lines.to_a.join('<br />')
-      if step_line =~ /ERROR>/
-        css_class = 'step_line_error'
-      elsif step_line =~ /WARN>/
-        css_class = 'step_line_warn'
+      if step_line.respond_to?(:html_ready?) && step_line.html_ready?
+        step_line
       else
-        css_class = 'step_line_info'
+        build_step_text_line step_line
       end
-      step_line.gsub!(/[^[:print:]]\[\d+m/, '') # remove ascii color codes
-      step_line.sub!(/[A-Z]+>\s*/, '')
-      if step_line =~ /(?<=\[)\d+:\d+:\d+(?=\])/
-        time_stamp = Regexp.last_match.to_s
-        step_line.sub!(/\[\d+:\d+:\d+\]/, %Q[<span class="time_stamp">#{time_stamp}</span>])
-      end
-      %Q[<div class="step_line_container #{css_class}">#{step_line}</div>\n]
     end
     if step_lines.empty?
       step_lines = nil
