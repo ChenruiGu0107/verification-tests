@@ -1,7 +1,7 @@
 Feature: Check links in Openshift
 
   # @author etrott@redhat.com
-  # @case_id 534606
+  # @case_id OCP-10251
   Scenario: Check the doc links on web page
     # check documentation link in getting started instructions
     When I run the :check_default_documentation_link_in_get_started_online web console action
