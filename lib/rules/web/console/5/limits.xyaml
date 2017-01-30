@@ -3,7 +3,7 @@ check_limits_on_dc_page:
   action: goto_one_dc_page
   action: check_limits_in_pod_template
 check_limits_on_k8s_deployment_page:
-  action: goto_one_k8s_deployment_page
+  action: goto_one_k8s_deployment_configuration_tab
   action: check_limits_in_pod_template
 check_limits_on_k8s_replicaset_page:
   action: goto_one_k8s_replicaset_page
@@ -67,13 +67,16 @@ set_resource_limit:
 set_resource_limit_single:
   elements:
   - selector:
-      xpath: //edit-request-limit[@type='<resource_type>']//compute-resource[@label='<limit_type>']//input
+      xpath: //edit-request-limit[@type='<resource_type>']//compute-resource[@label='<limit_type>']//input[@name='amount']
     op: clear
   - selector:
-      xpath: //edit-request-limit[@type='<resource_type>']//compute-resource[@label='<limit_type>']//input
+      xpath: //edit-request-limit[@type='<resource_type>']//compute-resource[@label='<limit_type>']//input[@name='amount']
     op: send_keys <resource_amount>
   - selector:
-      xpath: //edit-request-limit[@type='<resource_type>']//compute-resource[@label='<limit_type>']//option[@label='<amount_unit>']
+      xpath: //edit-request-limit[@type='<resource_type>']//compute-resource[@label='<limit_type>']//div[contains(@class,'ui-select-match')]/span
+    op: click
+  - selector:
+      xpath: //edit-request-limit[@type='<resource_type>']//compute-resource[@label='<limit_type>']//span[contains(@class,'ui-select-choices-row-inner')]/span[normalize-space(.)='<amount_unit>']
     op: click
 set_resource_limit_online:
   elements:

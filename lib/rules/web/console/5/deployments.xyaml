@@ -19,7 +19,7 @@ check_latest_k8s_deployment_version:
   action: goto_one_k8s_deployment_page
   element:
     selector:
-      xpath: //h3[.='Replica Sets']/following::td[@data-title='Version'][1][contains(.,'<latest_k8s_deployment_version>')]
+      xpath: //td[@data-title='Version'][1][contains(.,'<latest_k8s_deployment_version>')]
     timeout: 60
 wait_latest_deployments_to_status:
   action: goto_one_dc_page
@@ -122,7 +122,7 @@ click_on_resume_deployment:
 click_on_specific_version_of_replica_set:
   elements:
   - selector:
-      xpath: //td[@data-title='Version' and contains(.,'<spe_ver_of_rs>')]/ancestor::tbody//a
+      xpath: //td[@data-title='Version' and contains(.,'<spe_ver_of_rs>')]/following-sibling::td//a
     op: click
 click_to_goto_deployments_page:
   action: goto_overview_page
@@ -290,6 +290,9 @@ goto_one_deployment_page:
   url: /console/project/<project_name>/browse/deployments/<dc_name>/<dc_name>-<dc_number>
 goto_one_k8s_deployment_page:
   url: /console/project/<project_name>/browse/deployment/<k8s_deployment_name>
+goto_one_k8s_deployment_configuration_tab:
+  action: goto_one_k8s_deployment_page
+  action: click_on_configuration_tab
 goto_one_k8s_replicaset_page:
   url: /console/project/<project_name>/browse/rs/<k8s_replicaset_name>
 goto_one_deployment_environment_tab:

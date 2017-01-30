@@ -279,7 +279,7 @@ Feature: functions about resource limits on pod
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 536595
+  # @case_id OCP-12178
   Scenario: Set Resource Limits for k8s deployment
     Given the master version >= "3.4"
     Given I create a new project
@@ -408,9 +408,9 @@ Feature: functions about resource limits on pod
       | cpu_range           | 900 millicores to 1 core |
       | memory_range        | 944557260800 mB to 1 GB  |
     Then the step should succeed
-  
+
   # @author yapei@redhat.com
-  # @case_id 536596
+  # @case_id OCP-12228
   Scenario: Set Resource Limits for k8s replicaset
     Given the master version >= "3.4"
     Given I create a new project
