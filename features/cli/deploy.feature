@@ -1653,12 +1653,15 @@ Feature: deployment related features
     Then the step should succeed
     And the output should contain:
       | deployment.kubernetes.io/revision:2 |
+    Given I wait up to 60 seconds for the steps to pass:
+    """
     When I run the :env client command with:
       | resource | pods |
       | all      | true |
       | list     | true |
     And the output should contain:
       | key=value |
+    """
     When I run the :get client command with:
       | resource      | deployment                |
       | resource_name | hello-openshift           |
