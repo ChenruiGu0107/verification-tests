@@ -403,8 +403,10 @@ require "base64"
           element.drag_and_drop_by(off_right, off_down)
         when "set", "select_value", "append"
           if element.instance_of?(Watir::CheckBox)
-            if val == "true" || val == "false"
-              val = val == "true" ? true : false
+            if val == "true"
+              val = true
+            elsif val == "false"
+              val = false
             else
               raise("you can set only 'true' or 'false' to element of type #{element.class}")
             end
