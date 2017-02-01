@@ -7,7 +7,10 @@ Feature: oc build related scenarios
       | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json |
     Then the step should succeed
     Given the "ruby-22-centos7" image stream becomes ready
+    Given I wait up to 300 seconds for the steps to pass:
+    """
     And the "origin-ruby-sample" image stream becomes ready
+    """
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build   |
       | o           | name                |
@@ -19,7 +22,7 @@ Feature: oc build related scenarios
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build   |
       | from_build  | ruby-sample-build-1 |
-      | o           | name                |   
+      | o           | name                |
     And the output should contain:
       | ruby-sample-build-3               |
     And the output should not match:
@@ -28,6 +31,6 @@ Feature: oc build related scenarios
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build   |
       | o           | invalidname         |
-    Then the step should fail 
+    Then the step should fail
     And the output should match:
-      | error.*[Uu]nsupported.*invalidname |   
+      | error.*[Uu]nsupported.*invalidname |
