@@ -311,7 +311,7 @@ Feature: Add pvc to pod from web related
       | pvc_name        | wehe-100            |
       | pvc_access_mode | ReadOnlyMany        |
       | storage_size    | 0.01                |
-      | storage_unit    | TiB                 | 
+      | storage_unit    | TiB                 |
     Then the step should succeed
 
     When I perform the :check_pvc_info web console action with:
@@ -327,7 +327,7 @@ Feature: Add pvc to pod from web related
       | pvc_name        | wehe-100            |
       | pvc_access_mode | ReadOnlyMany        |
       | storage_size    | 0.01                |
-      | storage_unit    | TiB                 | 
+      | storage_unit    | TiB                 |
     Then the step should succeed
     When I perform the :check_prompt_info_for_pvc web console action with:
       | prompt_info | "wehe-100" already exists |
@@ -342,7 +342,7 @@ Feature: Add pvc to pod from web related
       | pvc_name        | 0123456789          |
       | pvc_access_mode | ReadWriteMany       |
       | storage_size    | 1024                |
-      | storage_unit    | GiB                 | 
+      | storage_unit    | GiB                 |
     Then the step should succeed
 
     When I perform the :check_pvc_info web console action with:
@@ -367,7 +367,7 @@ Feature: Add pvc to pod from web related
       | pvc_name        | wehepvc             |
       | pvc_access_mode | ReadWriteOnce       |
       | storage_size    | 1025                |
-      | storage_unit    | MiB                 | 
+      | storage_unit    | MiB                 |
     Then the step should succeed
 
     When I perform the :check_pvc_info web console action with:

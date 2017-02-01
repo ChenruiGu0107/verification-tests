@@ -19,7 +19,7 @@ check_pvcs_on storage_page:
 check_one_pvc_detail:
   action: goto_one_pvc_page
   elements:
-  - selector: 
+  - selector:
       xpath: //h1[contains(text(),'<pvc_name>')]
   - selector:
       xpath: //dt[text()='Status:']

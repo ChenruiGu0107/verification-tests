@@ -1,7 +1,7 @@
 Feature: sti.feature
 
   # @author cryan@redhat.com
-  # @case_id 494658
+  # @case_id OCP-12614
   Scenario: Test S2I using sinatra example
     Given I have a project
     When I run the :new_app client command with:
@@ -21,16 +21,19 @@ Feature: sti.feature
     Given I get project services
     Then the output should contain "simple-openshift-sinatra"
     Given a pod becomes ready with labels:
-      |app=simple-openshift-sinatra-sti|
+      | app=simple-openshift-sinatra-sti |
+    And I wait for the steps to pass:
+    """
     When I execute on the pod:
       | /usr/bin/curl | <%= @pods[0].props[:ip] %>:8080 |
     Then the step should succeed
+    """
     And the output should contain "Hello, Sinatra!"
     Given I get project routes
     Then the output should not contain "sinatra"
-    When I expose the "simple-openshift-sinatra" service
+    When I expose the "simple-openshift-sinatra-sti" service
     Then the step should succeed
-    Given I wait for the "simple-openshift-sinatra" service to become ready
+    Given I wait for the "simple-openshift-sinatra-sti" service to become ready
     And I wait for a web server to become available via the route
     And the output should contain "Hello, Sinatra!"
     When I run the :scale client command with:
