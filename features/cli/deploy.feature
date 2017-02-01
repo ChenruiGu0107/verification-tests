@@ -1549,7 +1549,6 @@ Feature: deployment related features
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] - cb.prev_observed_generation >= 1
     And the expression should be true> @result[:parsed]['status']['observedGeneration'] >= @result[:parsed]['metadata']['generation']
 
-
   # @author yinzhou@redhat.com
   # @case_id 533160
   Scenario: Support endpoints of Deployment in OpenShift
@@ -1584,15 +1583,16 @@ Feature: deployment related features
       | object_type       | deployment      |
       | object_name_or_id | hello-openshift |
     Then the step should succeed
-    Given 30 seconds have passed
+    Given I wait up to 60 seconds for the steps to pass:
+    """
     When I get project pods
     Then the step should succeed
     And the output should not contain "Terminating"
     And the output should not contain "Running"
+    """
     When I get project rs
     Then the step should succeed
     And the output should not contain "hello-openshift.*"
-
 
   # @author yinzhou@redhat.com
   # @case_id 533161
