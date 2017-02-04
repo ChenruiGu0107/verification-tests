@@ -522,8 +522,8 @@ module CucuShift
         switch = true if switch.nil?
         r = var.find {|r| r.name == name && r.env == env}
         if r
-          var << var.delete(pv) if switch
-          return pv
+          var << var.delete(r) if switch
+          return r
         else
           # create new CucuShift::ClusterResource object with specified name
           var << clazz.new(name: name, env: env)
