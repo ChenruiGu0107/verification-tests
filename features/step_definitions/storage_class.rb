@@ -48,3 +48,9 @@ Given(/^I have a StorageClass named "([^"]*)"$/) do | storageclass_name |
 
   step %Q/the step should succeed/
 end
+
+Given(/^I use host backing StorageClass named "([^"]*)"$/) do | storageclass_name |
+  rest_url = storage_class(storageclass_name).rest_url(user: admin)
+  hostname = URI.parse(rest_url).host
+  @host = CucuShift::SSHAccessibleHost.new(hostname)
+end

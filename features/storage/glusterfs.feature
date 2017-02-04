@@ -273,12 +273,12 @@ Feature: Storage of GlusterFS plugin testing
 
     When I run the :get client command with:
       | resource      | endpoints                               |
-      | resource_name | gluster-dynamic-pvc-<%= project.name %> |
+      | resource_name | glusterfs-dynamic-pvc-<%= project.name %> |
     Then the step should succeed
 
     When I run the :get client command with:
       | resource      | services                                |
-      | resource_name | gluster-dynamic-pvc-<%= project.name %> |
+      | resource_name | glusterfs-dynamic-pvc-<%= project.name %> |
     Then the step should succeed
 
   # @author jhou@redhat.com
@@ -479,3 +479,37 @@ Feature: Storage of GlusterFS plugin testing
     And the "pvc2" PVC becomes :bound
     """
     And admin ensures "<%= pvc('pvc2').volume_name(user: admin) %>" pv is deleted after scenario
+
+  # @author jhou@redhat.com
+  # @case_id OCP-12943
+  @admin
+  Scenario: Setting volume type to create dispersed GlusterFS volumes
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype_disperse.yaml" where:
+      | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
+      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["restuser"]    | admin                                                            |
+      | ["parameters"]["restuserkey"] | test                                                             |
+      | ["parameters"]["volumetype"]  | disperse:4:2                                                     |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1                             |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 16Gi                             |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+
+    # After PVC is bound, verify created
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
+    And I use host backing StorageClass named "glusterprovisioner"
+    When I run commands on the host:
+      | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
+    Then the output should contain:
+      | Durability Type: disperse |
+      | Disperse Data: 4          |
+      | Disperse Redundancy: 2    |
+
+
