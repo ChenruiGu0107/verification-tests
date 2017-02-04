@@ -1440,13 +1440,11 @@ Feature: jenkins.feature
 
   # @author cryan@redhat.com
   # @case_id 531206
-  Scenario: Using jenkinsfile field with jenkinspipeline strategy
+  Scenario Outline: Using jenkinsfile field with jenkinspipeline strategy
     Given I have a project
+    And I have a persistent jenkins v<ver> application
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.json |
-    Then the step should succeed
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
@@ -1457,8 +1455,12 @@ Feature: jenkins.feature
       | buildconfig | sample-pipeline |
     Then the step should succeed
     Given the "sample-pipeline-1" build was created
-    Given the "ruby-sample-build-1" build was created within 100 seconds
-    And the "ruby-sample-build-1" build completes
+    Given the "nodejs-mongodb-example-1" build was created within 120 seconds
+    And the "nodejs-mongodb-example-1" build completes
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
 
   # @case_id 515317 536388
   # @author xiuwang@redhat.com
