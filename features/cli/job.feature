@@ -218,9 +218,10 @@ Feature: job.feature
     And the output should contain:
       | spec.template.spec.restartPolicy: Unsupported value: "Always": supported values: OnFailure, Never |
     # Create job with restartPolicy=Never
-    When I process and create:
+    When I replace lines in "job-restartpolicy.yaml":
+      | from: null | from: Never |
+    And I process and create:
       | f | job-restartpolicy.yaml |
-      | v | RESTART_POLICY=Never   |
     Then the step should succeed
     And I wait until job "pi-restartpolicy" completes
     When I get project pods
@@ -236,9 +237,10 @@ Feature: job.feature
     Then the step should succeed
     Given all existing pods die with labels:
       | app=pi |
+    And I replace lines in "job-restartpolicy.yaml":
+      | from: Never | from: OnFailure |
     When I process and create:
       | f | job-restartpolicy.yaml   |
-      | v | RESTART_POLICY=OnFailure |
     Then the step should succeed
     And I wait until job "pi-restartpolicy" completes
     When I get project pods
@@ -256,9 +258,10 @@ Feature: job.feature
       | app=pi |
     Given I replace lines in "job-restartpolicy.yaml":
       | openshift/perl-516-centos7 | openshift/perl-516-centos |
+    And I replace lines in "job-restartpolicy.yaml":
+      | from: OnFailure | from: Never |
     When I process and create:
       | f | job-restartpolicy.yaml |
-      | v | RESTART_POLICY=Never   |
     Then the step should succeed
     When I wait for the steps to pass:
     """
@@ -279,9 +282,10 @@ Feature: job.feature
     Given I replace lines in "job-restartpolicy.yaml":
       | openshift/perl-516-centos | openshift/perl-516-centos7 |
       | - perl                    | - hello                    |
+    And I replace lines in "job-restartpolicy.yaml":
+      | from: Never | from: OnFailure |
     When I process and create:
       | f | job-restartpolicy.yaml   |
-      | v | RESTART_POLICY=OnFailure |
     Then the step should succeed
     When I wait for the steps to pass:
     """
@@ -299,9 +303,10 @@ Feature: job.feature
     Then the step should succeed
     Given all existing pods die with labels:
       | app=pi |
+    And I replace lines in "job-restartpolicy.yaml":
+      | from: OnFailure | from: Always |
     When I process and create:
       | f | job-restartpolicy.yaml |
-      | v | RESTART_POLICY=Always  |
     Then the step should fail
     And the output should contain:
       | spec.template.spec.restartPolicy: Unsupported value: "Always": supported values: OnFailure, Never |
