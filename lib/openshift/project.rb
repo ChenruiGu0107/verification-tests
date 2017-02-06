@@ -22,7 +22,7 @@ module CucuShift
         return true
       else
         case  result[:response]
-        when /cannot get projects in project/, /not found/
+        when /cannot get project/, /not found/
           return false
         else
           raise "error getting project '#{name}' existence: #{result[:response]}"

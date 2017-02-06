@@ -118,8 +118,8 @@ module CucuShift
       return res
     end
 
-    def dns(by:)
-      if props[:dns]
+    def dns(by:, cached: true)
+      if props[:dns] && cached
         return props[:dns]
       else
         res = get(by: by)
