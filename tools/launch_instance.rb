@@ -14,7 +14,6 @@ require 'yaml'
 require 'collections'
 require 'common'
 require 'http'
-require 'launchers/env_launcher'
 
 module CucuShift
   class EnvLauncherCli
@@ -31,7 +30,7 @@ module CucuShift
       program :description, 'Tool to launch OpenShift Environment'
 
       #Commander::Runner.instance.default_command(:gui)
-      default_command :launch
+      default_command :template
 
       global_option('-c', '--config KEY',
                     "command specific:\n\t" <<
@@ -43,53 +42,6 @@ module CucuShift
       global_option('-s', '--service_name', 'service name to lookup in config')
       global_option('-i', '--image_name IMAGE', 'image to launch instance with')
       global_option('--it', '--instance_type TYPE', 'instance flavor to launch')
-
-      command :launch do |c|
-        c.syntax = "#{File.basename __FILE__} launch -c [ENV|<conf keyword>]"
-        c.description = 'launch an instance'
-        c.option('-n', '--node_num', "number of nodes to launch")
-        c.option('-m', '--master_num', "number of nodes to launch")
-        c.action do |args, options|
-          say 'launching..'
-          case options.config
-          when 'env', 'ENV'
-            el = EnvLauncher.new
-
-            ## set some opts based on Environment Variables
-            options.master_num ||= Integer(getenv('MASTER_NUM')) rescue 1
-            options.node_num ||= getenv('NODE_NUM').to_i
-            options.launched_instances_name_prefix ||= getenv('INSTANCE_NAME_PREFIX')
-            options.instance_type ||= getenv('CLOUD_INSTANCE_TYPE')
-            options.image_name ||= getenv('CLOUD_IMAGE_NAME')
-            options.service_name ||= getenv('CLOUD_SERVICE_NAME')
-            options.service_name = options.service_name.to_sym
-            options.puddle_repo ||= getenv("PUDDLE_REPO")
-
-            # a hack to put puddle tag into instance names
-            options.launched_instances_name_prefix =
-              process_instance_name(options.launched_instances_name_prefix,
-                                    options.puddle_repo)
-
-            # TODO: allow specifying pre-launched machines
-
-            ## set ansible launch options from environment
-            launch_opts = host_opts(options)
-            el.launcher_env_options(launch_opts)
-
-            ## launch Cloud instances
-            user_data_string = user_data(options.user_data, erb_vars: launch_opts)
-            hosts = launch_instances(options, user_data: user_data_string)
-
-            ## run ansible setup
-            hosts_spec = { "master"=>hosts[0..options.master_num - 1],
-                           "node"=>hosts[options.master_num..-1] }
-            launch_opts[:hosts_spec] = hosts_spec
-            el.ansible_install(**launch_opts)
-          else
-            raise "config keyword '#{options.config}' not implemented"
-          end
-        end
-      end
 
       command :template do |c|
         c.syntax = "#{File.basename __FILE__} template -l <instance name>"
@@ -118,24 +70,12 @@ module CucuShift
       run!
     end
 
-    # TODO: remove
-    def host_opts(options)
-      {
-        # hosts_spec will be ready only after actual instance launch
-
-        # we no longer need to pass username and key as we build hosts_spec
-        #   only with [CucuShift::Host] values
-        # ssh_key: expand_private_path(conf[:services, options.service_name, :key_file] || conf[:services, options.service_name, :host_opts, :ssh_private_key]),
-        # ssh_user: conf[:services, options.service_name, :host_opts, :user] || 'root',
-        set_hostnames: !! conf[:services, options.service_name, :fix_hostnames]
-      }
-    end
-
     def get_dyn
       CucuShift::Dynect.new()
     end
 
-    # @param erb_vars [Hash] additional variales for ERB user_data processing
+    # @param erb_vars [Hash, Binding] additional variales for ERB user_data
+    #   processing
     # @param spec [String] user data specification
     # @return [String] user data to pass to instance
     def user_data(spec = nil, erb_vars = {})
@@ -168,9 +108,15 @@ module CucuShift
               [ k, v.size == 1 ? v.first : v ]
             }
             erb = ERB.new(user_data_string)
-            # options from url take precenece before lauch options
-            erb_binding = Common::BaseHelper.binding_from_hash(**launch_opts,
-                                                               **erb_vars)
+            # options from url take precenece over launch options
+            if Binding === erb_vars
+              erb_binding = Common::BaseHelper.binding_from_hash(erb_vars.dup,
+                                                                 **url_options)
+
+            else
+              erb_binding = Common::BaseHelper.binding_from_hash(**erb_vars,
+                                                                 **url_options)
+            end
             user_data_string = erb.result(erb_binding)
           end
         else
@@ -184,76 +130,6 @@ module CucuShift
       end
 
       return user_data_string
-    end
-
-    # @return [Array<CucuShift::Host>] the launched and ssh acessible hosts
-    def launch_instances(options,
-                         user_data: nil)
-      host_names = []
-      if options.master_num > 1
-        options.master_num.times { |i|
-          host_names << options.launched_instances_name_prefix +
-            "_master_#{i+1}"
-        }
-      else
-        host_names << options.launched_instances_name_prefix + "_master"
-      end
-      options.node_num.times { |i|
-        host_names << options.launched_instances_name_prefix +
-          "_node_#{i+1}"
-      }
-
-      case conf[:services, options.service_name, :cloud_type]
-      when "aws"
-        raise "TODO service choice" unless options.service_name == :AWS
-        ec2_image = options.image_name || ""
-        ec2_image = ec2_image.empty? ? :raw : ec2_image
-        amz = Amz_EC2.new
-        create_opts = { user_data: Base64.encode64(user_data) }
-        if options.instance_type && !options.instance_type.empty?
-          create_opts[:instance_type] = options.instance_type
-        end
-        res = amz.launch_instances(tag_name: host_names, image: ec2_image,
-                                   create_opts: create_opts)
-      when "openstack"
-        ostack = CucuShift::OpenStack.new(
-          service_name: options.service_name
-        )
-        create_opts = {}
-        create_opts[:image] = options.image_name if options.image_name
-        if options.instance_type && !options.instance_type.empty?
-          create_opts[:flavor_name] = options.instance_type
-        end
-        res = ostack.launch_instances(names: host_names,
-                                      user_data: Base64.encode64(user_data),
-                                      **create_opts)
-      when "gce"
-        gce = CucuShift::GCE.new
-
-        boot_disk_opts = {}
-        if options.image_name && !options.image_name.empty?
-          boot_disk_opts[:initialize_params] = { img_snap_name: options.image_name }
-        end
-
-        instance_opts = {}
-        if options.instance_type && !options.instance_type.empty?
-          if options.instance_type.include? "/"
-            instance_opts[:machine_type] = options.instance_type
-          else
-            instance_opts[:machine_type_name] = options.instance_type
-          end
-        end
-        res = gce.create_instances(host_names, user_data: user_data, instance_opts: instance_opts, boot_disk_opts: boot_disk_opts )
-      else
-        raise "unknown service type: #{conf[:services, options.service_name, :cloud_type]}"
-      end
-
-      # we get here Array of [something, Host] pairs, convert to Array<Host>
-      res = res.map(&:last)
-      # wait for all hosts to become accessible
-      res.each {|h| h.wait_to_become_accessible(600)}
-      # return the hosts
-      return res
     end
 
     # process instance name prefix to generate an identity tag
@@ -328,7 +204,6 @@ module CucuShift
       end
     end
 
-
     def merged_launch_opts(common, overrides)
       common ||= {}
       overrides ||= {}
@@ -359,11 +234,24 @@ module CucuShift
       end
     end
 
-    def launch_host_group(host_group, common_launch_opts, user_data_vars: {})
+    # @return [Array<Host>]
+    def launch_host_group(host_group, common_launch_opts,
+                          user_data_vars: {}, existing_hosts: nil)
+
       # generate instance names
+      existing_hosts ||= []
       host_name_prefix = common_launch_opts[:name_prefix]
       host_roles = host_group[:roles]
-      host_names = host_group[:num].times.map {|i| host_name_prefix + host_roles.join("-") + "-" + (i + 1).to_s}
+      full_name_prefix = "#{host_name_prefix}#{host_roles.join("-")}-"
+      index_offset = existing_hosts.select { |h|
+        h[:cloud_instance_name] =~ /^#{Regexp.escape full_name_prefix}\d+$/
+      }.map { |h|
+        Integer(h[:cloud_instance_name][full_name_prefix.size..-1])
+      }.max
+      index_offset ||= 0
+      host_names = host_group[:num].times.map { |i|
+        "#{full_name_prefix}#{(i + index_offset + 1)}"
+      }
 
       # get launch instances config
       service_name, launch_opts = merged_launch_opts(common_launch_opts, host_group[:launch_opts])
@@ -403,7 +291,8 @@ module CucuShift
 
       # set hostnames if cloud has broken defaults
       fix_hostnames = conf[:services, service_name, :fix_hostnames]
-      launched.map(&:last).each do |host|
+      launched = launched.map(&:last)
+      launched.each do |host|
         host[:fix_hostnames] = fix_hostnames
         host.roles.concat host_group[:roles]
       end
@@ -416,10 +305,18 @@ module CucuShift
     end
 
     # symbolize keys in launch templates
-    def symbolize_template(template)
+    def normalize_template(template)
       template = Collections.deep_hash_symkeys template
       template[:hosts][:list].map! {|hg| Collections.deep_hash_symkeys hg}
+      # insert helper reference name to help implicit node creation at start
+      template[:hosts][:list].each {|hg| hg[:ref] ||= rand_str(5, :dns)}
+
       template[:install_sequence].map! {|is| Collections.deep_hash_symkeys is}
+      template[:install_sequence].each do |task|
+        if task[:type] == "launch_host_groups" && Array === task[:list]
+          task[:list].map! {|hg| Collections.deep_hash_symkeys hg}
+        end
+      end
       return template
     end
 
@@ -446,7 +343,7 @@ module CucuShift
     end
 
     # performs an installation task
-    def installation_task(task, erb_binding: binding, config_dir: nil)
+    def installation_task(task, template:, erb_binding:, config_dir: nil)
       case task[:type]
       when "force_domain"
         self.dns_component = task[:name]
@@ -500,6 +397,28 @@ module CucuShift
         File.write(inventory, inventory_str)
         run_ansible_playbook(localize(task[:playbook]), inventory,
                              retries: (task[:retries] || 1), env: task[:env])
+      when "launch_host_groups"
+        existing_hosts = erb_binding.local_variable_get(:hosts)
+        hosts = []
+        hosts_spec = template[:hosts]
+        common_launch_opts = hosts_spec[:common_launch_opts]
+
+        task[:list].each do |req|
+          host_group = hosts_spec[:list].find {|hg| hg[:ref] == req[:ref]}
+          if host_group
+            hosts.concat launch_host_group(
+              host_group.merge({num: req[:num]}),
+              common_launch_opts,
+              user_data_vars: erb_binding,
+              existing_hosts: existing_hosts
+            )
+          else
+            raise "no host group #{req[:ref].inspect} defined"
+          end
+          # wait each host to become accessible
+          hosts.each {|h| h.wait_to_become_accessible(600)}
+          existing_hosts.concat hosts
+        end
       else
         raise "unsupported installation task: '#{task[:type]}'"
       end
@@ -524,24 +443,31 @@ module CucuShift
                                                          hosts: hosts, **vars)
       template = ERB.new(readfile(vars[:template], config_dir))
       template = YAML.load(template.result(erb_binding))
-      template = symbolize_template(template)
+      template = normalize_template(template)
 
-      hosts_spec = template[:hosts]
-      common_launch_opts = hosts_spec[:common_launch_opts]
-
-      ## launch hosts
-      hosts_spec[:list].each do |host_group|
-        hosts.concat launch_host_group(
-          host_group,
-          common_launch_opts,
-          user_data_vars: vars
-        ).map(&:last)
+      ## implicit launch of hosts
+      implicit_launch_task = { type: "launch_host_groups", list: [] }
+      template[:hosts][:list].each do |host_group|
+        if host_group[:num] && host_group[:num] > 0
+          implicit_launch_task[:list] << {ref: host_group[:ref], num: host_group[:num]}
+        end
       end
-      # wait each host to become accessible
-      hosts.each {|h| h.wait_to_become_accessible(600)}
-      hosts_spec = hosts.map{|h| "#{h.hostname}:#{h.roles.join(':')}"}.join(',')
+      unless implicit_launch_task[:list].empty?
+        template[:install_sequence].unshift implicit_launch_task
+      end
+
+      ## perform provisioning steps
+      template[:install_sequence].each do |task|
+        installation_task(
+          task,
+          erb_binding: erb_binding,
+          template: template,
+          config_dir: config_dir
+        )
+      end
 
       ## help users persist home info
+      hosts_spec = hosts.map{|h| "#{h.hostname}:#{h.roles.join(':')}"}.join(',')
       logger.info "HOSTS SPECIFICATION: #{hosts_spec}"
       host_spec_out = ENV["CUCUSHIFT_HOSTS_SPEC_FILE"]
       if host_spec_out && !File.exist?(host_spec_out)
@@ -550,11 +476,6 @@ module CucuShift
         rescue => e
           logger.error("could not save host specification: #{e}")
         end
-      end
-
-      ## perform provisioning steps
-      template[:install_sequence].each do |task|
-        installation_task(task, erb_binding: erb_binding, config_dir: config_dir)
       end
     end
 
