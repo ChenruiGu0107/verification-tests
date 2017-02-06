@@ -52,7 +52,7 @@ Feature: oc_set_probe.feature
     And the output should match:
       | deploymentconfig "mysql" updated|
     When I wait until the status of deployment "mysql" becomes :running
-    And I wait up to 30 seconds for the steps to pass:
+    And I wait up to 60 seconds for the steps to pass:
     """
     When I run the :describe client command with:
       | resource | pod |
