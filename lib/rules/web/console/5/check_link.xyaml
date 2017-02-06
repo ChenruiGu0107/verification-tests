@@ -55,7 +55,7 @@ check_cli_reference_doc_link_in_cli_page_online:
   action: goto_cli_page
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/online/cli_reference/overview.html") and contains(.,'CLI Reference')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/online/cli_reference/index.html") and contains(.,'CLI Reference')]
 check_basic_cli_reference_doc_link_in_cli_page:
   action: goto_cli_page
   elements:
@@ -73,7 +73,7 @@ check_cli_reference_doc_link_in_next_step_page:
 check_cli_reference_doc_link_in_next_step_page_online:
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/online/cli_reference/overview.html") and contains(.,'CLI Reference')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/online/cli_reference/index.html") and contains(.,'CLI Reference')]
 check_basic_cli_reference_doc_link_in_next_step_page:
   elements:
   - selector:
@@ -113,9 +113,9 @@ check_webhook_trigger_doc_link_in_bc_page_online:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'Generic webhook URL')]/a[contains(@href,"https://docs.openshift.com/online/dev_guide/builds.html#webhook-triggers")]
+      xpath: //dt[contains(.,'Generic Webhook URL')]/a[contains(@href,"https://docs.openshift.com/online/dev_guide/builds.html#webhook-triggers")]
   - selector:
-      xpath: //dt[contains(.,'GitHub webhook URL')]/a[contains(@href,"https://docs.openshift.com/online/dev_guide/builds.html#webhook-triggers")]
+      xpath: //dt[contains(.,'GitHub Webhook URL')]/a[contains(@href,"https://docs.openshift.com/online/dev_guide/builds.html#webhook-triggers")]
 check_start_build_doc_link_in_bc_page:
   action: goto_buildconfig_configuration_tab
   elements:
