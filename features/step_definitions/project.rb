@@ -3,9 +3,10 @@ Given /^I have a project$/ do
   sys_projects = CucuShift::Project::SYSTEM_PROJECTS
 
   project = @projects.reverse.find {|p|
+    !sys_projects.include?(p.name) &&
     p.visible?(user: user) &&
-    p.active?(user: user, cached: 1) &&
-    !sys_projects.include?(p.name)}
+    p.active?(user: user, cached: 1)
+  }
   if project
     # project does exist as visible is doing an actual query
     # also move project up the stack
