@@ -286,6 +286,19 @@ Feature: Add pvc to pod from web related
       | mount_path   | /mnt                |
       | volume_name  | v2                  |
     Then the step should succeed
+
+    When I run the :get client command with:
+      | resource      | dc     |
+      | resource_name | mytest |
+      | o             | yaml   |
+    Then the step should succeed
+
+    When I perform the :goto_one_deployment_page web console action with:
+      | project_name | <%= project.name %>  |
+      | dc_name      | mytest               |
+      | dc_number    | <%= @result[:parsed]['status']['latestVersion'] %> |
+    Then the step should succeed
+
     When  I perform the :check_mount_info web console action with:
       | mount_path   | /mnt               |
       | volume_name  | v2                 |

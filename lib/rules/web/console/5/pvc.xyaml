@@ -63,7 +63,7 @@ choose_the_first_container:
     type: a
     op: click
   - selector:
-      xpath: //div[@class='checkbox ng-scope'][2]/label/input
+      xpath: //div[@class='checkbox ng-scope'][1]/label/input
     op: click
 check_mount_info:
   elements:

@@ -35,9 +35,9 @@ check_settings_page:
   action: goto_settings_page
   elements:
   - selector:
-      text: Quota
+      xpath: //h1[contains(.,'Quota')]
   - selector:
-      text: Limit Range
+      xpath: //h1[contains(.,'Limit Range')]
 check_used_value:
   elements:
   - selector:
