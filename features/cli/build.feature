@@ -487,8 +487,9 @@ Feature: build 'apps' with CLI
     Given the pod named "sample-build-3-build" is present
     And I run the :cancel_build client command with:
       | build_name | sample-build-3 |
-    And the output should match:
-      | Build sample-build-3 was cancelled |
+    And the output should contain:
+      | sample-build-3 |
+      | cancelled      |
 
   # @author pruan@redhat.com
   # @case_id 517369, 517370, 517367, 517368
