@@ -415,10 +415,11 @@ module CucuShift
           else
             raise "no host group #{req[:ref].inspect} defined"
           end
-          # wait each host to become accessible
-          hosts.each {|h| h.wait_to_become_accessible(600)}
-          existing_hosts.concat hosts
         end
+
+        # wait each host to become accessible
+        existing_hosts.concat hosts
+        hosts.each {|h| h.wait_to_become_accessible(600)}
       else
         raise "unsupported installation task: '#{task[:type]}'"
       end
