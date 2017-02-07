@@ -373,7 +373,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 518654
+  # @case_id OCP-10774
   @admin
   Scenario: Modify buildconfig settings for custom strategy
     Given I create a new project
@@ -389,7 +389,7 @@ Feature: build related feature on web console
     Then the step should succeed
     And the output should match:
       | Strategy.*Custom  |
-      | URL.*git://github.com/openshift/ruby-hello-world.git |
+      | URL.*github.com/openshift/ruby-hello-world.git |
       | Image Reference.*ImageStreamTag   |
       | Triggered by.*ImageChange.*Config |
       | Webhook GitHub    |
@@ -533,7 +533,7 @@ Feature: build related feature on web console
       | No Cache.*true |
 
   # @author yapei@redhat.com
-  # @case_id 518659
+  # @case_id OCP-12058
   Scenario: Modify buildconfig settings for source strategy
     Given I create a new project
     When I perform the :create_app_from_image web console action with:

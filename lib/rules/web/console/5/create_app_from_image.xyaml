@@ -130,7 +130,7 @@ create_app_from_image_change_dc_config_trigger:
 create_app_from_image_add_dc_env_vars:
   elements:
   - selector:
-      xpath: //osc-form-section[@header="Deployment Configuration"]//a[contains(.,"Add environment variable")]
+      xpath: //osc-form-section[@header="Deployment Configuration"]//a[contains(.,"Add Environment Variable")]
     op: click
   - selector:
       xpath: //osc-form-section[@header="Deployment Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[1]//input
@@ -141,7 +141,7 @@ create_app_from_image_add_dc_env_vars:
 create_app_from_image_add_bc_env_vars:
   elements:
   - selector:
-      xpath: //osc-form-section[@header="Build Configuration"]//a[contains(.,"Add environment variable")]
+      xpath: //osc-form-section[@header="Build Configuration"]//a[contains(.,"Add Environment Variable")]
     op: click
   - selector:
       xpath: //osc-form-section[@header="Build Configuration"]//div[contains(@class,"key-value-editor-entry")][last()-1]/div[1]//input
@@ -188,7 +188,7 @@ add_label_name_and_value:
 add_new_label_form:
   element:
     selector:
-      text: Add label
+      text: Add Label
     op: click
     type: a
 add_new_label:
