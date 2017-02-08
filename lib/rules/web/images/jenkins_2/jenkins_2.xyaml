@@ -397,7 +397,26 @@ jenkins_create_freestyle_job:
       xpath: //span[contains(., "Freestyle project")]
     op: click
   - selector:
-      xpath: //button[not(contains(@class, "disabled"))]
+      xpath: //button[contains(@id,"ok-button") and not(contains(@class, "disabled"))]
+    type: button
+    op: click
+
+jenkins_create_pipeline_job:
+  url: /
+  elements:
+  - selector:
+      text: New Item
+    op: click
+    type: a
+  - selector:
+      id: name
+    type: input
+    op: send_keys <job_name>
+  - selector:
+      xpath: //li[contains(@class, "org_jenkinsci_plugins_workflow_job_WorkflowJob")]
+    op: click
+  - selector:
+      xpath: //button[contains(@id,"ok-button") and not(contains(@class, "disabled"))]
     type: button
     op: click
 
@@ -566,6 +585,53 @@ jenkins_oauth_login:
       value: Allow selected permissions
     op: click
     type: input
+
+jenkins_pipeline_create_resource_snippet:
+  url: job/<job_name>/pipeline-syntax/
+  elements:
+  - selector:
+      xpath: //select/option[contains(., "openshiftCreateResource")]
+    op: click
+    type: select
+  - selector:
+      xpath: //input[contains(@checkurl,"checkApiURL")]
+    op: send_keys <api_endpoint>
+    type: input
+  - selector:
+      xpath: //input[contains(@checkurl,"checkNamespace")]
+    op: send_keys <namespace>
+    type: input
+  - selector:
+      xpath: //textarea[contains(@name,"_.jsonyaml")]
+    op: send_keys <jsonfile>
+    type: textarea
+  - selector:
+      text: Generate Pipeline Script
+    op: click
+    type: button
+  scripts:
+    - command: return document.querySelector('textarea[name="_."]').value
+      expect_result: ~
+
+
+jenkins_pipeline_insert_script:
+  url: /job/<job_name>/configure
+  element:
+    selector:
+      xpath: //div[contains(@id,"workflow-editor-1")]
+    type: textarea
+    visible: true
+  scripts:
+    - command: |
+            var editor = document.querySelector("#workflow-editor-1").env.editor;
+            editor.session.insert({ <editor_position> }, <dsl_text>);
+            return true
+      expect_result: true
+  element:
+    selector:
+      text: Save
+    op: click
+    type: button
 
 jenkins_scale_openshift_deployment:
   url: /job/<job_name>/configure
@@ -915,13 +981,13 @@ jenkins_verify_openshift_service:
     type: input
   action: jenkins_click_save_button
 
-go_to_updates_plugin_manage_page:
-  url: /pluginManager
-go_to_installed_plugin_manage_page:
-  url: /pluginManager/installed
-go_to_available_plugin_manage_page:
-  url: /pluginManager/available
 go_to_advanced_plugin_manage_page:
   url: /pluginManager/advanced
+go_to_available_plugin_manage_page:
+  url: /pluginManager/available
 goto_configure_page:
   url: /job/<job_name>/configure
+go_to_installed_plugin_manage_page:
+  url: /pluginManager/installed
+go_to_updates_plugin_manage_page:
+  url: /pluginManager
