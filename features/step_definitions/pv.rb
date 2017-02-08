@@ -17,6 +17,8 @@ Given /^I save volume id from PV named "([^"]*)" in the#{OPT_SYM} clipboard$/ do
     cb[cbname] = @result[:parsed]['spec']['awsElasticBlockStore']['volumeID']
   when @result[:parsed]['spec']['cinder']
     cb[cbname] = @result[:parsed]['spec']['cinder']['volumeID']
+  when @result[:parsed]['spec']['glusterfs']
+    cb[cbname] = @result[:parsed]['spec']['glusterfs']['path'].gsub('vol_', '')
   else
     raise "Unknown persistent volume type."
   end
