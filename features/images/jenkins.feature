@@ -1119,7 +1119,6 @@ Feature: jenkins.feature
       | using Labels   | pod          | name            | hello-openshift |                                            | OpenShiftDeleterLabels   | 1               |
       | by Key         | pod          | hello-openshift |                 |                                            | OpenShiftDeleterList     | 1               |
       | from JSON/YAML |              |                 |                 | <%= File.read('hello-pod.json').to_json %> | OpenShiftDeleterJsonYaml | 1               |
-      | steptype       | resourcetype | resourcekey     | resourceval     | resourcejsonyaml                           | deletertype              | jenkins_version |
       | using Labels   | pod          | name            | hello-openshift |                                            | OpenShiftDeleterLabels   | 2               |
       | by Key         | pod          | hello-openshift |                 |                                            | OpenShiftDeleterList     | 2               |
       | from JSON/YAML |              |                 |                 | <%= File.read('hello-pod.json').to_json %> | OpenShiftDeleterJsonYaml | 2               |
@@ -1460,8 +1459,8 @@ Feature: jenkins.feature
       | 1   |
       | 2   |
 
-  # @case_id 515317 536388
   # @author xiuwang@redhat.com
+  # @case_id 515317 536388
   Scenario: Use Jenkins as S2I builder with plugins
     Given I have a project
     When I run the :new_app client command with:
@@ -1476,3 +1475,101 @@ Feature: jenkins.feature
       | Downloading analysis-core-1.71                       |
       | Downloading ansicolor-0.4.1                          |
       | Installing 2 Jenkins plugins from plugins/ directory |
+
+  # @author cryan@redhat.com
+  # @case_id OCP-11968 OCP-11989
+  Scenario Outline: Create resource using jenkins pipeline DSL
+    Given I have a project
+    And I have an ephemeral jenkins v<ver> application
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                           |
+      | user_name | system:serviceaccount:<%=project.name%>:default |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    And I log in to jenkins
+    When I perform the :jenkins_create_pipeline_job web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP_11968/pipeline_create_resource.groovy"
+    And I replace lines in "pipeline_create_resource.groovy":
+      | <repl_env> | <%= env.api_endpoint_url %> |
+      | <repl_ns>  | <%= project.name %>         |
+    # The use of the 'dump' method in dsl_text escapes the groovy content to be
+    # used by watir/selenium.
+    When I perform the :jenkins_pipeline_insert_script web action with:
+      | job_name        | openshifttest                                            |
+      | editor_position | row: 1, column: 1                                        |
+      | dsl_text        | <%= File.read('pipeline_create_resource.groovy').dump %> |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name     | openshifttest                      |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | openshifttest |
+      | job_number | 1             |
+      | time_out   | 60            |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=hello-openshift |
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
+
+  # @author cryan@redhat.com
+  # @case_id OCP-12075 OCP-12094
+  Scenario Outline: Delete resource using jenkins pipeline DSL
+    Given I have a project
+    And I have an ephemeral jenkins v<ver> application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                           |
+      | user_name | system:serviceaccount:<%=project.name%>:default |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | frontend |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    And I log in to jenkins
+    When I perform the :jenkins_create_pipeline_job web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP_12075/pipeline_delete_resource.groovy"
+    And I replace lines in "pipeline_delete_resource.groovy":
+      | <repl_env> | <%= env.api_endpoint_url %> |
+      | <repl_ns>  | <%= project.name %>         |
+    # The use of the 'dump' method in dsl_text escapes the groovy content to be
+    # used by watir/selenium.
+    When I perform the :jenkins_pipeline_insert_script web action with:
+      | job_name        | openshifttest                                            |
+      | editor_position | row: 1, column: 1                                        |
+      | dsl_text        | <%= File.read('pipeline_delete_resource.groovy').dump %> |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | openshifttest |
+      | job_number | 1             |
+      | time_out   | 60            |
+    Then the step should succeed
+    Given I get project dc named "frontend"
+    Then the output should contain "not found"
+    Given I get project builds
+    Then the output should contain "No resources found"
+    Given I get project is
+    Then the output should not match "origin-nodejs-sample\s+latest"
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
