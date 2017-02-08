@@ -211,3 +211,103 @@ Feature: Service related networking scenarios
       | ["items"][1]["metadata"]["name"] | servicecidr-endpoint |
       | ["items"][1]["subsets"][0]["addresses"][0]["ip"] | <%= cb.servicenetwork_1 %>.<%= cb.servicenetwork_2 %>.<%= rand(255) %>.<%= rand(1..255) %> |
     Then the step should succeed
+
+
+  # @author yadu@redhat.com
+  # @case_id OCP-9977
+  @admin
+  @destructive
+  Scenario: Create service with external IP
+    Given master config is merged with the following hash:
+    """
+    networkConfig:
+      externalIPNetworkCIDRs:
+      - 10.5.0.0/24
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json  |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/externalip_service1.json |
+    Then the step should succeed
+    When I run the :get client command with:                                                                    
+      | resource      | service          |
+      | resource_name | service-unsecure |
+    Then the step should succeed
+    And the output should contain:
+      | 10.5.0.1 |
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | /usr/bin/curl | --connect-timeout | 4 | 10.5.0.1:27017 |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+
+
+  # @author yadu@redhat.com
+  # @case_id OCP-9978
+  @admin
+  @destructive
+  Scenario: Fail to create svc with a invalid external IP defined
+    Given master config is merged with the following hash:
+    """
+    networkConfig:
+      externalIPNetworkCIDRs:
+      - 10.5.0.0/24
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/externalip_service2.json |
+    Then the step should fail
+    And the output should contain:
+      | externalIP is not allowed |
+
+  # @author yadu@redhat.com
+  # @case_id OCP-9979
+  @admin
+  @destructive
+  Scenario: Create multiple service with different external IP sections defined
+    Given master config is merged with the following hash:
+    """
+    networkConfig:
+      externalIPNetworkCIDRs:
+      - 10.5.0.0/24
+      - 10.6.0.0/24
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/externalip_service1.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/externalip_service2.json |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource      | service          |
+    Then the step should succeed
+    And the output should contain:
+      | 10.5.0.1 |
+      | 10.6.0.1 |
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | /usr/bin/curl | --connect-timeout | 4 | 10.5.0.1:27017 |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+    When I execute on the pod:
+      | /usr/bin/curl | --connect-timeout | 4 | 10.6.0.1:27017 |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
