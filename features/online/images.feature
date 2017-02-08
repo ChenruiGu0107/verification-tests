@@ -157,7 +157,7 @@ Feature: ONLY ONLINE Images related scripts in this file
     Then the step should succeed
 
     # @author etrott@redhat.com
-    # @case_id 532732
+    # @case_id OCP-12681
     Scenario: mem based auto-tuning mariadb
       Given I have a project
       When I run the :new_app client command with:
@@ -181,7 +181,7 @@ Feature: ONLY ONLINE Images related scripts in this file
       Then the step should succeed
       When I perform the :set_resource_limit_single web console action with:
         | resource_type   | memory |
-        | limit_type      | Limit  |
+        | limit_type      | |
         | amount_unit     | MiB    |
         | resource_amount | 800    |
       Then the step should succeed

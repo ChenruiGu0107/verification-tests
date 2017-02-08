@@ -662,14 +662,14 @@ change_bc_binary_input:
     type: input
     op: send_keys <bc_binary>
 check_start_build_button_not_disabled:
-  elements: 
+  elements:
   - selector:
       xpath: //button[@ng-click="startBuild()" and not(@disabled)]
 check_bc_runpolicy:
   action: goto_buildconfig_configuration_tab
   action: check_runPolicy
 check_runPolicy:
-  elements: 
+  elements:
   - selector:
       xpath: //div[@class="run-policy"]//dd[contains(., "<run_policy>")]
 check_one_build_status:
