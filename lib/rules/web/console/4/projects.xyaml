@@ -87,7 +87,7 @@ clear_input_box:
   elements:
   - selector:
       xpath: //button[contains(@ng-if,'search.text')]
-    op: click    
+    op: click
 search_project:
   elements:
   - selector:
@@ -97,7 +97,7 @@ check_project_creator:
   action: goto_projects_page
   elements:
   - selector:
-      xpath:  //a[contains(.,<project_name>)]/parent::h2[contains(@class,'h1')]/following::small[1]/span[contains(.,"by <creator>")]
+      xpath:  //a[contains(.,'<project_name>')]/parent::h2[contains(@class,'h1')]/following::small[1]/span[contains(.,'by <creator>')]
     timeout: 300
 click_project_membership:
   elements:
