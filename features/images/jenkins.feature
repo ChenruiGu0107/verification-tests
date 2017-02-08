@@ -438,7 +438,6 @@ Feature: jenkins.feature
       | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     And I log in to jenkins
-    Then the step should succeed
     When I perform the :jenkins_trigger_sample_openshift_build web action with:
       | job_name                 | OpenShift%20Sample          |
       | scaler_apiurl            | <%= env.api_endpoint_url %> |
@@ -1331,7 +1330,6 @@ Feature: jenkins.feature
       | rules    | lib/rules/web/images/jenkins_<ver>/                               |
       | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
     And I log in to jenkins
-    Then the step should succeed
     When I perform the :jenkins_create_freestyle_job web action with:
       | job_name | <%= project.name %>             |
     Then the step should succeed
