@@ -66,8 +66,13 @@ choose_the_first_container:
       xpath: //div[@class='checkbox ng-scope'][1]/label/input
     op: click
 check_mount_info:
-  elements:
-  - selector:
-      xpath: //span[contains(text(), "<volume_name>")]
-  - selector:
+  action: check_mount_path_info
+  action: check_mount_volume_name  
+check_mount_path_info:
+  element:
+    selector:
       xpath: //span[contains(text(), "<mount_path>")]
+check_mount_volume_name:
+  element:
+    selector:
+      xpath: //span[contains(text(), "<volume_name>")]

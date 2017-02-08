@@ -75,7 +75,7 @@ check_rebuild_button:
 click_to_show_advanced_options:
   elements:
   - selector:
-      xpath: //a[contains(.,"Show Advanced Option")]
+      xpath: //a[contains(.,"Show advanced option")]
     op: click
 click_to_show_source_advanced_options:
   elements:
@@ -146,7 +146,7 @@ wait_latest_build_to_status:
   action: goto_one_buildconfig_page
   element:
     selector:
-      xpath: //span[@class='latest-build-status']/span[contains(.,'<build_status>')]
+      xpath: //span[@ng-switch='latestBuild.status.phase']/span[contains(.,'<build_status>')]
     timeout: 600
 check_buildconfig_environment:
   action: goto_buildconfig_environment_tab
@@ -257,9 +257,11 @@ count_buildconfig_image_paths:
     expect_result: true
 check_buildconfig_source_repo:
   action: goto_buildconfig_configuration_tab
-  elements:
-  - selector:
-      xpath: //dt[contains(.,'Source Repo')]/following::a[contains(.,'<source_repo_url>')]
+  action: check_bc_source_repo
+check_bc_source_repo:
+  element:
+    selector:
+      xpath: //dt[contains(.,'Source Repo')]/following::span[contains(.,'<source_repo_url>')]
 check_none_buildconfig_source_repo:
   action: goto_buildconfig_configuration_tab
   elements:
@@ -362,7 +364,7 @@ save_env_vars: {}
 check_invalid_url_warn_message:
   elements:
   - selector:
-      xpath: //span[@ng-if='alert.details' and contains(.,'uri is not a valid url')]
+      xpath: //span[@ng-if='alert.details' and contains(.,'not a valid url')]
 check_outdated_bc_warn_message:
   elements:
   - selector:
@@ -414,14 +416,16 @@ check_bc_image_change_trigger:
       xpath: //dt[contains(.,'New Image For')]/following-sibling::dd[contains(.,'<image_change_trigger>')]
 check_bc_config_change_trigger:
   action: goto_buildconfig_configuration_tab
-  elements:
-  - selector:
-      xpath: //dt[contains(.,'Config Change For')]/following-sibling::dd[contains(.,'<config_change_trigger>')]
+  action: check_bc_config_change_trigger_value
 check_bc_config_change_trigger_exist:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
       xpath: //dt[contains(.,'Configchange for')]
+check_bc_config_change_trigger_value:
+  element:
+    selector:
+      xpath: //dt[contains(.,'Config Change For')]/following-sibling::dd[contains(.,'<config_change_trigger>')]
 choose_build_image_source_to_docker_image:
   action: check_buildconfig_edit_page_loaded_completely
   elements:

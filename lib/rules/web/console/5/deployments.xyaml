@@ -112,7 +112,7 @@ click_on_one_replicaset:
 click_on_pause_deployment:
   elements:
   - selector:
-      xpath: //a[@role="button" and contains(.,'Pause Deployment')]
+      xpath: //a[@role="button" and contains(.,'Pause Rollouts')]
     op: click
 click_on_resume_deployment:
   elements:
@@ -328,7 +328,7 @@ check_replicas:
     selector:
       xpath: //dt[contains(.,'Replicas')]/following-sibling::dd//span[contains(.,'<replicas>')]
 check_dc_replicas:
-  action: check_dc_loaded_completely
+  action: click_on_configuration_tab
   elements:
   - selector:
       xpath: //dt[contains(.,'Replicas')]/following-sibling::dd//span[contains(.,'<dc_replicas>')]
@@ -375,11 +375,11 @@ check_pause_message_related_with_dc_on_dc_page:
 check_general_message_for_pause_on_dc_page:
   element:
     selector:
-       xpath: //div[contains(.,'This will stop any new deployments and deployment triggers from running until resumed')]
+       xpath: //div[contains(.,'stop any new rollouts or triggers from running until resumed')]
 check_resume_deployment_option_exist_on_dc_page:
   element:
     selector:
-      xpath: //a[@role="button" and contains(.,'Resume deployment')]
+      xpath: //a[@role="button" and contains(.,'Resume Rollouts')]
 check_standalone_rc_idle_text:
   action: goto_one_standalone_rc_page
   elements:
@@ -462,6 +462,7 @@ check_autoscaler_min_pods:
       xpath: //hpa//dt[contains(.,'Min Pods')]/following::dd[1][contains(.,'<min_pods>')]
 check_autoscaler_min_pods_on_rc_page:
   action: goto_one_deployment_page
+  action: click_on_details_tab
   action: check_autoscaler_min_pods
 check_autoscaler_max_pods:
   element:
