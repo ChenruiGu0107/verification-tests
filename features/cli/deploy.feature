@@ -617,13 +617,13 @@ Feature: deployment related features
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json"
     Then the step should succeed
     And I replace lines in "deployment1.json":
-      | user8Y2 | usernew|     
+      | user8Y2 | usernew|
     Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
       | f | deployment1.json |
-    Then the step should succeed   
+    Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :complete
-    
+
     # Workaround: the below steps make a failed deployment instead of --cancel
     Given I successfully patch resource "dc/hooks" with:
       | {"spec":{"strategy":{"recreateParams":{"pre":{ "execNewPod": { "command": [ "/bin/false" ], "containerName": "hello-openshift" }, "failurePolicy": "Abort" }}}}} |
@@ -633,7 +633,7 @@ Feature: deployment related features
     Then the step should succeed
     And the output should contain "Started deployment #3"
     And I wait until the status of deployment "hooks" becomes :failed
-    
+
     # Remove the pre-hook introduced by the above workaround,
     # otherwise later deployment will always fail
     Given I successfully patch resource "dc/hooks" with:
@@ -1156,8 +1156,8 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/test-deployment.json |
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :running
-    And I replace resource "pod" named "hooks-1-deploy":
-      | activeDeadlineSeconds: 21600 | activeDeadlineSeconds: 3 |
+    Given I successfully patch resource "pod/hooks-1-deploy" with:
+      | {"spec":{"activeDeadlineSeconds":3}} |
     Then the step should succeed
     And I wait up to 30 seconds for the steps to pass:
     """
@@ -1738,7 +1738,7 @@ Feature: deployment related features
     And I wait until the status of deployment "history-limit" becomes :complete
     And I wait for the steps to pass:
     """
-    When I get project rc 
+    When I get project rc
     Then the output should not contain "history-limit-2"
     """
 
@@ -1860,4 +1860,3 @@ Feature: deployment related features
       | template      | {{(index .status.conditions 1).reason }} |
     Then the step should succeed
     And the output should match "ReplicationControllerCreateError"
-
