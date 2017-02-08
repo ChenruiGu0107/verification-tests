@@ -2407,7 +2407,7 @@ Feature: Testing haproxy router
     And evaluation of `project.name` is stored in the :project_a clipboard
     And I create a new project
     And evaluation of `project.name` is stored in the :project_b clipboard
-    
+
     Given I use the "<%= cb.project_a %>" project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
@@ -2420,7 +2420,7 @@ Feature: Testing haproxy router
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json |
     Then the step should succeed
     Given I have a pod-for-ping in the project
-    
+
     # create same route hostname in second project to make it as "HostAlreadyClaimed" (rejected)
     Given I use the "<%= cb.project_b %>" project
     When I run the :create client command with:
@@ -2447,7 +2447,7 @@ Feature: Testing haproxy router
       | name     | <%= cb.project_b %> |
       | key_val  | team=red            |
     Then the step should succeed
-    
+
     # redeploy router pod
     Given a pod becomes ready with labels:
       | deploymentconfig=router |
@@ -2477,7 +2477,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     """
-    
+
   # @author hongli@redhat.com
   # @case_id OCP-11437
   @admin
@@ -2495,7 +2495,7 @@ Feature: Testing haproxy router
     When I expose the "service-unsecure" service
     Then the step should succeed
     Given I have a pod-for-ping in the project
-    
+
     Given I switch to cluster admin pseudo user
     And I use the "default" project
     And a pod becomes ready with labels:
@@ -2526,3 +2526,307 @@ Feature: Testing haproxy router
     And the output should contain "Hello-OpenShift"
     """
 
+  # @author zzhao@redhat.com
+  # @case_id OCP-12923
+  @admin
+  @destructive
+  Scenario: same host with different path can be admitted
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | service          |
+      | resource_name | service-unsecure |
+      | path          | /test            |
+    Then the step should succeed
+    Given evaluation of `route("service-unsecure", service("service-unsecure")).dns(by: user)` is stored in the :unsecure clipboard
+
+    #change another namespace and create one same hostname stored in ':unsecure' with different path '/path/second'
+    Given I switch to the second user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | service             |
+      | resource_name | service-unsecure    |
+      | hostname      | <%= cb.unsecure %>  |
+      | path          | /path/second        |
+    Then the step should succeed
+
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= cb.unsecure %>/test/" url
+    Then the output should contain "Hello-OpenShift-Path-Test"
+    """
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= cb.unsecure %>/path/second/" url
+    Then the output should contain "second-test http-8080"
+    """
+    #create one overlap path '/path' with above to verify it also can work
+    When I run the :expose client command with:
+      | resource      | service            |
+      | resource_name | service-unsecure   |
+      | hostname      | <%= cb.unsecure %> |
+      | path          | /path              |
+      | name          | path               |
+    Then the step should succeed
+
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= cb.unsecure %>/path/" url
+    Then the output should contain "ocp-test http-8080"
+    """
+
+    #Create one same hostname without path,the route can be cliamed.
+    When I run the :expose client command with:
+      | resource      | service            |
+      | resource_name | service-unsecure   |
+      | hostname      | <%= cb.unsecure %> |
+      | name          | withoutpath        |
+    Then the step should succeed
+
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= cb.unsecure %>" url
+    Then the output should contain "Hello-OpenShift-1 http-8080"
+    """
+    # All routes in this namespaces should be cliamed till now.
+    When I run the :get client command with:
+      | resource | route |
+    Then the step should succeed
+    And the output should not contain "HostAlreadyClaimed"
+
+    #Create one same hostname and same path with first user. the route will be marked as 'HostAlreadyCliamed'
+    When I run the :expose client command with:
+      | resource      | service            |
+      | resource_name | service-unsecure   |
+      | hostname      | <%= cb.unsecure %> |
+      | path          | /test              |
+      | name          | same               |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | route |
+      | resource_name | same  |
+    Then the step should succeed
+    And the output should contain "HostAlreadyClaimed"
+
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-12924
+  @admin
+  @destructive
+  Scenario: same wildcard host with different path can be admitted
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
+      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true              |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name1 clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    #Create one route with stored 'subdomain' to make the default DNS can resolved this route.
+    When I run the :expose client command with:
+      | resource      | service                                   |
+      | resource_name | service-unsecure                          |
+      | hostname      | <%= cb.proj_name1 %>.<%= cb.subdomain %>  |
+      | path          | /test                                     |
+      | wildcardpolicy| Subdomain                                 |
+    Then the step should succeed
+
+    Given I switch to the second user
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name2 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    #Create one same hostname with different path wildcard route. the route can be cliamed.
+    When I run the :expose client command with:
+      | resource      | service                                   |
+      | resource_name | service-unsecure                          |
+      | hostname      | <%= cb.proj_name1 %>.<%= cb.subdomain %>  |
+      | path          | /path/second                              |
+      | wildcardpolicy| Subdomain                                 |
+    Then the step should succeed
+
+    # check the route can work well using 'random' prefix
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://random.<%= cb.subdomain %>/test/" url
+    Then the output should contain "Hello-OpenShift-Path-Test"
+    """
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://random.<%= cb.subdomain %>/path/second/" url
+    Then the output should contain "second-test http-8080"
+    """
+
+    # create one same hostname with overlap path and it also can work well
+    When I run the :expose client command with:
+      | resource      | service                                   |
+      | resource_name | service-unsecure                          |
+      | hostname      | <%= cb.proj_name1 %>.<%= cb.subdomain %>  |
+      | path          | /path                                     |
+      | wildcardpolicy| Subdomain                                 |
+      | name          | path                                      |
+    Then the step should succeed
+
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://random.<%= cb.subdomain %>/path/" url
+    Then the output should contain "ocp-test http-8080"
+    """
+
+    #Create one same hostname without path wildcard route and it can work well.
+    When I run the :expose client command with:
+      | resource      | service                                   |
+      | resource_name | service-unsecure                          |
+      | hostname      | <%= cb.proj_name1 %>.<%= cb.subdomain %>  |
+      | wildcardpolicy| Subdomain                                 |
+      | name          | withoutpath                               |
+    Then the step should succeed
+
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://random.<%= cb.subdomain %>" url
+    Then the output should contain "Hello-OpenShift-1 http-8080"
+    """
+    #All routes should be work well and NO 'HostAlreadyCliamed'
+    When I run the :get client command with:
+      | resource | route |
+    Then the step should succeed
+    And the output should not contain "HostAlreadyClaimed"
+
+    #Create one same hostname and same path with first user, it will be marked as 'HostAlreadyCliamed'
+    When I run the :expose client command with:
+      | resource      | service                                   |
+      | resource_name | service-unsecure                          |
+      | hostname      | <%= cb.proj_name2 %>.<%= cb.subdomain %>  |
+      | path          | /test                                     |
+      | wildcardpolicy| Subdomain                                 |
+      | name          | same                                      |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | route |
+      | resource_name | same  |
+    Then the step should succeed
+    And the output should contain "HostAlreadyClaimed"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-12925
+  @admin
+  @destructive
+  Scenario: The overlapping hosts with a wildcard can be claimed across namespaces
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true  |
+      | e        | ROUTER_ALLOW_WILDCARD_ROUTES=true              |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name1 clipboard
+    And I store default router subdomain in the :subdomain clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    #Create one wildcard route 'proj1.subdomain'
+    When I run the :expose client command with:
+      | resource      | service                                   |
+      | resource_name | service-unsecure                          |
+      | hostname      | <%= cb.proj_name1 %>.<%= cb.subdomain %>  |
+      | wildcardpolicy| Subdomain                                 |
+    Then the step should succeed
+
+    #Change another user in case one user only can create one namespace for online.
+    Given I switch to the second user
+    And I have a project
+    And evaluation of `project.name` is stored in the :proj_name2 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+
+    #Create one normal route with different prefix but same suffix 'subdomain', it can be cliamed. e.g when user1 have a wildcard route '*.example.com',user2 can create a normal route 'second.example.com'.when user access the 'second.example.com', it will be forwarded to user2.  if accessing 'random.example.com' it will be forwarded to user1.
+    When I run the :create_route_passthrough client command with:
+      | name    | route-pass     |
+      | service | service-secure |
+      | hostname| <%= cb.proj_name2 %>.<%= cb.subdomain %> |
+    Then the step should succeed
+
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= cb.proj_name2 %>.<%= cb.subdomain %>" url
+    Then the output should contain "Hello-OpenShift-1 http-8080"
+    """
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "https://<%= cb.proj_name2 %>.<%= cb.subdomain %>" url
+    Then the output should contain "Hello-OpenShift-1 https-8443"
+    """
