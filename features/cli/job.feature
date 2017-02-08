@@ -218,9 +218,9 @@ Feature: job.feature
     And the output should contain:
       | spec.template.spec.restartPolicy: Unsupported value: "Always": supported values: OnFailure, Never |
     # Create job with restartPolicy=Never
-    When I replace lines in "job-restartpolicy.yaml":
+    Given I replace lines in "job-restartpolicy.yaml":
       | from: null | from: Never |
-    And I process and create:
+    When I process and create:
       | f | job-restartpolicy.yaml |
     Then the step should succeed
     And I wait until job "pi-restartpolicy" completes
