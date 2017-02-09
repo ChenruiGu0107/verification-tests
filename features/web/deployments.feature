@@ -171,20 +171,22 @@ Feature: Check deployments function
   # @case_id 510377
   Scenario: View deployments streaming logs
     Given I create a new project via web
-    When I run the :run client command with:
-      | name  | mytest             |
-      | image | openshift/mysql-55-centos7:latest |
-      | env   | MYSQL_USER=test,MYSQL_PASSWORD=redhat,MYSQL_DATABASE=testdb |
+    When I run the :new_app client command with:
+      | name  | mytest                |
+      | image | mysql                 |
+      | env   | MYSQL_USER=test       |
+      | env   | MYSQL_PASSWORD=redhat |
+      | env   | MYSQL_DATABASE=testdb |
     Then the step should succeed
 
     And I wait until the status of deployment "mytest" becomes :complete
     Given 1 pods become ready with labels:
-      | run=mytest |
+      | deploymentconfig=mytest |
 
     When I perform the :check_log_context_on_deployed_deployment_page web console action with:
       | project_name | <%= project.name %> |
-      | dc_name      | mytest    |
-      | dc_number    | 1         |
+      | dc_name      | mytest              |
+      | dc_number    | 1                   |
     Then the step should succeed
 
     When I run the :follow_log web console action
