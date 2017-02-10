@@ -877,15 +877,15 @@ Feature: Testing route
     Then the step should succeed
     And the output should match:
        | service-secure.*none   |
-       | service-unsecure.*none | 
+       | service-unsecure.*none |
 
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I execute on the <%=cb.router_pod %> pod:
+    And I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.service_ip %> | /var/lib/haproxy/conf/haproxy.config |
     Then the output should not contain "check inter"
     When I wait up to 600 seconds for a web server to become available via the "service-unsecure" route
-    And I execute on the <%=cb.router_pod %> pod:
+    And I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
     Then the output should contain 4 times:
       | check inter 5000ms |
@@ -904,11 +904,11 @@ Feature: Testing route
 
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    And I execute on the <%=cb.router_pod %> pod:
+    And I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.service_secure_ip %> | /var/lib/haproxy/conf/haproxy.config |
     Then the output should not contain "check inter"
     When I wait up to 600 seconds for a secure web server to become available via the "route-pass" route
-    And I execute on the <%=cb.router_pod %> pod:
+    And I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
     Then the output should contain 4 times:
       | check inter 5000ms |
@@ -924,7 +924,7 @@ Feature: Testing route
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
-    Then the step should succeed     
+    Then the step should succeed
     And all pods in the project are ready
     When I expose the "service-unsecure" service
     Then the step should succeed
