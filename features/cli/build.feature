@@ -204,7 +204,7 @@ Feature: build 'apps' with CLI
 
 
   # @author xiaocwan@redhat.com
-  # @case_id 482200
+  # @case_id OCP-12309
   Scenario: Cancel a build in openshift
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
@@ -229,6 +229,7 @@ Feature: build 'apps' with CLI
     When I get project builds
     Then the output should contain:
       |  ruby-sample-build-2  |
+    Given the pod named "ruby-sample-build-2-build" becomes ready
     When I get project pods
     Then the output should contain:
       |  ruby-sample-build-2-build  |
