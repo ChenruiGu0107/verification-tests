@@ -1,6 +1,7 @@
 #---------limits related----------
 check_limits_on_dc_page:
   action: goto_one_dc_page
+  action: click_on_configuration_tab
   action: check_limits_in_pod_template
 check_limits_on_k8s_deployment_page:
   action: goto_one_k8s_deployment_configuration_tab
