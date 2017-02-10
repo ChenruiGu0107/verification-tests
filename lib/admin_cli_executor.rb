@@ -27,7 +27,11 @@ module CucuShift
       # return user requested version if specified
       return version if version
 
-      res = host.exec_as(user, "oadm version")
+      fake_config = Tempfile.new("oadm_kubeconfig")
+      fake_config.close
+      res = host.exec_as(user, "oadm version --config=#{fake_config.path}")
+      fake_config.unlink
+
       unless res[:success]
         logger.error(res[:response])
         raise "cannot execute on host #{host.hostname} as admin"
