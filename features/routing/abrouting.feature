@@ -114,7 +114,7 @@ Feature: Testing abrouting
     When I run the :set_backends client command with:
       | routename | route-edge |
     Then the step should succeed
-    Then the output should contain 1 times: 
+    Then the output should contain 1 times:
       | (0%)   |
       | (100%) |
     Given I have a pod-for-ping in the project
@@ -135,7 +135,7 @@ Feature: Testing abrouting
     When I run the :set_backends client command with:
       | routename | route-edge |
     Then the step should succeed
-    Then the output should contain 2 times: 
+    Then the output should contain 2 times:
       | 0 |
     Given I run the steps 10 times:
     """
@@ -566,7 +566,7 @@ Feature: Testing abrouting
       | WEIGHT must be a number |
 
   # @author yadu@redhat.com
-  # @case_id 534317
+  # @case_id OCP-12088
   Scenario: Set backends weight for edge route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -616,7 +616,7 @@ Feature: Testing abrouting
       | 30% |
       | 50% |
     Given I have a pod-for-ping in the project
-    Given I run the steps 20 times:
+    Given I run the steps 60 times:
     """
     When I execute on the pod:
       | curl |
@@ -629,9 +629,12 @@ Feature: Testing abrouting
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
+    ## for setup that has multiple routers, we should do fuzzy match.
+    # instead of a hard limit and do exact match.  We will pass the test if the
+    # count is between a range depending on number of routers
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-3")}.length` is stored in the :accesslength3 clipboard
-    Then the expression should be true> cb.accesslength3 == 10
+    Then the expression should be true> (24..36).include? cb.accesslength3
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
-    Then the expression should be true> cb.accesslength2 == 6
+    Then the expression should be true> (12..24).include? cb.accesslength2
     Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
-    Then the expression should be true> cb.accesslength1 == 4
+    Then the expression should be true> (6..12).include? cb.accesslength1
