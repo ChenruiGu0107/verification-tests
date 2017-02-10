@@ -421,7 +421,7 @@ Feature: NFS Persistent Volume
       | l           | app=mysql-persistent |
     Then the step should succeed
     Given all existing pods die with labels:
-      | l | app=mysql-persistent |
+      | app=mysql-persistent |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
