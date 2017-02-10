@@ -163,7 +163,7 @@ Feature: SDN related networking scenarios
   # @case_id 528378
   @admin
   @destructive
-  Scenario: [Bug 1308701] kubelet proxy could change to userspace mode
+  Scenario: kubelet proxy could change to userspace mode
     Given I select a random node's host
     And the node network is verified
     And the node service is verified

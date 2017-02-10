@@ -56,7 +56,7 @@ Feature: Pod related networking scenarios
 
   # @author yadu@redhat.com
   # @case_id 528410
-  Scenario:  [Bug 1312945] Container could reach the dns server
+  Scenario: Container could reach the dns server
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc528410/tc_528410_pod.json |
