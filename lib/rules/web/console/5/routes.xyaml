@@ -15,7 +15,7 @@ check_route_name:
       xpath: //tr//td[@data-title='Name']/a[contains(text(), '<route_name>')]
     op: click
   - selector:
-      xpath: //h1[contains(text(),'<route_name>')]
+      xpath: //h1[contains(.,'<route_name>')]
 check_route_to:
   action: goto_routes_page
   elements:
@@ -23,7 +23,7 @@ check_route_to:
       xpath: //tr//td[@data-title='Routes To']//a[contains(text(), '<route_name>')]
     op: click
   - selector:
-      xpath: //h1[contains(text(),'<route_name>')]
+      xpath: //h1[contains(.,'<route_name>')]
 check_routes_page:
   action: check_route_name
   action: check_route_to
