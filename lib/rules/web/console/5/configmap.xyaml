@@ -1,2 +1,37 @@
 goto_configmaps_page:
   url: /console/project/<project_name>/browse/config-maps
+goto_create_configmap_page:
+  url: /console/project/<project_name>/create-config-map
+goto_one_configmap_page:
+  url: /console/project/<project_name>/browse/config-maps/<config_map_name>
+check_config_map_with_empty_value:
+  action: goto_one_configmap_page
+  elements:
+  - selector:
+      xpath: //td[@class='value'][string-length(normalize-space(.)) = 0]
+click_create_config_map_link:
+  elements:
+  - selector:
+      xpath: //a[contains(.,"Create Config Map")]
+    op: click
+confirm_error_for_invalid_config_map_name:
+  action: check_error_for_invalid_value
+confirm_error_for_long_config_map_name:
+  action: check_error_for_long_value
+set_config_map_name:
+  elements:
+  - selector:
+      id: config-map-name
+    type: input
+    op: send_keys <target_config_map_name>
+set_config_map_key:
+  elements:
+  - selector:
+      xpath: //input[@placeholder="my.key"]
+    op: send_keys <config_map_key>
+create_config_map_without_value:
+  action: goto_configmaps_page
+  action: click_create_config_map_link
+  action: set_config_map_name
+  action: set_config_map_key
+  action: click_create_button
