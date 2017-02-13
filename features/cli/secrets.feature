@@ -1481,3 +1481,49 @@ Feature: secrets related scenarios
     And the output should match "frontend-1-.*(ImagePullBackOff|ErrImagePull)"
     """
 
+
+  # @author qwang@redhat.com
+  # @case_id OCP-10569
+  Scenario: Allow specifying secret data using strings and images
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret-datastring-image.json |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret                  |
+      | name     | secret-datastring-image |
+    Then the output should match:
+      | image:\\s+7059\\s+bytes |
+      | password:\\s+5\\s+bytes |
+      | username:\\s+5\\s+bytes |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/pod-secret-datastring-image-volume.yaml |
+    Then the step should succeed
+    Given the pod named "pod-secret-datastring-image-volume" status becomes :running
+    When I execute on the pod:
+      | cat | /etc/secret-volume/username |
+    Then the step should succeed
+    And the output should contain:
+      | hello |
+    When I run the :patch client command with:
+      | resource      | secret                           |
+      | resource_name | secret-datastring-image          |
+      | p             | {"stringData":{"username":"foobar"}} |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | secret                  |
+      | name     | secret-datastring-image |
+    Then the output should match:
+      | image:\\s+7059\\s+bytes |
+      | password:\\s+5\\s+bytes |
+      | username:\\s+6\\s+bytes |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | cat | /etc/secret-volume/username |
+    Then the output should contain:
+      | foobar |
+    """
+    Then the step should succeed
+
+
