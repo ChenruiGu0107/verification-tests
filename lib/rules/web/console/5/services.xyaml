@@ -33,4 +33,4 @@ goto_one_service_page:
 check_redirection_to_service_page:
   element:
     selector:
-      xpath: //h1[normalize-space(text())="<service_name>"]
+      xpath: //h1[contains(.,"<service_name>")]
