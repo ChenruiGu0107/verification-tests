@@ -30,9 +30,7 @@ check_routes_page:
 check_basic_content_on_route_page:
   elements:
   - selector:
-      xpath: //h1[contains(text(),'<route_name>')]
-  - selector:
-      xpath: //dt[contains(.,'Hostname')]
+      xpath: //h1[contains(.,'<route_name>')]
   - selector:
       xpath: //dt[contains(.,'Path')]
   - selector:
