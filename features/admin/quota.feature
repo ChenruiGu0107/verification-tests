@@ -1482,3 +1482,105 @@ Feature: Quota related scenarios
     Then the output should match:
       | openshift.io/requester:usertest\~\!\#\%\^\&\*1@example.com |
       | pods\\s+1\\s+10                                            |
+
+
+  # @author qwang@redhat.com
+  # @case_id OCP-11660
+  @admin
+  Scenario: Quota requests.storage with PVC existing
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json |
+      | n | <%= project.name %>                                                                                      |
+    Then the step should succeed
+    # Create requests.storage of quota < existing PVC capacity
+    When I run the :create_quota admin command with:
+      | name | quota-pvc-storage-1  | 
+      | hard | requests.storage=2Gi |
+      | n    | <%= project.name %>  |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota               |
+      | name     | quota-pvc-storage-1 |
+      | n        | <%= project.name %> |
+    Then the output should match:
+      | requests.storage\\s+5Gi\\s+2Gi    |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json" replacing paths:
+      | ["metadata"]["name"] | pvc-2 |
+    Then the step should fail
+    And the output should contain:
+      | persistentvolumeclaims "pvc-2" is forbidden: exceeded quota: quota-pvc-storage-1, requested: requests.storage=5Gi, used: requests.storage=5Gi, limited: requests.storage=2Gi |
+    # Create requests.storage of quota > existing PVC capacity
+    When I run the :create_quota admin command with:
+      | name | quota-pvc-storage-2                             |
+      | hard | requests.storage=10Gi,persistentvolumeclaims=50 |
+      | n    | <%= project.name %>                             |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota               |
+      | n        | <%= project.name %> |
+    Then the output should match: 
+      | requests.storage\\s+5Gi\\s+2Gi    |
+      | persistentvolumeclaims\\s+1\\s+50 |
+      | requests.storage\\s+5Gi\\s+10Gi   |
+    Given I ensure "nfsc" pvc is deleted
+    When I run the :describe client command with:
+      | resource | quota               |
+      | n        | <%= project.name %> |
+    Then the output should match:
+      | requests.storage\\s+0\\s+2Gi      |
+      | persistentvolumeclaims\\s+0\\s+50 |
+      | requests.storage\\s+0\\s+10Gi     |
+    
+
+  # @author qwang@redhat.com
+  # @case_id OCP-11389
+  @admin
+  Scenario: Prevent creating further PVC if existing PVC exceeds the quota of requests.storage
+    Given I have a project
+    # Only quota requests.storage < 5Gi
+    When I run the :create_quota admin command with:
+      | name | quota-pvc-storage  | 
+      | hard | requests.storage=2Gi |
+      | n    | <%= project.name %>  |
+    Then the step should succeed
+    # Create PVC (here request 5Gi storage)
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json |
+      | n | <%= project.name %>                                                                                      |
+    Then the step should fail
+    And the output should contain:
+      | persistentvolumeclaims "nfsc" is forbidden: exceeded quota: quota-pvc-storage, requested: requests.storage=5Gi, used: requests.storage=0, limited: requests.storage=2Gi |
+    When I run the :describe client command with:
+      | resource | quota               |
+      | n        | <%= project.name %> |
+    Then the output should match:
+      | requests.storage\\s+0\\s+2Gi    |
+    When I run the :delete admin command with:
+      | object_type       | quota               |
+      | object_name_or_id | quota-pvc-storage   |
+      | n           | <%= project.name %> |
+    Then the step should succeed
+    # Quota covers requests.storage > 5Gi and PVC
+    When I run the :create_quota admin command with:
+      | name | quota-pvc-storage                              |
+      | hard | requests.storage=8Gi,persistentvolumeclaims=50 |
+      | n    | <%= project.name %>                            |
+    Then the step should succeed
+    # Create PVC (here request 5Gi storage)
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json |
+      | n | <%= project.name %>                                                                                      |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota               |
+      | n        | <%= project.name %> |
+    Then the output should match:
+      | persistentvolumeclaims\\s+1\\s+50 |
+      | requests.storage\\s+5Gi\\s+8Gi    |
+    # Create PVC again (here request 5Gi storage > avaliable quota 3Gi)
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json" replacing paths:
+      | ["metadata"]["name"] | pvc-2 |
+    Then the step should fail
+    And the output should contain:
+      | persistentvolumeclaims "pvc-2" is forbidden: exceeded quota: quota-pvc-storage, requested: requests.storage=5Gi, used: requests.storage=5Gi, limited: requests.storage=8Gi |
