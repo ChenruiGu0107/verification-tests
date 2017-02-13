@@ -56,7 +56,7 @@ Feature: oc observe related tests
       | Sync started                                       |
 
   # @author cryan@redhat.com
-  # @case_id 535066
+  # @case_id OCP-10289
   @unix
   Scenario: Use oc observe to watch resources with misc flags
     Given I have a project
@@ -105,6 +105,6 @@ Feature: oc observe related tests
       | oc_opts_end   |                            |
       | command       | ./add_to_inventory.sh      |
       | _timeout      | 25                         |
-    Then the output should contain 3 times:
-      | ./add_to_inventory.sh <%= project.name %> database |
-      | ./add_to_inventory.sh <%= project.name %> frontend |
+    Then the output should match 3 times:
+      | ync.*./add_to_inventory.sh <%= project.name %> database |
+      | ync.*./add_to_inventory.sh <%= project.name %> frontend |
