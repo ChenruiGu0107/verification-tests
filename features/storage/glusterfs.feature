@@ -174,16 +174,17 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
+      | ["metadata"]["name"]                                                   | pvc1               |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
 
     # Switch to admin so as to create privileged pod
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/pod.json" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1 |
     Then the step should succeed
     And the pod named "gluster" status becomes :running
 
@@ -204,11 +205,12 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 15Gi                    |
+      | ["metadata"]["name"]                                                   | pvc1               |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 15Gi               |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
 
     And the expression should be true> pvc.capacity(user: user) == "15Gi"
 
@@ -244,16 +246,17 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner1     |
+      | ["metadata"]["name"]                                                   | pvc1                |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner1 |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
 
     # Switch to admin so as to create privileged pod
     Given I switch to cluster admin pseudo user
     And I use the "<%= project.name %>" project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/pod.json" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1 |
     Then the step should succeed
     And the pod named "gluster" status becomes :running
 
@@ -266,19 +269,20 @@ Feature: Storage of GlusterFS plugin testing
     And I have a project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner      |
+      | ["metadata"]["name"]                                                   | pvc1               |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
 
     When I run the :get client command with:
-      | resource      | endpoints                               |
-      | resource_name | glusterfs-dynamic-pvc-<%= project.name %> |
+      | resource      | endpoints              |
+      | resource_name | glusterfs-dynamic-pvc1 |
     Then the step should succeed
 
     When I run the :get client command with:
-      | resource      | services                                |
-      | resource_name | glusterfs-dynamic-pvc-<%= project.name %> |
+      | resource      | services               |
+      | resource_name | glusterfs-dynamic-pvc1 |
     Then the step should succeed
 
   # @author jhou@redhat.com
@@ -438,6 +442,33 @@ Feature: Storage of GlusterFS plugin testing
     Then the step should succeed
 
   # @author jhou@redhat.com
+  # @case_id OCP-12007
+  @admin
+  Scenario: Using default value for gid
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
+      | ["metadata"]["name"]      | storageclass-<%= project.name %>                                 |
+      | ["parameters"]["resturl"] | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1                             |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+
+    # Verify PV is annotated with inhitial gidMin 3333
+    When I run the :get admin command with:
+      | resource      | pv                                 |
+      | resource_name | <%= pvc.volume_name(user: user) %> |
+      | o             | yaml                               |
+    Then the output should contain:
+      | pv.beta.kubernetes.io/gid: "2000" |
+
+
+  # @author jhou@redhat.com
   # @case_id 544341
   @admin
   Scenario: Dynamic provisioner should not provision PV/volume with duplicate gid
@@ -502,7 +533,6 @@ Feature: Storage of GlusterFS plugin testing
     And the "pvc1" PVC becomes :bound
     And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
 
-    # After PVC is bound, verify created
     Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
     And I use host backing StorageClass named "glusterprovisioner"
     When I run commands on the host:
@@ -512,4 +542,108 @@ Feature: Storage of GlusterFS plugin testing
       | Disperse Data: 4          |
       | Disperse Redundancy: 2    |
 
+  # @author jhou@redhat.com
+  # @case_id OCP-12942
+  @admin
+  Scenario: Setting volume type to none in the StorageClass for GlusterFS dynamic provisioner
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
 
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype_none.yaml" where:
+      | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
+      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["restuser"]    | admin                                                            |
+      | ["parameters"]["restuserkey"] | test                                                             |
+      | ["parameters"]["volumetype"]  | none                                                             |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1                             |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                             |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
+    And I use host backing StorageClass named "glusterprovisioner"
+    When I run commands on the host:
+      | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
+    Then the output should contain:
+      | Durability Type: none |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-12940
+  @admin
+  Scenario: Setting replica count in the StorageClass for GlusterFS dynamic provisioner
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+
+    # Setting replica to 2
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
+      | ["metadata"]["name"]          | storageclass-<%= project.name %>                                 |
+      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["restuser"]    | admin                                                            |
+      | ["parameters"]["restuserkey"] | test                                                             |
+      | ["parameters"]["volumetype"]  | replicate:2                                                      |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1                             |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                             |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
+    And I use host backing StorageClass named "glusterprovisioner"
+    When I run commands on the host:
+      | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
+    Then the output should contain:
+      | Durability Type: replicate |
+      | Distributed+Replica: 2     |
+
+    # Setting replica to 0
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_volumetype.yaml" where:
+      | ["metadata"]["name"]          | storageclass1-<%= project.name %>                                |
+      | ["parameters"]["resturl"]     | <%= storage_class("glusterprovisioner").rest_url(user: admin) %> |
+      | ["parameters"]["restuser"]    | admin                                                            |
+      | ["parameters"]["restuserkey"] | test                                                             |
+      | ["parameters"]["volumetype"]  | replicate:0                                                      |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc2                              |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass1-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 10Gi                              |
+    Then the step should succeed
+    And the "pvc2" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc2').volume_name(user: admin) %>" pv is deleted after scenario
+
+    Given I save volume id from PV named "<%= pvc('pvc2').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
+    And I use host backing StorageClass named "glusterprovisioner"
+    When I run commands on the host:
+      | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
+    Then the output should contain:
+      | Durability Type: replicate |
+      | Distributed+Replica: 0     |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-10354
+  @admin
+  Scenario: Provisioned GlusterFS volume should be replicated with 3 replicas
+    Given I have a StorageClass named "glusterprovisioner"
+    And I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1               |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | glusterprovisioner |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
+
+    # Verify by default it's replicated with 3 replicas
+    Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
+    And I use host backing StorageClass named "glusterprovisioner"
+    When I run commands on the host:
+      | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
+    Then the output should contain:
+      | Durability Type: replicate |
+      | Distributed+Replica: 3     |
