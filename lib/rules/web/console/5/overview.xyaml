@@ -119,6 +119,7 @@ check_idle_donut_text_on_overview:
   elements:
   - selector:
       xpath: //div[@class="deployment-donut"]
+    timeout: 20
   scripts:
     - command: return document.querySelectorAll('text[class=c3-chart-arcs-title] tspan')[0].innerHTML.contains("Idle")
       expect_result: true

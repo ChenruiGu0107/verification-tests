@@ -457,6 +457,8 @@ check_autoscaler_min_pods:
   element:
     selector:
       xpath: //hpa//dt[contains(.,'Min Pods')]/following::dd[1][contains(.,'<min_pods>')]
+check_autoscaler_min_pods_for_dc:
+  action: check_autoscaler_min_pods
 check_autoscaler_min_pods_on_rc_page:
   action: goto_one_deployment_page
   action: check_autoscaler_min_pods

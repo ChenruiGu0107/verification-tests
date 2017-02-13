@@ -466,6 +466,7 @@ Feature: Check deployments function
   # @author yapei@redhat.com
   # @case_id 528860
   Scenario: Create,Edit and Delete HPA from the deployment config page
+    Given the master version >= "3.3"
     Given I have a project
     When I run the :run client command with:
       | name         | myrun                 |
@@ -479,7 +480,7 @@ Feature: Check deployments function
       | max_pods      | 10                  |
       | cpu_req_per   | 60                  |
     Then the step should succeed
-    When I perform the :check_autoscaler_min_pods web console action with:
+    When I perform the :check_autoscaler_min_pods_for_dc web console action with:
       | min_pods      | 1                   |
     Then the step should succeed
     When I perform the :check_autoscaler_max_pods web console action with:
