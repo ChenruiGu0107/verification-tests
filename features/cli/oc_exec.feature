@@ -107,7 +107,7 @@ Feature: containers related features
       | [Ee]rror.*not |
 
   # @author chaoyang@redhat.com
-  # @case_id 472858
+  # @case_id OCP-11451 
   Scenario: Executing command in inexistent containers
     When I have a project
     And I run the :create client command with:
@@ -117,15 +117,15 @@ Feature: containers related features
     When I execute on the "hello-openshift_notexist" pod:
       |date|
     Then the step should fail
-    Then the output should contain:
-      | Error from server: pods "hello-openshift_notexist" not found |
+    Then the output should match:
+      | [Ee]rror.*pods.*hello-openshift_notexist.*not found |
     When I run the :exec client command with:
       | pod   | hello-openshift  |
       | c | hello-openshift-notexist |
       | exec_command | date |
     Then the step should fail
-    Then the output should contain:
-      |Error from server: container hello-openshift-notexist is not valid for pod hello-openshift|
+    Then the output should match:
+      |[Ee]rror.*container hello-openshift-notexist.*not valid|
 
   # @author xiaocwan@redhat.com
   # @case_id 472857

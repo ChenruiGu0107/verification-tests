@@ -215,7 +215,7 @@ Feature: create app on web console related
       | This name is already in use within the project. Please choose a different name. |
 
   # @author yanpzhan@redhat.com
-  # @case_id 498145
+  # @case_id OCP-9593
   Scenario: Create app from template leaving empty parameters to be generated
     Given I have a project
     Given I use the "<%= project.name %>" project
@@ -240,10 +240,9 @@ Feature: create app on web console related
       | list     | true        |
     Then the step should succeed
     And the output should contain:
-      |ADMIN_USERNAME=|
-      |ADMIN_PASSWORD=|
-      |MYSQL_USER=    |
-      |MYSQL_PASSWORD=|
+      | MYSQL_USER             |
+      | MYSQL_PASSWORD         |
+      | MYSQL_DATABASE         |
 
   # @author wsun@redhat.com
   # @case_id 489294
