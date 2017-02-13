@@ -138,10 +138,8 @@ Feature: create app on web console related
       | app_name     | nodejs-sample         |
       | source_url   | https://github.com/openshift/nodejs-ex |
     Then the step should succeed
-    When I get the html of the web page
-    Then the output should contain:
-      | Command line tools  |
-      | Making code changes |
+    When I run the :check_help_and_sug_on_next_step_page web console action
+    Then the step should succeed
 
   # @author wsun@redhat.com
   # @case_id 489286
