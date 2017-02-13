@@ -285,6 +285,56 @@ Feature: pods related scenarios
       | implicit		|
       | user:list-projects	|
 
+
+  # @author qwang@redhat.com
+  # @case_id OCP-11055 
+  Scenario: /dev/shm can be automatically shared among all of a pod's containers
+    Given I have a project
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json
+    Then the step should succeed
+    When the pod named "doublecontainers" becomes ready
+    # Enter container 1 and write files
+    When I run the :exec client command with:
+      | pod              | doublecontainers        |
+      | container        | hello-openshift         |
+      | oc_opts_end      |                         |
+      | exec_command     | sh                      |
+      | exec_command_arg | -c                      |
+      | exec_command_arg | echo "hi" > /dev/shm/c1 |
+    Then the step should succeed
+    When I run the :exec client command with:
+      | pod              | doublecontainers |
+      | container        | hello-openshift  |
+      | exec_command     | cat              |
+      | exec_command_arg | /dev/shm/c1      |
+    Then the step should succeed
+    And the output should contain "hi"
+    # Enter container 2 and check whether it can share the files under directory /dev/shm
+    When I run the :exec client command with:
+      | pod              | doublecontainers       |
+      | container        | hello-openshift-fedora |
+      | exec_command     | cat                    |
+      | exec_command_arg | /dev/shm/c1            |
+    Then the step should succeed
+    And the output should contain "hi"
+    # Write files in container 2 and check container 1
+    When I run the :exec client command with:
+      | pod              | doublecontainers           |
+      | container        | hello-openshift-fedora     |
+      | oc_opts_end      |                            |
+      | exec_command     | sh                         |
+      | exec_command_arg | -c                         |
+      | exec_command_arg | echo "hello" > /dev/shm/c2 |
+    Then the step should succeed
+    When I run the :exec client command with:
+      | pod              | doublecontainers |
+      | container        | hello-openshift  |
+      | exec_command     | cat              |
+      | exec_command_arg | /dev/shm/c2      |
+    Then the step should succeed
+    And the output should contain "hello"
+  
+  
   # @author chuyu@redhat.com
   # @case_id OCP-12897 
   @admin
@@ -331,6 +381,7 @@ Feature: pods related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_reasonable_percentage.yaml |
       | n | <%= project.name %>                                                                                             |
     Then the step should succeed
+
 
   # @author: chezhang@redhat.com
   # @case_id: OCP-11362
