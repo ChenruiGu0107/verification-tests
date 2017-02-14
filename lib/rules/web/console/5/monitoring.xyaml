@@ -13,7 +13,7 @@ set_resource_type_on_monitoring:
 expand_resource_logs:
   element:
     selector:
-      xpath: //div[h2[text()="<resource_type>"]]/div/div[//a[text()="<resource_name>"]]
+      xpath: //div[h2[text()='<resource_type>']]/div/div[//span[text()='<resource_name>']]
     op: click
 expand_resource_logs_by_image:
   element:
@@ -31,7 +31,7 @@ click_on_hide_older_resources:
 check_resource_on_monitoring:
   element:
     selector:
-      xpath: //div[h2[text()="<resource_type>"]]/div/div[//a[text()="<resource_name>"]]
+      xpath: //div[h2[text()='<resource_type>']]/div/div[//span[.='<resource_name>']]
 check_resource_type_on_monitoring:
   element:
     selector:

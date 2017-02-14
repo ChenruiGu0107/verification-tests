@@ -306,8 +306,9 @@ Feature: Check deployments function
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 536597 536589
+  # @case_id OCP-12273 OCP-10991
   Scenario Outline: Attach storage for k8s deployment and replicasets
+    Given the master version >= "3.4"
     Given I have a project
     When I run the :create client command with:
       | f | <resource_file> |
@@ -323,7 +324,7 @@ Feature: Check deployments function
       | mount_path  |  /hello-openshift-data |
       | volume_name | hello-openshift-volume |
     Then the step should succeed
-    When I perform the :check_mount_info web console action with:
+    When I perform the :check_mount_info_configuration web console action with:
       | mount_path  |  /hello-openshift-data |
       | volume_name | hello-openshift-volume |
     Then the step should succeed
