@@ -340,8 +340,12 @@ check_rs_selector:
       xpath: //dt[contains(.,'Selectors')]/following-sibling::dd[contains(.,'<rs_selectors_key>=<rs_selectors_value>')]
   - selector:
       xpath: //dt[contains(.,"Selectors")]/following-sibling::dd[selector//div[normalize-space(text())="<rs_selectors_key> in" and span[text()="<rs_selectors_value>"]]]
+check_mount_info_configuration:
+  action: click_on_configuration_tab
+  action: check_mount_info
 check_mount_info_on_one_deployment_page:
   action: click_to_goto_one_deployment_page
+  action: click_on_configuration_tab
   action: check_mount_info
 check_rs_details:
   action: check_rs_selector
@@ -349,7 +353,7 @@ check_rs_details:
 check_pods_number_in_table:
   element:
     selector:
-      xpath: //pods-table[count(table/tbody)=<pods_number>]
+      xpath: //pods-table[count(//tbody/tr)=<pods_number>]
 check_mount_info_on_one_replicaset_page:
   action: click_to_goto_one_replicaset_page
   action: check_mount_info
