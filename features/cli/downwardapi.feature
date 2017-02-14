@@ -66,23 +66,30 @@ Feature: Downward API
       | resource      | pod |
       | resource_name | pod-dapi-volume |
       | p             | {"metadata":{"annotations":{"build":"two"}}} |
-    And I execute on the pod:
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
       | cat | /var/tmp/podinfo/annotations |
     Then the output should contain:
       | build="two" |
+    """
+    Then the step should succeed
     # Delete one of labels
     When I run the :patch client command with:
       | resource      | pod                                   |
       | resource_name | pod-dapi-volume                       |
       | p             | {"metadata":{"labels":{"rack":null}}} |
-    And I execute on the pod:
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I execute on the pod:
       | cat | /var/tmp/podinfo/labels |
     Then the output should not contain:
       | rack="a111" |
     And the output should contain:
       | region="r1" |
       | zone="z11"  |
-
+    """
+    Then the step should succeed
 
   # @author qwang@redhat.com
   # @case_id 533071
