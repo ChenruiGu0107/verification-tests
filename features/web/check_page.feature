@@ -139,7 +139,7 @@ Feature: check page info related
       | Volume [Ff]ile:\smetadata.namespace → namespace     |
       | ^<%= cb.sname %>                                    |
       | Type:\ssecret                                       |
-      | Secret [Nn]ame:\s<%= cb.sname %>                    |
+      | [Secret\|Secret Name]:\s<%= cb.sname %>             |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml |
     Then the step should succeed
@@ -152,12 +152,12 @@ Feature: check page info related
     Then the step should succeed
     When I get the visible text on web html page
     Then the output should match:
-      | ^config-volume$                  |
-      | Type:\sconfig map                |
-      | Name:\sspecial-config            |
-      | ^<%= cb.sname %>$                |
-      | Type:\ssecret                    |
-      | Secret [Nn]ame:\s<%= cb.sname %> |
+      | ^config-volume$                         |
+      | Type:\sconfig map                       |
+      | [Name\|Config Map]:\sspecial-config     |
+      | ^<%= cb.sname %>$                       |
+      | Type:\ssecret                           |
+      | [Secret\|Secret Name]:\s<%= cb.sname %> |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-volume2.yaml |
     Then the step should succeed
@@ -169,11 +169,11 @@ Feature: check page info related
     Then the output should match:
       | ^config-volume$                                     |
       | Type:\sconfig map                                   |
-      | Name:\sspecial-config                               |
+      | [Name\|Config Map]:\sspecial-config                 |
       | Key to [Ff]ile:\sspecial.type → path/to/special-key |
       | ^<%= cb.sname %>$                                   |
       | Type:\ssecret                                       |
-      | Secret [Nn]ame:\s<%= cb.sname %>                    |
+      | [Secret\|Secret Name]:\s<%= cb.sname %>             |
 
   # @author yapei@redhat.com
   # @case_id 477635
@@ -431,7 +431,7 @@ Feature: check page info related
     Then the step should succeed
     And I wait for the steps to pass:
     """
-    When I get the html of the web page
+    When I get the visible text on web html page
     Then the output should not contain "z-xiaocwan"
     And the output should contain:
       | zzz-project                    |

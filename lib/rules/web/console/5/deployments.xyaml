@@ -279,6 +279,7 @@ goto_edit_autoscaler_page:
     op: click
 check_dc_loaded_completely:
   action: goto_one_dc_page
+  action: click_on_configuration_tab
   elements:
   - selector:
       text: Configuration
