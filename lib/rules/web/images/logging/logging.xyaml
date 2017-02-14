@@ -1,0 +1,8 @@
+---
+kibana_verify_app_text:
+  url: <kibana_url>
+  elements:
+  - selector:
+      xpath: //table[contains(., '<checktext>')]
+    timeout: <time_out>
+    visible: true

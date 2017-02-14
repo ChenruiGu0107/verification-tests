@@ -1,0 +1,25 @@
+---
+kibana_login:
+  url: <kibana_url>
+  elements:
+    - selector:
+        id: inputUsername
+      op: send_keys <username>
+      type: input
+    - selector:
+        id: inputPassword
+      op: send_keys <password>
+      type: input
+  scripts:
+  - command: return document.getElementsByName("csrf").length > 0
+    expect_result: true
+  cookies:
+  - name: csrf
+    expect_result: true
+  elements:
+    - selector:
+        text: Log In
+      op: click
+      type: button
+  action: verify_logged_in
+

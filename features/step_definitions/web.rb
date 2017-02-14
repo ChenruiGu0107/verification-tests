@@ -43,8 +43,13 @@ end
 # for example, http:// or https://, otherwise this will generate a URI error.
 Given /^I have a browser with:$/ do |table|
   init_params = opts_array_to_hash(table.raw)
+  if init_params[:rules].kind_of? Array
+    rules = init_params[:rules].map { |r| expand_path(r) }
+  else 
+    rules = [expand_path(init_params[:rules])]
+  end
   browser = Web4Cucumber.new(
-    rules: expand_path(init_params[:rules]),
+    rules: rules,
     base_url: init_params[:base_url]
   )
   cache_browser(browser)
