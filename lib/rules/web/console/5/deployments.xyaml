@@ -51,6 +51,7 @@ cancel_deployments:
     timeout: 60
 edit_replicas_on_deployment_page:
   action: goto_one_dc_page
+  action: click_on_configuration_tab
   elements:
   - selector:
       xpath: //a[@title='Edit']
