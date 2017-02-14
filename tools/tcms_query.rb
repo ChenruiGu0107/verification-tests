@@ -299,6 +299,7 @@ def update_script(options)
   example_table_tags= []
   arg_hash = {}
   tcms_arg_field = nil
+  polarion_arg_field = nil
   tags = []
 
   gparser = CucuShift::GherkinParse.new
@@ -363,6 +364,7 @@ def update_script(options)
         arg_hash = nil
       else
         tcms_arg_field = arg_hash.to_json
+        polarion_arg_field = arg_hash
       end
     end
   end
@@ -392,6 +394,12 @@ def update_script(options)
   else
     tcms.update_testcases(options.cases, {"script"=>tcms_script_field, "is_automated"=>1, "arguments"=>tcms_arg_field})
   end
+
+  print("\nPolarion Auxilliary Data:\n\n")
+  polarion_hash = {"cucushift" => {"file" => "#{ruby_script.split(":")[0]}", "scenario" => "#{ruby_script.split(":")[1]}", "args" => polarion_arg_field }}
+  # The line_width option removes the 80 char restriction imposed by the yaml gem
+  # without this option, to_yaml will split long lines into newlines after 80 chars
+  print(polarion_hash.to_yaml(options = {:line_width => -1}) + "\n")
 end
 
   # @testcases is an array of failed testcase in a TCMS hash format.  Use
