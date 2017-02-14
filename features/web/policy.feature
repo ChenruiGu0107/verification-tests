@@ -62,11 +62,11 @@ Feature:policy related features on web console
       | <%= project.name %> |
 
   # @author xiaocwan@redhat.com
-  # @case_id 478982
+  # @case_id OCP-10604
   @admin
   @destructive
   Scenario: Cluster-admin can completely disable access to request project.
-    Given I log the message> this scenario is only valid for oc 3.4
+    Given I log the message> this scenario is only valid for oc >= 3.4
     Given cluster roles are restored after scenario
     Given as admin I replace resource "clusterrole" named "basic-user":
       | projectrequests\n  verbs:\n  - list\n | projectrequests\n  verbs:\n |
@@ -80,7 +80,6 @@ Feature:policy related features on web console
     When I get the html of the web page
     Then the output should match:
       | cluster admin can create a project for you    |
-
     When I run the :login client command with:
       | server   | <%= env.api_endpoint_url %>        |
       | token    | <%= user.get_bearer_token.token %> |
@@ -90,11 +89,11 @@ Feature:policy related features on web console
     And the output should not contain:
       | oc new-project                                |
     And the output should match:
-      | [Yy]ou do not have access to create           |
+      | [Cc]ontact.*to request a project              |
     When I create a new project
     Then the step should fail
     And the output should match:
-      | [Ee]rror.*[Uu]ser.*cannot list.*projectrequests |
+      | [Ee]rror.*[Uu]ser.*ca(n'\|nno)t list.*projectrequests |
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-10544 
