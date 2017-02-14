@@ -267,7 +267,8 @@ class CucuFormatter
   end
 
   def build_step_text_line(step_line)
-    step_line = CGI.escapeHTML(step_line).lines.to_a.join('<br />')
+    # <br> not needed as we use `white-space: pre-wrap;` in css
+    step_line = CGI.escapeHTML(step_line).lines.to_a.join #('<br />')
     if step_line =~ /ERROR>/
       css_class = 'step_line_error'
     elsif step_line =~ /WARN>/
