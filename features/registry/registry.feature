@@ -32,3 +32,45 @@ Feature: Testing registry
     And the "ruby-ex-1" build was created
     Given the "ruby-ex-1" build completes
 
+  # @author haowang@redhat.com
+  # @case_id OCP-10015
+  @admin
+  @destructive
+  Scenario: Docker-registry with whitelist
+    Given I have a project
+    And I select a random node's host
+    Given the node service is verified
+    And the node service is restarted on the host after scenario
+    And I register clean-up steps:
+    """
+    And I run commands on the host:
+      | systemctl restart docker |
+    Then the step should succeed
+    """
+    And the "/etc/sysconfig/docker" file is restored on host after scenario
+    And I run commands on the host:
+      | sed -i '/^BLOCK_REGISTRY*/d' /etc/sysconfig/docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | sed -i '/^*ADD_REGISTRY/d' /etc/sysconfig/docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | echo "BLOCK_REGISTRY='--block-registry=all'" >> /etc/sysconfig/docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | systemctl restart docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker pull docker.io/library/centos:latest |
+    Then the step failed
+    And the output should contain:
+      | blocked |
+    And I run commands on the host:
+      | echo "ADD_REGISTRY='--add-registry docker.io'" >> /etc/sysconfig/docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | systemctl restart docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker pull docker.io/library/centos:latest |
+    Then the step should succeed
