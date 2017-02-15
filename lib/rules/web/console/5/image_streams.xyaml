@@ -17,7 +17,7 @@ check_is_tag_basic_page:
   - selector:
       xpath: //li//uib-tab-heading[text()='Details']
   - selector:
-      xpath: //li//uib-tab-heading[text()='Config']
+      xpath: //li//uib-tab-heading[text()='Configuration']
   - selector:
       xpath: //li//uib-tab-heading[text()='Layers']
 check_is_tag_details_tab:
@@ -48,7 +48,7 @@ check_is_tag_details_tab:
 check_is_tag_config_tab:
   elements:
   - selector:
-      xpath: //li//uib-tab-heading[text()='Config']
+      xpath: //li//uib-tab-heading[text()='Configuration']
     op: click
   - selector:
       xpath: //dt[contains(text(),'Command:')]/../dd/code[contains(text(),'<config_cmd>')]
@@ -97,7 +97,7 @@ check_one_image_stream:
   - selector:
       xpath: //table/tbody//td[@data-title='Latest Image']//span//code
   - selector:
-      xpath: //table/tbody//td[@data-title='Created']//span[contains(@class,'timestamp')]
+      xpath: //table/tbody//td[@data-title='Created']
   - selector:
       xpath: //table/tbody//td[@data-title='Pull Spec']//div[contains(text(),'<image_name>')]
 check_deleted_image_stream:

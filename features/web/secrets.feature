@@ -71,8 +71,9 @@ Feature: web secrets related
     And the expression should be true> !([{"name"=>"dockerhub1"}] - @result[:parsed]["imagePullSecrets"]).empty?
 
   # @author xxing@redhat.com
-  # @case_id 536666
+  # @case_id OCP-11997
   Scenario: Add secrets to source strategy BC for source repo and image repo
+    Given the master version >= "3.4"
     Given I have a project
     When I run the :oc_secrets_new_dockercfg client command with:
       | secret_name     | dockerhub1            |
@@ -96,7 +97,7 @@ Feature: web secrets related
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
-    When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
+    When I perform the :click_to_goto_edit_bc_page web console action with:
       | project_name | <%= project.name %> |
       | bc_name      | ruby-sample-build   |
     Then the step should succeed
@@ -158,7 +159,7 @@ Feature: web secrets related
     Then the step should succeed
     And the expression should be true> @result[:parsed]["secrets"].include?({"name"=>"gitsecret"})
     And the expression should be true> @result[:parsed]["imagePullSecrets"].include?({"name"=>"dockerhub2"})
-    When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
+    When I perform the :click_to_goto_edit_bc_page web console action with:
       | project_name | <%= project.name %> |
       | bc_name      | ruby-sample-build   |
     Then the step should succeed
