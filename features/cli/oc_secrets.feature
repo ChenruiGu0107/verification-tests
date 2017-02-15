@@ -338,8 +338,8 @@ Feature: oc_secrets.feature
     | serviceaccount | default   |
     | secrets_name   | test-test |
     Then the step should fail
-    And the output should contain:
-    |secrets "test-test" not found|
+    And the output should match:
+    | .*"test-test" not found|
  
     When I run the :secrets client command with:
     | action         | unlink      |

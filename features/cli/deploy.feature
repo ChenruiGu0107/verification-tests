@@ -1707,7 +1707,7 @@ Feature: deployment related features
     Then the step should succeed
     And 20 seconds have passed
     And the expression should be true> dc('minreadytest').unavailable_replicas(user: user) == 2
-    And 40 seconds have passed
+    And 60 seconds have passed
     And the expression should be true> dc('minreadytest').available_replicas(user: user) == 2
 
   # @author mcurlej@redhat.com

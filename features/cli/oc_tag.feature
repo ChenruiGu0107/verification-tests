@@ -250,10 +250,10 @@ Feature: oc tag related scenarios
       | resource_name | ruby:fail |
       | output        | yaml      |
     Then the step should fail
-    And the output should contain:
-      | Error from server: |
-      | ruby:fail          |
-      | not found          |
+    And the output should match:
+      | Error from server |
+      | ruby:fail         |
+      | not found         |
 
   # @author pruan@redhat.com
   # @case_id 533103

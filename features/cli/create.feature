@@ -168,7 +168,7 @@ Feature: creating 'apps' with CLI
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/image-streams/image-streams-centos7.json |
       | n | noproject |
     Then the step should fail
-    Then the output should contain "Error from server: User "<%=@user.name%>" cannot create imagestreams in project "noproject""
+    Then the output should contain "User "<%=@user.name%>" cannot create imagestreams in project "noproject""
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
       | n | noproject |
