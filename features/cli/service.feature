@@ -161,3 +161,92 @@ Feature: service related scenarios
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift-1 https-8443 |
+
+  # @author: chezhang@redhat.com
+  # @case_id: OCP-12351
+  Scenario: ExternalName service type can be created successful
+    Given I have a project
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | sh |
+      | -c |
+      | ping -c 1 www.baidu.com 2>/dev/null \| head -1 \| cut -d \( -f2 \| cut -d \) -f1 |
+    Then the step should succeed
+    Given evaluation of `@result[:response].strip` is stored in the :address clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/ExternalSvc.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the output should contain "No resources found"
+    When I run the :get client command with:
+      | resource | svc |
+    Then the step should succeed
+    And the output should match "my-svc.*www.baidu.com"
+    When I run the :describe client command with:
+      | resource | svc    |
+      | name     | my-svc |
+    Then the output should match:
+      | Name:\\s+my-svc                 |
+      | Selector:\\s+<none>             |
+      | Type:\\s+ExternalName           |
+      | External Name:\\s+www.baidu.com |
+    When I run the :get client command with:
+      | resource | svc  |
+      | o        | yaml |
+    Then the output by order should match:
+      | name: my-svc                |
+      | externalName: www.baidu.com |
+      | ports: null                 |
+      | type: ExternalName          |
+    When I execute on the pod:
+      | sh |
+      | -c |
+      | nslookup my-svc.<%= project.name %> \| tail -1 \| cut -d ' ' -f3 |
+    Then the step should succeed
+    And the output should match "<%= cb.address %>"
+
+  # @author: chezhang@redhat.com
+  # @case_id: OCP-12376
+  Scenario: Negative test for ExternalName Service type		
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/ExternalSvc-with-IP.yaml |
+    Then the step should fail
+    And the output should match " spec.clusterIP: Invalid value.*must be empty for ExternalName services"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/ExternalSvc-with-port.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/ExternalSvc-cannot-resolve.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the output should contain "No resources found"
+    When I run the :get client command with:
+      | resource | svc |
+    Then the step should succeed
+    And the output should match "my-svc-invalid.*abc123.abc123.com.*s"
+    When I run the :describe client command with:
+      | resource | svc            |
+      | name     | my-svc-invalid |
+    Then the output should match:
+      | Name:\\s+my-svc-invalid         |
+      | Selector:\\s+<none>             |
+      | Type:\\s+ExternalName           |
+      | External Name:\\s+abc123.abc123.com |
+    When I run the :get client command with:
+      | resource | svc  |
+      | o        | yaml |
+    Then the output by order should match:
+      | name: my-svc-invalid            |
+      | externalName: abc123.abc123.com |
+      | ports: null                     |
+      | type: ExternalName              |
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | sh |
+      | -c |
+      | nslookup my-svc-invalid.<%= project.name %> \| tail -1 |
+    Then the step should succeed
+    And the output should match "nslookup: can't resolve 'my-svc-invalid.<%= project.name %>'"
