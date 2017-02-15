@@ -62,17 +62,3 @@ Given /^the master version ([<>=]=?) #{QUOTED}$/ do |op, ver|
   end
 end
 
-Given /^the env is using multitenant network$/ do
-  ensure_admin_tagged
-
-  _host = node.host rescue nil
-  unless _host
-    step "I store the schedulable nodes in the clipboard"
-    _host = node.host
-  end
-
-  @result = _host.exec('ovs-ofctl dump-flows br0 -O openflow13 || docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13')
-  unless @result[:success] && @result[:response] =~ /table=253.*actions=note:01/
-    raise "The env is not using multitenant network."
-  end
-end
