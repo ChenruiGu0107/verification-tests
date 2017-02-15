@@ -416,16 +416,13 @@ Feature: NFS Persistent Volume
       | app=mysql-persistent |
     And I ensure "nfs-server" pod is deleted
     And I ensure "nfs-service" service is deleted
-    When I run the :delete client command with:
-      | object_type | pod,services,dc      |
-      | l           | app=mysql-persistent |
-    Then the step should succeed
-    Given all existing pods die with labels:
-      | app=mysql-persistent |
+    And I ensure "mysql" dc is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" status becomes :running
+    Given all existing pods die with labels:
+      | app=mysql-persistent |
 
   # @author chaoyang@redhat.com
   # @case_id 533542 534964
