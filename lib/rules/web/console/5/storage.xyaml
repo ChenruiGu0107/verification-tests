@@ -48,7 +48,7 @@ create_pvc_with_invalid_name_and_check:
   action: open_create_pvc_page
   action: set_pvc_name
   action: set_storage_size
-  action: check_error_info_for_invalid_name
+  action: check_error_for_invalid_value
 create_pvc_with_invalid_value_and_check:
   action: goto_storage_page
   action: open_create_pvc_page
@@ -60,11 +60,6 @@ check_prompt_info_for_pvc:
   elements:
   - selector:
       xpath: //span[contains(text(),'<prompt_info>')]
-check_error_info_for_invalid_name:
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'may only contain lower-case letters, numbers, and dashes')]
-    visible: true
 check_pvc_set_info:
   elements:
   - selector:
@@ -91,7 +86,7 @@ set_pvc_access_mode:
 set_storage_size:
   elements:
   - selector:
-      xpath: //input[@name='amount']
+      xpath: //input[@id='claim-amount']
     op: send_keys <storage_size>
 set_storage_unit:
   elements:
