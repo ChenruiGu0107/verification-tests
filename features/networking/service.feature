@@ -1,6 +1,6 @@
 Feature: Service related networking scenarios
   # @author bmeng@redhat.com
-  # @case_id 508796
+  # @case_id OCP-12540
   Scenario: Linking external services to OpenShift multitenant
     Given I have a project
     When I run the :create client command with:
@@ -21,7 +21,7 @@ Feature: Service related networking scenarios
     Then the output should contain "www.youdao.com"
 
   # @author bmeng@redhat.com
-  # @case_id 508149
+  # @case_id OCP-9644
   Scenario: The packets should be dropped when accessing the service which points to a pod in another project
     ## Create pod in project1 and copy the pod ip
     Given I have a project
@@ -55,7 +55,7 @@ Feature: Service related networking scenarios
     And the output should not contain "Hello OpenShift!"
 
   # @author bmeng@redhat.com
-  # @case_id 508150
+  # @case_id OCP-9645
   Scenario: The packets should be dropped when accessing the service which points to a service in another project
     ## Create pod and service in project1 and copy the service ip
     Given I have a project
@@ -90,7 +90,7 @@ Feature: Service related networking scenarios
     And the output should not contain "Hello OpenShift!"
 
   # @author zzhao@redhat.com
-  # @case_id 517641
+  # @case_id OCP-10770
   Scenario: Be able to access the service via the nodeport
     Given I have a project
     And evaluation of `rand(30000..32767)` is stored in the :port clipboard
@@ -116,7 +116,7 @@ Feature: Service related networking scenarios
     """
 
   # @author yadu@redhat.com
-  # @case_id 499521 498206
+  # @case_id OCP-9604 498206
   Scenario: tenants can access their own services
     # create pod and service in project1
     Given I have a project
@@ -153,7 +153,7 @@ Feature: Service related networking scenarios
       | Hello OpenShift |
 
   # @author bmeng@redhat.com
-  # @case_id 533666
+  # @case_id OCP-11341
   @admin    
   Scenario: Do not allow user to create endpoints which point to the clusternetworkCIDR or servicenetworkCIDR
     Given I have a project
@@ -179,7 +179,7 @@ Feature: Service related networking scenarios
     And the output should match "endpoint address .* is not allowed"
 
   # @author bmeng@redhat.com
-  # @case_id 533665
+  # @case_id OCP-10936
   @admin
   Scenario: Be able to create endpoints which point to the cluster network after given the permission by cluster admin
     Given I switch to cluster admin pseudo user

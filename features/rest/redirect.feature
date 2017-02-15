@@ -1,7 +1,7 @@
 Feature: REST features
 
   # @author akostadi@redhat.com
-  # @case_id 472567
+  # @case_id OCP-11448
   Scenario: [origin_platformexp_373] The response for root path should depend on the Accept http header
     When I perform the HTTP request:
     """
@@ -34,7 +34,7 @@ Feature: REST features
     And the expression should be true> JSON.load(@result[:response])["paths"]
 
   # @author xiaocwan@redhat.com
-  # @case_id 476029
+  # @case_id OCP-10590
   Scenario: [origin_platformexp_397] The basic challenge will be shown when user pass the X-CSRF-TOKEN http header
     Given I log the message> set up OpenShift with an identity provider that supports 'challenge: true'
     When I perform the HTTP request:

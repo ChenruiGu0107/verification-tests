@@ -1,7 +1,7 @@
 Feature: check page info related
 
   # @author xxing@redhat.com
-  # @case_id 499945
+  # @case_id OCP-10670
   Scenario: Help info on project page
     Given I login via web console
     When I get the html of the web page
@@ -18,7 +18,7 @@ Feature: check page info related
       | Choose from web frameworks, databases, and other components |
 
   # @author xxing@redhat.com
-  # @case_id 479237
+  # @case_id OCP-10613
   Scenario: Check project annotation info on web console
     When I create a project via web with:
       | display_name | Test |
@@ -40,14 +40,14 @@ Feature: check page info related
       | <div.+Test |
 
   # @author cryan@redhat.com
-  # @case_id 467928
+  # @case_id OCP-11879
   Scenario: Check the login url in config.js
     When I download a file from "<%= env.api_endpoint_url %>/console/config.js"
     Then the step should succeed
     And the output should match "oauth_authorize_uri:\s+"https?:\/\/.+""
 
   # @author wsun@redhat.com
-  # @case_id 479002
+  # @case_id OCP-10605
   Scenario: Check Events page
     Given I login via web console
     Given I have a project
@@ -71,7 +71,7 @@ Feature: check page info related
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 457796
+  # @case_id OCP-12625
   Scenario: Check home page to list user projects
     Given I login via web console
     When I get the html of the web page
@@ -90,7 +90,7 @@ Feature: check page info related
       | <%= cb.prj_name %> |
 
   # @author yanpzhan@redhat.com
-  # @case_id 515689
+  # @case_id OCP-11219
   Scenario: Check storage page on web console
     When I create a new project via web
     Then the step should succeed
@@ -118,7 +118,7 @@ Feature: check page info related
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 521541
+  # @case_id OCP-9907
   Scenario: Check volumes info on pod page
     Given I have a project
     When I run the :create client command with:
@@ -176,7 +176,7 @@ Feature: check page info related
       | [Secret\|Secret Name]:\s<%= cb.sname %>             |
 
   # @author yapei@redhat.com
-  # @case_id 477635
+  # @case_id OCP-10601
   Scenario: Check Overview details for project
     Given I create a new project
     When I perform the :create_app_from_image web console action with:
@@ -281,7 +281,7 @@ Feature: check page info related
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 533677
+  # @case_id OCP-10938
   Scenario: Check ImageStream tag page on web console
     Given I have a project
     When I run the :create client command with:
@@ -351,7 +351,7 @@ Feature: check page info related
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
-  # @case_id 538299
+  # @case_id OCP-11012
   Scenario: Improve Project list/selection page - check and search project 
     Given the master version >= "3.4"
     When I run the :new_project client command with:
@@ -475,7 +475,7 @@ Feature: check page info related
     """
 
   # @author xiaocwan@redhat.com
-  # @case_id 544856
+  # @case_id OCP-10541
   Scenario: Improve Project list/selection page - show creater and edit membership 
     Given the master version >= "3.4"
     Given I have a project

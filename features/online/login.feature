@@ -1,7 +1,7 @@
 Feature: ONLY ONLINE Login related scripts in this file
 
   # @author etrott@redhat.com
-  # @case_id 534613
+  # @case_id OCP-12170
   Scenario: The page should redirect to login page when access session protected pages after failed log in
     Given I have a project
     When I perform the :login_token web console action with:

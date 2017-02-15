@@ -1,6 +1,6 @@
 Feature: functions about resource limits on pod
   # @author yanpzhan@redhat.com
-  # @case_id 517565
+  # @case_id OCP-11225
   Scenario: Pod template should contain cpu/memory limits when resources are set on pod
 
     Given I have a project
@@ -40,7 +40,7 @@ Feature: functions about resource limits on pod
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 518638
+  # @case_id OCP-10773
   @admin
   Scenario: Specify resource constraints for standalone rc and dc in web console with project limits already set
     Given I create a new project
@@ -169,7 +169,7 @@ Feature: functions about resource limits on pod
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 518640
+  # @case_id OCP-11554
   Scenario: Specify resource constraints when creating new app in web console with project limits not set
     When I create a new project via web
     Then the step should succeed
@@ -217,7 +217,7 @@ Feature: functions about resource limits on pod
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 518639
+  # @case_id OCP-11229
   @admin
   Scenario: Specify resource constraints when creating new app in web console with project limits already set
     Given I have a project

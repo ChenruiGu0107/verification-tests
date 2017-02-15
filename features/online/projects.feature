@@ -1,7 +1,7 @@
 Feature: ONLY ONLINE Projects related feature's scripts in this file
 
   # @author etrott@redhat.com
-  # @case_id 534615
+  # @case_id OCP-12550
   Scenario: User should be able to switch projects via CLI
     Given I create a new project
     Then I switch to the second user
@@ -29,7 +29,7 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
       | * <%= project(1).name %>                                |
 
   # @author etrott@redhat.com
-  # @case_id 534614
+  # @case_id OCP-12547
   Scenario: Should use and show the existing projects after the user login
     Given I create a new project
     When I run the :login client command with:

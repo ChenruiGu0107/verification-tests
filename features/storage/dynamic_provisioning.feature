@@ -1,6 +1,6 @@
 Feature: Dynamic provisioning
   # @author lxia@redhat.com
-  # @case_id 510362 508987 510359
+  # @case_id OCP-12665 OCP-9656 OCP-9685
   @admin
   Scenario Outline: dynamic provisioning
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
@@ -127,7 +127,7 @@ Feature: Dynamic provisioning
       | gce            |
 
   # @author lxia@redhat.com
-  # @case_id 528853
+  # @case_id OCP-12667
   @admin
   Scenario: dynamic provisioning with multiple access modes
     Given I have a project
@@ -175,7 +175,7 @@ Feature: Dynamic provisioning
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 1200 seconds
 
   # @author lxia@redhat.com
-  # @case_id 519501
+  # @case_id OCP-10790
   @admin
   Scenario: Check only one pv created for one pvc for dynamic provisioner
     Given I have a project
@@ -192,7 +192,7 @@ Feature: Dynamic provisioning
       | <%= project.name %> |
 
   # @author wehe@redhat.com
-  # @case_id 532273 532275 532276
+  # @case_id OCP-10137 OCP-10138 OCP-10139
   @admin
   Scenario Outline: dynamic pvc shows lost after pv is deleted
     Given I have a project
@@ -248,7 +248,7 @@ Feature: Dynamic provisioning
       | gce            |
 
   # @author jhou@redhat.com
-  # @case_id 536025 536026 536027
+  # @case_id OCP-10360 OCP-10361 OCP-10362
   @admin
   @destructive
   Scenario Outline: No volume and PV provisioned when provisioner is disabled

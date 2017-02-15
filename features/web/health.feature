@@ -1,6 +1,6 @@
 Feature: Health related feature on web console
   # @author: xxia@redhat.com
-  # @case_id: 522098
+  # @case_id: OCP-12423
   Scenario Outline: Check, set and remove readiness and liveness probe for dc and standalone rc in web
     # One case, 2 scenarios: dc and standalone rc
     Given I have a project

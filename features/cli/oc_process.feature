@@ -1,7 +1,7 @@
 Feature: oc_process.feature
 
   # @author haowang@redhat.com
-  # @case_id 439003 439004
+  # @case_id OCP-12334 OCP-12353
   Scenario Outline: Should give a error message while generator is nonexistent or the value is invalid
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sample-php-rhel7.json"
@@ -17,7 +17,7 @@ Feature: oc_process.feature
       | A-Z          | A-Z0-z       | invalid range specified |
 
   # @author haowang@redhat.com
-  # @case_id 474030
+  # @case_id OCP-11087
   Scenario: "oc process" handles invalid json file
     Given I have a project
     Then I run the :process client command with:
@@ -35,7 +35,7 @@ Feature: oc_process.feature
       | nvalid character |
 
   # @author cryan@redhat.com
-  # @case_id 534516
+  # @case_id OCP-10222
   # @bug_id 1253736
   Scenario: oc process can handle different namespace's template
     Given I have a project
@@ -62,7 +62,7 @@ Feature: oc_process.feature
     And the output should contain "invalid resource"
 
   # @author cryan@redhat.com
-  # @case_id 534958
+  # @case_id OCP-10276
   # @bug_id 1375275
   Scenario: Deal with multiple equal signs or commas in parameter with oc process or oc new-app
     Given I have a project

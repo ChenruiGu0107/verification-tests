@@ -1,7 +1,7 @@
 Feature: scale related features
 
   # @author yanpzhan@redhat.com
-  # @case_id 510220
+  # @case_id OCP-11196
   Scenario: Could scale up and down on overview page
     When I create a new project via web
     Then the step should succeed

@@ -1,6 +1,6 @@
 Feature: pod related features
   # @author pruan@redhat.com
-  # @case_id 470710
+  # @case_id OCP-12432
   @admin
   Scenario: Expose shared memory of the pod--Clustered
     Given I have a project
@@ -40,7 +40,7 @@ Feature: pod related features
     Then the expression should be true> cb.system_net == cb.user_net
 
   # @author pruan@redhat.com
-  # @case_id 489257
+  # @case_id OCP-10639
   @admin
   Scenario: Expose shared memory of the pod via POSIX IPC sharing
     Given I have a project
@@ -76,7 +76,7 @@ Feature: pod related features
     """
 
   # @author pruan@redhat.com
-  # @case_id 521573
+  # @case_id OCP-11262
   @admin
   Scenario: Create pod with podspec.containers[].securityContext.ReadOnlyRootFileSystem = nil|false|true should succeed with scc.ReadOnlyRootFilesystem=false
     Given I have a project
@@ -105,7 +105,7 @@ Feature: pod related features
       | "ReadonlyRootfs":\s+true |
 
   # @author pruan@redhat.com
-  # @case_id 521572
+  # @case_id OCP-10816
   @admin
   @destructive
   Scenario: Create pod with podspec.containers[].securityContext.ReadOnlyRootFileSystem = nil|false should fail with scc.ReadOnlyRootFilesystem=true
@@ -133,7 +133,7 @@ Feature: pod related features
       | "ReadonlyRootfs":\s+true |
 
   # @author yinzhou@redhat.com
-  # @case_id 538209
+  # @case_id OCP-11395
   @admin
   Scenario: PDB take effective with absolute number
     Given I have a project
@@ -217,7 +217,7 @@ Feature: pod related features
     And the output should contain "429"
 
   # @author yinzhou@redhat.com
-  # @case_id 538210
+  # @case_id OCP-11664
   @admin
   Scenario: PDB take effective with percentage number
     Given I have a project

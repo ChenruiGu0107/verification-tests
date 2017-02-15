@@ -1,6 +1,6 @@
 Feature: oc run related scenarios
   # @author pruan@redhat.com
-  # @case_id 499995
+  # @case_id OCP-11163
   Scenario: Negative test for oc run
     Given I have a project
     And I run the :exec_raw_oc_cmd_for_neg_tests client command with:
@@ -37,7 +37,7 @@ Feature: oc run related scenarios
       | error: NAME is required for run |
 
   # @author xxia@redhat.com
-  # @case_id 499994
+  # @case_id OCP-10673
   Scenario: Create container with oc run command
     Given I have a project
     When I run the :run client command with:
@@ -88,7 +88,7 @@ Feature: oc run related scenarios
       | [Ww]aiting for pod .*webapp4 to be running       |
 
   # @author pruan@redhat.com
-  # @case_id 510405
+  # @case_id OCP-11199
   Scenario: oc run can create dc, standalone rc, standalone pod
     Given I have a project
     When I run the :run client command with:
@@ -151,7 +151,7 @@ Feature: oc run related scenarios
       | myrun-pod |
 
   # @author yadu@redhat.com
-  # @case_id 510408
+  # @case_id OCP-11930
   Scenario: oc run has different default creation types when using different 'restart' option
     Given I have a project
     When I run the :run client command with:
@@ -212,7 +212,7 @@ Feature: oc run related scenarios
       | test-m |
 
   # @author yadu@redhat.com
-  # @case_id 510407
+  # @case_id OCP-11759
   Scenario: oc run can set various fields in the pod container
     Given I have a project
     When I run the :run client command with:
@@ -286,7 +286,7 @@ Feature: oc run related scenarios
       | "replicas": 3 |
 
   # @author cryan@redhat.com
-  # @case_id 508037
+  # @case_id OCP-11174
   Scenario: Run container via cli with invalid format specifying cpu/memory request/limit
     Given I have a project
     When I run the :run client command with:

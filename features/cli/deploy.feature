@@ -1,7 +1,7 @@
 Feature: deployment related features
 
   # @author: xxing@redhat.com
-  # @case_id: 483193
+  # @case_id: OCP-12543
   Scenario: Restart a failed deployment by oc deploy
     Given I have a project
     When I run the :create client command with:
@@ -27,7 +27,7 @@ Feature: deployment related features
     Then the output should match "hooks.*#1.*deployed"
 
   # @author: xxing@redhat.com
-  # @case_id: 457713
+  # @case_id: OCP-11072
   Scenario: CLI rollback dry run
     Given I have a project
     When I run the :create client command with:
@@ -56,7 +56,7 @@ Feature: deployment related features
       | Replicas:\\s+1        |
 
   # @author: xxing@redhat.com
-  # @case_id: 489262
+  # @case_id: OCP-12034
   Scenario: Can't stop a deployment in Complete status
     Given I have a project
     When I run the :new_app client command with:
@@ -98,7 +98,7 @@ Feature: deployment related features
       | deployment-example-1-deploy |
 
   # @author xxing@redhat.com
-  # @case_id 454714
+  # @case_id OCP-12623
   Scenario: Negative test for rollback
     Given I have a project
     When I run the :rollback client command with:
@@ -130,7 +130,7 @@ Feature: deployment related features
       | error: non-exist |
 
   # @author xxing@redhat.com
-  # @case_id 491013
+  # @case_id OCP-10643
   Scenario: Manually make deployment
     Given I have a project
     When I run the :create client command with:
@@ -171,7 +171,7 @@ Feature: deployment related features
       | type: Rolling |
 
   # @author xxing@redhat.com
-  # @case_id 457715
+  # @case_id OCP-11695
   Scenario: CLI rollback output to file
     Given I have a project
     When I run the :create client command with:
@@ -202,7 +202,7 @@ Feature: deployment related features
       | type:\\s+ConfigChange |
 
   # @author xxing@redhat.com
-  # @case_id 457712 457717 457718
+  # @case_id OCP-12624 OCP-12018 OCP-12116
   Scenario Outline: CLI rollback two more components of deploymentconfig
     Given I have a project
     When I run the :create client command with:
@@ -253,7 +253,7 @@ Feature: deployment related features
       |                         |                 | "replicas": 1 | "type": "Recreate" |
 
   # @author xxing@redhat.com
-  # @case_id 457716
+  # @case_id OCP-11877
   Scenario: CLI rollback with one component
     Given I have a project
     When I run the :create client command with:
@@ -302,7 +302,7 @@ Feature: deployment related features
       | Enabled image triggers |
 
   # @author pruan@redhat.com
-  # @case_id 483192
+  # @case_id OCP-12536
   Scenario: oc deploy negative test
     Given I have a project
     When I run the :create client command with:
@@ -331,7 +331,7 @@ Feature: deployment related features
     Then the expression should be true> @result[:parsed]['status']['latestVersion'] == 2
 
   # @author pruan@redhat.com
-  # @case_id 483173
+  # @case_id OCP-12402
   Scenario: Negative test for deployment history
     Given I have a project
     When I run the :describe client command with:
@@ -405,7 +405,7 @@ Feature: deployment related features
       | deploymentconfig=hooks |
 
   # @author pruan@redhat.com
-  # @case_id 489263
+  # @case_id OCP-12133
   Scenario: Can't stop a deployment in Failed status
     Given I have a project
     When I run the :create client command with:
@@ -443,7 +443,7 @@ Feature: deployment related features
       | test-stop-failed-deployment.*#1.*cancelled |
 
   # @author pruan@redhat.com
-  # @case_id 484482
+  # @case_id OCP-10633
   Scenario: Deployment is automatically stopped when running time is more than ActiveDeadlineSeconds
     Given I have a project
     When I run the :create client command with:
@@ -465,7 +465,7 @@ Feature: deployment related features
 
 
   # @author pruan@redhat.com
-  # @case_id 489264
+  # @case_id OCP-12196
   Scenario: Stop a "Pending" deployment
     Given I have a project
     When I run the :create client command with:
@@ -492,7 +492,7 @@ Feature: deployment related features
     And I wait until the status of deployment "hooks" becomes :complete
 
   # @author pruan@redhat.com
-  # @case_id 489265
+  # @case_id OCP-12246
   Scenario: Stop a "Running" deployment
     Given I have a project
     When I run the :create client command with:
@@ -558,7 +558,7 @@ Feature: deployment related features
     Then the output should match "2"
 
   # @author pruan@redhat.com
-  # @case_id 487643
+  # @case_id OCP-10635
   Scenario: Deployment will be failed if deployer pod no longer exists
     Given I have a project
     When I run the :create client command with:
@@ -608,7 +608,7 @@ Feature: deployment related features
       | Status:		Failed        |
 
   # @author cryan@redhat.com
-  # @case_id 497366
+  # @case_id OCP-10648
   Scenario: Roll back via CLI
     Given I have a project
     When I run the :create client command with:
@@ -660,7 +660,7 @@ Feature: deployment related features
     And the output should contain "rolled back to hooks-4"
 
   # @author pruan@redhat.com
-  # @case_id 483190
+  # @case_id OCP-12528
   Scenario: Make multiple deployment by oc deploy
     Given I have a project
     And I run the :create client command with:
@@ -691,7 +691,7 @@ Feature: deployment related features
     # This deviate form the testplan a little in that we are not doing more than one deploy, which should be sufficient since we are checking two deployments already (while the testcase called for 5)
 
   # @author cryan@redhat.com
-  # @case_id 489296
+  # @case_id OCP-11131
   @admin
   Scenario: Check the default option value for command oadm prune deployments
     Given I have a project
@@ -777,7 +777,7 @@ Feature: deployment related features
       |<%= project.name %>\\s+database-\\d+|
 
   # @author xiaocwan@redhat.com
-  # @case_id 510221
+  # @case_id OCP-10717
   Scenario: View the logs of the latest deployment
     # check deploy log when deploying
     Given I have a project
@@ -821,7 +821,7 @@ Feature: deployment related features
       | [Dd]eploymentconfigs.*not found |
 
   # @author yinzhou@redhat.com
-  # @case_id 497540
+  # @case_id OCP-9563
   Scenario: A/B Deployment
     Given I have a project
     When I run the :new_app client command with:
@@ -867,7 +867,7 @@ Feature: deployment related features
     And the output should contain "shardA"
 
   # @author yinzhou@redhat.com
-  # @case_id 497543
+  # @case_id OCP-9566
   Scenario: Blue-Green Deployment
     Given I have a project
     When I run the :new_app client command with:
@@ -899,7 +899,7 @@ Feature: deployment related features
     """
 
   # @author pruan@redhat.com
-  # @case_id 483191
+  # @case_id OCP-12532
   Scenario: Manually start deployment by oc deploy
     Given I have a project
     When I run the :create client command with:
@@ -918,7 +918,7 @@ Feature: deployment related features
       | hooks.*onfig |
 
   # @author yinzhou@redhat.com
-  # @case_id 483179,510608
+  # @case_id OCP-12468,510608
   Scenario: Pre and post deployment hooks
     Given I have a project
     When I run the :create client command with:
@@ -938,7 +938,7 @@ Feature: deployment related features
       | name:\\s+dataem               |
 
   # @author pruan@redhat.com
-  # @case_id 483177, 483178
+  # @case_id OCP-12452, OCP-12460
   Scenario Outline: Failure handler of pre-post deployment hook
     Given I have a project
     When I run the :create client command with:
@@ -957,7 +957,7 @@ Feature: deployment related features
       | post.json | hooks-1-hook-post |
 
   # @author cryan@redhat.com
-  # @case_id 515805
+  # @case_id OCP-9768
   Scenario: Could edit the deployer pod during deployment
     Given I have a project
     When I run the :create client command with:
@@ -972,7 +972,7 @@ Feature: deployment related features
     Then the output should contain "DeadlineExceeded"
 
   # @author yinzhou@redhat.com
-  # @case_id 510606
+  # @case_id OCP-10724
   Scenario: deployment hook volume inheritance that volume name was null
     Given I have a project
     When I run the :create client command with:
@@ -982,7 +982,7 @@ Feature: deployment related features
 
 
   # @author yinzhou@redhat.com
-  # @case_id 510607
+  # @case_id OCP-11203
   Scenario: deployment hook volume inheritance -- that volume names which are not found
     Given I have a project
     When I run the :create client command with:
@@ -997,7 +997,7 @@ Feature: deployment related features
     """
 
   # @author yadu@redhat.com
-  # @case_id 497544
+  # @case_id OCP-9567
   Scenario: Recreate deployment strategy
     Given I have a project
     When I run the :create client command with:
@@ -1019,7 +1019,7 @@ Feature: deployment related features
       | v2 |
 
   # @author pruan@redhat.com
-  # @case_id 515920
+  # @case_id OCP-11939
   Scenario: start deployment when the latest deployment is completed
     Given I have a project
     And I run the :create client command with:
@@ -1034,7 +1034,7 @@ Feature: deployment related features
     Then the expression should be true> @result[:parsed]['items'][0]['status']['replicas'] == 3
 
   # @author pruan@redhat.com
-  # @case_id 515921
+  # @case_id OCP-12056
   Scenario: Manual scale dc will update the deploymentconfig's replicas
     Given I have a project
     And I run the :create client command with:
@@ -1062,7 +1062,7 @@ Feature: deployment related features
 
 
   # @author pruan@redhat.com
-  # @case_id 510686
+  # @case_id OCP-10728
   Scenario: Inline deployer hook logs
     Given I have a project
     And I run the :create client command with:
@@ -1079,7 +1079,7 @@ Feature: deployment related features
       | post: Success                        |
 
   # @author yinzhou@redhat.com
-  # @case_id 433309
+  # @case_id OCP-11070
   Scenario: Trigger info is retained for deployment caused by image changes
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -1095,7 +1095,7 @@ Feature: deployment related features
       | type: ImageChange |
 
   # @author yinzhou@redhat.com
-  # @case_id 433308
+  # @case_id OCP-12622
   Scenario: Trigger info is retained for deployment caused by config changes
     Given I have a project
     When I run the :new_app client command with:
@@ -1113,7 +1113,7 @@ Feature: deployment related features
       | - type: ConfigChange              |
 
   # @author yinzhou@redhat.com
-  # @case_id 515919
+  # @case_id OCP-11769
   Scenario: Start new deployment when deployment running
     Given I have a project
     And I run the :create client command with:
@@ -1130,7 +1130,7 @@ Feature: deployment related features
     And the output should match ".*newer.*running"
 
   # @author yinzhou@redhat.com
-  # @case_id 518647
+  # @case_id OCP-9829
   Scenario: Check the deployments in a completed state on test deployment configs
     Given I have a project
     And I run the :create client command with:
@@ -1149,7 +1149,7 @@ Feature: deployment related features
       | replicas: 0     |
 
   # @author yinzhou@redhat.com
-  # @case_id 518648
+  # @case_id OCP-9830
   Scenario: Check the deployments in a failed state on test deployment configs
     Given I have a project
     And I run the :create client command with:
@@ -1174,7 +1174,7 @@ Feature: deployment related features
       | replicas: 0   |
 
   # @author pruan@redhat.com
-  # @case_id 518650
+  # @case_id OCP-9831
   Scenario: Scale the deployments will failed on test deployment config
     Given I have a project
     And I run the :create client command with:
@@ -1190,7 +1190,7 @@ Feature: deployment related features
     And I wait until number of replicas match "0" for replicationController "hooks"
 
   # @author yinzhou@redhat.com
-  # @case_id 515919
+  # @case_id OCP-11769
   Scenario: Start new deployment when deployment running
     Given I have a project
     When I run the :create client command with:
@@ -1208,7 +1208,7 @@ Feature: deployment related features
     """
 
   # @author cryan@redhat.com
-  # @case_id 515922
+  # @case_id OCP-12151
   Scenario: When the latest deployment failed auto rollback to the active deployment
     Given I have a project
     When I run the :create client command with:
@@ -1257,7 +1257,7 @@ Feature: deployment related features
       | hooks-1          |
 
   # @author yinzhou@redhat.com
-  # @case_id 481677
+  # @case_id OCP-10617
   @admin
   Scenario: DeploymentConfig should allow valid value of resource requirements
     Given I have a project
@@ -1290,7 +1290,7 @@ Feature: deployment related features
     """
 
   # @author yinzhou@redhat.com
-  # @case_id 527512
+  # @case_id OCP-10850
   Scenario: Automatic set to false with ConfigChangeController on the DeploymentConfig
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -1318,7 +1318,7 @@ Feature: deployment related features
     And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
 
   # @author yinzhou@redhat.com
-  # @case_id 527514
+  # @case_id OCP-11586
   Scenario: Automatic set to true with ConfigChangeController on the DeploymentConfig
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -1343,7 +1343,7 @@ Feature: deployment related features
     And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
 
   # @author yinzhou@redhat.com
-  # @case_id 487928
+  # @case_id OCP-11489
   Scenario: app deploy successfully with correct registry credentials
     Given I have a project
     When I run the :new_app client command with:
@@ -1377,7 +1377,7 @@ Feature: deployment related features
     And the output should contain "Demo App!"
 
   # @author yinzhou@redhat.com
-  # @case_id 527515
+  # @case_id OCP-11790
   Scenario: Automatic set to true without ConfigChangeController on the DeploymentConfig
     Given I have a project
     Given I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/build-deploy-without-configchange.json"
@@ -1405,7 +1405,7 @@ Feature: deployment related features
     And the expression should be true> cb.imagestreamimage != cb.sed_imagestreamimage
 
   # @author yinzhou@redhat.com
-  # @case_id 527513
+  # @case_id OCP-11281
   Scenario: Automatic set to false without ConfigChangeController on the DeploymentConfig
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/build-deploy-without-configchange.json"
@@ -1437,7 +1437,7 @@ Feature: deployment related features
     And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
 
   # @author yinzhou@redhat.com
-  # @case_id 515917
+  # @case_id OCP-11221
   Scenario: Scale up when deployment running
     Given I have a project
     When I run the :new_app client command with:
@@ -1458,7 +1458,7 @@ Feature: deployment related features
     Then the expression should be true> @result[:parsed]['spec']['replicas'] == 3
 
   # @author qwang@redhat.com
-  # @case_id 470706
+  # @case_id OCP-12356
   Scenario: configchange triggers deploy automatically
     Given I have a project
     When I run the :create client command with:
@@ -1481,7 +1481,7 @@ Feature: deployment related features
 
 
   # @author mcurlej@redhat.com
-  # @case_id 532413
+  # @case_id OCP-11611
   Scenario: Could revert an application back to a previous deployment by 'oc rollout undo' command
     Given I have a project
     When I run the :create client command with:
@@ -1521,7 +1521,7 @@ Feature: deployment related features
     And the output should contain "TEST=123"
 
   # @author mcurlej@redhat.com
-  # @case_id 532412
+  # @case_id OCP-11313
   Scenario: Check the status for deployment configs
     Given I have a project
     When I run the :create client command with:
@@ -1551,7 +1551,7 @@ Feature: deployment related features
 
 
   # @author yinzhou@redhat.com
-  # @case_id 533160
+  # @case_id OCP-10916
   Scenario: Support endpoints of Deployment in OpenShift
     Given I have a project
     When I run the :create client command with:
@@ -1595,7 +1595,7 @@ Feature: deployment related features
 
 
   # @author yinzhou@redhat.com
-  # @case_id 533161
+  # @case_id OCP-11326
   Scenario: Support verbs of Deployment in OpenShift
     Given I have a project
     When I run the :create client command with:
@@ -1668,7 +1668,7 @@ Feature: deployment related features
       | deployment.kubernetes.io/revision:2 |
 
   # @author mcurlej@redhat.com
-  # @case_id 532416
+  # @case_id OCP-12079
   Scenario: View the history of rollouts for a specific deployment config
     Given I have a project
     When I run the :new_app client command with:
@@ -1699,7 +1699,7 @@ Feature: deployment related features
       | Annotations: |
 
   # @author pruan@redhat.com
-  # @case_id 532415
+  # @case_id OCP-11973
   Scenario: Support MinReadySeconds in DC
     Given I have a project
     And evaluation of `60` is stored in the :min_ready_seconds clipboard
@@ -1711,7 +1711,7 @@ Feature: deployment related features
     And the expression should be true> dc('minreadytest').available_replicas(user: user) == 2
 
   # @author mcurlej@redhat.com
-  # @case_id 532411
+  # @case_id OCP-10902
   Scenario: Auto cleanup old RCs
     Given I have a project
     When I run the :create client command with:
@@ -1743,7 +1743,7 @@ Feature: deployment related features
     """
 
   # @author mcurlej@redhat.com
-  # @case_id 532414
+  # @case_id OCP-11812
   Scenario: Pausing and Resuming a Deployment
     Given I have a project
     When I run the :create client command with:
@@ -1782,7 +1782,7 @@ Feature: deployment related features
 
 
   # @author yinzhou@redhat.com
-  # @case_id 527299 527300
+  # @case_id OCP-9973 OCP-9974
   Scenario Outline: custom deployment for Recreate/Rolling strategy
     Given I have a project
     When I run the :create client command with:
@@ -1803,7 +1803,7 @@ Feature: deployment related features
 
 
   # @author yinzhou@redhat.com
-  # @case_id 535726
+  # @case_id OCP-10973
   @admin
   Scenario: Should show deployment conditions correctly
     Given I have a project

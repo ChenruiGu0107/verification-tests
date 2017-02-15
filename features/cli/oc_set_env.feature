@@ -1,6 +1,6 @@
 Feature: oc_set_env.feature
   # @author wewang@redhat.com
-  # @case_id 520276
+  # @case_id OCP-11248
   Scenario: Set environment variables for resources using oc set env
     Given I have a project
     When I run the :new_app client command with:
@@ -53,7 +53,7 @@ Feature: oc_set_env.feature
       | error |
 
   # @author wewang@redhat.com
-  # @case_id 520277
+  # @case_id OCP-11567
   Scenario: Update environment variables for resources using oc set env
     Given I have a project
     When I run the :new_app client command with:
@@ -103,7 +103,7 @@ Feature: oc_set_env.feature
       | ENV=prod |
 
   # @author wewang@redhat.com
-  # @case_id 520275
+  # @case_id OCP-10798
   Scenario: Remove environment variables for resources using oc set env
     Given I have a project
     When I run the :new_app client command with:
@@ -186,7 +186,7 @@ Feature: oc_set_env.feature
       | MYSQL_USER= |
 
   # @author chezhang@redhat.com
-  # @case_id 531278
+  # @case_id OCP-10888
   Scenario: Set pod env vars from configmap
     Given I have a project
     When I run the :create client command with:
@@ -231,7 +231,7 @@ Feature: oc_set_env.feature
       | MYSQL_SPECIAL_TYPE=charm |
 
   # @author chezhang@redhat.com
-  # @case_id 531279
+  # @case_id OCP-11305
   Scenario: Set pod env vars from secrets
     Given I have a project
     When I run the :create client command with:
@@ -276,7 +276,7 @@ Feature: oc_set_env.feature
       | MYSQL_DATA_2=value-2 |
 
   # @author chezhang@redhat.com
-  # @case_id 531280
+  # @case_id OCP-11607
   Scenario: Special test for set pod env vars
     Given I have a project
     When I run the :create client command with:
@@ -347,7 +347,7 @@ Feature: oc_set_env.feature
       | MYSQL_NAME=mytest |
 
   # @author wewang@redhat.com
-  # @case_id 530145
+  # @case_id OCP-11299
   Scenario: Set environment variables for resources using oc set env --overwrite=false
     Given I have a project
     When I run the :run client command with:

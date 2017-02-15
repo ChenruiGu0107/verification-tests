@@ -1,7 +1,7 @@
 Feature: oc_label.feature
 
   # @author cryan@redhat.com
-  # @case_id 482217
+  # @case_id OCP-12505
   Scenario: Add or update the openshift resource label
     Given I have a project
     When I run the :create client command with:

@@ -1,6 +1,6 @@
 Feature: oc set triggers tests
   # @author pruan@redhat.com
-  # @case_id 519819
+  # @case_id OCP-11563
   Scenario: `oc set triggers` with misc flags
     Given I have a project
     And I run the :run client command with:
@@ -46,7 +46,7 @@ Feature: oc set triggers tests
       | world |
 
   # @author pruan@redhat.com
-  # @case_id 519817
+  # @case_id OCP-10796
   Scenario: `oc set triggers` for bc
     Given I have a project
     And I run the :new_build client command with:
@@ -126,7 +126,7 @@ Feature: oc set triggers tests
     Then the expression should be true> cb.triggers[4]['type'] == 'ImageChange' && cb.triggers[4]['imageChange']['from']['name'] == "ruby-another-centos7:latest"
 
   # @author pruan@redhat.com
-  # @case_id 519818
+  # @case_id OCP-11245
   Scenario: `oc set triggers` for dc
     Given I have a project
     And I run the :create client command with:

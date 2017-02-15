@@ -1,7 +1,7 @@
 Feature: Delete the resources via web console
 
   # @author wsun@redhat.com
-  # @case_id 512251
+  # @case_id OCP-10742
   Scenario: Delete app resources on web console as admin user
     When I create a project via web with:
       | display_name | :null               |
@@ -46,7 +46,7 @@ Feature: Delete the resources via web console
     Then the step should succeed
 
   # @author wsun@redhat.com
-  # @case_id 512253
+  # @case_id OCP-11541
   Scenario: The viewer can not delete app resources on web console
     Given I have a project
     When I perform the :create_app_from_image web console action with:
@@ -82,7 +82,7 @@ Feature: Delete the resources via web console
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 512252
+  # @case_id OCP-11212
   Scenario: The editor can delete app resources on web console
     Given I have a project
     When I perform the :create_app_from_image web console action with:
@@ -129,7 +129,7 @@ Feature: Delete the resources via web console
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 534487
+  # @case_id OCP-10217
   Scenario: Check deployments and builds of deleted bc/dc on web console
     Given I have a project
     When I run the :new_build client command with:

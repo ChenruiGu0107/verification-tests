@@ -1,7 +1,7 @@
 Feature: ONLY ONLINE Deployment related scripts in this file
 
   # @author etrott@redhat.com
-  # @case_id 529595
+  # @case_id OCP-10075
   Scenario: Specify resource constraints for standalone dc and rc in web console with project limits already set
     Given I have a project
     When I run the :create client command with:

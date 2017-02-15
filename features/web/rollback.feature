@@ -1,6 +1,6 @@
 Feature: Deployments rollback features
   # @author yapei@redhat.com
-  # @case_id 501004 501006 501007 501005
+  # @case_id OCP-11167 OCP-11741 OCP-11914 OCP-11511
   Scenario Outline: rollback from web console
     # create a project on web console
     When I create a new project via web

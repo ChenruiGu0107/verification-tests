@@ -43,7 +43,7 @@ Feature: groups and users related features
       | <%= project.name %>user2 |
 
   # @author xiaocwan@redhat.com
-  # @case_id 498664
+  # @case_id OCP-12198
   @admin
   Scenario: Create/Edit/delete the cluster group
     When I run the :oadm_groups_new admin command with:
@@ -88,7 +88,7 @@ Feature: groups and users related features
       | <%= project.name %>user1 |
 
   # @author xiaocwan@redhat.com
-  # @case_id 498662
+  # @case_id OCP-12040
   @admin
   Scenario: Add/remove view role to the project group in one or all projects
     Given admin creates a project
@@ -168,7 +168,7 @@ Feature: groups and users related features
       | cannot list .* in project.*<%= cb.project2 %> |
 
   # @author xiaocwan@redhat.com
-  # @case_id 498658
+  # @case_id OCP-11155
   @admin
   Scenario: Add/remove edit and admin role to the cluster group in one or more projects
     Given admin creates a project

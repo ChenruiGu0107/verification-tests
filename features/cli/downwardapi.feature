@@ -1,7 +1,7 @@
 Feature: Downward API
 
   # @author qwang@redhat.com
-  # @case_id 509097
+  # @case_id OCP-10707
   Scenario: Pods can get IPs via downward API under race condition
     Given I have a project
     When I run the :create client command with:
@@ -13,7 +13,7 @@ Feature: Downward API
     Then the output should contain "MYSQL_POD_IP=1"
 
   # @author cryan@redhat.com
-  # @case_id 483203
+  # @case_id OCP-10628
   Scenario: downward api pod name and pod namespace as env variables
     Given I have a project
     When I run the :create client command with:
@@ -28,7 +28,7 @@ Feature: Downward API
       | POD_NAMESPACE=<%= project.name %> |
 
   # @author qwang@redhat.com
-  # @case_id 509098
+  # @case_id OCP-10708
   Scenario: Container consume infomation from the downward API using a volume plugin
     Given I have a project
     When I run the :create client command with:
@@ -92,7 +92,7 @@ Feature: Downward API
     Then the step should succeed
 
   # @author qwang@redhat.com
-  # @case_id 533071
+  # @case_id OCP-11977
   @admin
   Scenario: Using resources downward API via volume plugin should be compatible with metadata downward API
     Given I have a project
@@ -175,7 +175,7 @@ Feature: Downward API
 
 
   # @author qwang@redhat.com
-  # @case_id 533069
+  # @case_id OCP-11618
   @admin
   Scenario: Could expose resouces limits and requests via volume plugin from Downward APIs with magics keys
     Given I have a project

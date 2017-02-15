@@ -1,6 +1,6 @@
 Feature: pods related scenarios
   # @author chezhang@redhat.com
-  # @case_id 515450
+  # @case_id OCP-11218
   Scenario: kubectl describe pod should show qos tier info when pod without limits and request info
     Given I have a project
     When I run the :create client command with:
@@ -16,7 +16,7 @@ Feature: pods related scenarios
       | State:\\s+Running     |
 
   # @author chezhang@redhat.com
-  # @case_id 509049
+  # @case_id OCP-11527
   Scenario: kubectl describe pod should show qos tier info
     Given I have a project
     When I run the :create client command with:
@@ -48,7 +48,7 @@ Feature: pods related scenarios
       | State:\\s+Waiting  |
 
   # @author chezhang@redhat.com
-  # @case_id 510724
+  # @case_id OCP-10729
   Scenario: Implement supplemental groups for pod
     Given I have a project
     When I run the :create client command with:
@@ -88,7 +88,7 @@ Feature: pods related scenarios
       | nvalid value |
 
   # @author chezhang@redhat.com
-  # @case_id 509043
+  # @case_id OCP-11753
   Scenario: Pod should be immediately deleted if it's not scheduled even if graceful termination period is set
     Given I have a project
     When I run the :create client command with:
@@ -103,7 +103,7 @@ Feature: pods related scenarios
     Then I wait for the resource "pod" named "grace10" to disappear within 12 seconds
 
   # @author pruan@redhat.com
-  # @case_id 509107
+  # @case_id OCP-10711
   @admin
   Scenario: Limit to create pod to access hostIPC
     Given I have a project
@@ -140,7 +140,7 @@ Feature: pods related scenarios
       | 57005 |
 
   # @author pruan@redhat.com
-  # @case_id 509108
+  # @case_id OCP-11189
   @admin
   Scenario: Limit to create pod to access hostPID
     Given I have a project
@@ -168,7 +168,7 @@ Feature: pods related scenarios
       | \d+\s+squid |
 
   # @author pruan@redhat.com
-  # @case_id 518946
+  # @case_id OCP-11946
   Scenario: Create pod will inherit all "requiredCapabilities" from the SCC that you validate against
     Given I have a project
     And I run the :run client command with:
@@ -188,7 +188,7 @@ Feature: pods related scenarios
     """
 
   # @author cryan@redhat.com
-  # @case_id 521546
+  # @case_id OCP-10813
   # @bug_id 1324396
   Scenario: Update ActiveDeadlineSeconds for pod
     Given I have a project
@@ -221,7 +221,7 @@ Feature: pods related scenarios
     And the output should contain "must be greater than 0"
 
   # @author chuyu@redhat.com
-  # @case_id 538208
+  # @case_id OCP-11006
   @admin
   Scenario: PDB create
     Given I have a project
@@ -268,7 +268,7 @@ Feature: pods related scenarios
     Then the step should succeed
 
   # @author chuyu@redhat.com
-  # @case_id 536559
+  # @case_id OCP-10986
   Scenario: Oauth provider info should be consumed in a pod
     Given the master version >= "3.4"
     Given I have a project
@@ -287,7 +287,7 @@ Feature: pods related scenarios
 
 
   # @author qwang@redhat.com
-  # @case_id OCP-11055 
+  # @case_id OCP-11055
   Scenario: /dev/shm can be automatically shared among all of a pod's containers
     Given I have a project
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json
@@ -336,7 +336,7 @@ Feature: pods related scenarios
   
   
   # @author chuyu@redhat.com
-  # @case_id OCP-12897 
+  # @case_id OCP-12897
   @admin
   Scenario: PDB create with beta1
     Given I have a project

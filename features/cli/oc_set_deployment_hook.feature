@@ -1,7 +1,7 @@
 Feature: set deployment-hook/build-hook with CLI
 
   # @author dyan@redhat.com
-  # @case_id 529759
+  # @case_id OCP-11805
   Scenario: Set pre/mid/post deployment hooks on deployment config via oc set deployment-hook
     Given I have a project
     When I run the :new_app client command with:
@@ -86,7 +86,7 @@ Feature: set deployment-hook/build-hook with CLI
       | [Pp]ost-deployment hook |
 
   # @author dyan@redhat.com
-  # @case_id 529757
+  # @case_id OCP-11298
   Scenario: Set invalid pre/mid/post deployment hooks on deployment config via oc set deployment-hook
     Given I have a project
     When I run the :new_app client command with:

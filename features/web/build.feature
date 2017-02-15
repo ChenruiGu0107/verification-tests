@@ -1,7 +1,7 @@
 Feature: build related feature on web console
 
   # @author: xxing@redhat.com
-  # @case_id: 482266
+  # @case_id: OCP-10627
   Scenario: Check the build information from web console
     When I create a new project via web
     Then the step should succeed
@@ -44,7 +44,7 @@ Feature: build related feature on web console
       | #2 |
 
   # @author: xxing@redhat.com
-  # @case_id: 500940
+  # @case_id: OCP-10674
   Scenario: Cancel the New/Pending/Running build on web console
     When I create a new project via web
     Then the step should succeed
@@ -109,7 +109,7 @@ Feature: build related feature on web console
       | ruby-sample-another-1.+Failed |
 
   # @author yapei@redhat.com
-  # @case_id 518661
+  # @case_id OCP-12211
   Scenario: Negative test for modify buildconfig
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -192,7 +192,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 518658
+  # @case_id OCP-11944
   Scenario: Modify buildconfig for bc has ImageSource
     Given I have a project
     When I run the :create client command with:
@@ -252,7 +252,7 @@ Feature: build related feature on web console
     Then the expression should be true> @result[:parsed]['spec']['source']['images'][0]['paths'].length == 2
 
   # @author yapei@redhat.com
-  # @case_id 518657
+  # @case_id OCP-11773
   Scenario: Modify buildconfig settings for Dockerfile source
     Given I have a project
     When I run the :new_build client command with:
@@ -352,7 +352,7 @@ Feature: build related feature on web console
       | testname   |
 
   # @author pruan@redhat.com
-  # @case_id 515770
+  # @case_id OCP-10754
   Scenario: Check build trends chart when no buiilds under buildconfig
     Given I have a project
     When I run the :create client command with:
@@ -476,7 +476,7 @@ Feature: build related feature on web console
       | Image Reference.*DockerImage\syapei-test/origin-ruby-sample:latest |
 
   # @author yapei@redhat.com
-  # @case_id 518655
+  # @case_id OCP-11232
   Scenario: Modify buildconfig settings for Docker strategy
     Given I create a new project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json"
@@ -623,7 +623,7 @@ Feature: build related feature on web console
       | From Image.*ImageStreamImage.*<%= cb.image_stream_image %> |
 
   # @author yapei@redhat.com
-  # @case_id 518656
+  # @case_id OCP-11555
   Scenario: Modify buildconfig settings for Binary source
     Given I create a new project
     When I run the :new_build client command with:
@@ -671,7 +671,7 @@ Feature: build related feature on web console
     And the output should contain "element not found"
 
   # @author yapei@redhat.com
-  # @case_id 518660
+  # @case_id OCP-12152
   Scenario: Modify buildconfig has DockerImage as build output
     Given I create a new project
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc518660/application-template-stibuild.json"
@@ -732,7 +732,7 @@ Feature: build related feature on web console
     And the output should contain "element not found"
 
   # @author yanpzhan@redhat.com
-  # @case_id 521466
+  # @case_id OCP-11258
   Scenario: View build logs when build status are pending/running/complete/failed/cancelled from web console
     When I create a new project via web
     Then the step should succeed
@@ -826,7 +826,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author: xxia@redhat.com
-  # @case_id: 528951
+  # @case_id: OCP-12436
   Scenario: Check build trigger info when the trigger is ConfigChange on web
     Given I have a project
     When I run the :create client command with:
@@ -841,7 +841,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author: xxia@redhat.com
-  # @case_id: 528954
+  # @case_id: OCP-12494
   Scenario: Check build trigger info when the trigger is ImageChange on web
     Given I have a project
     When I run the :create client command with:
@@ -856,7 +856,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author: xxia@redhat.com
-  # @case_id: 528955
+  # @case_id: OCP-12499
   Scenario: Check build trigger info when the trigger is manual start-build on web
     Given I have a project
     When I run the :create client command with:
@@ -876,7 +876,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author: yapei@redhat.com
-  # @case_id 525737 525738
+  # @case_id OCP-10830 OCP-11269
   @admin
   Scenario Outline: Check settings for build with no inputs
     Given I have a project
@@ -911,7 +911,7 @@ Feature: build related feature on web console
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525738/application-template-stibuild.json    | Source |
 
   # @author etrott@redhat.com
-  # @case_id 534705
+  # @case_id OCP-10253
   Scenario: Check Build,Deployment,Pod logs and Events on Monitoring
     When I create a new project via web
     Then the step should succeed
@@ -1080,7 +1080,7 @@ Feature: build related feature on web console
     Then the step should fail
 
   # @author: xxia@redhat.com
-  # @case_id: 528952, 528953
+  # @case_id: OCP-12476, OCP-12486
   Scenario Outline: Check build trigger info about webhook on web
     Given I have a project
     When I run the :new_app client command with:
@@ -1151,7 +1151,7 @@ Feature: build related feature on web console
       | github  | github/testdata/  | pushevent.json | X-Github-Event | push    |            |           | GitHub webhook: Added license e79d887 authored by Anonymous User |
 
   # @author: yapei@redhat.com
-  # @case_id: 538973
+  # @case_id: OCP-10477
   Scenario: Check webhook URL are consistent
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"

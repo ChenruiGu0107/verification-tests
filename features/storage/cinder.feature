@@ -1,6 +1,6 @@
 Feature: Cinder Persistent Volume
   # @author wehe@redhat.com
-  # @case_id 508144
+  # @case_id OCP-9643
   @admin
   Scenario: Persistent Volume with cinder volume plugin
     Given I have a project
@@ -23,7 +23,7 @@ Feature: Cinder Persistent Volume
     Then the step should succeed
 
   # @author wehe@redhat.com
-  # @case_id 529520 
+  # @case_id OCP-10052
   @admin
   Scenario: Cinder volume should be detached after delete pod
     Given I have a project

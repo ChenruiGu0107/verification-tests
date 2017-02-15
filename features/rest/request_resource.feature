@@ -1,6 +1,6 @@
 Feature: REST related features
   # @author xiaocwan@redhat.com
-  # @case_id 457806
+  # @case_id OCP-12188
   Scenario: [origin_platformexp_397]The user should be system:anonymous user when access api without certificate and Bearer token
     Given I log the message> set up OpenShift with an identity provider that supports 'challenge: true'
     When I perform the HTTP request:
@@ -18,7 +18,7 @@ Feature: REST related features
     And the expression should be true> @result[:exitstatus] == 403
 
   # @author cryan@redhat.com
-  # @case_id 470296
+  # @case_id OCP-12629
   Scenario: Could know the user or group's rights via ResourceAccessReview
     Given I have a project
     When I perform the :post_local_resource_access_reviews rest request with:

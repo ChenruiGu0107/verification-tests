@@ -1,7 +1,7 @@
 Feature: oc_set_resources.feature
 
   # @author hongli@redhat.com
-  # @case_id 536676
+  # @case_id OCP-10999
   Scenario: Set CPU and memory limits by oc set resources
     Given I have a project
     When I run the :create client command with:
@@ -128,7 +128,7 @@ Feature: oc_set_resources.feature
       | memory: "0"   |
 
   # @author yadu@redhat.com
-  # @case_id 536677
+  # @case_id OCP-11388
   Scenario: Set invalid vlaue for CPU and memory limits
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
@@ -179,7 +179,7 @@ Feature: oc_set_resources.feature
       | failed to patch limit update to pod template |
 
   # @author yadu@redhat.com
-  # @case_id 536678
+  # @case_id OCP-11659
   Scenario: Set limits on a local file without talking to the server
     Given I have a project
     When I run the :set_resources client command with:

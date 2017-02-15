@@ -51,7 +51,7 @@ Feature: resouces related scenarios
     Then the output should match "ruby-sample-build-1-build\s+1/1\s+Running\s+0"
 
   # @author xxia@redhat.com
-  # @case_id 512023
+  # @case_id OCP-11211
   Scenario: oc replace with miscellaneous options
     Given I have a project
     And I run the :run client command with:
@@ -112,7 +112,7 @@ Feature: resouces related scenarios
     Then the step should succeed
 
   # @author xxia@redhat.com
-  # @case_id 510404
+  # @case_id OCP-10719
   Scenario: Delete resources with cascade selectors
     Given I have a project
     And I run the :run client command with:
@@ -170,7 +170,7 @@ Feature: resouces related scenarios
     Then the step should succeed
 
   # @author xxia@redhat.com
-  # @case_id 470421
+  # @case_id OCP-11882
   Scenario: Return description of resources with cli describe
     Given I have a project
     And I create a new application with:
@@ -225,7 +225,7 @@ Feature: resouces related scenarios
       | Template:                            |
 
   # @author xiaocwan@redhat.com
-  # @case_id 500003
+  # @case_id OCP-9615
   @admin
   Scenario: Cluster admin can get resources in all namespaces
 
@@ -378,7 +378,7 @@ Feature: resouces related scenarios
       | memory: 128Mi |
 
   # @author cryan@redhat.com
-  # @case_id 474047
+  # @case_id OCP-12336
   # @bug_id 1294063
   Scenario: Update resources from file
     Given I have a project
@@ -418,7 +418,7 @@ Feature: resouces related scenarios
     And the output should contain "tc474047-mod2"
 
   # @author xxia@redhat.com
-  # @case_id 512121
+  # @case_id OCP-10741
   Scenario: Get/watch resources with oc get
     Given I have a project
     And I run the :run client command with:
@@ -490,7 +490,7 @@ Feature: resouces related scenarios
       | hello     |
 
   # @author xxia@redhat.com
-  # @case_id 510406
+  # @case_id OCP-11535
   Scenario: Check resources with different output formats using oc get, oc run etc.
     Given I have a project
     When I run the :run client command with:
@@ -536,7 +536,7 @@ Feature: resouces related scenarios
     And the output should contain "no-this"
 
   # @author yanpzhan@redhat.com
-  # @case_id 481680
+  # @case_id OCP-11716
   Scenario: Templates could parameterize cpu and memory usage values for each container
     Given I have a project
     When I run the :create client command with:

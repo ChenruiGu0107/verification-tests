@@ -28,7 +28,7 @@ Feature: oc related features
       |  oc types [options]                                                 |
 
   # @author pruan@redhat.com
-  # @case_id 497521
+  # @case_id OCP-12362
   Scenario: Check the help page of oc edit
     When I run the :edit client command with:
       | help | true |
@@ -41,7 +41,7 @@ Feature: oc related features
       | oc edit (RESOURCE/NAME \| -f FILENAME) [options] |
 
   # @author cryan@redhat.com
-  # @case_id 497907
+  # @case_id OCP-9577
   Scenario: Check --list/-L option for new-app
     When I run the :new_app client command with:
       |help||
@@ -158,7 +158,7 @@ Feature: oc related features
       |--tty=false: Allocated a TTY for each container in the pod.|
 
   # @author xxia@redhat.com
-  # @case_id 510553
+  # @case_id OCP-11202
   Scenario: Use oc explain to see detailed documentation of resources
     When I run the :explain client command with:
       | help | true  |
@@ -299,7 +299,7 @@ Feature: oc related features
       | DEPRECATED: This command has been moved to "oc logs"  |
 
   # @author chezhang@redhat.com
-  # @case_id 519918
+  # @case_id OCP-11565
   Scenario: kubectl secret subcommand - help
     Given I have a project
     When I run the :create_secret client command with:
@@ -406,7 +406,7 @@ Feature: oc related features
       | --validate=          |
 
   # @author chezhang@redhat.com
-  # @case_id 521542
+  # @case_id OCP-10812
   Scenario: Check `oc autoscale` help info
     Given I have a project
     When I run the :autoscale client command with:
@@ -476,7 +476,7 @@ Feature: oc related features
       | --template=          |
 
   # @author xiaocwan@redhat.com
-  # @case_id 535720
+  # @case_id OCP-11836
   Scenario: oc help command to guide user to get help info for subcommands
     When I run the :help client command with:
       | command_name       | set             |

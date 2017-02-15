@@ -1,7 +1,7 @@
 Feature: test master config related steps
 
   # @author: yinzhou@redhat.com
-  # @case_id: 521540
+  # @case_id: OCP-9906
   @admin
   @destructive
   Scenario: Check project limitation for users with and without label admin=true for online env
@@ -47,7 +47,7 @@ Feature: test master config related steps
       | cannot create more than |
 
   # @author: chuyu@redhat.com
-  # @case_id: 521728
+  # @case_id: OCP-11265
   @admin
   @destructive
   Scenario: User can configure a password identity provider with special characters in the name
@@ -106,7 +106,7 @@ Feature: test master config related steps
       | NAME       | my idp #2?:uid=user,dc=example,dc=com |
 
   # @author: yinzhou@redhat.com
-  # @case_id: 534581
+  # @case_id: OCP-10955
   @admin
   @destructive
   Scenario: Deploy with multiple hooks of quota
@@ -151,7 +151,7 @@ Feature: test master config related steps
     And I wait until the status of deployment "hooks" becomes :complete
 
   # @author: yinzhou@redhat.com
-  # @case_id: 534582
+  # @case_id: OCP-11358
   @admin
   @destructive
   Scenario: Deploy with quota of 1 terminating pod
@@ -196,7 +196,7 @@ Feature: test master config related steps
     And I wait until the status of deployment "deployment-example" becomes :complete
 
     # @author: chuyu@redhat.com
-    # @case_id: 519545
+    # @case_id: OCP-10792
     @admin
     @destructive
     Scenario: Configure openshift to consume extended identity attributes from auth proxy
@@ -281,7 +281,7 @@ Feature: test master config related steps
       | USER NAME     | login                                |
 
   # @author: chuyu@redhat.com
-  # @case_id: 509118
+  # @case_id: OCP-11928
   @admin
   @destructive
   Scenario: User can login when user exists and references identity which does not exist

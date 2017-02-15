@@ -1,6 +1,6 @@
 Feature: networking isolation related scenarios
   # @author bmeng@redhat.com
-  # @case_id 497542
+  # @case_id OCP-9565
   @smoke
   @admin
   Scenario: The pods in default namespace can communicate with all the other pods
@@ -83,7 +83,7 @@ Feature: networking isolation related scenarios
     Then the output should contain "Hello OpenShift!"
 
   # @author bmeng@redhat.com
-  # @case_id 497541
+  # @case_id OCP-9564
   @smoke
   Scenario: Only the pods nested in a same namespace can communicate with each other
     Given I have a project
@@ -122,7 +122,7 @@ Feature: networking isolation related scenarios
     And the output should not contain "Hello"
 
   # @author bmeng@redhat.com
-  # @case_id 508109
+  # @case_id OCP-9641
   @admin
   Scenario: Make the network of given project be accessible to other projects
     # Create 3 projects and each contains 1 pod and 1 service
@@ -272,7 +272,7 @@ Feature: networking isolation related scenarios
     And the output should not contain "Hello"
 
   # @author bmeng@redhat.com
-  # @case_id 508110
+  # @case_id OCP-9642
   @admin
   Scenario: Make the network of given project be accessible to other projects via selector
     # Create 3 projects and each contains 1 pod and 1 service
@@ -414,7 +414,7 @@ Feature: networking isolation related scenarios
     And the output should contain "Hello"
 
   # @author bmeng@redhat.com
-  # @case_id 508129
+  # @case_id OCP-12659
   @admin
   Scenario: Make the network of given projects be accessible globally
     # Create 3 projects and each contains 1 pod and 1 service
@@ -538,7 +538,7 @@ Feature: networking isolation related scenarios
     And the output should not contain "Hello"
 
   # @author bmeng@redhat.com
-  # @case_id 508112
+  # @case_id OCP-12658
   @admin
   Scenario: Make the network of given projects be accessible globally via selector
     # Create 3 projects and each contains 1 pod and 1 service
@@ -669,7 +669,7 @@ Feature: networking isolation related scenarios
     And the output should contain "Hello"
 
   # @author bmeng@redhat.com
-  # @case_id 508644
+  # @case_id OCP-9647
   @admin
   Scenario: Isolate the network for the joined network projects
     Given the env is using multitenant network
@@ -770,7 +770,7 @@ Feature: networking isolation related scenarios
     And the output should not contain "Hello"
 
   # @author bmeng@redhat.com
-  # @case_id 508646
+  # @case_id OCP-9649
   @admin
   Scenario: Isolate the network for the joined network projects via selector
     Given the env is using multitenant network
@@ -882,7 +882,7 @@ Feature: networking isolation related scenarios
     And the output should not contain "Hello"
 
   # @author bmeng@redhat.com
-  # @case_id 508643
+  # @case_id OCP-9646
   @admin
   Scenario: Isolate the network for the project which already make network global
     Given the env is using multitenant network
@@ -974,7 +974,7 @@ Feature: networking isolation related scenarios
     And the output should not contain "Hello"
 
   # @author bmeng@redhat.com
-  # @case_id 508645
+  # @case_id OCP-9648
   @admin
   Scenario: Isolate the network for the project which already make network global via selector
     Given the env is using multitenant network

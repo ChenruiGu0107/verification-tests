@@ -1,7 +1,7 @@
 Feature: oc set image related tests
 
   # @author cryan@redhat.com
-  # @case_id 535237
+  # @case_id OCP-10309
   Scenario: oc set image to update pod with certain label
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml"
@@ -42,7 +42,7 @@ Feature: oc set image related tests
     And the output should not match " Image:\s+aosqe/hello-openshift"
 
   # @author xiaocwan@redhat.com
-  # @case_id 536469
+  # @case_id OCP-10390
   @admin
   Scenario: oc set image for daemonset
     Given I have a project
@@ -65,7 +65,7 @@ Feature: oc set image related tests
       | [Ii]mage.*xiaocwan/hello-openshift:latest           |
 
   # @author xiaocwan@redhat.com
-  # @case_id 535232
+  # @case_id OCP-10304
   Scenario: oc set image to update existed image for container with --source
     Given I log the message> this scenario is only valid for oc 3.4
     Given I have a project
@@ -147,7 +147,7 @@ Feature: oc set image related tests
       | [Ee]rror.*unable to find container.*dctest-3        |
 
   # @author xiaocwan@redhat.com
-  # @case_id 535236
+  # @case_id OCP-10308
   Scenario: oc set image to update existed image for all resource using local file without and with apply
     Given I have a project
     ## 1.  Create pod container(s) and ISs for project
@@ -213,7 +213,7 @@ Feature: oc set image related tests
       | dctest-2:\n.*[Ii]mage.*openshift/hello-openshift    |
 
   # @author: yinzhou@redhat.com
-  # @case_id: 533222
+  # @case_id: OCP-11623
   @admin
   Scenario: Can not prune image by conflicted condition flags
     Given I have a project
@@ -234,7 +234,7 @@ Feature: oc set image related tests
 
 
   # @author: yinzhou@redhat.com
-  # @case_id: 533221
+  # @case_id: OCP-11332
   @admin
   Scenario: Admin can understand/manage image use and prune unreferenced image
     Given I have a project
@@ -265,7 +265,7 @@ Feature: oc set image related tests
 
 
   # @author: yinzhou@redhat.com
-  # @case_id: 532760
+  # @case_id: OCP-10909
   @admin
   Scenario: Could add/remove signatures to the images
     Given I have a project

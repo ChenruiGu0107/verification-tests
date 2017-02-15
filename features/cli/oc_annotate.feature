@@ -1,6 +1,6 @@
 Feature: oc annotate related features
   # @author xxia@redhat.com
-  # @case_id 499946
+  # @case_id OCP-10671
   Scenario: Update the annotations on more resources
     Given I have a project
     When I run the :create client command with:
@@ -62,7 +62,7 @@ Feature: oc annotate related features
     And the output should not contain "description:"
 
   # @author xxia@redhat.com
-  # @case_id 499947
+  # @case_id OCP-11161
   Scenario: Update the annotations on one resource
     Given I have a project
     When I run the :create client command with:

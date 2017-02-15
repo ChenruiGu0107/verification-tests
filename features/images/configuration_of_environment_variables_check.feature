@@ -1,7 +1,7 @@
 Feature: Configuration of environment variables check
 
   # @author xiuwang@redhat.com
-  # @case_id 499488 499490
+  # @case_id OCP-12646 OCP-12647
   Scenario Outline: Check environment variables of ruby-20 image
     Given I have a project
     When I run the :create client command with:
@@ -29,7 +29,7 @@ Feature: Configuration of environment variables check
     #| centos7 | docker.io/openshift/ruby-20-centos7 |
 
   # @author xiuwang@redhat.com
-  # @case_id 499491 499492
+  # @case_id OCP-12648 OCP-12649
   Scenario Outline: Check environment variables of perl image
     Given I have a project
     When I run the :new_app client command with:
@@ -48,7 +48,7 @@ Feature: Configuration of environment variables check
       | perl-516-centos7-stibuild.json |
 
   # @author wzheng@redhat.com
-  # @case_id 499484 499485
+  # @case_id OCP-9599 OCP-12645
   Scenario Outline: Configuration of enviroment variables check
     Given I have a project
     When I run the :new_app client command with:
@@ -77,7 +77,7 @@ Feature: Configuration of environment variables check
       | php-55-centos7-stibuild.json |
 
   # @author wewang@redhat.com
-  # @case_id 499501 499502 499503
+  # @case_id OCP-9601 OCP-9602 OCP-9603
   Scenario Outline: Openshift build and configuration of enviroment variables check - python
     Given I have a project
     When I run the :new_app client command with:
@@ -110,7 +110,7 @@ Feature: Configuration of environment variables check
       | python-33-rhel7-var.json   | 3.3  |
 
   # @author cryan@redhat.com
-  # @case_id 493677
+  # @case_id OCP-11143
   Scenario: Substitute environment variables into a container's command
     Given I have a project
     When I run the :create client command with:
@@ -123,7 +123,7 @@ Feature: Configuration of environment variables check
     And the output should contain "http"
 
   # @author pruan@redhat.com
-  # @case_id 493676
+  # @case_id OCP-10646
   Scenario: Substitute environment variables into a container's args
     Given I have a project
     When I run the :create client command with:
@@ -138,7 +138,7 @@ Feature: Configuration of environment variables check
       |  serving on 8888 |
 
   # @author pruan@redhat.com
-  # @case_id 493678
+  # @case_id OCP-11497
   Scenario: Substitute environment variables into a container's env
     Given I have a project
     When I run the :create client command with:
@@ -160,7 +160,7 @@ Feature: Configuration of environment variables check
       | test8=\$\$\$\$\$\$\$\(zzhao\)   |
 
   # @author cryan@redhat.com haowang@redhat.com
-  # @case_id 521464 529329
+  # @case_id OCP-11784 OCP-12424
   @no-online
   Scenario Outline: Users can override the the env tuned by ruby base image
     Given I have a project
@@ -192,7 +192,7 @@ Feature: Configuration of environment variables check
       | openshift/ruby:2.3 |
 
   # @author haowang@redhat.com
-  # @case_id 521463
+  # @case_id OCP-11575
   Scenario: Users can override the the env tuned by ruby base image -ruby-20-rhel7
     Given I have a project
     When I run the :create client command with:

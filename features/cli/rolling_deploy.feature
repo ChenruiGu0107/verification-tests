@@ -1,6 +1,6 @@
 Feature: rolling deployment related scenarios
   # @author pruan@redhat.com
-  # @case_id 503866
+  # @case_id OCP-11516
   Scenario: Rolling-update pods with set maxSurge to 0
     Given I have a project
     When I run the :create client command with:
@@ -44,7 +44,7 @@ Feature: rolling deployment related scenarios
       | keep 1 pods available |
 
   # @author pruan@redhat.com
-  # @case_id 503864
+  # @case_id OCP-10686
   Scenario: Rolling-update an invalid value of pods - Negative test
     Given I have a project
     When I run the :create client command with:
@@ -62,7 +62,7 @@ Feature: rolling deployment related scenarios
       | .*nvalid value.*-10.*must be non-negative |
 
   # @author pruan@redhat.com
-  # @case_id 503867
+  # @case_id OCP-11744
   Scenario: Rolling-update pods with set maxUnavabilable to 0
     Given I have a project
     When I run the :create client command with:
@@ -106,7 +106,7 @@ Feature: rolling deployment related scenarios
       | keep 3 pods available, don't exceed 5 pods |
 
   # @author pruan@redhat.com
-  # @case_id 503865,483171
+  # @case_id 503865,OCP-12359
   Scenario: Rolling-update pods with default value for maxSurge/maxUnavailable
     Given I have a project
     When I run the :create client command with:
@@ -150,7 +150,7 @@ Feature: rolling deployment related scenarios
       | keep 2 pods available, don't exceed 5 pods |
 
   # @author xiaocwan@redhat.com
-  # @case_id 454716
+  # @case_id OCP-11440
   Scenario: Rollback to one component of previous deployment
     Given I have a project
     When I run the :create client command with:
@@ -209,7 +209,7 @@ Feature: rolling deployment related scenarios
       | replaced |
 
   # @author xiaocwan@redhat.com
-  # @case_id 454717
+  # @case_id OCP-11694
   Scenario: [origin_runtime_509]Rollback to three components of previous deployment
     Given I have a project
     When I run the :create client command with:
@@ -284,7 +284,7 @@ Feature: rolling deployment related scenarios
       | "replicas": 1 |
 
   # @author xiaocwan@redhat.com
-  # @case_id 454718
+  # @case_id OCP-11876
   Scenario: [origin_runtime_509]Rollback to two components of previous deployment
     Given I have a project
     When I run the :create client command with:
@@ -358,7 +358,7 @@ Feature: rolling deployment related scenarios
       | "replicas": 1 |
 
   # @author xiaocwan@redhat.com
-  # @case_id 454715
+  # @case_id OCP-11071
   Scenario: [origin_runtime_509]Rollback to all components of previous deployment
     Given I have a project
     When I run the :create client command with:

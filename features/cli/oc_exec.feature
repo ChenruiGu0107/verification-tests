@@ -1,6 +1,6 @@
 Feature: containers related features
   # @author pruan@redhat.com
-  # @case_id 472856
+  # @case_id OCP-10579
   Scenario: Choose container to execute command on with '-c' flag
     Given I have a project
     And evaluation of `"doublecontainers"` is stored in the :pod_name clipboard
@@ -30,7 +30,7 @@ Feature: containers related features
       | Fedora release 21 (Twenty One) |
 
   # @author xxing@redhat.com
-  # @case_id 451911
+  # @case_id OCP-12378
   Scenario: Dumps logs from a given Pod container
     Given I have a project
     When I run the :create client command with:
@@ -49,7 +49,7 @@ Feature: containers related features
       | serving on 8888 |
 
   # @author xxing@redhat.com
-  # @case_id 497482
+  # @case_id OCP-11501
   Scenario: Add env variables to postgresql-92-centos7 image
     Given I have a project
     When I run the :create client command with:
@@ -92,7 +92,7 @@ Feature: containers related features
       | 42              |
 
   # @author pruan@redhat.com
-  # @case_id 472859
+  # @case_id OCP-11704
   Scenario: Executing commands in a container that isn't running
     Given I have a project
     When I run the :create client command with:
@@ -107,7 +107,7 @@ Feature: containers related features
       | [Ee]rror.*not |
 
   # @author chaoyang@redhat.com
-  # @case_id OCP-11451 
+  # @case_id OCP-11451
   Scenario: Executing command in inexistent containers
     When I have a project
     And I run the :create client command with:
@@ -128,7 +128,7 @@ Feature: containers related features
       |[Ee]rror.*container hello-openshift-notexist.*not valid|
 
   # @author xiaocwan@redhat.com
-  # @case_id 472857
+  # @case_id OCP-11083
   Scenario: [origin_infra_311] Executing a command in container
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"

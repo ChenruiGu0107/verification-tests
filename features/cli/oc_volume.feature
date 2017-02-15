@@ -1,7 +1,7 @@
 Feature: oc_volume.feature
 
   # @author cryan@redhat.com
-  # @case_id 491436
+  # @case_id OCP-12283
   Scenario: option '--all' and '--selector' can not be used together
     Given I have a project
     And I create a new application with:
@@ -16,7 +16,7 @@ Feature: oc_volume.feature
     And the output should contain "you may specify either --selector or --all but not both"
 
   # @author xxia@redhat.com
-  # @case_id 483166
+  # @case_id OCP-12194
   Scenario: Create a pod that consumes the secret in a volume
     Given I have a project
     When I run the :secrets client command with:
@@ -60,7 +60,7 @@ Feature: oc_volume.feature
       | pass-1 |
 
   # @author xxia@redhat.com
-  # @case_id 491431
+  # @case_id OCP-11906
   Scenario: Add secret volume to dc and rc
     Given I have a project
     When I run the :run client command with:
@@ -112,7 +112,7 @@ Feature: oc_volume.feature
       |     secretName: my-secret  |
 
   # @author xxia@redhat.com
-  # @case_id 491428
+  # @case_id OCP-11141
   Scenario: Add gitRepo volume to pod, dc and rc
     Given I have a project
     And I run the :run client command with:
@@ -154,7 +154,7 @@ Feature: oc_volume.feature
 
   # @author xxia@redhat.com
   # @author jhou@redhat.com
-  # @case_id 491432
+  # @case_id OCP-12037
   Scenario: Add volume to all available resources in the namespace
     Given I have a project
     When I run the :run client command with:
@@ -241,7 +241,7 @@ Feature: oc_volume.feature
       | myrc3 |
 
   # @author gpei@redhat.com
-  # @case_id 491435
+  # @case_id OCP-12247
   Scenario: New volume can not have a same mount point that already exists in a container
     Given I have a project
     When I run the :new_app client command with:
@@ -264,7 +264,7 @@ Feature: oc_volume.feature
     And the output should contain "volume mount '/opt' already exists"
 
   # @author gpei@redhat.com
-  # @case_id 491438
+  # @case_id OCP-12340
   Scenario: Select resources with '--selector' option
     Given I have a project
     When I run the :new_app client command with:
@@ -297,7 +297,7 @@ Feature: oc_volume.feature
     Then the output should contain "ruby-hello-world"
 
   # @author jhou@redhat.com
-  # @case_id 491433
+  # @case_id OCP-12134
   Scenario: Add/Remove volumes against multiple resources
     Given I have a project
 

@@ -1,7 +1,7 @@
 Feature: ONLY ONLINE related feature's scripts in this file
 
   # @author bingli@redhat.com
-  # @case_id 516510
+  # @case_id OCP-9781
   Scenario: cli disables Docker builds and custom builds and allow only sti builds
     Given I have a project
     When I run the :new_build client command with:
@@ -27,8 +27,8 @@ Feature: ONLY ONLINE related feature's scripts in this file
       | build strategy Docker is not allowed |
 
   # @author etrott@redhat.com
-  # @case_id 528263
-  # @case_id 528268
+  # @case_id OCP-9993
+  # @case_id OCP-9997
   Scenario Outline: Maven repository can be used to providing dependency caching for xPaas and wildfly STI builds
     Given I create a new project
     Given I perform the :create_app_from_image_with_bc_env_and_git_options web console action with:

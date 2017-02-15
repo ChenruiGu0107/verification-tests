@@ -1,7 +1,7 @@
 Feature: CephFS storage plugin testing
 
   # @author jhou@redhat.com
-  # @case_id 507218
+  # @case_id OCP-9634
   @admin
   @destructive
   Scenario: Creating cephfs persistent volume with RWO accessmode and default policy

@@ -1,7 +1,7 @@
 Feature:policy related features on web console
 
   # @author xiaocwan@redhat.com
-  # @case_id 476296
+  # @case_id OCP-11710
   Scenario: All the users in the deleted project should be removed
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
@@ -96,7 +96,7 @@ Feature:policy related features on web console
       | [Ee]rror.*[Uu]ser.*ca(n'\|nno)t list.*projectrequests |
 
   # @author xiaocwan@redhat.com
-  # @case_id OCP-10544 
+  # @case_id OCP-10544
   @admin
   @destructive
   Scenario: Cluster-admin disable access to project by remove cluster role from group
@@ -127,7 +127,7 @@ Feature:policy related features on web console
       | [Yy]ou may not request a new project          |
 
   # @author xiaocwan@redhat.com
-  # @case_id 532766
+  # @case_id OCP-11321
   Scenario: Check user actions they have view authority to check buttons and links on web console
     Given I have a project
     When I run the :policy_add_role_to_user client command with:

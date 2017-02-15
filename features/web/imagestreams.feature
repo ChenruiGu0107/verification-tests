@@ -1,6 +1,6 @@
 Feature: check image streams page
   # @author yapei@redhat.com
-  # @case_id 511646
+  # @case_id OCP-10738
   Scenario: check image stream page
     # create project on web
     When I create a new project via web

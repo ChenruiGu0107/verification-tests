@@ -1,6 +1,6 @@
 Feature: Pod related features on web console
   # @author yanpzhan@redhat.com
-  # @case_id 510378
+  # @case_id OCP-11534
   Scenario: View streaming logs for a running pod
     When I create a new project via web
     Then the step should succeed
@@ -62,7 +62,7 @@ Feature: Pod related features on web console
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 498129
+  # @case_id OCP-9592
   Scenario: Generate same labels in the UI as CLI
     When I create a project via web with:
       | display_name | :null |

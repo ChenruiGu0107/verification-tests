@@ -1,7 +1,7 @@
 Feature: dockerbuild.feature
   # @author wewang@redhat.com
-  # @case_id 512257
-  # @case_id 512256
+  # @case_id OCP-11213
+  # @case_id OCP-10743
   @admin
   Scenario Outline: Store commit id in sti build
     Given I have a project

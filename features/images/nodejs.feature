@@ -1,7 +1,7 @@
 Feature: nodejs.feature
 
   # @author dyan@redhat.com
-  # @case_id 540194 540195
+  # @case_id OCP-12183 OCP-12231
   Scenario Outline: Add NPM_MIRROR env var to Nodejs S2I
     Given I have a project
     When I run the :new_build client command with:

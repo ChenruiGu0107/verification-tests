@@ -1,6 +1,6 @@
 Feature: oc build related scenarios
   # @author xiaocwan@redhat.com
-  # @case_id 533684
+  # @case_id OCP-10189
   Scenario: oc start-build with output flag
     Given I have a project
     When I run the :new_app client command with:

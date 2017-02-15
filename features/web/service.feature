@@ -1,7 +1,7 @@
 Feature: services related feature on web console
 
   # @author wsun@redhat.com
-  # @case_id 477695
+  # @case_id OCP-10602
   Scenario: Access services from web console
     Given I login via web console
     Given I have a project
@@ -79,7 +79,7 @@ Feature: services related feature on web console
     Then the step should succeed
 
   # @author etrott@redhat.com
-  # @case_id 536000
+  # @case_id OCP-10359
   Scenario: Group services on overview page
     # Given the master version >= "3.4"
     Given I create a new project

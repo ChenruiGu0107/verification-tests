@@ -1,7 +1,7 @@
 Feature: Testing route
 
   # @author: zzhao@redhat.com
-  # @case_id: 470698
+  # @case_id: OCP-11883
   Scenario: Be able to add more alias for service
     Given I have a project
     When I run the :create client command with:
@@ -31,7 +31,7 @@ Feature: Testing route
     Then I wait for a web server to become available via the "header-test-insecure-dup" route
 
   # @author: zzhao@redhat.com
-  # @case_id: 470700
+  # @case_id: OCP-12122
   Scenario: Alias will be invalid after removing it
     Given I have a project
     When I run the :create client command with:
@@ -54,7 +54,7 @@ Feature: Testing route
     """
 
   # @author xxia@redhat.com
-  # @case_id 483200
+  # @case_id OCP-12563
   @admin
   Scenario: The certs for the edge/reencrypt termination routes should be removed when the routes removed
     Given I switch to cluster admin pseudo user
@@ -136,7 +136,7 @@ Feature: Testing route
       | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
 
   # @author yadu@redhat.com
-  # @case_id 497886
+  # @case_id OCP-10660
   Scenario: Service endpoint can be work well if the mapping pod ip is updated
     Given I have a project
     When I run the :create client command with:
@@ -172,7 +172,7 @@ Feature: Testing route
       | :8080        |
 
   # @author: zzhao@redhat.com
-  # @case_id: 516833
+  # @case_id: OCP-10762
   Scenario: Check the header forward format
     Given I have a project
     When I run the :create client command with:
@@ -187,7 +187,7 @@ Feature: Testing route
     Then the output should contain ";host=<%= route.dns(by: user) %>;proto=http"
 
   # @author: yadu@redhat.com
-  # @case_id: 511645
+  # @case_id: OCP-9717
   Scenario: Config insecureEdgeTerminationPolicy to an invalid value for route
     Given I have a project
     When I run the :create client command with:
@@ -210,7 +210,7 @@ Feature: Testing route
 
  
   # @author: zzhao@redhat.com
-  # @case_id: 500002
+  # @case_id: OCP-12652
   Scenario: The later route should be HostAlreadyClaimed when there is a same host exist
     Given I have a project
     When I run the :create client command with:
@@ -227,7 +227,7 @@ Feature: Testing route
 
     
   # @author bmeng@redhat.com
-  # @case_id 470715
+  # @case_id OCP-12472
   Scenario: Edge terminated route with custom cert
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -269,7 +269,7 @@ Feature: Testing route
     And the output should not match "\d+\.\d+\.\d+\.\d+"
 
   # @author bmeng@redhat.com
-  # @case_id 470716
+  # @case_id OCP-12477
   Scenario: Passthrough terminated route with custom cert
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -298,7 +298,7 @@ Feature: Testing route
 
 
   # @author bmeng@redhat.com
-  # @case_id 470717
+  # @case_id OCP-12481
   Scenario: Reencrypt terminated route with custom cert
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -342,7 +342,7 @@ Feature: Testing route
     And the output should not match "\d+\.\d+\.\d+\.\d+"
 
   # @author zzhao@redhat.com cryan@redhat.com
-  # @case_id 470736
+  # @case_id OCP-12575
   Scenario: The path specified in route can work well for unsecure
     Given I have a project
     When I run the :create client command with:
@@ -390,7 +390,7 @@ Feature: Testing route
     Then the output should contain "Hello-OpenShift"
 
   # @author zzhao@redhat.com
-  # @case_id 470735
+  # @case_id OCP-12562
   Scenario: The path specified in route can work well for edge terminated
     Given I have a project
     When I run the :create client command with:
@@ -427,7 +427,7 @@ Feature: Testing route
     And the output should not match "\d+\.\d+\.\d+\.\d+"
 
   # @author zzhao@redhat.com
-  # @case_id 498581
+  # @case_id OCP-12564
   Scenario: The path specified in route can work well for reencrypt terminated
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -472,7 +472,7 @@ Feature: Testing route
     Then the output should contain "Application is not available"
 
   # @author zzhao@redhat.com
-  # @case_id 483186
+  # @case_id OCP-12506
   Scenario: Re-encrypting route with no cert if a router is configured with a default wildcard cert
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -502,7 +502,7 @@ Feature: Testing route
     Then the output should contain "Hello-OpenShift"
 
   # @author yadu@redhat.com
-  # @case_id 470732
+  # @case_id OCP-12556
   Scenario: Create a route without host named
     Given I have a project
     When I run the :create client command with:
@@ -526,7 +526,7 @@ Feature: Testing route
     Then the output should contain "Hello-OpenShift"
 
   # @author yadu@redhat.com
-  # @case_id 508649
+  # @case_id OCP-9651
   Scenario: Config insecureEdgeTerminationPolicy to Redirect for route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -569,7 +569,7 @@ Feature: Testing route
 
 
   # @author zzhao@redhat.com
-  # @case_id 520311
+  # @case_id OCP-12566
   Scenario: Cookie name should not use openshift prefix
     Given I have a project
     When I run the :create client command with:
@@ -597,7 +597,7 @@ Feature: Testing route
 
 
   # @author yadu@redhat.com
-  # @case_id 508647
+  # @case_id OCP-9650
   Scenario: Config insecureEdgeTerminationPolicy to Allow for route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -651,7 +651,7 @@ Feature: Testing route
 
 
   # @author yadu@redhat.com
-  # @case_id 470694
+  # @case_id OCP-12635
   Scenario: Enabled Active/Active routers can do round-robin on multiple target IPs
     # The case need to run on multi-node env
     Given I have a project
@@ -688,7 +688,7 @@ Feature: Testing route
 
 
   # @author yadu@redhat.com
-  # @case_id 528342
+  # @case_id OCP-10024
   Scenario: Route could NOT be updated after created
     Given I have a project
     When I run the :create client command with:
@@ -703,7 +703,7 @@ Feature: Testing route
 
 
   # @author zzhao@redhat.com
-  # @case_id 533075
+  # @case_id OCP-11325
   Scenario: Limit the number of http request per ip
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -737,7 +737,7 @@ Feature: Testing route
       | Empty reply from server |
 
   # @author zzhao@redhat.com
-  # @case_id 536684
+  # @case_id OCP-12573
   # @note requires v3.4+
   Scenario: Default haproxy router should be able to skip invalid cert route
     Given I have a project
@@ -817,7 +817,7 @@ Feature: Testing route
     Then the output should contain "Hello-OpenShift"
 
   # @author zzhao@redhat.com
-  # @case_id 533921
+  # @case_id OCP-12682
   @admin
   Scenario: Don't health check for idle service
     Given I have a project
@@ -914,7 +914,7 @@ Feature: Testing route
       | check inter 5000ms |
 
   # @author yadu@redhat.com
-  # @case_id 544877
+  # @case_id OCP-10545
   Scenario: Generated route host DNS segment should not exceed 63 characters
     Given a 47 characters random string of type :dns is stored into the :proj_name1 clipboard
     When I run the :new_project client command with:
@@ -955,7 +955,7 @@ Feature: Testing route
     Then the output should contain "Hello-OpenShift"
 
   # @author: yadu@redhat.com
-  # @case_id: 497904
+  # @case_id: OCP-9576
   Scenario: Customize the default routing subdomain
     Given I have a project
     Given I store default router subdomain in the :subdomain clipboard

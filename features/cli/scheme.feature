@@ -1,6 +1,6 @@
 Feature: senarios for checking transfer scheme
   # @author pruan@redhat.com
-  # @case_id 533623
+  # @case_id OCP-10933
   Scenario: Check if client use protobuf data transfer scheme to communicate with master
     Given I have a project
     When I run the :create client command with:

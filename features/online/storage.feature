@@ -1,7 +1,7 @@
 Feature: ONLY ONLINE Storage related scripts in this file
 
   # @author bingli@redhat.com
-  # @case_id 526564
+  # @case_id OCP-9967
   Scenario: Delete pod with mounting error
     Given I have a project
     When I run the :create client command with:

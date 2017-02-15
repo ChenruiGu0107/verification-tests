@@ -1,7 +1,7 @@
 Feature: Persistent Volume Recycling
 
   # @author lxia@redhat.com
-  # @case_id 507675
+  # @case_id OCP-9637
   @admin
   @destructive
   Scenario: PV recycling should work fine when there are dot files/dirs

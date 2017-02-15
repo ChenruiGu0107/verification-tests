@@ -1,7 +1,7 @@
 Feature: Get the build dependencies
 
   # @author wewang@redhat.com
-  # @case_id 472758
+  # @case_id OCP-11449
   Scenario: Get the build dependencies for image all tags
     Given I have a project
     Then evaluation of `project.name` is stored in the :proj_name clipboard
@@ -46,7 +46,7 @@ Feature: Get the build dependencies
       | [label="ImageStreamTag|<%= cb.proj1_name %>/ruby-hello-world:latest"]; |
 
   # @author shiywang@redhat.com
-  # @case_id 472756
+  # @case_id OCP-12636
   Scenario: Get the build dependencies for a image repository within one namespace
     Given I have a project
     When I run the :policy_add_role_to_user client command with:

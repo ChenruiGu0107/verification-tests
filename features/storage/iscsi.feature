@@ -1,7 +1,7 @@
 Feature: ISCSI volume plugin testing
 
   # @author jhou@redhat.com
-  # @case_id 507686
+  # @case_id OCP-9638
   @admin
   @destructive
   Scenario: ISCCI volume security test
@@ -54,7 +54,7 @@ Feature: ISCSI volume plugin testing
       | 123456 |
 
   # @author jhou@redhat.com
-  # @case_id 510677
+  # @case_id OCP-9706
   @admin
   @destructive
   Scenario: ISCSI use default 3260 if port not specified
@@ -71,7 +71,7 @@ Feature: ISCSI volume plugin testing
     And the pod named "iscsi-<%= project.name %>" becomes ready
 
   # @author jhou@redhat.com
-  # @case_id 532645
+  # @case_id OCP-10143
   @admin
   @destructive
   Scenario: Multiple iSCSI LUNs with rw and ro mode should ensure the access behavior correctly

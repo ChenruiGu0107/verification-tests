@@ -1,7 +1,7 @@
 Feature: quickstarts.feature
 
   # @author cryan@redhat.com haowang@redhat.com
-  # @case_id 497613 512250 497612 512249 508748 512248 497668 497669 508737
+  # @case_id 497613 OCP-12609 OCP-12605 OCP-12606 OCP-12539 OCP-12541 OCP-9569 OCP-9570 508737
   Scenario Outline: quickstart test
     Given I have a project
     When I run the :new_app client command with:
@@ -28,7 +28,7 @@ Feature: quickstarts.feature
       | rails-postgresql-example  | rails-postgresql-example | Rails   | 2     |
 
   # @author cryan@redhat.com
-  # @case_id 499621 499622
+  # @case_id OCP-9605 OCP-12650
   Scenario Outline: Application with base images with oc command
     Given I have a project
     When I run the :new_app client command with:
@@ -63,7 +63,7 @@ Feature: quickstarts.feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499622/python-27-centos7-stibuild.json |
 
   # @author wzheng@redhat.com
-  # @case_id 508716
+  # @case_id OCP-11178
   Scenario: Cakephp-ex quickstart hot deploy test - php-55-rhel7
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/cakephp-ex/master/openshift/templates/cakephp.json"
@@ -84,7 +84,7 @@ Feature: quickstarts.feature
     Then the output should contain "hotdeploy_test"
 
   # @author wzheng@redhat.com
-  # @case_id 517344
+  # @case_id OCP-9810
   Scenario: Build with golang-ex repo
     Given I have a project
     When I run the :new_app client command with:
@@ -102,7 +102,7 @@ Feature: quickstarts.feature
     Then the output should contain "Welcome to chat - beego sample app: Web IM"
 
   # @author wzheng@redhat.com
-  # @case_id 508795
+  # @case_id OCP-12492
   Scenario: Cakephp-ex quickstart with mysql - php-55-rhel7
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/cakephp-ex/master/openshift/templates/cakephp-mysql.json"
@@ -123,7 +123,7 @@ Feature: quickstarts.feature
     Then the output should contain "Welcome to your CakePHP application on OpenShift"
 
   # @author dyan@redhat.com
-  # @case_id 479059
+  # @case_id OCP-10611
   Scenario: Use the template parameters for the entire config
     Given I have a project
     When I run the :new_app client command with:
@@ -133,7 +133,7 @@ Feature: quickstarts.feature
     And the "ruby-sample-build-1" build completed
 
   # @author cryan@redhat.com
-  # @case_id 528401 528402 528403 492613 508743 508973 529322 529323 529372
+  # @case_id 528401 528402 528403 492613 508743 OCP-12603 OCP-12264 529323 OCP-12296
   # @bug_id 1343184
   Scenario Outline: quickstart version test
     Given I have a project
@@ -166,7 +166,7 @@ Feature: quickstarts.feature
       | perl:5.20  | perl:5.16  |                |                | dancer-mysql.json      | dancer-mysql-example     | dancer-ex |
 
   # @author dyan@redhat.com
-  # @case_id 492612 508973
+  # @case_id OCP-12602 OCP-12603
   Scenario Outline: Dancer-ex quickstart test with perl-516-rhel7
     Given I have a project
     When I run the :new_app client command with:

@@ -1,7 +1,7 @@
 Feature: perl.feature
 
   # @author dyan@redhat.com
-  # @case_id 540191 540192 540193
+  # @case_id OCP-11856 OCP-12005 OCP-12107
   Scenario Outline: Add CPAN_MIRROR env var to Perl S2I
     Given I have a project
     When I run the :new_build client command with:

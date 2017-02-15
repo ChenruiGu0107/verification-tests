@@ -1,7 +1,7 @@
 Feature: creating 'apps' with CLI
 
   # @author akostadi@redhat.com
-  # @case_id 482262
+  # @case_id OCP-10625
   @smoke
   Scenario: Create an application with overriding app name
     Given I have a project
@@ -121,7 +121,7 @@ Feature: creating 'apps' with CLI
     And the project should be empty
 
   # @author xxing@redhat.com
-  # @case_id 470351
+  # @case_id OCP-11880
   Scenario: Create application from template via cli
     Given I have a project
     When I run the :create client command with:
@@ -144,7 +144,7 @@ Feature: creating 'apps' with CLI
     And the output should contain "xxingtest"
 
   # @author wsun@redhat.com
-  # @case_id 476293
+  # @case_id OCP-10593
   Scenario: Could not create any context in non-existent project
     Given I create a new application with:
       | docker image | openshift/ruby-20-centos7~https://github.com/openshift/ruby-hello-world |
@@ -176,7 +176,7 @@ Feature: creating 'apps' with CLI
     Then the output should contain "User "<%=@user.name%>" cannot create templates in project "noproject""
 
   # @author anli@redhat.com
-  # @case_id 470297
+  # @case_id OCP-11075
   Scenario: Project admin could not grant cluster-admin permission to other users
     When I have a project
     And I run the :oadm_add_cluster_role_to_user client command with:
@@ -186,7 +186,7 @@ Feature: creating 'apps' with CLI
     And the output should contain "cannot get clusterpolicybindings at the cluster scope"
 
   # @author pruan@redhat.com
-  # @case_id 483163
+  # @case_id OCP-11897
   Scenario: create app from existing template via CLI with parameter passed
     Given I have a project
     When I run the :create client command with:
@@ -212,7 +212,7 @@ Feature: creating 'apps' with CLI
       | value: db1           |
 
   # @author cryan@redhat.com
-  # @case_id 476353
+  # @case_id OCP-11890
   Scenario: Easy delete resources of 'new-app' created
     Given I have a project
     Given a 5 characters random string of type :dns is stored into the :rand_label clipboard
@@ -278,7 +278,7 @@ Feature: creating 'apps' with CLI
     And the output should contain "Hello OpenShift!"
 
   # @author chunchen@redhat.com
-  # @case_id 482263
+  # @case_id OCP-11118
   Scenario: Create an application from images
     Given I have a project
     When I create a new application with:
@@ -363,7 +363,7 @@ Feature: creating 'apps' with CLI
     """
 
   # @author pruan@redhat.com
-  # @case_id 476350
+  # @case_id OCP-11097
   Scenario: Create resources with labels --Negative test
     Given I have a project
     And I run the :new_app client command with:
@@ -397,7 +397,7 @@ Feature: creating 'apps' with CLI
       | ruby-22-rhel7 |
 
   # @author xiaocwan@redhat.com
-  # @case_id 510225
+  # @case_id OCP-11758
   Scenario: [platformmanagement_public_523]Use the old version v1beta3 file to create resource
     Given I have a project
     When I run the :create client command with:
@@ -408,7 +408,7 @@ Feature: creating 'apps' with CLI
     Then the expression should be true> @result[:parsed]['apiVersion'] == 'v1'
 
   # @author yinzhou@redhat.com
-  # @case_id 510547
+  # @case_id OCP-12148
   Scenario: Progress with invalid supplemental groups should not be run when using RunAsAny as the RunAsGroupStrategy
     Given I have a project
     When I run the :create client command with:
@@ -420,7 +420,7 @@ Feature: creating 'apps' with CLI
       | must be between 0 and 2147483647  |
 
   # @author yinzhou@redhat.com
-  # @case_id 510545
+  # @case_id OCP-11932
   Scenario: Process with special supplemental groups can be run when using RunAsAny as the RunAsGroupStrategy
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_special_supplementalGroups.json"
@@ -438,7 +438,7 @@ Feature: creating 'apps' with CLI
       | - 0 |
 
   # @author yinzhou@redhat.com
-  # @case_id 510544
+  # @case_id OCP-11761
   @admin
   Scenario: Process with special FSGroup id can be ran when using RunAsAny as the RunAsGroupStrategy
     Given I have a project
@@ -458,7 +458,7 @@ Feature: creating 'apps' with CLI
       | fsGroup: 0       |
 
   # @author cryan@redhat.com
-  # @case_id 467937
+  # @case_id OCP-12379
   Scenario: User can expose the environment variables to pods
     Given I have a project
     When I run the :create client command with:
@@ -473,7 +473,7 @@ Feature: creating 'apps' with CLI
       | labels -> |
 
   # @author cryan@redhat.com
-  # @case_id 521730
+  # @case_id OCP-9915
   Scenario: Can add label to app even it exists
     Given I have a project
     #The json file below contains several labels
@@ -486,7 +486,7 @@ Feature: creating 'apps' with CLI
     Given the "ruby-sample-build-1" build completes
 
   # @author cryan@redhat.com
-  # @case_id 474050
+  # @case_id OCP-12399
   Scenario: Create an application from source code
     Given I have a project
     When I git clone the repo "https://github.com/openshift/ruby-hello-world"
@@ -596,7 +596,7 @@ Feature: creating 'apps' with CLI
     And the output should contain "No Dockerfile"
 
   # @author cryan@redhat.com
-  # @case_id 474039
+  # @case_id OCP-11707
   Scenario: update multiple existing resources with file
     Given I have a project
     When I run the :new_app client command with:
@@ -671,7 +671,7 @@ Feature: creating 'apps' with CLI
     Given the "ruby-sample-build-2" build completes
 
   # @author pruan@redhat.com
-  # @case_id 510541
+  # @case_id OCP-10722
   @admin
   @destructive
   Scenario: Process with default or manually defined supplemental groups in the range can be ran when using MustRunAs as the RunAsGroupStrategy
@@ -694,7 +694,7 @@ Feature: creating 'apps' with CLI
     Then the expression should be true> pod.supplemental_groups(user:user)[0] == cb.scc_limit
 
   # @author pruan@redhat.com
-  # @case_id 510543
+  # @case_id OCP-11537
   @admin
   Scenario: Process with special FSGroup id can be ran when using custom defined rule of MustRunAs as the RunAsGroupStrategy
     Given I have a project
@@ -731,7 +731,7 @@ Feature: creating 'apps' with CLI
       | groups=1000,1001 |
 
   # @author pruan@redhat.com
-  # @case_id 510546
+  # @case_id OCP-12053
   @admin
   @destructive
   Scenario: Process with supplemental groups out of the default range when using custom defined MustRunAs as the RunAsGroupStrategy
@@ -765,7 +765,7 @@ Feature: creating 'apps' with CLI
     Then the expression should be true> pod.supplemental_groups(user:user)[0] == 1000
 
   # @author mcurlej@redhat.com
-  # @case_id 519471
+  # @case_id OCP-12260
   Scenario: Create and update the docker images tag from remote repositories via api
     Given I have a project
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag.json
@@ -787,7 +787,7 @@ Feature: creating 'apps' with CLI
       | <%= product_docker_repo %>rhel7.2 |
 
   # @author cryan@redhat.com
-  # @case_id 474044
+  # @case_id OCP-12240
   Scenario: Create resources with multiple approach via cli
     Given I have a project
     And I create the "hello-openshift" directory
@@ -882,7 +882,7 @@ Feature: creating 'apps' with CLI
     Then the output should contain "jenkins-ephemeral-tc474044"
 
   # @author xiaocwan@redhat.com
-  # @case_id 533916
+  # @case_id OCP-10210
   Scenario: oc create quota with --dry-run and -o
     Given I have a project
     When I run the :create_quota client command with:

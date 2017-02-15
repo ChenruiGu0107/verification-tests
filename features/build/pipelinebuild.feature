@@ -1,7 +1,7 @@
 Feature: pipelinebuild.feature
 
   # @author dyan@redhat.com
-  # @case_id 543797 544324
+  # @case_id OCP-11857 OCP-11860
   Scenario Outline: Jenkins pipeline build from private repo with/without secret of password with http-gitserver
     Given I have a project
     And I have an ephemeral jenkins v<tag> application      
@@ -65,7 +65,7 @@ Feature: pipelinebuild.feature
       | 2   |
 
   # @author dyan@redhat.com
-  # @case_id 543798 544325
+  # @case_id OCP-11858 OCP-11861
   Scenario Outline: Jenkins pipeline build from private git repo with/without ssh key
     Given I have a project
     And I have an ephemeral jenkins v<tag> application

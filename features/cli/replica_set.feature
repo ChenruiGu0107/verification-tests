@@ -1,6 +1,6 @@
 Feature: replicaSet related tests
   # @author pruan@redhat.com
-  # @case_id 533162
+  # @case_id OCP-10917
   Scenario: Support endpoints of RS in OpenShift
     Given I have a project
     When I run the :create client command with:
@@ -26,7 +26,7 @@ Feature: replicaSet related tests
       | replicasets "frontend" not found |
 
   # @author pruan@redhat.com
-  # @case_id 533163
+  # @case_id OCP-11327
   Scenario: Support to scale up/down with ReplicaSets in OpenShift
     Given I have a project
     When I run the :create client command with:

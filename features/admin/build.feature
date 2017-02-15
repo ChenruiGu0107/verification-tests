@@ -2,7 +2,7 @@ Feature: admin build related features
 
   # @author cryan@redhat.com
   # @author akostadi@redhat.com
-  # @case_id 489295
+  # @case_id OCP-10641
   @admin
   Scenario: Check the default option value for command oadm prune builds
     Given I have a project
@@ -74,7 +74,7 @@ Feature: admin build related features
     # Then the expression should be true> cb.pruned1.to_set == cb.pruned2.to_set
 
   # @author akostadi@redhat.com
-  # @case_id 481682
+  # @case_id OCP-10618
   # @note marked destructive because it prunes builds older than 1m and this
   #   could be unexpected by other scenarios that check older builds
   @admin
@@ -181,7 +181,7 @@ Feature: admin build related features
     And the project should contain no builds
 
   # @author cryan@redhat.com
-  # @case_id 472759
+  # @case_id OCP-11702
   Scenario: Show friendly messages when invalid options and values for chain-build sub-command
     When I run the :oadm_build_chain client command with:
       | invalid_option | -invalid-opt|
@@ -207,7 +207,7 @@ Feature: admin build related features
     And the output should contain "Error"
 
   # @author xxia@redhat.com
-  # @case_id 489297
+  # @case_id OCP-11493
   @admin
   Scenario: Negative/invalid options test for oadm prune builds
     When I run the :oadm_prune_builds admin command with:

@@ -1,7 +1,7 @@
 Feature: oc_scale.feature
 
   # @author cryan@redhat.com
-  # @case_id 482265
+  # @case_id OCP-11119
   # @bug_id 1276602
   Scenario: Scale replicas in specific conditions
     Given I have a project

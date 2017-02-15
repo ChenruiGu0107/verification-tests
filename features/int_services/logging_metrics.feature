@@ -1,6 +1,6 @@
 Feature: logging and metrics related scenarios
   # @author pruan@redhat.com
-  # @case_id 522123
+  # @case_id OCP-10823
   @admin
   Scenario: Logging is restricted to current owner of a project
     Given I have a project

@@ -2,7 +2,7 @@ Feature: Storage of Hostpath plugin testing
 
   # @author chaoyang@redhat.com
   # @author lxia@redhat.com
-  # @case_id 508107 484933 508108
+  # @case_id OCP-9639 OCP-11726 OCP-9640
   @admin
   Scenario Outline: Create hostpath pv with access mode and reclaim policy
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
@@ -67,7 +67,7 @@ Feature: Storage of Hostpath plugin testing
       | ReadWriteMany | Recycle        | available | fail        |
 
   # @author chaoyang@redhat.com
-  # @case_id 510646
+  # @case_id OCP-9704
   @admin
   Scenario: Hostpath volume security checking
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard

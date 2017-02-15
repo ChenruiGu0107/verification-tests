@@ -1,6 +1,6 @@
 Feature: cacert related scenarios
   # @author pruan@redhat.com
-  # @case_id 512254
+  # @case_id OCP-9734
   Scenario: Create an RSA key pair and generate PEM-encoded public/private key files
     Given a 5 characters random string of type :dns is stored into the :private_key_name clipboard
     Given a 5 characters random string of type :dns is stored into the :public_key_name clipboard
@@ -29,7 +29,7 @@ Feature: cacert related scenarios
       | Generated new key pair as <%= cb.public_key_name %> and <%= cb.private_key_name %> |
 
   # @author pruan@redhat.com
-  # @case_id 512255
+  # @case_id OCP-9735
   Scenario: Create a self-signed CA key/cert
     #  Create self-signed CA key/cert without any options
     When I run the :oadm_ca_create_signer_cert client command
@@ -89,7 +89,7 @@ Feature: cacert related scenarios
     Then the expression should be true> cb.cert_id_new != cb.cert_id_old
 
   # @author chuyu@redhat.com
-  # @case_id 457805
+  # @case_id OCP-12117
   @admin
   Scenario: The user should be specific user of specific group when access api with certificate
     Given I use the "<%= env.master_hosts.first.hostname %>" node

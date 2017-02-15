@@ -1,6 +1,6 @@
 Feature: Persistent Volume reclaim policy tests
   # @author jhou@redhat.com
-  # @case_id 488979
+  # @case_id OCP-10638
   @admin
   @destructive
   Scenario: Recycle reclaim policy for persistent volumes
@@ -28,7 +28,7 @@ Feature: Persistent Volume reclaim policy tests
     And the PV becomes :available within 300 seconds
 
   # @author lxia@redhat.com
-  # @case_id 508057 484930 530546
+  # @case_id OCP-12655 OCP-10634 OCP-10105
   @admin
   @destructive
   Scenario Outline: Persistent disk with RWO access mode and Default policy
@@ -71,7 +71,7 @@ Feature: Persistent Volume reclaim policy tests
       | cinder               | volumeID    | cinder/pv-rwx-default.json |
 
   # @author lxia@redhat.com
-  # @case_id 522413 522393 522392
+  # @case_id OCP-9949 OCP-9944 OCP-9943
   @admin
   @destructive
   Scenario Outline: Persistent volume with RWO access mode and Delete policy

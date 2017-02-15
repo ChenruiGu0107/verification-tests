@@ -1,6 +1,6 @@
 Feature: storageClass related feature
   # @author lxia@redhat.com
-  # @case_id 538932 538962 538963
+  # @case_id OCP-10470 OCP-10473 OCP-10474
   @admin
   @destructive
   Scenario Outline: pre-bound still works with storage class
@@ -33,7 +33,7 @@ Feature: storageClass related feature
       | cinder      | cinder               | volumeID    | cinder/pv-rwx-default.json |
 
   # @author lxia@redhat.com
-  # @case_id 538926
+  # @case_id OCP-10469
   @admin
   @destructive
   Scenario: storage class creation negative testing
@@ -59,7 +59,7 @@ Feature: storageClass related feature
       | Invalid value: "@test@" |
 
   # @author lxia@redhat.com
-  # @case_id 534820 534823 536564
+  # @case_id OCP-12089 OCP-12269 OCP-12272
   @admin
   @destructive
   Scenario Outline: PVC modification after creating storage class
@@ -104,7 +104,7 @@ Feature: storageClass related feature
       | cinder      |
 
   # @author lxia@redhat.com
-  # @case_id 535042 536528 536529
+  # @case_id OCP-12090 OCP-12096 OCP-12097
   @admin
   @destructive
   Scenario Outline: No dynamic provision when no default storage class
@@ -139,7 +139,7 @@ Feature: storageClass related feature
 
   # @author lxia@redhat.com
   # @author chaoyang@redhat.com
-  # @case_id 534816 534817 533052 533053 536608
+  # @case_id OCP-11359 OCP-11640 OCP-10160 OCP-10161 OCP-10424
   @admin
   @destructive
   Scenario Outline: storage class provisioner
@@ -194,7 +194,7 @@ Feature: storageClass related feature
       | aws-ebs     | st1         | us-east-1d    | false      | 500Gi |
 
   # @author lxia@redhat.com
-  # @case_id 534824
+  # @case_id OCP-12299
   @admin
   @destructive
   Scenario: Do not allow creation of GCE PDs in unmanaged zones
@@ -219,7 +219,7 @@ Feature: storageClass related feature
     """
 
   # @author lxia@redhat.com
-  # @case_id 534825 534826
+  # @case_id OCP-12326 OCP-12348
   @admin
   @destructive
   Scenario Outline: PVC request storage class with specific provisioner
@@ -249,7 +249,7 @@ Feature: storageClass related feature
       | kubernetes.io/unknown | ProvisioningFailed   | no volume plugin matched                             |
 
   # @author lxia@redhat.com
-  # @case_id 534822 536520 536521
+  # @case_id OCP-12223 OCP-12226 OCP-12227
   @admin
   @destructive
   Scenario Outline: New creation PVC failed when multiple classes are set as default
@@ -289,7 +289,7 @@ Feature: storageClass related feature
       | cinder      |
 
   # @author lxia@redhat.com
-  # @case_id 534821 536531 536532
+  # @case_id OCP-12171 OCP-12176 OCP-12177
   @admin
   @destructive
   Scenario Outline: New created PVC without specifying storage class use default class when only one class is marked as default
@@ -319,7 +319,7 @@ Feature: storageClass related feature
       | cinder      |
 
   # @author wehe@redhat.com
-  # @case_id 534488
+  # @case_id OCP-10218
   @admin
   @destructive
   Scenario: Check the storage class detail by oc describe
@@ -346,7 +346,7 @@ Feature: storageClass related feature
       | Parameters.*type=pd-ssd,zone=us-central1-b |
 
   # @author chaoyang@redhat.com
-  # @case_id 533050 533054
+  # @case_id OCP-10158 OCP-10162
   @admin
   Scenario Outline: PVC with storage class will provision pv with io1 type and 100/20000 iops ebs volume
     Given I have a project
@@ -388,7 +388,7 @@ Feature: storageClass related feature
       | 800Gi |
 
   # @author jhou@redhat.com
-  # @case_id 535466
+  # @case_id OCP-10325
   @admin
   Scenario: Error messaging for failed provision via StorageClass
     Given I have a project
@@ -423,7 +423,7 @@ Feature: storageClass related feature
     """
 
   # @author lxia@redhat.com
-  # @case_id 538248
+  # @case_id OCP-10459
   Scenario: Using both alpha and beta annotation in PVC
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
@@ -442,7 +442,7 @@ Feature: storageClass related feature
     """
     
   # @author chaoyang@redhat.com
-  # @case_id 533056 536609
+  # @case_id OCP-10164 OCP-10425
   @admin
   Scenario Outline: PVC with storage class will not provision pv with st1/sc1 type ebs volume if request size is wrong
     Given I have a project
@@ -475,7 +475,7 @@ Feature: storageClass related feature
       | st1  | 17Ti | too large for volume type st1 |
 
   # @author chaoyang@redhat.com
-  # @case_id 533055
+  # @case_id OCP-10163
   @admin
   Scenario: PVC with storage class will not provision io1 pv with wrong parameters for aws ebs volume
     Given I have a project
@@ -524,7 +524,7 @@ Feature: storageClass related feature
     """
 
   # @author chaoyang@redhat.com
-  # @case_id 533051
+  # @case_id OCP-10159
   @admin
   Scenario: PVC with storage class won't provisioned pv if no storage class or wrong storage class object
     Given I have a project

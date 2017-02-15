@@ -1,7 +1,7 @@
 Feature: oc tag related scenarios
 
   # @author xxia@redhat.com
-  # @case_id 492275 492278 492277 492279
+  # @case_id OCP-11142 OCP-11907 OCP-11733 OCP-12038
   Scenario Outline: Tag an image into image stream
     Given I have a project
     When I run the :tag client command with:
@@ -62,7 +62,7 @@ Feature: oc tag related scenarios
       | 492279  | docker      | docker.io/library/busybox:latest  | mystream   | DockerImage      |
 
   # @author xxia@redhat.com
-  # @case_id 492276
+  # @case_id OCP-11496
   Scenario: Tag an image into mutliple image streams
     Given I have a project
     When I run the :tag client command with:
@@ -117,7 +117,7 @@ Feature: oc tag related scenarios
     And the output should match "stream2.+tag2"
 
   # @author cryan@redhat.com
-  # @case_id 519853
+  # @case_id OCP-9864
   # @bug_id 1304109
   Scenario: oc tag gets istag pointing to image of latest revision from the source istag
     Given I have a project
@@ -146,7 +146,7 @@ Feature: oc tag related scenarios
     Then the output should match "set to.*<%= cb.img2[0..15] %>"
 
   # @author yanpzhan@redhat.com
-  # @case_id 528866
+  # @case_id OCP-10862
   Scenario: Delete spec tags
     Given I have a project
     When I run the :tag client command with:
@@ -193,7 +193,7 @@ Feature: oc tag related scenarios
       | not found |
 
   # @author mcurlej@redhat.com
-  # @case_id 519469
+  # @case_id OCP-12154
   Scenario: Tag should correctly add muptiple imagestreamtags to one imagestream
     Given I have a project
     When I run the :tag client command with:
@@ -256,7 +256,7 @@ Feature: oc tag related scenarios
       | not found          |
 
   # @author pruan@redhat.com
-  # @case_id 533103
+  # @case_id OCP-10171
   Scenario: New-app using tagged imagestreamtag across projects without cross-namespace permission
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -284,7 +284,7 @@ Feature: oc tag related scenarios
       | app=deadbeef533103 |
 
   # @author yinzhou@redhat.com
-  # @case_id 519470
+  # @case_id OCP-12212
   @admin
   Scenario: The image import controller should only import the necessary tag for specific docker image
     Given I have a project

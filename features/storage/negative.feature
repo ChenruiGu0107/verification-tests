@@ -1,6 +1,6 @@
 Feature: negative testing
   # @author lxia@redhat.com
-  # @case_id 533662
+  # @case_id OCP-10188
   Scenario: PVC creation negative testing
     Given I have a project
     # apiVersion

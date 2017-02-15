@@ -1,6 +1,6 @@
 Feature: oc global options (oc options) related scenarios
   # @author xxia@redhat.com
-  # @case_id 509019
+  # @case_id OCP-11751
   Scenario: Use '--loglevel' global option to see the sent API info for any oc command
     Given I have a project
     And I run the :run client command with:
@@ -87,7 +87,7 @@ Feature: oc global options (oc options) related scenarios
       | mydc |
 
   # @author xxia@redhat.com
-  # @case_id 509022
+  # @case_id OCP-12143
   Scenario: Use invalid values in kubeconfig-related global options -- negative
     Given I have a project
     And I run the :run client command with:
@@ -130,7 +130,7 @@ Feature: oc global options (oc options) related scenarios
     Then the step should fail
 
   # @author xxia@redhat.com
-  # @case_id 509018
+  # @case_id OCP-11524
   Scenario: Check the secure/insecure connection option for oc command - negative
     Given I have a project
     # Get master ca.crt
@@ -181,7 +181,7 @@ Feature: oc global options (oc options) related scenarios
     Then the step should succeed
 
   # @author xxia@redhat.com
-  # @case_id 509020
+  # @case_id OCP-11924
   Scenario: Use global options to choose kubeconfig for any oc commands
     Given I have a project
     When I run the :create client command with:
@@ -238,7 +238,7 @@ Feature: oc global options (oc options) related scenarios
     Then the step should succeed
 
   # @author xxia@redhat.com
-  # @case_id 509016
+  # @case_id OCP-12445
   Scenario: Check server version to match client version
     Given I have a project
 
@@ -307,7 +307,7 @@ Feature: oc global options (oc options) related scenarios
     Then the step should succeed
 
   # @author xxia@redhat.com
-  # @case_id 536512
+  # @case_id OCP-10983
   Scenario: Check the timeout for API request within oc/oadm command
     Given I have a project
     # Prepare a DC for below test

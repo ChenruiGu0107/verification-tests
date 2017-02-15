@@ -1,7 +1,7 @@
 Feature: oc_secrets.feature
 
   # @author cryan@redhat.com
-  # @case_id 490968
+  # @case_id OCP-12600
   Scenario: Add secrets to serviceaccount via oc secrets add
     Given I have a project
     When I run the :secrets client command with:
@@ -52,7 +52,7 @@ Feature: oc_secrets.feature
       |"name": "test" |
 
   # @author qwang@redhat.com
-  # @case_id 483167
+  # @case_id OCP-12244
   Scenario: CRUD operations on secrets
     Given I have a project
     # 1.1 Create a secret with a non-existing namespace
@@ -117,7 +117,7 @@ Feature: oc_secrets.feature
     And the output should not contain "second-secret"
 
   # @author xiaocwan@redhat.com
-  # @case_id 484330
+  # @case_id OCP-12033
   Scenario: [origin_platformexp_391] Operation should fail when lost argument for bundle secret
     When I run the :secrets client command with:
       | action | new        |
@@ -133,7 +133,7 @@ Feature: oc_secrets.feature
       |  error: |
 
   # @author xiaocwan@redhat.com
-  # @case_id 484325
+  # @case_id OCP-10631
   Scenario: [origin_platformexp_391] Project admin can process local directory or files and convert it to kubernetes secret
     Given I have a project
     When the "tmpfoo" file is created with the following lines:
@@ -179,7 +179,7 @@ Feature: oc_secrets.feature
       | tmpfile2 |
 
   # @author xxia@redhat.com
-  # @case_id 484329
+  # @case_id OCP-11900
   Scenario: Check name requirements for oc secret
     Given I have a project
     And I run the :get client command with:
@@ -232,7 +232,7 @@ Feature: oc_secrets.feature
       | cannot add key file.json.*another key by that name already exist |
 
   # @author wjiang@redhat.com
-  # @case_id 484327
+  # @case_id OCP-11482
   Scenario: Bundle secret will not load subdir and warning message will be displayed when -q is not present
     Given I have a project
     Given a "first/second/test" file is created with the following lines:
@@ -254,7 +254,7 @@ Feature: oc_secrets.feature
       | Skipping resource first/second |
   
   # @author geliu@redhat.com
-  # @case_id 533078
+  # @case_id OCP-10915
   Scenario: Remove secret from SA
     Given a "test1/testfile1" file is created with the following lines:
     |test1|

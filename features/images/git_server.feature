@@ -1,6 +1,6 @@
 Feature: git server related scenarios
   # @author xiuwang@redhat.com
-  # @case_id 500998
+  # @case_id OCP-10678
   Scenario: Config REQUIRE_SERVER_AUTH and REQUIRE_GIT_AUTH for git server
     Given I have a project
     And I have an http-git service in the project
@@ -80,7 +80,7 @@ Feature: git server related scenarios
       |error: only one of REQUIRE_SERVER_AUTH or REQUIRE_GIT_AUTH may be specified|
 
   # @author shiywang@redhat.com
-  # @case_id 500999
+  # @case_id OCP-11166
   Scenario: Do automatic build and deployment using private gitserver
     Given I have a project
     Given I have an http-git service in the project

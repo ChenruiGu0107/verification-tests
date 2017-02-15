@@ -1,7 +1,7 @@
 Feature: Regression testing cases
 
   # @author jhou@redhat.com
-  # @case_id 529390
+  # @case_id OCP-10050
   @admin
   @destructive
   Scenario: Delete PVC while pod is running

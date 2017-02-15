@@ -1,6 +1,6 @@
 Feature: Pod related networking scenarios
   # @author bmeng@redhat.com
-  # @case_id 514976
+  # @case_id OCP-9747
   @admin
   Scenario: Pod cannot claim UDP port 4789 on the node as part of a port mapping
     Given I have a project
@@ -17,7 +17,7 @@ Feature: Pod related networking scenarios
     """
 
   # @author bmeng@redhat.com
-  # @case_id 516869
+  # @case_id OCP-9802
   @admin
   Scenario: The user created docker container in openshift cluster should have outside network access
     Given I select a random node's host
@@ -36,7 +36,7 @@ Feature: Pod related networking scenarios
     And the output should contain "HTTP/1.1 200 OK"
 
   # @author bmeng@redhat.com
-  # @case_id 528320
+  # @case_id OCP-10016
   Scenario: The Completed/Failed pod should not run into TeardownNetworkError
     Given I have a project
     When I run the :create client command with:
@@ -55,7 +55,7 @@ Feature: Pod related networking scenarios
     And the output should not contain "TeardownNetworkError"
 
   # @author yadu@redhat.com
-  # @case_id 528410
+  # @case_id OCP-10031
   Scenario: Container could reach the dns server
     Given I have a project
     When I run the :create client command with:
@@ -70,7 +70,7 @@ Feature: Pod related networking scenarios
     """
 
   # @author bmeng@redhat.com
-  # @case_id 515233
+  # @case_id OCP-12675
   Scenario: containers can use vxlan as they want
     Given I have a project
     When I run the :create client command with:

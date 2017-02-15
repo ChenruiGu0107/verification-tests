@@ -1,6 +1,6 @@
 Feature: user scope scenarios
   # @author pruan@redhat.com
-  # @case_id 528230
+  # @case_id OCP-10853
   Scenario: Should return 403 when the scope exceed the impersonated user's permission
     Given I have a project
     And I perform the :list_projects rest request with:

@@ -1,6 +1,6 @@
 Feature: oc patch related scenarios
   # @author xxia@redhat.com
-  # @case_id 507672
+  # @case_id OCP-10696
   Scenario: oc patch can update one or more fields of rescource
     Given I have a project
     And I run the :run client command with:
@@ -38,7 +38,7 @@ Feature: oc patch related scenarios
     """
 
   # @author xxia@redhat.com
-  # @case_id 507674
+  # @case_id OCP-11518
   Scenario: oc patch to update resource fields using JSON format
     Given I have a project
     And I create a new application with:
@@ -91,7 +91,7 @@ Feature: oc patch related scenarios
     """
 
   # @author xxia@redhat.com
-  # @case_id 507685
+  # @case_id OCP-11173
   Scenario: oc patch cannot update non-existing fields and resources
     Given I have a project
     And I run the :run client command with:
@@ -118,7 +118,7 @@ Feature: oc patch related scenarios
     And the output should contain "not found"
 
   # @author xxia@redhat.com
-  # @case_id 507671
+  # @case_id OCP-10695
   Scenario: oc patch to update resource fields using YAML format
     Given I have a project
     And I create a new application with:
@@ -171,7 +171,7 @@ Feature: oc patch related scenarios
     """
 
   # @author xiaocwan@redhat.com
-  # @case_id 519480
+  # @case_id OCP-9853
   # @bug_id 1297910
   @admin
   Scenario: patch operation should use patched object to check admission control
@@ -210,7 +210,7 @@ Feature: oc patch related scenarios
     """
 
   # @author yanpzhan@redhat.com
-  # @case_id 531246
+  # @case_id OCP-12298
   Scenario: oc patch resource with different values for --type
     Given I have a project
     When I run the :create client command with:

@@ -1,6 +1,6 @@
 Feature: scaling related scenarios
   # @author pruan@redhat.com
-  # @case_id 482264
+  # @case_id OCP-10626
   Scenario: Scale replicas via replicationcontrollers and deploymentconfig
     Given I have a project
     And I create a new application with:
@@ -57,7 +57,7 @@ Feature: scaling related scenarios
       | error: --replicas=COUNT |
 
   # @author xxia@redhat.com
-  # @case_id 470697
+  # @case_id OCP-11700
   Scenario: Pod will automatically be created by replicationcontroller when it was deleted
     Given I have a project
     And I run the :run client command with:
@@ -89,7 +89,7 @@ Feature: scaling related scenarios
     And the output should not contain "<%= cb.pod_name %>"
 
   # @author pruan@redhat.com
-  # @case_id 511599
+  # @case_id OCP-11764
   Scenario: Scale up/down jobs
     Given I have a project
     And I run the :create client command with:
@@ -124,7 +124,7 @@ Feature: scaling related scenarios
       | Parallelism:\s+25 |
 
   # @author yinzhou@redhat.com
-  # @case_id 521567
+  # @case_id OCP-9908
   Scenario: Only scale the dc can scale the active deployment
     Given I have a project
     When I run the :create client command with:
@@ -164,7 +164,7 @@ Feature: scaling related scenarios
       | "replicas": 2          |
 
   # @author yinzhou@redhat.com
-  # @case_id 519821
+  # @case_id OCP-9862
   @admin
   Scenario: [openshift-sme]When rolling deployments the pod should shutdown gracefully
     Given I have a project
@@ -215,7 +215,7 @@ Feature: scaling related scenarios
 
 
   # @author yinzhou@redhat.com
-  # @case_id 515916
+  # @case_id OCP-10758
   @admin
   Scenario: HPA scale dc will update the deploymentconfig replicas
     Given I have a project

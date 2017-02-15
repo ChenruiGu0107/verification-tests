@@ -1,9 +1,9 @@
 Feature: ONLY ONLINE Create related feature's scripts in this file
 
   # @author etrott@redhat.com
-  # @case_id 530591
-  # @case_id 534633
-  # @case_id 534632
+  # @case_id OCP-10106
+  # @case_id OCP-12688
+  # @case_id OCP-12687
   Scenario Outline: Maven repository can be used to providing dependency caching for xPaas templates
     Given I have a project
     When I perform the :create_app_from_template_without_label web console action with:
@@ -95,8 +95,8 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | django-psql-persistent | django-psql-persistent  | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ |                 | Downloading https://mirror.openshift.com/mirror/python/web |
 
   # @author etrott@redhat.com
-  # @case_id 532961
-  # @case_id 533308
+  # @case_id OCP-10149
+  # @case_id OCP-10179
   Scenario Outline: Create resource from imagestream via oc new-app
     Given I have a project
     Then I run the :new_app client command with:
@@ -114,8 +114,8 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | openshift/redhat-sso70-openshift |
 
   # @author etrott@redhat.com
-  # @case_id 532963
-  # @case_id 533309
+  # @case_id OCP-10150
+  # @case_id OCP-10180
   Scenario Outline: Create applications with persistent storage using pre-installed templates
     Given I have a project
     Then I run the :new_app client command with:
@@ -133,7 +133,7 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
       | sso70-mysql-persistent     | sso          |
 
   # @author etrott@redhat.com
-  # @case_id 534850
+  # @case_id OCP-10270
   Scenario: Create Laravel application with a MySQL database using default template laravel-mysql-example
     Given I have a project
     Then I run the :new_app client command with:

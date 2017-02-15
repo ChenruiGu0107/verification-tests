@@ -1,9 +1,9 @@
 Feature: ONLY ONLINE STI related scripts in this file
 
   # @author etrott@redhat.com
-  # @case_id 530022
-  # @case_id 530007
-  # @case_id 530005
+  # @case_id OCP-10089
+  # @case_id OCP-10088
+  # @case_id OCP-10087
   Scenario Outline: Private Repository can be used to providing dependency caching for STI builds
     Given I have a project
     Given I perform the :create_app_from_image_with_bc_env_and_sample_repo web console action with:

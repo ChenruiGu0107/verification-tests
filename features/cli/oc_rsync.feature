@@ -1,7 +1,7 @@
 Feature: oc_rsync.feature
 
   # @author cryan@redhat.com
-  # @case_id 510657 510658 510659
+  # @case_id OCP-10727 OCP-11204 OCP-11538
   Scenario Outline: Copying files from container to host using oc rsync
     Given I have a project
     When I run the :new_app client command with:
@@ -47,7 +47,7 @@ Feature: oc_rsync.feature
       | rsync-daemon |
 
   # @author cryan@redhat.com
-  # @case_id 510660 510661 510662
+  # @case_id OCP-11763 OCP-11934 OCP-12054
   Scenario Outline: Copying files from host to container using oc rsync
     Given I have a project
     When I run the :new_app client command with:
@@ -89,7 +89,7 @@ Feature: oc_rsync.feature
       | rsync-daemon |
 
   # @author cryan@redhat.com
-  # @case_id 510665 510666 510667
+  # @case_id OCP-12257 OCP-12293 OCP-12320
   Scenario Outline: oc rsync with --delete option
     Given I have a project
     When I run the :new_app client command with:
@@ -144,7 +144,7 @@ Feature: oc_rsync.feature
       | rsync-daemon |
 
   # @author cryan@redhat.com
-  # @case_id 510664
+  # @case_id OCP-12208
   Scenario: Copying files from host to one of multi-containers using oc rsync comand --container option
     Given I have a project
     Given I create the "test" directory
@@ -182,7 +182,7 @@ Feature: oc_rsync.feature
       | Hello, World! 2 |
 
   # @author wewang@redhat.com
-  # @case_id 525986
+  # @case_id OCP-10833
   Scenario: Copying files from host to container using oc rsync command with --watch
     Given I have a project
     Given I create the "test" directory
@@ -265,7 +265,7 @@ Feature: oc_rsync.feature
     And the output should contain ""--watch" can only be used with a local source directory"
 
   # @author cryan@redhat.com
-  # @case_id 534507
+  # @case_id OCP-10221
   # @bug_id 1314817
   Scenario: oc rsync commands with not exited container
     Given I have a project

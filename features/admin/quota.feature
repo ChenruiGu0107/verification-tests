@@ -1,6 +1,6 @@
 Feature: Quota related scenarios
   # @author qwang@redhat.com
-  # @case_id 509090, 509092, 509093
+  # @case_id OCP-11754, OCP-12049, OCP-12145
   @admin
   Scenario Outline: The quota usage should be incremented if meet the following requirement
     Given I have a project
@@ -34,7 +34,7 @@ Feature: Quota related scenarios
       | tc509093 | pod-request-limit-valid-2.yaml | pod-request-limit-valid-2 | cpu\\s+200m\\s+30 | memory\\s+(268435456\|256Mi)\\s+16Gi |
 
   # @author qwang@redhat.com
-  # @case_id 509096
+  # @case_id OCP-12292
   @admin
   Scenario: The quota usage should NOT be incremented if Requests and Limits aren't specified
     Given I have a project
@@ -63,7 +63,7 @@ Feature: Quota related scenarios
       | memory\\s+0\\s+16Gi |
 
   # @author qwang@redhat.com
-  # @case_id 509095
+  # @case_id OCP-12256
   @admin
   Scenario: The quota usage should NOT be incremented if Requests > Limits
     Given I have a project
@@ -96,7 +96,7 @@ Feature: Quota related scenarios
     """
 
   # @author qwang@redhat.com
-  # @case_id 509094
+  # @case_id OCP-12206
   @admin
   Scenario: The quota usage should NOT be incremented if Requests = Limits but exceeding hard quota
     Given I have a project
@@ -125,7 +125,7 @@ Feature: Quota related scenarios
       | memory\\s+0\\s+16Gi |
 
   # @author xiaocwan@redhat.com
-  # @case_id 516457
+  # @case_id OCP-9778
   @admin
   Scenario: when the deployment can not be created due to a quota limit will get event from original report
     Given I have a project
@@ -151,7 +151,7 @@ Feature: Quota related scenarios
       | ailed quota: quota: must specify cpu,memory |
 
   # @author xiaocwan@redhat.com
-  # @case_id 481679
+  # @case_id OCP-11475
   @admin
   Scenario: DeploymentConfig should not allow the specification(which exceed resource quota) of resource requirements
     Given I have a project
@@ -200,7 +200,7 @@ Feature: Quota related scenarios
       | aximum cpu usage.*is 500m.*limit is 1020m |
 
   # @author xiaocwan@redhat.com
-  # @case_id 470361
+  # @case_id OCP-11881
   @admin
   Scenario: [origin_platformexp_372][origin_platformexp_334] Resource quota can be set for project
     Given I have a project
@@ -259,7 +259,7 @@ Feature: Quota related scenarios
     """
 
   # @author qwang@redhat.com
-  # @case_id 519921
+  # @case_id OCP-11566
   @admin
   Scenario: The quota status is calculated ASAP when editing its quota spec
     Given I have a project
@@ -314,7 +314,7 @@ Feature: Quota related scenarios
       | services.*100 |
 
   # @author xiaocwan@redhat.com
-  # @case_id 481681
+  # @case_id OCP-11893
   @admin
   Scenario: There is log event for deployment when they fail due to quota limits
     Given I have a project
@@ -360,7 +360,7 @@ Feature: Quota related scenarios
       | aximum cpu usage.*is 500m.*limit is 1020m |
 
   # @author xiaocwan@redhat.com
-  # @case_id 481678
+  # @case_id OCP-11111
   @admin
   Scenario: Buildconfig should support providing cpu and memory usage
     Given I have a project
@@ -413,7 +413,7 @@ Feature: Quota related scenarios
       | aximum cpu usage.*is 500m.*limit is 1020m |
 
   # @author qwang@redhat.com
-  # @case_id 520702
+  # @case_id OCP-10801
   @admin
   Scenario: Check BestEffort scope of resourcequota
     Given I have a project
@@ -464,7 +464,7 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+2 |
 
   # @author qwang@redhat.com
-  # @case_id 520703
+  # @case_id OCP-11251
   @admin
   Scenario: Check NotBestEffort scope of resourcequota
     Given I have a project
@@ -535,7 +535,7 @@ Feature: Quota related scenarios
       | requests.memory\\s+0\\s+1Gi |
 
   # @author qwang@redhat.com
-  # @case_id 520704
+  # @case_id OCP-11568
   @admin
   Scenario: Check NotTerminating scope of resourcequota
     Given I have a project
@@ -606,7 +606,7 @@ Feature: Quota related scenarios
       | requests.memory\\s+0\\s+1Gi |
 
   # @author qwang@redhat.com
-  # @case_id 520705
+  # @case_id OCP-11780
   @admin
   Scenario: Check Terminating scope of resourcequota
     Given I have a project
@@ -685,7 +685,7 @@ Feature: Quota related scenarios
 
 
   # @author chezhang@redhat.com
-  # @case_id 509087
+  # @case_id OCP-10706
   @admin
   Scenario: Could create quota if existing resources exceed to the hard quota but prevent to create further resources
     Given I have a project
@@ -754,7 +754,7 @@ Feature: Quota related scenarios
 
 
   # @author chezhang@redhat.com
-  # @case_id 519922
+  # @case_id OCP-11779
   @admin
   Scenario: The usage for cpu/mem/pod counts are fixed up ASAP if delete a pod
     Given I have a project
@@ -806,7 +806,7 @@ Feature: Quota related scenarios
       | services\\s+0\\s+10               |
     """
   # @author cryan@redhat.com
-  # @case_id 528448
+  # @case_id OCP-10033
   # @bug_id 1333122
   @admin
   Scenario: Quota events for compute resource failures shouldn't be redundant
@@ -830,7 +830,7 @@ Feature: Quota related scenarios
       | "database-1-" is forbidden: exceeded quota: myquota, requested: cpu=4,memory=4Gi, used: cpu=0    |
 
   # @author qwang@redhat.com
-  # @case_id 519920
+  # @case_id OCP-11247
   @admin
   Scenario: The current quota usage is calculated ASAP when adding a quota
     Given I have a project
@@ -874,7 +874,7 @@ Feature: Quota related scenarios
     """
 
   # @author qwang@redhat.com
-  # @case_id 509091
+  # @case_id OCP-11927
   @admin
   Scenario: The quota usage should be incremented if Requests = Limits and in the range of hard quota but exceed the real node available resources
     Given I have a project
@@ -912,7 +912,7 @@ Feature: Quota related scenarios
       | services\\s+0\\s+10               |
 
   # @author chezhang@redhat.com
-  # @case_id 532979
+  # @case_id OCP-10912
   @admin
   Scenario: Admin can restrict the ability to use services.nodeports
     Given I have a project
@@ -976,7 +976,7 @@ Feature: Quota related scenarios
       | services.nodeports\\s+2\\s+2 |
 
   # @author chezhang@redhat.com
-  # @case_id 532980
+  # @case_id OCP-11322
   @admin
   Scenario: Service with multi nodeports should be charged properly in the quota system
     Given I have a project
@@ -1011,7 +1011,7 @@ Feature: Quota related scenarios
       | services.nodeports\\s+0\\s+2 |
 
   # @author chezhang@redhat.com
-  # @case_id 532981
+  # @case_id OCP-11616
   @admin
   Scenario: services.nodeports in quota system work well when change service type
     Given I have a project
@@ -1060,7 +1060,7 @@ Feature: Quota related scenarios
       | services.nodeports\\s+1\\s+2 |
 
   # @author chezhang@redhat.com
-  # @case_id 533791
+  # @case_id OCP-10945
   @admin
   Scenario: The quota usage should be released when pod completed
     Given I have a project
@@ -1096,7 +1096,7 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+20     |
 
   # @author chezhang@redhat.com
-  # @case_id 533795
+  # @case_id OCP-11983
   @admin
   Scenario: Quota with BestEffort and NotBestEffort scope
     Given I have a project
@@ -1145,7 +1145,7 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+5      |
 
   # @author chezhang@redhat.com
-  # @case_id 533796
+  # @case_id OCP-12086
   @admin
   Scenario: Quota with Terminating and NotTerminating scope
     Given I have a project
@@ -1200,7 +1200,7 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+10  |
 
   # @author chezhang@redhat.com
-  # @case_id 533792
+  # @case_id OCP-11348
   @admin
   Scenario: Quota combined scopes
     Given I have a project
@@ -1289,7 +1289,7 @@ Feature: Quota related scenarios
       | pods\\s+2\\s+5 |
 
   # @author qwang@redhat.com
-  # @case_id 533793
+  # @case_id OCP-11636
   @admin
   Scenario: Quota scope conflict BestEffort and NotBestEffort
     Given I have a project
@@ -1302,7 +1302,7 @@ Feature: Quota related scenarios
     And the output should contain "spec.scopes: Invalid value: ["BestEffort","NotBestEffort"]: conflicting scopes"
 
   # @author qwang@redhat.com
-  # @case_id 533794
+  # @case_id OCP-11827
   @admin
   Scenario: Quota scope conflict Terminating and NotTerminating
     Given I have a project
@@ -1315,7 +1315,7 @@ Feature: Quota related scenarios
     And the output should contain "spec.scopes: Invalid value: ["Terminating","NotTerminating"]: conflicting scopes"
 
   # @author wmeng@redhat.com
-  # @case_id 534960
+  # @case_id OCP-10278
   Scenario: check QoS Tier BestEffort
     Given I have a project
     When I run the :create client command with:
@@ -1332,7 +1332,7 @@ Feature: Quota related scenarios
       | BestEffort |
 
   # @author wmeng@redhat.com
-  # @case_id 534961
+  # @case_id OCP-10279
   Scenario: check QoS Tier Burstable
     Given I have a project
     When I run the :create client command with:
@@ -1349,7 +1349,7 @@ Feature: Quota related scenarios
       | Burstable  |
 
   # @author wmeng@redhat.com
-  # @case_id 534962
+  # @case_id OCP-10280
   Scenario: check QoS Tier Guaranteed
     Given I have a project
     When I run the :create client command with:
@@ -1366,7 +1366,7 @@ Feature: Quota related scenarios
       | Guaranteed |
 
   # @author cryan@redhat.com
-  # @case_id 509088
+  # @case_id OCP-11187
   # @bug_id 1293836
   @admin
   Scenario: Resource quota value should not be fractional value
@@ -1394,7 +1394,7 @@ Feature: Quota related scenarios
     And the output should contain "not found"
 
   # @author cryan@redhat.com
-  # @case_id 509089
+  # @case_id OCP-11528
   @admin
   Scenario: Resource quota value should not be negative
     Given I have a project
@@ -1411,7 +1411,7 @@ Feature: Quota related scenarios
     And the output should contain "not found"
 
   # @author qwang@redhat.com
-  # @case_id 536679
+  # @case_id OCP-11000
   @admin
   Scenario: Negative test for requests.storage of quota
     Given I have a project
@@ -1456,7 +1456,7 @@ Feature: Quota related scenarios
 
 
   # @author qwang@redhat.com
-  # @case_id 534967
+  # @case_id OCP-10283
   @admin
   Scenario: Annotation selector supports special characters
     Given I have a project

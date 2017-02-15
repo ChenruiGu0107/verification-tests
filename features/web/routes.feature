@@ -1,6 +1,6 @@
 Feature: Routes related features on web console
   # @author yanpzhan@redhat.com
-  # @case_id 509106
+  # @case_id OCP-10710
   Scenario: Check Routes page
     Given I login via web console
     Given I have a project
@@ -46,7 +46,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 511915
+  # @case_id OCP-12321
   Scenario: Create unsecured route on web console
     When I create a new project via web
     Then the step should succeed
@@ -74,7 +74,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 511913
+  # @case_id OCP-12258
   Scenario: Create route for multi-port services on web console
     When I create a new project
     Then the step should succeed
@@ -117,7 +117,7 @@ Feature: Routes related features on web console
       | route to.*27017.*80 |
 
   # @author yapei@redhat.com
-  # @case_id 511914
+  # @case_id OCP-12294
   Scenario: Create route with invalid name and hostname on web console
     Given I create a new project
     When I run the :create client command with:
@@ -149,7 +149,7 @@ Feature: Routes related features on web console
     Then the output should contain "true"
 
   # @author yapei@redhat.com
-  # @case_id 511911
+  # @case_id OCP-12149
   Scenario: Create passthrough terminated route on web console
     Given I create a new project
     And I store default router IPs in the :router_ip clipboard
@@ -195,7 +195,7 @@ Feature: Routes related features on web console
     Then the output should contain "Hello-OpenShift"
 
   # @author yapei@redhat.com
-  # @case_id 511906
+  # @case_id OCP-11210
   Scenario: Add path when creating edge terminated route on web cosnole
     Given I create a new project
 
@@ -240,7 +240,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 511907
+  # @case_id OCP-11540
   Scenario: Create edge termianted route with redirect insecure traffic policy on web console
     Given I create a new project
 
@@ -275,7 +275,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 511909
+  # @case_id OCP-11936
   Scenario: Create edge terminated route with allow insecure traffic policies on web console
     Given I create a new project
 
@@ -314,7 +314,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 526534
+  # @case_id OCP-10840
   Scenario: Edit route on web console
     Given I have a project
     When I run the :create client command with:
@@ -373,7 +373,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 532706
+  # @case_id OCP-11316
   Scenario: Update route to point to multiple services
     Given I have a project
     When I run the :create client command with:
@@ -436,7 +436,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
   # @author: yanpzhan@redhat.com
-  # @case_id: 532705
+  # @case_id: OCP-10906
   Scenario: Create route pointing to multiple services
     Given I have a project
     When I run the :create client command with:

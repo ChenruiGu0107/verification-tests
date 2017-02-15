@@ -1,6 +1,6 @@
 Feature: petset related feature
   # @author yanpzhan@redhat.com
-  # @case_id 536556
+  # @case_id OCP-10985
   Scenario: Check PetSets on the overview page	
     Given the master version >= "3.4"
     Given I have a project

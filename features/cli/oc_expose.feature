@@ -1,7 +1,7 @@
 Feature: oc_expose.feature
 
   # @author cryan@redhat.com
-  # @case_id 483243
+  # @case_id OCP-11898
   Scenario: Expose the second sevice from service
     Given I have a project
     When I run the :new_app client command with:
@@ -33,7 +33,7 @@ Feature: oc_expose.feature
     And the output should contain "Everything is OK"
 
   # @author akostadi@redhat.com
-  # @case_id 483241
+  # @case_id OCP-11480
   Scenario: Expose services from deploymentconfig
     Given I have a project
     When I run the :new_app client command with:
@@ -57,7 +57,7 @@ Feature: oc_expose.feature
     And the output should contain "Everything is fine."
 
   # @author xiuwang@redhat.com
-  # @case_id 483240
+  # @case_id OCP-11121
   Scenario: Expose services from pod
     Given I have a project
     When I run the :new_app client command with:
@@ -82,7 +82,7 @@ Feature: oc_expose.feature
     And the output should contain "Everything is fine."
 
   # @author yadu@redhat.com
-  # @case_id 515695
+  # @case_id OCP-11548
   Scenario: Use service port name as route port.targetPort after 'oc expose service'
     Given I have a project
     When I run the :create client command with:
@@ -121,7 +121,7 @@ Feature: oc_expose.feature
     And the output should not contain "web"
 
   # @author xiuwang@redhat.com
-  # @case_id 483242
+  # @case_id OCP-11721
   Scenario: Expose sevice from replicationcontrollers
     Given I have a project
     When I run the :new_app client command with:
@@ -156,7 +156,7 @@ Feature: oc_expose.feature
     And the output should contain "Everything is OK"
 
   # @author pruan@redhat.com
-  # @case_id 529580
+  # @case_id OCP-10873
   Scenario: Access app througth secure service
     Given I have a project
     Given a "caddyfile.conf" file is created with the following lines:

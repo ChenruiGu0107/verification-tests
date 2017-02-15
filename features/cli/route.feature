@@ -1,6 +1,6 @@
 Feature: route related features via cli
   # @author yinzhou@redhat.com
-  # @case_id 470733
+  # @case_id OCP-12559
   Scenario: Create a route without route's name named ---should be failed
     Given I have a project
     When I run the :create client command with:
@@ -17,7 +17,7 @@ Feature: route related features via cli
       | equired value |
 
   # @author yinzhou@redhat.com
-  # @case_id 470734
+  # @case_id OCP-12560
   Scenario: Create a route without service named ---should be failed
     Given I have a project
     When I run the :create client command with:
@@ -35,7 +35,7 @@ Feature: route related features via cli
     And the project is deleted
 
   # @author yinzhou@redhat.com
-  # @case_id 470731
+  # @case_id OCP-12551
   Scenario: Create a route with invalid host ---should be failed
     Given I have a project
     When I run the :create client command with:
@@ -46,7 +46,7 @@ Feature: route related features via cli
     And the project is deleted
 
   # @author cryan@redhat.com
-  # @case_id 483239
+  # @case_id OCP-10629
   Scenario: Expose routes from services
     Given I have a project
     When I run the :new_app client command with:
@@ -71,7 +71,7 @@ Feature: route related features via cli
     Then the output should contain "Everything is fine"
 
   # @author cryan@redhat.com
-  # @case_id 470699
+  # @case_id OCP-12022
   Scenario: Be unable to add an existed alias name for service
     Given I have a project
     When I run the :create client command with:
@@ -83,7 +83,7 @@ Feature: route related features via cli
     And the output should contain "routes "route" already exists"
 
   # @author xiuwang@redhat.com
-  # @case_id 511843
+  # @case_id OCP-11209
   Scenario: Handle openshift cluster dns in builder containner when do sti build
     Given I have a project
     When I run the :new_app client command with:
@@ -118,7 +118,7 @@ Feature: route related features via cli
       | Hello from OpenShift v3 |
 
   # @author cryan@redhat.com
-  # @case_id 535239
+  # @case_id OCP-12091
   # @bug_id 1374772
   Scenario: haproxy config information should be clean when changing the service to another route
     Given I have a project

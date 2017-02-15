@@ -1,6 +1,6 @@
 Feature: oc import-image related feature
   # @author haowang@redhat.com
-  # @case_id 488868
+  # @case_id OCP-10637
   Scenario: import an invalid image stream
     When I have a project
     And I run the :import_image client command with:
@@ -10,7 +10,7 @@ Feature: oc import-image related feature
       | no.*"invalidimagename" exists |
 
   # @author chunchen@redhat.com
-  # @case_id 488870
+  # @case_id OCP-11490
   Scenario: [origin_infrastructure_437] Import new tags to image stream
     Given I have a project
     When I run the :create client command with:
@@ -44,7 +44,7 @@ Feature: oc import-image related feature
     Then the output should contain "tag: <%= cb.tag_name %>"
 
   # @author chaoyang@redhat.com
-  # @case_id 474368
+  # @case_id OCP-10585
   Scenario: [origin_infrastructure_319]Do not create tags for ImageStream if image repository does not have tags
     When I have a project
     And I run the :create client command with:
@@ -60,7 +60,7 @@ Feature: oc import-image related feature
     And the output should not contain "tags"
 
   # @author xxia@redhat.com
-  # @case_id 488869
+  # @case_id OCP-11127
   Scenario: Import new images to image stream
     Given I have a project
     When I run the :create client command with:
@@ -86,7 +86,7 @@ Feature: oc import-image related feature
       | latest.+aosqe/hello-openshift@sha256:       |
 
   # @author wjiang@redhat.com
-  # @case_id 510523
+  # @case_id OCP-10721
   Scenario: Could not import the tag when reference is true
     Given I have a project
     When I run the :create client command with:
@@ -102,7 +102,7 @@ Feature: oc import-image related feature
     """
 
   # @author wsun@redhat.com
-  # @case_id 510524
+  # @case_id OCP-11200
   Scenario: Import image when pointing to non-existing docker image
     Given I have a project
     When I run the :create client command with:
@@ -117,7 +117,7 @@ Feature: oc import-image related feature
     """
 
   # @author wjiang@redhat.com
-  # @case_id 510525
+  # @case_id OCP-11536
   Scenario: Import image when spec.DockerImageRepository defined without any tags
     Given I have a project
     When I run the :create client command with:
@@ -133,7 +133,7 @@ Feature: oc import-image related feature
     """
 
   # @author wjiang@redhat.com
-  # @case_id 510526
+  # @case_id OCP-11760
   Scenario: Import Image when spec.DockerImageRepository not defined
     Given I have a project
     When I run the :create client command with:
@@ -151,7 +151,7 @@ Feature: oc import-image related feature
     """
 
   # @author wjiang@redhat.com
-  # @case_id 510527
+  # @case_id OCP-11931
   Scenario: Import image when spec.DockerImageRepository with some tags defined when Kind!=DockerImage
     Given I have a project
     When I run the :create client command with:
@@ -180,7 +180,7 @@ Feature: oc import-image related feature
     """
 
   # @author wjiang@redhat.com
-  # @case_id 510528
+  # @case_id OCP-12052
   Scenario: Import image when spec.DockerImageRepository with some tags defined when Kind==DockerImage
     Given I have a project
     When I run the :create client command with:
@@ -196,7 +196,7 @@ Feature: oc import-image related feature
     """
 
   # @author wsun@redhat.com
-  # @case_id 510529
+  # @case_id OCP-12147
   Scenario: Import Image without tags and spec.DockerImageRepository set
     Given I have a project
     When I run the :create client command with:
@@ -209,7 +209,7 @@ Feature: oc import-image related feature
       | error: image stream |
 
   # @author xiaocwan@redhat.com
-  # @case_id 519468
+  # @case_id OCP-12062
   Scenario: oc import-image should take the new api endpoint to run imports instead of clearing the annotation
     Given I have a project
     When I run the :tag client command with:
@@ -234,7 +234,7 @@ Feature: oc import-image related feature
       | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
 
   # @author xiaocwan@redhat.com
-  # @case_id 474369
+  # @case_id OCP-11089
   Scenario: Tags should be added to ImageStream if image repository is from an external docker registry
     Given I have a project
     When I run the :create client command with:
@@ -254,7 +254,7 @@ Feature: oc import-image related feature
     """
 
   # @author xiaocwan@redhat.com
-  # @case_id 528307
+  # @case_id OCP-10856
   Scenario: Negative test for Import app from docker-compose
     Given I have a project
 

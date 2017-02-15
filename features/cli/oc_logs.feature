@@ -1,6 +1,6 @@
 Feature: oc logs related features
   # @author wzheng@redhat.com
-  # @case_id 438848
+  # @case_id OCP-12017
   Scenario: Get buildlogs with invalid parameters
     Given I have a project
     When I run the :logs client command with:
@@ -13,7 +13,7 @@ Feature: oc logs related features
     And the output should contain "resource name may not be empty"
 
   # @author xxia@redhat.com
-  # @case_id 512022
+  # @case_id OCP-10740
   Scenario: oc logs for a resource with miscellaneous options
     Given I have a project
     When I create a new application with:

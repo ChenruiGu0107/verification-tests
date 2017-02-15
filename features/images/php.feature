@@ -1,7 +1,7 @@
 Feature: php image related tests
 
   # @author cryan@redhat.com
-  # @case_id 515813 515814
+  # @case_id OCP-9773 OCP-9774
   # @bug_id 1249794
   Scenario Outline: Files can be uploaded to tm folder inside container
     Given I have a project
@@ -38,7 +38,7 @@ Feature: php image related tests
       | 56    |
 
   # @author dyan@redhat.com
-  # @case_id 540188 540189 540189
+  # @case_id OCP-11027 540189 OCP-11408
   Scenario Outline: Add COMPOSER_MIRROR env var to Php S2I
     Given I have a project
     When I run the :new_build client command with:

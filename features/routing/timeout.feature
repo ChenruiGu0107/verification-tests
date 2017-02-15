@@ -1,7 +1,7 @@
 Feature: Testing timeout route
 
   # @author: yadu@redhat.com
-  # @case_id: 533703
+  # @case_id: OCP-11982
   Scenario: Set timeout for unsecure route
     Given I have a project
     When I run the :create client command with:
@@ -29,7 +29,7 @@ Feature: Testing timeout route
     Then the output should contain "504 Gateway"
 
   # @author: yadu@redhat.com
-  # @case_id: 533700
+  # @case_id: OCP-11347
   Scenario: Set timeout for edge route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -71,7 +71,7 @@ Feature: Testing timeout route
     Then the output should contain "504 Gateway"
 
   # @author: yadu@redhat.com
-  # @case_id: 533701
+  # @case_id: OCP-11635
   Scenario: Set timeout for passthough route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -115,7 +115,7 @@ Feature: Testing timeout route
     Then the output should contain "curl: (56)"
 
   # @author: yadu@redhat.com
-  # @case_id: 533702
+  # @case_id: OCP-11826
   Scenario: Set timeout for reencrypt route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -165,7 +165,7 @@ Feature: Testing timeout route
     Then the output should contain "504 Gateway"
 
   # @author yadu@redhat.com
-  # @case_id 533699
+  # @case_id OCP-10943
   @admin
   Scenario: Set invalid timeout for route
     Given I have a project

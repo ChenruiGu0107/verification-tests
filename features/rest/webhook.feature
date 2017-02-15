@@ -1,7 +1,7 @@
 Feature: Webhook REST Related Tests
 
   # @author cryan@redhat.com
-  # @case_id 438843 438845
+  # @case_id OCP-11693 OCP-11875
   Scenario Outline: Trigger build with webhook
     Given I have a project
     And I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
@@ -49,7 +49,7 @@ Feature: Webhook REST Related Tests
       | github  | Generic   | ImageChange | generic   | github/testdata/  | pushevent.json    | X-Github-Event | push    |
 
   # @author yantan@redhat.com
-  # @case_id 470417
+  # @case_id OCP-12632
   Scenario: Webhook request check
     Given I have a project
     When I run the :new_app client command with:
@@ -200,7 +200,7 @@ Feature: Webhook REST Related Tests
       | github  | 0   | github/testdata/  | pushevent.json    | X-Github-Event | push    |                              |                                         |
 
   # @author cryan@redhat.com
-  # @case_id 525850
+  # @case_id OCP-11270
   Scenario: New parameter can be passed via generic webhook
     Given I have a project
     When I run the :new_app client command with:
@@ -243,7 +243,7 @@ Feature: Webhook REST Related Tests
       | sample-app |
 
   # @author dyan@redhat.com
-  # @case_id 525849
+  # @case_id OCP-10832
   Scenario: Existing parameter can be overlapped via generic webhook
     Given I have a project
     When I run the :new_app client command with:
@@ -281,7 +281,7 @@ Feature: Webhook REST Related Tests
     And the output should not contain "sample-app"
 
   # @author shiywang@redhat.com
-  # @case_id 525739
+  # @case_id OCP-12513
   Scenario: Builder images with onbuild instructions and tar should build success
     Given I have a project
     When I run the :new_app client command with:
@@ -292,7 +292,7 @@ Feature: Webhook REST Related Tests
     And the "ruby-hello-world-1" build completed
 
   # @author shiywang@redhat.com
-  # @case_id 525740
+  # @case_id OCP-12514
   Scenario: Do sti build using image without tar and onbuild instruction should build successfully
     Given I have a project
     When I run the :new_app client command with:
@@ -302,7 +302,7 @@ Feature: Webhook REST Related Tests
     And the "ruby-hello-world-1" build completed
 
   # @author shiywang@redhat.com
-  # @case_id 526524
+  # @case_id OCP-12515
   Scenario: Do sti build using image with onbuild instructions and without sh should build failed
     Given I have a project
     When I run the :new_app client command with:
@@ -314,7 +314,7 @@ Feature: Webhook REST Related Tests
     And the output should contain "/bin/sh: No such file or directory" 
   
   # @author wewang@redhat.com
-  # @case_id 509014
+  # @case_id OCP-9663
   @admin
   @destructive
   Scenario: Verify guestbook example of Atomic Host works

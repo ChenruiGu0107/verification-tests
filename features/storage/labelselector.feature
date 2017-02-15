@@ -1,7 +1,7 @@
 Feature: Target pvc to a specific pv
 	
   # @author chaoyang@redhat.com
-  # @case_id 531523
+  # @case_id OCP-12220
   @admin
   @destructive
   Scenario: Target pvc to a specific pv with label selector
@@ -23,7 +23,7 @@ Feature: Target pvc to a specific pv
     And the "nfspv2-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 531521
+  # @case_id OCP-12077
   @admin
   @destructive
   Scenario: PVC could not bind PV with label selector matches but binding requirements are not met
@@ -40,7 +40,7 @@ Feature: Target pvc to a specific pv
     And the "nfspv-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 531516
+  # @case_id OCP-10890
   @admin
   @destructive
   Scenario: PVC with less label selectors could bound to PV 
@@ -66,7 +66,7 @@ Feature: Target pvc to a specific pv
     And the "nfspv2-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 531522
+  # @case_id OCP-12164
   @admin
   @destructive
   Scenario: Target pvc to a best fit size pv with same label selector
@@ -88,7 +88,7 @@ Feature: Target pvc to a specific pv
     And the "nfspv2-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 531520
+  # @case_id OCP-11971
   @admin
   @destructive
   Scenario: PVC could bind prebound PV with mismatched label
@@ -104,7 +104,7 @@ Feature: Target pvc to a specific pv
     And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
 
   # @author chaoyang@redhat.com
-  # @case_id 531518
+  # @case_id OCP-11609
   @admin
   @destructive
   Scenario: Prebound PVC could bind to pv and ignore the label selector 
@@ -127,7 +127,7 @@ Feature: Target pvc to a specific pv
     And the "nfspv1-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 531519
+  # @case_id OCP-11810
   @admin
   @destructive
   Scenario: PVC and PV still bound after remove the pv label
@@ -151,7 +151,7 @@ Feature: Target pvc to a specific pv
     And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
 
   # @author chaoyang@redhat.com
-  # @case_id 531524
+  # @case_id OCP-12268
   @admin
   @destructive
   Scenario: Target pvc to pv with same label selector and multi accessmode
@@ -178,7 +178,7 @@ Feature: Target pvc to a specific pv
     And the "nfsc3-<%= project.name %>" PVC becomes bound to the "nfspv3-<%= project.name %>" PV
 
   # @author chaoyang@redhat.com
-  # @case_id 531517
+  # @case_id OCP-11307
   @admin
   @destructive
   Scenario: PVC without any VolumeSelector could bind a PV with any labels

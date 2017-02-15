@@ -1,7 +1,7 @@
 Feature: oc exports related scenarios
 
   # @author pruan@redhat.com
-  # @case_id 488095
+  # @case_id OCP-12576
   Scenario: Export resource as json format by oc export
     Given I have a project
     And I run the :create client command with:
@@ -58,7 +58,7 @@ Feature: oc exports related scenarios
       | frontend.*[Cc]onfig.*[Ii]mage |
 
   # @author pruan@redhat.com
-  # @case_id 488096
+  # @case_id OCP-12577
   Scenario: Export resource as template format by oc export
     Given I have a project
     And I run the :create client command with:
@@ -111,7 +111,7 @@ Feature: oc exports related scenarios
       | frontend |
 
   # @author pruan@redhat.com
-  # @case_id 488871
+  # @case_id OCP-12594
   Scenario: Negative test for oc export
     Given I have a project
     And I run the :create client command with:
@@ -167,7 +167,7 @@ Feature: oc exports related scenarios
       | error: no resources found - nothing to export |
 
   # @author pruan@redhat.com
-  # @case_id 489300
+  # @case_id OCP-12598
   Scenario: Convert a file to specific version by oc export
     Given I have a project
     When I run the :export client command with:

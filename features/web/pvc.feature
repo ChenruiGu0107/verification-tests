@@ -1,6 +1,6 @@
 Feature: Add pvc to pod from web related
   # @author yanpzhan@redhat.com
-  # @case_id 515688
+  # @case_id OCP-10752
   @admin
   @destructive
   Scenario: Attach pvc to pod with multiple containers from web console
@@ -83,7 +83,7 @@ Feature: Add pvc to pod from web related
       | f1 |
 
   # @author yanpzhan@redhat.com
-  # @case_id 515690
+  # @case_id OCP-11547
   @admin
   @destructive
   Scenario: Display and attach PVC to pod from web console
@@ -204,7 +204,7 @@ Feature: Add pvc to pod from web related
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 533616
+  # @case_id OCP-11628
   @admin
   @destructive
   Scenario: Display and attach PVC to pod from web console - 3.3
@@ -314,7 +314,7 @@ Feature: Add pvc to pod from web related
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 531254
+  # @case_id OCP-10126
   Scenario: Create persist volume claim from web console
     Given I have a project
 

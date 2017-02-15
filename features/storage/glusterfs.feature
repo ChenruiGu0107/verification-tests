@@ -1,7 +1,7 @@
 Feature: Storage of GlusterFS plugin testing
 
   # @author wehe@redhat.com
-  # @case_id 522140
+  # @case_id OCP-9932
   @admin
   @destructive
   Scenario: Gluster storage testing with Invalid gluster endpoint
@@ -39,7 +39,7 @@ Feature: Storage of GlusterFS plugin testing
     """
 
   # @author lxia@redhat.com
-  # @case_id 508054
+  # @case_id OCP-12654
   @admin
   @destructive
   Scenario: GlusterFS volume plugin with RWO access mode and Retain policy
@@ -91,7 +91,7 @@ Feature: Storage of GlusterFS plugin testing
     And the PV becomes :released
 
   # @author chaoyang@redhat.com
-  # @case_id 510730
+  # @case_id OCP-9707
   @admin
   @destructive
   Scenario: Glusterfs volume security testing
@@ -144,7 +144,7 @@ Feature: Storage of GlusterFS plugin testing
       | Permission denied  |
 
   # @author jhou@redhat.com
-  # @case_id 484932
+  # @case_id OCP-11488
   @admin
   @destructive
   Scenario: Pod references GlusterFS volume directly from its template
@@ -167,7 +167,7 @@ Feature: Storage of GlusterFS plugin testing
     And the pod named "gluster" becomes ready
 
   # @author jhou@redhat.com
-  # @case_id 534847
+  # @case_id OCP-10267
   @admin
   Scenario: Dynamically provision a GlusterFS volume
     Given I have a StorageClass named "glusterprovisioner"
@@ -198,7 +198,7 @@ Feature: Storage of GlusterFS plugin testing
       | gluster_testfile |
 
   # @author jhou@redhat.com
-  # @case_id 534844
+  # @case_id OCP-10265
   @admin
   Scenario: Dynamically provisioned GlusterFS volume should have correct capacity
     Given I have a StorageClass named "glusterprovisioner"
@@ -215,7 +215,7 @@ Feature: Storage of GlusterFS plugin testing
     And the expression should be true> pvc.capacity(user: user) == "15Gi"
 
   # @author jhou@redhat.com
-  # @case_id 534845
+  # @case_id OCP-10266
   @admin
   Scenario: Reclaim a provisioned GlusterFS volume
     Given I have a StorageClass named "glusterprovisioner"
@@ -237,7 +237,7 @@ Feature: Storage of GlusterFS plugin testing
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 60 seconds
 
   # @author jhou@redhat.com
-  # @case_id 535784
+  # @case_id OCP-10356
   @admin
   Scenario: Dynamically provision a GlusterFS volume using heketi secret
     # A StorageClass preconfigured on the test env
@@ -262,7 +262,7 @@ Feature: Storage of GlusterFS plugin testing
 
 
   # @author jhou@redhat.com
-  # @case_id 535055
+  # @case_id OCP-10287
   @admin
   Scenario: Endpoint and service are created/deleted by dynamic provisioner
     Given I have a StorageClass named "glusterprovisioner"
@@ -286,7 +286,7 @@ Feature: Storage of GlusterFS plugin testing
     Then the step should succeed
 
   # @author jhou@redhat.com
-  # @case_id 535758
+  # @case_id OCP-10355
   @admin
   Scenario: Should throw meaningful message when deleting a PVC having StorageClass already deleted
     Given I have a StorageClass named "glusterprovisioner"
@@ -328,7 +328,7 @@ Feature: Storage of GlusterFS plugin testing
       | "storageclass-<%= project.name%>" not found |
 
   # @author jhou@redhat.com
-  # @case_id 544344
+  # @case_id OCP-12109
   @admin
   Scenario: Using invalid gidMax/gidMin in the StorageClass
     Given I have a StorageClass named "glusterprovisioner"
@@ -378,7 +378,7 @@ Feature: Storage of GlusterFS plugin testing
     """
 
   # @author jhou@redhat.com
-  # @case_id 544937
+  # @case_id OCP-10554
   @admin
   Scenario: Pods should be assigned a valid GID using GlusterFS dynamic provisioner
     Given I have a StorageClass named "glusterprovisioner"
@@ -469,7 +469,7 @@ Feature: Storage of GlusterFS plugin testing
 
 
   # @author jhou@redhat.com
-  # @case_id 544341
+  # @case_id OCP-11676
   @admin
   Scenario: Dynamic provisioner should not provision PV/volume with duplicate gid
     Given I have a StorageClass named "glusterprovisioner"
