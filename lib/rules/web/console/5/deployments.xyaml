@@ -45,10 +45,6 @@ manually_deploy:
 cancel_deployments:
   action: goto_one_deployment_page
   action: click_cancel
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'Cancelling deployment')]
-    timeout: 60
 edit_replicas_on_deployment_page:
   action: goto_one_dc_page
   action: click_on_configuration_tab
