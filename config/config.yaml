@@ -54,19 +54,29 @@ environments:
     # cli: SharedLocalCliExecutor
     admin_cli: MasterKubeconfigLocalAdminCliExecutor
     api_port: 8443
-  dedicated:
+  ded_int_aws:
     hosts: api.ded-int-aws.openshift.com:etcd:master:node
     web_console_url: https://console.ded-int-aws.openshift.com
     hosts_type: Host # we can't basically access that host so this should work
     type: StaticEnvironment
     user_manager: auto
-    #set OPENSHIFT_ENV_DEDICATED_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #set OPENSHIFT_ENV_DED_INT_AWS_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #user_manage_users:
+    cli: SharedLocalCliExecutor
+    admin_cli: false
+  ded_stage_aws:
+    hosts: api.ded-stage-aws.openshift.com:etcd:master:node
+    web_console_url: https://console.ded-stage-aws.openshift.com
+    hosts_type: Host # we can't basically access that host so this should work
+    type: StaticEnvironment
+    user_manager: auto
+    #set OPENSHIFT_ENV_DED_STAGE_AWS_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
   online:
-    hosts: api.dev-preview-int.openshift.com:etcd:master:node
-    web_console_url: https://console.dev-preview-int.openshift.com
+    hosts: api.preview.openshift.com:etcd:master:node
+    web_console_url: https://console.preview.openshift.com
     hosts_type: Host # we can't basically access that host so this should work
     type: StaticEnvironment
     user_manager: auto
@@ -74,6 +84,27 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+  dev_preview_stg:
+    hosts: api.dev-preview-stg.openshift.com:etcd:master:node
+    web_console_url: https://console.dev-preview-stg.openshift.com
+    hosts_type: Host # we can't basically access that host so this should work
+    type: StaticEnvironment
+    user_manager: auto
+    #set OPENSHIFT_ENV_DED_PREVIEW_STG_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #user_manage_users:
+    cli: SharedLocalCliExecutor
+    admin_cli: false
+  dev_preview_int:
+    hosts: api.dev-preview-int.openshift.com:etcd:master:node
+    web_console_url: https://console.dev-preview-int.openshift.com
+    hosts_type: Host # we can't basically access that host so this should work
+    type: StaticEnvironment
+    user_manager: auto
+    #set OPENSHIFT_ENV_DEV_PREVIEW_INT_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #user_manage_users:
+    cli: SharedLocalCliExecutor
+    admin_cli: false
+
 optional_classes:
   tcms_tc_manager:
     include_path: tcms/tcms_manager
