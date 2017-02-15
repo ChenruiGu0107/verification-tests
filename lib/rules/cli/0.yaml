@@ -156,11 +156,15 @@
     :cacert: --ca-cert=<value>
     :path: --path=<value>
     :insecure_policy: --insecure-policy=<value>
+    :wildcardpolicy: --wildcard-policy=<value>
+    :help: --help
 :create_route_passthrough:
   :cmd: oc create route passthrough <name>
   :options:
     :hostname: --hostname=<value>
     :service: --service=<value>
+    :wildcardpolicy: --wildcard-policy=<value>
+    :help: --help
 :create_route_reencrypt:
   :cmd: oc create route reencrypt <name>
   :options:
@@ -171,6 +175,8 @@
     :cacert: --ca-cert=<value>
     :destcacert: --dest-ca-cert=<value>
     :path: --path=<value>
+    :wildcardpolicy: --wildcard-policy=<value>
+    :help: --help
 :create_secret:
   :cmd: oc create secret <createservice_type>
 :create_service:
@@ -300,6 +306,7 @@
     :path: --path=<value>
     :hostname: --hostname=<value>
     :wildcardpolicy: --wildcard-policy=<value>
+    :help: --help
 :extract:
   :cmd: oc extract
   :options:

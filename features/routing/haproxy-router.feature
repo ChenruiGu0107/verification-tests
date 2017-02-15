@@ -387,6 +387,7 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     #access the route without cookies
     When I execute on the pod:
       | curl |
@@ -498,6 +499,7 @@ Feature: Testing haproxy router
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
 
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I run the :create_route_edge client command with:
       | name | edge-route |
       | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
@@ -604,6 +606,7 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
     Then the output should not contain "Hello-OpenShift"
     When I execute on the "hello-pod" pod:
@@ -967,6 +970,7 @@ Feature: Testing haproxy router
       | key_val | router=red |
     Then the step should succeed
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I execute on the "hello-pod" pod:
       | curl |
       | -sS |
@@ -1096,6 +1100,7 @@ Feature: Testing haproxy router
       | service | service-secure |
     Then the step should succeed
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I execute on the "hello-pod" pod:
       | curl |
       | -sS |
@@ -1121,6 +1126,7 @@ Feature: Testing haproxy router
       | service | service-secure |
     Then the step should succeed
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I execute on the "hello-pod" pod:
       | curl |
       | -sS |
@@ -1146,6 +1152,7 @@ Feature: Testing haproxy router
       | service | service-secure |
     Then the step should succeed
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I execute on the "hello-pod" pod:
       | curl |
       | -sS |
@@ -1389,6 +1396,7 @@ Feature: Testing haproxy router
       | service | service-unsecure |
     Then the step should succeed
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I execute on the pod:
       | curl |
       | https:// <%= route("edge-route", service("service-unsecure")).dns(by: user) %> |
@@ -2367,6 +2375,7 @@ Feature: Testing haproxy router
       | keyval       | haproxy.router.openshift.io/disable_cookies=true |
     Then the step should succeed
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     Given I run the steps 5 times:
     """
     When I execute on the pod:
