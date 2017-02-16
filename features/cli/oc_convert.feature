@@ -34,8 +34,8 @@ Feature: oc convert related scenarios
       | local | false             |
       | o     | json              |
     Then the step should succeed
-    And the output should contain:
-      | "kind": "ScheduledJob"         |
+    And the output should match:
+      | "kind": "(Scheduled\|Cron)Job" |
       | "apiVersion": "batch/v2alpha1" |
     #convert files in directory and create
     Given I create the "testdir" directory
@@ -50,8 +50,8 @@ Feature: oc convert related scenarios
       | _stdin | <%= @result[:response] %> |
     Then the step should succeed
     And the output should match:
-      | job.*pi.*created             |
-      | scheduledjob.*hello.*created |
+      | job.*pi.*created                     |
+      | (scheduled\|cron)job.*hello.*created |
     # convert recursively
     Given I create the "mult/dir1" directory
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job.yaml" into the "mult/dir1" dir
