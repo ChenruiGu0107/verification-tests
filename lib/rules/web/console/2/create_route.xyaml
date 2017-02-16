@@ -1,7 +1,11 @@
 #-------create route on web console-------
 open_create_route_page_from_service_page:
   action: goto_one_service_page
-  action: click_create_route
+  element:
+    selector: 
+      text: Create route
+    type: a
+    op: click
 click_create_route:
   elements:
   - selector:
