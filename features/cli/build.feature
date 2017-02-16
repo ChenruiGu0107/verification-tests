@@ -2641,7 +2641,7 @@ Feature: build 'apps' with CLI
     And the output should contain "Cannot find git"
 
   # @author cryan@redhat.com
-  # @case_id 533608
+  # @case_id OCP-10185
   # @bug_id 1357674
   Scenario: Create new build from git repository without origin remote defined
     Given I have a project
@@ -2651,6 +2651,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     When I run the :new_app client command with:
       | app_repo | ruby-hello-world |
+      | name     | newtest          |
     Then the step should succeed
     When I get project bc
     Then the output should contain "Binary"
