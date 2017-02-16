@@ -597,3 +597,36 @@ Feature: SCC policy related scenarios
       | payload_file | PodSecurityPolicyReview.json |
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedServiceAccounts"][0]["allowedBy"]["name"] == "restricted"
+
+  # @author: yinzhou@redhat.com
+  # @case_id: OCP-11237
+  @admin
+  Scenario: Cluster admin can configure the default capabilities for scc
+    Given the first user is cluster-admin
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_with_all_cap.yaml"
+    Given the following scc policy is created: scc_with_all_cap.yaml
+    And I replace lines in "scc_with_all_cap.yaml":
+      | - KILL | |
+    When I run the :replace client command with:
+      | f | scc_with_all_cap.yaml |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource      | scc              |
+      | resource_name | scc-with-all-cap |
+      | o             | yaml             |
+    And the output should not contain:
+      | KILL |
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_drop_all_cap.yaml"
+    Given the following scc policy is created: scc_drop_all_cap.yaml
+    And I replace lines in "scc_drop_all_cap.yaml":
+      | - SETPCAP | |
+    When I run the :replace client command with:
+      | f | scc_drop_all_cap.yaml |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource      | scc              |
+      | resource_name | scc-drop-all-cap |
+      | o             | yaml             |
+    And the output should not contain:
+      | SETPCAP |
+
