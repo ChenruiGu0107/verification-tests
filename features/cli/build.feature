@@ -1158,15 +1158,16 @@ Feature: build 'apps' with CLI
       | resource | buildconfig |
       | resource_name | ruby-sample-build |
       | p | {"spec": {"strategy": {"sourceStrategy": {"scripts": "http:/foo.bar.com/invalid/assemble"}}}} |
-      Then the step should succeed
-      When I run the :start_build client command with:
-        | buildconfig | ruby-sample-build |
-      Then the step should succeed
-      Given the "ruby-sample-build-2" build finishes
-      When I run the :logs client command with:
-        | resource_name | build/ruby-sample-build-2 |
-      Then the step should succeed
-      And the output should contain "Could not download"
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build finishes
+    When I run the :logs client command with:
+      | resource_name | build/ruby-sample-build-2 |
+    Then the step should succeed
+    And the output should match:
+      | [Cc]ould not download |
 
   # @case_id 517666
   Scenario: Add a image with multiple paths as source input
