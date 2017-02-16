@@ -38,13 +38,12 @@ Feature: php image related tests
       | 56    |
 
   # @author dyan@redhat.com
-  # @case_id OCP-11027 540189 OCP-11408
+  # @case_id OCP-11027 OCP-11408 OCP-11673
   Scenario Outline: Add COMPOSER_MIRROR env var to Php S2I
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo    | openshift/php:<image>~https://github.com/openshift/cakephp-ex |
-      | context_dir | /app/Plugin/DebugKit                                          |
-      | e           | COMPOSER_MIRROR=http://not/a/valid/index                      |
+      | app_repo    | openshift/php:<image>~https://github.com/openshift-qe/cakephp-ex |
+      | e           | COMPOSER_MIRROR=http://not/a/valid/index                         |
     Then the step should succeed
     Given the "cakephp-ex-1" build failed
     When I run the :logs client command with:
@@ -55,4 +54,3 @@ Feature: php image related tests
       | 5.5   |
       | 5.6   |
       | 7.0   |
-
