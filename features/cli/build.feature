@@ -2652,6 +2652,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     When I run the :new_app client command with:
       | app_repo | ruby-hello-world |
+      | name     | newtest          |
     Then the step should succeed
     When I get project bc
     Then the output should contain "Binary"
