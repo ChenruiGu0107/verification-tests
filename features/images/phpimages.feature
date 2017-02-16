@@ -1,7 +1,7 @@
 Feature: phpimages.feature
 
   # @author cryan@redhat.com
-  # @case_id 499480
+  # @case_id OCP-9598
   # @bug_id 1253248
   Scenario: session.save_path works well in non privileged mode - php-55-rhel7
     Given I have a project
@@ -25,7 +25,7 @@ Feature: phpimages.feature
       | error |
 
   # @author wzheng@redhat.com
-  # @case_id 526520,526521
+  # @case_id OCP-10838,OCP-11274
   @no-online
   Scenario Outline: Update php image to autoconfigure based on available memory
     Given I have a project

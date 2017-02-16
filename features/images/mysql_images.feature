@@ -1,6 +1,6 @@
 Feature: mysql_images.feature
   # @author haowang@redhat.com
-  # @case_id 511968
+  # @case_id OCP-9722
   Scenario: mysql persistent template
     Given I have a project
     When I run the :new_app client command with:
@@ -37,7 +37,7 @@ Feature: mysql_images.feature
     And the output should contain:
       | 10 |
   # @author haowang@redhat.com
-  # @case_id 501051
+  # @case_id OCP-12342
   Scenario: Verify DB can be connect after change admin and user password and re-deployment for ephemeral storage - mysql-55-rhel7
     Given I have a project
     And I run the :new_app client command with:
@@ -94,7 +94,7 @@ Feature: mysql_images.feature
     And the output should contain:
       | 10 |
   # @author haowang@redhat.com
-  # @case_id 501055
+  # @case_id OCP-12419
   Scenario: Verify DB can be connect after change admin and user password and re-deployment for persistent storage - mysql-55-rhel7
     Given I have a project
     And I run the :new_app client command with:
@@ -147,7 +147,7 @@ Feature: mysql_images.feature
       | 10 |
 
   # @author haowang@redhat.com
-  # @case_id 508132 508134
+  # @case_id OCP-11177 OCP-11747
   Scenario Outline: Data remains after pod being re-created for clustered mysql - mysql-55-rhel7 mysql-56-rhel7
     Given I have a project
     And I download a file from "<file>"
@@ -230,7 +230,7 @@ Feature: mysql_images.feature
       | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
       | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
   # @author haowang@redhat.com
-  # @case_id 508136 508138
+  # @case_id OCP-12045 OCP-12202
   Scenario Outline: Data remains after pod being scaled up from 0 for clustered mysql - mysql-55-rhel7 mysql-57-rhel7
     Given I have a project
     And I download a file from "<file>"
@@ -319,7 +319,7 @@ Feature: mysql_images.feature
       | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
       | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
   # @author haowang@redhat.com
-  # @case_id 508140 508142
+  # @case_id OCP-12288 OCP-12343
   Scenario Outline: Data remains after redeployment clustered mysql - mysql-55-rhel7 mysql-56-rhel7
     Given I have a project
     And I download a file from "<file>"
@@ -398,7 +398,7 @@ Feature: mysql_images.feature
       | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
 
   # @author wzheng@redhat.com
-  # @case_id 527284,527285
+  # @case_id OCP-10845,OCP-11278
   Scenario Outline: Check memory limits env vars when pod is set with memory limit
     Given I have a project
     When I run the :run client command with:
@@ -424,7 +424,7 @@ Feature: mysql_images.feature
       | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     |
 
   # @author wzheng@redhat.com
-  # @case_id 527288,527289
+  # @case_id OCP-11955,OCP-12067
   Scenario Outline: Use default values for memory limits env vars
     Given I have a project
     When I run the :run client command with:
@@ -452,7 +452,7 @@ Feature: mysql_images.feature
       | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     |
 
   # @author wzheng@redhat.com
-  # @case_id 527286,527287
+  # @case_id OCP-11585,OCP-11789
   Scenario Outline: Use customized values for memory limits env vars
     Given I have a project
     When I run the :run client command with:
@@ -477,7 +477,7 @@ Feature: mysql_images.feature
       | rhscl/mysql-56-rhel7       | /etc/my.cnf.d/tuning.cnf                     |
 
   # @author yantan@redhat.com
-  # @case_id 501042
+  # @case_id OCP-11513
   Scenario: Verify clustered mysql can be connected after password changed - mysql-56-rhel7
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json"

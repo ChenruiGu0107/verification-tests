@@ -1,7 +1,7 @@
 Feature: change the policy of user/service account
 
   # @author anli@redhat.com
-  # @case_id 479042
+  # @case_id OCP-10609
   @smoke
   @admin
   Scenario: Add/Remove a global role
@@ -25,7 +25,7 @@ Feature: change the policy of user/service account
       | cannot list pods in project "default" |
 
   # @author xxing@redhat.com
-  # @case_id 467925, 470316
+  # @case_id OCP-11074, 470316
   Scenario: User can view ,add, remove and modify roleBinding via admin role user
     Given I have a project
     When I run the :describe client command with:
@@ -71,7 +71,7 @@ Feature: change the policy of user/service account
     """
 
   # @author wyue@redhat.com
-  # @case_id 470304
+  # @case_id OCP-12238
   @admin
   Scenario: Creation of new project roles when allowed by cluster-admin
     ##cluster admin create a project and add another user as admin
@@ -135,7 +135,7 @@ Feature: change the policy of user/service account
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 470312
+  # @case_id OCP-12430
   @admin
   Scenario: Could get projects for new role which has permission to get projects
     When I run the :create admin command with:
@@ -159,7 +159,7 @@ Feature: change the policy of user/service account
       | <%= project.name %>.*Active |
 
   # @author xiaocwan@redhat.com
-  # @case_id 470662
+  # @case_id OCP-12634
   @admin
   Scenario: [origin_platformexp_239] The page should have error notification popup when got error during archiving resources of project from server
     Given admin creates a project
@@ -185,7 +185,7 @@ Feature: change the policy of user/service account
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
-  # @case_id 470308
+  # @case_id OCP-12354
   @admin
   Scenario: [origin_platformexp_386][origin_platformexp_279]Both global policy bindings and project policy bindings work
     Given I have a project
@@ -235,7 +235,7 @@ Feature: change the policy of user/service account
       | <%= user(1).name %> |
 
   # @author xiaocwan@redhat.com
-  # @case_id 470309
+  # @case_id OCP-12380
   @admin
   Scenario: [origin_platformexp_279]Project bindings only work against the intended project
     Given a 5 characters random string of type :dns is stored into the :project_1 clipboard
@@ -280,7 +280,7 @@ Feature: change the policy of user/service account
     Then the step should fail
 
   # @author xiaocwan@redhat.com
-  # @case_id 467926
+  # @case_id OCP-11442
   Scenario: [origin_platformexp_214] User can view, add , modify and delete specific role to/from new added project via admin role user
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/projectviewservice.json"
@@ -331,7 +331,7 @@ Feature: change the policy of user/service account
       | watch         |
 
   # @author xiaocwan@redhat.com
-  # @case_id 490721
+  # @case_id OCP-11904
   @admin
   Scenario: [origin_platformexp_340]The builder service account only has get/update access to image streams in its own project
     Given a 5 characters random string of type :dns is stored into the :proj1 clipboard
@@ -388,7 +388,7 @@ Feature: change the policy of user/service account
       | Namespace: <all>  |
 
   # @author anli@redhat.com
-  # @case_id 470302
+  # @case_id OCP-12119
   @admin
   Scenario: Cluster admin could delegate the administration of a project to a project admin
     Given a 5 characters random string of type :dns is stored into the :proj1 clipboard
@@ -411,7 +411,7 @@ Feature: change the policy of user/service account
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
-  # @case_id 520732
+  # @case_id OCP-10802
   Scenario: Check registry-viewer permission
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
@@ -442,7 +442,7 @@ Feature: change the policy of user/service account
     Then the step should fail
 
   # @author xiaocwan@redhat.com
-  # @case_id 520734
+  # @case_id OCP-11569
   Scenario: Check the registry-editor permission
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
@@ -488,7 +488,7 @@ Feature: change the policy of user/service account
     Then the step should fail
 
   # @author wsun@redhat.com
-  # @case_id 526285
+  # @case_id OCP-11273
   @admin
   Scenario: UserA could impersonate UserB
     Given I have a project
@@ -506,7 +506,7 @@ Feature: change the policy of user/service account
     Then the step should fail
 
   # @author yinzhou@redhat.com
-  # @case_id 520733
+  # @case_id OCP-11252
   Scenario: Check the registry-admin permission
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
@@ -554,7 +554,7 @@ Feature: change the policy of user/service account
       | Users:\\s+<%= user(1, switch: false).name %> |
 
   # @author pruan@redhat.com
-  # @case_id 484332
+  # @case_id OCP-12195
   @admin
   Scenario: User should have privileges to access project when add its group as a project role
     Given a 5 characters random string of type :dns is stored into the :group_name clipboard
@@ -589,7 +589,7 @@ Feature: change the policy of user/service account
       | Active             |
 
   # @author chezhang@redhat.com
-  # @case_id 534289
+  # @case_id OCP-10211
   @admin
   Scenario: DaemonSet only support Always restartPolicy
     Given I have a project
@@ -612,7 +612,7 @@ Feature: change the policy of user/service account
     Then the step should succeed
 
   # @author chaoyang@redhat.com
-  # @case_id 538206
+  # @case_id OCP-10447
   @admin
   Scenario: Basic user could not get deeper storageclass object info
     Given I have a project
@@ -655,7 +655,7 @@ Feature: change the policy of user/service account
       | cannot create storage.k8s.io.storageclasses at the cluster scope |
 
   # @author chaoyang@redhat.com
-  # @case_id 538207
+  # @case_id OCP-10448
   @admin
   Scenario: User with role storage-admin can check deeper storageclass object info
     Given I have a project
@@ -710,7 +710,7 @@ Feature: change the policy of user/service account
     Then I wait for the resource "storageclass" named "sc-<%= project.name %>" to disappear within 60 seconds
 
   # @author chaoyang@redhat.com
-  # @case_id 538273
+  # @case_id OCP-10466
   @admin
   Scenario: User with role storage-admin can check deeper pv object info
     Given I have a project
@@ -768,7 +768,7 @@ Feature: change the policy of user/service account
     Then I wait for the resource "pv" named "pv-<%= project.name %>" to disappear within 60 seconds
 
   # @author chaoyang@redhat.com
-  # @case_id 538274
+  # @case_id OCP-10467
   @admin
   Scenario: User with role storage-admin can get pvc object info
     Given I have a project
@@ -822,7 +822,7 @@ Feature: change the policy of user/service account
       | User "<%= user.name %>" cannot delete persistentvolumeclaims |
 
   # @author chaoyang@redhat.com
-  # @case_id 538270
+  # @case_id OCP-10465
   @admin
   Scenario: Basic user could not get pv object info
     Given I have a project

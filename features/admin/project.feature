@@ -104,7 +104,7 @@ Feature: project permissions
     Then the step should succeed
 
   # @author wyue@redhat.com
-  # @case_id 470315
+  # @case_id OCP-12457
   @admin
   Scenario: Only cluster-admin could get namespaces
     ## create a project with non cluster-admin user
@@ -126,7 +126,7 @@ Feature: project permissions
       | default             |
 
   # @author pruan@redhat.com
-  # @case_id 481692
+  # @case_id OCP-11476
   @admin
   Scenario: oadm new-project should fail when invalid node selector is given
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
@@ -156,7 +156,7 @@ Feature: project permissions
       | nvalid value.*env, |
 
   # @author pruan@redhat.com
-  # @case_id 481693
+  # @case_id OCP-11717
   @admin
   Scenario: Pod creation should fail when pod's node selector conflicts with project node selector
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
@@ -173,7 +173,7 @@ Feature: project permissions
       | pod node label selector conflicts with its project node label selector |
 
   # @author chaoyang@redhat.com
-  # @case_id 481696
+  # @case_id OCP-12128
   @admin
   Scenario: Could not create a project with invalid node-selector
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
@@ -186,7 +186,7 @@ Feature: project permissions
       | [Ii]nvalid value.*env,qa |
 
   # @author yinzhou@redhat.com
-  # @case_id 511603
+  # @case_id OCP-10736
   @admin
   Scenario: The job and HPA should be deleted when project has been deleted
     Given I have a project

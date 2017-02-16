@@ -1,7 +1,7 @@
 Feature: AWS specific scenarios
 
   # @author jhou@redhat.com
-  # @case_id 533137
+  # @case_id OCP-10173
   @admin
   Scenario: PV with invalid volume id should be prevented from creating
     Given admin ensures "ebsinvalid" pv is deleted after scenario

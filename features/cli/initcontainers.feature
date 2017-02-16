@@ -1,7 +1,7 @@
 Feature: InitContainers
 
   # @author dma@redhat.com
-  # @case_id 532749
+  # @case_id OCP-11318
   Scenario: App container run depends on initContainer results in pod
     Given I have a project
     When I run the :create client command with:
@@ -29,7 +29,7 @@ Feature: InitContainers
       | Ready\\s+False       |
 
   # @author dma@redhat.com
-  # @case_id 532751
+  # @case_id OCP-11814
   Scenario: Check volume and readiness probe field in initContainer
     Given I have a project
     When I run the :create client command with:
@@ -50,7 +50,7 @@ Feature: InitContainers
       | spec.initContainers\[0\].readinessProbe: Invalid value.*must not be set for init containers|
 
   # @author dma@redhat.com
-  # @case_id 532754
+  # @case_id OCP-12166
   Scenario: InitContainer should failed after exceed activeDeadlineSeconds
     Given I have a project
     When I run the :create client command with:
@@ -66,7 +66,7 @@ Feature: InitContainers
     """
 
   # @author chezhang@redhat.com
-  # @case_id 532748
+  # @case_id OCP-10908
   Scenario: Access init container by oc command
     Given I have a project
     When I run the :create client command with:
@@ -118,7 +118,7 @@ Feature: InitContainers
       | hello init container |
 
   # @author chezhang@redhat.com
-  # @case_id 532752
+  # @case_id OCP-11975
   @admin
   Scenario: Init containers properly apply to quota and limits
     Given I have a project
@@ -167,7 +167,7 @@ Feature: InitContainers
       | QoS.*Burstable |
 
   # @author chezhang@redhat.com
-  # @case_id 532755
+  # @case_id OCP-12222
   @admin
   Scenario: SCC rules should apply to init containers
     Given I have a project

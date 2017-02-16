@@ -1,7 +1,7 @@
 Feature: oc new-app related scenarios
 
   # @author xiaocwan@redhat.com
-  # @case_id 538949
+  # @case_id OCP-10471
   Scenario: oc new-app handle arg variables in Dockerfiles
     Given I have a project
     When I run the :new_app client command with:
@@ -12,7 +12,7 @@ Feature: oc new-app related scenarios
       | invalid syntax |
 
   # @author yapei@redhat.com
-  # @case_id 509066
+  # @case_id OCP-12255
   Scenario: cli:parameter requirement check works correctly
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"

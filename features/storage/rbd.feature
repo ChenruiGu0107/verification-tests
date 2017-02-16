@@ -1,7 +1,7 @@
 Feature: Storage of Ceph plugin testing
 
   # @author wehe@redhat.com
-  # @case_id 522141
+  # @case_id OCP-9933
   @admin
   @destructive
   Scenario: Ceph persistent volume with invalid monitors
@@ -42,7 +42,7 @@ Feature: Storage of Ceph plugin testing
     """
 
   # @author jhou@redhat.com
-  # @case_id 510566
+  # @case_id OCP-9701
   @admin
   @destructive
   Scenario: Ceph rbd security testing
@@ -97,7 +97,7 @@ Feature: Storage of Ceph plugin testing
       | 123456 |
 
   # @author jhou@redhat.com
-  # @case_id 507419
+  # @case_id OCP-9635
   @admin
   @destructive
   Scenario: Create Ceph rbd pod which reference the rbd server directly from pod template
@@ -112,7 +112,7 @@ Feature: Storage of Ceph plugin testing
     And the pod named "rbd" becomes ready
 
   # @author lxia@redhat.com
-  # @case_id 510534
+  # @case_id OCP-9693
   @admin
   @destructive
   Scenario: [storage_201] Only one pod with rbd volume can be scheduled when NoDiskConflicts policy is enabled
@@ -154,7 +154,7 @@ Feature: Storage of Ceph plugin testing
       | NoDiskConflict   |
 
   # @author jhou@redhat.com
-  # @case_id 539077
+  # @case_id OCP-10485
   @admin
   Scenario: Dynamically provision Ceph RBD volumes
     Given I have a StorageClass named "cephrbdprovisioner"
@@ -201,7 +201,7 @@ Feature: Storage of Ceph plugin testing
       | 123456 |
 
   # @author jhou@redhat.com
-  # @case_id 534848
+  # @case_id OCP-10268
   @admin
   Scenario: Dynamically provisioned rbd volumes should have correct capacity
     Given I have a StorageClass named "cephrbdprovisioner"
@@ -220,7 +220,7 @@ Feature: Storage of Ceph plugin testing
 
 
   # @author jhou@redhat.com
-  # @case_id 534849
+  # @case_id OCP-10269
   @admin
   Scenario: Reclaim a dynamically provisioned Ceph RBD volumes
     Given I have a StorageClass named "cephrbdprovisioner"

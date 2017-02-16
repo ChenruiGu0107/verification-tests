@@ -2,7 +2,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
   # @author jialiu@redhat.com
   # @author jhou@redhat.com
-  # @case_id 491430
+  # @case_id OCP-11732
   Scenario: Add/Remove persistentVolumeClaim to dc and rc and '--overwrite' option
     # Preparations
     Given I have a project
@@ -158,7 +158,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
 
   # @author jialiu@redhat.com
-  # @case_id 491427
+  # @case_id OCP-10645
   Scenario: Add/Remove emptyDir volume to dc and rc
     # Preparations
     Given I have a project
@@ -268,7 +268,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should fail
 
   # @author jialiu@redhat.com
-  # @case_id 491429
+  # @case_id OCP-11495
   @admin
   @destructive
   Scenario: Add/Remove hostPath volume to dc and rc
@@ -399,7 +399,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should fail
 
   # @author chaoyang@redhat.com
-  # @case_id 499636
+  # @case_id OCP-9606
   @admin
   @destructive
   Scenario: Create a claim when adding volumes to dc/rc
@@ -458,7 +458,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
 
   # @author lxia@redhat.com
-  # @case_id 519349
+  # @case_id OCP-9845
   Scenario: Pod should be able to mount multiple PVCs
     # Preparations
     Given I have a project
@@ -548,7 +548,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | claimName: pvc2-<%= project.name %> |
 
   # @author wehe@redhat.com
-  # @case_id 536533 539535 539536 
+  # @case_id OCP-10414 OCP-10489 OCP-10490
   @admin
   Scenario Outline: oc set volume with claim-class parameter test 
     Given I have a project
@@ -611,7 +611,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | cinder      |
 
   # @author wehe@redhat.com
-  # @case_id 536534
+  # @case_id OCP-10415
   @admin
   Scenario: Negetive test of oc set volume with claim-class paraters 
     Given I have a project

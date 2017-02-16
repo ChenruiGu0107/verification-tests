@@ -1,6 +1,6 @@
 Feature: hpa scale
   # @author chezhang@redhat.com
-  # @case_id 533611
+  # @case_id OCP-10931
   Scenario: HPA shouldn't scale up target if the replicas of dc is 0
     Given I have a project
     When I run the :create client command with:
@@ -34,7 +34,7 @@ Feature: hpa scale
     And the output should not contain "hello-openshift-"
 
   # @author chezhang@redhat.com
-  # @case_id 533612
+  # @case_id OCP-11338
   Scenario: HPA shouldn't scale up target if the replicas of rc is 0
     Given I have a project
     When I run the :create client command with:
@@ -67,7 +67,7 @@ Feature: hpa scale
     And the output should not contain "hello-openshift-"
 
   # @author chezhang@redhat.com
-  # @case_id 521543
+  # @case_id OCP-11259
   Scenario: Creates autoscaler for replication controller by oc autoscale
     Given I have a project
     When I run the :create client command with:
@@ -114,7 +114,7 @@ Feature: hpa scale
       | run=hello-openshift           |
 
   # @author chezhang@redhat.com
-  # @case_id 521544
+  # @case_id OCP-11576
   Scenario: Creates autoscaler for replication controller with invalid value
     Given I have a project
     When I run the :create client command with:

@@ -1,6 +1,6 @@
 Feature: Egress-ingress related networking scenarios
   # @author yadu@redhat.com
-  # @case_id 521634
+  # @case_id OCP-11263
   Scenario: Invalid QoS parameter could not be set for the pod
     Given I have a project
     When I run the :create client command with:
@@ -16,7 +16,7 @@ Feature: Egress-ingress related networking scenarios
     """
 
   # @author yadu@redhat.com
-  # @case_id 533252
+  # @case_id OCP-12083
   @admin
   Scenario: Set the CIDRselector in EgressNetworkPolicy to invalid value
     Given the env is using multitenant network
@@ -30,7 +30,7 @@ Feature: Egress-ingress related networking scenarios
 
 
   # @author yadu@redhat.com
-  # @case_id 533249
+  # @case_id OCP-11625
   @admin
   Scenario: Only the cluster-admins can create EgressNetworkPolicy
     Given the env is using multitenant network
@@ -75,7 +75,7 @@ Feature: Egress-ingress related networking scenarios
       | deleted             |
 
   # @author yadu@redhat.com
-  # @case_id 534293
+  # @case_id OCP-12087
   @admin
   Scenario: EgressNetworkPolicy can be deleted after the project deleted
     Given the env is using multitenant network
@@ -97,7 +97,7 @@ Feature: Egress-ingress related networking scenarios
 
 
   # @author yadu@redhat.com
-  # @case_id 533858
+  # @case_id OCP-10947
   @admin
   @destructive
   Scenario: Dropping all traffic when multiple egressnetworkpolicy in one project
@@ -133,7 +133,7 @@ Feature: Egress-ingress related networking scenarios
 
 
   # @author yadu@redhat.com
-  # @case_id 533247
+  # @case_id OCP-10926
   @admin
   @destructive
   Scenario: All the traffics should be dropped when the single egressnetworkpolicy points to multiple projects
@@ -230,7 +230,7 @@ Feature: Egress-ingress related networking scenarios
 
 
   # @author yadu@redhat.com
-  # @case_id 533248
+  # @case_id OCP-11335
   @admin
   @destructive
   Scenario: egressnetworkpolicy cannot take effect when adding to a globel project
@@ -310,7 +310,7 @@ Feature: Egress-ingress related networking scenarios
    And the output should contain "HTTP/1.1 200"
 
   # @author yadu@redhat.com
-  # @case_id 534292
+  # @case_id OCP-11639
   @admin
   @destructive
   Scenario: EgressNetworkPolicy will not take effect after delete it
@@ -362,7 +362,7 @@ Feature: Egress-ingress related networking scenarios
     And the output should contain "HTTP/1.1 200"
 
   # @author bmeng@redhat.com
-  # @case_id 533251
+  # @case_id OCP-11978
   @admin
   @destructive
   Scenario: Set EgressNetworkPolicy to limit the pod connection to specific CIDR ranges in different namespaces

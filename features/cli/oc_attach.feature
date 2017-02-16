@@ -1,6 +1,6 @@
 Feature: oc attach related scenarios
   # @author yapei@redhat.com
-  # @case_id 499954
+  # @case_id OCP-11162
   Scenario: check oc attach functionality
     Given I have a project
     And evaluation of `"doublecontainers"` is stored in the :pod_name clipboard
@@ -44,7 +44,7 @@ Feature: oc attach related scenarios
       | serving on 8888 |
 
   # @author yapei@redhat.com
-  # @case_id 499953
+  # @case_id OCP-10672
   Scenario: Negative test for oc attach
     Given I have a project
     And I run the :exec_raw_oc_cmd_for_neg_tests client command with:

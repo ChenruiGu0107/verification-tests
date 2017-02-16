@@ -1,7 +1,7 @@
 Feature: ServiceAccount and Policy Managerment
 
   # @author anli@redhat.com
-  # @case_id 490717
+  # @case_id OCP-10642
   Scenario: Could grant admin permission for the service account username to access to its own project
     Given I have a project
     When I create a new application with:
@@ -28,7 +28,7 @@ Feature: ServiceAccount and Policy Managerment
       | myapp   |
 
   # @author xxing@redhat.com
-  # @case_id 490722
+  # @case_id OCP-12035
   Scenario: The default service account could only get access to imagestreams in its own project
     Given I have a project
     When I run the :policy_who_can client command with:
@@ -62,7 +62,7 @@ Feature: ServiceAccount and Policy Managerment
       | system:serviceaccount:<%= Regexp.escape(project.name) %>:default |
 
   # @author xxia@redhat.com
-  # @case_id 497381
+  # @case_id OCP-12644
   Scenario: Could grant view permission for the service account username to access to its own project
     Given I have a project
     When I create a new application with:
@@ -101,7 +101,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should fail
 
   # @author anli@redhat.com
-  # @case_id 497373
+  # @case_id OCP-12637
   Scenario: Could grant edit permission for the service account group to access to other project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
@@ -140,7 +140,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should fail
 
   # @author anli@redhat.com
-  # @case_id 497374
+  # @case_id OCP-12638
   Scenario: Could grant view permission for the service account group to access to other project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
@@ -188,7 +188,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should fail
 
   # @author anli@redhat.com
-  # @case_id 497375
+  # @case_id OCP-12639
   Scenario: Could grant edit permission for the service account group to access to its own project
     Given I have a project
     When I create a new application with:
@@ -229,7 +229,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should fail
 
   # @author anli@redhat.com
-  # @case_id 497376
+  # @case_id OCP-12640
   Scenario: Could grant view permission for the service account group to access to its own project
     Given I have a project
     When I create a new application with:
@@ -269,7 +269,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should fail
 
   # @author anli@redhat.com
-  # @case_id 497377
+  # @case_id OCP-12641
   Scenario: Could grant edit permission for the service account username to access to other project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
@@ -315,7 +315,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should fail
 
   # @author anli@redhat.com
-  # @case_id 497378
+  # @case_id OCP-12642
   Scenario: Could grant view permission for the service account username to access to other project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
@@ -362,7 +362,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should fail
 
   # @author anli@redhat.com
-  # @case_id 497380
+  # @case_id OCP-12643
   Scenario: Could grant edit permission for the service account username to access to its own project
     Given I have a project
     Given I create the serviceaccount "test1"
@@ -396,7 +396,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should fail
 
   # @author xiaocwan@redhat.com
-  # @case_id 491400
+  # @case_id OCP-10644
   Scenario: [origin_platformexp_407] Create pods without ImagePullSecrets will inherit the ImagePullSecrets from its service account.
     Given I have a project
     And I create the serviceaccount "myserviceaccount<%= project.name  %>"
@@ -416,7 +416,7 @@ Feature: ServiceAccount and Policy Managerment
       | imagePullSecrets:\\s+- name: myserviceaccount<%= project.name  %>-dockercfg     |
 
   # @author xiaocwan@redhat.com
-  # @case_id 490720
+  # @case_id OCP-11730
   Scenario: Could grant admin permission for the service account group to access to other project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     And an 8 characters random string of type :dns is stored into the :project2 clipboard
@@ -458,7 +458,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
-  # @case_id 490718
+  # @case_id OCP-11135
   Scenario: Could grant admin permission for the service account username to access to its own project
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
@@ -497,7 +497,7 @@ Feature: ServiceAccount and Policy Managerment
       | hello-openshift |
 
   # @author xxia@redhat.com
-  # @case_id 511007
+  # @case_id OCP-10733
   Scenario: Inside one pod, the user of oc operations is the service account that runs the pod
     Given I have a project
     When I run the :run client command with:
@@ -525,7 +525,7 @@ Feature: ServiceAccount and Policy Managerment
     And the output should contain "mydc"
 
   # @author xiaocwan@redhat.com
-  # @case_id 490719
+  # @case_id OCP-11494
   Scenario: Could grant admin permission for the service account group to access to its own project
     Given I have a project
     When I run the :new_app client command with:
@@ -558,7 +558,7 @@ Feature: ServiceAccount and Policy Managerment
     Then the step should succeed
 
   # @author xxia@redhat.com
-  # @case_id 483278
+  # @case_id OCP-11722
   Scenario: Check the serviceaccount that runs pod
     Given I have a project
     When I run the :create client command with:
@@ -614,7 +614,7 @@ Feature: ServiceAccount and Policy Managerment
       | secretName: myserviceaccount-token   |
 
   # @author xiaocwan@redhat.com
-  # @case_id 483279
+  # @case_id OCP-11899
   Scenario: Check project service accounts and API tokens associated with the accounts
     Given I have a project
     When I get project sa
@@ -648,7 +648,7 @@ Feature: ServiceAccount and Policy Managerment
       | token:\\s+\w+ |
 
   # @author wjiang@redhat.com
-  # @case_id 520589
+  # @case_id OCP-11249
   Scenario: User can get the serviceaccount token via client
     Given I have a project
     When I run the :serviceaccounts_get_token client command with:
@@ -681,7 +681,7 @@ Feature: ServiceAccount and Policy Managerment
       |eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOi|
 
   # @author wjiang@redhat.com
-  # @case_id 520588
+  # @case_id OCP-10800
   Scenario: User can generate new token for specific serviceaccount via client
     Given I have a project
     When I run the :serviceaccounts_new_token client command with:
@@ -738,7 +738,7 @@ Feature: ServiceAccount and Policy Managerment
       |system:serviceaccount:<%= project.name %>:<%= cb.serviceaccount_name %>|
 
   # @author yinzhou@redhat.com
-  # @case_id: 526284
+  # @case_id: OCP-10836
   @admin
   Scenario: Admin and Editor have the power to impersonate SAs in their namespace
     Given I have a project

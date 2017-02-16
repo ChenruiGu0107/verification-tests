@@ -1,7 +1,7 @@
 Feature: Api proxy related cases
   
   # @author wjiang@redhat.com
-  # @case_id 509124
+  # @case_id OCP-11531
   # @bug_id 1346167
   @admin
   Scenario: Cluster-admin can access both http and https pods and services via the API proxy

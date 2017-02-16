@@ -1,7 +1,7 @@
 Feature: oc get related command
 
   # @author xiaocwan@redhat.com
-  # @case_id 530512
+  # @case_id OCP-10880
   @admin
   Scenario: `oc get all` command should display titles on headers for different sections
     ## 1. Check all resouces in default project
@@ -51,7 +51,7 @@ Feature: oc get related command
       | svc/database   |
 
   # @author xiaocwan@redhat.com
-  # @case_id 535721
+  # @case_id OCP-11987
   Scenario Outline: Show friendly message when request resource is empty instead of return nothing
     Given I have a project
     When I run the :get client command with:
@@ -79,7 +79,7 @@ Feature: oc get related command
       | routes        |
 
   # @author xiaocwan@redhat.com
-  # @case_id 539685
+  # @case_id OCP-10497
   Scenario Outline: Show friendly message when user can not list in cluster scope
     Given I have a project
     When I run the :get client command with:
@@ -101,7 +101,7 @@ Feature: oc get related command
       | pv               |
 
   # @author xxia@redhat.com
-  # @case_id 533912
+  # @case_id OCP-10209
   Scenario: Get raw URI with oc as a wrapper of curl
     Given I have a project
     When I run the :get client command with:

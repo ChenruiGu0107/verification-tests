@@ -1,7 +1,7 @@
 Feature: Testing wildcard routes
 
   # @author bmeng@redhat.com
-  # @case_id 538940 538941 538942
+  # @case_id OCP-11403 OCP-11671 OCP-11855
   @admin
   @destructive
   Scenario Outline: Create wildcard domain routes
@@ -62,7 +62,7 @@ Feature: Testing wildcard routes
 
 
   # @author bmeng@redhat.com
-  # @case_id 538943
+  # @case_id OCP-12003
   @admin
   @destructive
   Scenario: Create wildcard domain route for unsecure route
@@ -113,7 +113,7 @@ Feature: Testing wildcard routes
 
 
   # @author bmeng@redhat.com
-  # @case_id 538945
+  # @case_id OCP-12181
   @admin
   @destructive
   Scenario: Use blacklist to forbid the specified hostname to be created
@@ -201,7 +201,7 @@ Feature: Testing wildcard routes
     And the output should contain "Hello-OpenShift"
 
   # @author bmeng@redhat.com
-  # @case_id 539579
+  # @case_id OCP-12182
   @admin
   @destructive
   Scenario: Only allow the host which matches the whilelist to be created
@@ -273,7 +273,7 @@ Feature: Testing wildcard routes
     And the output should not contain "Hello-OpenShift"
 
   # @author bmeng@redhat.com
-  # @case_id 538946
+  # @case_id OCP-12230
   @admin
   @destructive
   Scenario: Wildcard domain should work well for edge route with different insecure policies
@@ -354,7 +354,7 @@ Feature: Testing wildcard routes
 
 
   # @author bmeng@redhat.com
-  # @case_id 539523
+  # @case_id OCP-10488
   @admin
   @destructive
   Scenario: The route matches more should win the routing
@@ -417,7 +417,7 @@ Feature: Testing wildcard routes
     And the output should contain "Hello-OpenShift-2"
 
   # @author bmeng@redhat.com
-  # @case_id 539675
+  # @case_id OCP-10495
   @admin
   @destructive
   Scenario: Should not be able to create a wildcard enabled route when the host is not specified

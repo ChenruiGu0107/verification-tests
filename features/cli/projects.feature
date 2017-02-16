@@ -1,6 +1,6 @@
 Feature: projects related features via cli
   # @author pruan@redhat.com
-  # @case_id 479238
+  # @case_id OCP-11107
   Scenario: There is annotation instead of 'Display name' for project info
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :new_project client command with:
@@ -16,7 +16,7 @@ Feature: projects related features via cli
       | displayName |
 
   # @author pruan@redhat.com
-  # @case_id 494759
+  # @case_id OCP-12616
   Scenario: Could not create the project with invalid name via CLI
     When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg | new-project  |
@@ -81,7 +81,7 @@ Feature: projects related features via cli
       | You may not request a new project via this API |
 
   # @author pruan@redhat.com
-  # @case_id 470730
+  # @case_id OCP-12548
   Scenario: User should be able to switch projects via CLI
     Given I create a new project
     And I create a new project
@@ -108,7 +108,7 @@ Feature: projects related features via cli
       | * <%= project(2).name %>                                |
 
   # @author yapei@redhat.com
-  # @case_id 476297
+  # @case_id OCP-11887
   Scenario: Could delete all resources when delete the project
     Given a 5 characters random string of type :dns is stored into the :prj_name clipboard
     When I run the :new_project client command with:
@@ -180,7 +180,7 @@ Feature: projects related features via cli
       | no services, deployment configs |
 
   # @author cryan@redhat.com
-  # @case_id 481697
+  # @case_id OCP-12193
   @admin
   Scenario: User can get node selector from a project
     Given  an 8 character random string of type :dns is stored into the :oadmproj1 clipboard
@@ -207,7 +207,7 @@ Feature: projects related features via cli
     And the output should match "Node Selector:\s+env=qa"
 
   # @author wyue@redhat.com
-  # @case_id 481695
+  # @case_id OCP-12029
   @admin
   Scenario: Should be able to create a project with valid node selector
     ##create a project with the node label
@@ -254,7 +254,7 @@ Feature: projects related features via cli
       | <%= env.nodes.first.name %> |
 
   # @author xiaocwan@redhat.com
-  # @case_id 476298
+  # @case_id OCP-12026
   Scenario: [origin_platformexp_387][origin_runtime_664] User should be notified if the set project does not exist anymore
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :new_project client command with:
@@ -285,7 +285,7 @@ Feature: projects related features via cli
     Then the step should fail
 
   # @author pruan@redhat.com
-  # @case_id 515693
+  # @case_id OCP-10753
   Scenario: Give user suggestion about new-app on new-project
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I run the :new_project client command with:
@@ -295,7 +295,7 @@ Feature: projects related features via cli
       | You can add applications to this project with the 'new-app' command. |
 
   # @author cryan@redhat.com
-  # @case_id 487699
+  # @case_id OCP-12561
   Scenario: Could remove user and group from the current project
     Given I have a project
     When I run the :oadm_add_role_to_user client command with:
@@ -326,7 +326,7 @@ Feature: projects related features via cli
     And the output should not contain "system:serviceaccounts:<%= user(1, switch: false).name %>"
 
   # @author cryan@redhat.com
-  # @case_id 494766
+  # @case_id OCP-12617
   Scenario: Race to create new project
     Given a 5 characters random string of type :dns is stored into the :user1proj1 clipboard
     When I run the :new_project background client command with:
@@ -343,7 +343,7 @@ Feature: projects related features via cli
     Then the output should not contain "racetocreate"
 
   # @author xxia@redhat.com
-  # @case_id 498148
+  # @case_id OCP-9594
   @admin
   Scenario: Update on project
     Given I have a project
@@ -432,7 +432,7 @@ Feature: projects related features via cli
     Then the step should fail
 
   # @author wjiang@redhat.com
-  # @case_id 516715
+  # @case_id OCP-9797
   Scenario: serviceaccount can not create projectrequest
     Given I have a project
     Given I find a bearer token of the default service account
@@ -443,7 +443,7 @@ Feature: projects related features via cli
       |You may not request a new project via this API|
 
   # @author xxia@redhat.com
-  # @case_id 470729
+  # @case_id OCP-12546
   Scenario: Should use and show the existing projects after the user login
     Given I create 3 new projects
     When I run the :login client command with:
@@ -481,7 +481,7 @@ Feature: projects related features via cli
       | current-context: /.+/<%= user.name %>            |
 
   # @author yinzhou@redhat.com
-  # @case_id 510542
+  # @case_id OCP-11201
   Scenario: Process with default FSGroup id can be ran when using the default MustRunAs as the RunAsGroupStrategy
     Given I have a project
     When I run the :create client command with:
@@ -492,7 +492,7 @@ Feature: projects related features via cli
     Then the expression should be true> project.uid_range(user:user).begin == pod.fs_group(user:user)
 
   # @author xiaocwan@redhat.com
-  # @case_id 529607
+  # @case_id OCP-10874
   Scenario: oc project or projects to get project or projects with information
     Given I create a new project
     Then evaluation of `project.name` is stored in the :project1 clipboard
@@ -573,7 +573,7 @@ Feature: projects related features via cli
       | do not have rights.*<%= cb.project3 %> |
 
   # @author xiaocwan@redhat.com
-  # @case_id 529608
+  # @case_id OCP-11297
   Scenario: oc project or projects to get project or projects without any extra information
     Given I create a new project
     Then evaluation of `project.name` is stored in the :project1 clipboard

@@ -1,7 +1,7 @@
 Feature: buildconfig.feature
 
   # @author cryan@redhat.com
-  # @case_id 495017
+  # @case_id OCP-9556
   Scenario: Buildconfig spec part cannot be updated
     Given I have a project
     When I run the :process client command with:
@@ -27,7 +27,7 @@ Feature: buildconfig.feature
     And the output should not contain "Source123"
 
   # @author wzheng@redhat.com
-  # @case_id 508799
+  # @case_id OCP-10701
   Scenario: Build go failed if pending time exceeds completionDeadlineSeconds limitation
     Given I have a project
     When I run the :create client command with:
@@ -45,7 +45,7 @@ Feature: buildconfig.feature
     And the "source-build-1" build failed
 
   # @author wzheng@redhat.com
-  # @case_id 470423
+  # @case_id OCP-12121
   Scenario: Start build from buildConfig/build
     Given I have a project
     When I run the :new_app client command with:
@@ -66,7 +66,7 @@ Feature: buildconfig.feature
     And the "ruby-hello-world-3" build completed
 
   # @author wzheng@redhat.com
-  # @case_id 470420
+  # @case_id OCP-11699
   Scenario: Start build from invalid/blank buildConfig/build
     Given I have a project
     When I run the :start_build client command with:
@@ -79,7 +79,7 @@ Feature: buildconfig.feature
     And the output should contain "builds "invalid" not found"
 
   # @author xiazhao@redhat.com
-  # @case_id 482207
+  # @case_id OCP-12442
   Scenario: Do incremental builds for sti-build in openshift
     Given I have a project
     And I run the :create client command with:
@@ -102,7 +102,7 @@ Feature: buildconfig.feature
     Then the output should match "Saving build artifacts from image"
 
   # @author gpei@redhat.com
-  # @case_id 495026
+  # @case_id OCP-9557
   Scenario: Build spec cannot be updated
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -130,7 +130,7 @@ Feature: buildconfig.feature
     Then the output should not contain "Source123"
 
   # @author cryan@redhat.com
-  # @case_id 508800
+  # @case_id OCP-11181
   Scenario: Warning appears if completionDeadlineSeconds set to invalid value
     Given I have a project
     When I run the :create client command with:
@@ -164,7 +164,7 @@ Feature: buildconfig.feature
     And the output should contain "char"
 
   # @author cryan@redhat.com
-  # @case_id 479016
+  # @case_id OCP-10606
   Scenario: STI build with imageStreamImage in buildConfig
     Given I have a project
     When I run the :import_image client command with:
@@ -230,7 +230,7 @@ Feature: buildconfig.feature
     And the output should contain "must be retrieved"
 
   # @author wewang@redhat.com
-  # @case_id 507556
+  # @case_id OCP-11172
   Scenario: Add ENV to DockerStrategy buildConfig and Dockerfile when do docker build
     Given I have a project
     When I run the :new_app client command with:
@@ -260,7 +260,7 @@ Feature: buildconfig.feature
       | HTTPError Could not fetch specs from https://rubygems.org/  |
 
   # @author haowang@redhat.com
-  # @case_id 498843
+  # @case_id OCP-10667
   Scenario: Rebuild image when the underlying image changed for Docker build
     Given I have a project
     When I run the :new_build client command with:
@@ -276,7 +276,7 @@ Feature: buildconfig.feature
     And the "ruby-hello-world-2" build was created
 
   # @author haowang@redhat.com
-  # @case_id 470323
+  # @case_id OCP-12120
   Scenario: Trigger multiple builds from a single image update
     Given I have a project
     When I run the :new_build client command with:
@@ -299,7 +299,7 @@ Feature: buildconfig.feature
     And the "ruby-ex-2" build was created
 
   # @author dyan@redhat.com
-  # @case_id 470322
+  # @case_id OCP-12020
   Scenario: Trigger chain builds from a image update
     Given I have a project
     When I run the :new_build client command with:
@@ -324,7 +324,7 @@ Feature: buildconfig.feature
     Then the "ruby-ex-2" build was created
 
   # @author haowang@redhat.com
-  # @case_id 479540 479541
+  # @case_id OCP-11110 OCP-11474
   Scenario Outline: Build with images pulled from private repositories
     Given I have a project
     When I run the :new_secret client command with:

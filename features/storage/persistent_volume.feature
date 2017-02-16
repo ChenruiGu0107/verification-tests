@@ -1,6 +1,6 @@
 Feature: Persistent Volume Claim binding policies
   # @author lxia@redhat.com
-  # @case_id 533238
+  # @case_id OCP-10925
   @admin
   Scenario: describe pv should show messages and events
     Given I have a project
@@ -32,7 +32,7 @@ Feature: Persistent Volume Claim binding policies
   # @author wehe@redhat.com
   # @author chaoyang@redhat.com
   # @author lxia@redhat.com
-  # @case_id 510615 501012 501013
+  # @case_id OCP-9702 OCP-10680 OCP-11168
   @admin
   @destructive
   Scenario Outline: PVC with one accessMode can bind PV with all accessMode
@@ -68,7 +68,7 @@ Feature: Persistent Volume Claim binding policies
       | ReadWriteMany | ReadWriteOnce | ReadOnlyMany  |
 
   # @author yinzhou@redhat.com
-  # @case_id 510610
+  # @case_id OCP-11933
   Scenario: deployment hook volume inheritance -- with persistentvolumeclaim Volume
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
@@ -92,7 +92,7 @@ Feature: Persistent Volume Claim binding policies
 
   # @author wehe@redhat.com
   # @author chaoyang@redhat.com
-  # @case_id 522131
+  # @case_id OCP-9931
   @admin
   @destructive
   Scenario: PV can not bind PVC which request more storage and mismatched accessMode
@@ -172,7 +172,7 @@ Feature: Persistent Volume Claim binding policies
     And the "pv-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 522215
+  # @case_id OCP-9937
   @admin
   @destructive
   Scenario: PV and PVC bound and unbound many times
@@ -205,7 +205,7 @@ Feature: Persistent Volume Claim binding policies
     """
 
   # @author lxia@redhat.com
-  # @case_id 519158
+  # @case_id OCP-10782
   @admin
   @destructive
   Scenario: [public_storage_70] Persistent volume attach should not be race when starting pods
@@ -250,7 +250,7 @@ Feature: Persistent Volume Claim binding policies
     """
 
   # @author lxia@redhat.com
-  # @case_id 522127
+  # @case_id OCP-9928
   @admin
   @destructive
   Scenario: PVC should bound the PV with most appropriate access mode and size
@@ -302,7 +302,7 @@ Feature: Persistent Volume Claim binding policies
     And the "pvcname-258m-rwx-<%= project.name %>" PVC becomes :pending
 
   # @author lxia@redhat.com
-  # @case_id 532707
+  # @case_id OCP-10145
   # @bug_id 1337106
   @admin
   @destructive
@@ -321,7 +321,7 @@ Feature: Persistent Volume Claim binding policies
     And the "pv-<%= project.name %>" PV status is :available
 
   # @author lxia@redhat.com
-  # @case_id 532710
+  # @case_id OCP-12680
   # @bug_id 1337106
   @admin
   @destructive
@@ -341,7 +341,7 @@ Feature: Persistent Volume Claim binding policies
     And the "pv-<%= project.name %>" PV status is :available
 
   # @author wehe@redhat.com
-  # @case_id 533135
+  # @case_id OCP-10172
   @admin
   Scenario: Check the pvc capacity
     Given I have a project
@@ -359,7 +359,7 @@ Feature: Persistent Volume Claim binding policies
       | 5Gi |
 
   # @author lxia@redhat.com
-  # @case_id 533661
+  # @case_id OCP-10187
   @admin
   Scenario: PV creation negative testing
     When I run the :create admin command with:

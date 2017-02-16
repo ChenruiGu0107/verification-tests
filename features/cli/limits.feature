@@ -1,6 +1,6 @@
 Feature: limit range related scenarios:
   # @author pruan@redhat.com
-  # @case_id 508038, 508039, 508040
+  # @case_id OCP-10697, OCP-11175, OCP-11519
   @admin
   Scenario Outline: Limit range default request tests
     Given I have a project
@@ -26,7 +26,7 @@ Feature: limit range related scenarios:
       | tc508040 | Container\\s+cpu\\s+\-\\s+200m\\s+200m\\s+200m\\s+\-  | Container\\s+memory\\s+\-\\s+1Gi\\s+1Gi\\s+1Gi\\s+\- |
 
   # @author pruan@redhat.com
-  # @case_id 508041, 508045
+  # @case_id OCP-11745, OCP-12200
   @admin
   Scenario Outline: Limit range invalid values tests
     Given I have a project
@@ -47,7 +47,7 @@ Feature: limit range related scenarios:
       | tc508045 | 200m | min | 400m | default request | 200m | 400m | min | 400m | default | 200m | 1Gi | min | 2Gi | default request | 1Gi | 2Gi | min | 2Gi  | default   | 1Gi    |
 
   # @author pruan@redhat.com
-  # @case_id 508047
+  # @case_id OCP-12286
   @admin
   Scenario Outline: Limit range incorrect values
     Given I have a project
@@ -64,7 +64,7 @@ Feature: limit range related scenarios:
       | tc508047 | 2Gi | min | 2Gi | max | 1Gi | 400m | min | 400m | max | 200m |
 
   # @author pruan@redhat.com
-  # @case_id 508046
+  # @case_id OCP-12250
   @admin
   Scenario: Limit range does not allow min > defaultRequest
     Given I have a project
@@ -77,7 +77,7 @@ Feature: limit range related scenarios:
       | memory.*min value 2Gi is greater than default request value 1Gi   |
 
   # @author gpei@redhat.com
-  # @case_id 508042
+  # @case_id OCP-11918
   @admin
   Scenario: Limit range does not allow defaultRequest > default
     Given I have a project
@@ -90,7 +90,7 @@ Feature: limit range related scenarios:
       | memory.*default request value 2Gi is greater than default limit value 1Gi      |
 
   # @author gpei@redhat.com
-  # @case_id 508043
+  # @case_id OCP-12043
   @admin
   Scenario: Limit range does not allow defaultRequest > max
     Given I have a project
@@ -103,7 +103,7 @@ Feature: limit range related scenarios:
       | memory.*default request value 2Gi is greater than max value 1Gi     |
 
   # @author gpei@redhat.com
-  # @case_id 508044
+  # @case_id OCP-12139
   @admin
   Scenario: Limit range does not allow maxLimitRequestRatio > Limit/Request
     Given I have a project
@@ -124,7 +124,7 @@ Feature: limit range related scenarios:
       | cpu max limit to request ratio per Container is 4, but provided ratio is 15.000000              |
 
   # @author gpei@redhat.com
-  # @case_id 508048
+  # @case_id OCP-12315
   @admin
   Scenario: Limit range with all values set with proper values
     Given I have a project
@@ -153,7 +153,7 @@ Feature: limit range related scenarios:
       | \\s+requests:\n\\s+cpu: 100m\n\\s+memory: 100Mi\n |
     """
   # @author xiaocwan@redhat.com
-  # @case_id 484336
+  # @case_id OCP-12339
   @admin
   Scenario: The number of created persistent volume claims can not exceed the limitation
     Given I have a project
@@ -179,7 +179,7 @@ Feature: limit range related scenarios:
 
 
   # @author yinzhou@redhat.com
-  # @case_id 529156
+  # @case_id OCP-11289
   @admin
   Scenario: Check the openshift.io/imagestreams of quota in the project after build image
     Given I have a project
@@ -220,7 +220,7 @@ Feature: limit range related scenarios:
 
 
   # @author yinzhou@redhat.com
-  # @case_id 529157
+  # @case_id OCP-11594
   @admin
   Scenario: Check the quota after import-image with --all option
     Given I have a project
@@ -260,7 +260,7 @@ Feature: limit range related scenarios:
 
 
   # @author yinzhou@redhat.com
-  # @case_id 529162
+  # @case_id OCP-12214
   @admin
   Scenario: When exceed openshift.io/image-tags will ban to create new image references in the project
     Given I have a project
@@ -287,7 +287,7 @@ Feature: limit range related scenarios:
 
 
   # @author yinzhou@redhat.com
-  # @case_id 529163
+  # @case_id OCP-12263
   @admin
   Scenario: When exceed openshift.io/images will ban to create image reference or push image to project
     Given I have a project

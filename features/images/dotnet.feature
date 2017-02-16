@@ -1,7 +1,7 @@
 Feature: dotnet.feature
 
   # @author haowang@redhat.com
-  # @case_id 533862
+  # @case_id OCP-10949
   Scenario: Create .NET application with new-app
     Given I have a project
     When I run the :new_app client command with:
@@ -15,7 +15,7 @@ Feature: dotnet.feature
       | deployment=s2i-dotnetcore-1 |
 
   # @author haowang@redhat.com
-  # @case_id 534580
+  # @case_id OCP-10247
   Scenario: dotnet10 build behind proxy
     Given I have a project
     And I have a proxy configured in the project
@@ -30,7 +30,7 @@ Feature: dotnet.feature
     And the "s2i-aspnet-example-1" build completes
 
   # @author haowang@redhat.com
-  # @case_id 533863
+  # @case_id OCP-11353
   Scenario: Create .NET buildconfig with new-build
     Given I have a project
     When I run the :new_build client command with:

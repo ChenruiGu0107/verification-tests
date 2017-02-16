@@ -1,7 +1,7 @@
 Feature: login related scenario
 
   # @author wjiang@redhat.com
-  # @case_id 473847
+  # @case_id OCP-12239
   Scenario: login and logout via web
     Given I login via web console
     Given I run the :logout web console action
@@ -11,7 +11,7 @@ Feature: login related scenario
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
-  # @case_id 476030
+  # @case_id OCP-11091
   Scenario: [origin_platformexp_397] The page should not redirect to login page when access /oauth/authorize?client_id=openshift-challenging-client
 
     Given I login via web console
@@ -21,7 +21,7 @@ Feature: login related scenario
       | A non-empty X-CSRF-Token header is required to receive basic-auth challenges |
 
   # @author xxing@redhat.com
-  # @case_id 515808
+  # @case_id OCP-9771
   Scenario: User could not access pages directly without login first
     Given I have a project
     # Disable default login
@@ -35,7 +35,7 @@ Feature: login related scenario
     Given I wait for the title of the web browser to match "(Login|Sign\s+in)"
 
   # @author xxing@redhat.com
-  # @case_id 467930
+  # @case_id OCP-12118
   Scenario: The page should reflect to login page when access session protected pages after failed log in
     Given I log the message> this scenario can pass only when user accounts have a known password
     Given I have a project
@@ -52,7 +52,7 @@ Feature: login related scenario
     And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']") == nil
 
   # @author xxing@redhat.com
-  # @case_id 467931
+  # @case_id OCP-12189
   Scenario: The page should redirect to login page when access session protected pages after session expired
     When I create a new project via web
     Then the step should succeed

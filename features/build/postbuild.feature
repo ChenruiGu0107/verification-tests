@@ -1,6 +1,6 @@
 Feature: postbuild.feature
   # @author wewang@redhat.com
-  # @case_id 519485
+  # @case_id OCP-11242
   Scenario: Implement post-build command for golang-ex
     Given I have a project
     And I run the :new_app client command with:

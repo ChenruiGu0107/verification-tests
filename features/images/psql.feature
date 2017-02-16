@@ -1,7 +1,7 @@
 Feature: Postgresql images test
 
   # @author wewang@redhat.com
-  # @case_id 508090 501060 529317
+  # @case_id OCP-12520 OCP-11916 OCP-11799
   Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for ephemeral storage - psql92 and psql94
     Given I have a project
     When I run the :new_app client command with:
@@ -58,7 +58,7 @@ Feature: Postgresql images test
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/postgresql-95-ephemeral-template.json  |
 
   # @author wewang@redhat.com
-  # @case_id 501057  508089 529331
+  # @case_id 501057  508089 OCP-12446
   Scenario Outline: Verify clustered postgresql can be connect after redeployment
     Given I have a project
     And I download a file from "<file>"
@@ -173,7 +173,7 @@ Feature: Postgresql images test
       |  https://raw.githubusercontent.com/openshift/postgresql/master/examples/replica/postgresql_replica.json  |                |                | postgresql_replica.json |
 
   # wewang@redhat.com
-  # @case_id 508092  519475  529319
+  # @case_id 508092  519475  OCP-12070
   Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for persistent storage
     Given I have a project
     And I download a file from "<file>"

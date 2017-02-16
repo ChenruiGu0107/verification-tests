@@ -1,7 +1,7 @@
 Feature: negative tests
 
   # @author pruan@redhat.com
-  # @case_id 505047
+  # @case_id OCP-10688
   Scenario: Add automatic suggestions when "unknown command" errors happen in the CLI
     When I run the :exec_raw_oc_cmd_for_neg_tests client command with:
       | arg | labels |
@@ -26,7 +26,7 @@ Feature: negative tests
       | tag                            |
   
   # @author xiaocwan@redhat.com
-  # @case_id 533685
+  # @case_id OCP-10190
   Scenario: Check output for resource idle command and negative commands
     Given I have a project
     When I run the :create client command with:
@@ -58,7 +58,7 @@ Feature: negative tests
       | [Ee]rror.*no scalable resources |
 
   # @author xiaocwan@redhat.com
-  # @case_id 535718
+  # @case_id OCP-11365
   Scenario: Improved CLI command guide
     Given I log the message>  this scenario is only for oc 3.4+
     When I run the :exec_raw_oc_cmd_for_neg_tests client command with:

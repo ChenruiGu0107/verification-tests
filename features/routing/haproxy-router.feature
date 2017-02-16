@@ -1,7 +1,7 @@
 Feature: Testing haproxy router
 
   # @author zzhao@redhat.com
-  # @case_id 512275
+  # @case_id OCP-9736
   @admin
   Scenario: HTTP response header should return for default haproxy 503
     Given I switch to cluster admin pseudo user
@@ -13,7 +13,7 @@ Feature: Testing haproxy router
     Then the output should contain "HTTP/1.0 503 Service Unavailable"
 
   # @author zzhao@redhat.com
-  # @case_id 510357
+  # @case_id OCP-9684
   @admin
   Scenario: Should expose the status monitoring endpoint for haproxy router
     Given I switch to cluster admin pseudo user
@@ -25,7 +25,7 @@ Feature: Testing haproxy router
     Then the output should contain "Service ready"
 
   # @author bmeng@redhat.com
-  # @case_id 505814
+  # @case_id OCP-9633
   @admin
   Scenario: The routekey should use underline instead of dash as connector
     Given I have a project
@@ -66,7 +66,7 @@ Feature: Testing haproxy router
     Then the output should contain "<%= cb.pj_name %>_route-passthrough"
 
   # @author bmeng@redhat.com
-  # @case_id 483197
+  # @case_id OCP-12557
   @admin
   Scenario: Only the certs file of the certain route will be updated when the route is updated
     Given I have a project
@@ -168,7 +168,7 @@ Feature: Testing haproxy router
     And the expression should be true> cb.edge_cert == @result[:response]
 
   # @author bmeng@redhat.com
-  # @case_id 489261
+  # @case_id OCP-11903
   Scenario: haproxy cookies based sticky session for unsecure routes
     #create route and service which has two endpoints
     Given I have a project
@@ -221,7 +221,7 @@ Feature: Testing haproxy router
     """
 
   # @author bmeng@redhat.com
-  # @case_id 489258
+  # @case_id OCP-11130
   Scenario: haproxy cookies based sticky session for edge termination routes
     #create route and service which has two endpoints
     Given I have a project
@@ -279,7 +279,7 @@ Feature: Testing haproxy router
     """
 
   # @author hongli@redhat.com 
-  # @case_id: 533909
+  # @case_id: OCP-10207
   Scenario: Should use the same cookies for secure and insecure access when insecureEdgeTerminationPolicy set to allow for edge route
     Given I have a project
     When I run the :create client command with:
@@ -357,7 +357,7 @@ Feature: Testing haproxy router
     """
 
   # @author bmeng@redhat.com
-  # @case_id 489259
+  # @case_id OCP-11492
   Scenario: haproxy cookies based sticky session for reencrypt termination routes
     #create route and service which has two endpoints
     Given I have a project
@@ -434,7 +434,7 @@ Feature: Testing haproxy router
     """
 
   # @author zzhao@redhat.com
-  # @case_id 483530
+  # @case_id OCP-12553
   @admin
   @destructive
   Scenario: Router stats can be accessed if just provide password
@@ -465,7 +465,7 @@ Feature: Testing haproxy router
     Then the output should match "200"
 
   # @author zzhao@redhat.com
-  # @case_id 528266
+  # @case_id OCP-12569
   @admin
   @destructive
   Scenario: router should be able to skip invalid cert route
@@ -561,7 +561,7 @@ Feature: Testing haproxy router
     Then the output should contain "Hello-OpenShift"
 
   # @author bmeng@redhat.com
-  # @case_id 526539
+  # @case_id OCP-11583
   @admin
   @destructive
   Scenario: Router with specific ROUTE_LABELS will only work for specific routes
@@ -645,7 +645,7 @@ Feature: Testing haproxy router
     """
 
   # @author zzhao@redhat.com
-  # @case_id 516834
+  # @case_id OCP-10763
   @admin
   @destructive
   Scenario: Haproxy router health check via stats port specified by user
@@ -675,7 +675,7 @@ Feature: Testing haproxy router
     Then the output should contain "Service ready"
 
   # @author bmeng@redhat.com
-  # @case_id 519390
+  # @case_id OCP-11559
   @admin
   @destructive
   Scenario: The correct route info should be reported back to user when there are multiple routers
@@ -766,7 +766,7 @@ Feature: Testing haproxy router
     And the output should contain "Hello-OpenShift"
 
   # @author zzhao@redhat.com
-  # @case_id 516836
+  # @case_id OCP-11549
   @admin
   @destructive
   Scenario: Haproxy router health check will use 1936 port if user disable the stats port
@@ -795,7 +795,7 @@ Feature: Testing haproxy router
     Then the output should contain "Service ready"
 
   # @author zzhao@redhat.com
-  # @case_id 483532
+  # @case_id OCP-12554
   @admin
   @destructive
   Scenario: User can access router stats using the specified port and username/pass
@@ -847,7 +847,7 @@ Feature: Testing haproxy router
 
 
   # @author zzhao@redhat.com
-  # @case_id 483529
+  # @case_id OCP-12552
   @admin
   @destructive
   Scenario: router stats's password will be shown if creating router without providing stats password
@@ -894,7 +894,7 @@ Feature: Testing haproxy router
     Then the output should match "200"
 
   # @author bmeng@redhat.com
-  # @case_id 526537
+  # @case_id OCP-10841
   @admin
   @destructive
   Scenario: Route should be moved to the correct router once the label changed
@@ -1012,7 +1012,7 @@ Feature: Testing haproxy router
     Then the output should contain "Hello-OpenShift"
 
   # @author zzhao@redhat.com
-  # @case_id 483533
+  # @case_id OCP-12555
   @admin
   @destructive
   Scenario: router cannot be running if the stats port was occupied
@@ -1043,7 +1043,7 @@ Feature: Testing haproxy router
     """
 
   # @author bmeng@redhat.com
-  # @case_id 526538
+  # @case_id OCP-11275
   @admin
   @destructive
   Scenario: Router with specific NAMESPACE_LABELS will only work for specific namespaces
@@ -1159,7 +1159,7 @@ Feature: Testing haproxy router
 
 
   # @author yadu@redhat.com
-  # @case_id 518936
+  # @case_id OCP-10779
   @admin
   @destructive
   Scenario: Set invalid reload time for haproxy router script
@@ -1205,7 +1205,7 @@ Feature: Testing haproxy router
       | Invalid RELOAD_INTERVAL |
 
   # @author zzhao@redhat.com
-  # @case_id 531375
+  # @case_id OCP-12572
   @admin
   @destructive
   Scenario: Be able to create multi router in same node via setting port with hostnetwork network mode
@@ -1285,7 +1285,7 @@ Feature: Testing haproxy router
     Then the output should contain "Hello-OpenShift"
 
   # @author zzhao@redhat.com
-  # @case_id 500001
+  # @case_id OCP-12651
   @admin
   @destructive
   Scenario: The route auto generated can be accessed using the default cert
@@ -1342,7 +1342,7 @@ Feature: Testing haproxy router
     Then the output should contain "Hello-OpenShift"
 
   # @author zzhao@redhat.com
-  # @case_id 498716
+  # @case_id OCP-12565
   @admin
   @destructive
   Scenario: Router can work well with container network stack
@@ -1439,7 +1439,7 @@ Feature: Testing haproxy router
     Then the output should contain "Hello-OpenShift"
 
   # @author bmeng@redhat.com
-  # @case_id 520312
+  # @case_id OCP-12567
   @admin
   Scenario: Unable to create router with host networking mode when mapping ports are different
     When I run the :oadm_router admin command with:
@@ -1450,7 +1450,7 @@ Feature: Testing haproxy router
     And the output should contain "must be equal"
 
   # @author bmeng@redhat.com
-  # @case_id 532646
+  # @case_id OCP-10903
   @admin
   Scenario: The router pod should have default resource limits
     Given I switch to cluster admin pseudo user
@@ -1465,7 +1465,7 @@ Feature: Testing haproxy router
     Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['requests'].include?("memory")
 
   # @author zzhao@redhat.com
-  # @case_id 520314
+  # @case_id OCP-12568
   @admin
   @destructive
   Scenario: Be able to create multi router via setting port with container network mode
@@ -1542,7 +1542,7 @@ Feature: Testing haproxy router
 
 
   # @author yadu@redhat.com
-  # @case_id 518937
+  # @case_id OCP-11236
   @admin
   @destructive
   Scenario: Set reload time for haproxy router script - Create routes
@@ -1641,7 +1641,7 @@ Feature: Testing haproxy router
     """
 
   # @author bmeng@redhat.com
-  # @case_id 533076
+  # @case_id OCP-11619
   Scenario: Limit the number of TCP connection per IP in specified time period
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -1688,7 +1688,7 @@ Feature: Testing haproxy router
 
 
   # @author yadu@redhat.com
-  # @case_id 510536
+  # @case_id OCP-9695
   @admin
   @destructive
   Scenario: Router(in host networking) in a specific namespace should load balance to pods in any namespace
@@ -1759,7 +1759,7 @@ Feature: Testing haproxy router
 
 
   # @author yadu@redhat.com
-  # @case_id 508985
+  # @case_id OCP-9655
   @admin
   @destructive
   Scenario: Router(in container networking) in a specific namespace should only load balance to pods in that namespace
@@ -1830,7 +1830,7 @@ Feature: Testing haproxy router
     Then the output should not contain "Hello OpenShift"
 
   # @author zzhao@redhat.com
-  # @case_id 521765
+  # @case_id OCP-12677
   @admin
   @destructive
   Scenario: router will not expose host port on node if set turn off that option
@@ -1864,7 +1864,7 @@ Feature: Testing haproxy router
 
 
   # @author zzhao@redhat.com
-  # @case_id 538271
+  # @case_id OCP-12574
   @admin
   @destructive
   Scenario: haproxy router can support comression by setting the env
@@ -1905,7 +1905,7 @@ Feature: Testing haproxy router
   
 
   # @author: hongli@redhat.com
-  # @case_id: 533922
+  # @case_id: OCP-12683
   @admin
   @destructive
   Scenario: The health check interval of backend can be set by env variable or annotations
@@ -2054,7 +2054,7 @@ Feature: Testing haproxy router
       | server.*<%=cb.pod_ip %>:8443 ssl check inter 500ms verify required ca-file .* |
 
   # @author zzhao@redhat.com
-  # @case_id 530592
+  # @case_id OCP-10883
   @admin
   @destructive
   Scenario: Set timeout http-request for haproxy
@@ -2102,7 +2102,7 @@ Feature: Testing haproxy router
     Then the output should contain "408 Request Time-out"
 
   # @author zzhao@redhat.com
-  # @case_id 530549
+  # @case_id OCP-11302
   @admin
   @destructive
   Scenario: haproxy logs can be sent to syslog for hostnetwork mode
@@ -2155,7 +2155,7 @@ Feature: Testing haproxy router
     Then the output should contain "route-passthrough started"
 
   # @author bmeng@redhat.com
-  # @case_id 489260
+  # @case_id OCP-11728
   Scenario: haproxy hash based sticky session for tcp mode passthrough routes
     Given I have a project
     When I run the :create client command with:
@@ -2193,7 +2193,7 @@ Feature: Testing haproxy router
     """
 
   # @author bmeng@redhat.com
-  # @case_id 529120
+  # @case_id OCP-10043
   Scenario: Set balance leastconn for passthrough routes
     Given I have a project
     When I run the :create client command with:

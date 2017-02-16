@@ -1,6 +1,6 @@
 Feature: Check oc status cli
   # @author yapei@redhat.com
-  # @case_id 497402
+  # @case_id OCP-11147
   Scenario: Show RC info and indicate bad secrets reference in 'oc status'
     Given I have a project
 
@@ -69,7 +69,7 @@ Feature: Check oc status cli
     Then the step should succeed
 
   # @author akostadi@redhat.com xxia@redhat.com
-  # @case_id 476320
+  # @case_id OCP-12383
   Scenario: [origin_runtime_613]Get project status from CLI
     Given I have a project
     # And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -133,7 +133,7 @@ Feature: Check oc status cli
     And the output should contain "1 deployment new"
 
   # @author cryan@redhat.com
-  # @case_id 476295
+  # @case_id OCP-12478
   Scenario: Show Project.Status when listing the project
     Given I have a project
     When I create a new application with:
@@ -187,7 +187,7 @@ Feature: Check oc status cli
       | use 'oc status -v' to see details |
 
   # @author yapei@redhat.com
-  # @case_id 497401
+  # @case_id OCP-10650
   Scenario: Indicate when build failed to push in 'oc status'
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc544375/ruby22rhel7-template-docker.json.failtopush"

@@ -1,7 +1,7 @@
 Feature: Seccomp
 
   # @author wmeng@redhat.com
-  # @case_id 539049
+  # @case_id OCP-10483
   Scenario: seccomp=unconfined used by default
     Given I have a project
     When I run the :create client command with:

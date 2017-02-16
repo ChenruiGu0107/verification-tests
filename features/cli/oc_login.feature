@@ -12,7 +12,7 @@ Feature: oc_login.feature
     And the output should match "Login successful|Logged into"
 
   # @author xiaocwan@redhat.com
-  # @case_id 476303
+  # @case_id OCP-11888
   Scenario: User can login with the new generated token via web page for oc
     Given I log the message> this scenario can pass only when user accounts have a known password
     When I perform the :request_token_with_password web console action with:
@@ -29,7 +29,7 @@ Feature: oc_login.feature
     Then the step should succeed
 
   # @author xiaocwan@redhat.com
-  # @case_id 510552
+  # @case_id OCP-10723
   Scenario: Logout of the active session by clearing saved tokens
     Given I log the message> this scenario can pass only when user accounts have a known password
     When I run the :login client command with:
@@ -66,7 +66,7 @@ Feature: oc_login.feature
     Then the step should fail
 
   # @author pruan@redhat.com
-  # @case_id 476032
+  # @case_id OCP-11709
   Scenario: Warning should be displayed when login failed via oc login
     When I run the :login client command with:
       | u | <% "" %>            |

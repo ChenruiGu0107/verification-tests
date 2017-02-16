@@ -1,6 +1,6 @@
 Feature: error page on web console
   # @author yapei@redhat.com
-  # @case_id 470664
+  # @case_id OCP-11446
   Scenario: Redirect to error page when got 403 error
     Given I have a project
     When I perform the :delete_project web console action with:

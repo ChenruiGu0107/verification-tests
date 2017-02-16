@@ -1,6 +1,6 @@
 Feature: kubelet restart and node restart
   # @author lxia@redhat.com
-  # @case_id 532742 532741 532740
+  # @case_id OCP-11613 OCP-11317 OCP-10907
   @admin
   @destructive
   Scenario Outline: kubelet restart should not affect attached/mounted volumes
@@ -118,7 +118,7 @@ Feature: kubelet restart and node restart
       | aws      |
 
   # @author lxia@redhat.com
-  # @case_id 533194 533193 533192
+  # @case_id OCP-11620 OCP-11330 OCP-10919
   @admin
   @destructive
   Scenario Outline: node restart should not affect attached/mounted volumes

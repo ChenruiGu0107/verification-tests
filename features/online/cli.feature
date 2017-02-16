@@ -1,7 +1,7 @@
 Feature: ONLY ONLINE Command Line Interface related scripts in this file
 
   # @author bingli@redhat.com
-  # @case_id 531276
+  # @case_id OCP-10127
   # @bug_id 1297910
   Scenario: [online]patch operation should use patched object to check admission control
     Given I have a project

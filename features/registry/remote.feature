@@ -1,7 +1,7 @@
 Feature: remote registry related scenarios
 
   # @author pruan@redhat.com
-  # @case_id 518927
+  # @case_id OCP-11235
   @admin
   Scenario: Pull image by digest value in the OpenShift registry
     Given I have a project
@@ -32,7 +32,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
 
   # @author pruan@redhat.com
-  # @case_id 518928
+  # @case_id OCP-11556
   @admin
   @destructive
   Scenario: Pull image will failed when integrated registry with option:pullthrough=false
@@ -99,7 +99,7 @@ Feature: remote registry related scenarios
 
 
   # @author pruan@redhat.com
-  # @case_id 518930
+  # @case_id OCP-11945
   @admin
   Scenario: Pull image with integrated registry have stored the data
     Given I have a project
@@ -135,7 +135,7 @@ Feature: remote registry related scenarios
       | Downloaded newer image |
 
   # @author yinzhou@redhat.com
-  # @case_id 476215
+  # @case_id OCP-10591
   @admin
   Scenario: provisioned if it does not exist during 'docker push'
     Given I have a project
@@ -165,7 +165,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
 
   # @author yinzhou@redhat.com
-  # @case_id 475780
+  # @case_id OCP-10587
   @admin
   Scenario: ImageStream annotations can be set
     Given I have a project
@@ -205,7 +205,7 @@ Feature: remote registry related scenarios
 
 
   # @author yinzhou@redhat.com
-  # @case_id 487926
+  # @case_id OCP-10636
   @admin
   Scenario: User should be denied pushing when it does not have 'admin' role
     Given I have a project
@@ -234,7 +234,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
 
   # @author pruan@redhat.com
-  # @case_id 487929 487930
+  # @case_id OCP-11727 OCP-11902
   @admin
   Scenario Outline: fail when retrieving an image manifest with wrong/missing credentials
     Given I store the default registry scheme to the :registry_scheme clipboard
@@ -271,7 +271,7 @@ Feature: remote registry related scenarios
 
 
   # @author yinzhou@redhat.com
-  # @case_id 481699
+  # @case_id OCP-11113
   @admin
   Scenario: Tracking tags with imageStream spec.tag
     Given I have a project
@@ -300,7 +300,7 @@ Feature: remote registry related scenarios
     Then the expression should be true> @result[:parsed]['status']['tags'][0]['items'][0]['dockerImageReference'] == @result[:parsed]['status']['tags'][1]['items'][0]['dockerImageReference']
 
   # @author yinzhou@redhat.com
-  # @case_id 529155,529160
+  # @case_id OCP-10865,OCP-12069
   @admin
   @destructive
   Scenario: After Image Size Limit increment can push the image which previously over the limit
@@ -353,7 +353,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
 
   # @author yinzhou@redhat.com
-  # @case_id 518910
+  # @case_id OCP-10778
   @admin
   Scenario: No layers of the image will be stored in docker registy
     Given I have a project
@@ -381,7 +381,7 @@ Feature: remote registry related scenarios
       | mystream |
 
   # @author yinzhou@redhat.com
-  # @case_id 533923
+  # @case_id OCP-10950
   @admin
   Scenario: Do not push blobs during cross-repo mount
     Given I have a project
@@ -410,7 +410,7 @@ Feature: remote registry related scenarios
       | Mounted from |
 
   # @author yinzhou@redhat.com
-  # @case_id 532650
+  # @case_id OCP-10904
   @destructive
   @admin
   Scenario: Support unauthenticated with registry-admin role
@@ -453,7 +453,7 @@ Feature: remote registry related scenarios
       | unauthorized |
 
   # @author yinzhou@redhat.com
-  # @case_id 532651
+  # @case_id OCP-11314
   @destructive
   @admin
   Scenario: Support unauthenticated with registry-viewer role docker pull 
@@ -498,7 +498,7 @@ Feature: remote registry related scenarios
       | unauthorized |
 
   # @author yinzhou@redhat.com
-  # @case_id 529161
+  # @case_id OCP-12158
   @admin
   Scenario: Specify ResourceQuota on project
     Given I have a project

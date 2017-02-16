@@ -1,7 +1,7 @@
 Feature: REST policy related features
 
   # @author xiaocwan@redhat.com
-  # @case_id 476292
+  # @case_id OCP-11459
   @admin
   Scenario: Project admin/edtor/viewer only could get the project subresources
     Given I have a project
@@ -27,7 +27,7 @@ Feature: REST policy related features
     Then the expression should be true> @result[:exitstatus] == 405
 
   # @author xiaocwan@redhat.com
-  # @case_id 467924
+  # @case_id OCP-12627
   @admin
   Scenario: Check if the given user or group have the privilege via SubjectAccessReview
     When admin creates a project
@@ -87,7 +87,7 @@ Feature: REST policy related features
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 476291
+  # @case_id OCP-11093
   Scenario: Subresource are distinct from parent resource
     Given I create a new project
     When I run the :create client command with:
@@ -126,7 +126,7 @@ Feature: REST policy related features
     And the expression should be true> @result[:exitstatus] == 403
 
   # @author xiaocwan@redhat.com
-  # @case_id 476290
+  # @case_id OCP-10592
   @admin
   Scenario: Cluster-admin could get/edit/delete subresource
     Given I create a new project

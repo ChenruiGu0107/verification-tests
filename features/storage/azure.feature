@@ -1,7 +1,7 @@
 Feature: Azure disk specific scenarios
 
   # @author wehe@redhat.com
-  # @case_id 533904 533905 533844
+  # @case_id OCP-10204 OCP-10205 OCP-10203
   @admin
   Scenario Outline: azureDisk volume with readwrite/readonly cachingmode and xfs fstype 
     Given I have a project
@@ -27,7 +27,7 @@ Feature: Azure disk specific scenarios
       | azxfs     |
       
   # @author wehe@redhat.com
-  # @case_id 533906
+  # @case_id OCP-10206
   @admin
   Scenario: azureDisk volume with readwrite cachingmode and readonly filesystem 
     Given I have a project
@@ -44,7 +44,7 @@ Feature: Azure disk specific scenarios
     Then the output should not contain "ad-<%= project.name %>" 
 
   # @author wehe@redhat.com
-  # @case_id 533797 
+  # @case_id OCP-10198
   @admin
   @destructive
   Scenario: Persistent Volume with azureDisk volume plugin  

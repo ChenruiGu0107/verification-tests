@@ -1,6 +1,6 @@
 Feature: secrets related scenarios
   # @author pruan@redhat.com
-  # @case_id 484328
+  # @case_id OCP-11724
   Scenario: Can not convert to secrets with non-existing files
     Given I have a project
     And I run the :secrets client command with:
@@ -12,7 +12,7 @@ Feature: secrets related scenarios
       | error: error reading I_do_not_exist: no such file or directory |
 
   # @author wjiang@redhat.com
-  # @case_id 490966
+  # @case_id OCP-12599
   Scenario: Generate dockercfg type secrets via oc secrets new-dockercfg
     Given I have a project
     When I run the :oc_secrets_new_dockercfg client command with:
@@ -30,7 +30,7 @@ Feature: secrets related scenarios
       |kubernetes.io/dockercfg|
 
   # @author xiaocwan@redhat.com
-  # @case_id 484337
+  # @case_id OCP-12360
   @admin
   Scenario: [origin_platformexp_403] The number of created secrets can not exceed the limitation
     Given I have a project
@@ -68,7 +68,7 @@ Feature: secrets related scenarios
       |  limit |
 
   # @author yinzhou@redhat.com
-  # @case_id 510612
+  # @case_id OCP-10725
   Scenario: deployment hook volume inheritance --with secret volume
     Given I have a project
     When I run the :secrets client command with:
@@ -93,7 +93,7 @@ Feature: secrets related scenarios
     """
 
   # @author xiuwang@redhat.com
-  # @case_id 508970
+  # @case_id OCP-12254
   Scenario: Create new secrets for basic authentication
     Given I have a project
     When I run the :oc_secrets_new_basicauth client command with:
@@ -143,7 +143,7 @@ Feature: secrets related scenarios
       |ca.crt:    |
 
   # @author xiuwang@redhat.com
-  # @case_id 508971
+  # @case_id OCP-12290
   Scenario: Create new secrets for ssh authentication
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508971/id_rsa"
@@ -175,7 +175,7 @@ Feature: secrets related scenarios
 
 
   # @author qwang@redhat.com
-  # @case_id 483168
+  # @case_id OCP-12281
   Scenario: Pods do not have access to each other's secrets in the same namespace
     Given I have a project
     When I run the :create client command with:
@@ -218,7 +218,7 @@ Feature: secrets related scenarios
 
 
   # @author xxia@redhat.com
-  # @case_id 491403
+  # @case_id OCP-11731
   Scenario: There should be a dockcfg secret generated automatically based on the serviceaccount token
     Given I have a project
     And I wait up to 10 seconds for the steps to pass:
@@ -252,7 +252,7 @@ Feature: secrets related scenarios
       | openshift.io/token-secret.name=builder-token- |
 
   # @author cryan@redhat.com
-  # @case_id 519256
+  # @case_id OCP-10784
   @admin
   Scenario: Secret can be used to download dependency from private registry - custom build
     Given I have a project
@@ -291,7 +291,7 @@ Feature: secrets related scenarios
       | testsecret2 |
 
   # @author qwang@redhat.com
-  # @case_id 483169
+  # @case_id OCP-12310
   Scenario: Pods do not have access to each other's secrets with the same secret name in different namespaces
     Given I have a project
     When I run the :create client command with:
@@ -335,7 +335,7 @@ Feature: secrets related scenarios
       | first-username |
 
   # @author xxia@redhat.com
-  # @case_id 491405
+  # @case_id OCP-12036
   Scenario: User can pull a private image from a docker registry when a pull secret is defined
     Given I have a project
     And I run the :new_build client command with:
@@ -376,7 +376,7 @@ Feature: secrets related scenarios
       | deploymentconfig=frontend |
 
   # @author xxia@redhat.com
-  # @case_id 491401
+  # @case_id OCP-11138
   Scenario: Deploy will fail with incorrently formed pull secrets
     Given I have a project
     And I run the :new_build client command with:
@@ -438,7 +438,7 @@ Feature: secrets related scenarios
     And the output should match "no.*credentials"
 
   # @author cryan@redhat.com
-  # @case_id 507415
+  # @case_id OCP-10690
   @admin
   Scenario: Add an arbitrary list of secrets to custom builds
     Given I have a project
@@ -502,7 +502,7 @@ Feature: secrets related scenarios
     Then the output should contain "<%= cb.pass2 %>"
 
   # @author yantan@redhat.com
-  # @case_id 519261 519260
+  # @case_id OCP-12061 OCP-11947
   Scenario Outline: Insert secret to builder container via oc new-build - source/docker build
     Given I have a project
     When I run the :create client command with:
@@ -543,7 +543,7 @@ Feature: secrets related scenarios
       | docker | testsecret1:mysecret1| mysecret1 | ls      | true                     |
 
   # @author xiuwang@redhat.com
-  # @case_id 508962
+  # @case_id OCP-10702
   Scenario: Build from private repo with/without secret of token --ephemeral gitserver
     Given I have a project
     And I have an http-git service in the project
@@ -665,7 +665,7 @@ Feature: secrets related scenarios
     Given the "ruby-hello-world-3" build fails
 
   # @author xiuwang@redhat.com
-  # @case_id 528228
+  # @case_id OCP-10851
   Scenario: Build from private repo with/without secret of token --persistent gitserver
     Given I have a project
     When I run the :create client command with:
@@ -786,7 +786,7 @@ Feature: secrets related scenarios
     Given the "ruby-hello-world-2" build completes
 
   # @author chezhang@redhat.com
-  # @case_id 521547
+  # @case_id OCP-10814
   Scenario: Consume the same Secrets as environment variables in multiple pods
     Given I have a project
     When I run the :create client command with:
@@ -830,7 +830,7 @@ Feature: secrets related scenarios
       | MY_SECRET_DATA_2=value-2 |
 
   # @author chezhang@redhat.com
-  # @case_id 521548
+  # @case_id OCP-11260
   Scenario: Using Secrets as Environment Variables
     Given I have a project
     When I run the :create client command with:
@@ -853,7 +853,7 @@ Feature: secrets related scenarios
       | MY_SECRET_DATA=value-1 |
 
   # @author xiuwang@redhat.com
-  # @case_id 508964
+  # @case_id OCP-11523
   Scenario: Build from private repo with/without secret of gitconfig auth method
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cases/508964/.gitconfig"
@@ -975,7 +975,7 @@ Feature: secrets related scenarios
     Given the "ruby-hello-world-3" build completes
 
   # @author xiuwang@redhat.com
-  # @case_id 508965
+  # @case_id OCP-11750
   Scenario: Build from private repo with/without secret of password with http --gitserver
     Given I have a project
     And I have an http-git service in the project
@@ -1149,7 +1149,7 @@ Feature: secrets related scenarios
     Given the "ruby-hello-world-5" build fails
 
   # @author xiuwang@redhat.com
-  # @case_id 508969
+  # @case_id OCP-12204
   Scenario: Build from private repos with secret of multiple auth methods
     Given I have a project
     When I run the :create client command with:
@@ -1304,7 +1304,7 @@ Feature: secrets related scenarios
 
 
   # @author qwang@redhat.com
-  # @case_id 532390
+  # @case_id OCP-11311
   Scenario: Secret volume should update when secret is updated
     Given I have a project
     When I run the :create client command with:
@@ -1338,7 +1338,7 @@ Feature: secrets related scenarios
 
 
   # @author qwang@redhat.com
-  # @case_id 532389
+  # @case_id OCP-10899
   Scenario: Mapping specified secret volume should update when secret is updated
     Given I have a project
     When I run the :create client command with:
@@ -1368,7 +1368,7 @@ Feature: secrets related scenarios
     Then the step should succeed
 
   # @author wehe@redhat.com
-  # @case_id 533102
+  # @case_id OCP-10170
   Scenario: Consume secret via volume plugin with multiple volumes
     Given I have a project
     When I run the :create client command with:
@@ -1392,7 +1392,7 @@ Feature: secrets related scenarios
       | secret-volume/data-1 |
 
   # @author wehe@redhat.com
-  # @case_id 533101
+  # @case_id OCP-10169
   Scenario: Consume same name secretes via volume plugin in different namespaces
     Given I have a project
     When I run the :create client command with:
@@ -1436,7 +1436,7 @@ Feature: secrets related scenarios
       | secret-volume/data-1 |
 
   # @author yinzhou@redhat.com
-  # @case_id 491404
+  # @case_id OCP-11905
   Scenario: Use well-formed pull secret with incorrect credentials will fail to build and deploy
     Given I have a project
     And I run the :new_build client command with:

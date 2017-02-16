@@ -1,6 +1,6 @@
 Feature: AutoScaler relative cases
   # @author yapei@redhat.com
-  # @case_id 528864
+  # @case_id OCP-12157
   Scenario: Show the warnings when multiple HPAs target the same resource
     Given I have a project
     When I run the :run client command with:
@@ -37,7 +37,7 @@ Feature: AutoScaler relative cases
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 528862
+  # @case_id OCP-11961
   Scenario: Show the warning when metrics not configured and CPU request not set
     Given I have a project
     When I perform the :create_app_from_image web console action with:
@@ -72,7 +72,7 @@ Feature: AutoScaler relative cases
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 533202
+  # @case_id OCP-11817
   Scenario: Labels management in edit autoscaler page on web console
     Given I have a project
     When I run the :run client command with:

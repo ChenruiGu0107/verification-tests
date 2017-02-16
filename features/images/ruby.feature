@@ -1,7 +1,7 @@
 Feature: ruby.feature
 
   # @author haowang@redhat.com
-  # @case_id 521461 521462
+  # @case_id OCP-10810 OCP-11257
   Scenario Outline: Tune puma workers according to memory limit ruby-22-rhel7 ruby-20-rhel7
     Given I have a project
     When I run the :create client command with:
@@ -26,7 +26,7 @@ Feature: ruby.feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521462/template.json |
 
   # @author xiuwang@redhat.com
-  # @case_id 529326
+  # @case_id OCP-12370
   Scenario: Tune puma workers according to memory limit ruby-rhel7
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521462/template.json"
@@ -49,7 +49,7 @@ Feature: ruby.feature
     """
 
   # @author dyan@redhat.com
-  # @case_id 540196 540197
+  # @case_id OCP-12274 OCP-12303
   Scenario Outline: Add RUBYGEM_MIRROR env var to Ruby S2I
     Given I have a project
     When I run the :new_build client command with:

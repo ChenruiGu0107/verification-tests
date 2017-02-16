@@ -1,6 +1,6 @@
 Feature: new-app with --search option
   # @author yanpzhan@redhat.com
-  # @case_id 497510
+  # @case_id OCP-10654
   Scenario: Command oc new-app should support search function
     Given I have a project
     And I run the :create client command with:
@@ -174,7 +174,7 @@ Feature: new-app with --search option
       |Scaling to more than one replica is not supported|
 
   # @author pruan@redhat.com
-  # @case_id 497511
+  # @case_id OCP-11151
   Scenario: Negative test on oc new-app with --search
     Given I have a project
     When I run the :new_app client command with:

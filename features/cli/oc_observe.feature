@@ -1,7 +1,7 @@
 Feature: oc observe related tests
 
   # @author cryan@redhat.com
-  # @case_id 535068
+  # @case_id OCP-10290
   # @bug_id 1388237
   @unix
   Scenario: Negative tests of oc observe

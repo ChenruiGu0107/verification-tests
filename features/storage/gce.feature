@@ -1,6 +1,6 @@
 Feature: GCE specific scenarios
   # @author lxia@redhat.com
-  # @case_id 532744
+  # @case_id OCP-11974
   @admin
   Scenario: Rapid repeat pod creation and deletion with GCE PD should not fail
     Given I have a project
@@ -30,7 +30,7 @@ Feature: GCE specific scenarios
     """
 
   # @author lxia@redhat.com
-  # @case_id 532746
+  # @case_id OCP-12165
   @admin
   @destructive
   Scenario: Two or more pods scheduled to the same node with the same volume with ROX should not fail
@@ -79,7 +79,7 @@ Feature: GCE specific scenarios
     Then the step should succeed
 
   # @author lxia@redhat.com
-  # @case_id 532743
+  # @case_id OCP-11813
   @admin
   Scenario: pods referencing different partitions of the same volume should not fail
     Given I have a project
@@ -109,7 +109,7 @@ Feature: GCE specific scenarios
     Then the step should succeed
 
   # @author lxia@redhat.com
-  # @case_id 535238
+  # @case_id OCP-10310
   @admin
   Scenario: PV with invalid gce volume id should be prevented from creating
     Given admin ensures "gce" pv is deleted after scenario

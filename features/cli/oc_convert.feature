@@ -1,7 +1,7 @@
 Feature: oc convert related scenarios
 
   # @author yapei@redhat.com
-  # @case_id 532266
+  # @case_id OCP-10892
   Scenario: Convert files between different API versions using oc convert
     Given I have a project
     When I run the :convert client command

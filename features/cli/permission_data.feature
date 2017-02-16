@@ -1,7 +1,7 @@
 Feature: Permission Data
 
   # @author chezhang@redhat.com
-  # @case_id 538919
+  # @case_id OCP-11014
   @admin
   Scenario: User can specify a default permission mode for the whole configmap volume
     Given I have a project
@@ -25,7 +25,7 @@ Feature: Permission Data
       | 400   |
 
   # @author chezhang@redhat.com
-  # @case_id 538920
+  # @case_id OCP-11401
   @admin
   Scenario: User can specify a default permission mode for the whole downward API volume
     Given I have a project
@@ -56,7 +56,7 @@ Feature: Permission Data
       | 400                          |
 
   # @author chezhang@redhat.com
-  # @case_id 538921
+  # @case_id OCP-11669
   @admin
   Scenario: User can specify a default permission mode for the whole secret volume
     Given I have a project
@@ -201,7 +201,7 @@ Feature: Permission Data
       | 644     |
 
   # @author chezhang@redhat.com
-  # @case_id 538922
+  # @case_id OCP-11853
   @admin
   Scenario: User can specify different permission for different files in configmap volume
     Given I have a project
@@ -225,7 +225,7 @@ Feature: Permission Data
       | 700   |
 
   # @author chezhang@redhat.com
-  # @case_id 538923
+  # @case_id OCP-12001
   @admin
   Scenario: User can specify different permission for different files in downward API volume
     Given I have a project
@@ -256,7 +256,7 @@ Feature: Permission Data
       | 100                          |
 
   # @author chezhang@redhat.com
-  # @case_id 538924
+  # @case_id OCP-12105
   @admin
   Scenario: User can specify different permission for different files in secret volume
     Given I have a project
@@ -280,7 +280,7 @@ Feature: Permission Data
       | 500     |
 
   # @author chezhang@redhat.com
-  # @case_id 538925
+  # @case_id OCP-12180
   @admin
   Scenario: User can specify right files permission when a default mode is supplied and the mode for a particular file is explicitly set
     Given I have a project
@@ -304,7 +304,7 @@ Feature: Permission Data
       | 500     |
 
   # @author chezhang@redhat.com
-  # @case_id 544919
+  # @case_id OCP-11043
   Scenario: Permission mode work well in "privileged" policy with fsGroup
     Given I have a project
     When I run the :create client command with:

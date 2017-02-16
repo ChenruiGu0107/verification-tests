@@ -1,6 +1,6 @@
 Feature: oc extract related scenarios
   # @author chezhang@redhat.com
-  # @case_id 532982
+  # @case_id OCP-11815
   Scenario: Extract configmap or secret from file
     Given I have a project
     Given a "secret.yaml" file is created with the following lines:
@@ -43,7 +43,7 @@ Feature: oc extract related scenarios
       | "no-exist" does not exist |
 
   # @author chezhang@redhat.com
-  # @case_id 532983
+  # @case_id OCP-11976
   Scenario: Extract configmap or secret to appointed directory
     Given I have a project
     When I run the :create client command with:
@@ -115,7 +115,7 @@ Feature: oc extract related scenarios
     Then the step should succeed
 
   # @author chezhang@redhat.com
-  # @case_id 532984
+  # @case_id OCP-12081
   Scenario: Extract only the keys from configmap or secret to directory
     Given I have a project
     When I run the :create client command with:

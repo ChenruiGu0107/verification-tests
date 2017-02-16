@@ -1,6 +1,6 @@
 Feature: Node management
   # @author chaoyang@redhat.com
-  # @case_id 472864
+  # @case_id OCP-11084
   @admin
   Scenario: admin can get nodes
     Given I have a project

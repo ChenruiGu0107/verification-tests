@@ -1,7 +1,7 @@
 Feature: ONLY ONLINE Quota related scripts in this file
 
   # @author bingli@redhat.com
-  # @case_id 517567 517576 517577
+  # @case_id OCP-9820 OCP-9822 OCP-9823
   Scenario Outline: Request/limit would be overridden based on container's memory limit when master provides override ratio
     Given I have a project
     When I run the :create client command with:

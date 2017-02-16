@@ -1,6 +1,6 @@
 Feature: Add env variables to image feature
   # @author dyan@redhat.com
-  # @case_id 473390 500960
+  # @case_id OCP-11085 OCP-12385
   Scenario Outline: Add env variables to mysql image
     Given I have a project
     When I run the :create client command with:
@@ -77,7 +77,7 @@ Feature: Add env variables to image feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-56-env-var-test.json |
 
   # @author wewang@redhat.com cryan@redhat.com
-  # @case_id 473391 508068 529314
+  # @case_id OCP-11452 OCP-12201 OCP-10867
   Scenario Outline: Add env variables to postgresql image
     Given I have a project
     When I run the :new_app client command with:
@@ -125,7 +125,7 @@ Feature: Add env variables to image feature
       | <%= product_docker_repo %>rhscl/postgresql-95-rhel7      |
 
   # @author cryan@redhat.com
-  # @case_id 497480
+  # @case_id OCP-10653
   Scenario: Add env variables to mongodb-24-centos7 image
     Given I have a project
     When I run the :create client command with:
@@ -153,7 +153,7 @@ Feature: Add env variables to image feature
       | quiet = false      |
 
   # @author cryan@redhat.com
-  # @case_id 527301 527302
+  # @case_id OCP-10847 OCP-11280
   Scenario Outline: Add env var to mysql 55 and 56
     Given I have a project
     When I run the :new_app client command with:
@@ -200,7 +200,7 @@ Feature: Add env variables to image feature
       | <%= product_docker_repo %>rhscl/mysql-56-rhel7:latest      |
 
   # @author cryan@redhat.com
-  # @case_id 529325 529362
+  # @case_id OCP-12346 OCP-12071
   Scenario Outline: mem based auto-tuning mariadb
     Given I have a project
     When I run the :new_app client command with:

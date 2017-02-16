@@ -1,6 +1,6 @@
 Feature: config related scenarios
   # @author pruan@redhat.com
-  # @case_id 470719
+  # @case_id OCP-12495
   Scenario: Override the specific parameters in config file
     Given I have a project
     When I run the :config_view client command
@@ -54,7 +54,7 @@ Feature: config related scenarios
       | current-context: default-context |
 
   # @author pruan@redhat.com
-  # @case_id 470722
+  # @case_id OCP-12511
   Scenario: Override the cluster in config file
     Given I have a project
     When I run the :config_set_cluster client command with:
@@ -75,7 +75,7 @@ Feature: config related scenarios
       | server: http://cow.org:8080 |
 
   # @author pruan@redhat.com
-  # @case_id 470723
+  # @case_id OCP-12517
   Scenario: Override the context in config file
     Given I have a project
     When I run the :config_set_cluster client command with:
@@ -113,7 +113,7 @@ Feature: config related scenarios
       | user: blue-user  |
 
   # @author pruan@redhat.com
-  # @case_id 470724
+  # @case_id OCP-12522
   Scenario: Set cluster and check the config file
     When I run the :config_set_cluster client command with:
       | name | horse-cluster         |
@@ -134,7 +134,7 @@ Feature: config related scenarios
       | http://pig.org:8080 |
 
   # @author pruan@redhat.com
-  # @case_id 470725
+  # @case_id OCP-12527
   Scenario: set credentials in config file
     Given I have a project
     When I run the :config_set_creds client command with:
@@ -155,7 +155,7 @@ Feature: config related scenarios
     And the expression should be true> not @result[:parsed]['users'].any? {|t| t['user']['token'].include? 'tc470725-token-old'}
 
   # @author pruan@redhat.com
-  # @case_id 470726
+  # @case_id OCP-12531
   Scenario: Setup context and switch to use different context
     Given I have a project
     When I run the :config_view client command
@@ -202,7 +202,7 @@ Feature: config related scenarios
 
   # @author yanpzhan@redhat.com
   # @note expected to only work with token auth user kubeconfig
-  # @case_id 477174
+  # @case_id OCP-11101
   Scenario: Kubeconfig file can be round-trip used
     Given I have a project
     And I run the :create client command with:

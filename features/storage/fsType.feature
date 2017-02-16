@@ -1,9 +1,9 @@
 Feature: testing for parameter fsType
   # @author chaoyang@redhat.com
   # @author lxia@redhat.com
-  # @case_id 499979 529377 529378
-  # @case_id 530177 530178 530179
-  # @case_id 530181 530182 530183
+  # @case_id OCP-9612 OCP-10048 OCP-10049
+  # @case_id OCP-10094 OCP-10095 OCP-10096
+  # @case_id OCP-10097 OCP-10098 OCP-10099
   @admin
   Scenario Outline: persistent volume formated with fsType
     Given I have a project

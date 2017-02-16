@@ -1,6 +1,6 @@
 Feature: stibuild.feature
   # @author haowang@redhat.com
-  # @case_id 476410
+  # @case_id OCP-11464
   Scenario: STI build with SourceURI and context dir
     Given I have a project
     When I run the :new_app client command with:
@@ -10,7 +10,7 @@ Feature: stibuild.feature
     And the "python-sample-build-1" build completed
 
   # @author wzheng@redhat.com
-  # @case_id 479021
+  # @case_id OCP-11470
   Scenario: Add ENV to STIStrategy buildConfig when do sti build
     Given I have a project
     When I run the :new_app client command with:
@@ -47,7 +47,7 @@ Feature: stibuild.feature
       | {"name":"DISABLE_ASSET_COMPILATION","value":"1"} |
 
   # @author haowang@redhat.com
-  # @case_id 476409
+  # @case_id OCP-11099
   Scenario: STI build with invalid context dir
     Given I have a project
     When I run the :new_app client command with:
@@ -62,7 +62,7 @@ Feature: stibuild.feature
     And the output should contain "no such file or directory"
 
   # @author wzheng@redhat.com
-  # @case_id 497874
+  # @case_id OCP-9575
   Scenario: Build invoked once buildconfig is created when there is no imagechangetrigger in buildconfig
     Given I have a project
     When I run the :new_app client command with:
@@ -81,7 +81,7 @@ Feature: stibuild.feature
       | Build configuration change |
 
   # @author xiuwang@redhat.com
-  # @case_id 498848,498847,498846
+  # @case_id OCP-12041,OCP-11911,OCP-11739
   @admin
   Scenario Outline: Trigger s2i/docker/custom build using additional imagestream
     Given I have a project

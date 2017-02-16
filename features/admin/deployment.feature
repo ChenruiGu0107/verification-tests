@@ -1,7 +1,7 @@
 Feature: admin deployment related features
 
   # @author xxia@redhat.com
-  # @case_id 481683
+  # @case_id OCP-11112
   @admin
   @destructive
   Scenario: Prune old deployments by admin command
@@ -116,7 +116,7 @@ Feature: admin deployment related features
       | mydc-4  |
 
   # @author xxia@redhat.com
-  # @case_id 489298
+  # @case_id OCP-11729
   @admin
   Scenario: Negative/invalid options test for oadm prune deployments
     When I run the :oadm_prune_deployments admin command with:

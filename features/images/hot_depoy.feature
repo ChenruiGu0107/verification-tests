@@ -1,7 +1,7 @@
 Feature: hotdeploy.feature
 
   # @author wzheng@redhat.com
-  # @case_id 508723,508727,508729,508731,508733,508725,529324
+  # @case_id OCP-12253,OCP-12366,OCP-12406,OCP-12435,OCP-12454,OCP-12318,OCP-12324
   Scenario Outline: Hot deploy test
     Given I have a project
     When I create a new application with:
@@ -30,7 +30,7 @@ Feature: hotdeploy.feature
       | https://github.com/openshift-qe/sinatra-hot-deploy.git | openshift/ruby:2.0 | RACK_ENV=development       | sinatra-hot-deploy | s/legen/hotdeploy_test/g | config.ru |
 
   # @author wzheng@redhat.com
-  # @case_id 508735,529366
+  # @case_id OCP-12470,OCP-11801
   Scenario Outline: Enable hot deploy for sinatra app - ruby-rhel7 which is created from imagestream via oc new-app
     Given I have a project
     When I create a new application with:
@@ -54,7 +54,7 @@ Feature: hotdeploy.feature
       |ruby:2.3|
 
   # @author wzheng@redhat.com
-  # @case_id 508721,508719
+  # @case_id OCP-12142,OCP-11921
   Scenario Outline: Enable hot deploy for perl which is created from imagestream via oc new-app
     Given I have a project
     When I create a new application with:

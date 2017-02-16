@@ -1,6 +1,6 @@
 Feature: check settings page on web console
   # @author yapei@redhat.com
-  # @case_id 470357
+  # @case_id OCP-12631
   @admin
   Scenario: create project limit and quota, check settings on web console
     # create project on web console
@@ -143,7 +143,7 @@ Feature: check settings page on web console
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 535708
+  # @case_id OCP-10351
   Scenario: Check Openshift Master and Kubernetes Master version on About page
     Given the master version >= "3.3"
     When I run the :version client command

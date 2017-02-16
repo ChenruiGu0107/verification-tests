@@ -1,7 +1,7 @@
 Feature: oc_delete.feature
 
   # @author cryan@redhat.com
-  # @case_id 509041
+  # @case_id OCP-11184
   Scenario: Gracefully delete a pod with '--grace-period' option
     Given I have a project
     When I run the :create client command with:
@@ -46,7 +46,7 @@ Feature: oc_delete.feature
     And the output should not contain "Running"
 
   # @author cryan@redhat.com
-  # @case_id 509045
+  # @case_id OCP-12048
   # @bug_id 1277101
   @admin
   Scenario: The namespace will not be deleted until all pods gracefully terminate
@@ -76,7 +76,7 @@ Feature: oc_delete.feature
     And the output should not match "<%= pod.name %>.*Terminating"
 
   # @author cryan@redhat.com
-  # @case_id 509040
+  # @case_id OCP-10705
   Scenario: Default termination grace period is 30s if it's not set
     Given I have a project
     When I run the :create client command with:
@@ -102,7 +102,7 @@ Feature: oc_delete.feature
     And the output should not contain "Running"
 
   # @author cryan@redhat.com
-  # @case_id 509046
+  # @case_id OCP-12144
   Scenario: Verify pod is gracefully deleted when DeletionGracePeriodSeconds is specified.
     Given I have a project
     When I run the :create client command with:
@@ -127,7 +127,7 @@ Feature: oc_delete.feature
     And the output should not contain "Running"
 
   # @author cryan@redhat.com
-  # @case_id 509042
+  # @case_id OCP-11526
   Scenario: Pod should be immediately deleted if TerminationGracePeriodSeconds is 0
     Given I have a project
     When I run the :create client command with:
@@ -148,7 +148,7 @@ Feature: oc_delete.feature
     And the output should not contain "Running"
 
   # @author cryan@redhat.com
-  # @case_id 474045
+  # @case_id OCP-12280
   Scenario: Delete resources with multiple approach via cli
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"

@@ -1,7 +1,7 @@
 Feature: Testing for pv and pvc pre-bind feature
 
   # @author chaoyang@redhat.com
-  # @case_id 531192
+  # @case_id OCP-10107
   @admin
   @destructive
   Scenario: Prebound pv is availabe due to requested pvc status is bound
@@ -20,7 +20,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfspv2-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 531194
+  # @case_id OCP-10109
   @admin
   Scenario: Prebound pv is availabe due to mismatched accessmode with requested pvc
     Given I have a project
@@ -37,7 +37,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfspv-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 531195
+  # @case_id OCP-10110
   @admin
   Scenario: Prebound pv is availabe due to mismatched volume size with requested pvc
     Given I have a project
@@ -54,7 +54,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfspv-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 531196
+  # @case_id OCP-10111
   @admin
   @destructive
   Scenario: Prebound pvc is pending due to requested pv status is bound
@@ -72,7 +72,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfsc-prebound-<%= project.name %>" PVC becomes :pending
 
   # @author chaoyang@redhat.com
-  # @case_id 531199
+  # @case_id OCP-10113
   @admin
   @destructive
   Scenario: Prebound PVC is pending due to mismatched accessmode with requested PV
@@ -90,7 +90,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfspv-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 531200
+  # @case_id OCP-10114
   @admin
   @destructive
   Scenario: Prebound PVC is pending due to mismatched volume size with requested PV
@@ -108,7 +108,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfspv-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 522243
+  # @case_id OCP-9941
   @admin
   @destructive
   Scenario: PV and PVC bound successfully when pvc created prebound to pv
@@ -131,7 +131,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfspv2-<%= project.name %>" PV status is :available
 
   # @author chaoyang@redhat.com
-  # @case_id 522241
+  # @case_id OCP-9940
   @admin
   @destructive
   Scenario: PV and PVC bound successfully when pv created prebound to pvc
@@ -150,7 +150,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfsc1-<%= project.name %>" PVC becomes :pending
 
   # @author chaoyang@redhat.com
-  # @case_id 522237
+  # @case_id OCP-9939
   @admin
   @destructive
   Scenario: PVC is bond to PV successfully when pvc is created first
@@ -162,8 +162,8 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfspv-<%= project.name %>" PV within 60 seconds
 
   # @author chaoyang@redhat.com
-  # @case_id 531193
-  # @case_id 531198
+  # @case_id OCP-10108
+  # @case_id OCP-10112
   @admin
   @destructive
   Scenario Outline: Prebound pv/pvc is availabe/pending due to requested pvc/pv prebound to other pv/pvc
@@ -185,7 +185,7 @@ Feature: Testing for pv and pvc pre-bind feature
       | nfsc1-<%= project.name %> | nfspv-<%= project.name %>  |
 
   # @author lxia@redhat.com
-  # @case_id 531237
+  # @case_id OCP-10124
   @admin
   @destructive
   Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PVC pre-bind to PV
@@ -200,7 +200,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "pvc-prebind-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV within 60 seconds
 
   # @author lxia@redhat.com
-  # @case_id 531238
+  # @case_id OCP-10125
   @admin
   @destructive
   Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PV pre-bind to PVC
@@ -217,7 +217,7 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-prebind-<%= project.name %>" PV within 60 seconds
 
   # @author lxia@redhat.com
-  # @case_id 531277
+  # @case_id OCP-12679
   @admin
   Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PV/PVC pre-bind to each other
     Given I have a project

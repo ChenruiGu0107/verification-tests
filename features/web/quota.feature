@@ -1,7 +1,7 @@
 Feature: functions about resourcequotas
 
   # @author yanpzhan@redhat.com
-  # @case_id 521078 521120 521122
+  # @case_id OCP-9886 OCP-9888 OCP-9889
   @admin
   Scenario Outline: Check scopes of resourcequota on web console
     Given I have a project
@@ -106,7 +106,7 @@ Feature: functions about resourcequotas
       | Not Terminating | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-notterminating.yaml | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-notterminating.yaml | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pod-terminating.yaml |
 
   # @author yanpzhan@redhat.com
-  # @case_id 521080
+  # @case_id OCP-9887
   @admin
   Scenario: Check BestEffort scope of resourcequota on web console
     Given I have a project
@@ -158,7 +158,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 536550
+  # @case_id OCP-10984
   @admin
   Scenario: Show warning info on overview page if quota is met
     Given I have a project
@@ -199,7 +199,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 536552
+  # @case_id OCP-11650
   @admin
   Scenario: Show warning/error info if quota exceeded when create resource by deploying image on web console
     Given I have a project
@@ -305,7 +305,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 536553
+  # @case_id OCP-11842
   @admin
   Scenario: Show warning/error info if quota exceeded when create resource from image/template on web console
     Given I have a project
@@ -417,7 +417,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 536551
+  # @case_id OCP-11379
   @admin
   Scenario: Show warning/error info if quota exceeded when create resource by importing yaml/json file on web console
     Given I have a project
@@ -497,7 +497,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 536554
+  # @case_id OCP-11991
   @admin
   @destructive
   Scenario: Show warning/error info if quota exceeded when create resource on web console with both project quota and cluster quota set on project
@@ -587,7 +587,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 536555
+  # @case_id OCP-12098
   @admin
   Scenario Outline: Show warning/error info if quotas with scopes exceeded on web console
     Given I have a project

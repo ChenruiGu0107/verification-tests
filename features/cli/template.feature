@@ -1,7 +1,7 @@
 Feature: template related scenarios:
 
   # @author pruan@redhat.com
-  # @case_id 483165
+  # @case_id OCP-12131
   Scenario: template with code explicitly attached should not be supported when creating app with template via cli
     Given I have a project
     And I run the :create client command with:
@@ -21,7 +21,7 @@ Feature: template related scenarios:
       | code     | git://github.com/openshift/nodejs-ex |
     Then the step should succeed
   # @author pruan@redhat.com
-  # @case_id 483164
+  # @case_id OCP-12032
   Scenario: create app from non-existing/invalid template via CLI
     Given I have a project
     And I run the :new_app client command with:
@@ -40,7 +40,7 @@ Feature: template related scenarios:
     Then the step should succeed
 
   # @author pruan@redhat.com
-  # @case_id 497538
+  # @case_id OCP-9562
   Scenario: Create app from template containing invalid type - cli
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc497538/application-template-stibuild.json"
@@ -56,7 +56,7 @@ Feature: template related scenarios:
       | error |
 
   # @author akostadi@redhat.com
-  # @case_id 476351
+  # @case_id OCP-11462
   Scenario Outline: Easy delete resources from template created
     Given I have a project
     And I process and create:
@@ -126,7 +126,7 @@ Feature: template related scenarios:
       | label1=value1,label2=value2,label3=value3,label4=value4 |
 
   # @author xiuwang@redhat.com
-  # @case_id 474042
+  # @case_id OCP-12124
   Scenario: Override/set/get values for multiple parameters
     Given I have a project
     When I run the :process client command with:
@@ -198,7 +198,7 @@ Feature: template related scenarios:
       |MYSQL_DATABASE=mine|
 
   # @author cryan@redhat.com
-  # @case_id 474056
+  # @case_id OCP-12466
   # @bug_id 1330323
   Scenario: Add arbitrary labels to all objects during template processing
     Given I have a project
@@ -259,7 +259,7 @@ Feature: template related scenarios:
     Then the step should fail
 
   # @author cryan@redhat.com
-  # @case_id 533273
+  # @case_id OCP-10929
   Scenario: Do not show user getting start info after processing a template without Message defined
     Given I have a project
     When I run the :create client command with:
@@ -288,7 +288,7 @@ Feature: template related scenarios:
     Then the output should not match ""message": "TestString1""
 
   # @author cryan@redhat.com
-  # @case_id 533274
+  # @case_id OCP-11337
   Scenario: Show multi user getting start info after new-app multi templates with Message defined
     Given I have a project
     When I run the :create client command with:
@@ -315,7 +315,7 @@ Feature: template related scenarios:
       | Your admin credentials are |
 
   # @author cryan@redhat.com
-  # @case_id 533275
+  # @case_id OCP-11627
   Scenario: Show user getting start info after new-app a template with message defined
     Given I have a project
     When I run the :create client command with:
@@ -339,7 +339,7 @@ Feature: template related scenarios:
       | Your admin credentials are |
 
   # @author cryan@redhat.com
-  # @case_id 533276
+  # @case_id OCP-11822
   Scenario: Show user getting start info after processing a template with message defined
     Given I have a project
     When I run the :create client command with:
@@ -363,7 +363,7 @@ Feature: template related scenarios:
       | Your admin credentials are |
 
   # @author cryan@redhat.com
-  # @case_id 534517
+  # @case_id OCP-10223
   # @bug_id 1248362
   Scenario: new-app with template/imagestream from the exact namespace
     Given I have a project

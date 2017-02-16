@@ -1,7 +1,7 @@
 Feature: ONLY ONLINE Images related scripts in this file
 
   # @author etrott@redhat.com
-  # @case_id 531501
+  # @case_id OCP-10133
   Scenario: Create .NET app by imagestream
     Given I have a project
     When I create a new application with:
@@ -18,7 +18,7 @@ Feature: ONLY ONLINE Images related scripts in this file
     And I wait for a web server to become available via the route
 
   # @author etrott@redhat.com
-  # @case_id 531502
+  # @case_id OCP-10134
   Scenario: .NET Core application quickstart test using image dotnetcore-10-rhel7
     Given I have a project
     When I run the :create client command with:
@@ -47,7 +47,7 @@ Feature: ONLY ONLINE Images related scripts in this file
     And I wait for a web server to become available via the "dotnet-sqlite-example" route
 
   # @author etrott@redhat.com
-  # @case_id 532758
+  # @case_id OCP-11614
   Scenario: Create mongo resources with persistent template for mongodb-32-rhel7 images
     Given I have a project
     Then I run the :new_app client command with:
@@ -68,7 +68,7 @@ Feature: ONLY ONLINE Images related scripts in this file
       | 3.2 |
 
   # @author etrott@redhat.com
-  # @case_id 532647
+  # @case_id OCP-10144
   Scenario: Add env variables to postgresql-95-rhel7 image
     Given I have a project
     When I run the :new_app client command with:
@@ -110,7 +110,7 @@ Feature: ONLY ONLINE Images related scripts in this file
       | 42              |
 
   # @author etrott@redhat.com
-  # @case_id 532739
+  # @case_id OCP-10147
   Scenario: Verify Mariadb can be connected after admin and user password are changed and re-deployment for persistent storage - marialdb-101-rhel7
     Given I have a project
     And I run the :new_app client command with:
@@ -200,7 +200,7 @@ Feature: ONLY ONLINE Images related scripts in this file
         | innodb_log_buffer_size = 120M  |
 
   # @author etrott@redhat.com
-  # @case_id 532767
+  # @case_id OCP-12373
   Scenario: Tune puma workers according to memory limit ruby-rhel7
     Given I have a project
     When I run the :create client command with:

@@ -1,6 +1,6 @@
 Feature:Create apps using new_app cmd feature
   # @author xiuwang@redhat.com
-  # @case_id 508988 508989
+  # @case_id OCP-9657 OCP-9658
   Scenario Outline: Create tomcat7 application from imagestream via oc new_app
     Given I have a project
 
@@ -25,7 +25,7 @@ Feature:Create apps using new_app cmd feature
       | openshift/jboss-webserver30-tomcat8-openshift:latest |
 
   # @author xiuwang@redhat.com
-  # @case_id 476349
+  # @case_id OCP-10595
   Scenario: Application with ruby-20-rhel7 base images lifecycle
     Given I have a project
 
@@ -47,7 +47,7 @@ Feature:Create apps using new_app cmd feature
     And the output should contain "Hello from OpenShift v3"
 
   # @author haowang@redhat.com
-  # @case_id 508976
+  # @case_id OCP-9653
   Scenario: create resource from imagestream via oc new-app openshift/nodejs-010-rhel7
     Given I have a project
     When I run the :new_app client command with:
@@ -63,7 +63,7 @@ Feature:Create apps using new_app cmd feature
     And  the output should contain "Welcome to your Node.js application on OpenShift"
 
   # @author haowang@redhat.com
-  # @case_id 491259
+  # @case_id OCP-11137
   Scenario: Create applications with multiple repos
     Given I have a project
     When I run the :new_app client command with:
@@ -93,7 +93,7 @@ Feature:Create apps using new_app cmd feature
     And the output should not contain "ruby-hello-world-1"
 
   # @author cryan@redhat.com
-  # @case_id 509050 536387
+  # @case_id OCP-9666 OCP-10366
   Scenario Outline: Create jenkins resources with oc new-app from imagestream
     Given I have a project
     When I run the :new_app client command with:
@@ -130,7 +130,7 @@ Feature:Create apps using new_app cmd feature
       | 2   |
 
   # @author xiuwang@redhat.com
-  # @case_id 529321
+  # @case_id OCP-12215
   Scenario: create resource from imagestream via oc new-app nodejs-4-rhel7
     Given I have a project
     When I run the :new_app client command with:
@@ -146,7 +146,7 @@ Feature:Create apps using new_app cmd feature
     And  the output should contain "Welcome to your Node.js application on OpenShift"
 
   # @author xiuwang@redhat.com
-  # @case_id 529370 529371
+  # @case_id OCP-12216 OCP-12265
   Scenario Outline: Nodejs-ex quickstart test with nodejs-4-rhel7
     Given I have a project
     When I run the :new_app client command with:

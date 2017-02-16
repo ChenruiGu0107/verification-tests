@@ -1,7 +1,7 @@
 Feature: create app on web console related
 
   # @author xxing@redhat.com
-  # @case_id 497608
+  # @case_id OCP-9568
   @admin
   Scenario: create app from template with custom build on web console
     When I create a project via web with:
@@ -53,7 +53,7 @@ Feature: create app on web console related
       | service.+deleted          |
 
   # @author xxing@redhat.com
-  # @case_id 497529
+  # @case_id OCP-9561
   Scenario: Create app from template containing invalid type on web console
     When I create a project via web with:
       | display_name | :null               |
@@ -80,7 +80,7 @@ Feature: create app on web console related
       | Cannot create |
 
   # @author xxing@redhat.com
-  # @case_id 507527
+  # @case_id OCP-11171
   Scenario Outline: Create application from image on web console
     Given I have a project
     Given I wait for the :create_app_from_image_with_advanced_git_options web console action to succeed with:
@@ -102,7 +102,7 @@ Feature: create app on web console related
       | v1.0.1  |
 
   # @author xxing@redhat.com
-  # @case_id 470453
+  # @case_id OCP-11445
   Scenario: Create application from template with invalid parameters on web console
     When I create a new project via web
     Then the step should succeed
@@ -126,7 +126,7 @@ Feature: create app on web console related
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 507521
+  # @case_id OCP-10691
   Scenario: Show help info and suggestions after creating app from web console
     When I create a new project via web
     Then the step should succeed
@@ -142,7 +142,7 @@ Feature: create app on web console related
     Then the step should succeed
 
   # @author wsun@redhat.com
-  # @case_id 489286
+  # @case_id OCP-12596
   Scenario: Create the app with invalid name
     Given I login via web console
     Given I have a project
@@ -245,7 +245,7 @@ Feature: create app on web console related
       | MYSQL_DATABASE         |
 
   # @author wsun@redhat.com
-  # @case_id 489294
+  # @case_id OCP-12597
   Scenario: Could edit Routing on create from source page
     When I create a new project via web
     Then the step should succeed
@@ -262,7 +262,7 @@ Feature: create app on web console related
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 511644
+  # @case_id OCP-10737
   Scenario: Setting env vars for buildconfig on web can be available in assemble phase of STI build
     When I create a new project via web
     Then the step should succeed
@@ -315,7 +315,7 @@ Feature: create app on web console related
       | value: dcone  |
 
   # @author yapei@redhat.com
-  # @case_id 515804
+  # @case_id OCP-10756
   Scenario: v1bata3 API version is not supported
     Given I have a project
     When I run the :create client command with:
@@ -336,7 +336,7 @@ Feature: create app on web console related
       | API version v1beta3.* is not supported |
 
   # @author xiaocwan@redhat.com
-  # @case_id 518663
+  # @case_id OCP-11233
   Scenario: Create resource from template contains fake api group
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -359,7 +359,7 @@ Feature: create app on web console related
       |  annot create.*fake |
 
   # @author yanpzhan@redhat.com
-  # @case_id 516702
+  # @case_id OCP-9794
   Scenario: Multiple ports can be shown and chosen on web console
     Given I have a project
     When I run the :create client command with:
@@ -413,7 +413,7 @@ Feature: create app on web console related
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 518662
+  # @case_id OCP-10775
   Scenario: Create resource from template contains different api groups
     Given I create a new project
     When I run the :create client command with:
@@ -448,7 +448,7 @@ Feature: create app on web console related
       | simplev1 |
 
   # @author yapei@redhat.com
-  # @case_id 478984
+  # @case_id OCP-11468
   @admin
   @destructive
   Scenario: Prompt info telling user to create a new project on console
@@ -478,7 +478,7 @@ Feature: create app on web console related
       | error_message | You may not request a new project via this API |
 
   # @author yapei@redhat.com
-  # @case_id 532281
+  # @case_id OCP-10895
   Scenario: Check template message on next step page
     Given I have a project
     When I run the :create client command with:
@@ -502,7 +502,7 @@ Feature: create app on web console related
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 530510
+  # @case_id OCP-10879
   Scenario: Deploy from ImageName on web console
     Given I have a project
     When I perform the :deploy_from_image_stream_name_with_nonexist_image web console action with:
@@ -547,7 +547,7 @@ Feature: create app on web console related
       | mylabel=my-hello-openshift |
 
   # @author: yapei@redhat.com
-  # @case_id: 530511
+  # @case_id: OCP-11301
   Scenario: Deploy Image from ImageStreamTag on web console
     Given I have a project
     When I perform the :deploy_from_image_stream_tag_with_image_stream_more_than_24_chars web console action with:
@@ -609,7 +609,7 @@ Feature: create app on web console related
       | po/python-dfi   |
 
   # @author etrott@redhat.com
-  # @case_id 533201
+  # @case_id OCP-11621
   Scenario: Labels management in create app from template process on web console
     When I perform the :new_project web console action with:
       | project_name | <%= project.name %> |
@@ -682,7 +682,7 @@ Feature: create app on web console related
     """
 
   # @author etrott@redhat.com
-  # @case_id 533199
+  # @case_id OCP-10920
   Scenario: Environment variables and label management in create app from image on web console
     When I perform the :new_project web console action with:
       | project_name | <%= project.name %> |
@@ -839,7 +839,7 @@ Feature: create app on web console related
       | po/<%= pod.name %> |
 
   # @author etrott@redhat.com
-  # @case_id 529149
+  # @case_id OCP-11288
   Scenario: Add resources missing some required fields to project
     When I perform the :new_project web console action with:
       | project_name | <%= project.name %> |
@@ -912,7 +912,7 @@ Feature: create app on web console related
     Then the step should succeed
       
   # @author yapei@redhat.com
-  # @case_id 509068
+  # @case_id OCP-12319
   Scenario: web console:parameter requirement check works correctly
     Given I have a project
     When I run the :create client command with:

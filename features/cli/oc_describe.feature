@@ -1,7 +1,7 @@
 Feature: Return description with cli
 
   # @author wewang@redhat.com
-  # @case_id 470422
+  # @case_id OCP-12021
   Scenario: Return description with cli describe with invalid parameter
     Given I have a project
     When I run the :new_app client command with:
@@ -106,7 +106,7 @@ Feature: Return description with cli
       | unknown command "des" for "oc" |
 
   # @author yadu@redhat.com
-  # @case_id 510223
+  # @case_id OCP-11197
   Scenario: Disable v1beta3 in REST API
     Given I have a project
     When I run the :create client command with:
@@ -147,7 +147,7 @@ Feature: Return description with cli
       | "apiVersion": "v1" |
 
   # @author xiaocwan@redhat.com
-  # @case_id 539580
+  # @case_id OCP-10491
   Scenario: oc describe event should not duplicate same output for no description
     Given I log the message>  this scenario is only for oc 3.4+
     Given I have a project

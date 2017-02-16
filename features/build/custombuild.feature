@@ -1,7 +1,7 @@
 Feature: custombuild.feature
 
   # @author wzheng@redhat.com
-  # @case_id 470349
+  # @case_id OCP-11443
   Scenario: Build with custom image - origin-custom-docker-builder
     Given I have a project
     When I run the :create client command with:
@@ -32,7 +32,7 @@ Feature: custombuild.feature
     """
 
   # @author dyan@redhat.com
-  # @case_id 479017
+  # @case_id OCP-11104
   Scenario: Custom build with imageStreamImage in buildConfig
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479017/custombuild-template.json"

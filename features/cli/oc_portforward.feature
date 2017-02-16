@@ -1,7 +1,7 @@
 Feature: oc_portforward.feature
 
   # @author cryan@redhat.com
-  # @case_id 472860
+  # @case_id OCP-11884
   Scenario: Forwarding a pod that isn't running
     Given I have a project
     When I run the :create client command with:
@@ -14,7 +14,7 @@ Feature: oc_portforward.feature
     And the output should match "[Uu]nable.+because pod is not running. Current status=Pending"
 
   # @author cryan@redhat.com
-  # @case_id 472861
+  # @case_id OCP-12023
   Scenario: Forwarding local port to a pod
     Given I have a project
     When I run the :create client command with:
@@ -44,7 +44,7 @@ Feature: oc_portforward.feature
     And the output should match "Forwarding from 127.0.0.1:8000 -> 8080"
 
   # @author pruan@redhat.com
-  # @case_id 509396
+  # @case_id OCP-11195
   Scenario: Forward multi local ports to a pod
     Given I have a project
     And evaluation of `rand(5000..7999)` is stored in the :porta clipboard
@@ -98,7 +98,7 @@ Feature: oc_portforward.feature
       <%= '"""' %>
     """
   # @author pruan@redhat.com
-  # @case_id 509397
+  # @case_id OCP-11533
   Scenario: Forwarding local port to a non-existing port in a pod
     Given I have a project
     And evaluation of `rand(5000..7999)` is stored in the :porta clipboard

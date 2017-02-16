@@ -1,7 +1,7 @@
 Feature: Container test feature
 
   # @author cryan@redhat.com
-  # @case_id 519822
+  # @case_id OCP-9863
   # @bug_id 1292666
   Scenario: Setuid binaries shouldn't work inside of a running container
     Given I have a project

@@ -1,6 +1,6 @@
 Feature: storage security check
   # @author lxia@redhat.com
-  # @case_id 510565 510564 511819
+  # @case_id OCP-9700 OCP-9699 OCP-9721
   @admin
   Scenario Outline: [origin_infra_20] volume security testing
     Given I have a project
@@ -85,7 +85,7 @@ Feature: storage security check
       | cinder               | volumeID    | cinder |
 
   # @author chaoyang@redhat.com
-  # @case_id 510760
+  # @case_id OCP-9709
   @admin
   @destructive
   Scenario: secret volume security check
@@ -123,7 +123,7 @@ Feature: storage security check
 
   # @author chaoyang@redhat.com
   # @author wehe@redhat.com
-  # @case_id 510759
+  # @case_id OCP-9708
   @admin
   @destructive
   Scenario: gitRepo volume security testing
@@ -158,7 +158,7 @@ Feature: storage security check
       | file1 |
 
   # @author wehe@redhat.com
-  # @case_id 510562
+  # @case_id OCP-9698
   @admin
   @destructive
   Scenario: emptyDir volume security testing

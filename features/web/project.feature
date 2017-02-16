@@ -1,7 +1,7 @@
 Feature: projects related features via web
 
   # @author xxing@redhat.com
-  # @case_id 479613
+  # @case_id OCP-10616
   Scenario Outline: Create a project with a valid project name on web console
     When I perform the :new_project web console action with:
       | project_name | <project_name> |
@@ -15,7 +15,7 @@ Feature: projects related features via web
       | <%= rand_str(2, :dns) %>  | :null        |
 
   # @author xxing@redhat.com
-  # @case_id 481744
+  # @case_id OCP-10623
   Scenario: Create a project with an invalid name on web console
     Given I login via web console
     When I access the "/console/createProject" path in the web console
@@ -76,7 +76,7 @@ Feature: projects related features via web
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 499989
+  # @case_id OCP-9613
   Scenario: Could delete project from web console
     When I create a project via web with:
       | display_name | :null |
@@ -141,7 +141,7 @@ Feature: projects related features via web
       | User "<%= user.name %>" cannot delete projects in project "<%= project.name %>" |
 
   # @author wsun@redhat.com
-  # @case_id 470313
+  # @case_id OCP-12440
   Scenario: Could list all projects based on the user's authorization on web console
     Given an 8 characters random string of type :dns is stored into the :project1 clipboard
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
@@ -192,7 +192,7 @@ Feature: projects related features via web
     Then the step should fail
 
   # @author wsun@redhat.com
-  # @case_id 499992
+  # @case_id OCP-9614
   Scenario: Can edit the project description and display name from web console
     When I create a project via web with:
       | display_name | projecttest |
@@ -241,7 +241,7 @@ Feature: projects related features via web
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 528311
+  # @case_id OCP-10014
   Scenario: Delete project from web console
     # delete project with project name on /console page
     When I create a project via web with:
@@ -286,7 +286,7 @@ Feature: projects related features via web
       | <%= project.name %> |
 
   # @author etrott@redhat.com
-  # @case_id 536573
+  # @case_id OCP-11651
   Scenario: Manage project membership about groups
     Given the master version >= "3.4"
     When I create a new project via web
@@ -381,7 +381,7 @@ Feature: projects related features via web
       | system:test_group |
 
   # @author etrott@redhat.com
-  # @case_id 536574
+  # @case_id OCP-11843
   Scenario: Manage project membership about users
     Given the master version >= "3.4"
     When I create a new project via web
@@ -574,7 +574,7 @@ Feature: projects related features via web
       | system:test_user |
 
   # @author etrott@redhat.com
-  # @case_id 536576
+  # @case_id OCP-12099
   Scenario: Check rolebinding duplication when editing membership
     Given the master version >= "3.4"
     Given I have a project

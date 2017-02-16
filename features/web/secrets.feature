@@ -1,7 +1,7 @@
 Feature: web secrets related
 
   # @author xxing@redhat.com
-  # @case_id 536663
+  # @case_id OCP-11386
   Scenario: Add secret on Create From Image page
     Given I have a project
     When I run the :oc_secrets_new_basicauth client command with:
@@ -27,7 +27,7 @@ Feature: web secrets related
     And the expression should be true> @result[:parsed]["spec"]["source"]["sourceSecret"]["name"] == "gitsecret"
 
   # @author xxing@redhat.com
-  # @case_id 536662
+  # @case_id OCP-10996
   Scenario: Add secrets in Deploy Image page
     Given I have a project
     When I run the :oc_secrets_new_dockercfg client command with:
@@ -196,7 +196,7 @@ Feature: web secrets related
       | mysecret-2 |
 
   # @author xxing@redhat.com
-  # @case_id 536667
+  # @case_id OCP-12103
   Scenario: Create secret via create secret page
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/credential/.gitconfig"
@@ -311,7 +311,7 @@ Feature: web secrets related
     And the expression should be true> @result[:parsed]["imagePullSecrets"].include?({"name"=>"dockerconfig"})
 
   # @author xxing@redhat.com
-  # @case_id 544854
+  # @case_id OCP-10540
   Scenario: Prompt invalid input when creating secret in web
     Given I have a project
     When I perform the :goto_create_secret_page web console action with:
@@ -350,7 +350,7 @@ Feature: web secrets related
     Then the output should match "must be in the form of user@domain"
 
   # @author xxing@redhat.com
-  # @case_id 536665
+  # @case_id OCP-11848
   Scenario: Add secrets to docker strategy BC
     Given I have a project
     Given a "secretfile1" file is created with the following lines:
@@ -391,7 +391,7 @@ Feature: web secrets related
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 536664
+  # @case_id OCP-11657
   @admin
   Scenario: Add secrets to custom strategy BC
     Given I have a project
@@ -446,7 +446,7 @@ Feature: web secrets related
     And the expression should be true> @result[:parsed]["spec"]["strategy"]["customStrategy"]["secrets"].include?({"mountPath"=>"/tmp/exam2", "secretSource"=>{"name"=>"mysecret2"}})
 
   # @author xxing@redhat.com
-  # @case_id 540247
+  # @case_id OCP-10530
   Scenario: Add/remove secrets in DC editor page
     Given I have a project
     When I run the :run client command with:

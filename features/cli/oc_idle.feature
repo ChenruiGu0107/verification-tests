@@ -1,6 +1,6 @@
 Feature: oc idle
   # @author chezhang@redhat.com
-  # @case_id 533688
+  # @case_id OCP-11633
   Scenario: CLI - Idle all the service in the same project
     Given I have a project
     When I run the :create client command with:
@@ -39,7 +39,7 @@ Feature: oc idle
       | idling.*openshift.io/idled-at  |
 
   # @author chezhang@redhat.com
-  # @case_id 533690
+  # @case_id OCP-11980
   Scenario: CLI - Idle service by label
     Given I have a project
     When I run the :create client command with:
@@ -73,7 +73,7 @@ Feature: oc idle
       | idling.*openshift.io/idled-at |
 
   # @author chezhang@redhat.com
-  # @case_id 533691
+  # @case_id OCP-12085
   Scenario: CLI - Idle service from file
     Given I have a project
     When I run the :create client command with:
@@ -112,7 +112,7 @@ Feature: oc idle
       | no valid scalable resources found to idle: endpoints "noexist-svc" not found |
 
   # @author chezhang@redhat.com
-  # @case_id 533692
+  # @case_id OCP-12169
   Scenario: CLI - Idle service with dry-run
     Given I have a project
     When I run the :create client command with:
@@ -141,7 +141,7 @@ Feature: oc idle
       | idling.*openshift.io/idled-at |
 
   # @author chezhang@redhat.com
-  # @case_id 533686
+  # @case_id OCP-10941
   Scenario: Idling service with dc
     Given I have a project
     When I run the :create client command with:
@@ -204,7 +204,7 @@ Feature: oc idle
       | idling-echo.*\d+.\d+.\d+.\d+:3090,\d+.\d+.\d+.\d+:3090,\d+.\d+.\d+.\d+:8675 |
 
   # @author chezhang@redhat.com
-  # @case_id 533687
+  # @case_id OCP-11345
   Scenario: Idling service with rc
     Given I have a project
     When I run the :create client command with:

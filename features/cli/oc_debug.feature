@@ -1,7 +1,7 @@
 Feature: oc debug related scenarios
 
   # @author xiaocwan@redhat.com
-  # @case_id 519497
+  # @case_id OCP-9854
   Scenario: Debug pod with oc debug
     Given I have a project
     When I run the :create client command with:
@@ -18,7 +18,7 @@ Feature: oc debug related scenarios
       | [Rr]emoving debug pod       |
 
   # @author xiaocwan@redhat.com
-  # @case_id 519503
+  # @case_id OCP-9855
   Scenario: Debug the resource with keeping the original pod info
     Given I have a project
     When I run the :run client command with:
@@ -51,7 +51,7 @@ Feature: oc debug related scenarios
       | livenessProbe:\\s+failureThreshold: |
 
   # @author xiaocwan@redhat.com
-  # @case_id 519561
+  # @case_id OCP-9857
   Scenario: Use oc debug with misc flags
     Given I have a project
     When I run the :create client command with:
@@ -103,7 +103,7 @@ Feature: oc debug related scenarios
       | [Rr]emoving debug pod                 |
 
   # @author cryan@redhat.com
-  # @case_id 534490
+  # @case_id OCP-10220
   Scenario: oc debug with or without init container for pod
     Given I have a project
     When I run the :create client command with:

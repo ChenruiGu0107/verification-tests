@@ -1,7 +1,7 @@
 Feature: security.feature
 
   # @author haowang@redhat.com
-  # @case_id 526562
+  # @case_id OCP-9966
   Scenario: normal user cannot update the build pod image
     Given I have a project
     When I run the :new_app client command with:

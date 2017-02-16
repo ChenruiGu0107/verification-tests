@@ -26,7 +26,7 @@ Feature: general_db.feature
     Then I wait for a web server to become available via the "jws-http-route" route
 
   # @author haowang@redhat.com
-  # @case_id 473389 508066
+  # @case_id OCP-10581 OCP-12044
   Scenario Outline: Add env variables to mongodb image
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/<template>" replacing paths:
@@ -56,7 +56,7 @@ Feature: general_db.feature
       | mongodb-26-rhel7-env-test.json      | scl enable rh-mongodb26 "cat /etc/mongod.conf"  | rhscl/mongodb-26-rhel7  |
 
   # @author haowang@redhat.com
-  # @case_id 511971
+  # @case_id OCP-9723
   Scenario: Create mongodb resources via installed ephemeral template on web console
     Given I have a project
     When I run the :new_app client command with:
@@ -74,7 +74,7 @@ Feature: general_db.feature
       | "ok" : 1 |
 
   # @author haowang@redhat.com
-  # @case_id 508094
+  # @case_id OCP-12538
   Scenario: Verify mongodb can be connect after change admin and user password or re-deployment for ephemeral storage - mongodb-26-rhel7
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-ephemeral-template.json"
@@ -110,7 +110,7 @@ Feature: general_db.feature
       | 2.6 |
 
   # @author haowang@redhat.com
-  # @case_id 500991 508085 529330
+  # @case_id OCP-11165 OCP-12491 OCP-12437
   Scenario Outline: Verify cluster mongodb can be connect after change admin and user password or redeployment for ephemeral storage - mongodb-24-rhel7 mongodb-26-rhel7
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/mongodb/master/2.4/examples/replica/mongodb-clustered.json"
@@ -152,7 +152,7 @@ Feature: general_db.feature
       | rhscl/mongodb-32-rhel7      | rh-mongodb32 | 3.2    |
 
   # @author haowang@redhat.com
-  # @case_id 498006
+  # @case_id OCP-9580
   Scenario: mongodb persistent template
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mongodb-persistent-template.json"
@@ -180,7 +180,7 @@ Feature: general_db.feature
       | 2.6 |
 
   # @author haowang@redhat.com
-  # @case_id 519474
+  # @case_id OCP-9852
   Scenario: mongodb 24 with persistent volume
     Given I have a project
     Then I run the :new_app client command with:
@@ -205,7 +205,7 @@ Feature: general_db.feature
     And the output should contain:
       | 2.4 |
   # @author haowang@redhat.com
-  # @case_id 498005
+  # @case_id OCP-9579
   Scenario: Create app using mysql-ephemeral template
     Given I have a project
     When I run the :new_app client command with:
@@ -236,7 +236,7 @@ Feature: general_db.feature
       | 10 |
 
   # @author xiuwang@redhat.com
-  # @case_id 529316
+  # @case_id OCP-11597
   Scenario: Create mongo resources with persistent template for mongodb-32-rhel7 images
     Given I have a project
     Then the step should succeed
@@ -262,7 +262,7 @@ Feature: general_db.feature
       | 3.2 |
 
   # @author xiuwang@redhat.com
-  # @case_id 529320
+  # @case_id OCP-12159
   Scenario: create resource via oc new-app mongodb-32-rhel7
     Given I have a project
     When I run the :new_app client command with:
@@ -293,7 +293,7 @@ Feature: general_db.feature
       | openshift |
 
   # @author xiuwang@redhat.com
-  # @case_id 529333
+  # @case_id OCP-12463
   Scenario: Verify mongodb can be connect after change admin and user password or re-deployment for ephemeral storage - mongodb-32-rhel7
     Given I have a project
     When I run the :new_app client command with:
@@ -327,7 +327,7 @@ Feature: general_db.feature
       | 3.2 |
 
   # @author haowang@redhat.com
-  # @case_id 538278
+  # @case_id OCP-11011
   Scenario: Mongodb replica petset example with persistent storage
     Given I have a project
     When I run the :new_app client command with:

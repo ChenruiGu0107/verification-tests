@@ -1,6 +1,6 @@
 Feature: jenkins.feature
   # @author xiuwang@redhat.com
-  # @case_id 498668
+  # @case_id OCP-11506
   Scenario: Could change password for jenkins server--jenkins-1-rhel7
     Given I have a project
     When I run the :new_app client command with:
@@ -59,7 +59,7 @@ Feature: jenkins.feature
     Then the output should contain "jenkins"
 
   # @author cryan@redhat.com
-  # @case_id 531203 536414
+  # @case_id OCP-10884 OCP-10979
   Scenario Outline: Using jenkinsfilePath or contextDir with jenkinspipeline strategy
     Given I have a project
     And I have an ephemeral jenkins v<ver> application
@@ -157,7 +157,7 @@ Feature: jenkins.feature
     And the output should contain "already exists"
 
   # @author shiywang@redhat.com
-  # @case_id 515420 536389
+  # @case_id OCP-10747 OCP-10976
   Scenario Outline: Build with new parameter which is configged
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
@@ -221,7 +221,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 515421 536390
+  # @case_id OCP-11217 OCP-11370
   Scenario Outline: Create a new job in jenkins with OpenShift Pipeline Jenkins Plugin
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -262,7 +262,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 527335 536401
+  # @case_id OCP-10848 OCP-10978
   Scenario Outline: jenkins plugin can tag image in the same project
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -331,7 +331,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 498667 536384
+  # @case_id OCP-11156 OCP-11368
   Scenario Outline: Trigger build of application from jenkins job with ephemeral volume
     Given I have a project
     And I have an ephemeral jenkins v<ver> application
@@ -409,7 +409,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 508754 536386
+  # @case_id OCP-11179 OCP-11369
   Scenario Outline: Trigger build of application from jenkins job with persistent volume
     Given I have a project
     When I run the :new_app client command with:
@@ -496,7 +496,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 527297 536399
+  # @case_id OCP-10846 OCP-10977
   Scenario Outline: jenkins plugin can tag image in different projects use destination project token
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -639,7 +639,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 527298 536400
+  # @case_id OCP-11279 OCP-11371
   Scenario Outline: jenkins plugin can tag image in different projects use jenkins project token
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -758,7 +758,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author shiywang@redhat.com
-  # @case_id 516504
+  # @case_id OCP-11941
   Scenario Outline: Check verbose logging in build field of openshift v3 plugin
     Given I have a project
     When I give project admin role to the default service account
@@ -868,7 +868,7 @@ Feature: jenkins.feature
       | nodejs-010 | openshift3/nodejs-010-rhel7     | npm -v                                                                                                          |
 
   # @author cryan@redhat.com
-  # @case_id 529769 536411
+  # @case_id OCP-12389 OCP-12392
   Scenario Outline: Show annotation when build triggered by jenkins pipeline
     Given I have a project
     And I have an ephemeral jenkins v<ver> application
@@ -914,7 +914,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 515424 536393
+  # @case_id OCP-11938 OCP-11988
   Scenario Outline: Testing workflow using openshift v3 plugin
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
@@ -967,7 +967,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author wewang@redhat.com
-  # @case_id 515423 536392
+  # @case_id OCP-11768 OCP-11838
   Scenario Outline: Test jenkins post-build actions
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -1036,7 +1036,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 533683
+  # @case_id OCP-11344
   Scenario: Pipeline build, started before Jenkins is deployed, shouldn't get deleted
     Given I have a project
     When I run the :new_app client command with:
@@ -1065,7 +1065,7 @@ Feature: jenkins.feature
     """
 
   # @author cryan@redhat.com
-  # @case_id 534536 534540 534541
+  # @case_id OCP-11355 OCP-11356 OCP-11357
   Scenario Outline: Delete openshift resources in jenkins with OpenShift Pipeline Jenkins Plugin
     Given I have a project
     Given I have an ephemeral jenkins v<jenkins_version> application
@@ -1124,7 +1124,7 @@ Feature: jenkins.feature
       | from JSON/YAML |              |                 |                 | <%= File.read('hello-pod.json').to_json %> | OpenShiftDeleterJsonYaml | 2               |
 
   # @author wewang@redhat.com
-  # @case_id 516502
+  # @case_id OCP-11940
   Scenario Outline: update build field of openshift v3 plugin
     Given I have a project
     When I give project admin role to the default service account
@@ -1200,7 +1200,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 532328
+  # @case_id OCP-10896
   Scenario: Make jenkins slave configurable when do jenkinspipeline strategy with maven slave
     Given I have a project
     When I run the :new_app client command with:
@@ -1312,7 +1312,7 @@ Feature: jenkins.feature
       | openshift.io/jenkins-build-uri |
 
   # @author cryan@redhat.com
-  # @case_id 529771 536413
+  # @case_id OCP-12425 OCP-12426
   Scenario Outline: Show annotation when deployment triggered by jenkins pipeline
     Given I have a project
     Given I have an ephemeral jenkins v<ver> application
@@ -1362,7 +1362,7 @@ Feature: jenkins.feature
       |  2  |
 
   # @author cryan@redhat.com
-  # @case_id 534542 536427
+  # @case_id OCP-11829 OCP-11840
   # @note This scenario will fail as of 1/17/17 due to a deprecation
   # of spec.portalIP in the jenkins templates, and a shift in the
   # jenkins plugin to use spec.portalIP.
@@ -1436,7 +1436,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author cryan@redhat.com
-  # @case_id 531206
+  # @case_id OCP-11807
   Scenario Outline: Using jenkinsfile field with jenkinspipeline strategy
     Given I have a project
     And I have a persistent jenkins v<ver> application
@@ -1460,7 +1460,7 @@ Feature: jenkins.feature
       | 2   |
 
   # @author xiuwang@redhat.com
-  # @case_id 515317 536388
+  # @case_id OCP-10746 OCP-10975
   Scenario: Use Jenkins as S2I builder with plugins
     Given I have a project
     When I run the :new_app client command with:

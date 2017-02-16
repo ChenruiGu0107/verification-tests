@@ -1,6 +1,6 @@
 Feature: oc proxy related scenarios
   # @author xxia@redhat.com
-  # @case_id 528444
+  # @case_id OCP-12156
   Scenario: Simple usage of oc proxy as API server
     Given I have a project
     And evaluation of `rand(32000..64000)` is stored in the :port clipboard
@@ -33,7 +33,7 @@ Feature: oc proxy related scenarios
     Then the step should succeed
 
   # @author xxia@redhat.com
-  # @case_id 528446
+  # @case_id OCP-12262
   Scenario: Advanced usage of oc proxy as API server
     Given I have a project
     And evaluation of `rand(32000..64000)` is stored in the :port1 clipboard

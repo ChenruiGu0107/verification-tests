@@ -1,7 +1,7 @@
 Feature: ONLY ONLINE PostgreSQL images related feature's scripts in this file
 
   # @author etrott@redhat.com
-  # @case_id 532768
+  # @case_id OCP-12391
   Scenario: Use customized values for memory limits env vars - postgresql-95-rhel7
     Given I have a project
     When I run the :new_app client command with:
@@ -22,7 +22,7 @@ Feature: ONLY ONLINE PostgreSQL images related feature's scripts in this file
     Then the output should contain "effective_cache_size = 64MB"
 
   # @author etrott@redhat.com
-  # @case_id 532770
+  # @case_id OCP-12410
   Scenario: Use default values for memory limits env vars - postgresql-95-rhel7
     Given I have a project
     When I run the :new_app client command with:
@@ -41,7 +41,7 @@ Feature: ONLY ONLINE PostgreSQL images related feature's scripts in this file
     Then the output should contain "effective_cache_size = 256MB"
 
   # @author etrott@redhat.com
-  # @case_id 532757
+  # @case_id OCP-11319
   Scenario: Check memory limits env vars when pod is set with memory limit - postgresql-95-rhel7
     Given I have a project
     When I run the :create client command with:

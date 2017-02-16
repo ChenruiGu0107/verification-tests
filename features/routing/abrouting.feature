@@ -1,7 +1,7 @@
 Feature: Testing abrouting
 
   # @author yadu@redhat.com
-  # @case_id 531404
+  # @case_id OCP-10889
   Scenario: Sticky session could work normally after set weight for route
     Given I have a project
     When I run the :create client command with:
@@ -79,7 +79,7 @@ Feature: Testing abrouting
     """
 
   # @author yadu@redhat.com
-  # @case_id 533859
+  # @case_id OCP-11351
   Scenario: Set backends weight to zero for ab routing
     Given I have a project
     When I run the :create client command with:
@@ -148,7 +148,7 @@ Feature: Testing abrouting
     """
 
   # @author yadu@redhat.com
-  # @case_id 531409
+  # @case_id OCP-12076
   Scenario: Set weight for unsecure route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -235,7 +235,7 @@ Feature: Testing abrouting
 
 
   # @author yadu@redhat.com
-  # @case_id 531406
+  # @case_id OCP-11608
   Scenario: Set backends weight for edge route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -324,7 +324,7 @@ Feature: Testing abrouting
 
 
   # @author yadu@redhat.com
-  # @case_id 531407
+  # @case_id OCP-11809
   Scenario: Set backends weight for passthough route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -413,8 +413,8 @@ Feature: Testing abrouting
 
 
   # @author yadu@redhat.com
-  # @case_id 531408
-  @case_id 531407
+  # @case_id OCP-11970
+  @case_id OCP-11809
   Scenario: Set backends weight for reencrypt route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -516,7 +516,7 @@ Feature: Testing abrouting
     Then the expression should be true> cb.accesslength3 == 1
 
   # @author yadu@redhat.com
-  # @case_id 531405
+  # @case_id OCP-11306
   Scenario: Set negative backends weight for ab routing
     Given I have a project
     And I store default router IPs in the :router_ip clipboard

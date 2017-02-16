@@ -1,7 +1,7 @@
 Feature: buildlogic.feature
 
   # @author haowang@redhat.com
-  # @case_id 515806
+  # @case_id OCP-9769
   @admin
   Scenario: if build fails to schedule because of quota, after the quota increase, the build should start
     Given I have a project
@@ -29,7 +29,7 @@ Feature: buildlogic.feature
     """
 
   # @author haowang@redhat.com
-  # @case_id 515254
+  # @case_id OCP-11545
   Scenario: Build with specified Dockerfile via new-build -D
     Given I have a project
     When I run the :new_build client command with:
@@ -41,7 +41,7 @@ Feature: buildlogic.feature
     And the "myapp-1" build completed
 
   # @author xiazhao@redhat.com
-  # @case_id 501096
+  # @case_id OCP-11170
   Scenario: Result image will be tried to push after multi-build
     Given I have a project
     When I run the :new_app client command with:
@@ -65,7 +65,7 @@ Feature: buildlogic.feature
     And the "php-sample-build-3" build completed
 
   # @author gpei@redhat.com
-  # @case_id 515255
+  # @case_id OCP-11767
   Scenario: Create build without output
     Given I have a project
     When I run the :new_build client command with:
@@ -77,7 +77,7 @@ Feature: buildlogic.feature
     And the "myapp-1" build completed
 
   # @author yantan@redhat.com
-  # @case_id 520291
+  # @case_id OCP-10799
   Scenario: Create new build config use dockerfile with source repo
     Given I have a project
     When I run the :new_build client command with:
@@ -96,7 +96,7 @@ Feature: buildlogic.feature
     Then the "ruby-hello-world-1" build completed
 
   # @author haowang@redhat.com
-  # @case_id 499515
+  # @case_id OCP-11508
   Scenario: Prevent STI builder images from running as root
     Given I have a project
     When I run the :create client command with:
@@ -137,7 +137,7 @@ Feature: buildlogic.feature
       | specify.*user |
 
   # @author haowang@redhat.com
-  # @case_id 499516
+  # @case_id OCP-11740
   Scenario: Prevent STI builder images from running as root - using onbuild image
     Given I have a project
     When I run the :create client command with:
@@ -160,7 +160,7 @@ Feature: buildlogic.feature
       |  not allowed |
 
   # @author haowang@redhat.com
-  # @case_id 497420 497421 497460 497461
+  # @case_id OCP-10651 OCP-11148 OCP-10652 OCP-11149
   Scenario Outline: ForcePull image for build
     Given I have a project
     When I run the :create client command with:
@@ -183,7 +183,7 @@ Feature: buildlogic.feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-dockerimage.json         |
 
   # @author haowang@redhat.com
-  # @case_id 497462 497463
+  # @case_id OCP-11500 OCP-11735
   Scenario Outline: ForcePull image for build using ImageSteamImage
     Given I have a project
     When I run the :get client command with:
@@ -211,7 +211,7 @@ Feature: buildlogic.feature
       | sourceStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStreamImage.json    |
 
   # @author yantan@redhat.com
-  # @case_id 515252
+  # @case_id OCP-10745
   Scenario: Build with specified Dockerfile to image with same image name via new-build
     Given I have a project
     When I run the :new_build client command with:
@@ -245,7 +245,7 @@ Feature: buildlogic.feature
       | error |
 
   # @author dyan@redhat.com
-  # @case_id 476354
+  # @case_id OCP-10596
   Scenario: Failed to push image with invalid Docker secret
     Given I have a project
     When I run the :oc_secrets_new_dockercfg client command with:
@@ -268,7 +268,7 @@ Feature: buildlogic.feature
       | Failed to push image |
 
   # @author haowang@redhat.com
-  # @case_id 482193
+  # @case_id OCP-11720
   Scenario: Build from private git repo with/without ssh key
     Given I have a project
     And I have an ssh-git service in the project
@@ -310,7 +310,7 @@ Feature: buildlogic.feature
     Then the "ruby-hello-world-3" build completed
 
   # @author haowang@redhat.com
-  # @case_id 499639
+  # @case_id OCP-11160
   @admin
   Scenario: Check labels info in built images when do sti build in openshift
     Given I have a project
@@ -343,7 +343,7 @@ Feature: buildlogic.feature
       | .*io.s2i.scripts-url.*                               |
 
   # @author yantan@redhat.com
-  # @case_id 482195
+  # @case_id OCP-12031
   Scenario: Trigger build from webhook against external git provider - gitlab
     Given I have a project
     And I have an ssh-git service in the project
@@ -395,7 +395,7 @@ Feature: buildlogic.feature
     And the "ruby-hello-world-3" build completes
 
   # @author dyan@redhat.com
-  # @case_id 482196
+  # @case_id OCP-12130
   Scenario: Trigger generic webhooks with invalid branch or commit ID for external private git solutions - gitlab
     Given I have a project
     And I have an ssh-git service in the project
@@ -472,7 +472,7 @@ Feature: buildlogic.feature
       | 123456 |
 
   # @author yantan@redhat.com
-  # @case_id 482194
+  # @case_id OCP-11896
   Scenario: Create new-app from private git repo with ssh key
     Given I have a project
     When I run the :new_app client command with:
@@ -505,7 +505,7 @@ Feature: buildlogic.feature
     Then I wait for a web server to become available via the "sti-perl" route
 
   # @author yantan@redhat.com
-  # @case_id 482192
+  # @case_id OCP-11479
   Scenario: Build from private git repo with wrong auth method
     Given I have a project
     When I run the :new_build client command with:
@@ -544,7 +544,7 @@ Feature: buildlogic.feature
       | Permission denied                         |
 
   # @author xiuwang@redhat.com
-  # @case_id 499638
+  # @case_id OCP-10669
   @admin
   Scenario: Check labels info in built images when do docker build in openshift
     Given I have a project
@@ -575,7 +575,7 @@ Feature: buildlogic.feature
       | .*io.s2i.scripts-url.*                               |
 
   # @author shiywang@redhat.com
-  # @case_id 528295 528296
+  # @case_id OCP-10855 OCP-11283
   Scenario Outline: Tune perl image to autoconfigure based on available memory
     Given I have a project
     When I run the :new_app client command with:
@@ -633,7 +633,7 @@ Feature: buildlogic.feature
       | openshift/perl:5.20~https://github.com/openshift/dancer-ex |
 
   # @author shiywang@redhat.com
-  # @case_id 526208
+  # @case_id OCP-10835
   Scenario: Cancel builds with --state negative test
     Given I have a project
     When I run the :new_build client command with:
@@ -663,7 +663,7 @@ Feature: buildlogic.feature
     And the output should contain "The '--state' flag has invalid value. Must be one of 'new', 'pending', or 'running'"
 
   # @author dyan@redhat.com
-  # @case_id 472757
+  # @case_id OCP-11081
   Scenario: Show the fields of build
     Given I have a project
     When I run the :new_build client command with:

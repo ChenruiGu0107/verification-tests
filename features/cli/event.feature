@@ -1,6 +1,6 @@
 Feature: Event related scenarios
   # @author chezhang@redhat.com
-  # @case_id 515451
+  # @case_id OCP-10751
   @admin
   Scenario: check event compressed in kube
     Given I have a project
@@ -43,7 +43,7 @@ Feature: Event related scenarios
       | forbidden.*quota.*must specify cpu,memory |
 
   # @author chezhang@redhat.com
-  # @case_id 515449
+  # @case_id OCP-10750
   Scenario: Check normal and warning information for kubernetes events
     Given I have a project
     When I run the :create client command with:
@@ -88,7 +88,7 @@ Feature: Event related scenarios
       | Warning\\s+Failed     |
 
   # @author yanpzhan@redhat.com
-  # @case_id 532269
+  # @case_id OCP-10136
   Scenario: Project should only watch its owned cache events
     When I run the :new_project client command with:
       | project_name | eventcache532269 |
@@ -158,7 +158,7 @@ Feature: Event related scenarios
     And the expression should be true> @result[:response] != "<%= cb.watchevent1 %>"
 
   # @author dma@redhat.com
-  # @case_id 533910
+  # @case_id OCP-10208
   Scenario: Event should show full failed reason when readiness probe failed
     Given I have a project
     When I run the :create client command with:

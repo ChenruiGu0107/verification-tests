@@ -1,7 +1,7 @@
 Feature: MariaDB images test
 
   # @author cryan@redhat.com
-  # @case_id 529359 529360
+  # @case_id OCP-11598 OCP-11800
   Scenario Outline: Deploy mariadb image
     Given I have a project
     When I run the :new_app client command with:
@@ -28,7 +28,7 @@ Feature: MariaDB images test
       | mariadb-101-rhel7 |
 
   # @author haowang@redhat.com
-  # @case_id 529357 529358
+  # @case_id OCP-10868 OCP-11293
   Scenario Outline: Add env vars to mariadb image
     Given I have a project
     And I download a file from "<file>"

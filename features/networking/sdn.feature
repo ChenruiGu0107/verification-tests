@@ -1,6 +1,6 @@
 Feature: SDN related networking scenarios
   # @author bmeng@redhat.com
-  # @case_id 519348
+  # @case_id OCP-9844
   @admin
   @destructive
   Scenario: set MTU on vovsbr and vlinuxbr
@@ -54,7 +54,7 @@ Feature: SDN related networking scenarios
     Then the output should contain "mtu 3450"
 
   # @author bmeng@redhat.com
-  # @case_id 528291
+  # @case_id OCP-10005
   @admin
   @destructive
   Scenario: It should not block the node gets started when /etc/hosts has 127.0.0.1 equal to hostname
@@ -95,7 +95,7 @@ Feature: SDN related networking scenarios
     Then the output should contain "active (running)"
 
   # @author yadu@redhat.com
-  # @case_id 517334
+  # @case_id OCP-9808
   @admin
   @destructive
   Scenario: bridge-nf-call-iptables should be disable on node
@@ -137,7 +137,7 @@ Feature: SDN related networking scenarios
     And the output should contain "net.bridge.bridge-nf-call-iptables = 0"
 
   # @author bmeng@redhat.com
-  # @case_id 521640
+  # @case_id OCP-11264
   @admin
   @destructive
   Scenario: SDN will be re-initialized when the version in openflow does not match the one in controller
@@ -160,7 +160,7 @@ Feature: SDN related networking scenarios
     And the output should contain "[SDN setup] full SDN setup required"
 
   # @author yadu@redhat.com
-  # @case_id 528378
+  # @case_id OCP-10025
   @admin
   @destructive
   Scenario: kubelet proxy could change to userspace mode
@@ -191,7 +191,7 @@ Feature: SDN related networking scenarios
     And the output should contain "Using userspace Proxier"
 
   # @author bmeng@redhat.com
-  # @case_id 528505
+  # @case_id OCP-11286
   @admin
   @destructive
   Scenario: iptables rules will be repaired automatically once it gets destroyed
@@ -233,7 +233,7 @@ Feature: SDN related networking scenarios
       | <%= cb.nat_rule %> |
 
   # @author bmeng@redhat.com
-  # @case_id 528506
+  # @case_id OCP-11592
   @admin
   @destructive
   Scenario: iptablesSyncPeriod should be configurable
@@ -264,7 +264,7 @@ Feature: SDN related networking scenarios
       | INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
 
   # @author bmeng@redhat.com
-  # @case_id 528507
+  # @case_id OCP-11795
   @admin
   @destructive
   Scenario: k8s iptables sync loop and openshift iptables sync loop should work together
@@ -299,7 +299,7 @@ Feature: SDN related networking scenarios
     """
 
   # @author bmeng@redhat.com
-  # @case_id 529568
+  # @case_id OCP-11601
   @admin
   @destructive
   Scenario: Node cannot start when there is network plugin mismatch with master service
@@ -323,7 +323,7 @@ Feature: SDN related networking scenarios
     """
 
   # @author hongli@redhat.com
-  # @case_id 536669
+  # @case_id OCP-10997
   @admin
   Scenario: Can get a hostsubnet for F5 from the cluster CIDR
     Given an 8 characters random string of type :dns952 is stored into the :hostsubnet_name clipboard
@@ -368,7 +368,7 @@ Feature: SDN related networking scenarios
       | nw_dst=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1  |
 
   # @author bmeng@redhat.com
-  # @case_id 483195
+  # @case_id OCP-12549
   @admin
   @destructive
   Scenario: The openshift master should handle the node subnet when the node added/removed
@@ -412,7 +412,7 @@ Feature: SDN related networking scenarios
     Then the step should succeed
 
   # @author zzhao@redhat.com
-  # @case_id 515697
+  # @case_id OCP-9753
   @admin
   Scenario: ovs-port should be deleted after delete pods
     Given I have a project
@@ -447,7 +447,7 @@ Feature: SDN related networking scenarios
     Then the output should not contain "<%= cb.veth_index %>"
 
   # @author zzhao@redhat.com
-  # @case_id 526626
+  # @case_id OCP-9969
   @admin
   @destructive
   Scenario: The pod veth ports can be recovered when openvswitch restart
@@ -490,7 +490,7 @@ Feature: SDN related networking scenarios
     """
 
   # @author: yadu@redhat.com
-  # @case_id: 522148
+  # @case_id: OCP-9934
   @admin
   @destructive
   Scenario: Restart master service could fix the invalid ip in hostip
@@ -524,7 +524,7 @@ Feature: SDN related networking scenarios
       | <%= cb.hostip %> | 
 
   # @author: yadu@redhat.com
-  # @case_id: 515698
+  # @case_id: OCP-9754
   @admin
   @destructive
   Scenario: Master can be started normally when unset serviceNetworkCIDR

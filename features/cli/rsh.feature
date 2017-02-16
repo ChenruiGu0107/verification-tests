@@ -1,7 +1,7 @@
 Feature: rsh.feature
 
   # @author cryan@redhat.com
-  # @case_id 497699
+  # @case_id OCP-10658
   Scenario: Check oc rsh for simpler access to a remote shell
     Given I have a project
     Then evaluation of `project.name` is stored in the :proj_name clipboard
@@ -69,7 +69,7 @@ Feature: rsh.feature
     Then the output should contain "my_test_string"
 
   # @author pruan@redhat.com
-  # @case_id 497700
+  # @case_id OCP-11154
   Scenario: Check oc rsh with invalid options
     Given I have a project
     When I run the :create client command with:

@@ -1,6 +1,6 @@
 Feature: configMap
   # @author chezhang@redhat.com
-  # @case_id 520893
+  # @case_id OCP-10805
   Scenario: Consume ConfigMap in environment variables
     Given I have a project
     When I run the :create client command with:
@@ -30,7 +30,7 @@ Feature: configMap
       | SPECIAL_LEVEL_KEY=very |
 
   # @author chezhang@redhat.com
-  # @case_id 520894
+  # @case_id OCP-11255
   Scenario: Consume ConfigMap via volume plugin
     Given I have a project
     When I run the :create client command with:
@@ -68,7 +68,7 @@ Feature: configMap
       | charm |
 
   # @author chezhang@redhat.com
-  # @case_id 520895
+  # @case_id OCP-11572
   Scenario: Perform CRUD operations against a ConfigMap resource
     Given I have a project
     When I run the :create client command with:
@@ -107,7 +107,7 @@ Feature: configMap
       | configmap "example-config" deleted |
 
   # @author chezhang@redhat.com
-  # @case_id 520903
+  # @case_id OCP-9882
   Scenario: Set command-line arguments with ConfigMap
     Given I have a project
     When I run the :create client command with:
@@ -136,7 +136,7 @@ Feature: configMap
       | very charm |
 
   # @author chezhang@redhat.com
-  # @case_id 520909
+  # @case_id OCP-9884
   Scenario: Configuring redis using ConfigMap
     Given I have a project
     Given a "redis-config" file is created with the following lines:
@@ -170,7 +170,7 @@ Feature: configMap
       | allkeys-lru      |
 
   # @author chezhang@redhat.com
-  # @case_id 520897
+  # @case_id OCP-9880
   Scenario: Create ConfigMap from file
     Given I have a project
     Given I create the "configmap-test" directory
@@ -263,7 +263,7 @@ Feature: configMap
     Then the step should succeed
 
   # @author chezhang@redhat.com
-  # @case_id 520901
+  # @case_id OCP-9881
   Scenario: Create ConfigMap from literal values
     Given I have a project
     When I run the :create_configmap client command with:
@@ -286,7 +286,7 @@ Feature: configMap
       | name: special-config |
 
   # @author chezhang@redhat.com
-  # @case_id 520896
+  # @case_id OCP-9879
   Scenario: Create ConfigMap from directories
     Given I have a project
     Given I create the "configmap-test" directory
@@ -336,7 +336,7 @@ Feature: configMap
       | name: game-config                    |
 
   # @author wehe@redhat.com
-  # @case_id 533089
+  # @case_id OCP-10166
   Scenario: Consume ConfigMap via volume plugin with multiple volumes 
     Given I have a project
     When I run the :create client command with:
@@ -363,7 +363,7 @@ Feature: configMap
       | value-1 |
 
   # @author wehe@redhat.com
-  # @case_id 533098 
+  # @case_id OCP-10167
   Scenario: Consume same name configMap via volum plugin on different namespaces 
     Given I have a project
     When I run the :create client command with:
@@ -414,7 +414,7 @@ Feature: configMap
       | value-1 |
 
   # @author wehe@redhat.com
-  # @case_id 533100 
+  # @case_id OCP-10168
   Scenario: Consume ConfigMap with multiple volumes through path 
     Given I have a project
     When I run the :create client command with:

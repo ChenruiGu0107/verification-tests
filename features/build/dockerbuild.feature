@@ -1,6 +1,6 @@
 Feature: dockerbuild.feature
   # @author wzheng@redhat.com
-  # @case_id 470418
+  # @case_id OCP-11078
   Scenario: Docker build with blank source repo
     Given I have a project
     When I run the :process client command with:
@@ -13,7 +13,7 @@ Feature: dockerbuild.feature
     Then the output should match "spec.source.git.uri: [Rr]equired value"
 
   # @author wzheng@redhat.com
-  # @case_id 470419
+  # @case_id OCP-11444
   Scenario: Push build with invalid github repo
     Given I have a project
     When I run the :create client command with:
@@ -29,7 +29,7 @@ Feature: dockerbuild.feature
     Then the output should contain "Invalid git source url: 123"
 
   # @author wzheng@redhat.com
-  # @case_id 438849
+  # @case_id OCP-12115
   Scenario: Docker build with both SourceURI and context dir
     Given I have a project
     When I run the :create client command with:
@@ -63,7 +63,7 @@ Feature: dockerbuild.feature
     Then the output should contain "/invalid/Dockerfile: no such file or directory"
 
   # @author haowang@redhat.com
-  # @case_id 507555
+  # @case_id OCP-10693
   Scenario: Add empty ENV to DockerStrategy buildConfig when do docker build
     Given I have a project
     When I run the :new_app client command with:
@@ -72,7 +72,7 @@ Feature: dockerbuild.feature
     And the output should contain "invalid"
 
   # @author cryan@redhat.com
-  # @case_id 512262
+  # @case_id OCP-11937
   Scenario: oc start-build with a file passed,sti build type
     Given I have a project
     When I run the :new_app client command with:
@@ -92,7 +92,7 @@ Feature: dockerbuild.feature
     And the output should contain "no such file"
 
   # @author yantan@redhat.com
-  # @case_id 479296
+  # @case_id OCP-10615
   Scenario: Custom build with dockerImage with specified tag
     Given I have a project
     Then the step should succeed
@@ -124,7 +124,7 @@ Feature: dockerbuild.feature
       | timed out |
 
   # @author dyan@redhat.com
-  # @case_id 479297, 482273
+  # @case_id OCP-11109, OCP-11120
   Scenario Outline: Docker and STI build with dockerImage with specified tag
     Given I have a project
     When I run oc create over "<template>" replacing paths:
@@ -157,7 +157,7 @@ Feature: dockerbuild.feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc482273/test-template-stibuild.json    | sourceStrategy |
 
   # @author dyan@redhat.com
-  # @case_id 519484
+  # @case_id OCP-10789
   Scenario: Implement post-build command for docker build
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json" replacing paths:
@@ -221,7 +221,7 @@ Feature: dockerbuild.feature
       | bundler: command not found: rake1 |
 
   # @author wewang@redhat.com
-  # @case_id 517672
+  # @case_id OCP-11228
   @admin
   @destructive
   Scenario: Edit bc with an allowed strategy to use a restricted strategy
@@ -261,7 +261,7 @@ Feature: dockerbuild.feature
     And the output should contain "build strategy Docker is not allowed"
 
   # @author wewang@redhat.com
-  # @case_id 497659
+  # @case_id OCP-11503
   @admin
   @destructive
   Scenario: Allowing only certain users in a specific project to create builds with a particular strategy
@@ -289,7 +289,7 @@ Feature: dockerbuild.feature
     And the output should contain "build strategy Docker is not allowed"
 
   # @author wewang@redhat.com
-  # @case_id 520316
+  # @case_id OCP-9869
   Scenario: Setting the nocache option in docker build strategy
     Given I have a project
     When I run the :new_app client command with:

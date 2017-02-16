@@ -1,7 +1,7 @@
 Feature: NFS Persistent Volume
 
   # @author lxia@redhat.com
-  # @case_id 510432
+  # @case_id OCP-12671
   @admin
   @destructive
   Scenario: NFS volume failed to mount returns more verbose message
@@ -39,7 +39,7 @@ Feature: NFS Persistent Volume
     """
 
   # @author lxia@redhat.com
-  # @case_id 508049 508050 508051
+  # @case_id OCP-12653 OCP-12656 OCP-12657
   @admin
   @destructive
   Scenario Outline: NFS volume plugin with access mode and reclaim policy
@@ -93,7 +93,7 @@ Feature: NFS Persistent Volume
       | ReadWriteOnce | Recycle        | available | fail        |
 
   # @author jhou@redhat.com
-  # @case_id 488980
+  # @case_id OCP-11128
   @admin
   @destructive
   Scenario: Retain NFS Persistent Volume on release
@@ -132,7 +132,7 @@ Feature: NFS Persistent Volume
     And the PV status is :released
 
   # @author wehe@redhat.com
-  # @case_id 488981
+  # @case_id OCP-11491
   @admin
   @destructive
   Scenario: The default reclamation policy should be retain
@@ -169,7 +169,7 @@ Feature: NFS Persistent Volume
     And the PV status is :released
 
   # @author lxia@redhat.com
-  # @case_id 519352
+  # @case_id OCP-9846
   @admin
   @destructive
   Scenario: PV/PVC status should be consistent
@@ -199,7 +199,7 @@ Feature: NFS Persistent Volume
     And the PV becomes :bound
 
   # @author jhou@redhat.com
-  # @case_id 497695
+  # @case_id OCP-9572
   @admin
   @destructive
   Scenario: Share NFS with multiple pods with ReadWriteMany mode
@@ -304,7 +304,7 @@ Feature: NFS Persistent Volume
       | pod2 |
 
   # @author lxia@redhat.com
-  # @case_id 510690
+  # @case_id OCP-12673
   @admin
   @destructive
   Scenario: [storage_private_155] group permission to write to nfs
@@ -369,7 +369,7 @@ Feature: NFS Persistent Volume
       | pod2 |
 
   # @author lxia@redhat.com
-  # @case_id 528441
+  # @case_id OCP-10032
   # @bug_id 1332707
   @admin
   @destructive
@@ -398,7 +398,7 @@ Feature: NFS Persistent Volume
     And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
 
   # @author wehe@redhat.com
-  # @case_id 532723
+  # @case_id OCP-10146
   @admin
   @destructive
   Scenario: New pod could be running after nfs server lost connection 
@@ -425,7 +425,7 @@ Feature: NFS Persistent Volume
       | app=mysql-persistent |
 
   # @author chaoyang@redhat.com
-  # @case_id 533542 534964
+  # @case_id OCP-10930 OCP-10282
   @admin
   @destructive
   Scenario Outline: Check GIDs specified in a PV's annotations to pod's supplemental groups
@@ -480,7 +480,7 @@ Feature: NFS Persistent Volume
       | 111111:111111 | 111111 | 111111  |
 
   # @author chaoyang@redhat.com
-  # @case_id 534963
+  # @case_id OCP-10281
   @admin
   Scenario: Permission denied when nfs pv annotaion is not right
     Given I have a project

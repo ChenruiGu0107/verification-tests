@@ -1,6 +1,6 @@
 Feature:Create db using new_app cmd feature
   # @author dyan@redhat.com
-  # @case_id 509028, 509030, 536380
+  # @case_id OCP-9664, OCP-9665, OCP-10365
   Scenario Outline: Create mysql resources from imagestream via oc new-app
     Given I have a project
     When I run the :new_app client command with:
@@ -45,7 +45,7 @@ Feature:Create db using new_app cmd feature
       | mysql:5.5         |
 
   # @author dyan@redhat.com
-  # @case_id 508979, 515707
+  # @case_id OCP-9654, OCP-9755
   Scenario Outline: Create mongodb resources from imagestream via oc new-app
     Given I have a project
     When I run the :new_app client command with:

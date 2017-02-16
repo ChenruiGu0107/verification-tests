@@ -1,7 +1,7 @@
 Feature: build 'apps' with CLI
 
   # @author xxing@redhat.com
-  # @case_id 489753
+  # @case_id OCP-11134
   Scenario: Create a build config from a remote repository using branch
     Given I have a project
     When I run the :new_build client command with:
@@ -33,7 +33,7 @@ Feature: build 'apps' with CLI
       | ruby-hello-world |
 
   # @author cryan@redhat.com
-  # @case_id 489741
+  # @case_id OCP-11132
   Scenario: Create a build config based on the provided image and source code
     Given I have a project
     When I run the :new_build client command with:
@@ -74,7 +74,7 @@ Feature: build 'apps' with CLI
       | ruby-hello-world |
 
   # @author chunchen@redhat.com
-  # @case_id 476356, 476357, 476355
+  # @case_id OCP-11463, OCP-11712, OCP-11098
   Scenario Outline: [origin_devexp_288] Push image with Docker credentials for build
     Given I have a project
     When I run the :new_secret client command with:
@@ -99,7 +99,7 @@ Feature: build 'apps' with CLI
       | tc476355/application-template-custombuild.json |
 
   # @author xxing@redhat.com
-  # @case_id 491409
+  # @case_id OCP-11140
   Scenario: Create an application with multiple images and same repo
     Given I create a new project
     When I run the :create client command with:
@@ -154,7 +154,7 @@ Feature: build 'apps' with CLI
     And the output should contain "Demo App"
 
   # @author xxing@redhat.com
-  # @case_id 482198
+  # @case_id OCP-12243
   Scenario: Set dump-logs and restart flag for cancel-build in openshift
     Given I have a project
     When I run the :process client command with:
@@ -245,7 +245,7 @@ Feature: build 'apps' with CLI
 
 
   # @author xiuwang@redhat.com
-  # @case_id 491258
+  # @case_id OCP-11136
   Scenario: Create applications with multiple groups
     Given I create a new project
     When I run the :create client command with:
@@ -342,7 +342,7 @@ Feature: build 'apps' with CLI
     And the output should contain "Demo App"
 
   # @author cryan@redhat.com
-  # @case_id 474049
+  # @case_id OCP-12382
   Scenario: Stream logs back automatically after start build
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
@@ -387,7 +387,7 @@ Feature: build 'apps' with CLI
     Then the output should contain "unable to access 'https://nondomain.com/"
 
   # @author cryan@redhat.com
-  # @case_id 479022
+  # @case_id OCP-11713
   Scenario: Add ENV with CustomStrategy when do custom build
     Given I have a project
     When I run the :new_app client command with:
@@ -401,7 +401,7 @@ Feature: build 'apps' with CLI
     Then the output should contain "http_proxy=http://squid.example.com:3128"
 
   # @author cryan@redhat.com
-  # @case_id 507557
+  # @case_id OCP-11517
   Scenario: Add more ENV to DockerStrategy buildConfig when do docker build
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json"
@@ -446,7 +446,7 @@ Feature: build 'apps' with CLI
     And the output should contain "RACK_ENV=production"
 
   # @author cryan@redhat.com
-  # @case_id 498212
+  # @case_id OCP-9595
   Scenario: Order builds according to creation timestamps
     Given I have a project
     And I run the :new_app client command with:
@@ -467,7 +467,7 @@ Feature: build 'apps' with CLI
       | ruby-sample-build-4 |
 
   # @author pruan@redhat.com
-  # @case_id 512096
+  # @case_id OCP-9732
   Scenario: Start build with option --wait
     Given I have a project
     And I run the :create client command with:
@@ -493,7 +493,7 @@ Feature: build 'apps' with CLI
       | cancelled      |
 
   # @author pruan@redhat.com
-  # @case_id 517369, 517370, 517367, 517368
+  # @case_id OCP-11770, OCP-11942, OCP-11224, OCP-11550
   Scenario Outline: when delete the bc,the builds pending or running should be deleted
     Given I have a project
     When I run the :create client command with:
@@ -519,7 +519,7 @@ Feature: build 'apps' with CLI
       | 517368 | :failed      |
 
   # @author pruan@redhat.com
-  # @case_id 517366
+  # @case_id OCP-10765
   Scenario: Recreate bc when previous bc is deleting pending
     Given I have a project
     When I run the :create client command with:
@@ -571,7 +571,7 @@ Feature: build 'apps' with CLI
       | ruby-sample-build |
 
   # @author pruan@redhat.com
-  # @case_id 512260
+  # @case_id OCP-11542
   Scenario: oc start-build with a directory passed,sti build type
     Given I have a project
     When I run the :new_app client command with:
@@ -606,7 +606,7 @@ Feature: build 'apps' with CLI
       | deadbeef: no such file or directory |
 
   # @author pruan@redhat.com
-  # @case_id 512259
+  # @case_id OCP-11214
   Scenario: oc start-build with a directory passed ,using sti build type, with context-dir
     Given I have a project
     When I run the :new_app client command with:
@@ -621,7 +621,7 @@ Feature: build 'apps' with CLI
     And the "sti-nodejs-2" build completed
 
   # @author pruan@redhat.com
-  # @case_id 512261
+  # @case_id OCP-11766
   Scenario: oc start-build with a file passed,Docker build type
     Given I have a project
     When I run the :new_app client command with:
@@ -650,7 +650,7 @@ Feature: build 'apps' with CLI
     And the output should contain "no such file or directory"
 
   # @author pruan@redhat.com
-  # @case_id 512266
+  # @case_id OCP-12259
   Scenario: oc start-build with a zip,tar,or tar.gz passed,using Docker build type
     Given I have a project
     When I run the :new_app client command with:
@@ -692,7 +692,7 @@ Feature: build 'apps' with CLI
     And the "ruby22-sample-build-5" build fails
 
   # @author pruan@redhat.com
-  # @case_id 512267
+  # @case_id OCP-12295
   Scenario: oc start-build with a zip,tar,or tar.gz passed,using sti build type
     Given I have a project
     When I run the :new_app client command with:
@@ -734,7 +734,7 @@ Feature: build 'apps' with CLI
     And the "nodejs-ex-5" build fails
 
   # @author pruan@redhat.com
-  # @case_id 512268
+  # @case_id OCP-12322
   Scenario: oc start-build with a zip,tar,or tar.gz passed,using sti build type, with context-dir
     Given I have a project
     When I run the :new_app client command with:
@@ -751,7 +751,7 @@ Feature: build 'apps' with CLI
     And the "sti-nodejs-2" build completes
 
   # @author pruan@redhat.com
-  # @case_id 512258
+  # @case_id OCP-10744
   Scenario: oc start-build with a directory passed ,using Docker build type
     Given I have a project
     When I run the :new_app client command with:
@@ -778,7 +778,7 @@ Feature: build 'apps' with CLI
       | no such file or directory |
 
   # @author cryan@redhat.com
-  # @case_id 519487
+  # @case_id OCP-11778
   Scenario: Implement post-build command for s2i build
     Given I have a project
     When I run the :new_app client command with:
@@ -823,7 +823,7 @@ Feature: build 'apps' with CLI
     Given the "ruby22-sample-build-5" build completes
 
   # @author cryan@redhat.com
-  # @case_id 519486
+  # @case_id OCP-11561
   Scenario: Implement post-build command for quickstart: Django
     Given I have a project
     When I run the :new_app client command with:
@@ -840,7 +840,7 @@ Feature: build 'apps' with CLI
     Then the output should match "Ran \d+ tests"
 
   # @author xiuwang@redhat.com
-  # @case_id 489748
+  # @case_id OCP-11133
   Scenario: Create a build config based on the source code in the current git repository
     Given I have a project
     And I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
@@ -900,7 +900,7 @@ Feature: build 'apps' with CLI
       |error: environment variables must be of the form key=value: @#@=value|
 
   # @author xiuwang@redhat.com
-  # @case_id 491406
+  # @case_id OCP-11139
   Scenario: Create applications only with multiple db images
     Given I create a new project
     When I run the :new_app client command with:
@@ -949,7 +949,7 @@ Feature: build 'apps' with CLI
       | CREATE TABLE |
 
   # @author cryan@redhat.com
-  # @case_id 519263
+  # @case_id OCP-10785
   Scenario: Can't allocate out of limits resources to container which builder pod launched for docker build
     Given I have a project
     When I run the :new_app client command with:
@@ -998,7 +998,7 @@ Feature: build 'apps' with CLI
       | 80000                                            |
 
   # @author cryan@redhat.com
-  # @case_id 470341
+  # @case_id OCP-12487
   Scenario: Do sti build with the OnBuild instructions strategy and sti scripts via oc
     Given I have a project
     When I run the :new_app client command with:
@@ -1006,7 +1006,7 @@ Feature: build 'apps' with CLI
     Given the "ruby-sample-build-1" build completes
 
   # @author cryan@redhat.com
-  # @case_id 470327
+  # @case_id OCP-12307
   Scenario: Do source builds with blank builder image
     Given I have a project
     When I run the :new_app client command with:
@@ -1016,7 +1016,7 @@ Feature: build 'apps' with CLI
       | spec.strategy.sourceStrategy.from.name: [Rr]equired value |
 
   # @author pruan@redhat.com
-  # @case_id 519266
+  # @case_id OCP-11777
   Scenario: Check cgroup info in container which builder pod launched for s2i build
     Given I have a project
     When I run the :new_app client command with:
@@ -1036,7 +1036,7 @@ Feature: build 'apps' with CLI
     """
 
   # @author cryan@redhat.com
-  # @case_id 517667
+  # @case_id OCP-11227
   Scenario: Add multiple source inputs
     Given I have a project
     When I run the :new_app client command with:
@@ -1060,7 +1060,7 @@ Feature: build 'apps' with CLI
       | xiuwangs2i-2 |
 
   # @author cryan@redhat.com
-  # @case_id 522440
+  # @case_id OCP-9950
   Scenario: Check bad proxy in .s2i/environment when performing s2i build
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
@@ -1074,7 +1074,7 @@ Feature: build 'apps' with CLI
     And the output should contain "Could not fetch specs"
 
   # @author cryan@redhat.com
-  # @case_id 482216
+  # @case_id OCP-12500
   Scenario: Add ENV vars to .sti/environment when do sti build in openshift
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-template-sti.json"
@@ -1089,7 +1089,7 @@ Feature: build 'apps' with CLI
     Then the output should contain "envtest1"
 
   # @author cryan@redhat.com
-  # @case_id 483592
+  # @case_id OCP-10630
   Scenario: Sync build status after delete its related pod
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/php-55-rhel7-stibuild.json"
@@ -1148,7 +1148,7 @@ Feature: build 'apps' with CLI
     Then the output should contain "Failed"
 
   # @author cryan@redhat.com
-  # @case_id 521427
+  # @case_id OCP-9892
   Scenario: Overriding builder image scripts by invalid scripts in buildConfig
     Given I have a project
     When I run the :create client command with:
@@ -1168,7 +1168,7 @@ Feature: build 'apps' with CLI
       Then the step should succeed
       And the output should contain "Could not download"
 
-  # @case_id 517666
+  # @case_id OCP-10771
   Scenario: Add a image with multiple paths as source input
     Given I have a project
     When I run the :new_app client command with:
@@ -1184,7 +1184,7 @@ Feature: build 'apps' with CLI
     And the output should contain "tmp"
 
   # @author cryan@redhat.com
-  # @case_id 521602
+  # @case_id OCP-9914
   Scenario: Overriding builder image scripts in buildConfig under invalid proxy
     Given I have a project
     When I run the :create client command with:
@@ -1210,7 +1210,7 @@ Feature: build 'apps' with CLI
       And the output should contain "error connecting to proxy"
 
   # @author cryan@redhat.com
-  # @case_id 517970
+  # @case_id OCP-10772
   Scenario: Specify build apiVersion for custom build
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json"
@@ -1250,7 +1250,7 @@ Feature: build 'apps' with CLI
       | "buildAPIVersion":"v1" |
 
   # @author cryan@redhat.com
-  # @case_id 497657
+  # @case_id OCP-10655
   @admin
   @destructive
   Scenario: Allowing only certain users to create builds with a particular strategy
@@ -1266,7 +1266,7 @@ Feature: build 'apps' with CLI
     Then the output should contain "ruby-sample-build-1"
 
   # @author cryan@redhat.com
-  # @case_id 497701
+  # @case_id OCP-10659
   @admin
   @destructive
   Scenario: Can't start a new build when disable a build strategy globally after buildconfig has been created
@@ -1283,7 +1283,7 @@ Feature: build 'apps' with CLI
     Then the output should contain "Docker is not allowed"
 
   # @author dyan@redhat.com
-  # @case_id 519593
+  # @case_id OCP-9859
   Scenario: oc new-build --binary should create BC according to the imagetype
     Given I have a project
     When I run the :new_build client command with:
@@ -1315,7 +1315,7 @@ Feature: build 'apps' with CLI
       | type: Docker   |
 
   # @author cryan@redhat.com
-  # @case_id 517670
+  # @case_id OCP-11943
   Scenario: Using a docker image as source input using new-build cmd
     Given I have a project
     When I run the :create client command with:
@@ -1376,7 +1376,7 @@ Feature: build 'apps' with CLI
     Then the output should contain "final-app-3"
 
   # @author cryan@redhat.com
-  # @case_id 519259
+  # @case_id OCP-11776
   Scenario: Cannot create secret from local file and with same name via oc new-build
     Given I have a project
     #Reusing similar secrets to TC #519256
@@ -1402,7 +1402,7 @@ Feature: build 'apps' with CLI
     And the output should contain "must be a relative path"
 
   # @author cryan@redhat.com
-  # @case_id 517669
+  # @case_id OCP-11772
   Scenario: Using a docker image as source input for new-build cmd--negetive test
     Given I have a project
     When I run the :new_build client command with:
@@ -1459,7 +1459,7 @@ Feature: build 'apps' with CLI
     And the output should contain "source-image-path must be specified"
 
   # @author cryan@redhat.com
-  # @case_id 521601
+  # @case_id OCP-9913
   Scenario: Overriding builder image scripts by url scripts in buildConfig under proxy
     Given I have a project
     And I have a proxy configured in the project
@@ -1484,7 +1484,7 @@ Feature: build 'apps' with CLI
     Given the "ruby-sample-build-2" build completes
 
   # @author cryan@redhat.com
-  # @case_id 497658
+  # @case_id OCP-11153
   @admin
   @destructive
   Scenario: Disabling a build strategy globally
@@ -1513,7 +1513,7 @@ Feature: build 'apps' with CLI
     And the output should contain "Custom is not allowed"
 
   # @author xiuwang@redhat.com
-  # @case_id 519264
+  # @case_id OCP-11238
   Scenario: Can't allocate out of limits resources to container which builder pod launched for s2i build
     Given I have a project
     When I run the :new_app client command with:
@@ -1561,7 +1561,7 @@ Feature: build 'apps' with CLI
       | 80000                                            |
 
   # @author xiuwang@redhat.com
-  # @case_id 517668
+  # @case_id OCP-11552
   Scenario: Using a docker image as source input for docker build
     Given I have a project
     When I run the :new_app client command with:
@@ -1577,7 +1577,7 @@ Feature: build 'apps' with CLI
     And the output should contain "tmp"
 
   # @author xiuwang@redhat.com
-  # @case_id 519265
+  # @case_id OCP-11558
   Scenario: Check cgroup info in container which builder pod launched for docker build
     Given I have a project
     When I run the :new_app client command with:
@@ -1614,7 +1614,7 @@ Feature: build 'apps' with CLI
         | 80000          |
 
   # @author haowang@redhat.com
-  # @case_id 512264
+  # @case_id OCP-12150
   Scenario: oc start-build with a local git repo and commit using sti build type
     Given I have a project
     When I run the :new_app client command with:
@@ -1669,7 +1669,7 @@ Feature: build 'apps' with CLI
     Then the step should fail
 
   # @author haowang@redhat.com
-  # @case_id 512265
+  # @case_id OCP-12210
   Scenario: oc start-build with a local git repo and commit using sti build type, with context-dir
     Given I have a project
     When I run the :new_app client command with:
@@ -1725,7 +1725,7 @@ Feature: build 'apps' with CLI
     Then the step should fail
 
   # @author haowang@redhat.com
-  # @case_id 512263
+  # @case_id OCP-12055
   Scenario: oc start-build with a local git repo and commit using Docker build type
     Given I have a project
     When I run the :new_app client command with:
@@ -1781,7 +1781,7 @@ Feature: build 'apps' with CLI
     Then the step should fail
 
   # @author yantan@redhat.com
-  # @case_id 483593
+  # @case_id OCP-11122
   Scenario: Sync pod status after delete its related build
     Given I have a project
     When I run the :new_app client command with:
@@ -1852,7 +1852,7 @@ Feature: build 'apps' with CLI
     """
 
   # @author cryan@redhat.com
-  # @case_id 525734
+  # @case_id OCP-10829
   Scenario: Cannot docker build with no inputs in buildconfig
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/nosrc-extended-test-bldr/master/nosrc-test.json"
@@ -1868,7 +1868,7 @@ Feature: build 'apps' with CLI
     And the output should contain "must provide a value"
 
   # @author yantan@redhat.com
-  # @case_id 525736 525735
+  # @case_id OCP-11580 OCP-11268
   Scenario Outline: Do sti/custom build with no inputs in buildconfig
     Given I have a project
     When I run the :create client command with:
@@ -1905,7 +1905,7 @@ Feature: build 'apps' with CLI
       | ruby-sample-build-nc | ruby-sample-build-nc-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525735/Nonesrc-docker.json |
 
   # @author yantan@redhat.com
-  # @case_id 499513
+  # @case_id OCP-10668
   @admin
   @destructive
   Scenario: Allow STI builder images from running as root
@@ -1945,7 +1945,7 @@ Feature: build 'apps' with CLI
     Given the "ruby-hello-world-5" build completes
 
   # @author cryan@redhat.com
-  # @case_id 526204
+  # @case_id OCP-11582
   Scenario: Change runpolicy to SerialLatestOnly build
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json"
@@ -2025,7 +2025,7 @@ Feature: build 'apps' with CLI
       | New       |
 
   # @author cryan@redhat.com
-  # @case_id 528380
+  # @case_id OCP-10857
   Scenario: Show basic info about build reason when trigger build manually
     Given I have a project
     When I run the :new_app client command with:
@@ -2049,7 +2049,7 @@ Feature: build 'apps' with CLI
     And the output should contain "Manually triggered"
 
   # @author cryan@redhat.com
-  # @case_id 527313
+  # @case_id OCP-9975
   Scenario: Generate new applications from docker compose via oc import docker-compose
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/docker-compose-nodejs-examples/master/05-nginx-express-redis-nodemon/docker-compose.yml"
@@ -2104,7 +2104,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
 
   # @author cryan@redhat.com
-  # @case_id 526209
+  # @case_id OCP-11272
   Scenario: Cancel multiple new/pending/running builds
     Given I have a project
     When I run the :new_build client command with:
@@ -2220,7 +2220,7 @@ Feature: build 'apps' with CLI
       | Cancelled |
 
   # @author cryan@redhat.com
-  # @case_id 503326
+  # @case_id OCP-9626
   # @bug_id 1255502
   Scenario: Docker build with pulling image from internal docker registry
     Given I have a project
@@ -2260,7 +2260,7 @@ Feature: build 'apps' with CLI
       | app=app2 |
 
   # @author yantan@redhat.com
-  # @case_id 499514
+  # @case_id OCP-11159
   @admin
   @destructive
   Scenario: Allow STI builder images from running as root - using onbuild image
@@ -2272,7 +2272,7 @@ Feature: build 'apps' with CLI
     Given the "ruby-hello-world-1" build completes
 
   # @author haowang@redhat.com
-  # @case_id 526207 526206
+  # @case_id OCP-12066 OCP-11954
   Scenario Outline: The default runpolicy is Serial build -- new-build/new-app command
     Given I have a project
     When I run the :<cmd> client command with:
@@ -2337,7 +2337,7 @@ Feature: build 'apps' with CLI
       | new_app   |
 
   # @author haowang@redhat.com
-  # @case_id 526203
+  # @case_id OCP-11271
   Scenario: Change runpolicy to parallel build
     Given I have a project
     When I run the :new_build client command with:
@@ -2422,7 +2422,7 @@ Feature: build 'apps' with CLI
     Then the "ruby-hello-world-8" build is :new
 
   # @author haowang@redhat.com
-  # @case_id 526205
+  # @case_id OCP-11788
   Scenario: Serial runPolicy for Binary builds
     Given I have a project
     When I run the :new_build client command with:
@@ -2457,7 +2457,7 @@ Feature: build 'apps' with CLI
     And the "ruby-hello-world-2" build is :complete
 
   # @author haowang@redhat.com
-  # @case_id 526202
+  # @case_id OCP-10834
   Scenario: Change Parallel runpolicy to SerialLatestOnly build
     Given I have a project
     When I run the :create client command with:
@@ -2520,7 +2520,7 @@ Feature: build 'apps' with CLI
       | running |
 
   # @author wewang@redhat.com
-  # @case_id 526542
+  # @case_id OCP-12516
   Scenario: Do sti build using image with onbuild instructions and without tar should build failed
     Given I have a project
     When I git clone the repo "https://github.com/openshift/ruby-hello-world"
@@ -2537,7 +2537,7 @@ Feature: build 'apps' with CLI
       | builder image uses ONBUILD instructions but ONBUILD is not allowed  |
 
   # @author pruan@redhat.com
-  # @case_id 498665
+  # @case_id OCP-10664
   Scenario: Simple error message return when no value followed with oc logs
     Given I have a project
     When I run the :logs client command with:
@@ -2562,7 +2562,7 @@ Feature: build 'apps' with CLI
       | arguments in resource/name form must have a single resource and name |
 
   # @author pruan@redhat.com
-  # @case_id 533768
+  # @case_id OCP-10944
   Scenario: Simple error message return when no value followed with oc build-logs
     Given I have a project
     When I run the :build_logs client command with:
@@ -2587,7 +2587,7 @@ Feature: build 'apps' with CLI
       | resource name may not be empty |
 
   # @author cryan@redhat.com
-  # @case_id 533607
+  # @case_id OCP-10184
   # @bug_id 1357674
   @admin
   @destructive
@@ -2641,7 +2641,7 @@ Feature: build 'apps' with CLI
     And the output should contain "Cannot find git"
 
   # @author cryan@redhat.com
-  # @case_id 533608
+  # @case_id OCP-10185
   # @bug_id 1357674
   Scenario: Create new build from git repository without origin remote defined
     Given I have a project
@@ -2662,7 +2662,7 @@ Feature: build 'apps' with CLI
       | Binary |
 
   # @author cryan@redhat.com
-  # @case_id 534545 534546 534547 534548 534549 534550 534551 534576 534577 534578 534579
+  # @case_id OCP-10236 OCP-10237 OCP-10238 OCP-10239 OCP-10240 OCP-10241 OCP-10242 OCP-10243 OCP-10244 OCP-10245 OCP-10246
   # @bug_id 1368114
   Scenario Outline: image build behind proxy
     Given I have a project
@@ -2694,7 +2694,7 @@ Feature: build 'apps' with CLI
       | openshift/python:2.7  | django-ex        |
 
   # @author cryan@redhat.com
-  # @case_id 533695
+  # @case_id OCP-11634
   Scenario: Extended build with artifacts defined from runtime image label
     Given I have a project
     When I run the :create client command with:
@@ -2706,7 +2706,7 @@ Feature: build 'apps' with CLI
     Given the "extended-bc-artifacts-from-image-1" build completes
 
   # @author cryan@redhat.com
-  # @case_id 533694
+  # @case_id OCP-11346
   Scenario: Extended build with scripts come from different location
     Given I have a project
     When I run the :create client command with:
@@ -2748,7 +2748,7 @@ Feature: build 'apps' with CLI
       | I'm assemble-runtime in source repo  |
 
   # @author cryan@redhat.com
-  # @case_id 533696
+  # @case_id OCP-11825
   Scenario: forcePull for extended build
     Given I have a project
     When I run the :create client command with:
@@ -2766,7 +2766,7 @@ Feature: build 'apps' with CLI
       | Pulling image "docker.io/aosqe/extendedbuild_runtime:latest" |
 
   # @author cryan@redhat.com
-  # @case_id 539699
+  # @case_id OCP-11023
   Scenario: Handle build naming collisions
     Given I have a project
     When I run the :new_build client command with:

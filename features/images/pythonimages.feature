@@ -18,7 +18,7 @@ Feature: Openshift build and configuration of enviroment variables check
       | OpenShift |
 
   # @author cryan@redhat.com
-  # @case_id 534871 534872 534869 534870
+  # @case_id OCP-10273 OCP-10274 OCP-10271 OCP-10272
   Scenario Outline: Add PIP_INDEX_URL env var to Python S2I
     Given I have a project
     When I run the :new_build client command with:
@@ -37,7 +37,7 @@ Feature: Openshift build and configuration of enviroment variables check
       | 3.5      |
 
   # @author wewang@redhat.com
-  # @case_id 530156 530157 530158 530159
+  # @case_id OCP-10878 OCP-11300 OCP-11603 OCP-11806
   @no-online
   Scenario Outline: Update python image to autoconfigure based on available memory
     Given I have a project

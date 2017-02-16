@@ -1,7 +1,7 @@
 Feature: oc_set_probe.feature
 
   # @author dyan@redhat.com
-  # @case_id 520353
+  # @case_id OCP-9870
   Scenario: Set a probe to open a TCP socket
     Given I have a project
     When I run the :new_app client command with:
@@ -64,7 +64,7 @@ Feature: oc_set_probe.feature
     """
 
   # @author dyan@redhat.com
-  # @case_id 520354
+  # @case_id OCP-9871
   Scenario: Set a probe over HTTPS/HTTP
     Given I have a project
     When I run the :new_app client command with:
@@ -113,7 +113,7 @@ Feature: oc_set_probe.feature
     """
 
   # @author dyan@redhat.com
-  # @case_id 520355
+  # @case_id OCP-9872
   Scenario: Set an exec action probe
     Given I have a project
     When I run the :new_app client command with:
@@ -161,7 +161,7 @@ Feature: oc_set_probe.feature
     #   And the pod status is restart
 
   # @author dyan@redhat.com
-  # @case_id 520384
+  # @case_id OCP-9874
   Scenario: Remove probe in dc
     Given I have a project
     When I run the :new_app client command with:
@@ -288,7 +288,7 @@ Feature: oc_set_probe.feature
       | tcp-socket :3306 |
 
   # @author dyan@redhat.com
-  # @case_id 520388
+  # @case_id OCP-9876
   Scenario: Set a invalid probe in dc
     Given I have a project
     When I run the :new_app client command with:

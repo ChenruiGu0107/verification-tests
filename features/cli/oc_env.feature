@@ -1,7 +1,7 @@
 Feature: oc_env.feature
 
   # @author cryan@redhat.com
-  # @case_id 479287
+  # @case_id OCP-10614
   Scenario: Display environment variables for resources
     Given I have a project
     And I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -25,7 +25,7 @@ Feature: oc_env.feature
       |MYSQL_DATABASE|
 
   # @author yapei@redhat.com
-  # @case_id 479289
+  # @case_id OCP-11473
   Scenario: Set environment variables for resources
     Given I have a project
     And I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -86,7 +86,7 @@ Feature: oc_env.feature
     And the output should match:
       | can only contain letters, numbers, and underscores |
   # @author yapei@redhat.com
-  # @case_id 479290
+  # @case_id OCP-11715
   Scenario: Update environment variables for resources
     Given I have a project
     And I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -154,7 +154,7 @@ Feature: oc_env.feature
       | "value": "abcchange" |
 
   # @author yapei@redhat.com
-  # @case_id 479288
+  # @case_id OCP-11108
   Scenario: Remove environment variables for resources
     Given I have a project
     When I run the :create client command with:

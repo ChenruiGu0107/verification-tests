@@ -1,6 +1,6 @@
 Feature: service related scenarios
   # @author yinzhou@redhat.com
-  # @case_id 535538
+  # @case_id OCP-10969
   @admin
   Scenario: Create clusterip service
     Given I have a project
@@ -66,7 +66,7 @@ Feature: service related scenarios
     Then the step should fail
 
   # @author yinzhou@redhat.com
-  # @case_id 535539
+  # @case_id OCP-11364
   @admin
   Scenario: Create nodeport service
     Given I have a project
@@ -108,7 +108,7 @@ Feature: service related scenarios
 
 
   # @author yinzhou@redhat.com
-  # @case_id 535541
+  # @case_id OCP-10970
   @admin
   Scenario: Create service with multiports
     Given I have a project

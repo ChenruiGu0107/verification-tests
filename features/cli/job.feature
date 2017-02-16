@@ -1,7 +1,7 @@
 Feature: job.feature
 
   # @author cryan@redhat.com
-  # @case_id 511597
+  # @case_id OCP-11206
   Scenario: Create job with multiple completions
     Given I have a project
     When I run the :create client command with:
@@ -42,7 +42,7 @@ Feature: job.feature
     And the output should contain "fractional integer"
 
   # @author chezhang@redhat.com
-  # @case_id 511600
+  # @case_id OCP-11935
   Scenario: Go through the job example
     Given I have a project
     When I run the :create client command with:
@@ -81,7 +81,7 @@ Feature: job.feature
       |  3.14159265       |
 
   # @author qwang@redhat.com
-  # @case_id 511598
+  # @case_id OCP-11539
   Scenario: Create job with pod parallelism
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
@@ -170,7 +170,7 @@ Feature: job.feature
       |  zero- |
 
   # @author qwang@redhat.com
-  # @case_id 522411
+  # @case_id OCP-9948
   Scenario: Create job with activeDeadlineSeconds
     Given I have a project
     When I run the :create client command with:
@@ -188,7 +188,7 @@ Feature: job.feature
     """
 
   # @author qwang@redhat.com
-  # @case_id 525131
+  # @case_id OCP-9952
   Scenario: Specifying your own pod selector for job
     Given I have a project
     When I run the :create client command with:
@@ -205,7 +205,7 @@ Feature: job.feature
       | `selector` not auto-generated |
 
   # @author qwang@redhat.com
-  # @case_id 511596
+  # @case_id OCP-10734
   Scenario: Create job with different pod restartPolicy
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job-restartpolicy.yaml"
@@ -313,7 +313,7 @@ Feature: job.feature
 
 
   # @author yinzhou@redhat.com
-  # @case_id 518949
+  # @case_id OCP-10781
   Scenario: Create job with specific deadline
     Given I have a project
     When I run the :create client command with:
@@ -365,7 +365,7 @@ Feature: job.feature
 
 
   # @author chuyu@redhat.com
-  # @case_id 535535 
+  # @case_id OCP-11644
   Scenario: User can schedule a job execution with cron format time
     Given I have a project
     When I run the :run client command with:
@@ -545,7 +545,7 @@ Feature: job.feature
        | SCHEDULE | noescap: @daily        |
 
   # @author geliu@redhat.com
-  # @case_id 535534
+  # @case_id OCP-11363
   Scenario: The subsequent scheduled job should be suspend when set suppend flag to true
     Given I have a project
     When I run the :run client command with:

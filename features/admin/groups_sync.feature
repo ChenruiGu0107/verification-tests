@@ -1,7 +1,7 @@
 Feature: Group sync related scenarios
 
   # @author wjiang@redhat.com
-  # @case_id 509125,509126,509127
+  # @case_id OCP-10714,OCP-11193,OCP-11532
   @admin
   Scenario Outline: Sync ldap groups to openshift groups from ldap server
     Given I have a project
@@ -34,7 +34,7 @@ Feature: Group sync related scenarios
 
 
   # @author wjiang@redhat.com
-  # @case_id 509128
+  # @case_id OCP-11757
   @admin
   Scenario: Sync openShift groups from ldap server with blacklist
     Given I have a project
@@ -88,7 +88,7 @@ Feature: Group sync related scenarios
 
 
   # @author wjiang@redhat.com
-  # @case_id 509129
+  # @case_id OCP-11929
   @admin
   Scenario: Sync openshift groups with ldap server for some specific groups 
     Given I have a project
@@ -162,7 +162,7 @@ Feature: Group sync related scenarios
 
 
   # @author wjiang@redhat.com
-  # @case_id 515433
+  # @case_id OCP-10748
   @admin
   Scenario: Administrator can remove groups which are no longer present on the LDAP server from openshift records
     Given I have a project

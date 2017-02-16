@@ -1,6 +1,6 @@
 Feature: SCC policy related scenarios
   # @author xiaocwan@redhat.com
-  # @case_id 511817
+  # @case_id OCP-9720
   @admin
   Scenario: Cluster-admin can add & remove user or group to from scc
     Given a 5 characters random string of type :dns is stored into the :scc_name clipboard
@@ -66,7 +66,7 @@ Feature: SCC policy related scenarios
       |  system:authenticated  |
 
   # @author bmeng@redhat.com
-  # @case_id 495027
+  # @case_id OCP-10647
   @admin
   Scenario: Add/drop capabilities for container when SC matches the SCC
     Given I have a project
@@ -96,7 +96,7 @@ Feature: SCC policy related scenarios
       |capability may not be added|
 
   # @author bmeng@redhat.com
-  # @case_id 495028
+  # @case_id OCP-11145
   @admin
   Scenario: Pod can be created when its SC matches the SELinuxContextStrategy policy in SCC
     Given I have a project
@@ -130,7 +130,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
   # @author bmeng@redhat.com
-  # @case_id 495033
+  # @case_id OCP-12135
   @admin
   Scenario: The container with requests privileged in SC can be created only when the SCC allowed
     # Create privileged pod with default SCC
@@ -153,7 +153,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
   # @author bmeng@redhat.com
-  # @case_id 495031
+  # @case_id OCP-11908
   @admin
   Scenario: Limit the created container to access the hostdir via SCC
     # Create pod which request hostdir mount permission with default SCC
@@ -178,7 +178,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
   # @author wjiang@redhat.com
-  # @case_id 518942
+  # @case_id OCP-10780
   Scenario: [platformmanagement_public_586] Check if the capabilities work in pods
     Given I have a project
     When I run the :run client command with:
@@ -214,7 +214,7 @@ Feature: SCC policy related scenarios
     Then the output should match "not ok"
 
   # @author pruan@redhat.com
-  # @case_id 510609
+  # @case_id OCP-11762
   @admin
   Scenario: deployment hook volume inheritance with hostPath volume
     Given I have a project
@@ -239,7 +239,7 @@ Feature: SCC policy related scenarios
     And the expression should be true> @result[:parsed]['spec']['volumes'].any? {|p| p['name'] == "data"} && @result[:parsed]['spec']['volumes'].any? {|p| p['hostPath']['path'] == "/usr"}
 
   # @author mcurlej@redhat.com
-  # @case_id 495039
+  # @case_id OCP-12361
   @admin
   Scenario: The SCC will take effect only when the user request the SC in the pod
     Given I have a project
@@ -279,7 +279,7 @@ Feature: SCC policy related scenarios
     And the pod named "hello-nginx-docker-1" becomes ready
 
   # @author mcurlej@redhat.com
-  # @case_id 495037
+  # @case_id OCP-12312
   # The test only works when 'MustRunAsRange' policy is configured in SCC
   Scenario: pod should only be created with SC UID in the available range with the SCC restricted.
     Given I have a project
@@ -293,7 +293,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
   # @author mcurlej@redhat.com
-  # @case_id 495032, 495036
+  # @case_id OCP-12039, OCP-12284
   @admin
   Scenario Outline: The process can be ran with the specified user when using MustRunAs or RunAsAny as the RunAsUserStrategy
     Given I have a project
@@ -315,7 +315,7 @@ Feature: SCC policy related scenarios
       | scc-runasany       |
 
   # @author pruan@redhat.com
-  # @case_id 521575
+  # @case_id OCP-11785
   @admin
   Scenario: Scc.allowhostdir should take precedence to allow or deny hostpath volume
     Given I have a project
@@ -342,7 +342,7 @@ Feature: SCC policy related scenarios
     Then the expression should be true> !@result[:parsed]['volumes'].include? 'hostPath' and !@result[:parsed]['allowHostDirVolumePlugin']
 
   # @author pruan@redhat.com
-  # @case_id 495030
+  # @case_id OCP-11734
   @admin
   Scenario: Different level of SCCs should have different scopes
     Given I have a project
@@ -377,7 +377,7 @@ Feature: SCC policy related scenarios
       | seLinuxOptions.level on test-pod does not match required level |
 
   # @author pruan@redhat.com
-  # @case_id 518947
+  # @case_id OCP-12060
   Scenario: Create pod with request capabilities conflict with the scc
     Given I have a project
     When I run the :create client command with:
@@ -393,7 +393,7 @@ Feature: SCC policy related scenarios
       | unable to validate against any security context constraint: \[capabilities.add |
 
   # @author pruan@redhat.com
-  # @case_id 511601
+  # @case_id OCP-10735
   Scenario: Container.securityContext should inherit the missing fields of securitycontext from PSC
     Given I have a project
     And evaluation of `project.uid_range(user: user).begin` is stored in the :uid_range clipboard
@@ -417,7 +417,7 @@ Feature: SCC policy related scenarios
     Then the expression should be true> cb.pod_selinux_options['level'] == cb.proj_selinux_options
 
   # @author chezhang@redhat.com
-  # @case_id 533538
+  # @case_id OCP-10181
   Scenario: OpenShift SCC check, empty seccomp
     Given I have a project
     When I run the :create client command with:
@@ -429,7 +429,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
   # @author chezhang@redhat.com
-  # @case_id 533540
+  # @case_id OCP-10182
   @admin
   Scenario: OpenShift SCC check, all seccomp allowed
     Given I have a project
@@ -439,7 +439,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
 
   # @author pruan@redhat.com
-  # @case_id 498208
+  # @case_id OCP-10661
   @admin
   @destructive
   Scenario: limit the created container to access the hostnetwork via scc
@@ -461,7 +461,7 @@ Feature: SCC policy related scenarios
 
 
   # @author pruan@redhat.com
-  # @case_id 511602
+  # @case_id OCP-11207
   Scenario: Container.securityContext should take precedence when it conflict with PSC
     Given I have a project
     And evaluation of `rand project.uid_range(user:user)` is stored in the :scc_uid clipboard
@@ -483,7 +483,7 @@ Feature: SCC policy related scenarios
     Then the expression should be true> cb.container_run_as_nonroot
 
   # @author wjiang@redhat.com
-  # @case_id 518944
+  # @case_id OCP-11557
   @admin
   @destructive
   Scenario: Cluster-admin can reconcile the bootstrap scc
@@ -554,7 +554,7 @@ Feature: SCC policy related scenarios
       | <%= user.name %>        |
 
   # @author: chuyu@redhat.com
-  # @case_id: 538262
+  # @case_id: OCP-11010
   Scenario: User can know if he can create podspec against the current scc rules via selfsubjectsccreview
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_false.json"
@@ -573,7 +573,7 @@ Feature: SCC policy related scenarios
     And the expression should be true> @result[:parsed]["status"]["reason"] == "CantAssignSecurityContextConstraintProvider"
 
   # @author: chuyu@redhat.com
-  # @case_id: 538263
+  # @case_id: OCP-11398
   Scenario: User can know whether the PodSpec his describing will actually be allowed by the current SCC rules via subjectsccreview
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538263/PodSecurityPolicySubjectReview.json"
@@ -585,7 +585,7 @@ Feature: SCC policy related scenarios
     And the expression should be true> @result[:parsed]["status"]["allowedBy"]["name"] == "restricted"
 
   # @author: chuyu@redhat.com
-  # @case_id: 538264
+  # @case_id: OCP-11667
   @admin
   Scenario: User can know which serviceaccount and SA groups can create the podspec against the current sccs
     Given I have a project

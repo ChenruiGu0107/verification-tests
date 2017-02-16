@@ -11,7 +11,7 @@ Feature: Postgresql images test
       |name=postgresql|
 
   # @author cryan@redhat.com
-  # @case_id 508069
+  # @case_id OCP-12251
   Scenario: Create nodejs postgresql applicaion - nodejs-010-rhel7
     Given I have a project
     When I run the :new_app client command with:
@@ -30,7 +30,7 @@ Feature: Postgresql images test
       | 9.2   |
 
   # @author cryan@redhat.com
-  # @case_id 528404 528405 529315
+  # @case_id OCP-10858 OCP-11284 OCP-11292
   Scenario Outline: Check memory limits env vars when pod is set with memory limit - postgresql
     Given I have a project
     When I run the :new_app client command with:
@@ -61,7 +61,7 @@ Feature: Postgresql images test
       | rhscl/postgresql-95-rhel7      |
 
   # @author wewang@redhat.com
-  # @case_id 528407 528406 529327
+  # @case_id OCP-11793 OCP-11590 OCP-12388
   Scenario Outline: Use customized values for memory limits env vars - postgresql
     Given I have a project
     When I run the :new_app client command with:
@@ -89,7 +89,7 @@ Feature: Postgresql images test
       | rhscl/postgresql-95-rhel7      |
 
   # @author wewang@redhat.com
-  # @case_id 528408 528409 529328
+  # @case_id OCP-11959 OCP-12068 OCP-12409
   Scenario Outline: Use default values for memory limits env vars - postgresql
     Given I have a project
     When I run the :run client command with:

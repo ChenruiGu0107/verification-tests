@@ -1,7 +1,7 @@
 Feature: xpass.feature
 
   # @author haowang@redhat.com
-  # @case_id 508991
+  # @case_id OCP-9659
   Scenario: Create jbossamq resource from imagestream via oc new-app - jboss-amq62
     Given I have a project
     When I run the :new_app client command with:
@@ -12,7 +12,7 @@ Feature: xpass.feature
     And a pod becomes ready with labels:
       | app=jboss-amq-62 |
   # @author haowang@redhat.com
-  # @case_id 484431
+  # @case_id OCP-12533
   Scenario: Create amq application from template - amq62-basic
     Given I have a project
     When I run the :create client command with:
@@ -24,7 +24,7 @@ Feature: xpass.feature
     And a pod becomes ready with labels:
       | application=broker |
   # @author haowang@redhat.com
-  # @case_id 498017 484397 469045 469043 514975 514973
+  # @case_id OCP-9586 OCP-12524 OCP-12429 OCP-12414 OCP-9746 OCP-9745
   Scenario Outline: jbosseap template
     Given I have a project
     When I run the :create client command with:
@@ -47,7 +47,7 @@ Feature: xpass.feature
       | eap64-mysql-s2i      | 2     |
       | eap64-postgresql-s2i | 2     |
   # @author haowang@redhat.com
-  # @case_id 515426
+  # @case_id OCP-9749
   Scenario: Create amq application from template in web console - amq62-ssl
     Given I have a project
     When I run the :create client command with:
@@ -61,7 +61,7 @@ Feature: xpass.feature
     And a pod becomes ready with labels:
       | application=broker |
   # @author haowang@redhat.com
-  # @case_id 508993
+  # @case_id OCP-9661
   Scenario: create resource from imagestream via oc new-app-jboss-eap6-openshift
     Given I have a project
     When I run the :new_app client command with:
@@ -77,7 +77,7 @@ Feature: xpass.feature
     And  the output should contain "JBoss"
 
   # @author haowang@redhat.com
-  # @case_id 469046
+  # @case_id OCP-12439
   Scenario: Clustering app of Jboss EAP can work well
     Given I have a project
     When I run the :create client command with:
@@ -115,7 +115,7 @@ Feature: xpass.feature
     And  the output should contain "JBoss"
 
   # @author xiuwang@redhat.com
-  # @case_id 498007 498009 517526 517527
+  # @case_id OCP-9581 OCP-9582 OCP-9813 OCP-9814
   Scenario Outline: Create tomcat7/tomcat8 application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -143,7 +143,7 @@ Feature: xpass.feature
       | jws30-tomcat8-https-s2i |
 
   # @author xiuwang@redhat.com
-  # @case_id 498011 498018
+  # @case_id OCP-9583 OCP-9587
   Scenario Outline: Create tomcat7/tomcat8 with mongodb application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -179,7 +179,7 @@ Feature: xpass.feature
       | jws30-tomcat8-mongodb-s2i |
 
   # @author xiuwang@redhat.com
-  # @case_id 498023 498024
+  # @case_id OCP-9590 OCP-9591
   Scenario Outline: Create tomcat7/tomcat8 with postgresql application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -215,7 +215,7 @@ Feature: xpass.feature
       |  jws30-tomcat8-postgresql-s2i |
 
   # @author xiuwang@redhat.com
-  # @case_id 498020 498022
+  # @case_id OCP-9588 OCP-9589
   Scenario Outline: Create tomcat7/tomcat8 with mysql application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -249,7 +249,7 @@ Feature: xpass.feature
       |  jws30-tomcat7-mysql-s2i |
       |  jws30-tomcat8-mysql-s2i |
   # @author haowang@redhat.com
-  # @case_id 498016 514971 514967 514972
+  # @case_id OCP-9585 OCP-9743 OCP-9740 OCP-9744
   Scenario Outline: jbosseap templates with pv
     Given I have a project
     When I run the :create client command with:
@@ -276,7 +276,7 @@ Feature: xpass.feature
       | eap64-mysql-persistent-s2i      | 2     | eap-app-mysql-claim      |
       | eap64-postgresql-persistent-s2i | 2     | eap-app-postgresql-claim |
   # @author haowang@redhat.com
-  # @case_id 514966
+  # @case_id OCP-9739
   Scenario: Create amq application from pre-installed templates : amq62-persistent-ssl
     Given I have a project
     When I run the :create client command with:
@@ -297,7 +297,7 @@ Feature: xpass.feature
       | application=broker |
 
   # @author haowang@redhat.com
-  # @case_id 498015
+  # @case_id OCP-9584
   Scenario: Create amq application from pre-installed templates: amq62-persistent
     Given I have a project
     When I run the :create client command with:
@@ -316,7 +316,7 @@ Feature: xpass.feature
       | application=broker |
 
   # @author dyan@redhat.com
-  # @case_id 484485 508757
+  # @case_id OCP-11725 OCP-11749
   Scenario Outline: Create tomcat7/tomcat8 with mongodb with persistent volume application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -358,7 +358,7 @@ Feature: xpass.feature
       | jws30-tomcat8-mongodb-persistent-s2i |
 
   # @author dyan@redhat.com
-  # @case_id 477323 484486
+  # @case_id OCP-11891 OCP-11901
   Scenario Outline: Create tomcat7/tomcat8 with postgresql with persistent volume application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -400,7 +400,7 @@ Feature: xpass.feature
       |  jws30-tomcat8-postgresql-persistent-s2i |
 
   # @author dyan@redhat.com
-  # @case_id 508763 508764
+  # @case_id OCP-11922 OCP-11923
   Scenario Outline: Create tomcat7/tomcat8 with mysql with persistent volume application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -441,7 +441,7 @@ Feature: xpass.feature
       |  jws30-tomcat8-mysql-persistent-s2i |
 
   # @author haowang@redhat.com
-  # @case_id 469047
+  # @case_id OCP-12449
   Scenario: Customize MAVEN_ARGS during maven build
     Given I have a project
     When I run the :new_build client command with:

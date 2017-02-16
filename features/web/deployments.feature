@@ -52,7 +52,7 @@ Feature: Check deployments function
     Then the step should succeed
 
   # @author wsun@redhat.com
-  # @case_id 515434
+  # @case_id OCP-10749
   Scenario: Scale the application by changing replicas in deployment config
     Given I login via web console
     Given I have a project
@@ -110,7 +110,7 @@ Feature: Check deployments function
     Then the step should fail
 
   # @author yapei@redhat.com
-  # @case_id 483174
+  # @case_id OCP-12417
   Scenario: Check deployment info on web console
     Given I create a new project
     When I run the :create client command with:
@@ -168,7 +168,7 @@ Feature: Check deployments function
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
-  # @case_id 510377
+  # @case_id OCP-11198
   Scenario: View deployments streaming logs
     Given I create a new project via web
     When I run the :new_app client command with:
@@ -210,7 +210,7 @@ Feature: Check deployments function
     And the output should equal "<%= cb.output %>"
 
   # @author yapei@redhat.com
-  # @case_id 533674
+  # @case_id OCP-10937
   Scenario: Idled DC handling on web console
     Given I create a new project
     When I run the :create client command with:
@@ -261,7 +261,7 @@ Feature: Check deployments function
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 533676
+  # @case_id OCP-11631
   Scenario: Idled RC handling on web console
     Given I create a new project
     When I run the :create client command with:
@@ -350,7 +350,7 @@ Feature: Check deployments function
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536589/replica-set.yaml    | click_to_goto_one_replicaset_page | k8s_replicasets_name | frontend        | add_storage_to_k8s_replicasets | replicaset | frontend | check_mount_info_on_one_replicaset_page |
 
   # @author etrott@redhat.com
-  # @case_id 536600
+  # @case_id OCP-12350
   Scenario: Check k8s deployments on Overview and Monitoring page
     Given the master version >= "3.4"
     Given I create a new project
@@ -465,7 +465,7 @@ Feature: Check deployments function
     Given the expression should be true> browser.url.start_with? "#{browser.base_url}/console/project/#{project.name}/browse/pods"
 
   # @author yapei@redhat.com
-  # @case_id 528860
+  # @case_id OCP-11593
   Scenario: Create,Edit and Delete HPA from the deployment config page
     Given the master version >= "3.3"
     Given I have a project
@@ -567,7 +567,7 @@ Feature: Check deployments function
     And the output should not contain "myrun"
 
   # @author etrott@redhat.com
-  # @case_id 536601
+  # @case_id OCP-12375
   Scenario: Check ReplicaSet on Overview and ReplicaSet page
     Given the master version >= "3.4"
     Given I create a new project via web
@@ -642,7 +642,7 @@ Feature: Check deployments function
     Then the step should succeed
 
   # @author yapei@redhat.com
-  # @case_id 536602
+  # @case_id OCP-12394
   Scenario: Pause and Resume Deployment Configuration
     Given the master version >= "3.4"
     Given I have a project
@@ -701,7 +701,7 @@ Feature: Check deployments function
     Then the step should succeed
 
   # @author etrott@redhat.com
-  # @case_id 539681
+  # @case_id OCP-12004
   Scenario: DC Image Configuration on web console
     Given the master version >= "3.4"
     Given I create a new project
@@ -773,7 +773,7 @@ Feature: Check deployments function
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 536585
+  # @case_id OCP-10990
   Scenario: Environment handling on DC edit page
     Given I have a project
     When I run the :create client command with:
@@ -857,7 +857,7 @@ Feature: Check deployments function
     Then the step should succeed
 
   # @author xxing@redhat.com
-  # @case_id 539678
+  # @case_id OCP-11406
   Scenario: Change Deployment Stategy from Rolling to Custom on web console
     Given I have a project
     When I run the :create client command with:

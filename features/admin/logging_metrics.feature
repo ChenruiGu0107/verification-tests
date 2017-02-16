@@ -1,9 +1,9 @@
 Feature: Logging and Metrics
 
   # @author chunchen@redhat.com
-  # @case_id 509065,521419
+  # @case_id OCP-12205,521419
   # @author xiazhao@redhat.com
-  # @case_id 521420
+  # @case_id OCP-11574
   # @author penli@redhat.com
   @admin
   @smoke
@@ -66,7 +66,7 @@ Feature: Logging and Metrics
     Then the step should succeed
 
   # @author chunchen@redhat.com
-  # @case_id 509059,522124
+  # @case_id OCP-11186,OCP-11266
   @admin
   @smoke
   @destructive
@@ -190,7 +190,7 @@ Feature: Logging and Metrics
     """
 
   # @author xiazhao@redhat.com
-  # @case_id 518907
+  # @case_id OCP-10776
   @admin
   @smoke
   Scenario: Deploy metrics stack with persistent storage

@@ -1,7 +1,7 @@
 Feature: Diagnostics system and clients
 
   # @author chunchen@redhat.com
-  # @case_id 501021
+  # @case_id OCP-11915
   @admin
   @destructive
   Scenario: Diagnose docker registry and router entities
@@ -33,7 +33,7 @@ Feature: Diagnostics system and clients
       | Errors seen:\s+[1-9]\d* |
 
   # @author chunchen@redhat.com
-  # @case_id 501020
+  # @case_id OCP-11742
   Scenario: Diagnose openshift client
     Given I have a project
     When I run the :oadm_diagnostics client command with:
@@ -54,7 +54,7 @@ Feature: Diagnostics system and clients
       | Errors seen:\s+[1-9]\d* |
 
   # @author xiazhao@redhat.com
-  # @case_id 526580
+  # @case_id OCP-10843
   @admin
   @destructive
   Scenario: Diagnostics container for docker registry and router as ordinary user

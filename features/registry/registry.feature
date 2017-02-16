@@ -1,7 +1,7 @@
 Feature: Testing registry
 
   # @author: yinzhou@redhat.com
-  # @case_id: 528303
+  # @case_id: OCP-10010
   Scenario: Re-using the Registry IP address
     Given I switch to cluster admin pseudo user
     And I use the "default" project
