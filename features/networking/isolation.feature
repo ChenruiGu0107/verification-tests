@@ -86,6 +86,7 @@ Feature: networking isolation related scenarios
   # @case_id 497541
   @smoke
   Scenario: Only the pods nested in a same namespace can communicate with each other
+    Given the env is using multitenant network
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |

@@ -119,6 +119,7 @@ Feature: Service related networking scenarios
   # @case_id 499521 498206
   Scenario: tenants can access their own services
     # create pod and service in project1
+    Given the env is using multitenant network
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
