@@ -40,7 +40,7 @@ check_one_buildconfig_page_with_check_config:
   action: show_annotations_in_bc_page
   action: check_buildconfig_source_repo
   action: check_bc_generic_webhook_trigger
-  action: check_bc_github_webhook_trigger 
+  action: check_bc_github_webhook_trigger
 check_one_buildconfig_page_with_build_op:
   action: check_one_buildconfig_page_with_check_config
   elements:
@@ -206,6 +206,8 @@ change_bc_source_repo_url:
   action: change_source_repo_url
 add_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
+  action: add_env_vars
+add_env_vars:
   action: add_env_var_key
   action: add_env_var_value
   action: save_env_vars
@@ -369,6 +371,8 @@ save_updated_env_value:
     op: click
 change_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
+  action: change_env_vars
+change_env_vars:
   action: edit_env_var_value
   action: save_updated_env_value
 set_force_pull_on_buildconfig_edit_page:

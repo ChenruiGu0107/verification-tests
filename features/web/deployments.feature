@@ -1037,3 +1037,120 @@ Feature: Check deployments function
     Then the step should fail
     When I run the :click_add_autoscaler_link web console action
     Then the step should succeed
+
+  # @author etrott@redhat.com
+  # @case_id OCP-12301
+  Scenario: Check Events and Environment handling for k8s deployment
+    Given the master version >= "3.4"
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml |
+    Then the step should succeed
+    When I perform the :goto_deployments_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :click_on_one_deployment web console action with:
+      | k8s_deployments_name | hello-openshift |
+    Then the step should succeed
+    When I run the :check_event_tab web console action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | rs   |
+      | o        | json |
+    Then the step succeeded
+    Given evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :rs_name clipboard
+    Then the step should succeed
+    When I perform the :check_event_message web console action with:
+      | reason  | Scaling replica set                          |
+      | message | Scaled up replica set <%= cb.rs_name %> to 4 |
+    Then the step should succeed
+    When I run the :goto_environment_tab web console action
+    Then the step should succeed
+    When I perform the :add_env_vars web console action with:
+      | env_var_key   | deployment1 |
+      | env_var_value | value1      |
+    Then the step should succeed
+    When I perform the :add_env_vars web console action with:
+      | env_var_key   | deployment2 |
+      | env_var_value | value2      |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I run the :check_event_tab web console action
+    Then the step should succeed
+    When I perform the :check_event_message web console action with:
+      | reason  | Scaling replica set                            |
+      | message | Scaled down replica set <%= cb.rs_name %> to 0 |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | rs   |
+      | o        | json |
+    Then the step succeeded
+    Given evaluation of `@result[:parsed]['items'][1]['metadata']['name']` is stored in the :rs_name_new clipboard
+    When I perform the :check_event_message web console action with:
+      | reason  | Scaling replica set                              |
+      | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
+    Then the step should succeed
+
+    When I perform the :filter_by_keyword_on_events_tab web console action with:
+      | keyword | <%= cb.rs_name %> |
+    Then the step should succeed
+    When I perform the :check_event_message web console action with:
+      | reason  | Scaling replica set                          |
+      | message | Scaled up replica set <%= cb.rs_name %> to 4 |
+    Then the step should succeed
+    When I perform the :check_event_message web console action with:
+      | reason  | Scaling replica set                              |
+      | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
+    Then the step should fail
+
+    When I perform the :filter_by_keyword_on_events_tab web console action with:
+      | keyword | <%= cb.rs_name_new %> |
+    Then the step should succeed
+    When I perform the :check_event_message web console action with:
+      | reason  | Scaling replica set                          |
+      | message | Scaled up replica set <%= cb.rs_name %> to 4 |
+    Then the step should fail
+    When I perform the :check_event_message web console action with:
+      | reason  | Scaling replica set                              |
+      | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
+    Then the step should succeed
+
+    When I perform the :filter_by_keyword_on_events_tab web console action with:
+      | keyword | test |
+    Then the step should succeed
+    When I run the :check_all_events_hidden_by_filter web console action
+    Then the step should succeed
+
+    When I run the :goto_environment_tab web console action
+    Then the step should succeed
+
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | deployment1 |
+      | env_var_value | value1      |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | deployment2 |
+      | env_var_value | value2      |
+    Then the step should succeed
+
+    When I perform the :change_env_vars web console action with:
+      | env_variable_name | deployment1   |
+      | new_env_value     | value1updated |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | deployment1   |
+      | env_var_value | value1updated |
+    Then the step should succeed
+
+    When I perform the :delete_env_var web console action with:
+      | env_var_key | deployment2 |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | deployment2 |
+      | env_var_value | value2      |
+    Then the step should fail
