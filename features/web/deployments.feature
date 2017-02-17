@@ -1078,6 +1078,7 @@ Feature: Check deployments function
     Then the step should succeed
     When I run the :check_event_tab web console action
     Then the step should succeed
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1423461
     When I perform the :check_event_message web console action with:
       | reason  | Scaling replica set                            |
       | message | Scaled down replica set <%= cb.rs_name %> to 0 |
@@ -1154,3 +1155,93 @@ Feature: Check deployments function
       | env_var_key   | deployment2 |
       | env_var_value | value2      |
     Then the step should fail
+
+  # @author etrott@redhat.com
+  # @case_id OCP-11844
+  Scenario: Check Events and Environment handling for ReplicaSet
+    Given the master version >= "3.4"
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/extensions/replicas-set.yaml |
+    Then the step should succeed
+    When I perform the :click_to_goto_one_replicaset_page web console action with:
+      | project_name         | <%= project.name %> |
+      | k8s_replicasets_name | frontend            |
+    Then the step should succeed
+    When I run the :goto_environment_tab web console action
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | GET_HOSTS_FROM |
+      | env_var_value | dns            |
+    Then the step should succeed
+
+    When I perform the :add_env_vars web console action with:
+      | env_var_key   | replicasets |
+      | env_var_value | value1      |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | GET_HOSTS_FROM |
+      | env_var_value | dns            |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | replicasets |
+      | env_var_value | value1      |
+    Then the step should succeed
+
+    When I perform the :change_env_vars web console action with:
+      | env_variable_name | replicasets   |
+      | new_env_value     | value1updated |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | GET_HOSTS_FROM |
+      | env_var_value | dns            |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | replicasets   |
+      | env_var_value | value1updated |
+    Then the step should succeed
+
+    When I perform the :delete_env_var web console action with:
+      | env_var_key | replicasets |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | GET_HOSTS_FROM |
+      | env_var_value | dns            |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | replicasets   |
+      | env_var_value | value1updated |
+    Then the step should fail
+
+    Given I run the steps 2 times:
+    """
+    When I run the :scale_down_once_on_rs_page web console action
+    Then the step should succeed
+    """
+    When I perform the :check_ready_pods_number_in_table web console action with:
+      | pods_number | 1 |
+    Then the step should succeed
+    When I run the :check_event_tab web console action
+    Then the step should succeed
+    When I perform the :filter_by_keyword_on_events_tab web console action with:
+      | keyword | delete |
+    Then the step should succeed
+    When I perform the :check_event_message web console action with:
+      | reason  | Successful delete |
+      | message | Deleted pod:      |
+    Then the step should succeed
+
+    When I run the :scale_up_once_on_rs_page web console action
+    Then the step should succeed
+    When I perform the :check_ready_pods_number_in_table web console action with:
+      | pods_number | 2 |
+    Then the step should succeed
+    When I run the :check_event_tab web console action
+    Then the step should succeed
+    When I perform the :filter_by_keyword_on_events_tab web console action with:
+      | keyword | create |
+    Then the step should succeed
+    When I perform the :check_event_message web console action with:
+      | reason  | Successful create |
+      | message | Created pod:      |
+    Then the step should succeed
