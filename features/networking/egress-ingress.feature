@@ -124,12 +124,6 @@ Feature: Egress-ingress related networking scenarios
     And the output should contain:
       | multiple EgressNetworkPolicies in same network namespace |
       | dropping all traffic                                     |
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
-    Then the step should succeed
-    And the output should contain 1 times:
-      | priority=1   |
-      | actions=drop |
 
 
   # @author yadu@redhat.com
@@ -160,12 +154,6 @@ Feature: Egress-ingress related networking scenarios
       | <%= cb.proj1 %>                                        |
       | <%= cb.proj2 %>                                        |
       | dropping all traffic                                   |
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
-    Then the step should succeed
-    And the output should contain 1 times:
-      | priority=1   |
-      | actions=drop |
     When I use the "<%= cb.proj2 %>" project
     When I execute on the "hello-pod" pod:
       | curl           |
@@ -185,12 +173,6 @@ Feature: Egress-ingress related networking scenarios
       | www.google.com |
     Then the step should succeed
     And the output should contain "HTTP/1.1 200"
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
-    Then the step should succeed
-    And the output should not contain:
-      | priority=1   |
-      | actions=drop |
 
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj3 clipboard
@@ -214,12 +196,6 @@ Feature: Egress-ingress related networking scenarios
       | <%= cb.proj3 %>                                        |
       | <%= cb.proj4 %>                                        |
       | dropping all traffic                                   |
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
-    Then the step should succeed
-    And the output should contain 1 times:
-      | priority=1   |
-      | actions=drop |
     When I use the "<%= cb.proj3 %>" project
     When I execute on the pod:
       | curl           |
@@ -244,12 +220,6 @@ Feature: Egress-ingress related networking scenarios
       | n | <%= cb.proj1 %> |
     Then the step should succeed
     Given I select a random node's host 
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
-    Then the step should succeed
-    And the output should contain 1 times:
-      | priority=1   |
-      | actions=drop |
     When I execute on the pod:
       | curl           |
       | --head         |
@@ -272,12 +242,6 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
     And the output should contain:
       | EgressNetworkPolicy in global network namespace is not allowed (<%= cb.proj1 %>:policy1) |
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
-    Then the step should succeed
-    And the output should not contain:
-      | priority=1   |
-      | actions=drop |
     And the project is deleted
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
@@ -293,12 +257,6 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
     And the output should contain:
       | EgressNetworkPolicy in global network namespace is not allowed (<%= cb.proj2 %>:policy1) |
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
-    Then the step should succeed
-    And the output should not contain:
-      | priority=1   |
-      | actions=drop |
     When I use the "<%= cb.proj2 %>" project
     Given I have a pod-for-ping in the project
     And the pod named "hello-pod" becomes ready
@@ -328,12 +286,6 @@ Feature: Egress-ingress related networking scenarios
       | n | <%= project.name %> |
     Then the step should succeed
     Given I select a random node's host 
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
-    Then the step should succeed
-    And the output should contain 1 times:
-      | priority=1   |
-      | actions=drop |
     When I use the "<%= project.name %>" project
     When I execute on the pod:
       | curl           |
@@ -347,12 +299,6 @@ Feature: Egress-ingress related networking scenarios
       | n                 | <%= project.name %> |
     Then the step should succeed
     Given I select a random node's host 
-    When I run commands on the host:
-      | ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O OpenFlow13 \| grep table=9 |
-    Then the step should succeed
-    And the output should not contain:
-      | priority=1   |
-      | actions=drop |
     When I use the "<%= project.name %>" project
     When I execute on the pod:
       | curl           |
