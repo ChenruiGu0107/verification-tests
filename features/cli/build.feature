@@ -1492,7 +1492,7 @@ Feature: build 'apps' with CLI
     Given I have a project
     Given cluster role "system:build-strategy-docker" is removed from the "system:authenticated" group
     When I run the :new_app client command with:
-        | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build completes
     When I run the :delete client command with:
@@ -1507,11 +1507,11 @@ Feature: build 'apps' with CLI
       | all_no_dash ||
       | all||
     Then the step should succeed
-    Given cluster role "system:build-strategy-custom" is removed from the "system:authenticated" group
+    Given cluster role "system:build-strategy-source" is removed from the "system:authenticated" group
     When I run the :new_app client command with:
-        | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-custombuild.json |
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should fail
-    And the output should contain "Custom is not allowed"
+    And the output should contain "Source is not allowed"
 
   # @author xiuwang@redhat.com
   # @case_id OCP-11238
