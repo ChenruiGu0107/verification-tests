@@ -2397,3 +2397,132 @@ Feature: Testing haproxy router
     And the output should contain "Hello-OpenShift"
     And the expression should be true> cb.first_access != @result[:response]
     """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-11068
+  @admin
+  @destructive
+  Scenario: the router should always reload on initial sync even if the route is rejected
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project_a clipboard
+    And I create a new project
+    And evaluation of `project.name` is stored in the :project_b clipboard
+    
+    Given I use the "<%= cb.project_a %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    
+    # create same route hostname in second project to make it as "HostAlreadyClaimed" (rejected)
+    Given I use the "<%= cb.project_b %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge.json |
+    Then the step should succeed
+
+    # label the two namespaces
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    When I run the :label client command with:
+      | resource | namespaces          |
+      | name     | <%= cb.project_a %> |
+      | key_val  | team=red            |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | namespaces          |
+      | name     | <%= cb.project_b %> |
+      | key_val  | team=red            |
+    Then the step should succeed
+    
+    # redeploy router pod
+    Given a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
+    And default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | NAMESPACE_LABELS=team=red |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And evaluation of `pod.ip` is stored in the :router_ip clipboard
+
+    # the route should be accessed after router pod redeployed
+    Given I switch to the first user
+    And I use the "<%= cb.project_a %>" project
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | --resolve |
+      | test-edge.example.com:443:<%= cb.router_ip %> |
+      | https://test-edge.example.com/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    """
+    
+  # @author hongli@redhat.com
+  # @case_id OCP-11437
+  @admin
+  @destructive
+  Scenario: the routes should be loaded on initial sync
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | RELOAD_INTERVAL=122s |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And evaluation of `pod.ip` is stored in the :router_ip clipboard
+
+    # the route should be accessed in less than RELOAD_INTERVAL(122s) after router pod redeployed
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name %>" project
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -ksS |
+      | --resolve |
+      | <%= route("service-unsecure").dns(by: user) %>:80:<%= cb.router_ip[0] %> |
+      | http://<%= route("service-unsecure").dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    """
+
