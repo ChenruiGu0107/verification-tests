@@ -17,6 +17,7 @@ require 'openshift/persistent_volume_claim'
 require 'openshift/replication_controller'
 require 'openshift/deployment_config'
 require 'openshift/replicaset'
+require 'openshift/deployment'
 require 'openshift/cluster_role_binding'
 require 'openshift/storage_class'
 require 'openshift/host_subnet'
@@ -53,6 +54,7 @@ module CucuShift
       @pvcs = []
       @rcs = []
       @dcs = []
+      @deployments = []
       @image_streams = []
       @image_stream_tags = []
       @rss = []  # replicasets
@@ -352,27 +354,15 @@ module CucuShift
     #   otherwise creates a [DeploymentConfig] object
     # @note you need the project already created
     def dc(name = nil, project = nil)
-      project ||= self.project(generate: false)
+      project_resource(DeploymentConfig, name, project)
+    end
 
-      if name
-        dc = @dcs.find {|d| d.name == name && d.project == project}
-        if dc && @dcs.last == dc
-          return dc
-        elsif dc
-          @dcs << @dcs.delete(dc)
-          return dc
-        else
-          # create new CucuShift::DeploymentConfig object with specified name
-          @dcs << DeploymentConfig.new(name: name, project: project)
-          return @dcs.last
-        end
-      elsif @dcs.empty?
-        # we do not create a random build like with projects because that
-        #   would rarely make sense
-        raise "what dc are you talking about?"
-      else
-        return @dcs.last
-      end
+    # @return Deployment by name from scenario cache;
+    #   with no params given, returns last requested deployment;
+    #   otherwise creates a [Deployment] object
+    # @note you need the project already created
+    def deployment(name = nil, project = nil)
+      project_resource(Deployment, name, project)
     end
 
     # @return [ImageStream] is by name from scenario cache; with no params given,

@@ -31,7 +31,7 @@ cancel_deployments:
   - selector:
       xpath: //strong[contains(text(),'Cancelling deployment')]
     timeout: 60
-edit_replicas_on_deployment_page:
+edit_replicas_on_dc_page:
   action: goto_one_dc_page
   elements:
   - selector:
@@ -50,7 +50,7 @@ edit_replicas_on_deployment_page:
       xpath: //a[@title="Scale"]
     type: a
     op: click
-cancel_edit_replicas_on_deployment_page:
+cancel_edit_replicas_on_dc_page:
   elements:
   - selector:
       xpath: //a[@title='Cancel']

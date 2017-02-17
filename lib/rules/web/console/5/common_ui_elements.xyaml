@@ -48,6 +48,11 @@ click_on_configuration_tab:
     selector:
       xpath: //uib-tab-heading[contains(.,'Configuration')]
     op: click
+click_on_hisory_tab:
+  element:
+    selector:
+      xpath: //uib-tab-heading[contains(.,'History')]
+    op: click
 click_on_details_tab:
   element:
     selector:
