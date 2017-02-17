@@ -39,7 +39,6 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>   |
     Then the step should succeed
-    And I wait until the status of deployment "hooks" becomes :running
     When I perform the :cancel_deployments web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>   |

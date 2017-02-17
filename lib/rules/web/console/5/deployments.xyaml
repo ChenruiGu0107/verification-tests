@@ -306,7 +306,7 @@ check_dc_manual_cli_trigger:
   action: check_dc_loaded_completely
   elements:
   - selector:
-      xpath:  //h3[contains(.,'Triggers')]//following::input[contains(@value,'oc deploy')]
+      xpath:  //h3[contains(.,'Triggers')]//following::input[contains(@value,'oc rollout latest')]
 check_dc_config_trigger:
   action: check_dc_loaded_completely
   elements:

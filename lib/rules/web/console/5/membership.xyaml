@@ -133,7 +133,7 @@ check_entry_content_on_membership:
   action: click_to_goto_membership_tab
   element:
     selector:
-      xpath: //div[contains(@class,"active")]//div[contains(@class, "item-row") and div//strong[normalize-space(text())="<name>"] and div//span[normalize-space(text())="<role>"]]
+      xpath: //div[contains(@class,'active')]//div[contains(@class, 'item-row') and div//strong[normalize-space(text())='<name>'] and div//a[normalize-space(text())='<role>']]
 check_entry_content_on_membership_with_namespace:
   action: click_to_goto_membership_tab
   element:
