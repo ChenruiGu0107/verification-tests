@@ -299,6 +299,7 @@
     :o: -o <value>
     :path: --path=<value>
     :hostname: --hostname=<value>
+    :wildcardpolicy: --wildcard-policy=<value>
 :extract:
   :cmd: oc extract
   :options:
