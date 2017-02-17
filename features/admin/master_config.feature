@@ -359,3 +359,67 @@ Feature: test master config related steps
     And the pod named "hello-openshift" status becomes :pending
     When label "<%= cb.proj_name %>=hello" is added to the "<%= cb.nodes[0].name %>" node
     Then the pod named "hello-openshift" status becomes :running
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-11530
+  @admin
+  @destructive
+  Scenario: User can login if and only if user and identity exist and reference to correct user or identity for provision strategy lookup
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 509116_user                 |
+      | password | password                    |
+    Then the step should fail
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        mappingMethod: lookup
+        name: anypassword
+        provider:
+          apiVersion: v1
+          kind: AllowAllPasswordIdentityProvider
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 509116_user                 |
+      | password | password                    |
+    Then the step should fail
+    Given I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc509116/tc509116_user.json |
+    Then the step should succeed
+    And I register clean-up steps:
+      """
+      Given I run the :delete admin command with:
+        | object_type       | user        |
+        | object_name_or_id | 509116_user |
+      Then the step should succeed
+      """
+    Given I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc509116/tc509116_identity.json |
+    Then the step should succeed
+    And I register clean-up steps:
+      """
+      Given I run the :delete admin command with:
+        | object_type       | identity                |
+        | object_name_or_id | anypassword:509116_user |
+      Then the step should succeed
+      """
+    Given I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/tc509116/tc509116_useridentitymapping.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource   | projects |
+    Then the step should succeed
+    When I run the :get admin command with:
+     | resource | users                        |
+    Then the step should succeed
+    And the output should contain:
+     | NAME       | 509116_user                |
