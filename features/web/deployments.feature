@@ -195,7 +195,7 @@ Feature: Check deployments function
     Then the step should succeed
 
     When I perform the :open_full_view_log web console action with:
-      | log_context | PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER |
+      | log_context | mysql |
     Then the step should succeed
 
     #Compare the latest deployment log with the running pod log
