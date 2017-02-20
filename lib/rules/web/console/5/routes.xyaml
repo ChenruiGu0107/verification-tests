@@ -50,7 +50,7 @@ check_a_route_detail_page:
       xpath: //a[contains(text(),'<service_name>')]
     op: click
   - selector:
-      xpath: //h1[contains(text(),'<service_name>')]
+      xpath: //h1[contains(.,'<service_name>')]
 access_route_hostname_from_table:
   action: goto_routes_page
   elements:

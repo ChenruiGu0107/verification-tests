@@ -68,35 +68,35 @@ Feature: oc_process.feature
     Given I have a project
     When I run the :process client command with:
       | f        | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-      | template | ADMIN_PASSWORD=-Dfoo=bar -Dbar=foo                                                                               |
+      | template | MYSQL_USER=username                                                                                              |
       | template | MYSQL_PASSWORD=-Dfoo2=bar -Dbar2=foo                                                                             |
     Then the step should succeed
     And the output should not contain "invalid parameter assignment"
     And the output should contain:
-      | "value": "-Dfoo=bar -Dbar=foo    |
-      | "value": "-Dfoo2=bar -Dbar2=foo" |
+      | username              |
+      | -Dfoo2=bar -Dbar2=foo |
     When I run the :new_app client command with:
       | file    | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-      | p       | ADMIN_PASSWORD=-Dfoo=bar -Dbar=foo   |
-      | p       | MYSQL_PASSWORD=-Dfoo2=bar            |
-      | dry_run | true                                                                                                             |
+      | p       | MYSQL_USER=username                 |
+      | p       | MYSQL_PASSWORD=-Dfoo2=bar -Dbar=foo |
+      | dry_run | true                                |
     Then the step should succeed
     And the output should contain:
-      | ADMIN_PASSWORD=-Dfoo=bar -Dbar=foo   |
-      | MYSQL_PASSWORD=-Dfoo2=bar            |
+      | MYSQL_USER=username                           |
+      | MYSQL_PASSWORD=-Dfoo2=bar -Dbar=foo           |
     When I run the :new_app client command with:
       | file    | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-      | p       | ADMIN_PASSWORD=1,2,3       |
+      | p       | MYSQL_USER=username        |
       | p       | MYSQL_PASSWORD=4,5,6       |             
       | dry_run | true                                                                                                             |
     Then the step should succeed
     And the output should not contain "error: environment variables must be of the form key=value"
     And the output should contain:
-      | ADMIN_PASSWORD=1,2,3 |
+      | MYSQL_USER=username  |
       | MYSQL_PASSWORD=4,5,6 |
     When I run the :new_app client command with:
       | file    | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-      | p       | ADMIN_PASSWORD=1,2,MYSQL_PASSWORD=4,5                                                                            |
+      | p       | MYSQL_USER=username,MYSQL_PASSWORD=4,5                                                                           |
       | dry_run | true                                                                                                             |
     # Don't care if the step could be succeed or not
     # only test if values "will be treated as a single key-value pair"
