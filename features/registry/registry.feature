@@ -74,3 +74,21 @@ Feature: Testing registry
     And I run commands on the host:
       | docker pull docker.io/library/centos:latest |
     Then the step should succeed
+
+  # @author: haowang@redhat.com
+  # @case_id: OCP-10898
+  @admin
+  Scenario: Have size information for any image pushed
+    Given I have a project
+    And I run the :tag client command with:
+      | source_type | docker                                  |
+      | source      | docker.io/aosqe/pushwithdocker19:latest |
+      | dest        | pushwithdocker19:latest                 |
+    Then the step should succeed
+    And the "pushwithdocker19:latest" image stream tag was created
+    And evaluation of `image_stream_tag("pushwithdocker19:latest").digest(user:user)` is stored in the :digest clipboard
+    Then I run the :describe admin command with:
+      | resource | image            |
+      | name     | <%= cb.digest %> |
+    And the output should match:
+      | Image Size:.* |
