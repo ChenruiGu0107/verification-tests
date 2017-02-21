@@ -21,8 +21,10 @@ Feature: oc idle
       | all | true      |
     Then the step should succeed
     And the output should match:
-      | Idled ReplicationController.*hello-idle |
-      | Idled ReplicationController.*hello-pod  |
+      | ReplicationController.*hello-idle |
+      | ReplicationController.*hello-pod  |
+    And the output should match 4 times:
+      | (?i)idled |
     And I wait until number of replicas match "0" for replicationController "hello-pod"
     And I wait until number of replicas match "0" for replicationController "hello-idle"
     When I run the :get client command with:
@@ -61,7 +63,8 @@ Feature: oc idle
       | l | idle=true  |
     Then the step should succeed
     And the output should match:
-      | Idled ReplicationController.*hello-pod  |
+      | ReplicationController.*hello-pod  |
+      | (?i)idled |
     And I wait until number of replicas match "0" for replicationController "hello-pod"
     When I run the :get client command with:
       | resource | endpoints |
@@ -95,7 +98,8 @@ Feature: oc idle
       | resource-names-file | idle1.txt |
     Then the step should succeed
     And the output should match:
-      | Idled ReplicationController.*hello-pod |
+      | ReplicationController.*hello-pod |
+      | (?i)idled |
     And I wait until number of replicas match "0" for replicationController "hello-pod"
     When I run the :get client command with:
       | resource | endpoints |
@@ -127,7 +131,8 @@ Feature: oc idle
       | dry-run  | true      |
     Then the step should succeed
     And the output should match:
-      | Idled ReplicationController.*hello-pod |
+      | ReplicationController.*hello-pod |
+      | (?i)idled |
     And I wait until number of replicas match "2" for replicationController "hello-pod"
     And 2 pods become ready with labels:
       | name=hello-pod  |
@@ -218,7 +223,8 @@ Feature: oc idle
       | svc_name | hello-svc |
     Then the step should succeed
     And the output should match:
-      | Idled ReplicationController.*hello-pod  |
+      | ReplicationController.*hello-pod  |
+      | (?i)idled |
     And I wait until number of replicas match "0" for replicationController "hello-pod"
     When I run the :get client command with:
       | resource | endpoints |
