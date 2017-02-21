@@ -534,3 +534,409 @@ Feature: Network policy plugin scenarios
       | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
     Then the step should fail
     And the output should not contain "Hello"
+
+  #author bmeng@redhat.com
+  #case_id OCP-12876
+  @admin
+  Scenario: Use podSelector to control access for pods with network policy - allow from
+    Given the env is using networkpolicy plugin
+    # create project and pods and add label to 1 pod
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 3 |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).ip` is stored in the :p1pod1ip clipboard
+    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
+    And evaluation of `pod(2).name` is stored in the :p1pod3 clipboard
+    When I run the :label client command with:
+      | resource | pod |
+      | name     | <%= cb.p1pod2 %> |
+      | key_val  | type=red |
+    Then the step should succeed
+
+    # create another project and pods and add label to 1 pod
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 3 |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(3).name` is stored in the :p2pod1 clipboard
+    And evaluation of `pod(4).name` is stored in the :p2pod2 clipboard
+    And evaluation of `pod(5).name` is stored in the :p2pod3 clipboard
+    When I run the :label client command with:
+      | resource | pod |
+      | name     | <%= cb.p2pod2 %> |
+      | key_val  | type=red |
+    Then the step should succeed
+
+    # add annotation and apply network policy to the project1
+    When I run the :annotate admin command with:
+      | resource  | namespace/<%= cb.proj1 %>                                                     |
+      | overwrite | true                                                                          |
+      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-from-label.yaml |
+      | n | <%= cb.proj1 %>                                                                                            |
+    Then the step should succeed
+
+    # access the pods in project 1
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod2 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.p1pod3 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.p1pod3 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod2 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+    # Add label to an existing pod and a new pod in each project
+    Given I use the "<%= cb.proj1 %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json |
+    Then the step should succeed
+    And the pod named "hello-pod" becomes ready
+    When I run the :label client command with:
+      | resource  | pod |
+      | name      | <%= cb.p1pod3 %> |
+      | name      | hello-pod |
+      | key_val   | type=red |
+    Then the step should succeed
+    Given I use the "<%= cb.proj2 %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json |
+    Then the step should succeed
+    And the pod named "hello-pod" becomes ready
+    When I run the :label client command with:
+      | resource  | pod |
+      | name      | <%= cb.p2pod3 %> |
+      | name      | hello-pod |
+      | key_val   | type=red |
+    Then the step should succeed
+
+    # access pod in project 1 via the label new added pods
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod3 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "hello-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod3 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "hello-pod" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+    # remove the label from pod and access again
+    Given I use the "<%= cb.proj1 %>" project
+    When I run the :label client command with:
+      | resource  | pod |
+      | name      | <%= cb.p1pod2 %> |
+      | key_val   | type- |
+    Then the step should succeed
+    When I execute on the "<%= cb.p1pod2 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    Given I use the "<%= cb.proj2 %>" project
+    When I run the :label client command with:
+      | resource  | pod |
+      | name      | <%= cb.p2pod2 %> |
+      | key_val   | type- |
+    Then the step should succeed
+    When I execute on the "<%= cb.p2pod2 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod1ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+  #author bmeng@redhat.com
+  #case_id OCP-12877
+  @admin
+  Scenario: Use podSelector to control access for pods with network policy - allow to
+    Given the env is using networkpolicy plugin
+    # create project and pods and add label to 1 pod
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 3 |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
+    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
+    And evaluation of `pod(2).ip` is stored in the :p1pod3ip clipboard
+    And evaluation of `pod(2).name` is stored in the :p1pod3 clipboard
+    When I run the :label client command with:
+      | resource | pod |
+      | name     | <%= cb.p1pod2 %> |
+      | key_val  | type=blue |
+    Then the step should succeed
+
+    # create another project and pods
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given 1 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(3).name` is stored in the :p2pod1 clipboard
+
+    # add annotation and apply network policy to the project1
+    When I run the :annotate admin command with:
+      | resource  | namespace/<%= cb.proj1 %>                                                     |
+      | overwrite | true                                                                          |
+      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-to-label.yaml |
+      | n | <%= cb.proj1 %>                                                                                            |
+    Then the step should succeed
+
+    # access the labeled pod and un-labeled pod in project 1 via pods in both projects
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+    # Add label to an existing pod and a new pod in project1
+    Given I use the "<%= cb.proj1 %>" project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json |
+    Then the step should succeed
+    And the pod named "hello-pod" becomes ready
+    And evaluation of `pod.ip` is stored in the :p1pod4ip clipboard
+    When I run the :label client command with:
+      | resource  | pod |
+      | name      | <%= cb.p1pod3 %> |
+      | name      | hello-pod |
+      | key_val   | type=blue |
+    Then the step should succeed
+
+    # access the label new added pods
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod4ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod4ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+
+    # remove the label from pod and access again
+    Given I use the "<%= cb.proj1 %>" project
+    When I run the :label client command with:
+      | resource  | pod |
+      | name      | <%= cb.p1pod2 %> |
+      | key_val   | type- |
+    Then the step should succeed
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+  #author bmeng@redhat.com
+  #case_id OCP-12945
+  @admin
+  Scenario: Use podSelector to control access for pods with network policy - allow from red to blue
+    Given the env is using networkpolicy plugin
+    # create project and pods and add label to 1 pod
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 3 |
+    Then the step should succeed
+    Given 3 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
+    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+    And evaluation of `pod(1).name` is stored in the :p1pod2 clipboard
+    And evaluation of `pod(2).ip` is stored in the :p1pod3ip clipboard
+    When I run the :label client command with:
+      | resource | pod |
+      | name     | <%= cb.p1pod1 %> |
+      | key_val  | type=red |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | pod |
+      | name     | <%= cb.p1pod2 %> |
+      | key_val  | type=blue |
+    Then the step should succeed
+
+    # create another project and pods
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(3).name` is stored in the :p2pod1 clipboard
+    And evaluation of `pod(4).name` is stored in the :p2pod2 clipboard
+
+    # add annotation and apply network policy to the project1
+    When I run the :annotate admin command with:
+      | resource  | namespace/<%= cb.proj1 %>                                                     |
+      | overwrite | true                                                                          |
+      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-from-red-to-blue.yaml |
+      | n | <%= cb.proj1 %>                                                                                            |
+    Then the step should succeed
+
+    # Access the pods across the projects
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod3ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+    When I execute on the "<%= cb.p2pod2 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
+
+
+  #author bmeng@redhat.com
+  #case_id OCP-12807
+  @admin
+  Scenario: Multiple networkpolicys can work together on a single project
+    Given the env is using networkpolicy plugin
+    # create project and pods
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    Then the step should succeed
+    Given 2 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(0).name` is stored in the :p1pod1 clipboard
+    And evaluation of `pod(1).ip` is stored in the :p1pod2ip clipboard
+
+    # create another project and pods
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given 1 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(2).name` is stored in the :p2pod1 clipboard
+
+    # create another project and pods
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj3 clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given 1 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod(3).name` is stored in the :p3pod1 clipboard
+
+    # add annotation to project 1 and apply the network policies to project 1
+    When I run the :annotate admin command with:
+      | resource  | namespace/<%= cb.proj1 %>                                                     |
+      | overwrite | true                                                                          |
+      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-local.yaml |
+      | n | <%= cb.proj1 %>                                                                                            |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-project.yaml |
+      | n | <%= cb.proj1 %>                                                                                            |
+    Then the step should succeed
+    # add team=blue label to project 2
+    When I run the :label admin command with:
+      | resource | namespace |
+      | name     | <%= cb.proj2 %> |
+      | key_val  | team=blue |
+    Then the step should succeed
+
+    # try to access the pod in project 1 from each project
+    Given I use the "<%= cb.proj1 %>" project
+    When I execute on the "<%= cb.p1pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    Given I use the "<%= cb.proj2 %>" project
+    When I execute on the "<%= cb.p2pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should succeed
+    And the output should contain "Hello"
+    Given I use the "<%= cb.proj3 %>" project
+    When I execute on the "<%= cb.p3pod1 %>" pod:
+      | curl | --connect-timeout | 5 | <%= cb.p1pod2ip %>:8080 |
+    Then the step should fail
+    And the output should not contain "Hello"
