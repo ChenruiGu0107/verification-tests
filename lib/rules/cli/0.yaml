@@ -1052,6 +1052,7 @@
     :keep_tag_revisions: --keep-tag-revisions=<value>
     :keep_younger_than: --keep-younger-than=<value>
     :prune_over_size_limit: --prune-over-size-limit=<value>
+    :registry_url: --registry-url=<value>
 :oadm_remove_cluster_role_from_user:
   :cmd: oadm policy remove-cluster-role-from-user <role_name> <user_name>
 :oadm_remove_cluster_role_from_group:

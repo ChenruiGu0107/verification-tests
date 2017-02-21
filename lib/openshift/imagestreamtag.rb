@@ -8,7 +8,7 @@ module CucuShift
     # cache some usually immutable properties for later fast use; do not cache
     # things that can change at any time
     def update_from_api_object(istag_hash)
-      
+
       props[:metadata] = m = istag_hash["metadata"]
       props[:image] = i = istag_hash["image"]
       props[:docker_image_metadata] = i["dockerImageMetadata"]
@@ -23,7 +23,7 @@ module CucuShift
     def docker_version(user:, cached: true, quiet: false)
       return get_cached_prop(prop: :docker_image_metadata, user: user, cached: cached, quiet: quiet).dig("DockerVersion")
     end
-    
+
     def annotations(user:, cached: true, quiet: false)
       return get_cached_prop(prop: :image, user: user, cached: cached, quiet: quiet).dig("metadata", "annotations")
     end

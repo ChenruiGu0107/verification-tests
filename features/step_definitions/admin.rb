@@ -20,6 +20,14 @@ Given /^default registry service ip is stored in the#{OPT_SYM} clipboard$/ do |c
   project(org_proj_name)
 end
 
+Given /^default registry route is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
+  # save the orignial project name
+  org_proj_name = project.name
+  cb_name ||= :registry_route
+  cb[cb_name] = route("docker-registry", service("docker-registry",project('default'))).dns(by: :admin)
+  project(org_proj_name)
+end
+
 Given /^the etcd version is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
   ensure_admin_tagged
   cb_name ||= :etcd_version
