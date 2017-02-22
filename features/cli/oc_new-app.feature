@@ -27,8 +27,7 @@ Feature: oc new-app related scenarios
     
     Given I restore the file "application-template-stibuild.json"
     When I run oc create over "application-template-stibuild.json" replacing paths:
-      | ["parameters"][4]["value"]    | ""    |
-      | ["parameters"][4]["required"] | false |
+      | ["parameters"][0]["required"] | false |
     Then the step should succeed
     When I run the :new_app client command with:
       | template | ruby-helloworld-sample |
