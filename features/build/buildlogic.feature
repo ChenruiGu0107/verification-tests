@@ -575,16 +575,17 @@ Feature: buildlogic.feature
       | .*io.s2i.scripts-url.*                               |
 
   # @author shiywang@redhat.com
-  # @case_id OCP-10855 OCP-11283
+  # @case_id OCP-10855 OCP-11283 OCP-13144 OCP-13145
   Scenario Outline: Tune perl image to autoconfigure based on available memory
     Given I have a project
     When I run the :new_app client command with:
       | app_repo | <repo> |
     Then the step should succeed
     And I run the :patch client command with:
-      | resource      | dc                                                                                                             |
-      | resource_name | dancer-ex                                                                                                      |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"dancer-ex","resources":{"limits":{"memory":"100Mi"}}}]}}}} |
+      | resource      | dc                                                                                                               |
+      | resource_name | dancer-ex                                                                                                        |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"dancer-ex","resources":{"limits":{"memory":"<memory>"}}}]}}}}  |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"dancer-ex","resources":{"request":{"memory":"<memory>"}}}]}}}} |
     Then the step should succeed
     And the "dancer-ex-1" build was created
     And the "dancer-ex-1" build completed
@@ -594,11 +595,11 @@ Feature: buildlogic.feature
       | scl | enable | httpd24 | cat /opt/app-root/etc/httpd.d/50-mpm.conf |
     Then the step should succeed
     And the output should match:
-      | StartServers\\s*8       |
-      | MinSpareServers\\s*8    |
-      | MaxSpareServers\\s*18   |
-      | MaxRequestWorkers\\s*10 |
-      | ServerLimit\\s*10       |
+      | StartServers\\s*8          |
+      | MinSpareServers\\s*8       |
+      | MaxSpareServers\\s*18      |
+      | MaxRequestWorkers\\s*<num> |
+      | ServerLimit\\s*<num>       |
     When I run the :env client command with:
       | resource | dc/dancer-ex                |
       | e        | HTTPD_MAX_REQUEST_WORKERS=5 |
@@ -627,10 +628,13 @@ Feature: buildlogic.feature
       | ps -ef \|grep httpd \|grep -v grep \|awk '{print $2}'\|grep -v ^1$ \|wc -l    |
     Then the step should succeed
     And the output should contain "5"
+    #100Mi for OCP env, 204Mi is for online env
     Examples:
-      | repo                                                       |
-      | openshift/perl:5.16~https://github.com/openshift/dancer-ex |
-      | openshift/perl:5.20~https://github.com/openshift/dancer-ex |
+      | repo                                                       | memory | num |
+      | openshift/perl:5.16~https://github.com/openshift/dancer-ex | 100Mi  | 10  |
+      | openshift/perl:5.20~https://github.com/openshift/dancer-ex | 100Mi  | 10  |
+      | openshift/perl:5.16~https://github.com/openshift/dancer-ex | 204Mi  | 68  |
+      | openshift/perl:5.20~https://github.com/openshift/dancer-ex | 204Mi  | 68  |
 
   # @author shiywang@redhat.com
   # @case_id OCP-10835

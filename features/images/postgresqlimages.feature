@@ -42,18 +42,19 @@ Feature: Postgresql images test
     Then the step should succeed
     Given I wait until the status of deployment "psql" becomes :running
     When I run the :patch client command with:
-      | resource      | dc                                                                                                             |
-      | resource_name | psql                                                                                                           |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"psql","resources":{"limits":{"memory":"256Mi"}}}]}}}} |
+      | resource      | dc                                                                                                         |
+      | resource_name | psql                                                                                                       |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"psql","resources":{"limits":{"memory":"256Mi"}}}]}}}}  |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"psql","resources":{"request":{"memory":"256Mi"}}}]}}}} |
     Then the step should succeed
     Given a pod becomes ready with labels:
-      | deployment=psql-2 |
+      | deployment=psql-1 |
     And I execute on the pod:
       | grep | shared_buffers | /var/lib/pgsql/openshift-custom-postgresql.conf |
-    Then the output should contain "shared_buffers = 64MB"
+    Then the output should contain "shared_buffers = 128MB"
     Given I execute on the pod:
       | grep | effective_cache_size | /var/lib/pgsql/openshift-custom-postgresql.conf |
-    Then the output should contain "effective_cache_size = 128MB"
+    Then the output should contain "effective_cache_size = 256MB"
     Examples:
       | image                          |
       | openshift3/postgresql-92-rhel7 |
