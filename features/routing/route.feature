@@ -821,6 +821,7 @@ Feature: Testing route
   @admin
   Scenario: Don't health check for idle service
     Given I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
       | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
@@ -831,17 +832,51 @@ Feature: Testing route
     And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
     Given I use the "service-secure" service
     And evaluation of `service.ip(user: user)` is stored in the :service_secure_ip clipboard
+
+    #idle the service-unsecure service
+    When I run the :idle client command with:
+      | svc_name | service-unsecure |
+    Then the step should succeed
+    
+    #Create unsecure and edge route
     When I expose the "service-unsecure" service
     When I run the :create_route_edge client command with:
       | name    | edge-route       |
       | service | service-unsecure |
     Then the step should succeed
-    #passthrough route
+
+    #Check the service still idle after create the route
+    Given 6 seconds have passed
+    When I run the :get client command with:
+      | resource | endpoints |
+    Then the step should succeed
+    And the output should match:
+       | service-secure.*none   |
+       | service-unsecure.*none |
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I execute on the "<%=cb.router_pod %>" pod:
+      | grep | <%=cb.service_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should not contain "check inter"
+
+    Given I switch to the first user
+    #unidle the service to make the pod in running
+    And I wait up to 600 seconds for a web server to become available via the "service-unsecure" route
+    When I run the :idle client command with:
+      | svc_name | service-secure |
+    Then the step should succeed
+  
+    #Create passthrough route
     When I run the :create_route_passthrough client command with:
       | name    | route-pass     |
       | service | service-secure |
     Then the step should succeed
-    #reencrypt route
+    
+    #Create reencrypt route
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
@@ -857,43 +892,6 @@ Feature: Testing route
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
 
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    And I execute on the pod:
-      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
-    Then the output should contain 4 times:
-      | check inter 5000ms |
-
-    Given I switch to the first user
-    When I run the :idle client command with:
-      | svc_name | service-unsecure |
-    Then the step should succeed
-    Given 6 seconds have passed
-    When I run the :get client command with:
-      | resource | endpoints |
-    Then the step should succeed
-    And the output should match:
-       | service-secure.*none   |
-       | service-unsecure.*none |
-
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And I execute on the "<%=cb.router_pod %>" pod:
-      | grep | <%=cb.service_ip %> | /var/lib/haproxy/conf/haproxy.config |
-    Then the output should not contain "check inter"
-    When I wait up to 600 seconds for a web server to become available via the "service-unsecure" route
-    And I execute on the "<%=cb.router_pod %>" pod:
-      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
-    Then the output should contain 4 times:
-      | check inter 5000ms |
-
-    Given I switch to the first user
-    When I run the :idle client command with:
-      | svc_name | service-secure |
-    Then the step should succeed
     Given 6 seconds have passed
     When I run the :get client command with:
       | resource | endpoints |
@@ -907,11 +905,26 @@ Feature: Testing route
     And I execute on the "<%=cb.router_pod %>" pod:
       | grep | <%=cb.service_secure_ip %> | /var/lib/haproxy/conf/haproxy.config |
     Then the output should not contain "check inter"
+
+    #Store the new pod ip after unidle the service since maybe the pod ip will be changed.
+    Given I switch to the first user
+    And I use the "<%=cb.proj_name %>" project
     When I wait up to 600 seconds for a secure web server to become available via the "route-pass" route
-    And I execute on the "<%=cb.router_pod %>" pod:
-      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    And a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :pod_new_ip clipboard
+
+    #Check the 'check inter 5000ms' already recover after unidle
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | grep | <%=cb.pod_new_ip %> | /var/lib/haproxy/conf/haproxy.config |
     Then the output should contain 4 times:
       | check inter 5000ms |
+    """
 
   # @author yadu@redhat.com
   # @case_id OCP-10545
