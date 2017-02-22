@@ -601,6 +601,32 @@ check_dc_image_stream:
   element:
     selector:
       xpath: //div[@class="pod-template" and div[contains(text(), "<container_name>")]]//span[text()="<image_stream>"]
+check_volume_info_in_pod_template:
+  element:
+    selector:
+      xpath: //div[@class="pod-template"]//div[starts-with(normalize-space(.),'Mount') and contains(substring-after(.,'volume'),'<mount_path>')]
+check_volume_info_in_pod_template_on_dc:
+  action: goto_one_dc_page
+  action: click_on_configuration_tab
+  action: check_volume_info_in_pod_template
+check_specified_key_and_path_in_volume:
+  elements:
+  - selector:
+      xpath: //div[@ng-if='volume.configMap']//dt[starts-with(text(),'Key to File')]/following::dd[1][starts-with(normalize-space(.),'<specified_key>') and contains(.,'<specified_path>')]
+check_specified_key_and_path_in_volume_on_dc:
+  action: goto_one_dc_page
+  action: click_on_configuration_tab
+  action: check_specified_key_and_path_in_volume
+remove_volume_created_from_configmap:
+  elements:
+  - selector:
+      xpath: //a[text()='<configmap_name>']/ancestor::div[@ng-if='volume.configMap']/ancestor::div[@ng-repeat='volume in volumes']//a[text()='Remove']
+    op: click
+remove_volume_created_from_configmap_on_dc:
+  action: goto_one_dc_page
+  action: click_on_configuration_tab
+  action: remove_volume_created_from_configmap
+  action: click_remove_button
 delete_label_on_edit_autoscaler_page:
   action: goto_one_dc_page
   action: goto_edit_autoscaler_page

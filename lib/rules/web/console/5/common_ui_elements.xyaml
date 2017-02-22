@@ -78,6 +78,11 @@ click_edit:
     selector:
       xpath: //a[text()='Edit']
     op: click
+click_remove_button:
+  element:
+    selector:
+      xpath: //button[contains(text(),"Remove") and not(@disabled)]
+    op: click
 click_save_button:
   elements:
   - selector:
