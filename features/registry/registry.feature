@@ -84,7 +84,7 @@ Feature: Testing registry
       | confirm           | true                  |
       | registry_url      | <%= cb.registry_ip %> |
     Then the step should succeed
-    And all the image layers in the :layers clipboard were deleted
+    And all the image layers in the :layers clipboard do not exist in the registry
     When I run the :get client command with:
       | resource | images |
     Then the step should succeed
@@ -135,3 +135,133 @@ Feature: Testing registry
     Then the step should succeed
     And the "ruby-ex-2" build was created
     Given the "ruby-ex-2" build completes
+
+  # @author haowang@redhat.com
+  # @case_id OCP-11038
+  @admin
+  @destructive
+  Scenario: Disable the mirroring function for registry
+    Given default docker-registry deployment config is restored after scenario
+    And I change the internal registry pod to use a new emptyDir volume
+    When I run the :env admin command with:
+      | resource  | dc/docker-registry                                      |
+      | e         | REGISTRY_OPENSHIFT_MIDDLEWARE_MIRRORPULLTHROUGH=false   |
+      | namespace | default                                                 |
+    Then the step should succeed
+    Given I wait until the latest rc of internal registry is ready
+    Given I create a new project
+    When I run the :tag client command with:
+      | source_type | docker                                 |
+      | source      | docker.io/aosqe/hello-openshift:latest |
+      | dest        | hello-world:latest                     |
+    Then the step should succeed
+    When I run the :import_image client command with:
+      | from       | docker.io/openshift/ruby-20-centos7:latest |
+      | image_name | ruby-20-centos7:latest                     |
+      | confirm    | true                                       |
+    Then the step should succeed
+    When I find a bearer token of the deployer service account
+    And default registry service ip is stored in the :registry_ip clipboard
+    And I select a random node's host
+    When I run commands on the host:
+      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull <%= cb.registry_ip %>/<%= project.name %>/hello-world:latest |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull <%= cb.registry_ip %>/<%= project.name %>/ruby-20-centos7:latest |
+    Then the step should succeed
+    And evaluation of `image_stream_tag("hello-world:latest").image_layers(user:user)` is stored in the :layers clipboard
+    And all the image layers in the :layers clipboard do not exist in the registry
+    And evaluation of `image_stream_tag("ruby-20-centos7:latest").image_layers(user:user)` is stored in the :layers clipboard
+    And all the image layers in the :layers clipboard do not exist in the registry
+    When I run the :cp admin command with:
+      | source | default/<%= pod.name %>:/config.yml |
+      | dest   | ./config.yml                |
+    Then the step should succeed
+    And I replace content in "config.yml":
+      | mirrorpullthrough: true | mirrorpullthrough: false |
+    Then the step should succeed
+    And I run the :new_secret admin command with:
+      | secret_name     | registry-config |
+      | credential_file | ./config.yml    |
+      | namespace       | default         |
+    Then the step should succeed
+    And admin ensures "registry-config" secrets is deleted from the "default" project after scenario
+    And I run the :volume admin command with:
+      | resource    | dc/docker-registry |
+      | add         | true               |
+      | name        | config             |
+      | mount-path  | /config            |
+      | type        | secret             |
+      | secret-name | registry-config    |
+      | namespace   | default            |
+    Then the step should succeed
+    Given I wait until the latest rc of internal registry is ready
+    When I run the :env admin command with:
+      | resource  | dc/docker-registry                               |
+      | env_name  | REGISTRY_OPENSHIFT_MIDDLEWARE_MIRRORPULLTHROUGH- |
+      | env_name  | REGISTRY_CONFIGURATION_PATH=/config/config.yml   |
+      | namespace | default                                          |
+    Then the step should succeed
+    Given I wait until the latest rc of internal registry is ready
+    And I create a new project
+    When I run the :tag client command with:
+      | source_type | docker                                 |
+      | source      | docker.io/aosqe/hello-openshift:latest |
+      | dest        | hello-world:latest                     |
+    Then the step should succeed
+    When I run the :import_image client command with:
+      | from       | docker.io/openshift/ruby-20-centos7:latest |
+      | image_name | ruby-20-centos7:latest                     |
+      | confirm    | true                                       |
+    Then the step should succeed
+    When I find a bearer token of the deployer service account
+    And default registry service ip is stored in the :registry_ip clipboard
+    And I select a random node's host
+    When I run commands on the host:
+      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull <%= cb.registry_ip %>/<%= project.name %>/hello-world:latest |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull <%= cb.registry_ip %>/<%= project.name %>/ruby-20-centos7:latest |
+    Then the step should succeed
+    And evaluation of `image_stream_tag("hello-world:latest").image_layers(user:user)` is stored in the :layers clipboard
+    And all the image layers in the :layers clipboard do not exist in the registry
+    And evaluation of `image_stream_tag("ruby-20-centos7:latest").image_layers(user:user)` is stored in the :layers clipboard
+    And all the image layers in the :layers clipboard do not exist in the registry
+
+  # @author haowang@redhat.com
+  # @case_id OCP-11415
+  @admin
+  @destructive
+  Scenario: Mirror blobs to the local registry on pullthrough
+    Given default docker-registry deployment config is restored after scenario
+    And I change the internal registry pod to use a new emptyDir volume
+    And I create a new project
+    When I run the :tag client command with:
+      | source_type | docker             |
+      | source      | docker.io/busybox  |
+      | dest        | hello-world:latest |
+    Then the step should succeed
+    When I find a bearer token of the deployer service account
+    And default registry service ip is stored in the :registry_ip clipboard
+    And I select a random node's host
+    When I run commands on the host:
+      | docker rmi docker.io/aosqe/singlelayer:latest |
+    When I run commands on the host:
+      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull <%= cb.registry_ip %>/<%= project.name %>/hello-world:latest |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    And I run commands on the host:
+      | docker rmi <%= cb.registry_ip %>/<%= project.name %>/hello-world:latest |
+    """
+    And evaluation of `image_stream_tag("hello-world:latest").image_layers(user:user)` is stored in the :layers clipboard
+    And all the image layers in the :layers clipboard do exist in the registry
