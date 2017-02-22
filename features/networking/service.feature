@@ -117,6 +117,7 @@ Feature: Service related networking scenarios
 
   # @author yadu@redhat.com
   # @case_id OCP-9604 498206
+  @admin
   Scenario: tenants can access their own services
     # create pod and service in project1
     Given the env is using multitenant network
