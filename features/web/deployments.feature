@@ -1100,18 +1100,18 @@ Feature: Check deployments function
       | reason  | Scaling replica set                          |
       | message | Scaled up replica set <%= cb.rs_name %> to 4 |
     Then the step should succeed
-    When I perform the :check_event_message web console action with:
+    When I perform the :check_event_message_missing web console action with:
       | reason  | Scaling replica set                              |
       | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
-    Then the step should fail
+    Then the step should succeed
 
     When I perform the :filter_by_keyword_on_events_tab web console action with:
       | keyword | <%= cb.rs_name_new %> |
     Then the step should succeed
-    When I perform the :check_event_message web console action with:
+    When I perform the :check_event_message_missing web console action with:
       | reason  | Scaling replica set                          |
       | message | Scaled up replica set <%= cb.rs_name %> to 4 |
-    Then the step should fail
+    Then the step should succeed
     When I perform the :check_event_message web console action with:
       | reason  | Scaling replica set                              |
       | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
