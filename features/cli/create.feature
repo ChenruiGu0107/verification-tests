@@ -920,3 +920,43 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     And the output should contain:
       | resourcequota/myquota |
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-11870
+  Scenario: Opaque integer resources limits less than requests
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid5.yaml |
+    Then the step should fail
+    And the output should contain:
+      | must be greater than or equal to |
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-12014
+  Scenario: Opaque integer resources requests invalid value
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid_requests1.yaml |
+    Then the step should fail
+    And the output should contain:
+      | must be an integer |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid_requests2.yaml |
+    Then the step should fail
+    And the output should contain:
+      | must be greater than or equal to 0 |
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-11688
+  Scenario: Opaque integer resources limits invalid value
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid_limits3.yaml |
+    Then the step should fail
+    And the output should contain:
+      | must be an integer |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/opaque_integer_resources/pod_invailid_limits4.yaml |
+    Then the step should fail
+    And the output should contain:
+      | must be greater than or equal to 0 |
