@@ -190,7 +190,8 @@ module CucuShift
           raise "bad filename '#{filename}' for URL: #{path}"
         end
         filename = Host.localhost.absolutize(filename)
-        File.write(filename, Http.get(path, raise_on_error: true)[:response])
+        File.write(filename, Http.get(url: path,
+                                      raise_on_error: true)[:response])
         return filename
       when %r{\A/}
         return path
