@@ -1248,6 +1248,8 @@ Feature: Testing haproxy router
     Then the step should succeed
     And a pod becomes ready with labels:
       | deployment=tc-531375-2 |
+    Given I use the "tc-531375" service
+    And evaluation of `service.ip(user: user)` is stored in the :router_service_ip clipboard
 
     Given I switch to the first user
     And I have a project
@@ -1265,7 +1267,13 @@ Feature: Testing haproxy router
     When I open web server via the "http://<%= route.dns(by: user) %>" url
     Then the output should contain "Hello-OpenShift"
     """
-    When I open web server via the "http://<%= route.dns(by: user) %>:<%= cb.http_port %>" url
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= route.dns(by: user) %>:<%= cb.http_port %>:<%= cb.router_service_ip %> |
+      | http://<%= route.dns(by: user) %>/ |
+    Then the step should succeed 
     Then the output should contain "Hello-OpenShift"
     When I run the :create_route_edge client command with:
       | name | edge-route |
@@ -1277,9 +1285,10 @@ Feature: Testing haproxy router
     Then the output should contain "Hello-OpenShift"
     """
 
-    Given I have a pod-for-ping in the project
     When I execute on the pod:
       | curl |
+      | --resolve |
+      | <%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %>:<%= cb.router_service_ip %> |
       | https://<%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %> |
       | -k |
     Then the output should contain "Hello-OpenShift"
@@ -1509,6 +1518,8 @@ Feature: Testing haproxy router
     Then the step should succeed
     And a pod becomes ready with labels:
       | deployment=tc-520314-2 |
+    Given I use the "tc-520314" service
+    And evaluation of `service.ip(user: user)` is stored in the :router_service_ip clipboard    
 
     Given I switch to the first user
     And I have a project
@@ -1524,8 +1535,14 @@ Feature: Testing haproxy router
 
     When I open web server via the "http://<%= route.dns(by: user) %>" url
     Then the output should contain "Hello-OpenShift"
-    When I open web server via the "http://<%= route.dns(by: user) %>:<%= cb.http_port %>" url
-    Then the output should contain "Hello-OpenShift"
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= route.dns(by: user) %>:<%= cb.http_port %>:<%= cb.router_service_ip %> |
+      | http://<%= route.dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
     When I run the :create_route_edge client command with:
       | name | edge-route |
       | service | service-unsecure |
@@ -1533,11 +1550,13 @@ Feature: Testing haproxy router
     When I open secure web server via the "edge-route" route
     Then the output should contain "Hello-OpenShift"
 
-    Given I have a pod-for-ping in the project
     When I execute on the pod:
       | curl |
+      | --resolve |
+      | <%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %>:<%= cb.router_service_ip %> |
       | https://<%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %> |
       | -k |
+    Then the step should succeed    
     Then the output should contain "Hello-OpenShift"
 
 
