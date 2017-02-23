@@ -37,9 +37,9 @@ module CucuShift
       res[:success] = wait_for(seconds, stats: stats) {
         replica_count(user: user, cached: false, quiet: true) == replica_count
       }
-
-      res[:response] = "After #{stats[:iterations]} iterations and " <<
-        "#{stats[:full_seconds]} seconds: " << replica_count(user: user, cached: true , quiet: true)
+      res[:response] = "After #{stats[:iterations]} iterations and " \
+                       "#{stats[:full_seconds]} seconds: " \
+                       "#{replica_count(user: user, cached: true , quiet: true)}"
       logger.info res[:response]
       return res
     end

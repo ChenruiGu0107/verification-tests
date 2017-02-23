@@ -448,9 +448,23 @@ add_autoscaler_set_max_pod_and_cpu_req_per_from_dc_page:
   action: set_max_pod_on_autoscaler_page
   action: set_cpu_request_percentage
   action: click_save_button
+add_autoscaler_set_max_pod_from_k8s_rs_page:
+  action: click_to_goto_one_replicaset_page
+  action: goto_add_autoscaler_page
+  action: set_max_pod_on_autoscaler_page
+  action: click_save_button
 add_label_on_edit_autoscaler_page:
   action: goto_one_dc_page
   action: goto_add_autoscaler_page
+  action: set_min_pod_on_autoscaler_page
+  action: set_max_pod_on_autoscaler_page
+  action: set_cpu_request_percentage
+  action: add_label_key_on_edit_autoscaler_page
+  action: add_label_value_on_edit_autoscaler_page
+  action: click_save_button
+add_label_on_edit_autoscaler_page_for_k8s_deployment:
+  action: goto_one_k8s_deployment_page
+  action: click_add_autoscaler_link
   action: set_min_pod_on_autoscaler_page
   action: set_max_pod_on_autoscaler_page
   action: set_cpu_request_percentage
@@ -522,8 +536,14 @@ check_dc_link_in_autoscaler_on_rc_page:
   element:
     selector:
       xpath: //hpa//dt[contains(.,'Deployment Config')]/following::dd[1]/a[contains(.,'<dc_name>') and contains(@href, 'project/<project_name>/browse/dc/<dc_name>')]
+check_autoscaler_info:
+  action: check_autoscaler_min_pods
+  action: check_autoscaler_max_pods
+  action: check_autoscaler_cpu_request_target
 delete_autoscaler_from_dc_page:
   action: goto_one_dc_page
+  action: delete_autoscaler
+delete_autoscaler:
   action: click_remove_autoscaler_link
   action: click_delete
 check_warning_info_for_rc_with_multiple_autoscale:
@@ -549,6 +569,12 @@ click_edit_resource_link_in_warning_info:
   elements:
   - selector:
       xpath: //a[contains(.,'Edit resource')]
+    op: click
+click_add_autoscaler_link:
+  element:
+    selector:
+      text: Add autoscaler
+    type: a
     op: click
 click_edit_autoscaler_link:
   element:
@@ -592,6 +618,11 @@ delete_label_on_edit_autoscaler_page:
   action: goto_edit_autoscaler_page
   action: delete_label_value_on_edit_autoscaler_page
   action: click_save_button
+delete_label_on_edit_k8s_autoscaler_page:
+  action: goto_one_k8s_deployment_page
+  action: goto_edit_autoscaler_page
+  action: delete_label_value_on_edit_autoscaler_page
+  action: click_save_button
 delete_label_value_on_edit_autoscaler_page:
   elements:
   - selector:
@@ -615,6 +646,11 @@ pause_deployment_configuration:
   action: click_on_pause_deployment
 update_min_max_cpu_request_for_autoscaler_from_dc_page:
   action: goto_one_dc_page
+  action: update_min_max_cpu_request_for_autoscaler
+update_min_max_cpu_request_for_autoscaler_from_k8s_deployment_page:
+  action: goto_one_k8s_deployment_page
+  action: update_min_max_cpu_request_for_autoscaler
+update_min_max_cpu_request_for_autoscaler:
   action: click_edit_autoscaler_link
   action: set_min_pod_on_autoscaler_page
   action: set_max_pod_on_autoscaler_page

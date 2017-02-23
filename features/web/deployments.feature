@@ -990,3 +990,94 @@ Feature: Check deployments function
       | version  | #2              |
       | replicas | 5               |
     Then the step should succeed
+
+  # @author etrott@redhat.com
+  # @case_id OCP-11382
+  Scenario: AutoScale management for k8s deployment
+    Given the master version >= "3.4"
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml |
+    Then the step should succeed
+    Given I wait until number of replicas match "4" for deployment "hello-openshift"
+    When I perform the :add_label_on_edit_autoscaler_page_for_k8s_deployment web console action with:
+      | project_name        | <%= project.name %> |
+      | k8s_deployment_name | hello-openshift     |
+      | min_pods            | 1                   |
+      | max_pods            | 10                  |
+      | cpu_req_per         | 50                  |
+      | label_key           | autoscaler          |
+      | label_value         | deployment          |
+    Then the step should succeed
+    When I perform the :check_autoscaler_info web console action with:
+      | min_pods           | 1  |
+      | max_pods           | 10 |
+      | cpu_request_target | 50 |
+    Then the step should succeed
+    When I perform the :check_hpa_labels_on_other_resources_page web console action with:
+      | project_name | <%= project.name %> |
+      | hpa_name     | hello-openshift     |
+      | label_key    | autoscaler          |
+      | label_value  | deployment          |
+    Then the step should succeed
+    When I perform the :update_min_max_cpu_request_for_autoscaler_from_k8s_deployment_page web console action with:
+      | project_name        | <%= project.name %> |
+      | k8s_deployment_name | hello-openshift     |
+      | min_pods            | 1                   |
+      | max_pods            | 15                  |
+      | cpu_req_per         | 50                  |
+    Then the step should succeed
+    When I perform the :check_autoscaler_info web console action with:
+      | min_pods           | 1  |
+      | max_pods           | 15 |
+      | cpu_request_target | 50 |
+    Then the step should succeed
+    When I run the :delete_autoscaler web console action
+    Then the step should succeed
+    When I perform the :check_autoscaler_info web console action with:
+      | min_pods           | 1  |
+      | max_pods           | 15 |
+      | cpu_request_target | 50 |
+    Then the step should fail
+    When I run the :click_add_autoscaler_link web console action
+    Then the step should succeed
+
+  # @author etrott@redhat.com
+  # @case_id OCP-11653
+  Scenario: AutoScale management for k8s ReplicaSets
+    Given the master version >= "3.4"
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/extensions/replicas-set.yaml |
+    Then the step should succeed
+    When I perform the :add_autoscaler_set_max_pod_from_k8s_rs_page web console action with:
+      | project_name         | <%= project.name %> |
+      | k8s_replicasets_name | frontend            |
+      | max_pods             | 10                  |
+    Then the step should succeed
+    When I perform the :check_autoscaler_info web console action with:
+      | min_pods           | 1  |
+      | max_pods           | 10 |
+      | cpu_request_target | 80 |
+    Then the step should succeed
+    When I perform the :update_min_max_cpu_request_for_autoscaler web console action with:
+      | project_name         | <%= project.name %> |
+      | k8s_replicasets_name | frontend            |
+      | min_pods             | 2                   |
+      | max_pods             | 10                  |
+      | cpu_req_per          | 55                  |
+    Then the step should succeed
+    When I perform the :check_autoscaler_info web console action with:
+      | min_pods           | 2  |
+      | max_pods           | 10 |
+      | cpu_request_target | 55 |
+    Then the step should succeed
+    When I run the :delete_autoscaler web console action
+    Then the step should succeed
+    When I perform the :check_autoscaler_info web console action with:
+      | min_pods           | 2  |
+      | max_pods           | 10 |
+      | cpu_request_target | 55 |
+    Then the step should fail
+    When I run the :click_add_autoscaler_link web console action
+    Then the step should succeed
