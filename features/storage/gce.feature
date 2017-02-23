@@ -1,5 +1,28 @@
 Feature: GCE specific scenarios
   # @author lxia@redhat.com
+  # @case_id OCP-10219
+  @admin
+  Scenario: Should be able to create pv with volume in different zone than master on GCE
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+      | ["metadata"]["name"]   | sc-<%= project.name %> |
+      | ["parameters"]["zone"] | us-central1-c          |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1                   |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc1" PVC becomes :bound
+    And admin ensures "<%= pvc.volume_name(user: admin) %>" pv is deleted after scenario
+    Given I save volume id from PV named "<%= pvc.volume_name(user: admin) %>" in the :volumeID clipboard
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-with-failure-domain.json" where:
+      | ["metadata"]["name"]                                               | pv-<%= project.name %> |
+      | ["metadata"]["labels"]["failure-domain.beta.kubernetes.io/region"] | us-central1            |
+      | ["metadata"]["labels"]["failure-domain.beta.kubernetes.io/zone"]   | us-central1-c          |
+      | ["spec"]["gcePersistentDisk"]["pdName"]                            | <%= cb.volumeID %>     |
+    Then the step should succeed
+
+  # @author lxia@redhat.com
   # @case_id OCP-11974
   @admin
   Scenario: Rapid repeat pod creation and deletion with GCE PD should not fail
