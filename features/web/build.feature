@@ -876,9 +876,9 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author: yapei@redhat.com
-  # @case_id OCP-10830 OCP-11269
+  # @case_id OCP-10830
   @admin
-  Scenario Outline: Check settings for build with no inputs
+  Scenario: Check settings for Custom strategy build with no inputs
     Given I have a project
     When I run the :policy_add_role_to_user admin command with:
       | role            | system:build-strategy-custom |
@@ -886,12 +886,12 @@ Feature: build related feature on web console
       | n               |   <%= project.name %>        |
     Then the step should succeed
     When I run the :new_app client command with:
-      | file | <template_file> |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525737/application-template-custombuild.json |
     Then the step should succeed
     When I perform the :check_build_strategy web console action with:
       | project_name   | <%= project.name %>  |
       | bc_name        | ruby-sample-build    |
-      | build_strategy | <build_strategy>     |
+      | build_strategy | Custom               |
     Then the step should succeed
     When I perform the :check_none_buildconfig_source_repo web console action with:
       | project_name   | <%= project.name %>  |
@@ -905,10 +905,31 @@ Feature: build related feature on web console
     Then the output should not contain:
       | GitHub webhooks  |
       | Generic webhooks |
-    Examples:
-      | template_file | build_strategy |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525737/application-template-custombuild.json | Custom |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525738/application-template-stibuild.json    | Source |
+
+  # @author: yapei@redhat.com
+  # @case_id OCP-11269
+  Scenario: Check settings for Source strategy build with no inputs
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc525738/application-template-stibuild.json |
+    Then the step should succeed
+    When I perform the :check_build_strategy web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+      | build_strategy | Source               |
+    Then the step should succeed
+    When I perform the :check_none_buildconfig_source_repo web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I perform the :check_info_for_no_source_on_edit_page web console action with:
+      | project_name   | <%= project.name %>  |
+      | bc_name        | ruby-sample-build    |
+    Then the step should succeed
+    When I get the visible text on web html page
+    Then the output should not contain:
+      | GitHub webhooks  |
+      | Generic webhooks |
 
   # @author etrott@redhat.com
   # @case_id OCP-10253
