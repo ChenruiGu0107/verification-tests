@@ -669,9 +669,8 @@ Feature: projects related features via cli
       | <%= cb.project1 %>   |
     When I run the :projects client command with:
       | short | true |
+    # Remove output check for 3.5 - origin PR #12274 issue #12267
     Then the step should succeed
-    And the output should match:
-      | not a member of any project |
     When I run the :project client command with:
       | short | true |
     Then the step should succeed
