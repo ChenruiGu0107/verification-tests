@@ -855,3 +855,33 @@ Feature: change the policy of user/service account
     And the step should fail
     And the output should contain:
       | User "<%= user.name %>" cannot delete persistentvolumes at the cluster scope |
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13095
+  @admin
+  Scenario: Add add-cluster-role-to-user support for -z 
+    Given I have a project
+    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:default service account
+    Given I switch to the system:serviceaccount:<%= project.name %>:default service account
+    Given I run the :get client command with:
+      | resource | nodes |
+    Then the step should fail
+    Given I run the :oadm_add_cluster_role_to_user admin command with:
+      | role_name | system:node-reader  |
+      | z         | default             |
+      | n         | <%= project.name %> | 
+    Then the step should succeed
+    And I register clean-up steps:
+      """
+      Given I run the :oadm_remove_cluster_role_from_user admin command with:
+        | role_name | system:node-reader  |
+        | z         | default             |
+        | n         | <%= project.name %> |
+      Then the step should succeed
+      """
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | nodes |
+    Then the step should succeed  
+    """
