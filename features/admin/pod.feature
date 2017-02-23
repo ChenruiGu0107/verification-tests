@@ -631,7 +631,7 @@ Feature: pod related features
       | value-2              |
       | value-1              |
     Given I use the "<%= cb.nodes[0].name %>" node
-    And the host is rebooted and I wait it to become available
+    And the host is rebooted and I wait it up to 600 seconds to become available
     And I wait up to 500 seconds for the steps to pass:
     """
     When I execute on the pod:

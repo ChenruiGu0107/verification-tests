@@ -160,7 +160,8 @@ Feature: oc idle
       | svc_name | idling-echo |
     Then the step should succeed
     And the output should match:
-      | Idled DeploymentConfig.*idling-echo  |
+      | DeploymentConfig.*idling-echo  |
+      | (?i)idled |
     And I wait until number of replicas match "0" for replicationController "idling-echo-1"
     When I run the :get client command with:
       | resource | endpoints |
