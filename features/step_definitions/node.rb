@@ -217,7 +217,7 @@ Given /^the#{OPT_QUOTED} node service is verified$/ do |node_name|
             "protocol": "TCP"
           }]
         }],
-        "host" : "#{_node.name}"
+        "nodeName" : "#{_node.name}"
       }
     }
   eof
