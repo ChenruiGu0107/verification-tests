@@ -16,7 +16,7 @@ function install_rvm_if_ruby_is_outdated()
     if ! ruby -e 'exit Gem::Version.new("2.2") <= Gem::Version.new(RUBY_VERSION)' ; then
         # see http://10.66.129.213/index.php/archives/372/ for RHEL notes
         gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
-        curl -sSL https://get.rvm.io | bash -s stable --ruby
+        curl -sSL https://get.rvm.io | bash -s stable --ruby=2.3.3
         source /usr/local/rvm/scripts/rvm
     fi
 }
