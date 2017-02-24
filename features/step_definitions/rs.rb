@@ -7,7 +7,7 @@ ready_timeout = 300
     seconds: ready_timeout,
     replica_count: number.to_i
   )
-  unless matched
+  unless matched[:success]
     raise "desired replica count not reached within timeout"
   end
 end
