@@ -1205,7 +1205,7 @@ Feature: Testing haproxy router
       | Invalid RELOAD_INTERVAL |
 
   # @author zzhao@redhat.com
-  # @case_id OCP-12572
+  # @case_id OCP-12572 OCP-12935
   @admin
   @destructive
   Scenario: Be able to create multi router in same node via setting port with hostnetwork network mode
@@ -1254,36 +1254,31 @@ Feature: Testing haproxy router
     Given I switch to the first user
     And I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/dc.json |
     Then the step should succeed
     And all pods in the project are ready
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json |
     Then the step should succeed
-    When I expose the "service-unsecure" service
+    When I expose the "header-test-insecure" service
     Then the step should succeed
-    And I wait up to 15 seconds for the steps to pass:
-    """
-    When I open web server via the "http://<%= route.dns(by: user) %>" url
-    Then the output should contain "Hello-OpenShift"
-    """
+    When I wait for a web server to become available via the route
+    Then the output should contain "<%= route.dns(by: user) %>"
     Given I have a pod-for-ping in the project
     When I execute on the pod:
       | curl |
       | --resolve |
       | <%= route.dns(by: user) %>:<%= cb.http_port %>:<%= cb.router_service_ip %> |
-      | http://<%= route.dns(by: user) %>/ |
+      | http://<%= route.dns(by: user) %>:<%= cb.http_port %>/ |
     Then the step should succeed 
-    Then the output should contain "Hello-OpenShift"
+    And the output should contain "<%= route.dns(by: user) %>:<%= cb.http_port %>"
+
     When I run the :create_route_edge client command with:
       | name | edge-route |
-      | service | service-unsecure |
+      | service | header-test-insecure |
     Then the step should succeed
-    And I wait up to 15 seconds for the steps to pass:
-    """
-    When I open secure web server via the "edge-route" route
-    Then the output should contain "Hello-OpenShift"
-    """
+    When I wait up to 20 seconds for a secure web server to become available via the "edge-route" route
+    Then the output should contain "<%= route("edge-route", service("header-test-insecure")).dns(by: user) %>"
 
     When I execute on the pod:
       | curl |
@@ -1291,7 +1286,7 @@ Feature: Testing haproxy router
       | <%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %>:<%= cb.router_service_ip %> |
       | https://<%= route("edge-route", service("service-unsecure")).dns(by: user) %>:<%= cb.https_port %> |
       | -k |
-    Then the output should contain "Hello-OpenShift"
+    Then the output should contain "<%= route("edge-route", service("header-test-insecure")).dns(by: user) %>:<%= cb.https_port %>"
 
   # @author zzhao@redhat.com
   # @case_id OCP-12651
