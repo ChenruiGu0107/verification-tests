@@ -31,14 +31,14 @@ Feature: creating 'apps' with CLI
     Given I have a project
     When I create a new application with:
       | image_stream | openshift/ruby~https://github.com/openshift/ruby-hello-world |
-      | name         | <%= rand_str(25, :dns952) %> |
+      | name         | <%= rand_str(59, :dns952) %> |
     Then the step should fail
     And the project is deleted
 
     Given I have a project
     When I create a new application with:
       | docker image      | <%= product_docker_repo %>rhscl/perl-520-rhel7~https://github.com/openshift/sti-perl |
-      | context dir       | 5.16/test/sample-test-app/                                                           |
+      | context dir       | 5.20/test/sample-test-app/                                                           |
       | name              | 4igit-first                                                                          |
       | insecure_registry | true                                                                                 |
     Then the step should fail
