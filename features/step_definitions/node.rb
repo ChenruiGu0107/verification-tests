@@ -258,13 +258,13 @@ end
 Given /^the#{OPT_QUOTED} node labels are restored after scenario$/ do |node_name|
   ensure_admin_tagged
   _node = node(node_name)
+  _node_labels = _node.labels
   _admin = admin
 
-  step 'evaluation of `#{_node.labels}` is stored in the :node_labels clipboard'
   logger.info "Node labels are stored in clipboard"
 
   teardown_add {
-    labels = cb.node_labels.map {|k,v| [:key_val, k + "=" + v] }
+    labels = _node_labels.map {|k,v| [:key_val, k + "=" + v] }
     opts = [ [:resource, 'node'], [:name, _node.name], [:overwrite, true], *labels ]
     _admin.cli_exec(:label, opts)
   }
