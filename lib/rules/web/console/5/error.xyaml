@@ -10,6 +10,10 @@ check_error_list_project_resources:
   elements:
   - selector:
       xpath: //div[contains(.,'Failed to list')]
+check_error_no_permission_to_create_project:
+  elements:
+  - selector:
+      xpath: //span[contains(.,'User "<user_name>" cannot create processedtemplates in project "<project_name>"')]
 check_error_notification_on_page:
   elements:
   - selector:
@@ -32,7 +36,6 @@ confirm_errors_with_invalid_template_label:
   element:
     selector:
         xpath: //span/a[@data-toggle="tooltip" and contains(@title,'valid object label')]
-
 confirm_errors_with_invalid_env_var:
   action: check_key_editor_validation_error
   element:

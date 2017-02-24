@@ -72,3 +72,52 @@ Feature: Independent link related scenarios
     When I perform the :check_template_not_existed_with_error_message web console action with:
       | template_name  | ruby-helloworld-sample         |
     Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-11414
+  @admin
+  Scenario: Create app by project without permission on external page
+    Given the master version >= "3.5"
+    # create a template under project openshift
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | n | openshift |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    I run the :delete admin command with:
+      | object_type       | template               |
+      | object_name_or_id | ruby-helloworld-sample |
+      | n                 | openshift              |
+    the step should succeed
+    """
+    # create a project and grant view role to user2
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role      | view                               |
+      | user_name | <%= user(1,switch: false).name %>  |
+      | n         | <%= project.name %>                |
+    Then the step should succeed
+
+    # user2 login, select the project from external page
+    Given I switch to the second user
+    When I perform the :goto_create_from_template_external_page web console action with:
+      | template_name  | ruby-helloworld-sample         |
+      | paramsmap      | {"ADMIN_USERNAME":"adminuser"} |
+    Then the step should succeed
+    When I run the :check_template_page_with_project web console action
+    Then the step should succeed
+    When I perform the :choose_one_project web console action with:
+      | project_name   | <%= project.name %>            |
+    Then the step should succeed  
+    And I wait for the steps to pass:
+    """
+    Given the expression should be true> browser.url =~ /fromtemplate.template=ruby-helloworld-sample.namespace=openshift.templateParamsMap.*ADMIN_USERNAME.*adminuser/
+    """
+
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    When I perform the :check_error_no_permission_to_create_project web console action with:
+      | user_name      | <%= user(1,switch: false).name %> |
+      | project_name   | <%= project.name %>               |
+    Then the step should succeed
