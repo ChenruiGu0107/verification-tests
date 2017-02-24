@@ -1729,8 +1729,6 @@ Feature: Testing haproxy router
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     Given default router replica count is restored after scenario
-    And admin ensures "tc-testrouter" dc is deleted after scenario
-    And admin ensures "tc-testrouter" service is deleted after scenario
     When I run the :scale client command with:
       | resource | dc     |
       | name     | router |
@@ -1743,6 +1741,8 @@ Feature: Testing haproxy router
       | n               | <%= cb.proj1 %>                                                                  |
     Given I switch to the first user
     And I use the "<%= cb.proj1 %>" project
+    And admin ensures "tc-testrouter" dc is deleted after scenario
+    And admin ensures "tc-testrouter" service is deleted after scenario
     Given I wait for the pod named "tc-testrouter-1-deploy" to die
     And a pod becomes ready with labels:
       | deploymentconfig=tc-testrouter |
@@ -1755,8 +1755,10 @@ Feature: Testing haproxy router
       | resource_name | test-service |
       | name          | route1       |
     Then the step should succeed
-    When I open web server via the "http://<%= route("route1", service("test-service")).dns(by: user) %>/" url
-    Then the output should contain "Hello OpenShift"
+    When I use the "test-service" service    
+    Then I wait up to 15 seconds for a web server to become available via the "route1" route
+    And the output should contain "Hello OpenShift"
+
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
@@ -1768,9 +1770,9 @@ Feature: Testing haproxy router
       | resource_name | test-service |
       | name          | route2       |
     Then the step should succeed
-    When I open web server via the "http://<%= route("route2", service("test-service")).dns(by: user) %>/" url
-    Then the output should contain "Hello OpenShift"
-
+    When I use the "test-service" service
+    Then I wait up to 15 seconds for a web server to become available via the "route2" route
+    And the output should contain "Hello OpenShift"
 
   # @author yadu@redhat.com
   # @case_id OCP-9655
