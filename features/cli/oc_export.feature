@@ -130,8 +130,8 @@ Feature: oc exports related scenarios
       | resource | svc |
       | name     | nonexist |
     Then the step should fail
-    And the output should contain:
-      | Error from server: services "nonexist" not found |
+    And the output should match:
+      | [Ee]rror.*[Ss]ervices.*not found |
     And I run the :export client command with:
       | resource | dc |
       | name     | nonexist |
