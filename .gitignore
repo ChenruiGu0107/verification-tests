@@ -7,3 +7,4 @@
 /tools/Gemfiles_local/Gemfile*.lock
 .idea/
 .vscode/
+junit-report/
