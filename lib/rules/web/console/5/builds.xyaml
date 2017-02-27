@@ -362,7 +362,7 @@ save_env_vars: {}
 check_invalid_url_warn_message:
   elements:
   - selector:
-      xpath: //span[@ng-if='alert.details' and contains(.,'not a valid url')]
+      xpath: //span[@class='help-block' and contains(.,'not be a valid Git URL')]
 check_outdated_bc_warn_message:
   elements:
   - selector:
