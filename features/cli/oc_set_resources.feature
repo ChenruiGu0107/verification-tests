@@ -151,8 +151,8 @@ Feature: oc_set_resources.feature
       | limits       | cpu=-100m,memory=-512Mi |
     Then the step should fail
     And the output should contain:
-      | Invalid value                     |
-      | must be a valid resource quantity |
+      | Invalid value |
+      | must be       |
     When I run the :set_resources client command with:
       | resource     | rc                  |
       | resourcename | test-rc             |
