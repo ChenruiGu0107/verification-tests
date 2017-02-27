@@ -6,12 +6,12 @@ Feature: sessions related scenarios
     Then the output should contain:
       | <%= @user.name %> |
     When I run the :whoami client command with:
-      | context | true |
+      | c ||
     Then the output should contain:
       | <%= env.api_endpoint_url.gsub(%r{https?://},'').gsub('.', '-') %> |
       | <%= user.name %>                                                  |
     When I run the :whoami client command with:
-      | token | true |
+      | t || 
     Then the output should contain:
       | <%= user.cached_tokens[0].token %> |
     When I run the :whoami client command with:

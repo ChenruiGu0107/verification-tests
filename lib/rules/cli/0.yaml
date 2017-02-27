@@ -888,8 +888,8 @@
   :cmd: oc whoami
   :options:
     :invalid_option:  -b   # for negative testing
-    :-c: --context=<value>
-    :-t: --token=<value>
+    :c: -c
+    :t: -t
 #################### admin commands section
 :oadm_add_cluster_role_to_user:
   :cmd: oadm policy add-cluster-role-to-user <role_name>
