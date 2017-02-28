@@ -1055,3 +1055,40 @@ Feature: Testing route
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     """
+
+  # @author: zzhao@redhat.com
+  # @case_id: OCP-13248
+  Scenario: The hostname should be converted to available route when met special character
+    Given I have a project
+    When I run the :create client command with:
+      | f  |   https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    # test those 4 kind of route. When creating route which name have '.', it will be decoded to '-'.
+    When I run the :expose client command with:
+      | resource      | service              |
+      | resource_name | service-unsecure     |
+      | name          | unsecure.test        |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name     | edge.test        |
+      | service  | service-unsecure |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name     | pass.test        |
+      | service  | service-unsecure |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    And I run the :create_route_reencrypt client command with:
+      | name       | reen.test               |
+      | service    | service-unsecure        |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | route |
+    Then the step should succeed
+    And the output should contain:
+      | unsecure-test- |
+      | edge-test-     |
+      | pass-test-     |
+      | reen-test-     |
