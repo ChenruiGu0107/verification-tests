@@ -240,7 +240,7 @@ end
 
 # Download the ca.pem to pod-for ping
 Given /^CA trust is added to the pod-for-ping$/ do
-  @result = pod.exec(
+  @result = cb.ping_pod.exec(
     "bash", "-c",
     "wget https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem -O /tmp/ca.pem",
     as: user
