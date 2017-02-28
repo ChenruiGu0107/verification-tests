@@ -5,14 +5,14 @@ Feature: dotnet.feature
   Scenario: Create .NET application with new-app
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo    | https://github.com/redhat-developer/s2i-dotnetcore |
-      | context_dir | 1.0/test/asp-net-hello-world/                      |
+      | app_repo    | openshift/dotnet:latest~https://github.com/openshift-s2i/s2i-aspnet-example#dotnetcore-1.1 |
+      | context_dir | app                                                                                        |
     Then the step should succeed
-    Given the "s2i-dotnetcore-1" build was created
-    And the "s2i-dotnetcore-1" build completed
+    Given the "s2i-aspnet-example-1" build was created
+    And the "s2i-aspnet-example-1" build completed
     Given 1 pods become ready with labels:
-      | app=s2i-dotnetcore          |
-      | deployment=s2i-dotnetcore-1 |
+      | app=s2i-aspnet-example          |
+      | deployment=s2i-aspnet-example-1 |
 
   # @author haowang@redhat.com
   # @case_id OCP-10247
@@ -34,8 +34,8 @@ Feature: dotnet.feature
   Scenario: Create .NET buildconfig with new-build
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo    | https://github.com/redhat-developer/s2i-dotnetcore |
-      | context_dir | 1.0/test/asp-net-hello-world/                      |
+      | app_repo    | openshift/dotnet:latest~https://github.com/openshift-s2i/s2i-aspnet-example#dotnetcore-1.1 |
+      | context_dir | app                                                                                        |
     Then the step should succeed
-    And the "s2i-dotnetcore-1" build was created
-    And the "s2i-dotnetcore-1" build completed
+    Given the "s2i-aspnet-example-1" build was created
+    And the "s2i-aspnet-example-1" build completed
