@@ -236,8 +236,11 @@ Given /^I have a pod-for-ping in the(?: "([^ ]+?)")? project$/ do |project_name|
   @result = pod("hello-pod").wait_till_ready(user, 300)
   raise "pod-for-ping did not become ready in time" unless @result[:success]
 
-  #get the ca.pem from github for secure routing tests
-  @result = pod.exec(
+end
+
+# Download the ca.pem to pod-for ping
+Given /^CA trust is added to the pod-for-ping$/ do
+  @result = cb.ping_pod.exec(
     "bash", "-c",
     "wget https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem -O /tmp/ca.pem",
     as: user

@@ -464,6 +464,7 @@ Feature: Testing abrouting
       | (30%) |
       | (70%) |
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     Given I run the steps 10 times:
     """
     When I execute on the pod:

@@ -243,6 +243,7 @@ Feature: Testing route
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem" 
  
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I run the :create_route_edge client command with:
       | name | route-edge |
       | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
@@ -282,6 +283,7 @@ Feature: Testing route
     Then the step should succeed
     
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I run the :create_route_passthrough client command with:
       | name | passthrough-route |
       | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
@@ -315,6 +317,7 @@ Feature: Testing route
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
 
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I run the :create_route_reencrypt client command with:
       | name | route-reencrypt |
       | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
@@ -444,6 +447,7 @@ Feature: Testing route
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
 
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I run the :create_route_reencrypt client command with:
       | name | route-recrypt |
       | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
@@ -754,6 +758,7 @@ Feature: Testing route
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
 
     Given I have a pod-for-ping in the project
+    And CA trust is added to the pod-for-ping
     When I run the :create_route_edge client command with:
       | name | edge-route |
       | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
