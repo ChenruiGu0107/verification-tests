@@ -136,3 +136,56 @@ Feature: ISCSI volume plugin testing
     Then the step should fail
     And the output should contain:
       | Read-only file system |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-13214
+  @admin
+  @destructive
+  Scenario: Mount/Unmount multiple iSCSI volumes over a single session
+    Given I have a iSCSI setup in the environment
+    And I have a project
+
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
+      | ["metadata"]["name"]              | pv-iscsi-<%= project.name %> |
+      | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260      |
+    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
+      | ["metadata"]["name"]   | pvc-iscsi-<%= project.name %> |
+      | ["spec"]["volumeName"] | pv-iscsi-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-iscsi-<%= project.name %>" PVC becomes bound to the "pv-iscsi-<%= project.name %>" PV
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | iscsi-<%= project.name %>     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-iscsi-<%= project.name %> |
+    Then the step should succeed
+    And the pod named "iscsi-<%= project.name %>" becomes ready
+
+    # Create 2nd Pod using same session with a different LUN
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
+      | ["metadata"]["name"]              | pv1-iscsi-<%= project.name %> |
+      | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260       |
+      | ["spec"]["iscsi"]["lun"]          | 1                             |
+    And I switch to the default user
+    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
+      | ["metadata"]["name"]   | pvc1-iscsi-<%= project.name %> |
+      | ["spec"]["volumeName"] | pv1-iscsi-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-iscsi-<%= project.name %>" PVC becomes bound to the "pv-iscsi-<%= project.name %>" PV
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | iscsi1-<%= project.name %>     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc1-iscsi-<%= project.name %> |
+    Then the step should succeed
+    And the pod named "iscsi1-<%= project.name %>" becomes ready
+
+    # Covering BZ#1419607 
+    # Delete one of the Pods, the remaining one is still Running
+    Given I ensure "iscsi1-<%= project.name %>" pod is deleted
+    When I get project pod named "iscsi-<%= project.name %>"
+    Then the step should succeed
+    And the output should contain:
+      | Running |
