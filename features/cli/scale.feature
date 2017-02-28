@@ -4,8 +4,8 @@ Feature: scaling related scenarios
   Scenario: Scale replicas via replicationcontrollers and deploymentconfig
     Given I have a project
     And I create a new application with:
-      | image_stream | openshift/perl:5.20 |
-      | name         | myapp                  |
+      | image_stream | openshift/perl:5.20                   |
+      | name         | myapp                                 |
       | code         | https://github.com/openshift/sti-perl |
       | context_dir  | 5.20/test/sample-test-app/            |
     Then the step should succeed
@@ -54,7 +54,7 @@ Feature: scaling related scenarios
       | replicas | -3                |
     Then the step should fail
     And the output should contain:
-      | error: |
+      | error:           |
       | --replicas=COUNT |
 
   # @author xxia@redhat.com
@@ -134,13 +134,13 @@ Feature: scaling related scenarios
     And I wait until the status of deployment "hooks" becomes :complete
     When I run the :deploy client command with:
       | deployment_config | hooks |
-      | latest            ||
+      | latest            |       |
     Then the step should succeed
     And I wait for the steps to pass:
     """
     And I run the :deploy client command with:
       | deployment_config | hooks |
-      | cancel            ||
+      | cancel            |       |
     Then the step should succeed
     """
     And the output should match:
@@ -148,8 +148,8 @@ Feature: scaling related scenarios
     And I wait until the status of deployment "hooks" becomes :failed
     Then I run the :scale client command with:
       | resource | ReplicationController |
-      | name     | hooks-1     |
-      | replicas | 2                |
+      | name     | hooks-1               |
+      | replicas | 2                     |
     Given I wait until number of replicas match "2" for replicationController "hooks-1"
     Given I wait until number of replicas match "1" for replicationController "hooks-1"
     Then I run the :scale client command with:
@@ -159,10 +159,10 @@ Feature: scaling related scenarios
     Given I wait until number of replicas match "2" for replicationController "hooks-1"
     When I run the :get client command with:
       | resource      | deploymentConfig |
-      | resource_name | hooks |
-      | o             | json |
+      | resource_name | hooks            |
+      | o             | json             |
     Then the output should contain:
-      | "replicas": 2          |
+      | "replicas": 2 |
 
   # @author yinzhou@redhat.com
   # @case_id OCP-9862
@@ -179,7 +179,7 @@ Feature: scaling related scenarios
     Then evaluation of `pod.ip` is stored in the :pod1_ip clipboard
     When I run the :deploy client command with:
       | deployment_config | nettest |
-      | latest            ||
+      | latest            |         |
     Then the step should succeed
     Given I wait until the status of deployment "nettest" becomes :complete
     Given the pod named "<%= cb.pod1_name %>" status becomes :running
@@ -195,23 +195,23 @@ Feature: scaling related scenarios
   Scenario: Scale up the active latest rc will update the deploymentconfig replicas
     Given I have a project
     And I run the :run client command with:
-      | name         | test |
+      | name         | test                         |
       | image        | openshift/deployment-example |
     Then the step should succeed
     And I wait until the status of deployment "test" becomes :complete
     Then I run the :scale client command with:
       | resource | ReplicationController |
-      | name     | test-1     |
-      | replicas | 2                |
+      | name     | test-1                |
+      | replicas | 2                     |
     Given I wait until number of replicas match "2" for replicationController "test-1"
     And I wait for the steps to pass:
     """
     When I run the :get client command with:
       | resource      | deploymentConfig |
-      | resource_name | test |
-      | o             | json |
+      | resource_name | test             |
+      | o             | json             |
     Then the output should contain:
-      | "replicas": 2          |
+      | "replicas": 2 |
     """
 
 
@@ -222,7 +222,7 @@ Feature: scaling related scenarios
     Given I have a project
     Given SCC "privileged" is added to the "default" service account
     When I run the :get admin command with:
-      | resource         | pod |
+      | resource         | pod             |
       | namespace        | openshift-infra |
     Then the output should contain:
       | hawkular-cassandra |
@@ -235,9 +235,9 @@ Feature: scaling related scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/hpa/hpa.yaml |
     Then the step should succeed
     When I run the :expose client command with:
-      | resource | dc |
+      | resource      | dc         |
       | resource_name | php-apache |
-      | port | 80 |
+      | port          | 80         |
     Then the step should succeed
     When I expose the "php-apache" service
     And evaluation of `route("php-apache", service("php-apache")).dns(by: user)` is stored in the :route_host clipboard
@@ -247,17 +247,17 @@ Feature: scaling related scenarios
     When I perform 500 HTTP GET requests with concurrency 1 to: http://<%= cb.route_host %>
     When I run the :get client command with:
       | resource      | deploymentConfig |
-      | resource_name | php-apache |
-      | o             | json  |
+      | resource_name | php-apache       |
+      | o             | json             |
     And evaluation of `@result[:parsed]['spec']['replicas']` is stored in the :first_replicas clipboard
     When I run the :deploy client command with:
       | deployment_config | php-apache |
-      | latest            |true |
+      | latest            |true        |
     And I wait until the status of deployment "php-apache" becomes :complete
     When I run the :get client command with:
       | resource      | deploymentConfig |
-      | resource_name | php-apache |
-      | o             | json  |
+      | resource_name | php-apache       |
+      | o             | json             |
     And evaluation of `@result[:parsed]['spec']['replicas']` is stored in the :second_replicas clipboard
     Then the expression should be true> @result[:parsed]['spec']['replicas'] > 1
     Then the expression should be true> cb.first_replicas == cb.second_replicas
