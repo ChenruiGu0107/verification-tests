@@ -42,7 +42,7 @@ check_event_tab:
 check_event_message:
   element:
     selector:
-      xpath: //tr[td[@data-title="Reason" and span[text()="<reason>"]] and td[@data-title="Message" and self::td//span[contains(.,"<message>")]]]
+      xpath: //tr[td[(@data-title="Reason" or @data-title="Message") and span[.="<reason>"]] and td[@data-title="Message" and self::td//span[contains(.,"<message>")]]]
     timeout: 30
 check_event_message_missing:
   element:
