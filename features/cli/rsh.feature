@@ -115,10 +115,11 @@ Feature: rsh.feature
     Then the step should succeed
     And the output should contain "home"
     # incorrect order "oc rsh pod/dc-1-iyc7g --no-tty ls"
+    # remove to check output for different between 3.4 and 3.5, only to check failed status
+    # 3.4 "env: can't execute '--no-tty': No such file or directory"
+    # 3.5 "...executable file not found in $PATH"
     When I run the :rsh client command with:
       | pod        | <%= pod.name %>     |
       | command    | --no-tty            |
       | command    | ls                  |
     Then the step should fail
-    And the output should match:
-      | --no-tty.*[Nn]o such file or directory |
