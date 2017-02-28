@@ -121,6 +121,11 @@
     :o: -o <value>
     :output_version: --output-version=<value>
     :recursive: --recursive=<value>
+:cp:
+  :cmd: oc cp
+  :options:
+    :source: <value>
+    :dest: <value>
 :create:
   :cmd: oc create
   :options:
@@ -867,6 +872,7 @@
 :volume:
   :cmd: oc volume
   :options:
+    :add: --add=<value>
     :resource: <value>
     :resource_name: <value>
     :action: <value>

@@ -5,7 +5,8 @@ require 'common'
 
 module CucuShift
   # represents an OpenShift Secret
-  class Secret
+  class Secret < ProjectResource
+    RESOURCE = "secrets"
     include Common::Helper
     include Common::UserObjectHelper
 
@@ -66,7 +67,7 @@ module CucuShift
     end
 
     # @param user [CucuShift::User] the user to run cli commands with if needed
-    def get(user:)
+    def get(user:, quiet:false)
       res = cli_exec(as: user, key: :get, n: project.name,
                 resource_name: name,
                 resource: "secret",
