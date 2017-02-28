@@ -57,13 +57,16 @@ goto_set_resource_limits_for_rc:
 set_resource_limit:
   elements:
   - selector:
-      xpath: //h2[contains(.,'Container <container_name>')]/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]/descendant::compute-resource[@label='<limit_type>']/descendant::input
+      xpath: //h2[contains(.,'Container <container_name>')]/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]/descendant::compute-resource[@label='<limit_type>']//div[@class='resource-amount']//input
     op: clear
   - selector:
-      xpath: //h2[contains(.,'Container <container_name>')]/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]/descendant::compute-resource[@label='<limit_type>']/descendant::input
+      xpath: //h2[contains(.,'Container <container_name>')]/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]/descendant::compute-resource[@label='<limit_type>']//div[@class='resource-amount']//input
     op: send_keys <resource_amount>
   - selector:
-      xpath: //h2[contains(.,'Container <container_name>')]/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]/descendant::compute-resource[@label='<limit_type>']/descendant::option[@label='<amount_unit>']
+      xpath: //h2[contains(.,'Container <container_name>')]/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]/descendant::compute-resource[@label='<limit_type>']//div[contains(@class,'ui-select-match')]/span
+    op: click
+  - selector:
+      xpath: //h2[contains(.,'Container <container_name>')]/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]/descendant::compute-resource[@label='<limit_type>']//span[contains(@class,'ui-select-choices-row-inner')]/span[normalize-space(.)='<amount_unit>']
     op: click
 set_resource_limit_single:
   elements:
