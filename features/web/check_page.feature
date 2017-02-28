@@ -107,7 +107,7 @@ Feature: check page info related
     When I get project PersistentVolumeClaim as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :pvc_name clipboard
 
-    Then I perform the :check_pvcs_on storage_page web console action with:
+    Then I perform the :check_pvcs_on_storage_page web console action with:
       | project_name | <%= project.name %> |
       | pvc_name     | <%= cb.pvc_name %> |
     Then the step should succeed

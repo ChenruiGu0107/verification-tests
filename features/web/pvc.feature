@@ -431,3 +431,156 @@ Feature: Add pvc to pod from web related
       | pvc_name        | pvctest             |
       | storage_size    | $$$####%            |
     Then the step should succeed
+
+  # @author wehe@redhat.com
+  # @case_id 538184 544977 544978
+  @admin
+  Scenario Outline: Create persist volume claim with storage class on web console
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | <%= project.name %>         |
+      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                     |
+    Then the step should succeed
+
+    # Create ROX type pvc
+    When I perform the :create_pvc_with_storage_class web console action with:
+      | project_name     | <%= project.name %> |
+      | pvc_name         | pvc-1               |
+      | pvc_access_mode  | ReadOnlyMany        |
+      | storage_size     | 0.001               |
+      | storage_unit     | TiB                 | 
+    Then the step should succeed
+
+    When I perform the :check_pvcs_detail_on_storage_page web console action with:
+      | project_name    | <%= project.name %>  |
+      | pvc_name        | pvc-1                |
+      | pvc_status      | Bound                |
+      | pvc_access_mode | ROX (Read-Only-Many) |
+      | storage_size    | 2 GiB                |
+    Then the step should succeed
+    Given admin ensures "<%= pvc("pvc-1").volume_name(user: user) %>" pv is deleted after scenario
+
+    When I perform the :check_pvc_info_with_status web console action with:
+      | project_name    | <%= project.name %>  |
+      | pvc_name        | pvc-1                |
+      | pvc_status      | Bound                |
+      | pvc_access_mode | ROX (Read-Only-Many) |
+      | storage_size    | 1099511627776 mB     |
+    Then the step should succeed
+
+    # Create RWX type pvc
+    Given I wait up to 180 seconds for the steps to pass:
+    """
+    When I perform the :create_pvc_with_storage_class web console action with:
+      | project_name    | <%= project.name %> |
+      | pvc_name        | 0123456789          |
+      | pvc_access_mode | ReadWriteMany       |
+      | storage_size    | 2048                |
+      | storage_unit    | MiB                 |
+    Then the step should succeed
+
+    When I perform the :check_pvcs_detail_on_storage_page web console action with:
+      | project_name    | <%= project.name %>   |
+      | pvc_name        | 0123456789            |
+      | pvc_status      | Bound                 |
+      | pvc_access_mode | RWX (Read-Write-Many) |
+      | storage_size    | 2 GiB                 |
+    Then the step should succeed
+    """
+    Given admin ensures "<%= pvc("0123456789").volume_name(user: user) %>" pv is deleted after scenario
+
+    When I perform the :check_pvc_info_with_status web console action with:
+      | project_name    | <%= project.name %>   |
+      | pvc_name        | 0123456789            |
+      | pvc_status      | Bound                 |
+      | pvc_access_mode | RWX (Read-Write-Many) |
+      | storage_size    | 2 GiB                 |
+    Then the step should succeed
+    
+    # Create RWO type pvc
+    Given I wait up to 180 seconds for the steps to pass:
+    """
+    When I perform the :create_pvc_with_storage_class web console action with:
+      | project_name    | <%= project.name %> |
+      | pvc_name        | wehepvcrwo          |
+      | pvc_access_mode | ReadWriteOnce       |
+      | storage_size    | 1025                |
+      | storage_unit    | MiB                 |
+    Then the step should succeed
+
+    When I perform the :check_pvcs_detail_on_storage_page web console action with:
+      | project_name    | <%= project.name %>   |
+      | pvc_name        | wehepvcrwo            |
+      | pvc_status      | Bound                 |
+      | pvc_access_mode | RWO (Read-Write-Once) |
+      | storage_size    | 2 GiB                 |
+    Then the step should succeed
+    """
+    Given admin ensures "<%= pvc("wehepvcrwo").volume_name(user: user) %>" pv is deleted after scenario
+
+    When I perform the :check_pvc_info_with_status web console action with:
+      | project_name    | <%= project.name %>   |
+      | pvc_name        | wehepvcrwo            |
+      | pvc_status      | Bound                 |
+      | pvc_access_mode | RWO (Read-Write-Once) |
+      | storage_size    | 1025 MiB              |
+    Then the step should succeed
+    
+    # Create No Storage Class pvc
+    Given I wait up to 180 seconds for the steps to pass:
+    """
+    When I perform the :create_pvc_no_storage_class web console action with:
+      | project_name    | <%= project.name %> |
+      | pvc_name        | nsc                 |
+      | pvc_access_mode | ReadWriteOnce       |
+      | storage_size    | 1                   |
+      | storage_unit    | GiB                 |
+    Then the step should succeed
+
+    When I perform the :check_pvcs_detail_on_storage_page web console action with:
+      | project_name    | <%= project.name %>   |
+      | pvc_name        | nsc                   |
+      | pvc_status      | Pending               |
+      | pvc_access_mode | RWO (Read-Write-Once) |
+      | storage_size    | -                     |
+    Then the step should succeed
+    """
+
+    When I perform the :check_pvc_info web console action with:
+      | project_name    | <%= project.name %>    |
+      | pvc_name        | nsc                    |
+      | pvc_access_mode | RWO (Read-Write-Once)  |
+      | storage_size    | 1 GiB                  |
+    Then the step should succeed    
+
+    # Delete all pvc from web console
+    When I perform the :delete_resources_pvc web console action with:
+      | project_name    | <%= project.name %> |
+      | pvc_name        | pvc-1               |
+    Then the step should succeed
+    When I perform the :check_prompt_info_for_pvc web console action with:
+      | prompt_info | marked for deletion |
+    Then the step should succeed
+
+    When I perform the :delete_resources_pvc web console action with:
+      | project_name    | <%= project.name %> |
+      | pvc_name        | 0123456789          |
+    Then the step should succeed
+    When I perform the :check_prompt_info_for_pvc web console action with:
+      | prompt_info | marked for deletion |
+    Then the step should succeed
+
+    When I perform the :delete_resources_pvc web console action with:
+      | project_name    | <%= project.name %> |
+      | pvc_name        | wehepvcrwo          |
+    Then the step should succeed
+    When I perform the :check_prompt_info_for_pvc web console action with:
+      | prompt_info | marked for deletion |
+    Then the step should succeed
+
+    Examples:
+      | provisioner | 
+      | aws-ebs     |
+      | gce-pd      |
+      | cinder      |
