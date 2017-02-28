@@ -54,7 +54,8 @@ Feature: scaling related scenarios
       | replicas | -3                |
     Then the step should fail
     And the output should contain:
-      | error: --replicas=COUNT |
+      | error: |
+      | --replicas=COUNT |
 
   # @author xxia@redhat.com
   # @case_id OCP-11700
