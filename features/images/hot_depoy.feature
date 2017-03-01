@@ -77,3 +77,4 @@ Feature: hotdeploy.feature
       | app_repo | image_stream | env | buildcfg | parameter |  file_name | context_dir |
       | https://github.com/openshift/sti-perl.git | openshift/perl:5.20 | PERL_APACHE2_RELOAD=true | sti-perl | s/fine/hotdeploy_test/g |index.pl | 5.20/test/sample-test-app/ |
       | https://github.com/openshift/sti-perl.git | openshift/perl:5.16 | PERL_APACHE2_RELOAD=true | sti-perl | s/fine/hotdeploy_test/g |index.pl | 5.16/test/sample-test-app/ |
+      | https://github.com/openshift/sti-perl.git | openshift/perl:5.24 | PERL_APACHE2_RELOAD=true | sti-perl | s/fine/hotdeploy_test/g |index.pl | 5.24/test/sample-test-app/ |
