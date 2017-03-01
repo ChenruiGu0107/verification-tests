@@ -49,8 +49,16 @@ Given(/^I have a StorageClass named "([^"]*)"$/) do | storageclass_name |
   step %Q/the step should succeed/
 end
 
-Given(/^I use host backing StorageClass named "([^"]*)"$/) do | storageclass_name |
+Given(/^I run commands on the StorageClass "([^"]*)" backing host:$/) do | storageclass_name, table|
+  ensure_admin_tagged
+
   rest_url = storage_class(storageclass_name).rest_url(user: admin)
   hostname = URI.parse(rest_url).host
-  @host = CucuShift::SSHAccessibleHost.new(hostname)
+
+  opts = conf[:services, :storage_class_host]
+
+  host = CucuShift::SSHAccessibleHost.new(hostname, opts)
+
+  @result = host.exec_admin(*table.raw.flatten)
 end
+

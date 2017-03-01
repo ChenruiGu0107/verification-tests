@@ -534,8 +534,7 @@ Feature: Storage of GlusterFS plugin testing
     And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
 
     Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
-    And I use host backing StorageClass named "glusterprovisioner"
-    When I run commands on the host:
+    And I run commands on the StorageClass "glusterprovisioner" backing host:
       | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
     Then the output should contain:
       | Durability Type: disperse |
@@ -565,8 +564,7 @@ Feature: Storage of GlusterFS plugin testing
     And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
 
     Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
-    And I use host backing StorageClass named "glusterprovisioner"
-    When I run commands on the host:
+    And I run commands on the StorageClass "glusterprovisioner" backing host:
       | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
     Then the output should contain:
       | Durability Type: none |
@@ -595,8 +593,7 @@ Feature: Storage of GlusterFS plugin testing
     And admin ensures "<%= pvc('pvc1').volume_name(user: admin) %>" pv is deleted after scenario
 
     Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
-    And I use host backing StorageClass named "glusterprovisioner"
-    When I run commands on the host:
+    And I run commands on the StorageClass "glusterprovisioner" backing host:
       | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
     Then the output should contain:
       | Durability Type: replicate |
@@ -619,8 +616,7 @@ Feature: Storage of GlusterFS plugin testing
     And admin ensures "<%= pvc('pvc2').volume_name(user: admin) %>" pv is deleted after scenario
 
     Given I save volume id from PV named "<%= pvc('pvc2').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
-    And I use host backing StorageClass named "glusterprovisioner"
-    When I run commands on the host:
+    And I run commands on the StorageClass "glusterprovisioner" backing host:
       | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
     Then the output should contain:
       | Durability Type: replicate |
@@ -641,8 +637,7 @@ Feature: Storage of GlusterFS plugin testing
 
     # Verify by default it's replicated with 3 replicas
     Given I save volume id from PV named "<%= pvc('pvc1').volume_name(user: admin, cached: true) %>" in the :volumeID clipboard
-    And I use host backing StorageClass named "glusterprovisioner"
-    When I run commands on the host:
+    And I run commands on the StorageClass "glusterprovisioner" backing host:
       | heketi-cli --server http://127.0.0.1:9991 --user admin --secret test volume info <%= cb.volumeID %> |
     Then the output should contain:
       | Durability Type: replicate |
