@@ -15,4 +15,4 @@ switch_window_demo:
       # Regexp format
       url: !ruby/regexp '/example\.com/'
       # url: www.example.com
-    action: check_common_elements 
+    action: check_common_elements

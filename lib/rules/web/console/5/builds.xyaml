@@ -288,6 +288,8 @@ change_bc_source_repo_url:
   action: change_source_repo_url
 add_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
+  action: add_env_vars
+add_env_vars:
   action: add_env_var_key
   action: add_env_var_value
   action: save_env_vars
@@ -476,6 +478,8 @@ edit_env_var_value:
 save_updated_env_value: {}
 change_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
+  action: change_env_vars
+change_env_vars:
   action: edit_env_var_value
   action: save_updated_env_value
 set_force_pull_on_buildconfig_edit_page:

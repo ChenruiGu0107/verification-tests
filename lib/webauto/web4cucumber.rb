@@ -302,6 +302,9 @@ require "base64"
       unless element_rule.kind_of? Hash
         raise "Element rules should be a Hash but is: #{element_rule.inspect}"
       end
+      if element_rule[:missing] && element_rule[:optional]
+        raise "Optionally missing element doesn't make much sense"
+      end
 
       #copy the element_rule
       rule = element_rule.dup
@@ -313,24 +316,27 @@ require "base64"
         rule[:timeout] = Integer(replace_angle_brackets(rule[:timeout], user_opts))
       end
 
-      # wait for element
-      found, elements = wait_for_elements(rule)
+      # based on opts[:missing] it'll wait for element to appear/dissapear
+      success, elements = wait_for_elements(rule)
 
       res = {
         instruction: "handle #{element_rule}",
-        success: !! ( found || element_rule[:optional] ),
-        response: "element#{found ? "" : ' not'} found: #{element_rule}",
+        success: !! ( success || element_rule[:optional] ),
+        response: "element#{success ^ element_rule[:missing] ? "" : ' not'} found: #{element_rule}",
         exitstatus: -1
       }
 
-      # save screenshot if required element not found
-      unless found || element_rule[:optional]
+      # save screenshot if missing/required element found/not found
+      unless success || element_rule[:optional]
         take_screenshot
       end
 
       # perform any operation over innermost element found
       op = element_rule[:op]
-      if op && found
+      if op && success
+        if element_rule[:missing]
+          raise "Obviously, you can't perform any operations on missing element"
+        end
         # first element searched for, first field [the actual element list], last found element [this must be most inner element]
         element = elements.first.first.last
         res_join res, handle_operation(element, op, **user_opts)
@@ -498,9 +504,9 @@ require "base64"
     end
 
     # this somehow convoluted method can be used to wait for multiple elements
-    #   for a given timeout; that means there is one timeout to get all of the
-    #   requested elements
-    # @param opts [Hash] with possible keys: :type, :selector, :list, :visible,
+    #   for a given timeout to appear or dissapear; that means there is one
+    #   timeout to check all requested elements
+    # @param opts [Hash] with possible keys: :type, :selector, :list, :visible, :missing
     #   :timeout
     # @return [Array] of `[status, [[[elements], type, selector], ..] ]`
     def wait_for_elements(opts)
@@ -508,6 +514,7 @@ require "base64"
       #   :type and :selector options to be provided
       elements = opts[:list] || [[ opts[:type], opts[:selector] ]]
       only_visible = opts.has_key?(:visible) ? opts[:visible] : true
+      missing = opts.has_key?(:missing) ? opts[:missing] : false
       timeout = opts[:timeout] || ELEMENT_TIMEOUT # in seconds
 
       start = Time.now
@@ -519,6 +526,7 @@ require "base64"
               get_visible_elements(type, selector) :
               get_elements(type, selector)
           result[:list] << [e, opts[:type], opts[:selector]] unless e.empty?
+          e.empty? == missing
         }
         result[:success] = false
       end while Time.now - start < timeout && sleep(1)

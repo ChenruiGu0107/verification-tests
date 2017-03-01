@@ -8,10 +8,10 @@ check_events_page:
       text: Time
     selector:
       text: Kind
-    selector: 
+    selector:
       text: Reason
     selector:
-      xpath: //table/thead/tr/th[5]      
+      xpath: //table/thead/tr/th[5]
     selector:
       text: Pod
 goto_events_page:
@@ -39,3 +39,25 @@ check_event_tab:
   - selector:
       xpath: //uib-tab-heading[text()='Events']
     op: click
+check_event_message:
+  element:
+    selector:
+      xpath: //tr[td[@data-title="Reason" and contains(text(),"<reason>")] and td[@data-title="Message" and contains(.,"<message>")]]
+    timeout: 30
+check_event_message_missing:
+  element:
+    selector:
+      xpath: //tr[td[@data-title="Reason" and contains(text(),"<reason>")] and td[@data-title="Message" and contains(.,"<message>")]]
+    missing: true
+check_all_events_hidden_by_filter:
+  element:
+    selector:
+      xpath: //span[normalize-space(text())="All events hidden by filter." and a[text()="Clear filter"]]
+filter_by_keyword_on_events_tab:
+  elements:
+  - selector:
+      xpath: //input[@type="search"]
+    op: clear
+  - selector:
+      xpath: //input[@type="search"]
+    op: send_keys <keyword>
