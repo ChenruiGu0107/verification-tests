@@ -18,6 +18,7 @@ require 'openshift/replication_controller'
 require 'openshift/deployment_config'
 require 'openshift/replicaset'
 require 'openshift/deployment'
+require 'openshift/cluster_role'
 require 'openshift/cluster_role_binding'
 require 'openshift/storage_class'
 require 'openshift/host_subnet'
@@ -528,6 +529,10 @@ module CucuShift
       end
     end
 
+    def cluster_role(name = nil, env = nil)
+      cluster_resource(ClusterRole, name, env)
+    end
+
     def cluster_role_binding(name = nil, env = nil)
       cluster_resource(ClusterRoleBinding, name, env)
     end
@@ -584,6 +589,7 @@ module CucuShift
         pv: "persistentvolumes",
         svc: "service",
         pvc: "persistentvolumeclaims",
+        cluster_role: "clusterroles",
         cluster_role_binding: "clusterrolebindings",
         host_subnet: "hostsubnets",
         cluster_resource_quota: "clusterresourcequotas",
