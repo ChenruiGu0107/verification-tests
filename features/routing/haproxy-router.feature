@@ -508,6 +508,8 @@ Feature: Testing haproxy router
       | key | route_edge-www.edge.com.key |
       | cacert | ca.pem |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """ 
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -516,7 +518,7 @@ Feature: Testing haproxy router
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
-
+    """
     #create some invalid route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_expire.json |
@@ -553,6 +555,8 @@ Feature: Testing haproxy router
       | cacert | route_reencrypt.ca |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -561,6 +565,7 @@ Feature: Testing haproxy router
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
+    """
 
   # @author bmeng@redhat.com
   # @case_id OCP-11583
@@ -1391,7 +1396,7 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
-    When I open web server via the "http://<%= route.dns(by: user) %>" url
+    When I wait up to 15 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
 
     #edge route
@@ -1416,6 +1421,8 @@ Feature: Testing haproxy router
       | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
       | service | service-secure |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -1424,7 +1431,7 @@ Feature: Testing haproxy router
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
-
+    """
     #reencrypt route
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
@@ -1441,6 +1448,8 @@ Feature: Testing haproxy router
       | cacert | route_reencrypt.ca |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -1449,6 +1458,7 @@ Feature: Testing haproxy router
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
+    """
 
   # @author bmeng@redhat.com
   # @case_id OCP-12567
@@ -1536,7 +1546,7 @@ Feature: Testing haproxy router
     When I expose the "service-unsecure" service
     Then the step should succeed
 
-    When I open web server via the "http://<%= route.dns(by: user) %>" url
+    When I wait up to 15 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
     Given I have a pod-for-ping in the project
     When I execute on the pod:
@@ -1552,7 +1562,9 @@ Feature: Testing haproxy router
     Then the step should succeed
     When I open secure web server via the "edge-route" route
     Then the output should contain "Hello-OpenShift"
-
+    
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -1561,7 +1573,7 @@ Feature: Testing haproxy router
       | -k |
     Then the step should succeed    
     Then the output should contain "Hello-OpenShift"
-
+    """
 
   # @author yadu@redhat.com
   # @case_id OCP-11236
@@ -2243,23 +2255,15 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | curl |
-      | -ksS |
-      | https://<%= route("route-pass", service("service-secure")).dns(by: user) %>/ |
+    And I use the "service-secure" service
+    When I wait up to 15 seconds for a secure web server to become available via the "route-pass" route
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
-    Given I wait for the steps to pass:
-    """
-    When I execute on the pod:
-      | curl |
-      | -ksS |
-      | https://<%= route("route-pass", service("service-secure")).dns(by: user) %>/ |
+    When I wait up to 15 seconds for a secure web server to become available via the "route-pass" route
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the expression should be true> cb.first_access != @result[:response]
-    """
 
   # @author yadu@redhat.com
   # @case_id OCP-11679

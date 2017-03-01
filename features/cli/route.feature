@@ -150,7 +150,7 @@ Feature: route related features via cli
       | resource_name | service-unsecure                                                                  |
       | p             | {"metadata":{"annotations":{"haproxy.router.openshift.io/balance":"roundrobin"}}} |
     Then the step should succeed
-    When I open web server via the "service-unsecure" route
+    When I wait up to 15 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift-1 http-8080"
     When I run the :patch client command with:
       | resource      | routes                                         |

@@ -252,6 +252,8 @@ Feature: Testing route
       | key | route_edge-www.edge.com.key |
       | cacert | ca.pem |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -262,6 +264,7 @@ Feature: Testing route
       | -c | 
       | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
+    """
     When I execute on the pod:
       | cat |
       | /tmp/cookie.txt |
@@ -289,6 +292,8 @@ Feature: Testing route
       | hostname | <%= rand_str(5, :dns) %>-pass.example.com |
       | service | service-secure |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -297,7 +302,7 @@ Feature: Testing route
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
-
+    """
 
   # @author bmeng@redhat.com
   # @case_id OCP-12481
@@ -327,6 +332,8 @@ Feature: Testing route
       | cacert | route_reencrypt.ca |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -337,6 +344,7 @@ Feature: Testing route
       | -c |
       | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
+    """
     When I execute on the pod:
       | cat |
       | /tmp/cookie.txt |
@@ -410,6 +418,8 @@ Feature: Testing route
       | service | service-unsecure |
       | path| /test |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/test/ |
@@ -417,6 +427,7 @@ Feature: Testing route
       | /tmp/cookie.txt |
       | -k |
     Then the output should contain "Hello-OpenShift-Path-Test"
+    """
     When I execute on the pod:
       | curl |
       | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
@@ -458,6 +469,8 @@ Feature: Testing route
       | destcacert | route_reencrypt_dest.ca |
       | path | /test |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -466,6 +479,7 @@ Feature: Testing route
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift-Path-Test"
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -497,6 +511,8 @@ Feature: Testing route
       | service | service-secure |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -504,6 +520,7 @@ Feature: Testing route
       | https://<%= route("no-cert", service("no-cert")).dns(by: user) %>/ |
       | -k |
     Then the output should contain "Hello-OpenShift"
+    """
 
   # @author yadu@redhat.com
   # @case_id OCP-12556
@@ -767,6 +784,8 @@ Feature: Testing route
       | key | route_edge-www.edge.com.key |
       | cacert | ca.pem |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -775,7 +794,7 @@ Feature: Testing route
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
-
+    """
     #create some invalid route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/invalid_route/edge/route_edge_expire.json |
@@ -812,6 +831,8 @@ Feature: Testing route
       | cacert | route_reencrypt.ca |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -820,6 +841,7 @@ Feature: Testing route
       | --cacert |
       | /tmp/ca.pem |
     Then the output should contain "Hello-OpenShift"
+    """
 
   # @author zzhao@redhat.com
   # @case_id OCP-12682
