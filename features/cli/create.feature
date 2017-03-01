@@ -200,12 +200,11 @@ Feature: creating 'apps' with CLI
     And I run the :new_app client command with:
       | template | ruby-helloworld-sample |
       | param    | MYSQL_DATABASE=db1     |
-      | param    | ADMIN_PASSWORD=pass1   |
     Then the step should succeed
     When I get project dc named "frontend" as YAML
     Then the output by order should match:
-      | name: ADMIN_PASSWORD |
-      | value: pass1         |
+      | name: MYSQL_DATABASE |
+      | value: db1           |
     When I get project dc named "database" as YAML
     Then the output by order should match:
       | name: MYSQL_DATABASE |
