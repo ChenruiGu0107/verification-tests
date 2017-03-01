@@ -284,8 +284,8 @@ Feature: creating 'apps' with CLI
   Scenario: Create an application from images
     Given I have a project
     When I create a new application with:
-      | image_stream | openshift/python                      |
-      | image_stream | openshift/mysql                       |
+      | image_stream | openshift/python:3.4                  |
+      | image_stream | openshift/mysql:5.6                   |
       | code         | git://github.com/openshift/sti-python |
       | context_dir  | 3.4/test/standalone-test-app          |
       | group        | openshift/python+openshift/mysql      |
@@ -314,7 +314,7 @@ Feature: creating 'apps' with CLI
     """
 
     When I create a new application with:
-      | image_stream | openshift/python                      |
+      | image_stream | openshift/python:3.4                  |
       | code         | git://github.com/openshift/sti-python |
       | context_dir  | 3.4/test/standalone-test-app          |
       | name         | sti-python1                           |
