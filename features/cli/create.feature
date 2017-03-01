@@ -69,11 +69,13 @@ Feature: creating 'apps' with CLI
     ## create app with labels
     And I have a project
     When I create a new application with:
-      | image_stream | openshift/ruby:latest                                   |
-      | image_stream | openshift/mysql:latest                                  |
-      | code         | https://github.com/openshift/ruby-hello-world           |
-      | l            | app=hi                                                  |
-      | env          | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
+      | image_stream | openshift/ruby:latest                         |
+      | image_stream | openshift/mysql:latest                        |
+      | code         | https://github.com/openshift/ruby-hello-world |
+      | l            | app=hi                                        |
+      | env          | MYSQL_USER=test                               |
+      | env          | MYSQL_PASSWORD=test                           |
+      | env          | MYSQL_DATABASE=test                           |
     Then the step should succeed
 
     # check MySQL pod
