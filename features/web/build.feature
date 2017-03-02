@@ -625,6 +625,7 @@ Feature: build related feature on web console
   # @author yapei@redhat.com
   # @case_id OCP-11555
   Scenario: Modify buildconfig settings for Binary source
+    Given the master version <= "3.3"
     Given I create a new project
     When I run the :new_build client command with:
       | binary | ruby |

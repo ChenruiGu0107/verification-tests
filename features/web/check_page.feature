@@ -178,6 +178,7 @@ Feature: check page info related
   # @author yapei@redhat.com
   # @case_id OCP-10601
   Scenario: Check Overview details for project
+    Given the master version <= "3.2"
     Given I create a new project
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %> |

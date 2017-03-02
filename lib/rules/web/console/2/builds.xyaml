@@ -17,6 +17,7 @@ check_build_log_tab:
       op: click
     - selector:
         xpath: //div[@class='log-status']//span[contains(.,'<build_status_name>')]
+      timeout: 300
 check_one_buildconfig_page:
   action: goto_one_buildconfig_page
   element:

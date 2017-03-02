@@ -278,11 +278,6 @@ Feature: create app on web console related
       | dc_env_key   | DCvalue |
       | dc_env_value | dcone   |
     Then the step should succeed
-    When I perform the :wait_latest_build_to_status web console action with:
-      | project_name | <%= project.name %> |
-      | bc_name      | nd       |
-      | build_status | running  |
-    Then the step should succeed
     When I perform the :check_build_log_tab web console action with:
       | project_name      | <%= project.name %> |
       | bc_and_build_name | nd/nd-1  |

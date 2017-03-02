@@ -3,6 +3,7 @@ Feature: filter on create page
   # @author: yapei@redhat.com
   # @case_id: OCP-10692
   Scenario: search and filter for things on the create page
+    Given the master version <= "3.3"
     When I create a new project via web
     Then the step should succeed
 
