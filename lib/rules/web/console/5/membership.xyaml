@@ -19,8 +19,10 @@ click_to_goto_membership_page:
     op: click
 click_to_goto_membership_tab:
   action: goto_membership_page
-  element:
-    selector:
+  elements:
+  - selector:
+      xpath: //a[contains(@class,"truncate")]
+  - selector:
       xpath: //uib-tab-heading[starts-with(normalize-space(text()), "<tab_name>")]
     op: click
 edit_membership:
@@ -69,7 +71,7 @@ type_project_on_membership:
 click_on_delete_role_on_membership:
   elements:
   - selector:
-      xpath: //div[div//strong[normalize-space(text())="<name>"]]//span[span[normalize-space(text())="<role>"]]/a
+      xpath: //div[div//strong[normalize-space(text())="<name>"]]//span[a[normalize-space(text())="<role>"]]/a[2]
     op: click
   - selector:
       text: Remove
@@ -138,7 +140,7 @@ check_entry_content_on_membership_with_namespace:
   action: click_to_goto_membership_tab
   element:
     selector:
-      xpath: //div[contains(@class,"active")]//div[contains(@class, "item-row") and div//span[normalize-space(text())="<namespace> /"] and div//strong[normalize-space(text())="<name>"] and div//span[normalize-space(text())="<role>"]]
+      xpath: //div[contains(@class,"active")]//div[contains(@class, "item-row") and div//span[normalize-space(text())="<namespace> /"] and div//strong[normalize-space(text())="<name>"] and div//span/a[normalize-space(text())="<role>"]]
 check_error_message_on_membership:
   element:
     selector:
@@ -146,4 +148,4 @@ check_error_message_on_membership:
 check_permission_error_on_membership:
   element:
     selector:
-      text: You do not have permission to view roles in this project. 
+      text: You do not have permission to view roles in this project.

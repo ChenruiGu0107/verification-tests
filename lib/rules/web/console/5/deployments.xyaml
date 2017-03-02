@@ -255,7 +255,7 @@ update_container_image_name:
 set_autostart_deployment_checkbox:
   element:
     selector:
-      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//label[normalize-space()="Automatically start new deployments when an image stream tag is updated."]/input
+      xpath: //h3[text()="Images"]/following::dl/div[div/h4[text()="Container <container_name>"]]//label[contains(.,'Deploy images from an image stream tag')]/input
     type: checkbox
     op: set <deployment_autostart>
 set_image_change_trigger:

@@ -37,7 +37,7 @@ Feature: login related scenario
   # @author xxing@redhat.com
   # @case_id OCP-12118
   Scenario: The page should reflect to login page when access session protected pages after failed log in
-    Given I log the message> this scenario can pass only when user accounts have a known password
+    Given I log the message> this auto script is not suitable for allow_all/github/google auth env
     Given I have a project
     When I perform the :login web console action with:
       | username | <%= rand_str(6, :dns) %> |
