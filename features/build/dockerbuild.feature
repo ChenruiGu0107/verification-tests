@@ -329,3 +329,20 @@ Feature: dockerbuild.feature
     Then the step should succeed
     Then the output should contain:
       | ---> Using cache  |
+
+  # @author dyan@redhat.com
+  # @case_id OCP-13083
+  Scenario: Docker build using Dockerfile with 'FROM scratch'
+    Given I have a project
+    When I run the :new_build client command with:
+      | D  | FROM scratch\nENV NUM 1 |
+      | to | test                    |
+    Then the step should succeed
+    When the "test-1" build completed
+    And I run the :logs client command with:
+      | resource_name | bc/test |
+      | f             |         |
+    Then the output should contain:
+      | FROM scratch |
+    And the output should not match:
+      | [Ee]rror |
