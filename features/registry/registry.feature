@@ -251,7 +251,7 @@ Feature: Testing registry
     And default registry service ip is stored in the :registry_ip clipboard
     And I select a random node's host
     When I run commands on the host:
-      | docker rmi docker.io/aosqe/singlelayer:latest |
+      | docker rmi docker.io/busybox:latest |
     When I run commands on the host:
       | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
     Then the step should succeed
@@ -265,3 +265,81 @@ Feature: Testing registry
     """
     And evaluation of `image_stream_tag("hello-world:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do exist in the registry
+
+  # @author haowang@redhat.com
+  # @case_id OCP-11490
+  @admin
+  @destructive
+  Scenario: Import new tags to image stream
+    Given I have a project
+    And I select a random node's host
+    And I have a registry in my project
+    Given the node service is verified
+    And the node service is restarted on the host after scenario
+    And I register clean-up steps:
+    """
+    And I run commands on the host:
+      | systemctl restart docker |
+    Then the step should succeed
+    """
+    And the "/etc/sysconfig/docker" file is restored on host after scenario
+    And I run commands on the host:
+      | sed -i '/^INSECURE_REGISTRY*/d' /etc/sysconfig/docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | echo "INSECURE_REGISTRY='--insecure-registry <%= cb.reg_svc_url%>'" >> /etc/sysconfig/docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | systemctl restart docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker pull docker.io/busybox:latest |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker tag docker.io/busybox:latest <%= cb.reg_svc_url %>/test/busybox:latest|
+    Then the step should succeed
+    Then I wait up to 60 seconds for the steps to pass:
+    """
+    And I run commands on the host:
+      | docker push <%= cb.reg_svc_url %>/test/busybox:latest|
+    Then the step should succeed
+    """
+    When I run the :import_image client command with:
+      | from       | <%= cb.reg_svc_url %>/test/busybox |
+      | image_name | busybox                            |
+      | all        | true                               |
+      | confirm    | true                               |
+      | insecure   | true                               |
+    Then the step should succeed
+    And the "busybox:latest" image stream tag was created
+    And I run commands on the host:
+      | docker tag docker.io/busybox:latest <%= cb.reg_svc_url %>/test/busybox:v1|
+    Then the step should succeed
+    And I run commands on the host:
+      | docker push <%= cb.reg_svc_url %>/test/busybox:v1 |
+    Then the step should succeed
+    When I run the :import_image client command with:
+      | from       | <%= cb.reg_svc_url %>/test/busybox |
+      | image_name | busybox                            |
+      | confirm    | true                               |
+      | all        | true                               |
+      | insecure   | true                               |
+    Then the step should succeed
+    And the "busybox:v1" image stream tag was created
+    And I run commands on the host:
+      | docker pull docker.io/library/centos:latest |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker tag docker.io/library/centos:latest <%= cb.reg_svc_url %>/test/busybox:centos |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker push <%= cb.reg_svc_url %>/test/busybox:centos |
+    Then the step should succeed
+    When I run the :import_image client command with:
+      | from       | <%= cb.reg_svc_url %>/test/busybox |
+      | image_name | busybox                            |
+      | confirm    | true                               |
+      | all        | true                               |
+      | insecure   | true                               |
+    Then the step should succeed
+    And the "busybox:centos" image stream tag was created
