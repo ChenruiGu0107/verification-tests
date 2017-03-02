@@ -547,6 +547,18 @@
   :cmd: oc policy can-i <verb> <resource>
 :policy_who_can:
   :cmd: oc policy who-can <verb> <resource>
+:policy_scc_review:
+  :cmd: oc policy scc-review
+  :options:
+    :f: -f <value>
+    :serviceaccount: -z <value>
+:policy_scc_subject_review:
+  :cmd: oc policy scc-subject-review 
+  :options:
+    :f: -f <value>
+    :group: -g <value>
+    :serviceaccount: -z <value>
+    :user: -u <value>
 :port_forward:
   :cmd: oc port-forward
   :options:

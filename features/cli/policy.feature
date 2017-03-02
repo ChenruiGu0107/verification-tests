@@ -904,3 +904,126 @@ Feature: change the policy of user/service account
     And the output should match:
       | Role:\\s+tc467927                            |
       | Users:\\s+<%= user(1, switch: false).name %> |
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-9551
+  Scenario: User can know if he can create podspec against the current scc rules via CLI
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_false.json"
+    Then the step should succeed
+    Given I run the :policy_scc_subject_review client command with:
+      | f | PodSecurityPolicySubjectReview_privileged_false.json |
+    Then the step should succeed
+    And the output should match:
+      | .*restricted |
+    Given I run the :policy_scc_subject_review client command with:
+      | f | PodSecurityPolicySubjectReview_privileged_false.json |
+      | n | <%= project.name %>                                  |
+    Then the step should succeed
+    And the output should match:
+      | .*restricted |
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_true.json"
+    Then the step should succeed
+    Given I run the :policy_scc_subject_review client command with:
+      | f | PodSecurityPolicySubjectReview_privileged_true.json |
+    Then the step should succeed
+    And the output should match:
+      | <none> |
+    Given I run the :policy_scc_subject_review client command with:
+      | f | PodSecurityPolicySubjectReview_privileged_true.json |
+      | n | <%= project.name %>                                 |
+    Then the step should succeed
+    And the output should match:
+      | <none> |
+ 
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-9552
+  @admin
+  Scenario: User can know which serviceaccount and SA groups can create the podspec against the current sccs by CLI
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538264/PodSecurityPolicyReview.json"
+    Then the step should succeed
+    Given I run the :policy_scc_review client command with:
+      | f | PodSecurityPolicyReview.json |
+    Then the step should succeed
+    And the output should not match:
+      | .*default.*restricted |
+    Given I run the :policy_scc_review client command with:
+      | f | PodSecurityPolicyReview.json |
+      | n | <%= project.name %>          |
+    Then the step should succeed
+    And the output should not match:
+      | .*default.*restricted |
+    Given I run the :policy_scc_review client command with:
+      | serviceaccount | default                      |
+      | f              | PodSecurityPolicyReview.json |
+    Then the step should succeed
+    And the output should not match:
+      | .*default.*restricted |
+    Given I run the :policy_scc_review client command with:
+      | serviceaccount | default                      |
+      | f              | PodSecurityPolicyReview.json |
+      | n              | <%= project.name %>          |
+    Then the step should succeed
+    And the output should not match:
+      | .*default.*restricted |
+    Given SCC "restricted" is added to the "default" service account
+    Given I run the :policy_scc_review client command with:
+      | f | PodSecurityPolicyReview.json |
+    Then the step should succeed
+    And the output should match:
+      | .*default.*restricted |
+    Given I run the :policy_scc_review client command with:
+      | f | PodSecurityPolicyReview.json |
+      | n | <%= project.name %>          |
+    Then the step should succeed
+    And the output should match:
+      | .*default.*restricted |
+    Given I run the :policy_scc_review client command with:
+      | serviceaccount | default                      |
+      | f              | PodSecurityPolicyReview.json |
+    Then the step should succeed
+    And the output should match:
+      | .*default.*restricted |
+    Given I run the :policy_scc_review client command with:
+      | serviceaccount | default                      |
+      | f              | PodSecurityPolicyReview.json |
+      | n              | <%= project.name %>          |
+    Then the step should succeed
+    And the output should match:
+      | .*default.*restricted |
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-9553
+  Scenario: User can know whether the PodSpec he's describing will actually be allowed by the current SCC rules via CLI
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538263/PodSecurityPolicySubjectReview.json"
+    Then the step should succeed
+    Given I run the :policy_scc_subject_review client command with:
+      | user          | <%= user.name %>                    |
+      | f             | PodSecurityPolicySubjectReview.json |
+    Then the step should succeed
+    And the output should not match:
+      | .*restricted |
+    Given I run the :policy_scc_subject_review client command with:
+      | user | <%= user.name %>                    |
+      | f    | PodSecurityPolicySubjectReview.json |
+      | n    | <%= project.name %>                 |
+    Then the step should succeed
+    And the output should not match:
+      | .*restricted |
+    Given I run the :policy_scc_subject_review client command with:
+      | user  | <%= user.name %>                    |
+      | group | system:authenticated                |
+      | f     | PodSecurityPolicySubjectReview.json |
+    Then the step should succeed
+    And the output should match:
+      | .*restricted |
+    Given I run the :policy_scc_subject_review client command with:
+      | user  | <%= user.name %>                    |
+      | group | system:authenticated                |
+      | f     | PodSecurityPolicySubjectReview.json |
+      | n     | <%= project.name %>                 |
+    Then the step should succeed
+    And the output should match:
+      | .*restricted |
