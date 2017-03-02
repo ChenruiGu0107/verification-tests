@@ -334,6 +334,8 @@ Feature: Testing wildcard routes
       | resource_name | wildcard-edge-route |
       | p | {"spec":{"tls": { "insecureEdgeTerminationPolicy":"Redirect"}}} |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -344,6 +346,7 @@ Feature: Testing wildcard routes
       | -ksSL |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -520,7 +523,8 @@ Feature: Testing wildcard routes
       | service        | service-secure                            |
       | wildcardpolicy | Subdomain                                 |
     Then the step should succeed
-
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -529,7 +533,7 @@ Feature: Testing wildcard routes
       | -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1 https-8443"
-
+    """
     #Create reencrypt wildcard route
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"    
     When I run the :create_route_reencrypt client command with:
@@ -539,7 +543,8 @@ Feature: Testing wildcard routes
       | destcacert     | route_reencrypt_dest.ca                   |
       | wildcardpolicy | Subdomain                                 |
     Then the step should succeed
-
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -548,6 +553,7 @@ Feature: Testing wildcard routes
       | -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1 https-8443"
+    """
 
   # @author zzhao@redhat.com
   # @case_id OCP-11436
@@ -643,7 +649,9 @@ Feature: Testing wildcard routes
       | service        | service-secure                            |
       | wildcardpolicy | None                                      |
     Then the step should succeed
-
+    
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -652,7 +660,7 @@ Feature: Testing wildcard routes
       | -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1 https-8443"
-
+    """
     #Access using a wildcard route, should fail
     When I execute on the pod:
       | curl |
@@ -676,7 +684,8 @@ Feature: Testing wildcard routes
       | destcacert     | route_reencrypt_dest.ca                   |
       | wildcardpolicy | None                                      |
     Then the step should succeed
-
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | --resolve |
@@ -685,7 +694,7 @@ Feature: Testing wildcard routes
       | -k |
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1 https-8443"
-
+    """
     #Access using a wildcard route, should fail
     When I execute on the pod:
       | curl |
