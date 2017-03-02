@@ -1,7 +1,7 @@
 Feature: ruby.feature
 
   # @author haowang@redhat.com
-  # @case_id OCP-10810 OCP-11257
+  # @case_id OCP-10810 OCP-11257 OCP-13135 OCP-13136
   Scenario Outline: Tune puma workers according to memory limit ruby-22-rhel7 ruby-20-rhel7
     Given I have a project
     When I run the :create client command with:
@@ -19,11 +19,12 @@ Feature: ruby.feature
     Then the output should contain:
       | Min threads: 0, max threads: 16 |
     """
-
     Examples:
-      | template |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521461/template.json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521462/template.json |
+      | template                                                                                                                  |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521461/template.json  |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521462/template.json  |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/OCP-13135/template.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/OCP-13136/template.json |
 
   # @author xiuwang@redhat.com
   # @case_id OCP-12370

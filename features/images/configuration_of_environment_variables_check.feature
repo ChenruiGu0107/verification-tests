@@ -192,11 +192,11 @@ Feature: Configuration of environment variables check
       | openshift/ruby:2.3 |
 
   # @author haowang@redhat.com
-  # @case_id OCP-11575
-  Scenario: Users can override the the env tuned by ruby base image -ruby-20-rhel7
+  # @case_id OCP-11575 OCP-13141
+  Scenario Outline: Users can override the the env tuned by ruby base image -ruby-20-rhel7
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521461/template.json |
+      | f | <template> |
     Then the step should succeed
     Given the "rails-ex-1" build was created
     And the "rails-ex-1" build completed
@@ -219,3 +219,7 @@ Feature: Configuration of environment variables check
       | max threads: 14    |
       | Process workers: 5 |
     """
+    Examples:
+      | template        |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521461/template.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/OCP-13141/template.json    |
