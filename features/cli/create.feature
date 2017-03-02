@@ -283,14 +283,14 @@ Feature: creating 'apps' with CLI
   Scenario: Create an application from images
     Given I have a project
     When I create a new application with:
-      | image_stream | openshift/python:3.4                  |
-      | image_stream | openshift/mysql:5.6                   |
-      | code         | git://github.com/openshift/sti-python |
-      | context_dir  | 3.4/test/standalone-test-app          |
-      | group        | openshift/python+openshift/mysql      |
-      | env          | MYSQL_USER=test                       |
-      | env          | MYSQL_PASSWORD=test                   |
-      | env          | MYSQL_DATABASE=ccytest                |
+      | image_stream | openshift/python:3.4                     |
+      | image_stream | openshift/mysql:5.6                      |
+      | code         | git://github.com/openshift/sti-python    |
+      | context_dir  | 3.4/test/standalone-test-app             |
+      | group        | openshift/python:3.4+openshift/mysql:5.6 |
+      | env          | MYSQL_USER=test                          |
+      | env          | MYSQL_PASSWORD=test                      |
+      | env          | MYSQL_DATABASE=ccytest                   |
     Then the step should succeed
     And the "sti-python-1" build completed
     And a pod becomes ready with labels:
