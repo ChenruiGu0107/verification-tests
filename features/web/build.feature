@@ -958,11 +958,6 @@ Feature: build related feature on web console
       | resource_type | Builds              |
       | resource_name | nodejs-app-1        |
     Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    When I run the :go_to_top_log web console action
-    Then the step should succeed
-    """
     When I run the :open_in_new_window web console action
     Then the step should succeed
     Given the "nodejs-app-1" build finished

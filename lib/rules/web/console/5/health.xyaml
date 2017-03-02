@@ -102,3 +102,5 @@ select_probe_type:
 select_probe_port:
   action: show_probe_port_list
   action: click_probe_port_from_list
+switch_dc_health_check_tab:
+  action: click_on_configuration_tab

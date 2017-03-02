@@ -14,7 +14,8 @@ Feature: Health related feature on web console
       | project_name   | <%= project.name %> |
       | <kind>_name    | <resource_name>     |
     Then the step should succeed
-
+    When I run the :<switch_configuration_tab> web console action
+    Then the step should succeed
     When I run the :check_health_alert web console action
     Then the step should succeed
 
@@ -68,6 +69,8 @@ Feature: Health related feature on web console
     And the expression should be true> ['ls', '/etc'] == @result[:parsed]['spec']['template']['spec']['containers'][1]['readinessProbe']['exec']['command']
 
     # Was on DC/RC page after above Save
+    When I run the :<switch_configuration_tab> web console action
+    Then the step should succeed
     When I perform the :check_health_probe web console action with:
       | container_name   | <cont_1>                                   |
       | readiness_probe  | Readiness Probe: GET /healthz on port 8080 |
@@ -115,9 +118,9 @@ Feature: Health related feature on web console
     """
 
     Examples:
-      | kind | resource_name | cont_1           | cont_2                 | action_name                 |
-      | dc   | dctest        | dctest-1         | dctest-2               | goto_one_dc_page            |
-      | rc   | rctest        | hello-openshift  | hello-openshift-fedora | goto_one_standalone_rc_page |
+      | kind | resource_name | cont_1           | cont_2                 | action_name                 | switch_configuration_tab   |
+      | dc   | dctest        | dctest-1         | dctest-2               | goto_one_dc_page            | switch_dc_health_check_tab |
+      | rc   | rctest        | hello-openshift  | hello-openshift-fedora | goto_one_standalone_rc_page | null                       |
 
   # @author: yapei@redhat.com
   # @case_id: OCP-11993

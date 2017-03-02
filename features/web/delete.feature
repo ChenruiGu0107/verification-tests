@@ -14,6 +14,7 @@ Feature: Delete the resources via web console
       | namespace    | openshift                                  |
       | app_name     | nodejs-sample                              |
       | source_url   | https://github.com/openshift/nodejs-ex.git |
+    Given the "nodejs-sample-1" build completed
     Given I wait for the "nodejs-sample" service to become ready
     And I wait until the status of deployment "nodejs-sample" becomes :complete
     When I run the :deploy client command with:
@@ -21,7 +22,6 @@ Feature: Delete the resources via web console
       | latest            ||
     Then the step should succeed
     And I wait until the status of deployment "nodejs-sample" becomes :complete
-
     When I perform the :delete_resources_in_the_project web console action with:
       | project_name     | <%= project.name %>   |
       | pod_name         | nodejs-sample-1-build |
@@ -57,13 +57,8 @@ Feature: Delete the resources via web console
       | app_name     | nodejs-sample                              |
       | source_url   | https://github.com/openshift/nodejs-ex.git |
     Then the step should succeed
+    Given the "nodejs-sample-1" build completed
     Given I wait for the "nodejs-sample" service to become ready
-    When I run the :deploy client command with:
-      | deployment_config | nodejs-sample |
-      | latest            ||
-    Then the step should succeed
-    And I wait until the status of deployment "nodejs-sample" becomes :complete
-
     When I run the :policy_add_role_to_user client command with:
       | role      |   view    |
       | user_name | <%= user(1, switch: false).name %> |
