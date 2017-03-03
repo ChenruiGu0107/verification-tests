@@ -648,14 +648,22 @@ check_volume_info_in_pod_template_on_dc:
   action: goto_one_dc_page
   action: click_on_configuration_tab
   action: check_volume_info_in_pod_template
-check_specified_key_and_path_in_volume:
+check_configmap_specified_key_and_path_in_volume:
   elements:
   - selector:
       xpath: //div[@ng-if='volume.configMap']//dt[starts-with(text(),'Key to File')]/following::dd[1][starts-with(normalize-space(.),'<specified_key>') and contains(.,'<specified_path>')]
-check_specified_key_and_path_in_volume_on_dc:
+check_secret_specified_key_and_path_in_volume:
+  elements:
+  - selector:
+      xpath: //div[@ng-if='volume.secret']//dt[starts-with(text(),'Key to File')]/following::dd[1][starts-with(normalize-space(.),'<specified_key>') and contains(.,'<specified_path>')]
+check_configmap_specified_key_and_path_in_volume_on_dc:
   action: goto_one_dc_page
   action: click_on_configuration_tab
-  action: check_specified_key_and_path_in_volume
+  action: check_configmap_specified_key_and_path_in_volume
+check_secret_specified_key_and_path_in_volume_on_dc:
+  action: goto_one_dc_page
+  action: click_on_configuration_tab
+  action: check_secret_specified_key_and_path_in_volume
 remove_volume_created_from_configmap:
   elements:
   - selector:
