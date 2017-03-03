@@ -8,7 +8,7 @@ check_empty_storage_page:
   elements:
   - selector:
       xpath: //em[text()='No persistent volume claims to show']
-check_pvcs_on storage_page:
+check_pvcs_on_storage_page:
   action: goto_storage_page
   elements:
   - selector:
