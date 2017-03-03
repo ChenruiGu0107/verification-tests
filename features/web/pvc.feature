@@ -433,7 +433,7 @@ Feature: Add pvc to pod from web related
     Then the step should succeed
 
   # @author wehe@redhat.com
-  # @case_id 538184 544977 544978
+  # @case_id OCP-10444 OCP-10557 OCP-10556
   @admin
   Scenario Outline: Create persist volume claim with storage class on web console
     Given I have a project

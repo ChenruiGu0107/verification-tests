@@ -3,6 +3,8 @@ goto_storage_page:
   url: /console/project/<project_name>/browse/storage
 goto_one_pvc_page:
   url: /console/project/<project_name>/browse/persistentvolumeclaims/<pvc_name>
+goto_create_pvc_page:
+  url: /console/project/<project_name>/create-pvc
 check_empty_storage_page:
   action: goto_storage_page
   elements:
@@ -16,6 +18,16 @@ check_pvcs_on_storage_page:
     op: click
   - selector:
       xpath: //h1[contains(.,'<pvc_name>')]
+check_pvcs_detail_on_storage_page:
+  action: goto_storage_page
+  elements:
+  - selector:
+      xpath: //td/a[text()='<pvc_name>']/../following-sibling::td[@data-title='Status'][contains(.,'<pvc_status>')]
+    timeout: 60 
+  - selector:
+      xpath: //td/a[text()='<pvc_name>']/../following-sibling::td[@data-title='Capacity'][contains(.,'<storage_size>')]
+  - selector:
+      xpath: //td/a[text()='<pvc_name>']/../following-sibling::td[@data-title='Access Modes'][contains(.,'<pvc_access_mode>')]
 check_one_pvc_detail:
   action: goto_one_pvc_page
   elements:
@@ -38,6 +50,10 @@ create_pvc_from_storage_page:
 check_pvc_info:
   action: check_one_pvc_detail
   action: check_pvc_set_info
+check_pvc_info_with_status:
+  action: check_one_pvc_detail
+  action: check_pvc_set_info
+  action: check_pvc_status
 delete_resources_pvc:
   action: goto_one_pvc_page
   action: delete_resource
@@ -56,6 +72,22 @@ create_pvc_with_invalid_value_and_check:
   action: set_storage_size
   action: check_create_button_disabled
 create_pvc_with_min_length_and_check: {}
+create_pvc_with_storage_class:
+  action: goto_create_pvc_page
+  action: set_pvc_name
+  action: set_storage_class 
+  action: set_pvc_access_mode
+  action: set_storage_size
+  action: set_storage_unit
+  action: click_create_button
+create_pvc_no_storage_class:
+  action: goto_create_pvc_page
+  action: set_pvc_name
+  action: set_no_storage_class 
+  action: set_pvc_access_mode
+  action: set_storage_size
+  action: set_storage_unit
+  action: click_create_button
 check_prompt_info_for_pvc:
   elements:
   - selector:
@@ -66,6 +98,10 @@ check_pvc_set_info:
       xpath: //span[contains(text(),'<storage_size>')]
   - selector:
       xpath: //dd[contains(text(),'<pvc_access_mode>')]
+check_pvc_status:
+  elements:
+  - selector:
+      xpath: //dd[contains(.,'<pvc_status>')]
 open_create_pvc_page:
   elements:
   - selector:
@@ -95,4 +131,20 @@ set_storage_unit:
     op: click
   - selector:
       xpath: //span[contains(text(),'<storage_unit>')]
+    op: click
+set_storage_class:
+  elements:
+  - selector:
+      xpath: //span[contains(text(),'Select a storage class')]
+    op: click
+  - selector:
+      xpath: //span[contains(text(),'<project_name>')]
+    op: click
+set_no_storage_class:
+  elements:
+  - selector:
+      xpath: //span[contains(text(),'Select a storage class')]
+    op: click
+  - selector:
+      xpath: //span[contains(text(),'No Storage Class')]
     op: click
