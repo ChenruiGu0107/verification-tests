@@ -23,6 +23,7 @@ require 'openshift/cluster_role_binding'
 require 'openshift/storage_class'
 require 'openshift/host_subnet'
 require 'openshift/cluster_resource_quota'
+require 'openshift/stateful_set'
 module CucuShift
   # @note this is our default cucumber World extension implementation
   class DefaultWorld
@@ -348,6 +349,14 @@ module CucuShift
     # @note you need the project already created
     def rs(name = nil, project = nil)
       project_resource(ReplicaSet, name, project)
+    end
+
+    #  @return StatefulSets by name from scenario cache;
+    #   with no params given, returns last requested ss;
+    #   otherwise creates a [StatefulSet] object
+    # @note you need the project already created
+    def stateful_set(name = nil, project = nil)
+      project_resource(StatefulSet, name, project)
     end
 
     # @return dc (DeploymentConfig) by name from scenario cache;

@@ -823,3 +823,57 @@ Feature: pod related features
       | payload_file | Eviction.json       |
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 429
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13289
+  @admin
+  Scenario: PDBs represent percentage in StatefulSet
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp12897/pdb_positive_absolute_number.yaml"
+    And I replace lines in "pdb_positive_absolute_number.yaml":
+      | minAvailable: 2|minAvailable: "80%"|
+    Then I run the :create admin command with:
+      | f | pdb_positive_absolute_number.yaml |
+      | n | <%= project.name %>               |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/hello-statefulset.yaml |
+    Then the step should succeed
+    Then I run the :scale client command with:
+      | resource | statefulset       |
+      | name     | hello-statefulset |
+      | replicas | 5                 |
+    Then the step should succeed
+    Given I wait until number of replica_count match "5" for StatefulSet "hello-statefulset"
+    When I run the :label client command with:
+      | resource  | pods     |
+      | all       | true     |
+      | key_val   | foo8=bar |
+      | overwrite | true     |
+    Then the step should succeed
+    Given cluster role "cluster-admin" is added to the "first" user
+    Given a pod becomes ready with labels:
+      | foo8=bar |
+    And evaluation of `pod.name` is stored in the :pod clipboard
+    And all pods in the project are ready
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/admin/Eviction.json"
+    And I replace lines in "Eviction.json":
+      | "apiVersion": "policy/v1alpha1", | "apiVersion": "policy/v1beta1",    |
+      | "name": "",                      | "name": "<%= cb.pod %>",           |
+      | "namespace": ""                  | "namespace": "<%= project.name %>" |
+    When I perform the :create_pod_eviction rest request with:
+      | project_name | <%= project.name %> |
+      | pod_name     | <%= cb.pod %>       |
+      | payload_file | Eviction.json       |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | foo8=bar |
+    And evaluation of `pod.name` is stored in the :pod2 clipboard
+    And I replace lines in "Eviction.json":
+      | "name": "<%= cb.pod %>",|"name": "<%= cb.pod2 %>",|
+    When I perform the :create_pod_eviction rest request with:
+      | project_name | <%= project.name %> |
+      | pod_name     | <%= cb.pod2 %>      |
+      | payload_file | Eviction.json       |
+    Then the step should fail
+    And the expression should be true> @result[:exitstatus] == 429
