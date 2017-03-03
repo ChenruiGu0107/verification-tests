@@ -193,13 +193,13 @@ Feature: ConfigMap related features
     Then the step should succeed
     And the output should contain:
       | charm |
-    When I perform the :check_specified_key_and_path_in_volume_on_dc web console action with:
+    When I perform the :check_configmap_specified_key_and_path_in_volume_on_dc web console action with:
       | project_name   | <%= project.name %> |
       | dc_name        | myrun               |
       | specified_key  | special.how         |
       | specified_path | prop/configmap.how  |
     Then the step should succeed
-    When I perform the :check_specified_key_and_path_in_volume web console action with:
+    When I perform the :check_configmap_specified_key_and_path_in_volume web console action with:
       | specified_key  | special.type        |
       | specified_path | prop/configmap.type |
     Then the step should succeed
@@ -215,3 +215,123 @@ Feature: ConfigMap related features
       | dc_name        | myrun               |
       | configmap_name | example-config      |
     Then the step should fail
+    
+  # @author yapei@redhat.com
+  # @case_id OCP-11410
+  Scenario: Add values from secret as volume
+    Given the master version >= "3.5"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/OCP-11410/mysecret-1.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/OCP-11410/mysecret-2.yaml |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name  | myrun                 |
+      | image | aosqe/hello-openshift |
+    Then the step should succeed
+    # Add Config Files from dc/myrun page
+    Given I wait until the status of deployment "myrun" becomes :complete
+    When I perform the :click_add_config_file_from_dc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | myrun               |
+    Then the step should succeed
+    When I perform the :add_values_from_secret_as_volume web console action with:
+      | target_secret_name | mysecret1    |
+      | config_mount_path  | /data/secret |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=myrun-2 |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %> |
+      | exec_command     | ls              |
+      | exec_command_arg | /data/secret    |
+    Then the step should succeed
+    And the output should contain:
+      | password |
+      | username |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %>           |
+      | exec_command     | cat                       |
+      | exec_command_arg | /data/secret/password     |
+    Then the step should succeed
+    And the output should contain:
+      | admin123 |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %>           |
+      | exec_command     | cat                       |
+      | exec_command_arg | /data/secret/username     |
+    Then the step should succeed
+    And the output should contain:
+      | admin |
+    # check volume info on dc/myrun page
+    When I perform the :check_volume_from_secret_on_dc web console action with:
+      | project_name   | <%= project.name %> |
+      | dc_name        | myrun               |
+      | secret_name    | mysecret1           |
+    Then the step should succeed
+    When I perform the :check_volume_info_in_pod_template_on_dc web console action with:
+      | project_name   | <%= project.name %> |
+      | dc_name        | myrun               |
+      | mount_path     | /data/secret        |
+    Then the step should succeed
+    When I perform the :click_on_secret_name web console action with:
+      | secret_name | mysecret1 |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    Given the expression should be true> browser.url.include? "/browse/secrets/mysecret1"
+    """
+    # Add Config Files from secret with specified path and key
+    When I perform the :click_add_config_file_from_dc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | myrun               |
+    Then the step should succeed
+    When I perform the :add_values_from_secret_as_volume_with_specific_keys_and_paths web console action with:
+      | target_secret_name | mysecret2   |
+      | config_mount_path  | /datasecret |
+    Then the step should succeed
+    When I perform the :pick_key_and_set_path web console action with:
+      | specified_key     | city              |
+      | specified_path    | prop/secret.city  |
+    Then the step should succeed
+    When I perform the :pick_another_key_and_set_another_path web console action with:
+      | specified_key     | country             |
+      | specified_path    | prop/secret.country |
+    Then the step should succeed
+    When I run the :click_add_button web console action
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=myrun-3 |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %>  |
+      | exec_command     | ls               |
+      | exec_command_arg | /datasecret/prop |
+    Then the step should succeed
+    And the output should contain:
+      | secret.city    |
+      | secret.country |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %>              |
+      | exec_command     | cat                          |
+      | exec_command_arg | /datasecret/prop/secret.city |
+    Then the step should succeed
+    And the output should contain:
+      | BeiJing |
+    When I run the :exec client command with:
+      | pod              | <%= pod.name %>                 |
+      | exec_command     | cat                             |
+      | exec_command_arg | /datasecret/prop/secret.country |
+    Then the step should succeed
+    And the output should contain:
+      | China |
+    # Check volumn info from secret with path and key
+    When I perform the :check_secret_specified_key_and_path_in_volume_on_dc web console action with:
+      | project_name   | <%= project.name %> |
+      | dc_name        | myrun               |
+      | specified_key  | city                |
+      | specified_path | prop/secret.city    |
+    Then the step should succeed
+    When I perform the :check_secret_specified_key_and_path_in_volume web console action with:
+      | specified_key  | country             |
+      | specified_path | prop/secret.country |
+    Then the step should succeed
