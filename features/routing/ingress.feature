@@ -260,3 +260,140 @@ Feature: Testing ingress object
     And the output should contain "Hello-OpenShift-2"
     """
 
+  # @author: hongli@redhat.com
+  # @case_id: OCP-12846 OCP-12848
+  @admin
+  @destructive
+  Scenario: adding or updating host value of ingress resource is not permitted by default
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
+    And cluster role "system:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_ENABLE_INGRESS=true |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    Given cluster role "cluster-admin" is added to the "first" user
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ingress/test-ingress.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | ingress      |
+      | resource_name | test-ingress |
+    Then the step should succeed
+    And the output should contain "foo.bar.com"
+
+    # adding one more hostname to ingress is not permitted
+    When I run the :patch client command with:
+      | resource      | ingress      |
+      | resource_name | test-ingress |
+      | p             | {"spec":{"rules":[{"host":"foo.bar.com","http":{"paths":[{"backend":{"serviceName":"service-unsecure","servicePort":8080}}]}},{"host":"one.more.com"}]}} |
+    Then the step should fail
+    And the output should contain "cannot change hostname"
+
+    # updating the hostname is not permitted
+    When I run the :patch client command with:
+      | resource      | ingress      |
+      | resource_name | test-ingress |
+      | p             | {"spec":{"rules":[{"host":"new.hostname.com","http":{"paths":[{"backend":{"serviceName":"service-unsecure","servicePort":8080}}]}}]}} |
+    Then the step should fail
+    And the output should contain "cannot change hostname"
+
+  # @author: hongli@redhat.com
+  # @case_id: OCP-12847 OCP-12849
+  @admin
+  @destructive
+  Scenario: adding or updating host value of ingress resource is permitted when disabling the admission control
+    # modify master-config to allow ingress hostname change
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        openshift.io/IngressAdmission:
+          configuration:
+            apiVersion: v1
+            allowHostnameChanges: true
+            kind: IngressAdmissionConfig
+          location: ''
+    """
+    And the step should succeed
+    And the master service is restarted on all master nodes
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
+    And cluster role "system:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_ENABLE_INGRESS=true |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    Given cluster role "cluster-admin" is added to the "first" user
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ingress/test-ingress.json |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | ingress      |
+      | resource_name | test-ingress |
+    Then the step should succeed
+    And the output should contain "foo.bar.com"
+
+    # adding one more hostname to the ingress
+    When I run the :patch client command with:
+      | resource      | ingress      |
+      | resource_name | test-ingress |
+      | p             | {"spec":{"rules":[{"host":"foo.bar.com","http":{"paths":[{"backend":{"serviceName":"service-unsecure","servicePort":8080}}]}},{"host":"one.more.com"}]}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | ingress      |
+      | resource_name | test-ingress |
+    Then the step should succeed
+    And the output should contain "foo.bar.com,one.more.com"
+
+    # updating the hostname
+    When I run the :patch client command with:
+      | resource      | ingress      |
+      | resource_name | test-ingress |
+      | p             | {"spec":{"rules":[{"host":"new.hostname.com","http":{"paths":[{"backend":{"serviceName":"service-unsecure","servicePort":8080}}]}}]}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | ingress      |
+      | resource_name | test-ingress |
+    Then the step should succeed
+    And the output should contain "new.hostname.com"
+    Given I have a pod-for-ping in the project
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | --resolve |
+      | new.hostname.com:80:<%= cb.router_ip[0] %> |
+      | http://new.hostname.com/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift-1"
+
