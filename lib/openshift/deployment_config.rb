@@ -109,5 +109,40 @@ module CucuShift
       spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
       return spec['selector']
     end
+
+    def triggers(user:, cached: false, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec['triggers']
+    end
+
+    # return specific trigger matched by type, please note cached is default to false
+    def trigger_params(user:, type:, cached: false, quiet: false)
+      triggers = self.triggers(user: user, cached: cached, quiet: quiet)
+      trigger = triggers.find {|t| t["type"] == type}
+      case trigger["type"]
+        when "ImageChange"
+          index_key = "imageChangeParams"
+        when "ConfigChange"
+          index_key = "configChangeParams"
+        else
+          raise "Unsupported trigger type '#{type}' detected"
+      end
+      if trigger.has_key? index_key
+        return trigger[index_key]
+      else
+        return {}
+      end
+    end
+
+    # return the last triggered image
+    def last_image_for_trigger(user:, type:, cached: false, quiet: false)
+      return  trigger_params(user:user, type: "ImageChange")['lastTriggeredImage']
+    end
+
+    def template(user:, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec['template']
+    end
+
   end
 end

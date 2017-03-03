@@ -54,5 +54,18 @@ module CucuShift
       reference = tag["items"].first
       return reference["dockerImageReference"]
     end
+
+    # get all the items listed for specific tag.
+    def tag_items(user:, name: nil, cached: true, quiet: false)
+      tags = self.tags(user: user, cached: cached, quiet: quiet)
+      raise "No tags found for image stream #{self.name}" unless tags.length > 0
+      if name
+        tag = tags.find{|t| t["tag"] == name}
+        raise "No matching tag '#{name}' found" unless tag
+        return tag["iterms"]
+      else
+        return tags.first["items"]
+      end
+    end
   end
 end

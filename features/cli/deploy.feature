@@ -72,7 +72,7 @@ Feature: deployment related features
       | resource | dc                 |
       | name     | deployment-example |
     Then the output should match:
-      | Deployment\\s+#1.*latest  |
+      | Deployment\\s+#1.*latest |
       | Status:\\s+Complete       |
       | Pods Status:\\s+1 Running |
     When I run the :deploy client command with:
@@ -1860,3 +1860,78 @@ Feature: deployment related features
       | template      | {{(index .status.conditions 1).reason }} |
     Then the step should succeed
     And the output should match "ReplicationControllerCreateError"
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-10967
+  Scenario: Deployment config with automatic=false in ICT
+    #Given the master version >= "3.4"
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    And I replace lines in "application-template-stibuild.json":
+      |"automatic": true|"automatic": false|
+    When I process and create "application-template-stibuild.json"
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    And 20 seconds have passed
+    When I get project dc named "frontend" as JSON
+    And the output should not contain:
+      | lastTriggeredImage |
+      | "latestVersion": 1 |
+    When I run the :deploy client command with:
+      | deployment_config | frontend |
+      | latest            |          |
+    Then the step should fail
+    And the output should contain:
+      | oc rollout latest |
+    When I run the :rollout_latest client command with:
+      | resource | frontend |
+    Then the step should succeed
+    And I wait until the status of deployment "frontend" becomes :complete
+    When I get project dc named "frontend" as JSON
+    And evaluation of `dc.last_image_for_trigger(user: user, type: 'ImageChange')` is stored in the :imagestreamimage clipboard
+    Then the output should contain:
+      | lastTriggeredImage     |
+    When I run the :start_build client command with:
+      | buildconfig | ruby-sample-build |
+    Then the step should succeed
+    Given the "ruby-sample-build-2" build finishes
+    When I get project imagestream named "origin-ruby-sample" as JSON
+    And evaluation of `image_stream('origin-ruby-sample').tag_items(user: user)` is stored in the :imagestreamitems clipboard
+    And the expression should be true> cb.imagestreamitems.length == 2
+    When I get project dc named "frontend" as JSON
+    Then the output should contain:
+      | "latestVersion": 1 |
+    And evaluation of `dc.last_image_for_trigger(user: user, type: 'ImageChange')` is stored in the :sed_imagestreamimage clipboard
+    And the expression should be true> cb.imagestreamimage == cb.sed_imagestreamimage
+    When I run the :deploy client command with:
+      | deployment_config | frontend |
+      | latest            |          |
+    Then the step should succeed
+    And I wait until the status of deployment "frontend" becomes :complete
+    When I get project dc named "frontend" as JSON
+    And evaluation of `dc.last_image_for_trigger(user: user, type: 'ImageChange')` is stored in the :imagestreamimage2 clipboard
+    And the expression should be true> cb.imagestreamimage == cb.imagestreamimage2
+    When I run the :rollout_latest client command with:
+      | resource | frontend |
+    Then the step should succeed
+    And I wait until the status of deployment "frontend" becomes :complete
+    When I get project dc named "frontend" as JSON
+    And evaluation of `dc.last_image_for_trigger(user: user, type: 'ImageChange')` is stored in the :imagestreamimage3 clipboard
+    And the expression should be true> cb.imagestreamimage != cb.imagestreamimage3
+
+# @author yinzhou@redhat.com
+# @case_id OCP-11834
+  Scenario: Paused deployments shouldn't update the image to template
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    When I process and create "application-template-stibuild.json"
+    Then the step should succeed
+    When I run the :rollout_pause client command with:
+      | resource | dc       |
+      | name     | frontend |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build was created
+    And the "ruby-sample-build-1" build completed
+    When I get project dc named "frontend" as JSON
+    Then the output should not contain:
+      | lastTriggeredImage     |
