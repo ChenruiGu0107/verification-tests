@@ -582,12 +582,19 @@ Feature: Testing route
       | -L |
       | http://<%= route("myroute", service("service-unsecure")).dns(by: user) %>/ |
       | -k |
+      | -c |
+      | /tmp/cookie |
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift |
       | HTTP/1.1 302 Found |
       | Location: https:// |
-
+    And I execute on the pod:
+      | cat |
+      | /tmp/cookie |
+    Then the step should succeed
+    And the output should match:
+      | FALSE.*TRUE |
 
   # @author zzhao@redhat.com
   # @case_id OCP-12566
@@ -663,13 +670,20 @@ Feature: Testing route
       | <%= route("myroute", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |
       | http://<%= route("myroute", service("service-unsecure")).dns(by: user) %>/                   |
       | -v                                                                                           |
+      | -c                                                                                           |
+      | /tmp/cookie                                                                                  |
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift |
       | HTTP/1.1 200    | 
     And the output should not contain:
       | HTTP/1.1 302 Found |
-
+    And I execute on the pod:
+      | cat |
+      | /tmp/cookie |
+    Then the step should succeed
+    And the output should match:
+      | FALSE.*FALSE |
 
   # @author yadu@redhat.com
   # @case_id OCP-12635
