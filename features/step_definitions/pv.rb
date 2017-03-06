@@ -40,6 +40,7 @@ Given /^I have a(?: (\d+) GB)? volume and save volume id in the#{OPT_SYM} clipbo
     })
   step %Q/the step should succeed/
   step %Q/the "<%= project.name %>-<%= cb.dynamic_pvc_name %>" PVC becomes :bound within #{timeout} seconds/
+  step %Q/admin ensures "<%= pvc.volume_name(user: admin) %>" pv is deleted after scenario/
   step %Q/I save volume id from PV named "<%= pvc.volume_name(user: admin, cached: true) %>" in the :#{cbname} clipboard/
 end
 
