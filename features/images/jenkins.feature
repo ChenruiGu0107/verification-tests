@@ -1040,7 +1040,7 @@ Feature: jenkins.feature
   Scenario: Pipeline build, started before Jenkins is deployed, shouldn't get deleted
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.json |
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
     Then the step should succeed
     When I run the :start_build client command with:
       | buildconfig | sample-pipeline |
@@ -1049,9 +1049,6 @@ Feature: jenkins.feature
     Then the output should contain:
       | sample-pipeline-1 |
       | New               |
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/jenkins-ephemeral-template.json |
-    Then the step should succeed
     Given a pod becomes ready with labels:
       | name=jenkins |
     #Ensure the pre-existing build is still present after jenkins creation
