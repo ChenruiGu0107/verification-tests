@@ -407,10 +407,8 @@ end
 
 Given /^I have a registry in my project$/ do
   ensure_admin_tagged
-  ensure_destructive_tagged
-  raise "please create a project first" unless project(generate: false).name
   if CucuShift::Project::SYSTEM_PROJECTS.include?(project(generate: false).name)
-    raise "Cannot create registry in the system project: #{project(generate:false)}"
+    raise "I refuse create registry in a system project: #{project.name}"
   end
   @result = admin.cli_exec(:new_app, docker_image: "registry:2.5.1", namespace: project.name)
   step %Q/the step should succeed/
