@@ -6,7 +6,7 @@ Feature: oc logs related features
     When I run the :logs client command with:
       | resource_name | 123 |
     Then the step should fail
-    And the output should contain "Error from server: pods "123" not found"
+    And the output should contain "pods "123" not found"
     When I run the :logs client command with:
       | resource_name |   |
     Then the step should fail
