@@ -19,8 +19,10 @@ click_to_goto_membership_page:
     op: click
 click_to_goto_membership_tab:
   action: goto_membership_page
-  element:
-    selector:
+  elements:
+  - selector:
+      xpath: //span[contains(@class,"action-chip")]
+  - selector:
       xpath: //uib-tab-heading[starts-with(normalize-space(text()), "<tab_name>")]
     op: click
 edit_membership:
@@ -98,7 +100,7 @@ add_role_on_membership:
   action: select_role_on_membership
   action: click_add_button_on_membership
   action: done_membership_editing
-add_role_on_membership_with_namespace:
+add_sa_role_on_membership_with_namespace:
   action: click_to_goto_membership_tab
   action: edit_membership
   action: add_name_on_membership
@@ -138,7 +140,7 @@ check_entry_content_on_membership_with_namespace:
   action: click_to_goto_membership_tab
   element:
     selector:
-      xpath: //div[contains(@class,"active")]//div[contains(@class, "item-row") and div//span[normalize-space(text())="<namespace> /"] and div//strong[normalize-space(text())="<name>"] and div//span[normalize-space(text())="<role>"]]
+      xpath: //div[contains(@class,"active")]//div[contains(@class, "item-row") and div//span[normalize-space()="<namespace> /"] and div//strong[normalize-space()="<name>"] and div//span[normalize-space()="<role>"]]
 check_error_message_on_membership:
   element:
     selector:

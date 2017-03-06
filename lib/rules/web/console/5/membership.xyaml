@@ -35,7 +35,6 @@ done_membership_editing:
     selector:
       xpath: //a[span[contains(text(),"Done Editing")]]
     op: click
-
 add_name_on_membership:
   element:
     selector:
@@ -49,24 +48,27 @@ select_role_on_membership:
   - selector:
       xpath: //div[contains(@class,"active")]//div[contains(@class,"ui-select-choices-row")]//div[text()="<role>"]
     op: click
-select_project_on_membership:
-  elements:
-  - selector:
-      xpath: //div[contains(@class,"active")]//div[contains(@class,"action-set")]//span[span[text()="Select a project"]]
-    op: click
-  - selector:
-      xpath: //div[contains(@class,"active")]//div[contains(@class,"ui-select-choices-row")]//div[text()="<namespace>"]
-    op: click
 type_project_on_membership:
   elements:
   - selector:
-      xpath: //div[contains(@class,"active")]//div[contains(@class,"action-set")]//span[span[text()="Select a project"]]
+      xpath: //div[contains(@class,'service-account-namespace')]//span[normalize-space()='<old_namespace>']
     op: click
   - selector:
-      xpath: //div[contains(@class,"active")]//div[@class="col-roles"]//div[@title="Select a project"]/input[contains(@class,"ui-select-search")]
+      xpath: //div[contains(@class,'service-account-namespace')]//input[@placeholder='Select a project']
     op: send_keys <namespace>
   - selector:
-      xpath: //div[contains(@class,"active")]//div[contains(@class,"ui-select-choices-row")]//div[text()="<namespace>"]
+      xpath: //div[contains(@class,'service-account-namespace')]//div[contains(@id,"ui-select-choices-row")]//div[normalize-space()='<namespace>']
+    op: click
+type_service_account_name_on_membership:
+  elements:
+  - selector:
+      xpath: //div[contains(@class,'service-account-name')]//span[@aria-label]//span[normalize-space()='Service account']
+    op: click
+  - selector:
+      xpath: //div[contains(@class,'service-account-name')]//input[@placeholder='Service account']
+    op: send_keys <name>
+  - selector:
+      xpath: //div[contains(@class,'service-account-name')]//div[contains(@id,'ui-select-choices-row')]//div[normalize-space()='<name>']
     op: click
 click_on_delete_role_on_membership:
   elements:
@@ -81,7 +83,7 @@ click_on_delete_role_on_membership:
 click_on_delete_role_on_membership_with_namespace:
   elements:
   - selector:
-      xpath: //div[div//span[normalize-space(text())="<namespace> /"] and div//strong[normalize-space(text())="<name>"]]//span[span[normalize-space(text())="<role>"]]/a
+      xpath: //div[div//span[normalize-space()="<namespace> /"] and div//strong[normalize-space()="<name>"]]//span[a[normalize-space()="<role>"]]/a
     op: click
   - selector:
       text: Remove
@@ -96,23 +98,22 @@ click_add_button_on_membership:
 add_role_on_membership:
   action: click_to_goto_membership_tab
   action: edit_membership
-  action: add_name_on_membership
   action: select_role_on_membership
+  action: add_name_on_membership
   action: click_add_button_on_membership
   action: done_membership_editing
-add_role_on_membership_with_namespace:
+add_sa_role_on_membership_with_namespace:
   action: click_to_goto_membership_tab
   action: edit_membership
-  action: add_name_on_membership
-  action: select_project_on_membership
+  action: type_service_account_name_on_membership
   action: select_role_on_membership
   action: click_add_button_on_membership
   action: done_membership_editing
 add_role_on_membership_with_typed_namespace:
   action: click_to_goto_membership_tab
   action: edit_membership
-  action: add_name_on_membership
   action: type_project_on_membership
+  action: type_service_account_name_on_membership
   action: select_role_on_membership
   action: click_add_button_on_membership
   action: done_membership_editing
