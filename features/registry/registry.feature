@@ -343,3 +343,30 @@ Feature: Testing registry
       | insecure   | true                               |
     Then the step should succeed
     And the "busybox:centos" image stream tag was created
+
+  # @author: haowang@redhat.com
+  # @case_id: OCP-11310
+  @admin
+  Scenario: Have size information for images pushed to internal registry
+    Given I have a project
+    When I find a bearer token of the builder service account
+    And default registry service ip is stored in the :registry_ip clipboard
+    And I select a random node's host
+    When I run commands on the host:
+      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker pull docker.io/aosqe/pushwithdocker19:latest |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker tag docker.io/aosqe/pushwithdocker19:latest <%= cb.registry_ip %>/<%= project.name %>/busybox:latest |
+    Then the step should succeed
+    When I run commands on the host:
+      | docker push  <%= cb.registry_ip %>/<%= project.name %>/busybox:latest |
+    Then the step should succeed
+    And evaluation of `image_stream_tag("busybox:latest").digest(user:user)` is stored in the :digest clipboard
+    Then I run the :describe admin command with:
+      | resource | image            |
+      | name     | <%= cb.digest %> |
+    And the output should match:
+      | Image Size:.* |
