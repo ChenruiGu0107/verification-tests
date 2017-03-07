@@ -20,14 +20,14 @@ Feature: dotnet.feature
     Given I have a project
     And I have a proxy configured in the project
     When I run the :new_build client command with:
-      | app_repo    | openshift/dotnet:1.0~https://github.com/openshift-s2i/s2i-aspnet-example |
-      | context_dir | app                                                                      |
-      | e           | http_proxy=http://<%= cb.proxy_ip %>:3128                                |
-      | e           | https_proxy=http://<%= cb.proxy_ip %>:3128                               |
-      | e           | HTTP_PROXY=http://<%= cb.proxy_ip %>:3128                                |
-      | e           | HTTPS_PROXY=http://<%= cb.proxy_ip %>:3128                               |
+      | app_repo    | openshift/dotnet:1.1~https://github.com/redhat-developer/s2i-dotnetcore-ex#dotnetcore-1.1 |
+      | context_dir | app                                                                                       |
+      | e           | http_proxy=http://<%= cb.proxy_ip %>:3128                                                 |
+      | e           | https_proxy=http://<%= cb.proxy_ip %>:3128                                                |
+      | e           | HTTP_PROXY=http://<%= cb.proxy_ip %>:3128                                                 |
+      | e           | HTTPS_PROXY=http://<%= cb.proxy_ip %>:3128                                                |
     Then the step should succeed
-    And the "s2i-aspnet-example-1" build completes
+    And the "s2i-dotnetcore-ex-1" build completes
 
   # @author haowang@redhat.com
   # @case_id OCP-11353
