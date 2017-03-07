@@ -34,9 +34,10 @@ Given /^I change the internal registry pod to use a new emptyDir volume$/ do
     step %Q/the step should succeed/
     step %Q/I wait until the latest rc of internal registry is ready/
     step %Q/I run the :env admin command with:/, table(%{
-      | resource  | dc/docker-registry                                      |
-      | e         | REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/registrytmp  |
-      | namespace | default                                                 |
+      | resource  | dc/docker-registry                                     |
+      | e         | REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/registrytmp |
+      | e         | REGISTRY_CONFIGURATION_PATH=/config.yml                |
+      | namespace | default                                                |
     })
     step %Q/the step should succeed/
     step %Q/I wait until the latest rc of internal registry is ready/
