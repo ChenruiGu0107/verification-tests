@@ -364,16 +364,16 @@ Feature: build 'apps' with CLI
       | wait        | true                |
       | _timeout    | 120                 |
     And the output should contain:
-      | Installing application source |
-      | Building your Ruby application from source |
+      |Running: |
+      |Finished in |
     When I run the :start_build client command with:
       | from_build | ruby22-sample-build-1 |
       | follow     | true                  |
       | wait       | true                  |
       | _timeout   | 120                   |
     And the output should contain:
-      | Installing application source              |
-      | Building your Ruby application from source |
+      |Running: |
+      |Finished in |
     When I run the :patch client command with:
       | resource      | buildconfig                                                 |
       | resource_name | ruby22-sample-build                                         |
