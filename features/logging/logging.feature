@@ -1,4 +1,4 @@
-Feature: logging and metrics related scenarios
+Feature: logging related scenarios
   # @author pruan@redhat.com
   # @case_id OCP-10823
   @admin
