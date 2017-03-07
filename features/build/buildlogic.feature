@@ -714,3 +714,12 @@ Feature: buildlogic.feature
       | [Dd]uration            |
       | [Ss]trategy            |
 
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-10577
+  Scenario: Buildconfig cannot be created with long name label(more than64)
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc527410/longname-build-withlabel.json |
+    Then the step should fail
+    And the output should contain "must be no more than 63 characters"
