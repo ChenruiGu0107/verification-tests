@@ -69,9 +69,8 @@ Feature: negative tests
 
     # oc status negative
     When I run the :status client command
-    Then the step should fail
-    And the output should match:
-      | cannot get projects in project.*default |   
+    Then the step should succeed
+    # output changed from 3.5 for Bug1405636, will not backport, so skip to check this output
     Given I have a project
     When I run the :status client command
     Then the step should succeed
@@ -88,20 +87,6 @@ Feature: negative tests
       | oc new-app -L                    |
       | oc new-app -S                    |
       | oc new-app -h                    |
-    When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
-    Then the step should succeed
-    When I run the :status client command
-    Then the step should succeed
-    And the output should match:
-      | use.*oc status -v                |
-    When I run the :status client command with:
-      | v     |                          |
-    Then the step should succeed
-    And the output should contain:
-      | oc describe <resource>/<name>    |
-      | oc get all                       |
-    # follow output instruction to test `oc describe` and `oc get`
     
     # oc describe negative
     When I run the :describe client command with:
@@ -161,6 +146,23 @@ Feature: negative tests
       | [Ee]xample resource.*include     |
       | oc expose -h                     |
 
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    When I run the :status client command with:
+      | v     |                          |
+    Then the step should succeed
+    And the output should contain:
+      | oc describe <resource>/<name>    |
+      | oc get all                       |
+    When I run the :status client command
+    # 3.5 has a bug to output "Errors" Bug-1426520 
+    Then the step should succeed
+    And the output should not match:
+      | [Ee]rror                         |
+    And the output should match:
+      | details.*oc describe.*oc get all |
+
     # oc logs should not only prompt message about pod
     # there is bug: #https://bugzilla.redhat.com/show_bug.cgi?id=1391838
     When I run the :logs client command with:
@@ -169,4 +171,4 @@ Feature: negative tests
     And the output should contain:
       | bc              |
       | dc              |
-    
+   
