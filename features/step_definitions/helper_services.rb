@@ -421,3 +421,41 @@ Given /^I have a registry in my project$/ do
   cb.reg_svc_port = "#{service("registry").ports(user: user)[0].dig("port")}"
   cb.reg_svc_url = "#{cb.reg_svc_ip}:#{cb.reg_svc_port}"
 end
+Given /^I have a registry with htpasswd authentication enabled in my project$/ do
+  ensure_admin_tagged
+  if CucuShift::Project::SYSTEM_PROJECTS.include?(project(generate: false).name)
+    raise "I refuse create registry in a system project: #{project.name}"
+  end
+  @result = admin.cli_exec(:new_app, docker_image: "registry:2", namespace: project.name)
+  step %Q/the step should succeed/
+  step %Q/a pod becomes ready with labels:/, table(%{
+       | deploymentconfig=registry |
+  })
+  step %Q{I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/registry/htpasswd"}
+  @result = user.cli_exec(:new_secret, secret_name: "htpasswd-secret", credential_file: "./htpasswd", namespace: project.name)
+  step %Q/I run the :volume client command with:/, table(%{
+    | resource    | dc/registry     |
+    | add         | true            |
+    | mount-path  | /auth           |
+    | type        | secret          |
+    | secret-name | htpasswd-secret |
+    | namespace   | #{project.name} |
+  })
+  step %Q/the step should succeed/
+  step %Q/I run the :env client command with:/, table(%{
+    | resource  | dc/registry                                 |
+    | e         | REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd  |
+    | e         | REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm |
+    | e         | REGISTRY_AUTH=htpasswd                      |
+    | namespace | #{project.name}                             |
+  })
+  step %Q/the step should succeed/
+  step %Q/a pod becomes ready with labels:/, table(%{
+       | deploymentconfig=registry |
+  })
+  cb.reg_svc_ip = "#{service("registry").ip(user: user)}"
+  cb.reg_svc_port = "#{service("registry").ports(user: user)[0].dig("port")}"
+  cb.reg_svc_url = "#{cb.reg_svc_ip}:#{cb.reg_svc_port}"
+  cb.reg_user = "testuser"
+  cb.reg_pass = "testpassword"
+end

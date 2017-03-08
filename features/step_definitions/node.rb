@@ -138,6 +138,7 @@ Given /^the #{QUOTED} path is( recursively)? removed on the host after scenario$
 end
 
 Given /^the node service is restarted on the host( after scenario)?$/ do |after|
+  ensure_destructive_tagged
   _host = @host
 
   @result = _host.exec_admin("systemctl status atomic-openshift-node")
