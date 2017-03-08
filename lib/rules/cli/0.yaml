@@ -844,6 +844,7 @@
     :selector: --selector=<value>
     :overwrite: --overwrite
     :path: --path=<value>
+    :confirm: --confirm
 :start_build:
   :cmd: oc start-build
   :options:
