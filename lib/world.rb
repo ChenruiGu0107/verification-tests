@@ -602,6 +602,7 @@ module CucuShift
         cluster_role_binding: "clusterrolebindings",
         host_subnet: "hostsubnets",
         cluster_resource_quota: "clusterresourcequotas",
+        stateful_set: "statefulsets",
         storage_class: "storageclasses"
       }
       type = shorthands[type.to_sym] if shorthands[type.to_sym]
