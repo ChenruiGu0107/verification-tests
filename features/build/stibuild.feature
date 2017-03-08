@@ -57,9 +57,10 @@ Feature: stibuild.feature
       | buildconfig | python-sample-build |
     And the "python-sample-build-1" build was created
     And the "python-sample-build-1" build failed
-    When I run the :logs client command with:
-      | resource_name | python-sample-build-1-build |
-    And the output should contain "no such file or directory"
+    When I run the :get client command with:
+      | resource | build |
+    Then the output should contain:
+      | InvalidContextDirectory |
 
   # @author wzheng@redhat.com
   # @case_id OCP-9575
