@@ -64,6 +64,8 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
       step %Q/I store default router subdomain in the :metrics clipboard/
       cb[:metrics] = 'https://hawkular-metrics.' + cb[:metrics] + '/hawkular/metrics'
     end
+    # if cb.metrics does not have the proper form, we need to set it.
+    cb[:metrics] = 'https://hawkular-metrics.' + cb.metrics + '/hawkular/metrics' unless cb.metrics.start_with? "https://"
   end
   opts = opts_array_to_hash(table.raw)
   supported_metrics_types = %w(gauges metrics counters)
