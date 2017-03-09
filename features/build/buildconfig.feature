@@ -341,3 +341,23 @@ Feature: buildconfig.feature
       | template                                                                                                       |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479540/test-buildconfig-docker.json |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479541/test-buildconfig-s2i.json    |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-11690
+  Scenario: S2I build failure reason display if use incorrect assemble script
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby:2.2 |
+      | app_repo     | https://github.com/openshift-qe/ruby-hello-world#invalidassemble |
+    Then the step should succeed
+    When the "ruby-hello-world-1" build failed
+    And I run the :get client command with:
+      | resource | build |
+    Then the step should succeed
+    And the output should contain:
+      | AssembleFailed |
+    When I run the :describe client command with:
+      | resource | build | 
+    Then the step should succeed
+    And the output should contain:
+      | Assemble script failed |
