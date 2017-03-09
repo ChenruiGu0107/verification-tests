@@ -45,7 +45,7 @@ Feature: oc import-image related feature
 
   # @author chaoyang@redhat.com
   # @case_id OCP-10585
-  Scenario: [origin_infrastructure_319]Do not create tags for ImageStream if image repository does not have tags
+  Scenario: Do not create tags for ImageStream if image repository does not have tags
     When I have a project
     And I run the :create client command with:
       | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/is_without_tags.json |
