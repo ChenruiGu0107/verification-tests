@@ -611,3 +611,366 @@ Feature: Testing abrouting
     Then the expression should be true> (12..24).include? cb.accesslength2
     Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
     Then the expression should be true> (6..12).include? cb.accesslength1
+
+  # @author yadu@redhat.com
+  # @case_id OCP-13252
+  @admin
+  Scenario: The unsecure route with multiple service will set load balance policy to RoundRobin by default
+    #Create pod/service/route
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-2.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    #Check the default load blance policy
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | service-unsecure |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "leastconn"
+    """
+    #Add multiple services to route
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | service-unsecure     |
+      | service   | service-unsecure=1   |
+      | service   | service-unsecure-2=9 |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | service-unsecure |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "roundrobin"
+    """
+    #Set one of the service weight to 0
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | service-unsecure     |
+      | service   | service-unsecure=0   |
+      | service   | service-unsecure-2=1 |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | service-unsecure |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "leastconn"
+    """
+    #Set all the service weight to 0
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | service-unsecure     |
+      | service   | service-unsecure=0   |
+      | service   | service-unsecure-2=0 |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | service-unsecure |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "leastconn"
+    """
+
+  # @author yadu@redhat.com
+  # @case_id OCP-13522
+  @admin
+  Scenario: The reencrypt route with multiple service will set load balance policy to RoundRobin by default
+    #Create pod/service/route
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/reencrypt/service_secure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/reencrypt/service_secure-2.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.pem"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/example_wildcard.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name | reen1 |
+      | hostname | <%= rand_str(5, :dns) %>-reen.example.com |
+      | service | service-secure |
+      | cert | example_wildcard.pem |
+      | key | example_wildcard.key |
+      | cacert | route_reencrypt.ca |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    #Check the default load blance policy
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | reen1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "leastconn"
+    """
+    #Add multiple services to route
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | reen1              |
+      | service   | service-secure=1   |
+      | service   | service-secure-2=9 |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | reen1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "roundrobin"
+    """
+    #Set one of the service weight to 0
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | reen1              |
+      | service   | service-secure=0   |
+      | service   | service-secure-2=1 |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | reen1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "leastconn"
+    """
+    #Set all the service weight to 0
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | reen1              |
+      | service   | service-secure=0   |
+      | service   | service-secure-2=0 |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | reen1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "leastconn"
+    """
+    
+
+  # @author yadu@redhat.com
+  # @case_id OCP-13522 
+  @admin
+  Scenario: The passthrough route with multiple service will set load balance policy to RoundRobin by default
+    #Create pod/service/route
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/passthough/service_secure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/passthough/service_secure-2.json |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name    | pass1          |
+      | service | service-secure |
+    Then the step should succeed
+    #Check the default load blance policy
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | pass1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "source"
+    #Add multiple services to route
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | pass1              |
+      | service   | service-secure=1   |
+      | service   | service-secure-2=9 |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | pass1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "roundrobin"
+    """
+    #Set one of the service weight to 0
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | pass1              |
+      | service   | service-secure=0   |
+      | service   | service-secure-2=1 |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | pass1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "source"
+    """
+    #Set all the service weight to 0
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | pass1              |
+      | service   | service-secure=0   |
+      | service   | service-secure-2=0 |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass: 
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | pass1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "source"
+    """
+
+
+  # @author yadu@redhat.com
+  # @case_id OCP-13519
+  @admin
+  Scenario: The edge route with multiple service will set load balance policy to RoundRobin by default
+    #Create pod/service/route
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-2.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name    | edge1            |
+      | service | service-unsecure |
+    Then the step should succeed
+    #Check the default load blance policy
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 5 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | edge1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "leastconn"
+    """
+    #Add multiple services to route
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | edge1                |
+      | service   | service-unsecure=1   |
+      | service   | service-unsecure-2=9 |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | edge1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "roundrobin"
+    """
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | edge1                |
+      | service   | service-unsecure=0   |
+      | service   | service-unsecure-2=1 |
+    Then the step should succeed
+    #Set one of the service weight to 0
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | edge1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "leastconn"
+    """
+    Given I switch to the first user
+    When I run the :set_backends client command with:
+      | routename | edge1                |
+      | service   | service-unsecure=0   |
+      | service   | service-unsecure-2=0 |
+    Then the step should succeed
+    #Set all the service weight to 0
+    Given I switch to cluster admin pseudo user
+    And I wait up to 5 seconds for the steps to pass:
+    """
+    When I execute on the "<%= cb.router_pod %>" pod:
+      | grep             |
+      | edge1            |
+      | -A               |
+      | 10               |
+      | haproxy.config   |
+    Then the output should contain "leastconn"
+    """
