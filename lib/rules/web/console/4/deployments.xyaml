@@ -392,7 +392,7 @@ check_rs_details:
 check_pods_number_in_table:
   element:
     selector:
-      xpath: //pods-table[count(ancestor::tbody/tr)=<pods_number>]
+      xpath: //pods-table[count(table/tbody/tr)=<pods_number>]
 check_ready_pods_number_in_table:
   element:
     selector:
