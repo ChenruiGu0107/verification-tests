@@ -28,11 +28,11 @@ Feature: login related scenario
     When I perform the :new_project_navigate web console action with:
       | _nologin | true |
     Then the step should succeed
-    Given I wait for the title of the web browser to match "(Login|Sign\s+in)"
+    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO)"
     When I access the "/console/project/<%= project.name %>/create" path in the web console
-    Given I wait for the title of the web browser to match "(Login|Sign\s+in)"
+    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO)"
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
-    Given I wait for the title of the web browser to match "(Login|Sign\s+in)"
+    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO)"
 
   # @author xxing@redhat.com
   # @case_id OCP-12118
@@ -59,4 +59,4 @@ Feature: login related scenario
     #make token expired
     And the expression should be true> browser.execute_script("return window.localStorage['LocalStorageUserStore.token']='<%= rand_str(32, :dns) %>';")
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
-    Given I wait for the title of the web browser to match "(Login|Sign\s+in)"
+    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO)"
