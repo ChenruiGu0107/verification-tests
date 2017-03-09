@@ -257,7 +257,7 @@ Given /^the host is rebooted and I wait it(?: up to (\d+) seconds)? to become av
 end
 
 Given /^the#{OPT_QUOTED} node labels are restored after scenario$/ do |node_name|
-  ensure_admin_tagged
+  ensure_destructive_tagged
   _node = node(node_name)
   _node_labels = _node.labels
   _admin = admin
