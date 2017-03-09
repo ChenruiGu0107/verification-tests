@@ -31,6 +31,10 @@ check_template_not_existed_with_error_message:
   element:
     selector:
       xpath: //span[@ng-if="alert.message"][contains(.,'The requested template "<template_name>" could not be loaded.')]
+check_mail_format_error:
+  element:
+    selector:
+      xpath: //var[contains(.,"user@domain")]
 confirm_errors_with_invalid_template_label:
   action: check_key_editor_validation_error
   element:

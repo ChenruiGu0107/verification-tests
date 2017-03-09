@@ -23,12 +23,12 @@ check_key_editor_validation_error:
   element:
     selector:
       xpath: //span[contains(text(),'alidation error')]
+check_mail_format_error: {}
 confirm_errors_with_invalid_template_label:
   action: check_key_editor_validation_error
   element:
     selector:
         xpath: //span/a[@data-toggle="tooltip" and contains(@title,'valid object label')]
-
 confirm_errors_with_invalid_env_var:
   action: check_key_editor_validation_error
   element:

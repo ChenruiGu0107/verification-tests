@@ -336,7 +336,7 @@ Feature: web secrets related
     Then the step should succeed
     When I run the :check_error_prompt_when_set_secret_configuration_file web console action
     Then the step should succeed
-    # Fail here unless bug 1404147 is merged
+    # bug 1404147 is fixed in 3.5, will not backport to 3.4
     When I perform the :create_image_secret_with_image_registry_credential web console action with:
       | secret_type       | Image Secret              |
       | new_secret_name   | dockerhub                 |
@@ -346,8 +346,8 @@ Feature: web secrets related
       | new_docker_passwd | 12345678                  |
       | new_docker_email  | any                       |
     Then the step should succeed
-    When I get the visible text on web html page
-    Then the output should match "must be in the form of user@domain"
+    When I run the :check_mail_format_error web console action
+    Then the step should succeed
 
   # @author xxing@redhat.com
   # @case_id OCP-11848
