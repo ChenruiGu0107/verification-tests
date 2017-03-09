@@ -1198,7 +1198,7 @@ Feature: build related feature on web console
       | bc_name        | ruby-sample-build    |
       | generic_webhook_trigger | <%= cb.generic_webhook[0].scan(/oapi.*/)[0] %>  |
     Then the step should succeed
-    
+
   # @author: xiaocwan@redhat.com
   # @case_id: OCP-10286,OCP-11584,OCP-11277
   Scenario Outline: Check BC page when runPolicy set to Serial Parallel and SerialLatestOnly
@@ -1220,8 +1220,8 @@ Feature: build related feature on web console
     When I perform the :goto_one_build_page web console action with:
       | project_name      | <%= project.name %> |
       | bc_and_build_name | ruby-ex             |
-    Then the step should succeed 
-    When I run the :click_start_build_button web console action 
+    Then the step should succeed
+    When I run the :click_start_build_button web console action
     Then the step should succeed
     When I run the :check_start_build_button_not_disabled web console action
     Then the step should succeed
@@ -1245,3 +1245,183 @@ Feature: build related feature on web console
       | Serial            | Serial             | Running         | New           |
       | Parallel          | Parallel           | Running         | Running       |
       | SerialLatestOnly  | Serial latest only | Cancelled       | Running       |
+
+  # @author: etrott@redhat.com
+  # @case_id: OCP-10891
+  Scenario: Environment variables management for BC and DC
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo     | https://github.com/openshift/cakephp-ex.git |
+      | name         | php                                         |
+      | image_stream | openshift/php:5.5                           |
+    Then the step should succeed
+    When I run the :set_env client command with:
+      | resource | bc/php         |
+      | e        | BCone=bcvalue1 |
+      | e        | BCtwo=bcvalue2 |
+    Then the step should succeed
+    When I run the :set_env client command with:
+      | resource | dc/php           |
+      | e        | DCone=dcvalue1   |
+      | e        | DCtwo=dcvalue2   |
+      | e        | DCthree=dcvalue3 |
+    Then the step should succeed
+
+    When I perform the :check_buildconfig_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | bc_name       | php                 |
+      | env_var_key   | BCone               |
+      | env_var_value | bcvalue1            |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | BCtwo    |
+      | env_var_value | bcvalue2 |
+    Then the step should succeed
+    Given I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name  | <%= project.name %> |
+      | bc_name       | php                 |
+      | env_var_key   | BCthree             |
+      | env_var_value | bcvalue3            |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | bc                                    |
+      | resource_name | php                                   |
+      | template      | {{.spec.strategy.sourceStrategy.env}} |
+      | o             | json                                  |
+    Then the step should succeed
+    And expression should be true> @result[:parsed]["spec"]["strategy"]["sourceStrategy"]["env"].include?({"name"=>"BCthree", "value"=>"bcvalue3"})
+    """
+    When I perform the :check_buildconfig_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | bc_name       | php                 |
+      | env_var_key   | BCthree             |
+      | env_var_value | bcvalue3            |
+    Then the step should succeed
+    Given I perform the :change_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name      | <%= project.name %> |
+      | bc_name           | php                 |
+      | env_variable_name | BCtwo               |
+      | new_env_value     | bcvalueupdated      |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | bc                                    |
+      | resource_name | php                                   |
+      | template      | {{.spec.strategy.sourceStrategy.env}} |
+      | o             | json                                  |
+    Then the step should succeed
+    And expression should be true> @result[:parsed]["spec"]["strategy"]["sourceStrategy"]["env"].include?({"name"=>"BCtwo", "value"=>"bcvalueupdated"})
+    When I perform the :check_buildconfig_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | bc_name       | php                 |
+      | env_var_key   | BCtwo               |
+      | env_var_value | bcvalueupdated      |
+    Then the step should succeed
+
+    When I perform the :check_dc_environment web console action with:
+      | project_name  | <%= project.name %> |
+      | dc_name       | php                 |
+      | env_var_key   | DCone               |
+      | env_var_value | dcvalue1            |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | DCtwo    |
+      | env_var_value | dcvalue2 |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | DCthree  |
+      | env_var_value | dcvalue3 |
+    Then the step should succeed
+    When I perform the :reorder_environment_variable web console action with:
+      | env_variable_name | DCtwo |
+      | direction         | up    |
+      | offset            | 1     |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc   |
+      | resource_name | php  |
+      | o             | json |
+    Then the step succeeded
+    And expression should be true> @result[:parsed]['spec']['template']['spec']['containers'][0]['env'].map {|var| var['name']} == ["DCtwo", "DCone", "DCthree"]
+    When I perform the :check_environment_variables_order web console action with:
+      | env_vars_order | DCtwo,DCone,DCthree |
+    Then the step should succeed
+    When I perform the :delete_env_var web console action with:
+      | env_var_key | DCone |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc   |
+      | resource_name | php  |
+      | o             | json |
+    Then the step succeeded
+    And expression should be true> @result[:parsed]['spec']['template']['spec']['containers'][0]['env'].map {|var| var['name']} == ["DCtwo", "DCthree"]
+    When I perform the :check_env_var_missing web console action with:
+      | env_var_key   | DCone    |
+      | env_var_value | dcvalue1 |
+    Then the step should succeed
+
+    Given I perform the :add_env_vars_on_buildconfig_edit_page web console action with:
+      | project_name  | <%= project.name %> |
+      | bc_name       | php                 |
+      | env_var_key   | BCname1             |
+      | env_var_value | BCvalue1            |
+    Then the step should succeed
+    Given I run the :add_new_env_var web console action
+    Then the step should succeed
+    # ^$ will match empty string
+    When I perform the :check_environment_variables_order web console action with:
+      | env_vars_order | BCname1,^$ |
+    Then the step should succeed
+    Given I run the :add_new_env_var web console action
+    Then the step should succeed
+    When I perform the :check_environment_variables_order web console action with:
+      | env_vars_order | BCname1,^$,^$ |
+    Then the step should succeed
+    Given I perform the :add_env_vars web console action with:
+      | env_var_key   | BCname2  |
+      | env_var_value | BCvalue2 |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | bc                                    |
+      | resource_name | php                                   |
+      | template      | {{.spec.strategy.sourceStrategy.env}} |
+      | o             | json                                  |
+    Then the step should succeed
+    And expression should be true> @result[:parsed]["spec"]["strategy"]["sourceStrategy"]["env"].include?({"name"=>"BCname1", "value"=>"BCvalue1"})
+    And expression should be true> @result[:parsed]["spec"]["strategy"]["sourceStrategy"]["env"].include?({"name"=>"BCname2", "value"=>"BCvalue2"})
+    Given I perform the :check_bc_environment_variables_order web console action with:
+      | project_name   | <%= project.name %>                 |
+      | bc_name        | php                                 |
+      | env_vars_order | BCone,BCtwo,BCthree,BCname1,BCname2 |
+    Then the step should succeed
+
+    When I perform the :goto_one_dc_environment_tab web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | php                 |
+    Then the step should succeed
+    Given I perform the :edit_env_var_key web console action with:
+      | env_var_value | dcvalue2  |
+      | new_env_key   | DCtwoname |
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | DCtwoname |
+      | env_var_value | dcvalue2  |
+    Then the step should succeed
+    Given I perform the :edit_env_var_key web console action with:
+      | env_var_value | dcvalue3 |
+      | new_env_key   | -DCthree |
+    Then the step should succeed
+    When I perform the :check_invalid_env_key_warning_message web console action with:
+      | message | Please enter a valid key |
+    Then the step should succeed

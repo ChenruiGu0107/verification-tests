@@ -158,6 +158,24 @@ check_environment_tab:
              }
              return false
       expect_result: true
+check_env_var_missing:
+  elements:
+  - selector:
+      xpath: //div[contains(@class,'key-value-editor-input')]/input
+  scripts:
+    - command: |
+            var key = "<env_var_key>",
+                value = "<env_var_value>",
+                rows = document.querySelectorAll('div[class~=key-value-editor-entry]'),
+                inputs = [];
+            for (var i =0; i< rows.length; i++) {
+              inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input');
+              if (inputs.length == 2 && inputs[0].value == key && inputs[1].value == value) {
+                return false;
+              }
+            }
+            return true;
+      expect_result: true
 check_empty_buildconfig_environment:
   action: goto_buildconfig_environment_tab
   elements:
@@ -279,6 +297,7 @@ add_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
   action: add_env_vars
 add_env_vars:
+  action: add_new_env_var
   action: add_env_var_key
   action: add_env_var_value
   action: save_env_vars
@@ -323,17 +342,19 @@ change_source_repo_url:
   - selector:
       xpath: //input[@name='sourceUrl']
     op: send_keys <changing_source_repo_url>
-add_env_var_key:
-  elements:
-  - selector:
+add_new_env_var:
+  element:
+    selector:
       xpath: //div[@ng-if="(!cannotAdd) && addRowLink"]/a
     op: click
-  - selector:
+add_env_var_key:
+  element:
+    selector:
       xpath: //div[@ng-repeat="entry in entries"][count(//div[@ng-repeat="entry in entries"])]/div[1]/input
     op: send_keys <env_var_key>
 add_env_var_value:
-  elements:
-  - selector:
+  element:
+    selector:
       xpath: //div[@ng-repeat="entry in entries"][count(//div[@ng-repeat="entry in entries"])]/div[2]//input
     op: send_keys <env_var_value>
 save_env_vars: {}
@@ -441,6 +462,46 @@ edit_env_var_value:
   - selector: *env_var_value_field
     type: js
     op: send_keys <new_env_value>
+reorder_environment_variable:
+  scripts:
+  - file: jquery.simulate.drag-sortable
+    expect_result: true
+  - command: |
+        var id = null,
+            p = new RegExp("<env_variable_name>"),
+            el = document.getElementsByTagName("input"),
+            div_el = {},
+            offset = parseInt("<offset>");
+            move = ("<direction>" == "down") ? offset : -1*offset;
+        for (var i=0; i<el.length; i++) {
+          if (p.test(el[i].value)) {
+            res_el = el[i];
+            break;
+          }
+        }
+        if (res_el.id == null) return null;
+        div_el = res_el.parentElement.parentElement;
+        $(div_el).simulateDragSortable({ move: move, handle: ".as-sortable-item-handle"});
+        return true;
+    expect_result: true
+check_environment_variables_order:
+  scripts:
+  - command: |
+        var patterns = "<env_vars_order>".split(",").map(function(v){return new RegExp(v);}),
+            els = document.getElementsByTagName("input").filter(function(el){return el.id.startsWith("key-value-editor-key");})
+        for (var i=0; i<els.length; i++) {
+          if (patterns[0].test(els[i].value)) {
+            if (patterns.length == 1) {
+              return true;
+            }
+            patterns.shift()
+          }
+        }
+        return false;
+    expect_result: true
+check_bc_environment_variables_order:
+  action: goto_buildconfig_environment_tab
+  action: check_environment_variables_order
 save_updated_env_value: {}
 change_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely

@@ -428,3 +428,36 @@ update_label_value_on_edit_autoscaler_page:
   - selector: *label_value_field
     type: js
     op: send_keys <new_label_value>
+edit_env_var_key:
+  elements:
+  - selector: &env_var_key_field |
+        var id = null
+        var p = new RegExp("<env_var_value>");
+        var el = document.getElementsByTagName("input");
+        for (var i=0; i<el.length; i++) {
+          if (p.test(el[i].value)) {
+            id = el[i].id;
+            break;
+          }
+        }
+        if (id == null) return null;
+        id = id.replace(/value(?!.*value)/, 'key');
+        return document.getElementById(id);
+    type: js
+    op: clear
+  - selector: *env_var_key_field
+    type: js
+    op: send_keys <new_env_key>
+check_invalid_env_key_warning_message:
+  elements:
+  - selector: |
+        var warn_messages = document.getElementsByTagName('span').filter(function(el) {
+              return el.offsetWidth > 0 && el.textContent == "<message>";
+            }),
+            warn_message = (warn_messages.length == 1) ? warn_messages[0] : null,
+            tooltip = (warn_messages != null) ? warn_message.nextElementSibling.firstElementChild : null;
+        return tooltip;
+    type: js
+    op: hover
+  - selector:
+      xpath: //div[starts-with(text(),'A valid environment variable name is')]

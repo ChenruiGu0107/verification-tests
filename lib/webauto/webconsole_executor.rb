@@ -15,6 +15,7 @@ module CucuShift
     # if we need multiple rules version for ose/online/origin/etc, we can
     #   set a configuration option to read rules from different subdirs
     RULES_DIR = File.expand_path(HOME + "/lib/rules/web/console") + "/"
+    SNIPPETS_DIR = HOME + "/lib/rules/web/snippets/"
 
     def initialize(env, **opts)
       @env = env
@@ -33,7 +34,8 @@ module CucuShift
         logger: logger,
         base_url: env.web_console_url,
         browser_type: conf[:browser] ? conf[:browser].to_sym : :firefox,
-        rules: rulez
+        rules: rulez,
+        snippets_dir: SNIPPETS_DIR
       )
 
       unless @rules

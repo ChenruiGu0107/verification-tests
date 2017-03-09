@@ -59,7 +59,7 @@ create_app_from_image_with_secret:
   action: create_app_from_image_try_sample_repo
   action: create_app_from_image_show_advanced_param
   action: select_one_secret_from_box
-  action: create_app_from_image_submit 
+  action: create_app_from_image_submit
 check_port_on_create_page:
   action: create_app_from_image_navigate
   action: create_app_from_image_show_advanced_param

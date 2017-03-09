@@ -34,12 +34,14 @@ require "base64"
     def initialize(
         rules:,
         base_url:,
+        snippets_dir: "",
         logger: SimpleLogger.new,
         browser_type: :firefox,
         browser: nil
       )
       @browser_type = browser_type
       @rules = Web4Cucumber.load_rules [rules]
+      @snippets_dir = snippets_dir
       @base_url = base_url
       @browser = browser
       @logger = logger
@@ -197,13 +199,26 @@ require "base64"
         raise "The script should be a Hash."
       end
 
-      unless script.has_key?(:command) && script.has_key?(:expect_result)
-        raise "Script lack of command or expect_result"
+      unless script.has_key?(:command) && script.has_key?(:expect_result) || script.has_key?(:file)
+        raise "Script lack of file/command or expect_result"
       end
       # sleep to make sure the ajax done, still no idea how much time should be
       sleep 2
 
-      command = replace_angle_brackets(script[:command], user_opts)
+      if script.has_key?(:file)
+        path = @snippets_dir + script[:file] + ((script[:file].end_with? ".js") ? "" : ".js")
+        if File.exist?(path)
+          command = replace_angle_brackets(File.read(path), user_opts)
+        else
+          error_msg = "#{path} does not exists."
+          if @snippets_dir == ""
+            error_msg += " You could set path to snippets folder in `snippets_dir` param."
+          end
+          raise error_msg
+        end
+      else
+        command = replace_angle_brackets(script[:command], user_opts)
+      end
       output = execute_script(command)
 
       if script[:expect_result].kind_of? String
@@ -339,7 +354,15 @@ require "base64"
         end
         # first element searched for, first field [the actual element list], last found element [this must be most inner element]
         element = elements.first.first.last
-        res_join res, handle_operation(element, op, **user_opts)
+        opres = handle_operation(element, op, **user_opts)
+        # if we selecting element when page is not fully loaded, watir can lost
+        # this element and "op" will fail on it. If we will get this error
+        # rerunning of `handle_element` function can help.
+        if opres[:response].include? "#<Watir::Exception::UnknownObjectException: unable to locate element"
+          return handle_element(element_rule, **user_opts)
+        else
+          res_join res, opres
+        end
       end
 
       return res
@@ -366,12 +389,18 @@ require "base64"
 
       begin
         case op
-        when "click"
+        when "click", "hover"
           raise "cannot #{op} with a value" unless val.empty?
           element.send(op.to_sym)
         when "clear"
           raise "cannot #{op} with a value" unless val.empty?
           element.to_subtype.clear
+        when "drag_and_drop_by"
+          # not working with sortable jQuery list, please use native js script
+          # from lib/rules/web/snippets/jquery.simulate.drag-sortable.js
+          off_right, off_down = val.split(" ").map {|c| c.to_i}
+          raise "cannot #{op} without right and down offset values" unless off_right || off_down
+          element.drag_and_drop_by(off_right, off_down)
         when "set", "select_value", "append"
           if element.instance_of?(Watir::CheckBox)
             if val == "true" || val == "false"

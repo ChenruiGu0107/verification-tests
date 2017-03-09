@@ -801,6 +801,19 @@ edit_env_var_key:
   - selector: *env_var_key_field
     type: js
     op: send_keys <new_env_key>
+check_invalid_env_key_warning_message:
+  elements:
+  - selector: |
+        var warn_messages = document.getElementsByClassName('validation-text').filter(function(el) {
+              return el.offsetWidth > 0 && el.textContent == "<message>";
+            }),
+            warn_message = (warn_messages.length == 1) ? warn_messages[0] : null,
+            tooltip = (warn_messages != null) ? warn_message.nextElementSibling.firstElementChild : null;
+        return tooltip;
+    type: js
+    op: hover
+  - selector:
+      xpath: //div[starts-with(text(),'A valid environment variable name is')]
 select_dc_strategy_type:
   elements:
   - selector:
