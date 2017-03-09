@@ -17,13 +17,10 @@ Feature: quickstarts.feature
 
     Examples: OS Type
       | template                  | buildcfg                 | output  | podno |
-      | django-example            | django-example           | Django  | 1     |
       | django-psql-example       | django-psql-example      | Django  | 2     |
       | dancer-example            | dancer-example           | Dancer  | 1     |
       | dancer-mysql-example      | dancer-mysql-example     | Dancer  | 2     |
-      | cakephp-example           | cakephp-example          | CakePHP | 1     |
       | cakephp-mysql-example     | cakephp-mysql-example    | CakePHP | 2     |
-      | nodejs-example            | nodejs-example           | Node.js | 1     |
       | nodejs-mongodb-example    | nodejs-mongodb-example   | Node.js | 2     |
       | rails-postgresql-example  | rails-postgresql-example | Rails   | 2     |
 
