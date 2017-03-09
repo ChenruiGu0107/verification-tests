@@ -19,6 +19,8 @@ Given /^I save volume id from PV named "([^"]*)" in the#{OPT_SYM} clipboard$/ do
     cb[cbname] = @result[:parsed]['spec']['cinder']['volumeID']
   when @result[:parsed]['spec']['glusterfs']
     cb[cbname] = @result[:parsed]['spec']['glusterfs']['path'].gsub('vol_', '')
+  when @result[:parsed]['spec']['azureDisk']
+    cb[cbname] = @result[:parsed]['spec']['azureDisk']['diskURI']
   else
     raise "Unknown persistent volume type."
   end
@@ -51,6 +53,33 @@ Given /^the#{OPT_QUOTED} PV becomes #{SYM}(?: within (\d+) seconds)?$/ do |pv_na
   unless @result[:success]
     raise "PV #{pv_name} never reached status: #{status}"
   end
+end
+
+#This is new step to obtain an volume id from storage class dynamic provision
+Given /^I have a(?: (\d+) GB)? volume from provisioner "([^"]*)" and save volume id in the#{OPT_SYM} clipboard$/ do |size, provisioner, cbname|
+  timeout = 120 
+  size = size ? size.to_i : 1
+  cbname = 'volume_id' unless cbname
+  ensure_admin_tagged
+  unless project.exists?(user: user)
+    raise "No project exist"
+  end
+  cb.dynamic_pvc_name = rand_str(8, :dns)
+  cb.storage_class_name = rand_str(8, :dns)
+  step %Q{admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:}, table(%{
+    | ["metadata"]["name"] | <%= project.name %>-<%=cb.storage_class_name%> |
+    | ["provisioner"]      | kubernetes.io/#{provisioner}                   |
+    })
+  step %Q/the step should succeed/
+  step %Q{I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:}, table(%{
+    | ["metadata"]["name"]                                                   | <%= project.name %>-<%= cb.dynamic_pvc_name %> |
+    | ["spec"]["resources"]["requests"]["storage"]                           | #{size}                                        |
+    | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>-<%=cb.storage_class_name%> |
+    })
+  step %Q/the step should succeed/
+  step %Q/the "<%= project.name %>-<%= cb.dynamic_pvc_name %>" PVC becomes :bound within #{timeout} seconds/
+  step %Q/admin ensures "<%= pvc.volume_name(user: admin) %>" pv is deleted after scenario/
+  step %Q/I save volume id from PV named "<%= pvc.volume_name(user: admin, cached: true) %>" in the :#{cbname} clipboard/
 end
 
 Given /^the PVs become #{SYM}(?: within (\d+) seconds) with labels:?$/ do |status, timeout, table|
