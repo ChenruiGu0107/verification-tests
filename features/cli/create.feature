@@ -961,3 +961,18 @@ Feature: creating 'apps' with CLI
     Then the step should fail
     And the output should contain:
       | must be greater than or equal to 0 |
+
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-11577
+  Scenario: Fail to create pod for podSpec.volumes if not in the volumes of matched scc
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_hostdir.json |
+    Then the step should fail
+    And the output should contain:
+      | hostPath volumes are not allowed |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc472859/hello-pod.json |
+    Then the step should succeed
+

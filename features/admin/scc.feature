@@ -670,3 +670,22 @@ Feature: SCC policy related scenarios
       | f | scc_with_confilict_capabilities.yaml |
     Then the step should fail
     And the output should contain "capability is listed in allowedCapabilities and requiredDropCapabilities"
+
+  # @author: yinzhou@redhat.com
+  # @case_id: OCP-12064
+  @admin
+  Scenario: Wildcard SCC for volumes is respected
+    Given I have a project
+    And evaluation of `project.uid_range(user:user).begin` is stored in the :scc_limit clipboard
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc521575/scc_tc521575_c.yaml"
+    And I replace lines in "scc_tc521575_c.yaml":
+      |system:serviceaccounts:default|system:serviceaccounts:<%= project.name %>|
+    Given the following scc policy is created: scc_tc521575_c.yaml
+
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gitrepo/gitrepo-selinux-fsgroup-test.json"
+    And I replace lines in "gitrepo-selinux-fsgroup-test.json":
+      | "runAsUser": 1000130000, | "runAsUser": <%= cb.scc_limit %>, |
+      | "fsGroup": 123456        | "fsGroup":  <%= cb.scc_limit %>   |
+    When I run the :create client command with:
+      | f | gitrepo-selinux-fsgroup-test.json |
+    Then the step should succeed
