@@ -210,6 +210,17 @@ services:
       token_credential_uri: https://accounts.google.com/o/oauth2/token
     fix_hostnames: false
     cloud_type: gce
-  storage_class_host:
-    ssh_private_key: config/keys/libra.pem
-    user: root
+  # stomp_bus:
+  #   # default_queue: /topic/mytopic
+  #   sslctx_newparm:
+  #     # see https://docs.ruby-lang.org/en/2.4.0/OpenSSL/SSL/SSLContext.html
+  #     ca_path: some/private/path
+  #   hosts:
+  #   - :host: my.bus.example.com
+  #     :port: 61613
+  #     :ssl: true
+  #     # :login:
+  #     # :passcode:
+  # storage_class_host:
+  #   ssh_private_key: some/private/path/key.pem
+  #   user: root

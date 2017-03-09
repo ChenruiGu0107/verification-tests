@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'http'
+
 module CucuShift
   module PolarShift
     class Request
@@ -182,6 +184,19 @@ module CucuShift
         )
       end
 
+      # @param project_id [String]
+      # @param updates [Hash<String, Hash>] with format:
+      #   {case_id => { field => value, ...}, ...}
+      def update_test_case_custom_fields(project_id, updates)
+        Http.request(
+          method: :put,
+          url: "#{base_url}project/#{project_id}/update-test-cases-custom-fields",
+          payload: {updates: updates}.to_json,
+          raise_on_error: false,
+          **common_opts
+        )
+      end
+
       # checks result of a PolarShift async operation (like getting test run)
       # @return [Hash] where "status" key denotes status
       # @raise on request failure
@@ -220,6 +235,10 @@ module CucuShift
         unless success
           raise "timeout waiting for operation, still status: #{res["status"]}"
         end
+      end
+
+      def default_project
+        opts.dig(:manager, :project) || raise("no project given")
       end
     end
   end

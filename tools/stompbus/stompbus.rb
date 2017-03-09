@@ -1,208 +1,141 @@
+# frozen_string_literal: true
+
 require "stomp"
 require "json"
 require 'io/console' # for reading password without echo
 require 'timeout' # to avoid freezes waiting for user input
 
+require_relative "../common/load_path"
+require 'common'
+
 class STOMPBus
+  include CucuShift::Common::Helper
+
+  HOST_OPTS = [:login, :passcode, :host, :port, :ssl].freeze
+
+  attr_reader :opts, :default_queue
 
   def initialize(**opts)
-  # load the configuration
-    opts["port"] = 61613
-    opts["ssl"] = false
-    opts = self.class.load_cred_env_vars(opts)
-    opts = self.class.get_args(opts)
-    # config file should be in format
-    # {
-    #   "login": "",
-    #   "passcode": "",
-    #   "queue": "",
-    #   "host": "",
-    #   "port": ""
-    # }
-    if opts["conf_file"]
-      config_json_hash = self.class.read_json_file_as_hash(opts["conf_file"])
-      opts = opts.merge(config_json_hash)
+    service_name = opts.delete(:service_name) || :stomp_bus
+    service_opts = conf[:services, service_name].dup
+    service_hosts = service_opts.delete(:hosts)
+
+    default_hosts = [{}]
+    # see http://www.rubydoc.info/github/stompgem/stomp/Stomp/Client#initialize-instance_method
+    default_opts = {:connect_timeout => 15, :start_timeout => 15, :reliable => false}
+    param_hosts = opts.delete(:hosts) if Array === opts[:hosts]
+
+    pile_of_opts = {}
+    pile_of_opts.merge! self.class.load_env_vars
+    pile_of_opts.merge! opts
+
+    @default_queue = pile_of_opts.delete(:default_queue) ||
+      service_opts.delete(:default_queue)
+
+    if param_hosts
+      hosts = param_hosts
+    elsif pile_of_opts[:host] || pile_of_opts[:hosts]
+      if pile_of_opts[:host]
+        hosts = [{host: pile_of_opts.delete(:host)}]
+      elsif pile_of_opts[:hosts]
+        hosts = pile_of_opts.delete(:hosts).split(",").map(&:strip).map {|h|
+          {host: h}
+        }
+      end
+      if service_hosts
+        hosts.map! { |h| service_hosts.first.merge h }
+      end
+    elsif service_hosts
+      hosts = service_hosts
+    else
+      raise "hosts not specified"
+    end
+    pile_of_opts.delete(:hosts)
+    pile_of_opts.delete(:host)
+    raise "bad hosts specification: #{hosts.inspect}" unless Array === hosts
+    hosts.each { |h|
+      raise "bad host specification: #{h.inspect}" unless Hash === h
+    }
+
+    common_host_opts = {}
+    HOST_OPTS.each do |opt|
+      common_host_opts[opt] = pile_of_opts.delete(opt) if pile_of_opts[opt]
+    end
+    unless common_host_opts[:login] && common_host_opts[:passcode] ||
+        hosts.all? {|h| h[:login] && h[:passcode]}
+      common_host_opts.merge! get_credentials
+    end
+
+    final_opts = default_opts.merge(service_opts).merge(pile_of_opts)
+    final_opts[:hosts] = hosts.map { |h| h.merge common_host_opts }
+
+    ## SSL options
+    #  see https://docs.ruby-lang.org/en/2.4.0/OpenSSL/SSL/SSLContext.html
+    if final_opts.dig(:sslctx_newparm, :ca_path)
+      final_opts[:sslctx_newparm] = expand_private_path(
+                                      final_opts[:sslctx_newparm][:ca_path])
     end
 
     # check if we have all the required options
-    self.class.check_opts(opts)
-    @opts = opts
+    self.class.check_opts(final_opts)
+    @opts = final_opts
   end
 
-  # will publish the provided message to the queue
-  def publish
-    # load the message
-    msg = load_message()
-    credentials = populate_credentials()
-    client = Stomp::Client.new(credentials)
-    msg["body"] = msg["body"].to_json unless msg["body"].kind_of?(String)
-    client.publish(@opts["queue"], msg["body"], msg["header"])
+  def new_client
+    Stomp::Client.new(opts)
   end
 
-  # yield [msg] return true if you want message printed to console
-  def subscribe()
-    credentials = populate_credentials()
-    client = Stomp::Client.new(credentials)
-
-    client.subscribe(@opts["queue"]) do |msg|
-      if block_given?
-        yield(msg)
-      else
-        STOMPBus.print_msg(msg)
-      end
-    end
-
-    begin
-      puts "Press ctrl + c to exit...\n\n"
-      loop do
-        sleep(100)
-      end
-    rescue Interrupt
-    ensure
-      puts "\nclosing connection!\n"
-    end
+  def self.msg_to_str(msg)
+    %{
+    ------------------------------
+    Headers:
+#{JSON.pretty_generate msg.headers}
+    Body:
+#{msg.body}
+    ------------------------------
+    }
   end
-
-  def self.print_msg(msg)
-      puts "------------------------------"
-      puts "\nHeaders:\n\n"
-      puts msg.headers.to_json
-      puts "\nBody:\n\n"
-      puts msg.body
-      puts "------------------------------"
-  end
-
-  def self.show_help()
-    puts '
-This script will send message to a configured STOMP queue. The script can be configured to the correct values through ENV vars, script arguments or a config file.
-The message consists of two parts the message body (the message body is required) and the message header (header if not specified will be send empty). The message header
-and body can be provided to the script as ENV var (STOMP_MESSAGE_BODY, STOMP_MESSAGE_HEADER), script arguments or a message json file. The user and passcode for the queue
-can NOT be provided to the script as a parameter. Should be provided as a ENV var or in the conf file.
-
-publish.rb <arguments> <message_body> (ENV var STOMP_MESSAGE_BODY)
-
-Arguments:
---help - displays help
---host=<host> - STOMP server (ENV var STOMP_BUS_HOST)
---port=<port_number> - port of the STOMP server (if not defined default port 61613 is used, ENV var STOMP_BUS_PORT)
---message_file=<file_path> - the path to json file with the message to be send. The structure of the file has to have to
-json keys body and header: {"header": {}, "body": {}}
---conf_file=<file_path> - the path to json file with the STOMP bus credentials and config.
---queue=<queue_name> - the queue you want to send the message (in format /path/to/queue, ENV var STOMP_BUS_QUEUE)
---message_header=<message_header> - provide message header (ENV var STOMP_MESSAGE_HEADER)'
-  end
-
 
   # method checks if all required options are in place
   def self.check_opts(opts)
-    req_opts_keys = ["host", "port", "ssl", "queue"]
-    miss_opts_keys = []
+    opts[:hosts].each do |host|
+      miss_host_opts = HOST_OPTS - host.keys
 
-    miss_opts_keys = req_opts_keys - opts.keys
-    if miss_opts_keys.count > 0
-      raise "Your configuration is missing following options: #{miss_opts_keys.join(", ")} Run the script with --help argument for help"
-    end
-  end
-
-  def populate_credentials()
-    unless @opts["login"]
-      Timeout::timeout(120) {
-        STDERR.puts "STOMP username (timeout in 2 minutes): "
-        @opts["login"] = STDIN.gets.chomp
-      }
-    end
-    unless @opts["passcode"]
-        STDERR.puts "STOMP Password: "
-        @opts["passcode"] = STDIN.noecho(&:gets).chomp
-    end
-
-    credentials = {:hosts => [{}], :connect_timeout => 15, :start_timeout => 15, :reliable => false}
-
-    req_cred = [:login, :passcode, :host, :port, :ssl]
-
-    req_cred.each do |cred|
-        credentials[:hosts][0][cred] = @opts[cred.to_s]
-    end
-
-    return credentials
-  end
-
-  def self.read_json_file_as_hash(file_path)
-    JSON.parse(File.read(file_path))
-  end
-
-  # get all the provided arguments of the script
-  def self.get_args(opts)
-    # we dont want include arguments which are not valid
-    known_arg = ["host", "message_body", "port", "ssl", "message_header", "queue", "message_file", "conf_file"]
-    unknown_arg = []
-
-    ARGV.each do |a|
-      # checking if the arguments are options for the script
-      m = /\-\-(?:(help)|(.+?)=(.+))/.match(a)
-
-      if m
-        if m[1] == "help"
-          self.show_help()
-          exit()
-        end
-        if known_arg.include?(m[2])
-          opts[m[2]] = m[3]
-        else
-          unknown_arg.push(m[2])
-        end
-      # if the last argument is not an option, and still exists we use it as a message body
-      elsif ARGV[-1] == a
-        opts["message_body"] = ARGV[-1]
+      unless miss_host_opts.empty?
+        raise "Your configuration is missing following host options: " \
+          "#{miss_host_opts.join(", ")} Run the script with --help argument " \
+          "for help"
       end
     end
+  end
 
-    raise "Unknown argument option(s): #{unknown_arg.join(", ")}"if unknown_arg.count > 0
+  private def get_credentials()
+    opts = {}
+    Timeout::timeout(120) {
+      STDERR.puts "STOMP username (timeout in 2 minutes): "
+      opts[:login] = STDIN.gets.chomp
+    }
+    STDERR.puts "STOMP Password: "
+    opts[:passcode] = STDIN.noecho(&:gets).chomp
+
     return opts
   end
 
   # loads all the ENV variables if they exist
-  def self.load_cred_env_vars(opts)
-    env_vars = {
-      "host" => "STOMP_BUS_HOST",
-      "port" => "STOMP_BUS_PORT",
-      "queue" => "STOMP_BUS_QUEUE",
-      "message_header" => "STOMP_MESSAGE_HEADER",
-      "message_body" => "STOMP_MESSAGE_BODY"
-    }
-
-
-    env_vars.each do |key, value|
-      opts[key] = ENV[value] if ENV[value] && !ENV[value].empty?
+  def self.load_env_vars
+    env_opts = {}
+    env_prefix = "STOMP_BUS_"
+    ENV.each do |var, value|
+      if var.start_with?(env_prefix) && !value.empty?
+        env_opt = var[env_prefix.length..-1].downcase.to_sym
+        env_opts[env_opt] = value == "false" ? false : value
+      end
     end
+
     if ENV["STOMP_BUS_CREDENTIALS"] && !ENV["STOMP_BUS_CREDENTIALS"].empty?
-      cred = ENV["STOMP_BUS_CREDENTIALS"].split(":")
-      opts["login"] = cred[0]
-      opts["passcode"] = cred[1]
+      opts[:login],opts[:passcode] = env_opts.delete(:credentials).split(":", 2)
     end
 
-    return opts
-  end
-
-  # loads message to be send
-  def load_message()
-    msg = {}
-    if @opts.has_key?("message_body") && @opts.has_key?("message_file")
-      raise "You can`t have both a message file and message as an argument. Choose only one!"
-    elsif @opts.has_key?("message_body") && @opts.has_key?("message_header")
-      msg["header"] = JSON.parse(@opts["message_header"])
-      msg["body"] = @opts["message_body"]
-    elsif @opts.has_key?("message_body")
-      msg["header"] = {}
-      msg["body"] = @opts["message_body"]
-    elsif @opts.has_key?("message_file")
-      json_hash = self.read_json_file_as_hash(@opts["message_file"])
-      msg["header"] = json_hash["header"]
-      msg["body"] = json_hash["body"]
-    end
-    if msg["body"].nil?
-      raise "Your message is empty! You need to provide a message to be sent!"
-    end
-    return msg
+    return env_opts
   end
 end
