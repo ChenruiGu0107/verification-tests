@@ -40,7 +40,7 @@ check_get_started_with_cli_doc_link_in_cli_page:
   action: goto_cli_page
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container_platform/3.4/cli_reference/get_started_cli.html") and contains(.,"Get Started with the CLI")]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.4/cli_reference/get_started_cli.html") and contains(.,"Get Started with the CLI")]
 check_get_started_with_cli_doc_link_in_cli_page_online:
   action: goto_cli_page
   elements:
@@ -50,7 +50,7 @@ check_cli_reference_doc_link_in_cli_page:
   action: goto_cli_page
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container_platform/3.4/cli_reference/overview.html") and contains(.,'CLI Reference')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.4/cli_reference/overview.html") and contains(.,'CLI Reference')]
 check_cli_reference_doc_link_in_cli_page_online:
   action: goto_cli_page
   elements:
@@ -60,7 +60,7 @@ check_basic_cli_reference_doc_link_in_cli_page:
   action: goto_cli_page
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container_platform/3.4/cli_reference/basic_cli_operations.html") and contains(.,"Basic CLI Operations")]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.4/cli_reference/basic_cli_operations.html") and contains(.,"Basic CLI Operations")]
 check_basic_cli_reference_doc_link_in_cli_page_online:
   action: goto_cli_page
   elements:
@@ -69,7 +69,7 @@ check_basic_cli_reference_doc_link_in_cli_page_online:
 check_cli_reference_doc_link_in_next_step_page:
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container_platform/3.4/cli_reference/overview.html") and contains(.,"CLI Reference")]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.4/cli_reference/overview.html") and contains(.,"CLI Reference")]
 check_cli_reference_doc_link_in_next_step_page_online:
   elements:
   - selector:
@@ -77,7 +77,7 @@ check_cli_reference_doc_link_in_next_step_page_online:
 check_basic_cli_reference_doc_link_in_next_step_page:
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container_platform/3.4/cli_reference/basic_cli_operations.html") and contains(.,'Basic CLI Operations')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.4/cli_reference/basic_cli_operations.html") and contains(.,'Basic CLI Operations')]
 check_basic_cli_reference_doc_link_in_next_step_page_online:
   elements:
   - selector:
@@ -85,7 +85,7 @@ check_basic_cli_reference_doc_link_in_next_step_page_online:
 check_webhook_trigger_doc_link_in_next_step_page:
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/builds.html#webhook-triggers") and contains(.,'webhook trigger')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.4/dev_guide/builds.html#webhook-triggers") and contains(.,'webhook trigger')]
 check_webhook_trigger_doc_link_in_next_step_page_online:
   elements:
   - selector:
@@ -106,9 +106,9 @@ check_webhook_trigger_doc_link_in_bc_page:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'Generic Webhook URL')]/a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/builds.html#webhook-triggers")]
+      xpath: //dt[contains(.,'Generic Webhook URL')]/a[contains(@href,"https://docs.openshift.com/container-platform/3.4/dev_guide/builds.html#webhook-triggers")]
   - selector:
-      xpath: //dt[contains(.,'GitHub Webhook URL')]/a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/builds.html#webhook-triggers")]
+      xpath: //dt[contains(.,'GitHub Webhook URL')]/a[contains(@href,"https://docs.openshift.com/container-platform/3.4/dev_guide/builds.html#webhook-triggers")]
 check_webhook_trigger_doc_link_in_bc_page_online:
   action: goto_buildconfig_configuration_tab
   elements:
@@ -120,7 +120,7 @@ check_start_build_doc_link_in_bc_page:
   action: goto_buildconfig_configuration_tab
   elements:
   - selector:
-      xpath: //dt[contains(.,'Manual (CLI)')]/a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/builds.html#starting-a-build")]
+      xpath: //dt[contains(.,'Manual (CLI)')]/a[contains(@href,"https://docs.openshift.com/container-platform/3.4/dev_guide/builds.html#starting-a-build")]
 check_start_build_doc_link_in_bc_page_online:
   action: goto_buildconfig_configuration_tab
   elements:
@@ -130,7 +130,7 @@ check_documentation_link_in_dc_page:
   action: check_dc_loaded_completely
   elements:
   - selector:
-      xpath: //h3[contains(.,'Triggers')]//following::dt[contains(.,'Manual')]//a[contains(@href,"https://docs.openshift.com/container_platform/3.4/cli_reference/basic_cli_operations.html#build-and-deployment-cli-operations")]
+      xpath: //h3[contains(.,'Triggers')]//following::dt[contains(.,'Manual')]//a[contains(@href,"https://docs.openshift.com/container-platform/3.4/cli_reference/basic_cli_operations.html#build-and-deployment-cli-operations")]
 check_documentation_link_in_dc_page_online:
   action: check_dc_loaded_completely
   elements:
@@ -141,7 +141,7 @@ check_route_type_doc_link_on_create_route_page:
   action: show_options_for_secure_route
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container_platform/3.4/architecture/core_concepts/routes.html#route-types") and contains(.,'Learn more')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.4/architecture/core_concepts/routes.html#route-types") and contains(.,'Learn more')]
 check_route_type_doc_link_on_create_route_page_online:
   url: /console/project/<project_name>/create-route
   action: show_options_for_secure_route
@@ -155,7 +155,7 @@ check_compute_resource_doc_link_on_set_limit_page:
   action: goto_set_resource_limit_page
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/compute_resources.html") and contains(.,'Learn more')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.4/dev_guide/compute_resources.html") and contains(.,'Learn more')]
 check_compute_resource_doc_link_on_set_limit_page_online:
   action: goto_one_dc_page
   action: goto_set_resource_limit_page
@@ -167,7 +167,7 @@ check_health_check_doc_link_on_edit_health_check_page:
   action: goto_health_check_page
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/application_health.html") and contains(.,'Learn more')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.4/dev_guide/application_health.html") and contains(.,'Learn more')]
 check_health_check_doc_link_on_edit_health_check_page_online:
   action: goto_one_dc_page
   action: goto_health_check_page
@@ -179,7 +179,7 @@ check_autoscaler_doc_link_on_add_autoscaler_page:
   action: goto_add_autoscaler_page
   elements:
   - selector:
-      xpath: //a[contains(@href,"https://docs.openshift.com/container_platform/3.4/dev_guide/pod_autoscaling.html") and contains(.,'Learn more')]
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.4/dev_guide/pod_autoscaling.html") and contains(.,'Learn more')]
 check_autoscaler_doc_link_on_add_autoscaler_page_online:
   action: goto_one_dc_page
   action: goto_add_autoscaler_page
