@@ -338,7 +338,7 @@ Feature: dockerbuild.feature
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby20rhel7-invalidcontext-docker.json |
     Then the step should succeed
-    When the "ruby-hello-world-1" build failed
+    When the "ruby20-sample-build-1" build failed
     And I get project build
     And the output should contain:
       | InvalidContextDirectory |
