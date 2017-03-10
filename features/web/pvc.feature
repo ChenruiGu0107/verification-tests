@@ -8,6 +8,10 @@ Feature: Add pvc to pod from web related
     Then the step should succeed
     And I have a NFS service in the project
 
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
+    Then the step should succeed
+
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]       | nfs-1-<%= project.name %>         |
@@ -30,9 +34,7 @@ Feature: Add pvc to pod from web related
     Then the step should succeed
     And the "nfsc-2-<%= project.name %>" PVC becomes bound to the "nfs-2-<%= project.name %>" PV
 
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
-    Then the step should succeed
+    Given I wait until the status of deployment "dctest" becomes :complete
 
     #Add pvc to one of the containers
     When I perform the :add_pvc_to_one_container web console action with:

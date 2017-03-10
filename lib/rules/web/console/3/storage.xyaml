@@ -55,6 +55,8 @@ create_pvc_with_invalid_value_and_check:
   action: set_pvc_name
   action: set_storage_size
   action: check_create_button_disabled
+create_pvc_with_min_length_and_check:
+  action: create_pvc_with_invalid_value_and_check
 check_prompt_info_for_pvc:
   elements:
   - selector:
