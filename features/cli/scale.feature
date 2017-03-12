@@ -14,17 +14,6 @@ Feature: scaling related scenarios
     Given I wait for the "myapp" service to become ready
     When I get project replicationcontroller as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :rc_name clipboard
-    When I run the :describe client command with:
-      | resource | replicationcontrollers |
-      | name     | <%= cb.rc_name %>      |
-    Then the step should succeed
-    Then the output should contain:
-      | <%= "Replicas:\\t1 current / 1 desired" %> |
-    Then I run the :scale client command with:
-      | resource | replicationcontrollers |
-      | name     | <%= cb.rc_name %>      |
-      | replicas | 2                      |
-    And I wait until number of replicas match "2" for replicationController "<%= cb.rc_name %>"
     # get dc name
     When I get project deploymentconfig as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :dc_name clipboard
