@@ -63,6 +63,14 @@ module CucuShift
         automation_script_parsed.dig("cucushift", "args")
       end
 
+      private def tags_raw
+        custom_fields["tags"]
+      end
+
+      def tags
+        tags_raw.split(/\s+/).reject(&:nil?).reject(&:empty?)
+      end
+
       def automated?
         @automated ||=
           case_automation == "automated" &&

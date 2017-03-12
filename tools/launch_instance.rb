@@ -431,7 +431,12 @@ module CucuShift
     def launch_template(config:, launched_instances_name_prefix:)
       vars = YAML.load(readfile(config))
       if ENV["LAUNCHER_VARS"] && !ENV["LAUNCHER_VARS"].empty?
-        Collections.deep_merge!(vars, YAML.load(ENV["LAUNCHER_VARS"]))
+        launcher_vars = YAML.load ENV["LAUNCHER_VARS"]
+        if Hash === launcher_vars
+          Collections.deep_merge!(vars, launcher_vars)
+        else
+          raise "LAUNCHER_VARS not a mapping but #{launcher_vars.inspect}"
+        end
       end
       vars = Collections.deep_hash_symkeys vars
       vars[:instances_name_prefix] = launched_instances_name_prefix
