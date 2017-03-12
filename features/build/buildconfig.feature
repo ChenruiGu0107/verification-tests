@@ -343,6 +343,25 @@ Feature: buildconfig.feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479541/test-buildconfig-s2i.json    |
 
   # @author wzheng@redhat.com
+  # @case_id OCP-12016
+  Scenario: S2I build failure reason display if use incorrect runtime image
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/invalid_runtime_image.json |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | extended-build-from-repo |
+    Then the step should succeed
+    When the "extended-build-from-repo-1" build failed
+    And I run the :get client command with:
+      | resource | build |
+    Then the output should contain:
+      | PullRuntimeImageFailed |
+    When I run the :describe client command with:
+      | resource | build |
+    Then the output should contain:
+      | Failed to pull runtime image |
+
   # @case_id OCP-11690
   Scenario: S2I build failure reason display if use incorrect assemble script
     Given I have a project
@@ -357,7 +376,7 @@ Feature: buildconfig.feature
     And the output should contain:
       | AssembleFailed |
     When I run the :describe client command with:
-      | resource | build | 
+      | resource | build |
     Then the step should succeed
     And the output should contain:
       | Assemble script failed |
