@@ -210,48 +210,46 @@ Feature: projects related features via cli
   # @case_id OCP-12029
   @admin
   Scenario: Should be able to create a project with valid node selector
-    ##create a project with the node label
+    # Create a project with the node label
+    Given I store the schedulable nodes in the clipboard
+    Given evaluation of `node.labels.keys.select{|key| key.include?("io/hostname")}.first` is stored in the :unique_key clipboard
+    Given evaluation of `[cb.unique_key, node.labels[cb.unique_key]].join("=")` is stored in the :node_selector clipboard
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/prj_with_invalid_node-selector.json"
     And I replace lines in "prj_with_invalid_node-selector.json":
-      |"openshift.io/node-selector": "env,qa"|"openshift.io/node-selector": "<%= env.nodes[0].labels.first.join("=") %>"|
-    Then the step should succeed
-    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    And I replace lines in "prj_with_invalid_node-selector.json":
-      |"name": "jhou"|"name": "<%= cb.proj_name %>"|
+      | "openshift.io/node-selector": "env,qa" | "openshift.io/node-selector": "<%= cb.node_selector %>" |
+      | "name": "jhou"                         | "name": "<%= cb.proj_name %>"                           |
     Then the step should succeed
     When I run the :create admin command with:
       | f | prj_with_invalid_node-selector.json |
     Then the step should succeed
-
     Given I register clean-up steps:
       | admin deletes the "<%= cb.proj_name %>" project |
-      | the step should succeed                     |
+      | the step should succeed                         |
 
     When I run the :describe admin command with:
-      | resource | project |
+      | resource | project             |
       | name     | <%= cb.proj_name %> |
     Then the output should contain:
-      | <%= env.nodes[0].labels.first.join("=") %> |
-
-    ##grant admin to user
+      | <%= cb.node_selector %> |
+    # Grant admin to user
     When I run the :policy_add_role_to_user admin command with:
       | role            |   admin               |
       | user name       |   <%= user.name %>    |
       | n               |   <%= cb.proj_name %> |
     Then the step should succeed
-
-    ##create a pod in the project
+    # Create a pod in the project
     When I use the "<%= cb.proj_name %>" project
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then  the step should succeed
-
-    ##check pod is create on the correspod node
+    Given the pod named "hello-openshift" status becomes :running
+    # Check pod is create on the correspond node
     When I run the :describe client command with:
-      | resource      | pods            |
-      | name | hello-openshift |
+      | resource | pods            |
+      | name     | hello-openshift |
     Then the output should contain:
-      | <%= env.nodes.first.name %> |
+      | <%= node.name %> |
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-12026
