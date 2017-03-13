@@ -233,3 +233,61 @@ Feature: Logging and Metrics
     Then the output should contain:
       | persistentVolumeClaim |
     """
+
+  @admin
+  # @author penli@redhat.com
+  # bz #1401383 #1421953
+  # run this case in m1.large on OpenStack, m4.large on AWS, or n1-standard-2 on GCE
+  Scenario: Scale up and down hawkular-metrics replicas
+    Given I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    And I store master major version in the :master_version clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin-metrics/master/metrics-deployer-setup.yaml |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role            |   edit |
+      | user_name       |   system:serviceaccount:<%=project.name%>:metrics-deployer |
+    When I run the :policy_add_role_to_user client command with:
+      | role            |   view |
+      | user_name       |   system:serviceaccount:<%=project.name%>:hawkular |
+    Then the step should succeed
+    Given cluster role "cluster-reader" is added to the "heapster" service account
+    When I run the :new_secret client command with:
+      | secret_name | metrics-deployer |
+      | credential_file | nothing=/dev/null |
+    Then the step should succeed
+    When I create a new application with:
+      | template | metrics-deployer-template |
+      | param | HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.<%= cb.subdomain%> |
+      | param | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/ |
+      | param | USE_PERSISTENT_STORAGE=false |
+      | param | IMAGE_VERSION=<%= cb.master_version%> |
+      | param | MASTER_URL=<%= env.api_endpoint_url %> |
+    Then the step should succeed
+    And all pods in the project are ready
+    And I wait for the "hawkular-cassandra" service to become ready
+    And I wait for the "hawkular-metrics" service to become ready
+    And I wait for the "heapster" service to become ready
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    And I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | hawkular-metrics       |
+      | replicas | 2                      |
+    Then I wait until number of replicas match "2" for replicationController "hawkular-metrics"
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    And I wait for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name    | pods/<%= pod.name %>|
+    And the output should match:
+      | Metrics service started   |
+    """
+    And I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | hawkular-metrics       |
+      | replicas | 1                      |
+    Then I wait until number of replicas match "1" for replicationController "hawkular-metrics"
+
