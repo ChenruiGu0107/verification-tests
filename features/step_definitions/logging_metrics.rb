@@ -55,28 +55,30 @@ end
 # 3. | payload | for POST only, local path or url |
 # NOTE: if we agree to use a fixed name for the first part of the metrics URL, then we don't need admin access privilege to run this step.
 When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table |
-
   if !env.opts[:admin_cli]
     # for Online/STG/INT, we just get the URL from env
     cb['metrics'] = env.metrics_console_url
   else
     unless cb[:metrics]
       step %Q/I store default router subdomain in the :metrics clipboard/
-      cb[:metrics] = 'https://hawkular-metrics.' + cb[:metrics] + '/hawkular/metrics'
+      cb[:metrics] = 'https://hawkular-metrics.' + cb[:metrics] + '/hawkular'
     end
     # if cb.metrics does not have the proper form, we need to set it.
-    cb[:metrics] = 'https://hawkular-metrics.' + cb.metrics + '/hawkular/metrics' unless cb.metrics.start_with? "https://"
+    cb[:metrics] = 'https://hawkular-metrics.' + cb.metrics + '/hawkular' unless cb.metrics.start_with? "https://"
   end
   opts = opts_array_to_hash(table.raw)
-  supported_metrics_types = %w(gauges metrics counters)
-  raise "Unsupported query type '#{opts[:type]}' for metrics, valid types are #{supported_metrics_types}" unless supported_metrics_types.include? opts[:type]
+  raise "required parameter 'path' is missing" unless opts[:path]
+
+  bearer_token = opts[:token] ? opts[:token] : user.get_bearer_token.token
+
   https_opts = {}
   https_opts[:headers] ||= {}
   https_opts[:headers][:accept] ||= "application/json"
   https_opts[:headers][:content_type] ||= "application/json"
   https_opts[:headers][:hawkular_tenant] ||= opts[:project_name]
-  https_opts[:headers][:authorization] ||= "Bearer #{user.get_bearer_token.token}"
-  metrics_url = cb.metrics + '/' + opts[:type]
+  https_opts[:headers][:authorization] ||= "Bearer #{bearer_token}"
+  https_opts[:headers].delete(:hawkular_tenant) if opts[:project_name] == ":false"
+  metrics_url = cb.metrics + opts[:path]
 
   if op_type == 'POST'
     datastore_url = metrics_url + '/datastore'
@@ -93,4 +95,5 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
   end
 
   @result = CucuShift::Http.request(url: url, **https_opts, method: op_type)
+  @result[:parsed] = YAML.load(@result[:response])
 end
