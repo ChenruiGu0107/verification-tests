@@ -617,7 +617,8 @@ Feature: deployment related features
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json"
     Then the step should succeed
     And I replace lines in "deployment1.json":
-      | user8Y2 | usernew|
+      | user8Y2      | usernew                         |
+      | "status": {} | "status": {"latestVersion":"2"} |
     Given I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
       | f | deployment1.json |
