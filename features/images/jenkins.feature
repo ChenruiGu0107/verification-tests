@@ -1570,3 +1570,34 @@ Feature: jenkins.feature
       | ver |
       | 1   |
       | 2   |
+
+  # @author dyan@redhat.com
+  # @case_id OCP-13207 OCP-13208 OCP-13209 OCP-13210
+  Scenario Outline: Switch to 32bit JDK for Jenkins
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | jenkins-ephemeral                      |
+      | p        | JVM_ARCH=<arch>                        |
+      | p        | JENKINS_IMAGE_STREAM_TAG=jenkins:<tag> |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    When I run the :describe client command with:
+      | resource | pod          |
+      | l        | name=jenkins |
+    Then the step should succeed
+    And the output should match:
+      | OPENSHIFT_JENKINS_JVM_ARCH:\\s+<arch> |
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | ls -l /etc/alternatives/java |
+    Then the step should succeed
+    And the output should contain "<jdk>"
+
+    Examples:
+      | arch   | tag | jdk    |
+      |        | 2   | i386   | # @case_id OCP-13207
+      | x86_64 | 2   | x86_64 | # @case_id OCP-13208
+      |        | 1   | i386   | # @case_id OCP-13209
+      | x86_64 | 1   | x86_64 | # @case_id OCP-13210
