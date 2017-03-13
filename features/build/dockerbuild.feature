@@ -360,3 +360,149 @@ Feature: dockerbuild.feature
     And the output should contain:
       | no such file or directory |
 
+  # @author dyan@redhat.com
+  # @case_id OCP-12855
+  Scenario: Add ARGs in docker build
+    Given I have a project
+    When I run the :new_build client command with:
+      | code      | https://github.com/openshift/ruby-hello-world |
+      | build_arg | ARG=VALUE                                     |
+    Then the step should succeed
+    Given the "ruby-hello-world-1" build was created
+    When I run the :export client command with:
+      | resource | build/ruby-hello-world-1 |
+    Then the step should succeed
+    And the output should match:
+      | name:\\s+ARG    |
+      | value:\\s+VALUE |
+    # start build with build-arg
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | build_arg   | ARG1=VALUE1      |
+    Then the step should succeed
+    Given the "ruby-hello-world-2" build was created
+    When I run the :export client command with:
+      | resource | build/ruby-hello-world-2 |
+    Then the step should succeed
+    And the output should match:
+      | name:\\s+ARG1    |
+      | value:\\s+VALUE1 |
+    When I run the :start_build client command with:
+      | from_build | ruby-hello-world-1 |
+      | build_arg  | ARG=NEWVALUE       |
+    Then the step should succeed
+    Given the "ruby-hello-world-3" build was created
+    When I run the :export client command with:
+      | resource | build/ruby-hello-world-3 |
+    Then the step should succeed
+    And the output should match:
+      | name:\\s+ARG       |
+      | value:\\s+NEWVALUE |
+
+  # @author dyan@redhat.com
+  # @case_id OCP-12856
+  Scenario: Add ARGs in docker build via webhook trigger
+    Given I have a project
+    When I run the :new_build client command with:
+      | code | https://github.com/openshift/ruby-hello-world |
+      | build_arg   | ARG=VALUE        |
+    Then the step should succeed
+    When I get project BuildConfig as JSON
+    And evaluation of `@result[:parsed]['items'][0]['spec']['triggers'][1]['generic']['secret']` is stored in the :secret_name clipboard
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-12856/push-generic-build-args.json"
+    Then the step should succeed
+    When I perform the HTTP request:
+    """
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
+    :method: post
+    :headers:
+      :content-type: application/json
+    :payload: <%= File.read("push-generic-build-args.json").to_json %>
+    """
+    Then the step should succeed
+    Given the "ruby-hello-world-2" build was created
+    When I run the :export client command with:
+      | resource | build/ruby-hello-world-2 |
+    Then the step should succeed
+    And the output should match:
+      | name:\\s+foo      |
+      | value:\\s+default |
+    When I replace lines in "push-generic-build-args.json":
+      | foo      | ARG      |
+      | default  | NEWVALUE |
+    Then the step should succeed
+    When I perform the HTTP request:
+    """
+    :url: <%= env.api_endpoint_url %>/oapi/v1/namespaces/<%= project.name %>/buildconfigs/ruby-hello-world/webhooks/<%= cb.secret_name %>/generic
+    :method: post
+    :headers:
+      :content-type: application/json
+    :payload: <%= File.read("push-generic-build-args.json").to_json %>
+    """
+    Then the step should succeed
+    Given the "ruby-hello-world-3" build was created
+    When I run the :export client command with:
+      | resource | build/ruby-hello-world-3 |
+    Then the step should succeed
+    And the output should match:
+      | name:\\s+ARG       |
+      | value:\\s+NEWVALUE |
+
+  # @author dyan@redhat.com
+  # @case_id OCP-13980
+  Scenario: Add ARGs in build with invalid way
+    Given I have a project
+    When I run the :new_build client command with:
+      | code     | https://github.com/openshift/ruby-hello-world |
+      | strategy | source                                        |
+      | to       | test                                          |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | build_arg   | ARG=VALUE        |
+    Then the step should fail
+    And the output should match:
+      | [Cc]annot specify build args |
+      | not a [Dd]ocker build        |
+    Given the "ruby-hello-world-1" build was created
+    When I run the :start_build client command with:
+      | from_build | ruby-hello-world-1 |
+      | build_arg  | ARG=VALUE          |
+    Then the step should fail
+    And the output should match:
+      | [Cc]annot specify build args |
+      | not a [Dd]ocker build        |
+    When I run the :delete client command with:
+      | all_no_dash | |
+      | all         | |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | code      | https://github.com/openshift/ruby-hello-world |
+      | strategy  | source                                        |
+      | to        | test                                          |
+      | build_arg | ARG=VALUE                                     |
+    Then the step should fail
+    And the output should match:
+      | [Cc]annot use             |
+      | without a [Dd]ocker build |
+    # start docker build with invalid args
+    When I run the :new_build client command with:
+      | code      | https://github.com/openshift/ruby-hello-world |
+      | build_arg | ARG=VALUE                                     |
+    Then the step should succeed
+    Given the "ruby-hello-world-1" build was created
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | build_arg   | @#$%=INVALID     |
+    Then the step should fail
+    And the output should match:
+      | key=value |
+      | letters, numbers, and underscores |
+    When I git clone the repo "https://github.com/openshift/ruby-hello-world"
+    And I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+      | from_dir    | ruby-hello-world |
+      | build_arg   | ARG2=VALUE2      |
+    Then the output should match:
+      | binary builds is not supported |
+
