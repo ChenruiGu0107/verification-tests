@@ -579,4 +579,26 @@ Feature: job.feature
     Then status becomes :running of 1 pods labeled:
       | run=sj1 |
     
-    
+  # @author geliu@redhat.com
+  # @case_id OCP-10968
+  Scenario: Schedule job with spec.startingDeadlineSeconds
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/scheduledjob_with_startingDeadlineSeconds.yaml |
+    Then the step should succeed
+    Then status becomes :running of 1 pods labeled:
+      | run=sj3 |
+    When I run the :patch client command with:
+      | resource      | scheduledjob                             |
+      | resource_name | sj3                                      |
+      | p             | {"spec":{"startingDeadlineSeconds":"1"}} |
+    Then the step should succeed
+    Given 70 seconds have passed
+    When I run the :delete client command with:
+      | object_type | pod             |
+      | l           | run=sj3         |
+    Then the step should succeed
+    Given 70 seconds have passed
+    When I get project pods as JSON
+    And evaluation of `@result[:parsed]['items']` is stored in the :podlist clipboard
+    And the expression should be true> cb.podlist.empty? 
