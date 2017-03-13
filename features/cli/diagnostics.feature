@@ -109,3 +109,29 @@ Feature: Diagnostics system and clients
       | .*integrated registry timed out |
       | DNS.*expected |
       | Errors seen:\\s+\\d{1}|
+
+  # @author xiazhao@redhat.com
+  # @case_id OCP-10791
+  @admin
+  @destructive
+  Scenario: Diagnostics container for openshift SDN as cluster-admin
+    Given master config is merged with the following hash:
+    """
+    dnsConfig:
+      bindAddress: 0.0.0.0:7777
+      bindNetwork: tcp4
+    """
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+
+    Given I have a project
+    # Diagnose when latest-images is set to true
+    When I run the :oadm_diagnostics client command with:
+      | diagnostics_name | DiagnosticPod |
+      | images | openshift3/ose-${component}:${version} |
+      | latest-images | true |
+    Then the output should match:
+      | DP2009 |
+      | DP2010 |
+      | DP2014 |
+    And the output should not match "Errors seen:\s0\d*"
