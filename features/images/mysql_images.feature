@@ -147,7 +147,7 @@ Feature: mysql_images.feature
       | 10 |
 
   # @author haowang@redhat.com
-  # @case_id OCP-11177 OCP-11747
+  # @case_id OCP-11177 OCP-11747 OCP-11837
   Scenario Outline: Data remains after pod being re-created for clustered mysql - mysql-55-rhel7 mysql-56-rhel7
     Given I have a project
     And I download a file from "<file>"
@@ -227,8 +227,10 @@ Feature: mysql_images.feature
       | 10 |
     Examples:
       | sclname    |image                     | org_image                  | template            | file                                                                                             |
-      | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
-      | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
+      | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json | # @case_id OCP-11177
+      | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json | # @case_id OCP-11747
+      | rh-mysql57 |centos/mysql-57-centos7   | rhscl/mysql-57-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.7/examples/replica/mysql_replica.json | # @case_id OCP-11837
+
   # @author haowang@redhat.com
   # @case_id OCP-12045 OCP-12202
   Scenario Outline: Data remains after pod being scaled up from 0 for clustered mysql - mysql-55-rhel7 mysql-57-rhel7
@@ -535,6 +537,71 @@ Feature: mysql_images.feature
     """
     When I execute on the pod:
       | bash | -c | mysql -h mysql-master -u user -pnewuser -D userdb -e 'select * from  test;' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 10 |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-11647
+  Scenario: Verify clustered mysql can be connected after password changed - mysql-57-rhel7
+    Given I have a project
+    Given I download a file from "https://raw.githubusercontent.com/openshift/mysql/master/5.7/examples/replica/mysql_replica.json"
+    Given I replace lines in "mysql_replica.json":
+      | centos/mysql-57-centos7   |  <%= product_docker_repo %>rhscl/mysql-57-rhel7 |
+    And I run the :new_app client command with:
+      | file  | mysql_replica.json  |
+      | param | MYSQL_USER=user     |
+      | param | MYSQL_PASSWORD=user |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | mysql-master                                                                    |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | mysql-slave                                                                     |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "mysql-master" PVC becomes :bound within 300 seconds
+    And the "mysql-slave" PVC becomes :bound within 300 seconds
+    And a pod becomes ready with labels:
+      | name=mysql-slave          |
+    And a pod becomes ready with labels:
+      | name=mysql-master         |
+    Given I wait for the "mysql-master" service to become ready
+    And I wait up to 200 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mysql57 | mysql -h mysql-master -u user -puser -D userdb -e 'create table test (age INTEGER(32));' |
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mysql57 | mysql -h mysql-master -u user -puser -D userdb -e 'insert into test VALUES(10);' |
+    Then the step should succeed
+    When I execute on the pod:
+      | scl | enable | rh-mysql57 | mysql -h mysql-master -u user -puser -D userdb -e 'select * from  test;' |
+    Then the step should succeed
+    And the output should contain:
+      | 10 |
+    When I run the :env client command with:
+      | resource | dc/mysql-master        |
+      | e        | MYSQL_PASSWORD=newuser |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mysql57 | mysql -h mysql-master -u user -puser -D userdb -e 'select * from  test;' |
+    Then the step should fail
+    """
+    And a pod becomes ready with labels:
+      | name=mysql-master         |
+      | deployment=mysql-master-2 |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | scl | enable | rh-mysql57 | mysql -h mysql-master -u user -pnewuser -D userdb -e 'select * from  test;' |
     Then the step should succeed
     """
     And the output should contain:
