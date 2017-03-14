@@ -3,13 +3,7 @@ goto_monitoring_page:
   url: /console/project/<project_name>/monitoring
 set_resource_type_on_monitoring:
   action: goto_monitoring_page
-  elements:
-  - selector:
-      xpath: //div[@title="Choose a resource"]
-    op: click
-  - selector:
-      xpath: //div[span/div[text()="<resource_type>"]]
-    op: click
+  action: choose_resource_type
 expand_resource_logs:
   element:
     selector:
