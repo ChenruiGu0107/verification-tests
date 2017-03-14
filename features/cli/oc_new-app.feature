@@ -32,3 +32,31 @@ Feature: oc new-app related scenarios
     When I run the :new_app client command with:
       | template | ruby-helloworld-sample |
     Then the step should succeed
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-12774
+  Scenario: oc new-app/new-build should respect ImageStream hidden tag	
+    Given I have a project
+    When I run the :new_app client command with:
+      | search_raw | ruby |
+    And the output should contain:
+      | Project: openshift |
+      | 2.2, 2.3           |
+    And the output should not contain:
+      | 2.0 |
+    When I run the :new_app client command with:
+      | image_stream | ruby:2.0 |
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc               |
+      | name     | ruby-hello-world |
+    Then the output should match "ImageStreamTag openshift/ruby:2.0"
+    When I run the :new_build client command with:
+      | image_stream | ruby:2.0 |
+      | app_repo | https://github.com/openshift/ruby-ex |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc      |
+      | name     | ruby-ex |
+    Then the output should match "ImageStreamTag openshift/ruby:2.0"
