@@ -1,4 +1,8 @@
 #---check "/console" project list page
+check_delete_button_for_project_deletion:
+  elements:
+  - selector:
+      xpath: //button[text()='Delete' and (@disabled)]
 check_project_list:
   action: goto_projects_page
   elements:
@@ -19,37 +23,20 @@ check_policy_command:
   elements:
   - selector:
       xpath: //code[contains(.,'<openshift_command>')]
+click_project_delete_button:
+  elements:
+  - selector:
+      xpath: //i
+    op: click
+click_project_display_name:
+  elements:
+  - selector:
+      xpath: //div[@kind='Project' and @display-name='<project_name>']
+    op: click
 confirm_error_for_invalid_project_name:
   elements:
   - selector:
       xpath: //span[contains(.,"Project names may only contain lower-case letters, numbers, and dashes. They may not start or end with a dash")]
-delete_project:
-  action: check_project_list
-  elements:
-  - selector:
-      xpath: //div[descendant::a[contains(@href,'<project_name>')]]//i
-    op: click
-  - selector:
-      text: Delete
-    type: button
-    op: click
-  - selector:
-      xpath: //h2//span[contains(@data-original-title,'This project has been marked for deletion')]
-      #xpath: //strong[substring(text(), string-length(text()) - string-length("marked for deletion.") + 1)="marked for deletion."]
-    optional: true
-cancel_delete_project:
-  action: check_project_list
-  elements:
-  - selector:
-      xpath: //div[descendant::a[contains(@href,'<project_name>')]]//i
-    op: click
-  - selector:
-      text: Cancel
-    type: button
-    op: click
-  - selector:
-      xpath: //a[contains(@href,'<project_name>')]
-    type: a
 get_disabled_project_submit_button:
   element:
     selector:
@@ -58,3 +45,19 @@ get_disabled_project_submit_button:
     type: button
 goto_projects_page:
   url: /console
+delete_project:
+  action: check_project_list
+  action: click_project_delete_button
+  action: click_delete_button
+cancel_delete_project:
+  action: check_project_list
+  action: click_project_delete_button
+  action: click_cancel_button
+  elements:
+  - selector:
+      xpath: //a[contains(.,'<project_name>')]
+    type: a
+type_project_delete_string:
+  action: check_project_list
+  action: click_project_display_name
+

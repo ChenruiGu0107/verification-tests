@@ -1,6 +1,17 @@
+click_cancel_button:
+  elements:
+  - selector:
+      xpath: //button[contains(.,"Cancel")]
+    op: click
 click_create_button:
   elements:
   - selector:
       xpath: //button[contains(text(),"Create") and not(@disabled)]
     type: button
     op: click
+click_delete_button:
+  elements:
+  - selector:
+      xpath: //button[contains(.,"Delete")]
+    op: click
+
