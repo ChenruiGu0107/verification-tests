@@ -1084,6 +1084,12 @@
     :keep_younger_than: --keep-younger-than=<value>
     :prune_over_size_limit: --prune-over-size-limit=<value>
     :registry_url: --registry-url=<value>
+:oadm_registry:
+  :cmd: oadm registry
+  :options:
+    :mount_host: --mount-host=<value>
+    :ports: --ports=<value>
+    :serviceaccount: --service-account=<value>
 :oadm_remove_cluster_role_from_user:
   :cmd: oadm policy remove-cluster-role-from-user <role_name> 
   :options:
