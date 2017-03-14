@@ -138,6 +138,18 @@ When /^admin creates a project with:$/ do |table|
   @result = admin.cli_exec( :oadm_new_project, opts)
 end
 
+Given /^admin creates a project with a random schedulable node selector$/ do
+  project_name = rand_str(5, :dns)
+  step %Q{admin creates a project with:}, table(%{
+    | project_name  | #{project_name}       |
+    | node_selector | #{project_name}=label |
+    })
+  step %Q/I select a random node's host/
+  step %Q/label "<%= project.name %>=label" is added to the "<%= node.name %>" node/
+  step %Q/I switch to cluster admin pseudo user/
+  step %Q/I use the "<%= project.name %>" project/
+end 
+
 When /^admin deletes the #{QUOTED} project$/ do |project_name|
   p = project(project_name)
   @result = p.delete(by: :admin)
