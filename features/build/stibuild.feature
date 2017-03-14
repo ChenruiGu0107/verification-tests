@@ -123,3 +123,20 @@ Feature: stibuild.feature
       |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc498848/tc498848-s2i.json|
       |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc498847/tc498847-docker.json|
       |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc498846/tc498846-custom.json|
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-13448
+  Scenario: Error in buildlog if STI build with invalid context dir
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/python-27-rhel7-errordir-stibuild.json |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | python-sample-build |
+    And the "python-sample-build-1" build was created
+    And the "python-sample-build-1" build failed
+    When I run the :logs client command with:
+      | resource_name | bc/python-sample-build|
+    Then the output should contain:
+      | no such file or directory |
+
