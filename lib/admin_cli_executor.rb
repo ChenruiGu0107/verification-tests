@@ -118,7 +118,7 @@ module CucuShift
         File.write(config, config_str)
       else
         logger.error(res[:response])
-        raise "error running command on master #{master.host.hostname} as admin, see log"
+        raise "error running command on master #{master_host.hostname} as admin, see log"
       end
 
       return @cli_opts = {config: config} # yes, assignment

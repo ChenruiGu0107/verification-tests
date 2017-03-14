@@ -693,7 +693,6 @@ module CucuShift
 
     # @note execute commands without special setup
     def exec_raw(*commands, **opts)
-      raise ":background not implemented" if opts[:background]
       ssh(opts).exec(commands_to_string(commands),opts)
     end
 

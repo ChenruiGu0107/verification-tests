@@ -52,15 +52,15 @@ Given /^environment has( at least| at most) (\d+)( schedulable)? nodes?$/ do |cm
 end
 
 # @host from World will be used.
-Given /^I run commands on the host:$/ do |table|
+Given /^I run( background)? commands on the host:$/ do |bg, table|
   ensure_admin_tagged
 
   raise "You must set a host prior to running this step" unless host
 
-  @result = host.exec(*table.raw.flatten)
+  @result = host.exec(*table.raw.flatten, background: !!bg)
 end
 
-Given /^I run commands on the hosts in the#{OPT_SYM} clipboard:$/ do |cbname, table|
+Given /^I run( background)? commands on the hosts in the#{OPT_SYM} clipboard:$/ do |bg, cbname, table|
   ensure_admin_tagged
   cbname ||= "hosts"
 
@@ -69,21 +69,22 @@ Given /^I run commands on the hosts in the#{OPT_SYM} clipboard:$/ do |cbname, ta
     raise "You must set a clipboard prior to running this step"
   end
 
-  results = cb[cbname].map { |h| h.exec(*table.raw.flatten) }
+  results = cb[cbname].map { |h| h.exec(*table.raw.flatten, background: !!bg) }
   @result = results.find {|r| !r[:success] }
   @result ||= results[0]
+  @result[:channel_object] = results.map { |r| r[:channel_object] }
   @result[:response] = results.map { |r| r[:response] }
   @result[:exitstatus] = results.map { |r| r[:exitstatus] }
 end
 
-Given /^I run commands on the nodes in the#{OPT_SYM} clipboard:$/ do |cbname, table|
+Given /^I run( background)? commands on the nodes in the#{OPT_SYM} clipboard:$/ do |bg, cbname, table|
   ensure_admin_tagged
   cbname ||= "nodes"
 
   tmpcb = rand_str(5, "dns")
   cb[tmpcb] = cb[cbname].map(&:host)
 
-  step "I run commands on the hosts in the :#{tmpcb} clipboard:", table
+  step "I run#{bg} commands on the hosts in the :#{tmpcb} clipboard:", table
 
   cb[tmpcb] = nil
 end

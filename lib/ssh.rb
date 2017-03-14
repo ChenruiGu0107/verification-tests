@@ -8,8 +8,8 @@ module CucuShift
     module Helper
       # generate a key pair mainly useful for SSH but can be generic
       # will monkey patch a method to get public key in proper String format
-      def self.gen_rsa_key
-        key = OpenSSL::PKey::RSA.generate(2048)
+      def self.gen_rsa_key(len=2048)
+        key = OpenSSL::PKey::RSA.generate(len)
         key.singleton_class.class_eval do
           def to_pub_key_string
             ::CucuShift::SSH::Helper.to_pub_key_string(self)
@@ -24,8 +24,174 @@ module CucuShift
       end
     end
 
+    # represent a running ssh command
+    class Command
+      include Common::Helper
+
+      attr_reader :opts, :connection, :channel, :started_at
+
+      def initialize(command, connection, **opts)
+        # TODO: use shell service for greater flexibility and interactiv cmds
+        #       http://net-ssh.github.io/ssh/v1/chapter-5.html
+        # TODO: allow setting environment variables via channel.env
+        raise "setting env variables not implemented yet" if opts[:env]
+
+        @res_lock = Mutex.new
+        @connection = connection
+        @opts = opts
+        @result = opts[:result] || {}
+        result[:timeout] = false
+        result[:channel_object] = self
+        result[:command] = command
+        instruction = 'Remote cmd: `' + command + '` @ssh://' +
+                      ( user ? "#{user}@#{host}" : host )
+        result[:instruction] = instruction
+        logger.info(instruction) unless opts[:quiet]
+        stdout = result[:stdout] = opts[:stdout] || String.new
+        stderr = result[:stderr] = opts[:stderr] || stdout
+
+        @started_at = Time.now
+        @channel = connection.session.open_channel do |channel|
+          channel.exec(command) do |ch, success|
+            result { |r| r[:success] = success }
+            unless success
+              err = "could not execute command on #{host}: #{command}"
+              logger.error(err)
+              result[:error] = RuntimeError.new(err)
+              result[:error].set_backtrace(Thread.current.backtrace)
+              abort
+            end
+
+            channel.on_data do |ch,data|
+              stdout << data
+            end
+
+            channel.on_extended_data do |ch,type,data|
+              stderr << data
+            end
+
+            channel.on_request("exit-status") do |ch,data|
+              result[:exitstatus] = data.read_long
+              fail! if result[:exitstatus] != 0
+            end
+
+            channel.on_request("exit-signal") do |ch, data|
+              result[:exitsignal] = data.read_long
+              fail!
+            end
+
+            case opts[:stdin]
+            when :empty, ":empty"
+              keep_stdin_open = true
+            else
+              channel.send_data opts[:stdin].to_s
+            end
+
+            channel.eof! unless keep_stdin_open
+          end
+        end
+
+        # needs to be outside new channel block as it needs to be registered
+        #   before channel is opened
+        @channel.on_open_failed do |ch, code, desc|
+          fail!
+          err = "could not open SSH channel on #{host}: #{code} #{desc}"
+          logger.error(err)
+          result[:error] = RuntimeError.new(err)
+          result[:error].set_backtrace(Thread.current.backtrace)
+        end
+      end
+
+      def wait_exec
+        wait_for(20) {
+          # channel.active?
+          result { |r| r.has_key? :success }
+        }
+        unless result.has_key? :success
+          raise "timeout waiting for command to be executed"
+        end
+      end
+
+      def fail!
+        result { |r| r[:success] = false }
+      end
+
+      def result
+        if block_given?
+          @res_lock.synchronize { yield @result }
+        else
+          @result
+        end
+      end
+
+      def running?
+        channel.active? && !channel.connection.closed?
+      end
+
+      def close
+        channel.close
+      end
+
+      # @return [ResultHash]
+      def wait
+        # wait channel to finish; nil or 0 means no timeout (wait forever)
+        wait_since = monotonic_seconds - (Time.now - started_at)
+        while opts[:timeout].nil? ||
+              opts[:timeout] == 0 ||
+              monotonic_seconds - wait_since < opts[:timeout]
+          # checking session for https://github.com/net-ssh/net-ssh/issues/425
+          break unless running?
+          # break unless active_recently_verified? # useless with keepalive
+          sleep 1
+        end
+        if channel.active?
+          fail! # timeout of connection premature close
+          if channel.connection.closed?
+            # looks like session closed before channel finished
+            # I don't think liveness probe is likely to end-up here so
+            #   don't perform special handling here for it.
+            err = connection.error
+            # err = "ssh session @#{host} closed prematurely: #{err.inspect}"
+            result[:error] = err
+          else
+            # looks like we hit command timeout
+            close
+            if opts[:liveness]
+              logger.warn("liveness check failed, may retry @#{host}: #{command}")
+            else
+              logger.error("ssh channel timeout @#{host}: #{command}")
+            end
+            result[:error] = CucuShift::TimeoutError.new("ssh channel timeout @#{host}: #{command}")
+          end
+        end
+        unless opts[:quiet]
+          logger.plain(result[:stdout], false)
+          logger.plain(result[:stderr], false) unless result[:stdout] == result[:stderr]
+          logger.info("Exit Status: #{result[:exitstatus]}")
+        end
+
+        return result
+      end
+
+      def user
+        connection.user
+      end
+
+      def host
+        connection.host
+      end
+
+      def inspect
+        cmd = result[:command]
+        cmd = "#{cmd[0..25]}.." if cmd.size > 25
+        "#<CucuShift::SSH::Command #{user}@#{host} #{cmd.inspect}>"
+      end
+    end
+
     class Connection
       include Common::Helper
+
+      attr_reader :host, :user
 
       # @return [exit_status, output]
       def self.exec(host, cmd, opts={})
@@ -69,7 +235,7 @@ module CucuShift
           #raise Net::SSH::AuthenticationFailed
         end
         begin
-          @session = Net::SSH.start(host, @user, **conn_opts)
+          @session = Net::SSH.start(host, user, **conn_opts)
         rescue Net::SSH::HostKeyMismatch => e
           raise e if opts[:strict]
           e.remember_host!
@@ -78,8 +244,15 @@ module CucuShift
         @last_accessed = monotonic_seconds
       end
 
+      # rude closing underlying transport
+      # @note that started processes are not killed unless they die because
+      #   of stdin/out being closed when ssh connection dies
       def close
-        @session.close unless closed?
+        # @session.close unless closed?
+        unless closed?
+          @session.shutdown!
+          # loop_thread_join
+        end
       end
 
       def closed?
@@ -167,7 +340,6 @@ module CucuShift
         begin
           exec_raw(command, **opts, result: res)
         rescue => e
-          # @last_accessed = 0
           res[:success] = false
           res[:error] = e
           res[:response] = exception_to_string(e)
@@ -184,10 +356,6 @@ module CucuShift
           res[:response] = output
         end
 
-        unless res.has_key? :success
-          res[:success] = res[:exitstatus] == 0 && ! res[:exitsignal]
-        end
-
         return res
       end
 
@@ -197,106 +365,28 @@ module CucuShift
       def exec_raw(command, opts={})
         raise "setting env variables not implemented yet" if opts[:env]
 
-        res = opts[:result] || {}
-        res[:command] = command
-        instruction = 'Remote cmd: `' + command + '` @ssh://' +
-                      ( @user ? "#{@user}@#{@host}" : @host )
-        logger.info(instruction) unless opts[:quiet]
-        res[:instruction] = instruction
-        exit_status = nil
-        stdout = res[:stdout] = opts[:stdout] || String.new
-        stderr = res[:stderr] = opts[:stderr] || stdout
-        exit_signal = nil
-        channel = session.open_channel do |channel|
-          channel.exec(command) do |ch, success|
-            unless success
-              res[:success] = false
-              err = "could not execute command on #{@host}: #{command}"
-              logger.error(err)
-              res[:error] = RuntimeError.new(err)
-              abort
-            end
+        background = opts.delete(:background)
 
-            channel.on_data do |ch,data|
-              stdout << data
-            end
-
-            channel.on_extended_data do |ch,type,data|
-              stderr << data
-            end
-
-            channel.on_request("exit-status") do |ch,data|
-              exit_status = data.read_long
-            end
-
-            channel.on_request("exit-signal") do |ch, data|
-              exit_signal = data.read_long
-            end
-
-            channel.on_open_failed { |ch, code, desc|
-              err = "could not open SSH channel on #{@host}: #{code} #{desc}"
-              logger.error(err)
-              res[:error] = RuntimeError.new(err)
-            }
-
-            case opts[:stdin]
-            when :empty, ":empty"
-              keep_stdin_open = true
-            else
-              channel.send_data opts[:stdin].to_s
-            end
-
-            channel.eof! unless keep_stdin_open
-          end
-        end
-
-        # launch a processing thread unless such is already running
+        cmd = Command.new(command, self, opts)
         loop_thread!
-        # wait channel to finish; nil or 0 means no timeout (wait forever)
-        wait_since = monotonic_seconds
-        while opts[:timeout].nil? ||
-              opts[:timeout] == 0 ||
-              monotonic_seconds - wait_since < opts[:timeout]
-          # checking session for https://github.com/net-ssh/net-ssh/issues/425
-          break if channel.connection.closed? || !channel.active?
-          # break unless active_recently_verified? # useless with keepalive
-          sleep 1
-        end
-        if channel.active?
-          if channel.connection.closed?
-            # looks like session closed before channel finished
-            # I don't think liveness probe is likely to end-up here so
-            #   don't perform special handling here for it.
-            err = loop_thread_error
-            # err = "ssh session @#{@host} closed prematurely: #{err.inspect}"
-            res[:error] = err
-          else
-            # looks like we hit command timeout
-            channel.close
-            if opts[:liveness]
-              logger.warn("liveness check failed, may retry @#{@host}: #{command}")
-            else
-              logger.error("ssh channel timeout @#{@host}: #{command}")
-            end
-            res[:error] = CucuShift::TimeoutError.new("ssh channel timeout @#{@host}: #{command}")
-          end
-        end
-        unless opts[:quiet]
-          logger.plain(stdout, false)
-          logger.plain(stderr, false) unless stdout == stderr
-          logger.info("Exit Status: #{exit_status}")
-        end
+        cmd.wait_exec
 
-        # TODO: should we use mutex to make sure our view of `res` is updated
-        #   according to latest @loop_thread updates?
-        return res.merge!({ exitstatus: exit_status, exitsignal: exit_signal })
+        if background
+          return cmd.result
+        else
+          return cmd.wait
+        end
       end
 
       # launches a new loop/process thread unless we have one already running
       def loop_thread!
-        # should we ever try to replace a dead thread?
         unless @loop_thread && @loop_thread.alive?
-          @loop_thread = Thread.new { session.loop }
+          # session.loop is slow to pick-up new channels, also will exit when
+          # no active channels are present and I'm not sire how this can
+          # affect session close
+          # @loop_thread = Thread.new { session.loop(1) {|s| s.busy?(include_invisible=true)} }
+          @loop_thread = Thread.new { loop {session.process(1)} }
+          @loop_thread.name = "SSH-#{user}@#{host}"
         end
       end
 
@@ -311,6 +401,14 @@ module CucuShift
         end
         return nil
       end
+
+      # private def loop_thread_join(timeout=5)
+      #   if @loop_thread && @loop_thread.alive?
+      #     @loop_thread.join(timeout)
+      #   end
+      # end
+
+      alias error loop_thread_error
     end
   end
 end
