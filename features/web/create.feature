@@ -512,6 +512,7 @@ Feature: create app on web console related
       | label_key             | mylabel             |
       | label_value           | my-hello-openshift  |
     Then the step should succeed
+    And I wait until the status of deployment "hello-openshift" becomes :complete
     When I run the :get client command with:
       | resource | all |
     Then the step should succeed
