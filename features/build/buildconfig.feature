@@ -362,6 +362,7 @@ Feature: buildconfig.feature
     Then the output should contain:
       | Failed to pull runtime image |
 
+  # @author wzheng@redhat.com
   # @case_id OCP-11690
   Scenario: S2I build failure reason display if use incorrect assemble script
     Given I have a project
@@ -380,3 +381,25 @@ Feature: buildconfig.feature
     Then the step should succeed
     And the output should contain:
       | Assemble script failed |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-12837
+  Scenario: S2I extended build failure reason display if use incorrect sourcePath	
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/invalid_sourcePath.json |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | extended-build-from-repo |
+    Then the step should succeed
+    When the "extended-build-from-repo-1" build failed
+    And I run the :get client command with:
+      | resource | build |
+    Then the step should succeed
+    And the output should contain:
+      | FetchRuntimeArtifactsFailed |
+    When I run the :describe client command with:
+      | resource | build |
+    Then the step should succeed
+    And the output should contain:
+      | Failed to fetch specified runtime artifacts |
