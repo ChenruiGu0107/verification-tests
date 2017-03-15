@@ -600,11 +600,9 @@ Feature: pod related features
     And the step should succeed
     Given the pod named "secret-pod-nginx-2" becomes ready
     When I execute on the pod:
-      | sh |
-      | -c |
-      | ls /etc/secret-volume-2; cat /etc/secret-volume-2/password; cat /etc/secret-volume-2/username |
-    Then the output by order should match:
-      | password\\s+username |
+      | cat | /etc/secret-volume-2/password | /etc/secret-volume-2/username |
+    Then the step should succeed
+    And the output by order should match:
       | value-2              |
       | value-1              |
     When I run the :patch client command with:
@@ -623,11 +621,9 @@ Feature: pod related features
     Then the output should match:
       | username:\\s+16 bytes |
     When I execute on the pod:
-      | sh |
-      | -c |
-      | ls /etc/secret-volume-2; cat /etc/secret-volume-2/password; cat /etc/secret-volume-2/username |
-    Then the output by order should match:
-      | password\\s+username |
+      | cat | /etc/secret-volume-2/password | /etc/secret-volume-2/username |
+    Then the step should succeed
+    And the output by order should match:
       | value-2              |
       | value-1              |
     Given I use the "<%= cb.nodes[0].name %>" node
@@ -635,11 +631,9 @@ Feature: pod related features
     And I wait up to 500 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | sh |
-      | -c |
-      | ls /etc/secret-volume-2; cat /etc/secret-volume-2/username |
-    Then the output by order should match:
-      | username        |
+      | cat | /etc/secret-volume-2/username |
+    Then the step should succeed
+    And the output should match:
       | usernamechanged |
     """
 
