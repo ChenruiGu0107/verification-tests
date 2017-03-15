@@ -109,8 +109,46 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
     }
   }
 
-  iptables_verify.call
-  logger.info "Cluster network #{subnet} saved into the :clusternetwork clipboard"
-  teardown_add iptables_verify
+  firewalld_verify = proc {
+    @result = _host.exec_admin("systemctl status firewalld")
+    unless @result[:success] && @result[:response] =~ /Active:\s+?active/
+      raise "The firewalld deamon verification failed. The deamon is not active!"
+    end
+    filter_matches = [
+      'INPUT -i tun0 -m comment --comment "traffic from(.*)" -j ACCEPT',
+      'INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT',
+      'OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      "FORWARD -s #{subnet} -j ACCEPT",
+      "FORWARD -d #{subnet} -j ACCEPT"
+    ]
+    @result = _host.exec_admin("iptables-save -t filter")
+    filter_matches.each { |match|
+      unless @result[:success] && @result[:response] =~ /#{match}/
+        raise "The filter table verification failed!"
+      end
+    }
 
+    nat_matches = [
+      'PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      'POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING',
+      "POSTROUTING -s #{subnet}(.*)-j MASQUERADE"
+    ]
+    @result = _host.exec_admin("iptables-save -t nat")
+    nat_matches.each { |match|
+      unless @result[:success] && @result[:response] =~ /#{match}/
+        raise "The nat table verification failed!"
+      end
+    }
+  }
+
+  @result = _host.exec_admin("firewall-cmd --state")
+  if @result[:success] && @result[:response] =~ /running/
+    firewalld_verify.call
+    logger.info "Cluster network #{subnet} saved into the :clusternetwork clipboard"
+    teardown_add firewalld_verify
+  else
+    iptables_verify.call
+    logger.info "Cluster network #{subnet} saved into the :clusternetwork clipboard"
+    teardown_add iptables_verify
+  end
 end
