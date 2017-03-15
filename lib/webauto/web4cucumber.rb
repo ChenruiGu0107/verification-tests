@@ -323,7 +323,7 @@ require "base64"
 
       #copy the element_rule
       rule = element_rule.dup
-      #replace selecotr's '<param>' with corresponding value in user_opts
+      #replace selector's '<param>' with corresponding value in user_opts
       rule[:selector] = selector_param_setter(rule[:selector], user_opts)
 
       #replace timeout's '<param>' with corresponding value in user_opts
