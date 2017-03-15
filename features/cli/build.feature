@@ -2792,3 +2792,37 @@ Feature: build 'apps' with CLI
       | buildconfig | ruby-hello-world |
     Then the step should succeed
     Given the "ruby-hello-world-3" build was created
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-11025
+  Scenario: oc start-build with url 
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-11025/test-build.json |
+    Then the step should succeed
+    Given I download a file from "https://github.com/openshift/ruby-hello-world/archive/master.zip"
+    When I run the :start_build client command with:
+      | buildconfig | sample-build-github-archive |
+      | from_archive| master.zip                  |
+    Then the step should succeed
+    Given the "sample-build-github-archive-1" build was created
+    And the "sample-build-github-archive-1" build completed
+    When I run the :start_build client command with:
+      | buildconfig | sample-build-github-archive |
+      | from_archive| https://github.com/openshift/ruby-hello-world/archive/master.zip |
+    Then the step should succeed
+    Given the "sample-build-github-archive-2" build was created
+    And the "sample-build-github-archive-2" build completed
+    Given I download a file from "https://raw.githubusercontent.com/openshift/ruby-hello-world/master/Gemfile"
+    When I run the :start_build client command with:
+      | buildconfig | sample-build |
+      | from_file   | Gemfile      |
+    Then the step should succeed
+    Given the "sample-build-1" build was created
+    And the "sample-build-1" build completed
+    When I run the :start_build client command with:
+      | buildconfig | sample-build |
+      | from_file   | https://raw.githubusercontent.com/openshift/ruby-hello-world/master/Gemfile |
+    Then the step should succeed
+    Given the "sample-build-2" build was created
+    And the "sample-build-2" build completed
