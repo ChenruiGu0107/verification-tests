@@ -319,7 +319,6 @@ Feature: Check deployments function
     When I perform the :check_overview_tile web console action with:
       | resource_type | Deployment                |
       | resource_name | hello-openshift           |
-      | port_number   | 80/TCP                    |
       | image_name    | openshift/hello-openshift |
       | scaled_number | 4                         |
     Then the step should succeed
@@ -338,7 +337,6 @@ Feature: Check deployments function
     When I perform the :check_overview_tile web console action with:
       | resource_type | Deployment            |
       | resource_name | hello-openshift       |
-      | port_number   | 80/TCP                |
       | image_name    | yapei/hello-openshift |
       | scaled_number | 4                     |
     Then the step should succeed
@@ -535,7 +533,6 @@ Feature: Check deployments function
     When I perform the :check_overview_tile web console action with:
       | resource_type | Replica Set               |
       | resource_name | frontend                  |
-      | port_number   | 8080/TCP                  |
       | image_name    | openshift/hello-openshift |
       | scaled_number | 3                         |
     Then the step should succeed
