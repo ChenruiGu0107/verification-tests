@@ -33,11 +33,6 @@ click_cancel:
   - selector:
       text: Cancel
     op: click
-click_on_details_tab:
-  element:
-    selector:
-      xpath: //uib-tab-heading[contains(.,'Details')]
-    op: click
 click_delete:
   elements:
   - selector:
