@@ -1,12 +1,12 @@
 Feature: php image related tests
 
   # @author cryan@redhat.com
-  # @case_id OCP-9773 OCP-9774
+  # @case_id OCP-9773 OCP-9774 OCP-10363
   # @bug_id 1249794
   Scenario Outline: Files can be uploaded to tm folder inside container
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | openshift/php-<image>-centos7~https://github.com/openshift-qe/openshift-php-upload-demo |
+      | app_repo | openshift/php:<image>~https://github.com/openshift-qe/openshift-php-upload-demo |
       | name     | phpuploaddemo                                                         |
     Then the step should succeed
     Given the "phpuploaddemo-1" build completes
@@ -34,8 +34,9 @@ Feature: php image related tests
     Then the output should contain "test output"
     Examples:
       | image |
-      | 55    |
-      | 56    |
+      | 5.5    | # @case_id OCP-9773
+      | 5.6    | # @case_id OCP-9774
+      | 7.0    | # @case_id OCP-10363
 
   # @author dyan@redhat.com
   # @case_id OCP-11027 OCP-11408 OCP-11673
@@ -51,6 +52,6 @@ Feature: php image related tests
     Then the output should contain "not allow connections to http://not/a/valid/index/"
     Examples:
       | image |
-      | 5.5   |
-      | 5.6   |
-      | 7.0   |
+      | 5.5   | # @case_id OCP-11027
+      | 5.6   | # @case_id OCP-11408
+      | 7.0   | # @case_id OCP-11673
