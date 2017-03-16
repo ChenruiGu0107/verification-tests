@@ -3,11 +3,10 @@ module CucuShift
     # Class which represents a generic openshift service running on a host
     class OpenShiftService
 
-      attr_reader :host, :env, :services
+      attr_reader :host, :services
 
-      def initialize(host, env)
+      def initialize(host)
         @host = host
-        @env = env
       end
 
       # Will restart the provided service. If the process fails it will raise an error

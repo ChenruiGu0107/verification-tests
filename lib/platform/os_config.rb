@@ -6,9 +6,9 @@ module CucuShift
       attr_accessor :host, :service, :config_file_path
       attr_writer :config_modified
 
-      def initialize(host, service)
-        @host = host
+      def initialize(service)
         @service = service
+        @host = service.host
         self.config_modified = false
       end
 

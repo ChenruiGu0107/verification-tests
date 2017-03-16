@@ -328,13 +328,13 @@ module CucuShift
 
     def master_services
       @master_services ||= self.master_hosts.map { |host|
-        CucuShift::Platform::MasterService.new(host, self)
+        CucuShift::Platform::MasterService.new(host)
       }
     end
 
     def node_services
       @node_services ||= self.node_hosts.map { |host|
-        CucuShift::Platform::NodeService.new(host, self)
+        CucuShift::Platform::NodeService.new(host)
       }
     end
 

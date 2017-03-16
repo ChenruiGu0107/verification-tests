@@ -15,7 +15,7 @@ module CucuShift
       end
 
       def config
-        @config ||= CucuShift::Platform::MasterConfig.new(host, self)
+        @config ||= CucuShift::Platform::MasterConfig.new(self)
       end
 
       def expected_load_time
