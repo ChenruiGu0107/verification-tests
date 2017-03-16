@@ -1987,8 +1987,8 @@ Feature: build 'apps' with CLI
       | Complete  |
     And the output should contain 1 times:
       | Running   |
-    And the output should contain 4 times:
-      | CancelledBuild |
+    And the output should match 4 times:
+      | Git.*Cancelled |
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     Then the step should succeed
@@ -2001,8 +2001,8 @@ Feature: build 'apps' with CLI
       | Complete  |
     And the output should contain 1 times:
       | Running   |
-    And the output should contain 5 times:
-      | CancelledBuild |
+    And the output should match 5 times:
+      | Git.*Cancelled |
     And the output should contain 1 times:
       | New       |
     When I run the :patch client command with:
@@ -2021,8 +2021,8 @@ Feature: build 'apps' with CLI
       | Complete  |
     And the output should contain 1 times:
       | Running   |
-    And the output should contain 5 times:
-      | CancelledBuild |
+    And the output should match 5 times:
+      | Git.*Cancelled |
     And the output should contain 3 times:
       | New       |
 
@@ -2129,8 +2129,8 @@ Feature: build 'apps' with CLI
       | build_name | ruby-hello-world-4 |
     Then the step should succeed
     Given I get project builds
-    Then the output should contain 4 times:
-      | CancelledBuild |
+    Then the output should match 4 times:
+      | Git.*Cancelled |
     #This prevents a timing issue with the 5th build not being cancelled/started:
     Given the "ruby-hello-world-5" build becomes :pending
     When I run the :cancel_build client command with:
@@ -2138,8 +2138,8 @@ Feature: build 'apps' with CLI
       | state   | new                 |
     Then the step should succeed
     Given I get project builds
-    Then the output should contain 9 times:
-      | CancelledBuild |
+    Then the output should match 9 times:
+      | Git.*Cancelled |
     And the output should not contain "New"
     #This prevents a timing issue with the 5th build as above:
     Given the "ruby-hello-world-5" build completes
@@ -2161,8 +2161,8 @@ Feature: build 'apps' with CLI
       | build_name | ruby-hello-world-13 |
     Then the step should succeed
     Given I get project builds
-    Then the output should contain 12 times:
-      | CancelledBuild |
+    Then the output should match 12 times:
+      | Git.*Cancelled |
     And the output should not contain "New"
     Given I run the steps 3 times:
     """
@@ -2175,8 +2175,8 @@ Feature: build 'apps' with CLI
       | state   | pending             |
     Then the step should succeed
     Given I get project builds
-    Then the output should contain 15 times:
-      | CancellediBuild |
+    Then the output should match 15 times:
+      | Git.*Cancelled |
     And the output should not contain "New"
     Given I run the steps 3 times:
     """
@@ -2192,8 +2192,8 @@ Feature: build 'apps' with CLI
       | build_name | ruby-hello-world-19 |
     Then the step should succeed
     Given I get project builds
-    Then the output should contain 18 times:
-      | CancelledBuild |
+    Then the output should match 18 times:
+      | Git.*Cancelled |
     Given I run the steps 3 times:
     """
     When I run the :start_build client command with:
@@ -2206,8 +2206,8 @@ Feature: build 'apps' with CLI
       | state   | running             |
     Then the step should succeed
     Given I get project builds
-    Then the output should contain 21 times:
-      | CancelledBuild |
+    Then the output should match 21 times:
+      | Git.*Cancelled |
     Given I run the steps 3 times:
     """
     When I run the :start_build client command with:
@@ -2218,8 +2218,8 @@ Feature: build 'apps' with CLI
       | bc_name | bc/ruby-hello-world |
     Then the step should succeed
     Given I get project builds
-    Then the output should contain 24 times:
-      | CancelledBuild |
+    Then the output should match 24 times:
+      | Git.*Cancelled |
 
   # @author cryan@redhat.com
   # @case_id OCP-9626
