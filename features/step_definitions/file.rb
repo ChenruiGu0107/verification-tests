@@ -194,3 +194,14 @@ end
 Given /^the #{QUOTED} file is made executable$/ do | filename |
   FileUtils.chmod("a+x",filename)
 end
+
+Given /^I read the #{QUOTED} file$/ do |path|
+  file = expand_path path # lets fail if file is not found
+
+  @result = {
+    exitstatus: -1,
+    response: file ? File.read(file) : "",
+    instruction: "read #{path} into @result",
+    success: !! file
+  }
+end
