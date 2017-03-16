@@ -1,7 +1,6 @@
 # steps which interact with master-config.yaml file.
 
 Given /^master config is merged with the following hash:$/ do |yaml_string|
-  ensure_admin_tagged
   ensure_destructive_tagged
 
   yaml_hash = YAML.load(yaml_string)

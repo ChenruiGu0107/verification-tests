@@ -271,7 +271,6 @@ Given /^the#{OPT_QUOTED} node labels are restored after scenario$/ do |node_name
 end
 
 Given /^config of all(?: (schedulable))? nodes is merged with the following hash:$/ do |host_type, yaml_string|
-  ensure_admin_tagged
   ensure_destructive_tagged
 
   yaml_hash = YAML.load(yaml_string)
@@ -304,7 +303,6 @@ Given /^config of all(?: (schedulable))? nodes is merged with the following hash
 end
 
 Given /^node#{OPT_QUOTED} config is merged with the following hash:$/ do |node_name, yaml_string|
-  ensure_admin_tagged
   ensure_destructive_tagged
   _node = node(node_name)
 
