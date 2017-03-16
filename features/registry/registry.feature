@@ -370,3 +370,161 @@ Feature: Testing registry
       | name     | <%= cb.digest %> |
     And the output should match:
       | Image Size:.* |
+
+  # @author haowang@redhat.com
+  # @case_id: OCP-11544
+  @admin
+  @destructive
+  Scenario: Create docker registry with special ports
+    Given I switch to cluster admin pseudo user
+    And default docker-registry replica count is restored after scenario
+    When I run the :get admin command with:
+       | resource      | service         |
+       | resource_name | docker-registry |
+       | namespace     | default         |
+       | o             | yaml            |
+    And I save the output to file>svc.yaml
+    Then admin ensures "docker-registry" service is deleted from the "default" project
+    When I run the :get admin command with:
+       | resource      | dc              |
+       | resource_name | docker-registry |
+       | namespace     | default         |
+       | o             | yaml            |
+    And I save the output to file>dc.yaml
+    Then admin ensures "docker-registry" dc is deleted from the "default" project
+    And I register clean-up steps:
+    """
+    Then admin ensures "docker-registry" service is deleted from the "default" project
+    Then admin ensures "docker-registry" dc is deleted from the "default" project
+    And I run the :create admin command with:
+       | f         | ./dc.yaml |
+       | namespace | default   |
+    Then the step should succeed
+    And I run the :create admin command with:
+       | f         | ./svc.yaml |
+       | namespace | default    |
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    """
+    When I run the :oadm_registry admin command with:
+      | ports     | 5001    |
+      | namespace | default |
+    And a pod becomes ready with labels:
+      | deploymentconfig=docker-registry |
+    And the master service is restarted on all master nodes
+    Given I switch to the first user
+    And I have a project
+    When I run the :import_image client command with:
+      | from       | docker.io/openshift/ruby-20-centos7:latest |
+      | image_name | ruby-20-centos7:latest                     |
+      | confirm    | true                                       |
+    Then the step should succeed
+    When I find a bearer token of the deployer service account
+    And default registry service ip is stored in the :registry_ip clipboard
+    And I select a random node's host
+    Given the node service is verified
+    And the node service is restarted on the host after scenario
+    And I register clean-up steps:
+    """
+    And I run commands on the host:
+      | systemctl restart docker |
+    Then the step should succeed
+    """
+    And the "/etc/sysconfig/docker" file is restored on host after scenario
+    And I run commands on the host:
+      | sed -i '/^INSECURE_REGISTRY*/d' /etc/sysconfig/docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | echo "INSECURE_REGISTRY='--insecure-registry <%= cb.registry_ip %>'" >> /etc/sysconfig/docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | systemctl restart docker |
+    Then the step should succeed
+    Then I wait up to 60 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+    Then the step should succeed
+    """
+    When I run commands on the host:
+      | docker pull <%= cb.registry_ip %>/<%= project.name %>/ruby-20-centos7:latest |
+    Then the step should succeed
+
+  # @author haowang@redhat.com
+  # @case_id: OCP-11215
+  @admin
+  @destructive
+  Scenario: Create docker registry with options mount-host and service-account
+    Given I switch to cluster admin pseudo user
+    And default docker-registry replica count is restored after scenario
+    When I run the :get admin command with:
+       | resource      | service         |
+       | resource_name | docker-registry |
+       | namespace     | default         |
+       | o             | yaml            |
+    And I save the output to file>svc.yaml
+    Then admin ensures "docker-registry" service is deleted from the "default" project
+    When I run the :get admin command with:
+       | resource      | dc              |
+       | resource_name | docker-registry |
+       | namespace     | default         |
+       | o             | yaml            |
+    And I save the output to file>dc.yaml
+    Then admin ensures "docker-registry" dc is deleted from the "default" project
+    And I register clean-up steps:
+    """
+    Then admin ensures "docker-registry" service is deleted from the "default" project
+    Then admin ensures "docker-registry" dc is deleted from the "default" project
+    And I run the :create admin command with:
+       | f         | ./dc.yaml |
+       | namespace | default   |
+    Then the step should succeed
+    And I run the :create admin command with:
+       | f         | ./svc.yaml |
+       | namespace | default    |
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    """
+    Given SCC "privileged" is added to the "registry" service account
+    When I run the :oadm_registry admin command with:
+      | mount_host     | /tmp |
+      | serviceaccount | registry   |
+      | namespace      | default    |
+    And a pod becomes ready with labels:
+      | deploymentconfig=docker-registry |
+    And the master service is restarted on all master nodes
+    Given I switch to the first user
+    And I have a project
+    When I find a bearer token of the builder service account
+    And default registry service ip is stored in the :registry_ip clipboard
+    And I select a random node's host
+    Given the node service is verified
+    And the node service is restarted on the host after scenario
+    And I register clean-up steps:
+    """
+    And I run commands on the host:
+      | systemctl restart docker |
+    Then the step should succeed
+    """
+    And the "/etc/sysconfig/docker" file is restored on host after scenario
+    And I run commands on the host:
+      | sed -i '/^INSECURE_REGISTRY*/d' /etc/sysconfig/docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | echo "INSECURE_REGISTRY='--insecure-registry <%= cb.registry_ip %>'" >> /etc/sysconfig/docker |
+    Then the step should succeed
+    And I run commands on the host:
+      | systemctl restart docker |
+    Then the step should succeed
+    Then I wait up to 60 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+    Then the step should succeed
+    """
+    When I run commands on the host:
+      | docker pull docker.io/busybox && docker tag docker.io/busybox <%= cb.registry_ip %>/<%= project.name%>/busybox && docker push <%= cb.registry_ip %>/<%= project.name%>/busybox|
+    Then the step should succeed
+    And the "busybox:latest" image stream tag was created
+    And evaluation of `image_stream_tag("busybox:latest").image_layers(user:user)` is stored in the :layers clipboard
+    And all the image layers in the :layers clipboard do exist in the registry
