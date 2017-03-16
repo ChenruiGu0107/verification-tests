@@ -3,12 +3,13 @@ module CucuShift
     # class which interacts with the master-config.yaml file on the master(s) of the openshift instalation.
     class OpenShiftConfig
 
-      attr_accessor :host, :service, :config_modified, :config_file_path
+      attr_accessor :host, :service, :config_file_path
+      attr_writer :config_modified
 
       def initialize(host, service)
         @host = host
         @service = service
-        @config_modified = false
+        self.config_modified = false
       end
 
       def as_hash
@@ -21,7 +22,7 @@ module CucuShift
       end
 
       def config_modified?
-        config_modified
+        @config_modified
       end
 
       def raw
@@ -45,7 +46,7 @@ module CucuShift
           if res[:success]
             res = host.exec_admin("cat > #{config_file_path}", stdin: content)
             if res[:success]
-              config_modified = true
+              self.config_modified = true
             end
           else
             self.class.res_err_check(res, "Backup file for #{config_file_path} does not exists!")
@@ -86,7 +87,7 @@ module CucuShift
               if res[:success]
                 res = host.exec_admin("rm #{config_file_path}.bak")
                 if res[:success]
-                  config_modified = false
+                  self.config_modified = false
                   service.restart_all
                 else
                   self.class.res_err_check(res)
