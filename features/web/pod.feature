@@ -61,6 +61,79 @@ Feature: Pod related features on web console
       | log_context | serving |
     Then the step should succeed
 
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-13569
+  Scenario: Multiple containers in single pod should not mix logs
+    Given the master version > "3.4"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/ocp13569/pod-with-three-containers-and-logs.yaml |
+    Then the step should succeed
+    Given the pod named "counter" becomes ready
+
+    When I perform the :goto_one_pod_page web console action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | counter             |
+    Then the step should succeed
+
+    When I perform the :check_log_tab_on_pod_page web console action with:
+      | status | Running |
+    Then the step should succeed
+
+    #Select containers, add checkpoint in bug1427289
+    #Check the first container's log
+    When I perform the :select_a_container web console action with:
+      | container_name | count-log-0 |
+    Then the step should succeed
+
+    When I perform the :check_log_context_nonexist web console action with:
+      | log_context | TEST |
+    Then the step should succeed
+
+    When I perform the :check_log_context_nonexist web console action with:
+      | log_context | INFO |
+    Then the step should succeed
+
+    #Check the second container's log
+    When I perform the :select_a_container web console action with:
+      | container_name | count-log-1 |
+    Then the step should succeed
+
+    When I perform the :check_log_context web console action with:
+      | log_context | TEST |
+    Then the step should succeed
+
+    When I perform the :check_log_context_nonexist web console action with:
+      | log_context | INFO |
+    Then the step should succeed
+
+    #Check the third container's log
+    When I perform the :select_a_container web console action with:
+      | container_name | count-log-2 |
+    Then the step should succeed
+
+    When I perform the :check_log_context web console action with:
+      | log_context | INFO |
+    Then the step should succeed
+
+    When I perform the :check_log_context_nonexist web console action with:
+      | log_context | TEST |
+    Then the step should succeed
+
+    #Check the first container's log again
+    When I perform the :select_a_container web console action with:
+      | container_name | count-log-0 |
+    Then the step should succeed
+
+    When I perform the :check_log_context_nonexist web console action with:
+      | log_context | TEST |
+    Then the step should succeed
+
+    When I perform the :check_log_context_nonexist web console action with:
+      | log_context | INFO |
+    Then the step should succeed
+
+
   # @author yapei@redhat.com
   # @case_id OCP-9592
   Scenario: Generate same labels in the UI as CLI
