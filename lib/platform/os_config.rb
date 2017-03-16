@@ -52,10 +52,7 @@ module CucuShift
             self.class.res_err_check(res, "Backup file for #{config_file_path} does not exists!")
           end
         else
-          res = {
-            :success => true,
-            :response => "Config #{config_file_path} does not exist on this host!"
-          }
+          raise "cannot find configuration file #{config_file_path}"
         end
 
         return res
@@ -70,10 +67,7 @@ module CucuShift
             self.class.res_err_check(res)
           end
         else
-          res = {
-            :success => true,
-            :response => "Config #{config_file_path} does not exist on this host!"
-          }
+          raise "cannot find configuration file #{config_file_path}"
         end
         return res
       end
@@ -105,10 +99,7 @@ module CucuShift
             }
           end
         else
-          res = {
-            :success => true,
-            :response => "Config #{config_file_path} does not exist on this host!"
-          }
+          raise "cannot find configuration file #{config_file_path}"
         end
 
         return res

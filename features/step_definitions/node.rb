@@ -297,7 +297,7 @@ Given /^config of all(?: (schedulable))? nodes is merged with the following hash
         service_config.restore()
       }
     else
-      logger.info "The node config file does not exists on this node!"
+      raise "The node config file does not exists on this node!"
     end
   }
 end
@@ -319,7 +319,7 @@ Given /^node#{OPT_QUOTED} config is merged with the following hash:$/ do |node_n
       service_config.restore()
     }
   else
-    logger.info "The node config file does not exists on this node!"
+    raise "The node config file does not exists on this node!"
   end
 
 end
@@ -357,7 +357,7 @@ Given /^the node service is restarted on all(?: (schedulable))? nodes$/ do |host
         service.restart_all(raise: true)
       end
     else
-      logger.info "The node config file does not exists on this node!"
+      raise "The node config file does not exists on this node!"
     end
   }
 end
@@ -379,7 +379,7 @@ Given /^I try to restart the node service on all(?: (schedulable))? nodes$/ do |
         results.push(service.restart_all)
       end
     else
-      logger.info "The node config file does not exists on this node!"
+      raise "The node config file does not exists on this node!"
     end
   }
 
