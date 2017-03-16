@@ -339,12 +339,10 @@ end
 
 Given /^I store the value of path (.+?) of current node config in the#{OPT_SYM} clipboard$/ do |path, cb_name|
   ensure_admin_tagged
-  raise "Have to specify a node in a previous step!" unless node
   config_hash = node.service.config.as_hash()
   cb_name ||= "config_value"
   cb[cb_name] = eval "config_hash#{path}"
 end
-
 
 Given /^the node service is restarted on all(?: (schedulable))? nodes$/ do |host_type|
   ensure_destructive_tagged
