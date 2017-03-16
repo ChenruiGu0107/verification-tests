@@ -99,18 +99,15 @@ Feature: quickstarts.feature
     Then the output should contain "Welcome to chat - beego sample app: Web IM"
 
   # @author wzheng@redhat.com
-  # @case_id OCP-12492
-  Scenario: Cakephp-ex quickstart with mysql - php-55-rhel7
+  # @case_id OCP-12818
+  Scenario: Cakephp-ex quickstart with cakephp.json - php-70-rhel7
     Given I have a project
-    And I download a file from "https://raw.githubusercontent.com/openshift/cakephp-ex/master/openshift/templates/cakephp-mysql.json"
-    Given I replace lines in "cakephp-mysql.json":
-      | 5.6 | 5.5 |
     When I run the :new_app client command with:
-      | file | cakephp-mysql.json |
+      | file | https://raw.githubusercontent.com/openshift/cakephp-ex/master/openshift/templates/cakephp.json |
     Then the step should succeed
-    And the "cakephp-mysql-example-1" build was created
-    And the "cakephp-mysql-example-1" build completed
-    Then I wait for the "cakephp-mysql-example" service to become ready
+    And the "cakephp-example-1" build was created
+    And the "cakephp-example-1" build completed
+    Then I wait for the "cakephp-example" service to become ready
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
