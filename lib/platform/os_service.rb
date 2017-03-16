@@ -3,7 +3,7 @@ module CucuShift
     # Class which represents a generic openshift service running on a host
     class OpenShiftService
 
-      attr_reader :host, :env, :controller_lease_ttl
+      attr_reader :host, :env, :controller_lease_ttl, :services
 
       def initialize(host, env)
         @host = host
@@ -52,7 +52,7 @@ module CucuShift
       # Wrapper mehod which executes #restart on each of the services configured.
       def restart_all(**opts)
         results = []
-        @services.each { |service|
+        services.each { |service|
           results.push(restart(service, opts))
         }
         return CucuShift::ResultHash.aggregate_results(results)

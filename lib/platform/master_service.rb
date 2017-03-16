@@ -4,10 +4,8 @@ module CucuShift
     #   Kubernetes Services like Scheduler, Registration, etc.
     class MasterService < OpenShiftService
 
-      # @param host [CucuShift::Host] a mashine
-      def initialize(host, env)
-        super
-        if ha?
+      def services
+        @services ||= if ha?
           config_hash = config.as_hash()
           @controller_lease_ttl = config_hash["controllerLeaseTTL"]
           @services = ["atomic-openshift-master-api.service", "atomic-openshift-master-controllers.service"]
