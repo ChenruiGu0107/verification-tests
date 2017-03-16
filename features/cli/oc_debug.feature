@@ -87,7 +87,7 @@ Feature: oc debug related scenarios
       | exec_command   | /bin/env             |
     Then the output should match:
       | [Ee]rror                              |
-      | [Uu]nable to create.*dctest-debug.*invalidnode" |
+      | [Uu]nable to create.*dctest-debug.*invalidnode |
     Given I get project pod as YAML
     And I save the output to file>pod.yaml
     When I run the :debug client command with:
@@ -98,8 +98,6 @@ Feature: oc debug related scenarios
     And the output should match:
       | [Dd]ebugging with pod                 |
       | [Ww]aiting for pod to start           |
-      | PATH=                                 |
-      | HOSTNAME=                             |
       | [Rr]emoving debug pod                 |
 
   # @author cryan@redhat.com
