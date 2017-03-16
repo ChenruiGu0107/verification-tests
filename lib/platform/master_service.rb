@@ -18,6 +18,10 @@ module CucuShift
         @config ||= CucuShift::Platform::MasterConfig.new(host, self)
       end
 
+      def expected_load_time
+        @controller_lease_ttl ? @controller_lease_ttl + 5 : 35
+      end
+
       def ha?
        @ha ||= host.exec_admin("systemctl | grep atomic-openshift-master-controllers.service")[:success]
       end

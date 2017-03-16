@@ -3,7 +3,7 @@ module CucuShift
     # Class which represents a generic openshift service running on a host
     class OpenShiftService
 
-      attr_reader :host, :env, :controller_lease_ttl, :services
+      attr_reader :host, :env, :services
 
       def initialize(host, env)
         @host = host
@@ -31,11 +31,7 @@ module CucuShift
           end
         end
 
-        if controller_lease_ttl.nil?
-          sleep 35 # give service some time to fail
-        else
-          sleep controller_lease_ttl + 5
-        end
+        sleep expected_load_time
 
         result = host.exec_admin("systemctl status #{service}")
         results.push(result)
@@ -48,8 +44,11 @@ module CucuShift
         return CucuShift::ResultHash.aggregate_results(results)
       end
 
+      def expected_load_time
+        20
+      end
 
-      # Wrapper mehod which executes #restart on each of the services configured.
+      # executes #restart on each of the services configured.
       def restart_all(**opts)
         results = []
         services.each { |service|
