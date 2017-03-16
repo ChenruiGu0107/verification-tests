@@ -384,10 +384,6 @@ Given /^I try to restart the node service on all(?: (schedulable))? nodes$/ do |
   }
 
   @result = CucuShift::ResultHash.aggregate_results(results)
-  # aggregate all the responses from all masters
-  @result[:response] = results.map { |r| r[:response] }
-  # aggregate all the exit statust from all masters
-  @result[:exitstatus] = results.map { |r| r[:exitstatus] }
 end
 
 Given /^I try to restart the node service on node#{OPT_QUOTED}$/ do |node_name|

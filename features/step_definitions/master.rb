@@ -69,9 +69,5 @@ Given /^I try to restart the master service on all master nodes$/ do
     results.push(service.restart_all)
   }
   @result = CucuShift::ResultHash.aggregate_results(results)
-  # aggregate all the responses from all masters
-  @result[:response] = results.map { |r| r[:response] }
-  # aggregate all the exit statuses from all masters
-  @result[:exitstatus] = results.map { |r| r[:exitstatus] }
 end
 
