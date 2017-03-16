@@ -1,0 +1,110 @@
+Feature: templates.feature
+  # ONLY ONLINE related templates' scripts in this file
+  # @author yasun@redhat.com
+  # @case_id OCP-10508
+  Scenario: mysql persistent template
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | mysql-persistent             |
+      | param    | MYSQL_USER=user              |
+      | param    | MYSQL_PASSWORD=user          |
+      | param    | MYSQL_DATABASE=testdb        |
+    Then the step should succeed
+    And the "mysql" PVC becomes :bound within 300 seconds
+    And a pod becomes ready with labels:
+      | name=mysql|
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mysql -h 127.0.0.1 -u user -puser -D testdb -e 'create table test (age INTEGER(32));' |
+    Then the step should succeed
+    """
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mysql -h 127.0.0.1 -u user -puser -D testdb -e 'insert into test VALUES(10);' |
+    Then the step should succeed
+    """
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mysql -h 127.0.0.1 -u user -puser -D testdb -e 'select * from  test;' |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | 10 |
+
+  # @author yasun@redhat.com
+  # @case_id OCP-10507
+  Scenario: mongodb persistent template
+    Given I have a project
+    Then I run the :new_app client command with:
+      | template | mongodb-persistent           |
+      | param    | MONGODB_USER=tester          |
+      | param    | MONGODB_PASSWORD=test        |
+      | param    | MONGODB_ADMIN_PASSWORD=admin |
+      | param    | MONGODB_DATABASE=testdb      |
+    Then the step should succeed
+    And the "mongodb" PVC becomes :bound within 300 seconds
+    And a pod becomes ready with labels:
+      | name=mongodb         |
+      | deployment=mongodb-1 |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mongo testdb -u tester -ptest --eval "db.foo.save({'name':'mongouser','address':{'city':'beijing','post':10009},'phone':[138,139]})" |
+    Then the step should succeed
+    """
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mongo testdb -u tester -ptest --eval "db.foo.find()" |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | mongouser |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mongo admin -u admin -padmin --eval "db.user_addr.save({'Uid':'mongouser@redhat.com','Al':['mongouser-1@redhat.com','mongouser-2@redhat.com']})" |
+    Then the step should succeed
+    """
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -lc | mongo admin -u admin -padmin --eval "db.user_addr.find()" |
+    Then the step should succeed
+    """
+    And the output should contain:
+      | mongouser |
+
+  # @author yasun@redhat.com
+  # @case_id OCP-12719
+  Scenario: mariadb persistent template
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | mariadb-persistent           |
+      | param    | MYSQL_USER=user              |
+      | param    | MYSQL_PASSWORD=user          |
+      | param    | MYSQL_DATABASE=testdb        |
+      | param    | MYSQL_ROOT_PASSWORD=admin    |
+    Then the step should succeed
+    And the "mariadb" PVC becomes :bound within 300 seconds
+    And a pod becomes ready with labels:
+      | deployment=mariadb-1 |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | mysql -h <%= pod.name %> -u user -puser -e 'use testdb; create table test (name VARCHAR(20)); insert into test VALUES("openshift");' |
+    Then the step should succeed
+    """
+    When I execute on the pod:
+      | bash | -c | mysql -h <%= pod.name %> -u user -puser -e 'use testdb; select * from  test;' |
+    Then the step should succeed
+    And the output should contain:
+      | openshift |
+    When I execute on the pod:
+      | bash | -c | mysql -h <%= pod.name %> -u root -padmin -e 'use testdb; select * from  test;' |
+    Then the step should succeed
+    And the output should contain:
+      | openshift |
