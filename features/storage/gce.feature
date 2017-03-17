@@ -69,6 +69,33 @@ Feature: GCE specific scenarios
 
     Given I use the "<%= cb.proj_name %>" project
     And I have a 1 GB volume and save volume id in the :gcepd clipboard
+
+    # Prepare test files in the volume
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-default-rwo.json" where:
+      | ["metadata"]["name"]                      | pv-rw-<%= project.name %> |
+      | ["spec"]["capacity"]["storage"]           | 1                         |
+      | ["spec"]["accessModes"][0]                | ReadWriteMany             |
+      | ["spec"]["gcePersistentDisk"]["pdName"]   | <%= cb.gcepd %>           |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                    |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-rw                    |
+      | ["spec"]["volumeName"]                       | pv-rw-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                   | ReadWriteMany             |
+      | ["spec"]["resources"]["requests"]["storage"] | 1                         |
+    Then the step should succeed
+    And the "pvc-rw" PVC becomes bound to the "pv-rw-<%= project.name %>" PV
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | podname |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-rw  |
+    Then the step should succeed
+    Given the pod named "podname" becomes ready
+    When I execute on the pod:
+      | cp | /proc/cpuinfo | /proc/meminfo | /mnt/gce/ |
+    Then the step should succeed
+    Given I ensure "podname" pod is deleted
+    And I ensure "pvc-rw" pvc is deleted
+
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-default-rwo.json" where:
       | ["metadata"]["name"]                      | pv-<%= project.name %> |
       | ["spec"]["capacity"]["storage"]           | 1                      |
@@ -95,10 +122,10 @@ Feature: GCE specific scenarios
     Then the step should succeed
     Given the pod named "pod2-<%= project.name %>" becomes ready
     When I execute on the "<%= pod(-1).name %>" pod:
-      | ls | /mnt/gce/ |
+      | ls | /mnt/gce/cpuinfo |
     Then the step should succeed
     When I execute on the "<%= pod(-2).name %>" pod:
-      | ls | /mnt/gce/ |
+      | ls | /mnt/gce/meminfo |
     Then the step should succeed
 
   # @author lxia@redhat.com
