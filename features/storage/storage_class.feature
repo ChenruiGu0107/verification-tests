@@ -563,3 +563,50 @@ Feature: storageClass related feature
       | ProvisioningFailed                                         |
       | StorageClass "sc-notexisted-<%= project.name %>" not found |
     """
+  # @author lxia@redhat.com
+  # @case_id OCP-11830
+  @admin
+  @destructive
+  Scenario Outline: dynamic provision with storage class in multi-zones
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+      | ["metadata"]["name"]   | sc1-<%= project.name %>     |
+      | ["provisioner"]        | kubernetes.io/<provisioner> |
+      | ["parameters"]["zone"] | <region1_zone1>             |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+      | ["metadata"]["name"]   | sc2-<%= project.name %>     |
+      | ["provisioner"]        | kubernetes.io/<provisioner> |
+      | ["parameters"]["zone"] | <region1_zone2>             |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+      | ["metadata"]["name"]   | sc3-<%= project.name %>     |
+      | ["provisioner"]        | kubernetes.io/<provisioner> |
+      | ["parameters"]["zone"] | <region2_zone1>             |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc2-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc2-<%= project.name %>  |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc3-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc3-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc1-<%= project.name %>" PVC becomes :bound
+    And the "pvc2-<%= project.name %>" PVC becomes :bound
+    And the "pvc3-<%= project.name %>" PVC becomes :pending
+    When I run the :describe client command with:
+      | resource | pvc/pvc3-<%= project.name %> |
+    Then the step should succeed
+    And the output should contain:
+      | ProvisioningFailed                     |
+      | does not manage zone "<region2_zone1>" |
+
+    Examples:
+      | provisioner | region1_zone1 | region1_zone2 | region2_zone1  |
+      | gce-pd      | us-central1-a | us-central1-b | europe-west1-d |
