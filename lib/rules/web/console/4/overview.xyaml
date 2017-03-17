@@ -69,10 +69,6 @@ check_pod_template_source_info:
       xpath: //div[contains(@class, 'pod-template-build')]/descendant::div[contains(.,"Source")]
   - selector:
       xpath: //osc-git-link
-check_pod_template_port_info:
-  elements:
-  - selector:
-      xpath: //div[contains(@class,"pod-template-ports")]/descendant::div[contains(.,"Ports") and contains(.,"<port_number>")]
 check_latest_deployment_version_on_overview:
   element:
     selector:
@@ -80,10 +76,9 @@ check_latest_deployment_version_on_overview:
 check_pod_template_image:
   elements:
   - selector:
-      xpath: //div[contains(@class,"pod-template-image")]//div[contains(.,"Image") and contains(.,"<image_name>")]
+      xpath: //div//span[contains(.,'<image_name>')]
 check_overview_tile:
   action: check_pod_template_image
-  action: check_pod_template_port_info
   action: check_pod_scaled_numbers
 check_standalone_rc_info_on_overview:
   elements:
