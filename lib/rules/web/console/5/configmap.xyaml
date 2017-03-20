@@ -15,6 +15,25 @@ check_error_for_invalid_specified_path:
        xpath: //span[contains(.,'Path must be a relative path')]
    - selector:
        xpath: //span[contains(.,'It cannot start with / or contain .. path element')]
+check_configmap_error_indicating_duplicate_key:
+  element:
+    selector:
+      xpath: //div[contains(@class,'error')]//span[contains(normalize-space(),'Duplicate key')]
+check_empty_configmap_page_loaded_error:
+  elements:
+  - selector:
+      xpath: //h2[contains(.,'The config map could not be loaded')]
+  - selector:
+      xpath: //p[contains(.,'not found')]
+check_key_value_pairs_on_configmap_page:
+  element:
+    selector:
+      xpath: //tr[@ng-repeat and td[contains(normalize-space(),'<configmap_key>')] and td[@class='value' and contains(normalize-space(),'<configmap_value>')]]
+check_missing_key_value_pairs_on_configmap_page:
+  element:
+    selector:
+      xpath: //tr[@ng-repeat and td[contains(normalize-space(),'<configmap_key>')] and td[@class='value' and contains(normalize-space(),'<configmap_value>')]]
+    missing: true
 check_volume_type_is_configmap:
   element:
     selector:
@@ -60,6 +79,43 @@ click_to_add_item:
     selector:
       xpath: //a[contains(.,'Add item')]
     op: click
+click_to_add_configmap_item:
+  element:
+    selector:
+      xpath: //a[contains(.,'Add Item')]
+    op: click
+click_to_goto_one_configmap_page:
+  element:
+    selector:
+      xpath: //a[contains(.,'<config_map_name>')]
+    op: click
+click_to_goto_edit_configmap_page:
+  action: click_to_goto_one_configmap_page
+  action: click_to_goto_edit_page
+edit_configmap_value:
+  element:
+    selector: |
+        var id = null
+        var p = new RegExp("<config_map_key>");
+        var el = document.getElementsByTagName("input");
+        for (var i=0; i<el.length; i++) {
+          if (p.test(el[i].value)) {
+            id = el[i].id;
+            break;
+          }
+        }
+        if (id == null) return null;
+        id = id.replace("key", "value");
+        var elist = document.querySelectorAll('div[id*="value"]');
+        for (var j=0; j<elist.length; j++) {
+          if (elist[j].id == id ){
+            return elist[j].querySelector('textarea')
+            break;
+           }
+         }
+    type: js
+    visible: false
+    op: set <new_config_map_value>
 pick_key_from_list:
   elements:
   - selector:
@@ -67,6 +123,29 @@ pick_key_from_list:
     op: click
   - selector:
       xpath: //ul[contains(@class,'ui-select-choices')]//span[contains(.,'<specified_key>')]
+    op: click
+remove_configmap_item:
+  element:
+    selector: |
+        var id = null
+        var p = new RegExp("<config_map_key>");
+        var el = document.getElementsByTagName("input");
+        for (var i=0; i<el.length; i++) {
+          if (p.test(el[i].value)) {
+            id = el[i].id;
+            break;
+          }
+        }
+        if (id == null) return null;
+        id = id.replace("key", "drop-zone");
+        var elist = document.querySelectorAll('div[id*="drop-zone"]');
+        for (var j=0; j<elist.length; j++) {
+          if (elist[j].id == id ){
+            return elist[j].parentElement.querySelector('div a[ng-click*="remove"]')
+            break;
+           }
+        }
+    type: js
     op: click
 set_specified_path:
   elements:
@@ -97,11 +176,15 @@ set_config_map_name:
   - selector:
       id: config-map-name
     type: input
+    op: clear
+  - selector:
+      id: config-map-name
+    type: input
     op: send_keys <target_config_map_name>
 set_config_map_key:
   elements:
   - selector:
-      xpath: //input[@placeholder="my.key"]
+      xpath: (//div[@ng-repeat='item in data'])[last()]//input[contains(@id,'key')]
     op: send_keys <config_map_key>
 set_config_mount_path:
   elements:
@@ -113,6 +196,26 @@ toggle_select_specific_keys_and_paths:
     selector:
       xpath: //label[contains(.,'Select specific keys and paths')]
     op: click
+type_config_map_value:
+  element:
+    selector:
+      xpath: (//div[contains(@id,'value')])[last()]//textarea
+    type: textarea
+    visible: false
+    op: set <config_map_value>
+upload_config_map_value_from_file:
+  element:
+    selector:
+      xpath: (//osc-file-input)[last()]//span[contains(text(),'Browse…')]/input
+    visible: false
+    type: filefield
+    op: set <file_path>
+add_configmap_key_value_pairs:
+  action: set_config_map_key
+  action: type_config_map_value
+add_configmap_key_value_pairs_from_file:
+  action: set_config_map_key
+  action: upload_config_map_value_from_file
 add_values_from_configmap_as_volume:
   action: select_config_map_from_list
   action: set_config_mount_path
