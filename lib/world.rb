@@ -21,6 +21,7 @@ require 'openshift/deployment'
 require 'openshift/cluster_role'
 require 'openshift/cluster_role_binding'
 require 'openshift/storage_class'
+require 'openshift/security_context_constraint'
 require 'openshift/host_subnet'
 require 'openshift/cluster_resource_quota'
 require 'openshift/stateful_set'
@@ -558,6 +559,10 @@ module CucuShift
       cluster_resource(StorageClass, name, env)
     end
 
+    def security_context_constraint(name = nil, env = nil)
+      cluster_resource(SecurityContextConstraint, name, env)
+    end
+
     # add pods to list avoiding duplicates
     def cache_pods(*new_pods)
       new_pods.each {|p| @pods.delete(p); @pods << p}
@@ -603,7 +608,8 @@ module CucuShift
         host_subnet: "hostsubnets",
         cluster_resource_quota: "clusterresourcequotas",
         stateful_set: "statefulsets",
-        storage_class: "storageclasses"
+        storage_class: "storageclasses",
+        scc: "securitycontextconstraints"
       }
       type = shorthands[type.to_sym] if shorthands[type.to_sym]
 
