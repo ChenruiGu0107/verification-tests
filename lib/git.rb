@@ -69,7 +69,19 @@ module CucuShift
       res = host.exec_as(user, clone_cmd)
       # don't want to reset cloned status after it is once set
       @cloned = @cloned || res[:success]
+      set_git_config
       return res
+    end
+
+    def set_git_config
+      res = host.exec_as(user, "git config user.name")
+      unless res[:success]
+        host.exec_as(user, "git config user.name #{host.shell_escape 'CucuShift User'}")
+      end
+      res = host.exec_as(user, "git config user.email")
+      unless res[:success]
+        host.exec_as(user, "git config user.email #{host.shell_escape 'cucushift@example.com'}")
+      end
     end
 
     def status
