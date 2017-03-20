@@ -19,23 +19,30 @@ Feature: mysql_images.feature
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | scl | enable | rh-mysql56 | mysql -h 127.0.0.1 -u user -puser -D sampledb -e 'create table test (age INTEGER(32));' |
+      | bash |
+      | -c   |
+      | mysql -h 127.0.0.1 -u user -puser -D sampledb -e 'create table test (age INTEGER(32));' |
     Then the step should succeed
     """
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | scl | enable | rh-mysql56 | mysql -h 127.0.0.1 -u user -puser -D sampledb -e 'insert into test VALUES(10);' |
+      | bash |
+      | -c   |
+      |mysql -h 127.0.0.1 -u user -puser -D sampledb -e 'insert into test VALUES(10);' |
     Then the step should succeed
     """
     And I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
-      | scl | enable | rh-mysql56 | mysql -h 127.0.0.1 -u user -puser -D sampledb -e 'select * from  test;' |
+      | bash |
+      | -c   |
+      | mysql -h 127.0.0.1 -u user -puser -D sampledb -e 'select * from  test;' |
     Then the step should succeed
     """
     And the output should contain:
       | 10 |
+
   # @author haowang@redhat.com
   # @case_id OCP-12342
   Scenario: Verify DB can be connect after change admin and user password and re-deployment for ephemeral storage - mysql-55-rhel7
