@@ -64,6 +64,15 @@ module CucuShift
 
           updates = generate_case_updates(project_id, cases_spec)
 
+          # print what we are going to do to user
+          updates.each do |c, updates|
+            say "Automation script field for #{HighLine.color c, :bold}:\n"
+            updates.each do |field, update|
+              say "#{HighLine.color(field.to_s.upcase, :magenta, :bold)}: #{HighLine.color(update.strip, :green)}"
+            end
+            say "======================================"
+          end
+
           ## prepare user/password to the bus early to catch message
           bus_client = msgbus.new_client
 
@@ -109,7 +118,7 @@ module CucuShift
         tags = spec.delete("tags")
         update = {
           caseautomation: "automated",
-          automation_script: spec.to_yaml
+          automation_script: {"cucushift" => spec}.to_yaml
         }
         update[:tags] = tags if tags
         [ case_id, update ]
