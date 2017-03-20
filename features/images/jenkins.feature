@@ -1601,3 +1601,124 @@ Feature: jenkins.feature
       | x86_64 | 2   | x86_64 | # @case_id OCP-13208
       |        | 1   | i386   | # @case_id OCP-13209
       | x86_64 | 1   | x86_64 | # @case_id OCP-13210
+      
+  # @author xiuwang@redhat.com
+  # @case_id OCP-12773
+  Scenario: new-app/new-build support for pipeline buildconfigs	
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo    | https://github.com/openshift/nodejs-ex |
+      | context_dir | openshift/pipeline |
+      | name        | nodejs-ex-pipeline |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc/nodejs-ex-pipeline |
+    Then the step should succeed
+    And the output should match "nodejs-ex-pipeline.*JenkinsPipeline"
+    When I run the :delete client command with:
+      | object_type       | buildConfig        |
+      | object_name_or_id | nodejs-ex-pipeline |
+    Then the step should succeed
+    
+    #Create app from source that both contains jenkinsfile and Dockerfile
+    When I run the :new_app client command with:
+      | app_repo    | https://github.com/openshift-qe/nodejs-example#jenkinsfile_source |
+      | context_dir | openshift/pipeline |
+      | name        | nodejs-ex-pipeline1|
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc/nodejs-ex-pipeline1 |
+    Then the step should succeed
+    And the output should match "nodejs-ex-pipeline1.*JenkinsPipeline"
+    When I run the :delete client command with:
+      | object_type       | buildConfig         |
+      | object_name_or_id | nodejs-ex-pipeline1 |
+    Then the step should succeed
+    
+    #Create app from repo that contains valid source and jenkins file
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift-qe/nodejs-example#jenkinsfile_source |
+      | name     | nodejs-ex-pipeline2                                               |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc/nodejs-ex-pipeline2 |
+    Then the step should succeed
+    And the output should match "nodejs-ex-pipeline2.*JenkinsPipeline"
+    When I run the :delete client command with:
+      | object_type       | buildConfig         |
+      | object_name_or_id | nodejs-ex-pipeline2 |
+    Then the step should succeed
+
+    #Create app from source that contains jenkinsfile with explict pipeline strategy
+    When I run the :new_app client command with:
+      | app_repo    | https://github.com/openshift/nodejs-ex |
+      | context_dir | openshift/pipeline  |
+      | name        | nodejs-ex-pipeline3 |
+      | image_stream| nodejs:latest       |
+      | strategy    | pipeline            |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc/nodejs-ex-pipeline3 |
+    Then the step should succeed
+    And the output should match "nodejs-ex-pipeline3.*JenkinsPipeline"
+    When I run the :delete client command with:
+      | object_type       | buildConfig         |
+      | object_name_or_id | nodejs-ex-pipeline3 |
+    Then the step should succeed
+
+    When I run the :new_build client command with:
+      | app_repo    | https://github.com/openshift/nodejs-ex |
+      | context_dir | openshift/pipeline |
+      | name        | nodejs-ex-pipeline4|
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc/nodejs-ex-pipeline4 |
+    Then the step should succeed
+    And the output should match "nodejs-ex-pipeline4.*JenkinsPipeline"
+    When I run the :delete client command with:
+      | object_type       | buildConfig         |
+      | object_name_or_id | nodejs-ex-pipeline4 |
+    Then the step should succeed
+    
+    When I run the :new_build client command with:
+      | app_repo    | https://github.com/openshift-qe/nodejs-example#jenkinsfile_source |
+      | context_dir | openshift/pipeline |
+      | name        | nodejs-ex-pipeline5|
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc/nodejs-ex-pipeline5 |
+    Then the step should succeed
+    And the output should match "nodejs-ex-pipeline5.*JenkinsPipeline"
+    When I run the :delete client command with:
+      | object_type       | buildConfig         |
+      | object_name_or_id | nodejs-ex-pipeline5 |
+    Then the step should succeed
+    
+    When I run the :new_build client command with:
+      | app_repo | https://github.com/openshift-qe/nodejs-example#jenkinsfile_source |
+      | name     | nodejs-ex-pipeline6                                               |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc/nodejs-ex-pipeline6 |
+    Then the step should succeed
+    And the output should match "nodejs-ex-pipeline6.*JenkinsPipeline"
+    When I run the :delete client command with:
+      | object_type       | buildConfig         |
+      | object_name_or_id | nodejs-ex-pipeline6 |
+    Then the step should succeed
+
+    When I run the :new_build client command with:
+      | app_repo    | https://github.com/openshift/nodejs-ex |
+      | context_dir | openshift/pipeline |
+      | name        | nodejs-ex-pipeline7|
+      | image_stream| nodejs:latest      |
+      | strategy    | pipeline           |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | bc/nodejs-ex-pipeline7 |
+    Then the step should succeed
+    And the output should match "nodejs-ex-pipeline7.*JenkinsPipeline"
+    When I run the :delete client command with:
+      | object_type       | buildConfig         |
+      | object_name_or_id | nodejs-ex-pipeline7 |
+    Then the step should succeed
