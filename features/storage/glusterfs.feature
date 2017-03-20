@@ -642,3 +642,81 @@ Feature: Storage of GlusterFS plugin testing
     Then the output should contain:
       | Durability Type: replicate |
       | Distributed+Replica: 3     |
+
+  # @author lizhou@redhat.com
+  # @case_id OCP-13580
+  @admin
+  Scenario: pods should be able to delete after storage endpoints were down 
+    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
+    When I run the :oadm_new_project admin command with:
+      | project_name  | <%= cb.proj_name %>          |
+      | node_selector | <%= cb.proj_name %>=OCP13580 |
+      | admin         | <%= user.name %>             |
+    Then the step should succeed
+
+    Given I store the schedulable nodes in the :nodes clipboard
+    And label "<%= cb.proj_name %>=OCP13580" is added to the "<%= cb.nodes[0].name %>" node
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= cb.proj_name %>" project
+    And I have a Gluster service in the project
+
+    # Create endpoints
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-gluster/master/endpoints.json" replacing paths:
+      | ["metadata"]["name"]                 | glusterfs-cluster             |
+      | ["subsets"][0]["addresses"][0]["ip"] | <%= service("glusterd").ip %> |
+      | ["subsets"][0]["ports"][0]["port"]   | 24007                         |
+    Then the step should succeed
+
+    # Create gluster pv
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-gluster/master/pv-rwo.json" where:
+      | ["metadata"]["name"]                      | pv-gluster-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                | ReadWriteOnce                  |
+      | ["spec"]["glusterfs"]["endpoints"]        | glusterfs-cluster              |
+      | ["spec"]["glusterfs"]["path"]             | testvol                        |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                         |
+    Then the step should succeed
+
+    # Create gluster pvc
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-gluster/master/pvc-rwo.json" replacing paths:
+      | ["metadata"]["name"]       | pvc-gluster-<%= project.name %> |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce                   |
+      | ["spec"]["volumeName"]     | pv-gluster-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-gluster-<%= project.name %>" PVC becomes bound to the "pv-gluster-<%= project.name %>" PV
+
+    # Create pod
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-gluster/master/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | glusterpd-<%= project.name %>   |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-gluster-<%= project.name %> |
+    Then the step should succeed
+    Given the pod named "glusterpd-<%= project.name %>" becomes ready
+
+    # Check mount point on node
+    Given I use the "<%= cb.nodes[0].name %>" node
+    When I run commands on the host:
+      | mount |
+    Then the output should contain:
+      | testvol |
+
+    # Delete endpoints
+    When I run the :delete client command with:
+      | object_type       | endpoints         |
+      | object_name_or_id | glusterfs-cluster |
+    Then the step should succeed
+
+    # Delete pod
+    When I run the :delete client command with:
+      | object_type       | pods                          |
+      | object_name_or_id | glusterpd-<%= project.name %> |
+    Then the step should succeed
+
+    # Check mount point on node
+    Given I use the "<%= cb.nodes[0].name %>" node
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | mount |
+    Then the output should not contain:
+      | testvol |
+    """
