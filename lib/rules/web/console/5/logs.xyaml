@@ -16,6 +16,11 @@ check_log_context:
   - selector:
       xpath: //table//td[contains(text(),'<log_context>')]
     timeout: 180
+check_log_context_nonexist:
+  elements:
+  - selector:
+      xpath: //table//td[contains(text(),'<log_context>')]
+    missing: true
 check_running_log_context:
   elements:
   - selector:
