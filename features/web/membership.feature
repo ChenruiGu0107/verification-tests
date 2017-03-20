@@ -6,11 +6,6 @@ Feature: memberships related features via web
     Given the master version >= "3.4"
     When I create a new project via web
     Then the step should succeed
-    When I perform the :check_tab_count_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | Groups              |
-      | count        | 0                   |
-    Then the step should succeed
     When I perform the :add_role_on_membership web console action with:
       | project_name | <%= project.name %> |
       | tab_name     | Groups              |
@@ -23,11 +18,6 @@ Feature: memberships related features via web
       | name         | test_group          |
       | role         | basic-user          |
     Then the step should succeed
-    When I perform the :check_tab_count_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | Groups              |
-      | count        | 1                   |
-    Then the step should succeed
     And I run the :get client command with:
       | resource      | rolebinding |
       | resource_name | basic-user  |
@@ -38,11 +28,6 @@ Feature: memberships related features via web
       | tab_name     | Groups              |
       | name         | test_group          |
       | role         | basic-user          |
-    Then the step should succeed
-    When I perform the :check_tab_count_on_membership web console action with:
-      | project_name | <%= project.name %> |
-      | tab_name     | Groups              |
-      | count        | 0                   |
     Then the step should succeed
     And I run the :get client command with:
       | resource      | rolebinding |
