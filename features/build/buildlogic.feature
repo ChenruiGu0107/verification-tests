@@ -575,17 +575,16 @@ Feature: buildlogic.feature
       | .*io.s2i.scripts-url.*                               |
 
   # @author shiywang@redhat.com
-  # @case_id OCP-10855 OCP-11283 OCP-13144 OCP-13145
   Scenario Outline: Tune perl image to autoconfigure based on available memory
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | <repo> |
+      | app_repo     | https://github.com/openshift/dancer-ex|
+      | image_stream | <image>                               |
     Then the step should succeed
     And I run the :patch client command with:
       | resource      | dc                                                                                                               |
       | resource_name | dancer-ex                                                                                                        |
       | p             | {"spec":{"template":{"spec":{"containers":[{"name":"dancer-ex","resources":{"limits":{"memory":"<memory>"}}}]}}}}  |
-      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"dancer-ex","resources":{"request":{"memory":"<memory>"}}}]}}}} |
     Then the step should succeed
     And the "dancer-ex-1" build was created
     And the "dancer-ex-1" build completed
@@ -602,7 +601,7 @@ Feature: buildlogic.feature
       | ServerLimit\\s*<num>       |
     When I run the :env client command with:
       | resource | dc/dancer-ex                |
-      | e        | HTTPD_MAX_REQUEST_WORKERS=5 |
+      | e        | HTTPD_MAX_REQUEST_WORKERS=2 |
       | e        | HTTPD_START_SERVERS=1       |
     Then the step should succeed
     Given a pod becomes ready with labels:
@@ -613,28 +612,29 @@ Feature: buildlogic.feature
     And the output should match:
       | StartServers\\s*1       |
       | MinSpareServers\\s*1    |
-      | MaxRequestWorkers\\s*5  |
-      | ServerLimit\\s*5        |
+      | MaxRequestWorkers\\s*2  |
+      | ServerLimit\\s*2        |
     When I wait for the "dancer-ex" service to become ready
     Then the step should succeed
     When I execute on the pod:
       | bash                                                                          |
       | -c                                                                            |
-      | /opt/rh/httpd24/root/usr/bin/ab -c 20 -n 1000 http://<%= service.ip %>:8080/  |
+      | /opt/rh/httpd24/root/usr/bin/ab -c 200 -n 1000 http://<%= service.ip %>:8080/  |
     Then the step should succeed
     When I execute on the pod:
       | bash                                                                          |
       | -c                                                                            |
       | ps -ef \|grep httpd \|grep -v grep \|awk '{print $2}'\|grep -v ^1$ \|wc -l    |
     Then the step should succeed
-    And the output should contain "5"
+    And the output should contain "2"
     #100Mi for OCP env, 204Mi is for online env
     Examples:
-      | repo                                                       | memory | num |
-      | openshift/perl:5.16~https://github.com/openshift/dancer-ex | 100Mi  | 10  |
-      | openshift/perl:5.20~https://github.com/openshift/dancer-ex | 100Mi  | 10  |
-      | openshift/perl:5.16~https://github.com/openshift/dancer-ex | 204Mi  | 68  |
-      | openshift/perl:5.20~https://github.com/openshift/dancer-ex | 204Mi  | 68  |
+      | image     | memory | num |
+      | perl:5.16 | 100Mi  | 10  | # @case_id OCP-10855
+      | perl:5.20 | 100Mi  | 10  | # @case_id OCP-11283
+      | perl:5.24 | 100Mi  | 10  | # @case_id OCP-11378
+      | perl:5.16 | 204Mi  | 68  | # @case_id OCP-13144
+      | perl:5.20 | 204Mi  | 68  | # @case_id OCP-13145
 
   # @author shiywang@redhat.com
   # @case_id OCP-10835
