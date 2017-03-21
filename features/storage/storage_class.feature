@@ -59,7 +59,7 @@ Feature: storageClass related feature
       | Invalid value: "@test@" |
 
   # @author lxia@redhat.com
-  # @case_id OCP-12089 OCP-12269 OCP-12272
+  # @case_id OCP-12089 OCP-12269 OCP-12272 OCP-13488
   @admin
   @destructive
   Scenario Outline: PVC modification after creating storage class
@@ -102,9 +102,10 @@ Feature: storageClass related feature
       | gce-pd      |
       | aws-ebs     |
       | cinder      |
+      | azure-disk  |
 
   # @author lxia@redhat.com
-  # @case_id OCP-12090 OCP-12096 OCP-12097
+  # @case_id OCP-12090 OCP-12096 OCP-12097 OCP-13489
   @admin
   @destructive
   Scenario Outline: No dynamic provision when no default storage class
@@ -136,6 +137,7 @@ Feature: storageClass related feature
       | gce-pd      |
       | aws-ebs     |
       | cinder      |
+      | azure-disk  |
 
   # @author lxia@redhat.com
   # @author chaoyang@redhat.com
@@ -249,7 +251,7 @@ Feature: storageClass related feature
       | kubernetes.io/unknown | ProvisioningFailed   | no volume plugin matched                             |
 
   # @author lxia@redhat.com
-  # @case_id OCP-12223 OCP-12226 OCP-12227
+  # @case_id OCP-12223 OCP-12226 OCP-12227 OCP-13490
   @admin
   @destructive
   Scenario Outline: New creation PVC failed when multiple classes are set as default
@@ -287,9 +289,10 @@ Feature: storageClass related feature
       | gce-pd      |
       | aws-ebs     |
       | cinder      |
+      | azure-disk  |
 
   # @author lxia@redhat.com
-  # @case_id OCP-12171 OCP-12176 OCP-12177
+  # @case_id OCP-12171 OCP-12176 OCP-12177 OCP-13492
   @admin
   @destructive
   Scenario Outline: New created PVC without specifying storage class use default class when only one class is marked as default
@@ -317,6 +320,7 @@ Feature: storageClass related feature
       | gce-pd      |
       | aws-ebs     |
       | cinder      |
+      | azure-disk  |
 
   # @author wehe@redhat.com
   # @case_id OCP-10218

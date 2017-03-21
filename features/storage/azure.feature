@@ -174,3 +174,25 @@ Feature: Azure disk specific scenarios
       | sctype  |
       | invalid |
       | noext   |
+
+  # @author wehe@redhat.com
+  # @case_id OCP-13486 
+  @admin
+  @destructive
+  Scenario: pre-bound still works with storage class on Azure
+    Given I have a project
+    And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpv.yaml" where:
+      | ["metadata"]["name"]              | pv-<%= project.name %>        |
+      | ["spec"]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
+      | ["spec"]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %>   |
+      | ["provisioner"]                                                                 | kubernetes.io/azure-disk |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                     |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml" replacing paths:
+      | ["spec"]["volumeName"] | pv-<%= project.name %>  |
+    Then the step should succeed
+    And the "azpvc" PVC becomes bound to the "pv-<%= project.name %>" PV
