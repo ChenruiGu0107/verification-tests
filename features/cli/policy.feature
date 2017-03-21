@@ -1027,3 +1027,31 @@ Feature: change the policy of user/service account
     Then the step should succeed
     And the output should match:
       | .*restricted |
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13480
+  @admin
+  @destructive
+  Scenario: Allow to make a role binding to a service account if no rolebindingrestriction exists
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        openshift.io/RestrictSubjectBindings:
+          configuration:
+            apiversion: v1
+            kind: DefaultAdmissionConfig
+    """
+    Then the step should succeed
+    Given I run the :policy_add_role_to_user client command with:
+      | role           | view                |
+      | serviceaccount | deployer            |
+      | n              | <%= project.name %> |
+    Then the step should succeed
+    Given I run the :get client command with:
+      | resource | rolebinding         |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    And the output should match:
+      | .*view.*/view.*deployer |
