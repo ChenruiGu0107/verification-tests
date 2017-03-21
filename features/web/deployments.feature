@@ -825,7 +825,8 @@ Feature: Check deployments function
     Then the step should succeed
     When I run the :check_dc_custom_strategy_settings web console action
     Then the step should succeed
-    When I run the :click_add_pre_lifecycle_hook web console action
+    When I perform the :click_add_lifecycle_hook web console action with:
+      | hook_type | pre |
     Then the step should fail
     When I perform the :set_dc_custom_strategy_settings web console action with:
       | image_name    | aosqe/hello-openshift |

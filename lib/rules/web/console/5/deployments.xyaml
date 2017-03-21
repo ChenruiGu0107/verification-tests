@@ -840,11 +840,6 @@ click_to_show_dc_advanced_strategy_options:
       xpath: //a[contains(text(),'advanced strategy options')]
     optional: true
     op: click
-click_add_pre_lifecycle_hook:
-  element:
-    selector:
-      xpath: //a[contains(text(),'Add pre lifecycle hook')]
-    op: click
 set_dc_custom_strategy_settings:
   action: set_dc_strategy_image_name
   action: set_dc_strategy_cmd_line
