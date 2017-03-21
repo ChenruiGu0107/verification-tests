@@ -179,3 +179,29 @@ Feature: quickstarts.feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc492612/dancer.json       | dancer-example       | Dancer  | 1     |
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     |
 
+  # @author xiuwang@redhat.com
+  Scenario Outline: quickstart with persistent volume test
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | <template> |
+    When I run the :patch client command with:
+      | resource      | pvc                                                                             |
+      | resource_name | <pvc>                                                                           |
+      | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
+    Then the step should succeed
+    And the "<pvc>" PVC becomes :bound within 300 seconds
+    Then the step should succeed
+    And the "<buildcfg>-1" build was created
+    And the "<buildcfg>-1" build completed
+    And <podno> pods become ready with labels:
+      |app=<template>|
+    When I use the "<buildcfg>" service
+    Then I wait for a web server to become available via the "<buildcfg>" route
+    Then the output should contain "<output>"
+
+    Examples: OS Type
+      | template                 |pvc       | buildcfg               | output | podno |
+      | django-psql-persistent   |postgresql| django-psql-persistent | Django | 2     | # @case_id OCP-12825
+      | rails-pgsql-persistent   |postgresql| rails-pgsql-persistent | Rails  | 2     | # @case_id OCP-12822
+      | cakephp-mysql-persistent |mysql     |cakephp-mysql-persistent| CakePHP| 2     | # @case_id OCP-12492
+      | dancer-mysql-persistent  |database  |dancer-mysql-persistent | Dancer | 2     | # @case_id OCP-13658
