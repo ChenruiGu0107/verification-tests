@@ -47,20 +47,25 @@ Feature:Create apps using new_app cmd feature
     And the output should contain "Hello from OpenShift v3"
 
   # @author haowang@redhat.com
-  # @case_id OCP-9653
-  Scenario: create resource from imagestream via oc new-app openshift/nodejs-010-rhel7
+  # @case_id OCP-9653 OCP-12215 OCP-13513
+  Scenario Outline: create nodejs resource from imagestream via oc new-app
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | nodejs                                     |
+      | image_stream | nodejs:<tag>                               |
       | code         | https://github.com/openshift/nodejs-ex.git |
     Then the step should succeed
     And the "nodejs-ex-1" build was created
     And the "nodejs-ex-1" build completed
     And a pod becomes ready with labels:
-      |app=nodejs-ex|
+      | app=nodejs-ex |
     When I expose the "nodejs-ex" service
     Then I wait for a web server to become available via the "nodejs-ex" route
     And  the output should contain "Welcome to your Node.js application on OpenShift"
+    Examples:
+      | tag  |
+      | 0.10 | # @case_id OCP-9653
+      | 4    | # @case_id OCP-12215
+      | 6    | # @case_id OCP-13513
 
   # @author haowang@redhat.com
   # @case_id OCP-11137
@@ -128,22 +133,6 @@ Feature:Create apps using new_app cmd feature
       | ver |
       | 1   |
       | 2   |
-
-  # @author xiuwang@redhat.com
-  # @case_id OCP-12215
-  Scenario: create resource from imagestream via oc new-app nodejs-4-rhel7
-    Given I have a project
-    When I run the :new_app client command with:
-      | image_stream | openshift/nodejs:4 |
-      | code         | https://github.com/openshift/nodejs-ex.git |
-    Then the step should succeed
-    And the "nodejs-ex-1" build was created
-    And the "nodejs-ex-1" build completed
-    And a pod becomes ready with labels:
-      |app=nodejs-ex|
-    When I expose the "nodejs-ex" service
-    Then I wait for a web server to become available via the "nodejs-ex" route
-    And  the output should contain "Welcome to your Node.js application on OpenShift"
 
   # @author xiuwang@redhat.com
   # @case_id OCP-12216 OCP-12265

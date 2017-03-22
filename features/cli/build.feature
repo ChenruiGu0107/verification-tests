@@ -2665,7 +2665,7 @@ Feature: build 'apps' with CLI
       | Binary |
 
   # @author cryan@redhat.com
-  # @case_id OCP-10236 OCP-10237 OCP-10238 OCP-10239 OCP-10240 OCP-10241 OCP-10242 OCP-10243 OCP-10244 OCP-10245 OCP-10246 OCP-10369
+  # @case_id OCP-10236 OCP-10237 OCP-10238 OCP-10239 OCP-10240 OCP-10241 OCP-10242 OCP-10243 OCP-10244 OCP-10245 OCP-10246 OCP-10369 OCP-13512
   # @bug_id 1368114
   Scenario Outline: image build behind proxy
     Given I have a project
@@ -2685,8 +2685,9 @@ Feature: build 'apps' with CLI
     Examples:
       | image                 | repo             |
       | openshift/nodejs:0.10 | nodejs-ex        |
-      | openshift/ruby:2.0    | ruby-hello-world |
       | openshift/nodejs:4    | nodejs-ex        |
+      | openshift/nodejs:6    | nodejs-ex        |
+      | openshift/ruby:2.0    | ruby-hello-world |
       | openshift/ruby:2.2    | ruby-hello-world |
       | openshift/ruby:2.3    | ruby-hello-world |
       | openshift/perl:5.16   | dancer-ex        |
