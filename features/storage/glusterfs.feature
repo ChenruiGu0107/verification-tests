@@ -646,19 +646,8 @@ Feature: Storage of GlusterFS plugin testing
   # @author lizhou@redhat.com
   # @case_id OCP-13580
   @admin
-  Scenario: pods should be able to delete after storage endpoints were down 
-    Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    When I run the :oadm_new_project admin command with:
-      | project_name  | <%= cb.proj_name %>          |
-      | node_selector | <%= cb.proj_name %>=OCP13580 |
-      | admin         | <%= user.name %>             |
-    Then the step should succeed
-
-    Given I store the schedulable nodes in the :nodes clipboard
-    And label "<%= cb.proj_name %>=OCP13580" is added to the "<%= cb.nodes[0].name %>" node
-
-    Given I switch to cluster admin pseudo user
-    And I use the "<%= cb.proj_name %>" project
+  Scenario: pods should be able to delete after storage endpoints were down
+    Given admin creates a project with a random schedulable node selector
     And I have a Gluster service in the project
 
     # Create endpoints
@@ -693,7 +682,7 @@ Feature: Storage of GlusterFS plugin testing
     Given the pod named "glusterpd-<%= project.name %>" becomes ready
 
     # Check mount point on node
-    Given I use the "<%= cb.nodes[0].name %>" node
+    Given I use the "<%= node.name %>" node
     When I run commands on the host:
       | mount |
     Then the output should contain:
@@ -712,7 +701,7 @@ Feature: Storage of GlusterFS plugin testing
     Then the step should succeed
 
     # Check mount point on node
-    Given I use the "<%= cb.nodes[0].name %>" node
+    Given I use the "<%= node.name %>" node
     And I wait up to 60 seconds for the steps to pass:
     """
     When I run commands on the host:
