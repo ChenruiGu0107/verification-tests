@@ -2861,3 +2861,122 @@ Feature: Testing haproxy router
     When I open web server via the "https://<%= cb.proj_name2 %>.<%= cb.subdomain %>" url
     Then the output should contain "Hello-OpenShift-1 https-8443"
     """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-11030
+  @admin
+  @destructive
+  Scenario: Default ports will be bound only after the routes are loaded for host network router
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj_name1 clipboard
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | service                  |
+      | resource_name | service-unsecure         |
+      | name          | ocp-11030                |
+      | hostname      | ocp-11030.example.com    |
+    Then the step should succeed
+    And I have a pod-for-ping in the project
+
+    #Enable the ROUTER_BIND_PORTS_AFTER_SYNC=true for router
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_BIND_PORTS_AFTER_SYNC=true |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod_new clipboard
+    When I run the :delete client command with:
+      | object_type       | pod        |
+      | object_name_or_id | <%= cb.router_pod_new %> |
+    Then the step should succeed
+    
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name1 %>" project
+
+    #monitor the route should not return 503 error during the router pod is restarting
+    When I execute on the "hello-pod" pod:
+      | bash | -c | starttime=`date +%s`; while [ $((`date +%s` - starttime)) -lt 50 ]; do result=`curl -sS -w %{http_code} --resolve ocp-11030.example.com:80:<%= cb.router_ip[0] %> http://ocp-11030.example.com -o /dev/null`; if [ $result = 503 ]; then echo "fail" && exit 0; elif [ $result = 200 ] ; then echo "succ" && exit 0; fi; done |
+    Then the step should succeed
+    And the output should contain "succ"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-11409
+  @admin
+  @destructive  
+  Scenario: Default ports will be bound only after the routes are loaded for container network router
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj_name1 clipboard
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name      | route-edge |
+      | service   | service-unsecure |
+      | hostname  | ocp-11409-edge.example.com |
+    Then the step should succeed
+    And I have a pod-for-ping in the project
+
+    #Enable the ROUTER_BIND_PORTS_AFTER_SYNC=true for router
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I store master image version in the clipboard
+    Given default router replica count is stored in the :router_num clipboard
+    And default router replica count is restored after scenario
+    When I run the :scale client command with:
+      | resource    | dc     |
+      | name        | router |
+      | replicas    | 0      |
+    Then the step should succeed
+    Given admin ensures "ocp-11409" dc is deleted after scenario
+    And admin ensures "ocp-11409" service is deleted after scenario
+    When I run the :oadm_router admin command with:
+      | name   | ocp-11409 |
+      | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
+      | host_network | false |
+      | replicas | 0 |
+    Then the step should succeed
+    When I run the :env client command with:
+      | resource | dc/ocp-11409 |
+      | e        | ROUTER_BIND_PORTS_AFTER_SYNC=true |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource    | dc                           |
+      | name        | ocp-11409                    |
+      | replicas    | <%= cb.router_num %>         |
+    Then the step should succeed
+    When a pod becomes ready with labels:
+      | deploymentconfig=ocp-11409 |
+    Then evaluation of `pod.name` is stored in the :router_pod_new clipboard
+    When I run the :delete client command with:
+      | object_type       | pod        |
+      | object_name_or_id | <%= cb.router_pod_new %> |
+    Then the step should succeed
+
+    Given I switch to the first user
+    And I use the "<%= cb.proj_name1 %>" project
+
+    #monitor the route should not return 503 error during the router pod is restarting
+    When I execute on the "hello-pod" pod:
+      | bash | -c | starttime=`date +%s`; while [ $((`date +%s` - starttime)) -lt 50 ]; do result=`curl -sS -w %{http_code} --resolve ocp-11409-edge.example.com:443:<%= cb.router_ip[0] %> https://ocp-11409-edge.example.com -k -o /dev/null`; if [ $result = 503 ]; then echo "fail" && exit 0; elif [ $result = 200 ] ; then echo "succ" && exit 0; fi; done |
+    Then the step should succeed
+    And the output should contain "succ"
