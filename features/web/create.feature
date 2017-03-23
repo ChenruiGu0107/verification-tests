@@ -784,10 +784,8 @@ Feature: create app on web console related
       | env_var_value | DCvalue2update      |
     Then the step should succeed
 
-    When I perform the :manually_deploy web console action with:
-      | project_name | <%= project.name %> |
-      | dc_name      | php                 |
-    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deploymentconfig=php |
     When I perform the :check_deployment_environment web console action with:
       | project_name  | <%= project.name %> |
       | dc_name       | php                 |
@@ -803,9 +801,6 @@ Feature: create app on web console related
       | env_var_value | DCvalue2update      |
     Then the step should succeed
 
-    Given a pod becomes ready with labels:
-      | deploymentconfig=php |
-    Then the step should succeed
     When I perform the :check_pod_environment web console action with:
       | project_name  | <%= project.name %> |
       | pod_name      | <%= pod.name %>     |
