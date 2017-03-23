@@ -1131,6 +1131,7 @@
 :oadm_router:
   :cmd: oadm router <name>
   :options:
+    :canonical_hostname: --router-canonical-hostname=<value>
     :images: --images=<value>
     :stats_port: --stats-port=<value>
     :stats_user: --stats-user=<value>

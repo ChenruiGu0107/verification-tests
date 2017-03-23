@@ -2980,3 +2980,56 @@ Feature: Testing haproxy router
       | bash | -c | starttime=`date +%s`; while [ $((`date +%s` - starttime)) -lt 50 ]; do result=`curl -sS -w %{http_code} --resolve ocp-11409-edge.example.com:443:<%= cb.router_ip[0] %> https://ocp-11409-edge.example.com -k -o /dev/null`; if [ $result = 503 ]; then echo "fail" && exit 0; elif [ $result = 200 ] ; then echo "succ" && exit 0; fi; done |
     Then the step should succeed
     And the output should contain "succ"
+
+
+  # @author yadu@redhat.com
+  # @case_id OCP-12967 OCP-12968
+  @admin
+  @destructive     
+  Scenario Outline: Router dns name info exist in route when creating router with --router-canonical-hostname option
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I store master image version in the clipboard
+    Given default router replica count is stored in the :router_num clipboard
+    And default router replica count is restored after scenario
+    When I run the :scale client command with:
+      | resource | dc     |
+      | name     | router |
+      | replicas | 0      |
+    Then the step should succeed
+
+    Given admin ensures "tc-12967" dc is deleted after scenario
+    And admin ensures "tc-12967" service is deleted after scenario
+
+    When I run the :oadm_router admin command with: 
+      | name               | tc-12967 |
+      | images             | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
+      | canonical_hostname | external1.router.com |
+      | host_network       | <hostnetwork> |
+      | replicas           | <%= cb.router_num %> |
+    And a pod becomes ready with labels:
+      | deploymentconfig=tc-12967 |
+
+    Given I switch to the first user
+    And I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :expose client command with:
+      | resource      | service      |
+      | resource_name | test-service |
+      | name          | route1       |
+    Then the step should succeed
+    When I use the "test-service" service
+    Then I wait up to 15 seconds for a web server to become available via the "route1" route
+    And the output should contain "Hello OpenShift"
+    When I run the :describe client command with:
+      | resource | route  |
+      | name     | route1 |
+    Then the output should contain "external1.router.com"
+
+    Examples:
+      | hostnetwork |
+      | true        |
+      | false       |
