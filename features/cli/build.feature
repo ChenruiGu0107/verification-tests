@@ -2827,3 +2827,26 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given the "sample-build-2" build was created
     And the "sample-build-2" build completed
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-10942
+  Scenario: Build env vars are set correctly for Extended build
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/test-for-s2i-extendbuild/master/extended-bc-scripts-in-repo.json |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | extended-build-from-repo |
+    Then the step should succeed
+    And the "extended-build-from-repo-1" build completed
+    Then evaluation of `image_stream("extended-repo").docker_image_repository(user: user)` is stored in the :user_image clipboard
+    When I run the :run client command with:
+      | name  | myapp                |
+      | image | <%= cb.user_image %> |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | deployment=myapp-1 |
+    And I execute on the pod:
+      | env |
+    Then the output should contain:
+      | S2I_TEST_FOO=bar |
