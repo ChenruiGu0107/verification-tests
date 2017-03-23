@@ -1055,3 +1055,319 @@ Feature: change the policy of user/service account
     Then the step should succeed
     And the output should match:
       | .*view.*/view.*deployer |
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13479
+  @admin
+  @destructive
+  Scenario: Allow to make a role binding to a group matched one rolebindingrestriction
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        openshift.io/RestrictSubjectBindings:
+          configuration:
+            apiversion: v1
+            kind: DefaultAdmissionConfig
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :new_app client command with:
+      | template | postgresql-persistent |
+    Then the step should succeed
+    Given admin ensures "groups-rolebindingrestriction" group is deleted after scenario
+    Given I run the :oadm_groups_new admin command with:
+      | group_name | groups-rolebindingrestriction |
+      | user_name  | <%= user(1).name  %>          |
+    Then the step should succeed
+    Given I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml |
+      | n | <%= project.name %>                                                                                                           |
+    Then the step should succeed
+    Given I switch to the second user
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should fail
+    Given I switch to the first user
+    And I run the :policy_add_role_to_group client command with:
+      | role       | view                          |
+      | group_name | groups-rolebindingrestriction |
+    Then the step should succeed
+    Given I switch to the second user
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13478
+  @admin
+  @destructive
+  Scenario: Allow to make a role binding to a user matched one rolebindingrestriction
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        openshift.io/RestrictSubjectBindings:
+          configuration:
+            apiversion: v1
+            kind: DefaultAdmissionConfig
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :new_app client command with:
+      | template | postgresql-persistent |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    And I replace lines in "rolebindingrestriction.yaml":
+      | name: match-groups                        | name: match-users                              |
+      | grouprestriction:                         | userrestriction:                               |
+      | groups: ["groups-rolebindingrestriction"] | users: ["<%= user(1, switch: false).name  %>"] |
+    Given I run the :create admin command with:
+      | f | rolebindingrestriction.yaml |
+      | n | <%= project.name %>         |
+    Then the step should succeed
+    Given I switch to the second user
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should fail
+    Given I switch to the first user
+    And I run the :policy_add_role_to_user client command with:
+      | role      | view                                |
+      | user_name | <%= user(1, switch: false).name  %> |
+    Then the step should succeed
+    Given I switch to the second user
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13477
+  @admin
+  @destructive
+  Scenario: Allow to make a role binding to a group if no rolebindingrestriction exists
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        openshift.io/RestrictSubjectBindings:
+          configuration:
+            apiversion: v1
+            kind: DefaultAdmissionConfig
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :new_app client command with:
+      | template | postgresql-persistent |
+    Then the step should succeed
+    Given admin ensures "groups-rolebindingrestriction" group is deleted after scenario
+    Given I run the :oadm_groups_new admin command with:
+      | group_name | groups-rolebindingrestriction       |
+      | user_name  | <%= user(1, switch: false).name  %> |
+    Then the step should succeed
+    Given I switch to the second user
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should fail
+    Given I switch to the first user
+    And I run the :policy_add_role_to_group client command with:
+      | role       | view                          |
+      | group_name | groups-rolebindingrestriction |
+    Then the step should succeed
+    Given I switch to the second user
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13476
+  @admin
+  @destructive
+  Scenario: Allow to make a role binding to a user if no rolebindingrestriction exists
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        openshift.io/RestrictSubjectBindings:
+          configuration:
+            apiversion: v1
+            kind: DefaultAdmissionConfig
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :new_app client command with:
+      | template | postgresql-persistent |
+    Then the step should succeed
+    Given I switch to the second user
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should fail
+    Given I switch to the first user
+    And I run the :policy_add_role_to_user client command with:
+      | role      | view                                |
+      | user_name | <%= user(1, switch: false).name  %> |
+    Then the step should succeed
+    Given I switch to the second user
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13475
+  @admin
+  @destructive
+  Scenario: Restrict making a role binding to a user not matched any rolebindingrestriction
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        openshift.io/RestrictSubjectBindings:
+          configuration:
+            apiversion: v1
+            kind: DefaultAdmissionConfig
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    And I replace lines in "rolebindingrestriction.yaml":
+      | name: match-groups                        | name: match-users |
+      | grouprestriction:                         | userrestriction:  |
+      | groups: ["groups-rolebindingrestriction"] | users: [""]       |
+    Given I run the :create admin command with:
+      | f | rolebindingrestriction.yaml |
+      | n | <%= project.name %>         |
+    Then the step should succeed
+    And I run the :policy_add_role_to_user client command with:
+      | role      | view                                |
+      | user_name | <%= user(1, switch: false).name  %> |
+    Then the step should fail
+    And the output should contain:
+      | rolebindings "view" is forbidden |
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13474
+  @admin
+  @destructive
+  Scenario: Restrict making a role binding to a group not matched any rolebindingrestriction
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        openshift.io/RestrictSubjectBindings:
+          configuration:
+            apiversion: v1
+            kind: DefaultAdmissionConfig
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given admin ensures "groups-rolebindingrestriction" group is deleted after scenario
+    Given I run the :oadm_groups_new admin command with:
+       | group_name | groups-rolebindingrestriction       |
+       | user_name  | <%= user(1, switch: false).name  %> |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    And I replace lines in "rolebindingrestriction.yaml":
+      | groups: ["groups-rolebindingrestriction"] | groups: [""] |
+    Given I run the :create admin command with:
+      | f | rolebindingrestriction.yaml |
+      | n | <%= project.name %>         |
+    Then the step should succeed
+    And I run the :policy_add_role_to_group client command with:
+      | role       | view                          |
+      | group_name | groups-rolebindingrestriction |
+    Then the step should fail
+    And the output should contain:
+      | rolebindings "view" is forbidden |
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13473
+  @admin
+  @destructive
+  Scenario: Restrict making a role binding to a service account not matched any rolebindingrestriction
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        openshift.io/RestrictSubjectBindings:
+          configuration:
+            apiversion: v1
+            kind: DefaultAdmissionConfig
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    And I replace lines in "rolebindingrestriction.yaml":
+      | name: match-groups                        | name: match-serviceaccount |
+      | grouprestriction:                         | serviceaccountrestriction: |
+      | groups: ["groups-rolebindingrestriction"] | namespaces: [""]           |
+    Given I run the :create admin command with:
+       | f | rolebindingrestriction.yaml |
+       | n | <%= project.name %>         |
+    Then the step should succeed
+    And I run the :policy_add_role_to_user client command with:
+      | role           | view    |
+      | serviceaccount | default |
+    Then the step should fail
+    And the output should contain:
+      | rolebindings "view" is forbidden |
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13409
+  @admin
+  @destructive
+  Scenario: Allow to make a role binding to a service account matched one rolebindingrestriction
+    Given I have a project
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        openshift.io/RestrictSubjectBindings:
+          configuration:
+            apiversion: v1
+            kind: DefaultAdmissionConfig
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :new_app client command with:
+      | template | postgresql-persistent |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/policy/OCP-13479/rolebindingrestriction.yaml"
+    And I replace lines in "rolebindingrestriction.yaml":
+      | name: match-groups                        | name: match-serviceaccount          |
+      | grouprestriction:                         | serviceaccountrestriction:          |
+      | groups: ["groups-rolebindingrestriction"] | namespaces: ["<%= project.name %>"] |
+    Given I run the :create admin command with:
+      | f | rolebindingrestriction.yaml |
+      | n | <%= project.name %>         |
+    Then the step should succeed
+    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:default service account
+    Given I switch to the system:serviceaccount:<%= project.name %>:default service account
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should fail
+    Given I switch to the first user
+    And I run the :policy_add_role_to_user client command with:
+      | role           | view    |
+      | serviceaccount | default |
+    Then the step should succeed
+    Given I find a bearer token of the system:serviceaccount:<%= project.name %>:default service account
+    Given I switch to the system:serviceaccount:<%= project.name %>:default service account
+    And I run the :get client command with:
+      | resource | pods                |
+      | n        | <%= project.name %> |
+    Then the step should succeed

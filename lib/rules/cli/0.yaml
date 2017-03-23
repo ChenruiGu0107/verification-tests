@@ -1004,6 +1004,7 @@
   :cmd: oadm groups new
   :options:
     :group_name: <value>
+    :user_name: <value>
 :oadm_groups_prune:
   :cmd: oadm groups prune
   :options:
