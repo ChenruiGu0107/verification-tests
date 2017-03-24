@@ -102,13 +102,15 @@ module CucuShift
         end
       end
 
+      # wait for command to be started on the remote host; this will not wait
+      #   command completion
       def wait_exec
         wait_for(20) {
           # channel.active?
           result { |r| r.has_key? :success }
         }
         unless result.has_key? :success
-          raise "timeout waiting for command to be executed"
+          raise CucuShift::TimeoutError, "timeout waiting for command to start exution"
         end
       end
 
@@ -150,7 +152,7 @@ module CucuShift
             # looks like session closed before channel finished
             # I don't think liveness probe is likely to end-up here so
             #   don't perform special handling here for it.
-            err = connection.error
+            err = connection.send :error # #error not exposed to the public
             # err = "ssh session @#{host} closed prematurely: #{err.inspect}"
             result[:error] = err
           else
@@ -382,7 +384,7 @@ module CucuShift
       def loop_thread!
         unless @loop_thread && @loop_thread.alive?
           # session.loop is slow to pick-up new channels, also will exit when
-          # no active channels are present and I'm not sire how this can
+          # no active channels are present and I'm not sure how this can
           # affect session close
           # @loop_thread = Thread.new { session.loop(1) {|s| s.busy?(include_invisible=true)} }
           @loop_thread = Thread.new { loop {session.process(1)} }
