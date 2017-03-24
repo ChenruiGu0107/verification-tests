@@ -518,10 +518,12 @@ module CucuShift
         return nil
       else
         case res[:error]
-        when nil, IOError, CucuShift::TimeoutError
+        when IOError, CucuShift::TimeoutError
           return nil
+        when nil
+          raise "failed execute \`#{cmd}\` on #{self} for an unknown reason"
         else
-          raise "failed to get #{self} current time, see log"
+          raise "failed execute \`#{cmd}\` on #{self}, see log"
         end
       end
     end
