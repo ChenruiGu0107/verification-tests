@@ -10,7 +10,7 @@ We have also some configuration in `config/cucumber.yml`. There are some profile
 
 == global configuration
 
-This is the the `global` section inside `config/config.yaml`. Some generic defaults like `git_repo_url` and `rest_default_auth`.
+This is the the `global` section inside `config/config.yaml`. Some generic defaults like `git_repo_url` or `browser`.
 
 Some of these options can be overwritten by environment variables, see `#env_overrides` inside `lib/configuration.rb`
 

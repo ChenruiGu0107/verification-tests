@@ -108,6 +108,7 @@
     :output: --output=<value>
     :flatten: --flatten
     :minify: --minify
+    :raw: --raw
   :expected:
     - "apiVersion: v"
     - "kind: Config"
@@ -553,7 +554,7 @@
     :f: -f <value>
     :serviceaccount: -z <value>
 :policy_scc_subject_review:
-  :cmd: oc policy scc-subject-review 
+  :cmd: oc policy scc-subject-review
   :options:
     :f: -f <value>
     :group: -g <value>
@@ -619,7 +620,7 @@
     :resource_name: <value>
     :revision: --revision=<value>
 :rollout_latest:
-  :cmd: oc rollout latest <resource> 
+  :cmd: oc rollout latest <resource>
 :rollout_pause:
   :cmd: oc rollout pause <resource> <name>
   :options:
@@ -1093,7 +1094,7 @@
     :ports: --ports=<value>
     :serviceaccount: --service-account=<value>
 :oadm_remove_cluster_role_from_user:
-  :cmd: oadm policy remove-cluster-role-from-user <role_name> 
+  :cmd: oadm policy remove-cluster-role-from-user <role_name>
   :options:
     :user_name: <value>
     :z:  -z <value>

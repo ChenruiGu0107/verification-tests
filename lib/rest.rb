@@ -43,8 +43,12 @@ module CucuShift
         opts[:headers]["Accept"] = "<accept>"
         opts[:headers]["Content-Type"] = "<content_type>"
 
-        auth ||= user.rest_preferences[:auth] || conf[:rest_default_auth] || :bearer_token
+        auth ||= user.rest_preferences[:auth]
+        auth ||= user.known_cert? ? :client_cert : :bearer_token
+
         case auth
+        when :client_cert
+          opts[:ssl_client_cert], opts[:ssl_client_key] = user.client_cert
         when :bearer_token
           opts[:options][:oauth_token] = user.get_bearer_token.token
           opts[:headers]["Authorization"] = "Bearer <oauth_token>"

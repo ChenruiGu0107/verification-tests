@@ -28,7 +28,25 @@ module CucuShift
     #   response when a block is passed
     # @return [CucuShift::ResultHash] standard cucushift result hash;
     #   there is :headers populated as a [Hash] where headers are lower-cased
-    def self.http_request(url:, cookies: nil, headers: {}, params: nil, payload: nil, method:, user: nil, password: nil, max_redirects: 10, verify_ssl: OpenSSL::SSL::VERIFY_NONE, ssl_ca_path: nil, ssl_ca_file: nil, proxy: ENV['http_proxy'], read_timeout: 30, open_timeout: 10, quiet: false, result: nil, raise_on_error: false, &block)
+    def self.http_request(url:,
+                          method:,
+                          cookies: nil,
+                          headers: {},
+                          params: nil,
+                          payload: nil,
+                          user: nil, password: nil,
+                          max_redirects: 10,
+                          verify_ssl: OpenSSL::SSL::VERIFY_NONE,
+                          ssl_ca_path: nil,
+                          ssl_ca_file: nil,
+                          ssl_client_cert: nil,
+                          ssl_client_key: nil,
+                          proxy: ENV['http_proxy'],
+                          read_timeout: 30, open_timeout: 10,
+                          quiet: false,
+                          raise_on_error: false,
+                          result: nil,
+                          &block)
       rc_opts = {}
       rc_opts[:url] = url
       rc_opts[:cookies] = cookies if cookies
@@ -42,6 +60,8 @@ module CucuShift
       rc_opts[:password] = password if password
       rc_opts[:ssl_ca_file] = ssl_ca_file if ssl_ca_file
       rc_opts[:ssl_ca_path] = ssl_ca_path if ssl_ca_path
+      rc_opts[:ssl_client_cert] = ssl_client_cert if ssl_client_cert
+      rc_opts[:ssl_client_key] = ssl_client_key if ssl_client_key
       rc_opts[:read_timeout] = read_timeout
       rc_opts[:open_timeout] = open_timeout
 

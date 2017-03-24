@@ -1,3 +1,5 @@
+require "base64"
+require 'openssl'
 require 'yaml'
 
 require 'rules_command_executor'
@@ -66,6 +68,21 @@ module CucuShift
       conf = YAML.load(res[:response])
       uhash = conf["users"].find{|u| u["name"].start_with?(user.name + "/")}
       return uhash["user"]["token"]
+    end
+
+    def self.client_cert_from_cli(user)
+      res = user.cli_exec(:config_view, flatten: true, minify: true)
+      unless res[:success]
+        user.env.master_hosts[0].logger.error res[:response]
+        raise "cannot read user configuration by: #{res[:instruction]}"
+      end
+      conf = YAML.load(res[:response])
+      # uhash = conf["users"].find{|u| u["name"].start_with?(user.name + "/")}
+      uhash = conf["users"].first # minify should show us only current user
+
+      crt = uhash["user"]["client-certificate-data"]
+      key = uhash["user"]["client-key-data"]
+      return key ? [OpenSSL::X509::Certificate.new(Base64.decode64(crt)), OpenSSL::PKey::RSA.new(Base64.decode64(key))] : nil
     end
 
     def clean_up

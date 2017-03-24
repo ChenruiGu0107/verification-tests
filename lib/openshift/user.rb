@@ -30,6 +30,7 @@ module CucuShift
       end
     end
 
+    # TODO: add support for users by certificate
     def name
       return @name if @name
 
@@ -106,7 +107,7 @@ module CucuShift
     # execute a rest request as this user
     # @param [Symbol] req the request to be executed
     # @param [Hash] opts the options needed for particular request
-    # @note to set auth type, add :rest_default_auth to @rest_preferences
+    # @note to select auth type, add :auth key to @rest_preferences
     def rest_request(req, **opts)
       env.rest_request_executor.exec(user: self, req: req, opts: opts)
     end
@@ -127,6 +128,18 @@ module CucuShift
     def get_bearer_token(**opts)
       return cached_tokens.first if cached_tokens.size > 0
       return Token.new_oauth_bearer_token(self) # this should add token to cache
+    end
+
+    # def known_token?
+    #   (cached_tokens.size > 0) ^ CliExecutor.token_from_cli(self)
+    # end
+
+    def client_cert
+      @client_cert ||= CliExecutor.client_cert_from_cli(self) # rescue false
+    end
+
+    def known_cert?
+      !!client_cert
     end
 
     def clean_projects

@@ -7,8 +7,6 @@ global:
   debug_in_after_hook_always: false
   debug_attacher_timeout: false
 
-  rest_default_auth: :bearer_token
-
   # base docker registry prefixes for quickstarts;
   #   (one is for the upstream community supported *projects* and the other one
   #   is for the Red Hat enterprise supported *products*);
