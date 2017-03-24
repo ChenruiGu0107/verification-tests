@@ -3033,3 +3033,58 @@ Feature: Testing haproxy router
       | hostnetwork |
       | true        |
       | false       |
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-10548
+  # @bug_id 1371826
+  @admin
+  @destructive
+  Scenario: panic error should not be found in haproxy router log    
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :patch client command with:
+      | resource      | dc     |
+      | resource_name | router |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"command": ["/usr/bin/openshift-router","--loglevel=4"],"name":"router"}]}}}} |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod_new clipboard
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | route |
+      | resource_name | service-unsecure |
+      | p             | {"spec": {"path": "/test"}} |
+    Then the step should succeed
+    
+    #Delete the route and re-create it
+    When I run the :delete client command with:
+      | object_type       | route      |
+      | object_name_or_id | service-unsecure |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    And I wait for a web server to become available via the route
+    Then the output should contain "Hello-OpenShift"
+
+    #Check the router logs
+    When I run the :logs admin command with:
+      | resource_name | <%= cb.router_pod_new %>  |
+    Then the step should succeed
+    And the output should not contain "Recovered from panic"
