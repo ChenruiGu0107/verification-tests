@@ -242,3 +242,32 @@ Feature: Storage of Ceph plugin testing
       | object_name_or_id | pvc-<%= project.name %> |
     And I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 60 seconds
+
+  # @author lizhou@redhat.com
+  # @case_id OCP-13621
+  @admin
+  Scenario: rbd volumes should be accessible by multiple pods with readonly permission 
+    Given admin creates a project with a random schedulable node selector
+    And I have a Ceph pod in the project
+
+    Given I run the steps 2 times:
+    """
+    #Create pod with readonly access to rbd volume
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pod-direct.json" replacing paths:
+      | ["metadata"]["name"]                                 | rbd-pod#{cb.i}-<%= project.name %>           |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["name"] | rbdpd#{cb.i}-<%= project.name %>             |
+      | ["spec"]["volumes"][0]["name"]                       | rbdpd#{cb.i}-<%= project.name %>             |
+      | ["spec"]["volumes"][0]["rbd"]["monitors"][0]         | <%= pod("rbd-server").ip(user: user) %>:6789 |
+      | ["spec"]["volumes"][0]["rbd"]["readOnly"]            | true                                         |
+    Then the step should succeed
+    And the pod named "rbd-pod#{cb.i}-<%= project.name %>" becomes ready
+    """
+
+    # Check mount point and mount options on the node
+    Given I use the "<%= node.name %>" node
+    When I run commands on the host:
+      | mount |
+    Then the output should match:
+      | .*rbdpd1-<%= project.name %>.*ro.* |
+      | .*rbdpd2-<%= project.name %>.*ro.* |
+      
