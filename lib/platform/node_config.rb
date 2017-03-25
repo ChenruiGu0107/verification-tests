@@ -2,10 +2,9 @@ require 'yaml'
 
 module CucuShift
   module Platform
-    # class which interacts with the node-config.yaml file on the node(s) of the openshift instalation.
+    # class to help operation over node-config.yaml file on the OpenShift nodes
     class NodeConfig < OpenShiftConfig
-
-      def initialize(host, service)
+      def initialize(service)
         super
         @config_file_path = "/etc/origin/node/node-config.yaml"
       end

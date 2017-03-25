@@ -1,5 +1,10 @@
 # nodes related steps
 
+# IMPORTANT: Creating new [Node] objects is discouraged. Access nodes
+#   through `env.nodes` when possible. This is to ensure we use the same
+#   objects throughout test execution keeping correct status like config file
+#   modification state.
+
 # select a random node from a cluster.
 Given /^I select a random node's host$/ do
   ensure_admin_tagged
@@ -319,7 +324,7 @@ end
 
 Given /^all nodes config is restored$/ do
   ensure_admin_tagged
-  env.node_services.each { |service|
+  env.nodes.map(&:service).each { |service|
     @result = service.config.restore()
   }
 end

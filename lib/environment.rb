@@ -332,11 +332,9 @@ module CucuShift
       }
     end
 
-    def node_services
-      @node_services ||= self.node_hosts.map { |host|
-        CucuShift::Platform::NodeService.new(host)
-      }
-    end
+    # def node_services
+    #   @node_services ||= self.nodes.map(&:service)
+    # end
 
     def clean_up
       @user_manager.clean_up if @user_manager

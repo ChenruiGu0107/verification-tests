@@ -42,9 +42,7 @@ module CucuShift
     end
 
     def service
-      @service = env.node_services.find { |service|
-        service.host.hostname == self.host.hostname
-      }
+      @service ||= CucuShift::Platform::NodeService.new(host)
     end
 
     def schedulable?(user: nil, cached: true, quiet: false)
