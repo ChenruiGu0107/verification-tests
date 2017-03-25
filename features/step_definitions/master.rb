@@ -46,7 +46,7 @@ end
 #  }
 #end
 
-Given /^I store the value of path (.+?) of master config in the#{OPT_SYM} clipboard$/ do |path, cb_name|
+Given /^the value with path #{QUOTED} in master config is stored into the#{OPT_SYM} clipboard$/ do |path, cb_name|
   ensure_admin_tagged
   config_hash = env.master_services[0].config.as_hash()
   cb_name ||= "config_value"

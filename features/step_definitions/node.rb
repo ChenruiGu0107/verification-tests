@@ -335,7 +335,7 @@ Given /^node#{OPT_QUOTED} config is restored from backup$/ do |node_name|
   @result = node(node_name).service.config.restore()
 end
 
-Given /^I store the value of path (.+?) of current node config in the#{OPT_SYM} clipboard$/ do |path, cb_name|
+Given /^the value with path #{QUOTED} in node config is stored into the#{OPT_SYM} clipboard$/ do |path, cb_name|
   ensure_admin_tagged
   config_hash = node.service.config.as_hash()
   cb_name ||= "config_value"

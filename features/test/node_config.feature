@@ -1,8 +1,18 @@
 Feature: test node config related steps
+  Background:
+    Given I select a random node's host
+    And the value with path " " in node config is stored into the :original_cfg clipboard
+    Then the expression should be true> Hash === cb.original_cfg
+    And I register clean-up steps:
+    """
+    Given the value with path " " in node config is stored into the :final_cfg clipboard
+    Then the expression should be true> cb.original_cfg == cb.final_cfg
+    """
+
   @admin
   @destructive
   Scenario: node config change with multipline parameter
-    Given node config of all nodes is merged with the following hash:
+    Given config of all nodes is merged with the following hash:
     """
     iptablesSyncPeriod: "35s"
     """
@@ -12,13 +22,13 @@ Feature: test node config related steps
   @admin
   @destructive
   Scenario: node config will be modified multiple times
-    Given node config of all nodes is merged with the following hash:
+    Given config of all nodes is merged with the following hash:
     """
     iptablesSyncPeriod: "35s"
     """
     Then the step should succeed
 
-    Given node config of all nodes is merged with the following hash:
+    Given config of all nodes is merged with the following hash:
     """
     iptablesSyncPeriod: "40s"
     """
@@ -27,7 +37,7 @@ Feature: test node config related steps
   @admin
   @destructive
   Scenario: the node service will fail to restart and return result
-    Given node config of all schedulable nodes is merged with the following hash:
+    Given config of all schedulable nodes is merged with the following hash:
     """
     iptablesSyncPeriod: BadValue
     """
@@ -39,15 +49,17 @@ Feature: test node config related steps
   @admin
   @destructive
   Scenario: restore node config file before automatic restore
-    Given node config of all nodes is merged with the following hash:
+    Given config of all nodes is merged with the following hash:
     """
     iptablesSyncPeriod: "35s"
     """
-    Then the step should succeed
-    When all nodes config is restored
-    Then the step should succeed
+    And the value with path " " in node config is stored into the :changedcfg clipboard
+    Then the expression should be true> cb.original_cfg != cb.changedcfg
+    Given all nodes config is restored
+    And the value with path " " in node config is stored into the :restoredcfg clipboard
+    Then the expression should be true> cb.original_cfg == cb.restoredcfg
 
   @admin
   Scenario: get value from node config
-    Given I store the value of path ["networkConfig"]["mtu"] of node config in the :mtu clipboard
-    And the expression should be true> cb.mtu == 1410
+    Given the value with path "['networkConfig']['mtu']" in node config is stored into the :mtu clipboard
+    And the expression should be true> Integer === cb.mtu
