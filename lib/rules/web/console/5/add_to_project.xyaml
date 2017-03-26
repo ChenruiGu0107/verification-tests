@@ -27,3 +27,37 @@ clear_keyword_filters:
       id: search
     type: input
     op: clear
+click_add_to_project:
+  elements:
+  - selector:
+      xpath: //a[normalize-space()='Add to Project']
+    op: click
+  # check if the page is loaded
+  - selector:
+      text: Languages
+    timeout: 60
+select_category_in_catalog:
+  elements:
+  - selector:
+      xpath: //a[contains(.,'<category>')]
+    op: click
+  # check if the page is loaded
+  - selector:
+      xpath: //a[contains(.,'Select')]
+    timeout: 60
+select_card_version_in_catalog:
+  elements:
+  - selector:
+      xpath: //div[@class="card-pf" and div//h2/span[text()="<card_name>"] and div/div[p[contains(text(),"<namespace>")] or ("<namespace>"="openshift" and not(p[contains(text(),"Namespace")]))]]//p[@class="card-pf-version"]/div
+    op: click
+  - selector:
+      xpath: //div[@class="card-pf"]//ul[not(contains(@class,"ng-hide"))]//div[span/span[normalize-space(text())="<version>"] or span/small[text()="<version>"]]
+    op: click
+check_card_version_missing_in_catalog:
+  elements:
+  - selector:
+      xpath: //div[@class="card-pf" and div//h2/span[text()="<card_name>"] and div/div[p[contains(text(),"<namespace>")] or ("<namespace>"="openshift" and not(p[contains(text(),"Namespace")]))]]//p[@class="card-pf-version"]/div
+    op: click
+  - selector:
+      xpath: //div[@class="card-pf"]//ul[not(contains(@class,"ng-hide"))]//div[span/span[normalize-space(text())="<version>"] or span/small[text()="<version>"]]
+    missing: true
