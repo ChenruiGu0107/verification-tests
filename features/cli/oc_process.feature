@@ -194,3 +194,51 @@ Feature: oc_process.feature
       | resource      | build                 |
       | resource_name | ruby22-sample-build-5 |
     Then the output should contain "PostCommitHookFailed"
+
+  # @author shiywang@redhat.com
+  # @case_id OCP-11680
+  Scenario: Supply oc process parameter list+env vars via a file
+    Given I have a project
+    Given a "test1" file is created with the following lines:
+    """
+    required_param="first\nsecond"
+    optional_param=foo
+    """
+    Given a "test2" file is created with the following lines:
+    """
+    ADMIN_USERNAME=root
+    ADMIN_PASSWORD="adminpass"
+    REDIS_PASSWORD='redispass'
+    """
+    Given a "test3" file is created with the following lines:
+    """
+    aaa=123
+    """
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11680/guestbook.json"
+    When I run the :process client command with:
+      | f          | guestbook.json |
+      | param_file | test2          |
+    Then the step should succeed
+    And the output should contain:
+      | root      |
+      | adminpass |
+      | redispass |
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11680/template_required_params.yaml"
+    When I run the :process client command with:
+      | f          | template_required_params.yaml |
+      | param_file | test1                         |
+    And the output should contain "name": "first\nsecond"
+    When I run the :process client command with:
+      | f          | template_required_params.yaml |
+      | param_file | test3                         |
+    And the step should fail
+    And the output should contain:
+      | unknown parameter name "aaa" |
+    When I run the :process client command with:
+      | f          | template_required_params.yaml |
+      | param_file | test1                         |
+      | p          | required_param=good           |
+    And the step should succeed
+    And the output should contain:
+      | "name": "good" |
+    And the step should succeed

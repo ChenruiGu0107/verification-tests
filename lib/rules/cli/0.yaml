@@ -576,6 +576,8 @@
     :v: --value=<value>
     :l: -l <value>
     :parameters: --parameters=<value>
+    :param_file: --param-file=<value>
+    :p: -p <value>
 :project:
   :cmd: oc project
   :options:
