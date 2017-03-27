@@ -22,6 +22,7 @@ module CucuShift
       @password = password.freeze if password
       @rest_preferences = {}
       @tokens = []
+      @client_cert = nil
 
       add_str_token(token, protect: true) if token
 
@@ -135,7 +136,11 @@ module CucuShift
     # end
 
     def client_cert
-      @client_cert ||= CliExecutor.client_cert_from_cli(self) # rescue false
+      if defined? @client_cert
+        @client_cert
+      else
+        @client_cert ||= CliExecutor.client_cert_from_cli(self) # rescue false
+      end
     end
 
     def known_cert?
