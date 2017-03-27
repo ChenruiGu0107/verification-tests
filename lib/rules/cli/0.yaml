@@ -425,6 +425,7 @@
     :name: --name=<value>
     :output: --output=<value>
     :p: -p <value>
+    :e: -e <value>
     :param: --param=<value>
     :search: --search=<value>
     :search_raw: --search <value>
