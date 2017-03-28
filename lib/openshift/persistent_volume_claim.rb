@@ -41,8 +41,11 @@ module CucuShift
     end
 
     def storage_class(user: nil, cached: true, quiet: false)
-      status = get_cached_prop(prop: :metadata, user: user, cached: cached, quiet: quiet).dig("annotations")
-      return status['volume.beta.kubernetes.io/storage-class']
+      metadata = get_cached_prop(prop: :metadata, user: user, cached: cached, quiet: quiet)
+      spec = get_cached_prop(prop: :spec, user: user, cached: true, quiet: quiet)
+      return metadata.dig('annotations', 'volume.kubernetes.io/storage-class')      || \
+             metadata.dig('annotations', 'volume.beta.kubernetes.io/storage-class') || \
+             spec['storageClassName']
     end
   end
 end
