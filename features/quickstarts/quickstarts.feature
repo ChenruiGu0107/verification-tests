@@ -205,3 +205,4 @@ Feature: quickstarts.feature
       | rails-pgsql-persistent   |postgresql| rails-pgsql-persistent | Rails  | 2     | # @case_id OCP-12822
       | cakephp-mysql-persistent |mysql     |cakephp-mysql-persistent| CakePHP| 2     | # @case_id OCP-12492
       | dancer-mysql-persistent  |database  |dancer-mysql-persistent | Dancer | 2     | # @case_id OCP-13658
+      | nodejs-mongo-persistent  |mongodb   |nodejs-mongo-persistent | Node.js| 2     | # @case_id OCP-12216
