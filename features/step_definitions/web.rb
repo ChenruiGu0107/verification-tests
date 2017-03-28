@@ -45,7 +45,7 @@ Given /^I have a browser with:$/ do |table|
   init_params = opts_array_to_hash(table.raw)
   if init_params[:rules].kind_of? Array
     rules = init_params[:rules].map { |r| expand_path(r) }
-  else 
+  else
     rules = [expand_path(init_params[:rules])]
   end
   browser = Web4Cucumber.new(

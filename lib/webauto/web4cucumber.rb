@@ -578,22 +578,46 @@ require "base64"
       unless doc.root.kind_of? Psych::Nodes::Mapping
         raise "document root not a mapping: #{file}"
       end
+      custom_doc = Psych::Nodes::Document.new(doc.version,
+                                              doc.tag_directives,
+                                              doc.implicit)
+      custom_doc.children << Psych::Nodes::Mapping.new(doc.root.anchor,
+                                                        doc.root.tag,
+                                                        doc.root.implicit,
+                                                        doc.root.style)
       actions = doc.root.children
+      # store all action names to avoid duplications
+      action_names = []
       res = {}
-      actions.each_slice(2) do |key_ast, value_ast|
-        key = key_ast.value.to_sym
-        action_rules = []
-        unless value_ast.kind_of? Psych::Nodes::Mapping
-          raise "not a mapping: #{key} in #{file}"
+      actions.each_slice(2) do |action_name_ast, action_body_ast|
+        action_name = action_name_ast.value
+        if action_names.include? action_name
+          raise "duplicate action #{action_name.inspect} definition in #{file.inspect}"
+        elsif !action_name_ast.to_ruby.instance_of? String
+          raise "You can't use #{action_name.inspect} as an action name"
+        elsif !action_body_ast.kind_of? Psych::Nodes::Mapping
+          raise "not a mapping: #{action_name.inspect} in #{file.inspect}"
+        else
+            action_names << action_name
         end
-        value_ast.children.each_slice(2) { |rule_type, rule_body|
-          action_rules << [rule_type.value.to_sym, symkeys(rule_body.to_ruby)]
+
+        custom_doc.root.children.concat [
+          action_name_ast,
+          Psych::Nodes::Sequence.new(action_body_ast.anchor,
+                                      action_body_ast.tag,
+                                      action_body_ast.implicit,
+                                      action_body_ast.style)
+        ]
+
+        action_body_ast.children.each_slice(2) { |rule_name_ast, rule_body_ast|
+          rule_name_ast.value = rule_name_ast.value.to_sym
+          rule_pair = Psych::Nodes::Sequence.new()
+          rule_pair.children.concat [rule_name_ast, rule_body_ast]
+          custom_doc.root.children.last.children << rule_pair
         }
-        if res[key]
-          raise "duplicate action '#{key}' definition in #{file}"
-        end
-        res[key] = action_rules
       end
+      res = symkeys(custom_doc.to_ruby)
+
       return res
     end
 
