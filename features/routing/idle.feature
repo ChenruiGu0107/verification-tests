@@ -176,7 +176,7 @@ Feature: idle service related scenarios
   @admin
   @destructive
   Scenario: The idled rc/dc will not be unidled if set the enableUnidling to false
-    Given environment has at most 1 schedulable nodes
+    # modify node-config to disable unidling
     Given I select a random node's host
     And the node network is verified
     Given the node service is restarted on the host after scenario
@@ -188,6 +188,7 @@ Feature: idle service related scenarios
       | echo "enableUnidling: false" >> /etc/origin/node/node-config.yaml |
     Then the step should succeed
     Given the node service is restarted on the host
+
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
@@ -205,8 +206,13 @@ Feature: idle service related scenarios
     Then the step should succeed
     And the output should match:
       | test-service.*none |
-    Given I have a pod-for-ping in the project
-    Given I run the steps 10 times:
+
+    # create pod-for-ping on the node which node-config has been modified
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json" replacing paths:
+      | ["spec"]["nodeName"] | <%= node.name %> |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    And I run the steps 10 times:
     """
     When I execute on the pod:
       | curl |
