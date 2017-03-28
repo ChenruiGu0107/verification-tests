@@ -33,7 +33,9 @@ could be created as:
 `empty_action: {}`
 
 Reusing of existing actions or combining own is possible with `action` keyword:
-```
+
+[source,yaml]
+----
 parent_web_rule:
   action: child_web_rule_1
   action: child_web_rule_2
@@ -43,31 +45,61 @@ child_web_rule_2
   element:
     selector:
       text: Login
-```
+----
+
 === URL redirection
 URL can be opened with the following rule:
-```
+
+[source,yaml]
+----
 open_console_url:
   url: /console
-```
-Keep in mind that domain name will be included from environment automatically.
+----
+
+If provided url is relative, then an absolute URL will be constructed based on the `Web4Cucumber#base_url`.
+For console cases, this will be automatically set to `Environment#web_console_url`.
+For browsers created for testing images or other purposes, then the step creating the browser
+should make sure to set correct `base_url` in the `Web4Cucumber` constructor.
+You can check `I have a browser with:` step for an example how to do so.
 
 === Elements
 To select an element on web page `element` and following `selector` should be
-provided. If there is need to select multiple elements, then `elements` and list
-of `selector`s should be provided:
-```
+provided.
+
+[source,yaml]
+----
 select_single_element:
   element:
     selector:
       text: hello world
+----
+
+If there is need to select multiple elements, then `elements` and list
+of `selector`s can be provided:
+
+[source,yaml]
+----
 select_multiple_elements:
   elements:
   - selector:
       text: hello
   - selector:
       text: world
-```
+----
+
+This is nicer but equivalent in function to:
+
+[source,yaml]
+----
+select_multiple_elements:
+  element:
+    selector:
+      text: hello
+  element:
+    selector:
+      text: world
+----
+
 Following element rules could be used to select and use an element:
 
 ==== `selector:`
@@ -76,21 +108,27 @@ selectors listed in the http://www.rubydoc.info/gems/watir-webdriver/0.9.1/Watir
 HTML element property selectors listed https://github.com/watir/watir/blob/master/lib/watir/elements/html_elements.rb#L4-L94[here] and in
 https://github.com/watir/watir/blob/master/lib/watir/locators/element/selector_builder.rb#L6[RE].
 Example with `xpath:` selector:
-```
+
+[source,yaml]
+----
 rule:
   element:
     selector:
       xpath: //body
-```
+----
+
 If the element can't be found with any of options above, JavaScript code
 could be used:
-```
+
+[source,yaml]
+----
 rule:
   element:
     selector: |
       return document.getElementsByTagName("input");
     type: js
-```
+----
+
 ==== `type:`
 Subtype of the element could be specified. Currently supported types are listed
 in the https://github.com/openshift/cucushift/blob/v3/lib/webauto/web4cucumber.rb#L13-L28[FUNMAP] constant.
@@ -99,13 +137,16 @@ in the https://github.com/openshift/cucushift/blob/v3/lib/webauto/web4cucumber.r
 After the element was successfully found `click`,`hover`,`clear`,`set`,
 `send_keys`,`drag_and_drop_by`,`select_value` or `append` operations could be
 performed:
-```
+
+[source,yaml]
+----
 rule:
   element:
     selector:
       xpath: //input
     op: send_keys <value>
-```
+----
+
 the `op` which could be performed on the element depends on the element type.
 Full picture of `element_type` - `op` сorrespondence can be found in the
 https://github.com/openshift/cucushift/blob/v3/lib/webauto/web4cucumber.rb#L391-L429[source].
@@ -123,7 +164,7 @@ redirection took place.
 ==== `optional:`
 **default:false**
 
-With this property web rule will not fail when required element was not found.
+With this property web rule will not fail when requested element was not found.
 
 ==== `timeout:`
 **default:10**
@@ -133,14 +174,17 @@ Set maximum number of seconds to wait for the element before fail.
 === JS code
 If required actions can't  be implemented with standard ways listed above, then
 **JavaScript** code could be executed on the web page:
-```
+
+[source,yaml]
+----
 run_js_code:
   scripts:
   - command: |
         console.log("Nice")
         return true;
     expect_result: true
-```
+----
+
 Make sure, that your command return `true`/`false` value and `expect_result:`
 field exists.
 There are two rules to run JavaScript code
@@ -150,20 +194,25 @@ The JavaScript code could be placed inline in the `*.xyaml` file.
 
 ==== `file:`
 This option take as a parameter name of the JavaScript file located in the
-`/lib/rules/web/snippets/` directory.
+`/lib/rules/web/snippets/` directory. The `snippets` directory can be specified in the `Web4Cucumber` constructor.
 
 === Parameters
 To make web rule widely usable for many Scenarios there is an option to provide
 parameters within the table from the step:
-```
+
+[source,yaml]
+----
 | tab_name     | fromFile |
 | project_name | xxxxx    |
-```
+----
+
 In the web rule, provided parameter will be replaced by <key>:
-```
+
+[source,yaml]
+----
 goto_dc_tab:
   url: /console/project/<project_name>/create?tab=<tab_name>
-```
+----
 
 == How to call the web rule from Scenario?
 There are two common ways to call web rules from `*.feature` file:
@@ -173,29 +222,39 @@ There are two common ways to call web rules from `*.feature` file:
 `I run the :web_rule_name web console action`
 
 * with parameters:
-```
+
+[source,yaml]
+----
 I perform the :web_rule_name web console action with:
   | param | value |
-```
+----
+
 == Where can I find all the web rules?
+
 All existing web rules stored under the `lib/rules/web/console/<version>/`
 directory. Rules will be taken from appropriate version folder, depending on
 the environment version. Make sure to create new web rules for each version
 automated test case could run on.
 
 == XYAML vs YAML
-XYAML format allows us to use multiple values with the same key,
-which will be parsed as an `Array` rather than a `Hash` with YAML:
-```
+
+XYAML format allows us to use multiple rules in a single action with the same
+key, which will be parsed as an `Array` rather than a `Hash` with YAML:
+
+[source,yaml]
+----
 parent_action:
   action: first
   action: second
   element: {...}
   element: {...}
-```
+----
+
 As YAML, XYAML supports anchoring. Be aware that anchors work only in the same
 file and there is no magic(https://developer.mozilla.org/en-US/docs/Glossary/Hoisting[hoisting]) in the XYAML: first - declare, then - use:
-```
+
+[source,yaml]
+----
 # this would work
 action:
   element: &anchor
@@ -211,7 +270,7 @@ another_action:
 action:
   element: &anchor
     xpath: ...
-```
+----
 
 == Good practices
 
