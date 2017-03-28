@@ -20,7 +20,6 @@
 #end
 
 Given /^I change the internal registry pod to use a new emptyDir volume$/ do
-  ensure_admin_tagged
   ensure_destructive_tagged
   cb["reg_dir"] = "/registrytmp"
   begin

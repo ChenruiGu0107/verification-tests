@@ -5,8 +5,7 @@ module CucuShift
   module IAAS
     # will select the configured iaas provider and create the required iaas object to query the API
     def self.select_provider(env)
-
-      master_config = MasterConfig.as_hash(env)
+      master_config = env.master_services[0].config.as_hash()
 
       api_server_args = master_config["kubernetesMasterConfig"]["apiServerArguments"]
 

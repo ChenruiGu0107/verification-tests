@@ -1,19 +1,30 @@
-# step which interact with master-config.yaml file.
+# steps which interact with master-config.yaml file.
 
 Given /^master config is merged with the following hash:$/ do |yaml_string|
-  ensure_admin_tagged
+  ensure_destructive_tagged
 
   yaml_hash = YAML.load(yaml_string)
-  resource_hash = CucuShift::MasterConfig.as_hash(env)
 
-  CucuShift::Collections.deep_merge!(resource_hash, yaml_hash)
-  resource = resource_hash.to_yaml
-  logger.info resource
-  CucuShift::MasterConfig.backup(env)
-  @result = CucuShift::MasterConfig.update(env, resource)
 
-  teardown_add {
-    CucuShift::MasterConfig.restore(env)
+  env.master_services.each { |service|
+    master_config = service.config
+    config_hash = master_config.as_hash()
+    CucuShift::Collections.deep_merge!(config_hash, yaml_hash)
+    config = config_hash.to_yaml
+    logger.info config
+    master_config.backup()
+    @result = master_config.update(config)
+
+    teardown_add {
+      master_config.restore()
+    }
+  }
+
+end
+
+Given /^master config is restored from backup$/ do
+  env.master_services.each { |service|
+    @result = service.config.restore()
   }
 end
 
@@ -35,8 +46,28 @@ end
 #  }
 #end
 
+Given /^the value with path #{QUOTED} in master config is stored into the#{OPT_SYM} clipboard$/ do |path, cb_name|
+  ensure_admin_tagged
+  config_hash = env.master_services[0].config.as_hash()
+  cb_name ||= "config_value"
+  cb[cb_name] = eval "config_hash#{path}"
+end
+
 Given /^the master service is restarted on all master nodes$/ do
-  env.master_hosts.each { |master|
-    CucuShift::Master.new(master).restart_master_service()
+  ensure_destructive_tagged
+
+  env.master_services.each { |service|
+    service.restart_all(raise: true)
   }
 end
+
+Given /^I try to restart the master service on all master nodes$/ do
+  ensure_destructive_tagged
+  results = []
+
+  env.master_services.each { |service|
+    results.push(service.restart_all)
+  }
+  @result = CucuShift::ResultHash.aggregate_results(results)
+end
+
