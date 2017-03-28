@@ -84,3 +84,86 @@ Feature: custombuild.feature
       | buildconfig | ruby-sample-build |
     Then the output should contain:
       | ImageStreamImages must be retrieved with <name>@<id> |
+
+  # @author shiywang@redhat.com
+  # @case_id OCP-11872
+  Scenario: S2I build failure reason display if use incorrect config in buildconfig
+    Given I have a project
+    #1
+    When I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build was created
+    And the "ruby22-sample-build-1" build completed
+    When I run the :patch client command with:
+      | resource      | buildconfig         |
+      | resource_name | ruby22-sample-build |
+      | p             | {"spec":{"output":{"to":{"name":"origin-ruby22-123sample:latest"}}}} |
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    And the "ruby22-sample-build-2" build was created
+    When I run the :get client command with:
+      | resource      | build                 |
+      | resource_name | ruby22-sample-build-2 |
+    And the output should contain "InvalidOutputReference"
+    And I delete all resources from the project
+    #2
+    When I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build was created
+    And the "ruby22-sample-build-1" build completed
+    When I run the :patch client command with:
+      | resource      | buildconfig         |
+      | resource_name | ruby22-sample-build |
+      | p             | {"spec":{"strategy":{"sourceStrategy":{"from":{"kind":"DockerImage","name":"docker.io/openshift/rubyyyy-20-centos7:latest","namespace":null}}}}} |
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    And the "ruby22-sample-build-2" build was created
+    And the "ruby22-sample-build-2" build failed
+    When I run the :get client command with:
+      | resource      | build                 |
+      | resource_name | ruby22-sample-build-2 |
+    And the output should contain "PullBuilderImageFailed"
+    And I delete all resources from the project
+    #3
+    When I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build was created
+    And the "ruby22-sample-build-1" build completed
+    When I run the :patch client command with:
+      | resource      | buildconfig         |
+      | resource_name | ruby22-sample-build |
+      | p             | {"spec":{"source":{"git":{"uri":"https://github123.com/openshift/ruby-hello-world.git"}}}} |
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    And the "ruby22-sample-build-2" build was created
+    And the "ruby22-sample-build-2" build failed
+    When I run the :get client command with:
+      | resource      | build                 |
+      | resource_name | ruby22-sample-build-2 |
+    And the output should contain "FetchSourceFailed"
+    And I delete all resources from the project
+    #4
+    When I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build was created
+    And the "ruby22-sample-build-1" build completed
+    When I run the :patch client command with:
+      | resource      | buildconfig         |
+      | resource_name | ruby22-sample-build |
+      | p             | {"spec":{"postCommit":{"args":["bundle123","exec","rake","test"]}}} |
+    When I run the :start_build client command with:
+      | buildconfig | ruby22-sample-build |
+    Then the step should succeed
+    And the "ruby22-sample-build-2" build was created
+    And the "ruby22-sample-build-2" build failed
+    When I run the :get client command with:
+      | resource      | build                 |
+      | resource_name | ruby22-sample-build-2 |
+    And the output should contain "PostCommitHookFailed"
