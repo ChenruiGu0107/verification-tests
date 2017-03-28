@@ -235,7 +235,6 @@ Feature: Persistent Volume Claim binding policies
       | resource | pod                       |
       | name     | mypod-<%= project.name %> |
     Then the output should not contain:
-      | rror syncing pod                |
       | not all containers have started |
       | 0 != 1                          |
     When I execute on the pod:
