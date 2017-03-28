@@ -1,7 +1,7 @@
 Feature: REST related features
   # @author xiaocwan@redhat.com
   # @case_id OCP-12188
-  Scenario: [origin_platformexp_397]The user should be system:anonymous user when access api without certificate and Bearer token
+  Scenario: The user should be system:anonymous user when access api without certificate and Bearer token
     Given I log the message> set up OpenShift with an identity provider that supports 'challenge: true'
     When I perform the HTTP request:
     """
