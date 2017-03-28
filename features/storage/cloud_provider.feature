@@ -119,7 +119,7 @@ Feature: kubelet restart and node restart
     Given evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
-    When I run oc create over "https://raw.githubusercontent.com/weherdh/v3-testfiles/azsc/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
       | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
@@ -165,7 +165,7 @@ Feature: kubelet restart and node restart
     Given evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
-    When I run oc create over "https://raw.githubusercontent.com/weherdh/v3-testfiles/azsc/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
       | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |

@@ -79,7 +79,7 @@ Feature: Azure disk specific scenarios
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-<sctype>.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/weherdh/v3-testfiles/azsc/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "azpvc" PVC becomes :bound within 120 seconds
@@ -153,10 +153,10 @@ Feature: Azure disk specific scenarios
   @admin
   Scenario Outline: Negative test of azureDisk with storage class 
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/weherdh/v3-testfiles/azsc/persistent-volumes/azure/azsc-<sctype>.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-<sctype>.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/weherdh/v3-testfiles/azsc/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
     And the "azpvc" PVC becomes :pending
