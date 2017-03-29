@@ -366,3 +366,73 @@ Feature: Persistent Volume Claim binding policies
     Then the step should fail
     And the output should contain:
       | Unsupported value: "Default" |
+
+  # @author lzhou@redhat.com
+  # @author jhou@redhat.com
+  # @case_id OCP-13358 OCP-13383 OCP-13384 OCP-13385 OCP-13392
+  @admin
+  Scenario Outline: Volume should be successfully detached if pod is deleted via namespace deletion
+    Given admin creates a project with a random schedulable node selector
+
+    # Create storageclass
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
+      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                     |
+    Then the step should succeed
+
+    # Create dynamic pvc
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                              |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>           |
+    Then the step should succeed
+    And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
+    When I run the :get admin command with:
+      | resource | pv |
+    Then the output should contain:
+      | dynamic-pvc-<%= project.name %> |
+    
+    # Create pod using above pvc
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %>       |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<platform>                 |
+    Then the step should succeed
+    Given the pod named "mypod-<%= project.name %>" becomes ready
+
+    # Check mount point on the node
+    Given I use the "<%= node.name %>" node
+    When I run commands on the host:
+      | mount |
+    Then the output should contain:
+      | <%= pvc.volume_name(user: user) %> |
+
+    # Read and write to the mounted storage on pod
+    When I execute on the pod:
+      | ls    | /mnt/<platform>/ |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/<platform>/testfile |
+    Then the step should succeed
+
+    # Delete the project, the pv will be deleted then
+    Given I switch to cluster admin pseudo user
+    Given I ensure "<%= project.name %>" project is deleted
+    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
+
+    # Check mount point on the node
+    Given I use the "<%= node.name %>" node
+    When I run commands on the host:
+      | mount |
+    Then the output should not contain:
+      | <%= pvc.volume_name(user: user) %> |
+    
+    Examples:
+      | provisioner    | platform |
+      | cinder         | cinder   |
+      | gce-pd         | gce      |
+      | aws-ebd        | aws      |
+      | azure-disk     | azure    |
+      | vsphere-volume | vsphere  |
