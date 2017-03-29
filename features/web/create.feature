@@ -901,7 +901,7 @@ Feature: create app on web console related
       | file_path        | <%= File.join(localhost.workdir, "deployment1.json") %> |
       | error_message    | Invalid kind (DeploymentConfig) or API version (<none>) |
     Then the step should succeed
-      
+
   # @author yapei@redhat.com
   # @case_id OCP-12319
   Scenario: web console:parameter requirement check works correctly

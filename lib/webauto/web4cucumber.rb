@@ -159,9 +159,8 @@ require "base64"
         when :with_window
           res_join result, handle_switch_window(spec, **user_opts)
         when :params
-          user_opts = spec.merge user_opts
-          # user_opts, res = handle_params(spec, **user_opts)
-          # res_join result, res
+          user_opts, res = handle_params(spec, **user_opts)
+          res_join result, res
         else
           raise "unknown rule '#{rule}'"
         end
@@ -175,27 +174,27 @@ require "base64"
     end
 
     # Feel free to uncomment this if you need substitution of params with user_opts
-    # def handle_params(params, **user_opts)
-    #   unless params.kind_of? Hash
-    #     raise "The param should be a Hash"
-    #   end
-    #   res = {
-    #     instruction: "merge #{params.inspect} with user_opts:#{user_opts.inspect}",
-    #     success: true,
-    #     response: "#{params.inspect} was merged with user_opts",
-    #     exitstatus: -1
-    #   }
-    #   user_opts = params.map {|key, vals|
-    #     if vals.instance_of?(String)
-    #       [key, replace_angle_brackets(vals, user_opts)]
-    #     else
-    #       [key].push vals.map {|val|
-    #         replace_angle_brackets(val, user_opts)
-    #       }
-    #     end
-    #   }.to_h.merge user_opts
-    #   return user_opts, res
-    # end
+    def handle_params(params, **user_opts)
+      unless params.kind_of? Hash
+        raise "The param should be a Hash"
+      end
+      res = {
+        instruction: "merge #{params.inspect} with user_opts:#{user_opts.inspect}",
+        success: true,
+        response: "#{params.inspect} was merged with user_opts",
+        exitstatus: -1
+      }
+      user_opts = params.map {|key, vals|
+        if vals.instance_of?(String)
+          [key, replace_angle_brackets(vals, user_opts)]
+        else
+          [key].push vals.map {|val|
+            replace_angle_brackets(val, user_opts)
+          }
+        end
+      }.to_h.merge user_opts
+      return user_opts, res
+    end
 
     def handle_cookie(cookie,**user_opts)
       unless cookie.kind_of? Hash
