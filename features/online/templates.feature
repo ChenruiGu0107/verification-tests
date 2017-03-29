@@ -108,3 +108,40 @@ Feature: templates.feature
     Then the step should succeed
     And the output should contain:
       | openshift |
+
+  # @author bingli@redhat.com
+  # @case_id OCP-13264
+  Scenario: Deploy Redis database using default template "redis-persistent"
+  Given I have a project
+  When I run the :new_app client command with:
+    | template | redis-persistent          |
+    | param    | REDIS_PASSWORD=mypassword |
+  Then the step should succeed
+  And the "redis" PVC becomes :bound within 300 seconds
+  And a pod becomes ready with labels:
+    | deployment=redis-1 |
+  And I wait up to 60 seconds for the steps to pass:
+  """
+  When I execute on the pod:
+    | bash | -c | redis-cli -h 127.0.0.1 -p 6379 -a mypassword append mykey "myvalue" |
+  Then the step should succeed
+  """ 
+  When I execute on the pod:
+    | bash | -c | redis-cli -h 127.0.0.1 -p 6379 -a mypassword get mykey |
+  Then the step should succeed
+  And the output should contain:
+    | myvalue |
+  When I run the :env client command with:
+    | resource | dc/redis                   |
+    | e        | REDIS_PASSWORD=newpassword |
+  And a pod becomes ready with labels:
+    | deployment=redis-2 |
+  When I execute on the pod:
+    | bash | -c | redis-cli -h 127.0.0.1 -p 6379 -a mypassword get mykey |
+  And the output should contain:
+    | Authentication required |
+  Then I execute on the pod:
+    | bash | -c | redis-cli -h 127.0.0.1 -p 6379 -a newpassword get mykey |
+  Then the step should succeed
+  And the output should contain:
+    | myvalue |
