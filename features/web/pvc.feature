@@ -440,9 +440,8 @@ Feature: Add pvc to pod from web related
   Scenario Outline: Create persist volume claim with storage class on web console
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | <%= project.name %>         |
-      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                     |
+      | ["metadata"]["name"] | <%= project.name %>         |
+      | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
 
     # Create ROX type pvc
