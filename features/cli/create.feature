@@ -784,8 +784,8 @@ Feature: creating 'apps' with CLI
     When I get project istag
     Then the step should succeed
     And the output should contain:
-      | <%= product_docker_repo %>rhel7.1 |
-      | <%= product_docker_repo %>rhel7.2 |
+      | registry.access.redhat.com/rhel7.1 |
+      | registry.access.redhat.com/rhel7.2 |
 
   # @author cryan@redhat.com
   # @case_id OCP-12240

@@ -184,18 +184,18 @@ Feature: Testing registry
       | mirrorpullthrough: true | mirrorpullthrough: false |
     Then the step should succeed
     And I run the :new_secret admin command with:
-      | secret_name     | registry-config |
+      | secret_name     | registryconfig |
       | credential_file | ./config.yml    |
       | namespace       | default         |
     Then the step should succeed
-    And admin ensures "registry-config" secrets is deleted from the "default" project after scenario
+    And admin ensures "registryconfig" secrets is deleted from the "default" project after scenario
     And I run the :volume admin command with:
       | resource    | dc/docker-registry |
       | add         | true               |
       | name        | config             |
       | mount-path  | /config            |
       | type        | secret             |
-      | secret-name | registry-config    |
+      | secret-name | registryconfig    |
       | namespace   | default            |
     Then the step should succeed
     Given I wait until the latest rc of internal registry is ready

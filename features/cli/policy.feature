@@ -237,7 +237,7 @@ Feature: change the policy of user/service account
   # @author xiaocwan@redhat.com
   # @case_id OCP-12380
   @admin
-  Scenario: [origin_platformexp_279]Project bindings only work against the intended project
+  Scenario: Project bindings only work against the intended project
     Given a 5 characters random string of type :dns is stored into the :project_1 clipboard
     When I run the :new_project client command with:
       | project_name | <%= cb.project_1 %> |
