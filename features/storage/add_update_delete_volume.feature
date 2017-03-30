@@ -550,12 +550,11 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   # @author wehe@redhat.com
   # @case_id OCP-10414 OCP-10489 OCP-10490
   @admin
-  Scenario Outline: oc set volume with claim-class parameter test 
+  Scenario Outline: oc set volume with claim-class parameter test
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
-      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                     |
+      | ["metadata"]["name"] | sc-<%= project.name %>      |
+      | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
 
     # new-app
@@ -594,12 +593,12 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And a pod becomes ready with labels:
       | app=mydb |
     #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
-    And the "pvcsc" PVC becomes :bound within 120 seconds 
+    And the "pvcsc" PVC becomes :bound within 120 seconds
     And the expression should be true> pvc.storage_class(user: user) == "sc-<%= project.name %>"
     And the expression should be true> pvc.access_modes(user: user)[0] == "ReadWriteOnce"
     And the expression should be true> pvc.capacity(user: user) == "1Gi"
 
-    #Verify the pod has mounted 
+    #Verify the pod has mounted
     When I execute on the pod:
       | grep | opt111 | /proc/mounts |
     Then the step should succeed
@@ -613,7 +612,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
   # @author wehe@redhat.com
   # @case_id OCP-10415
   @admin
-  Scenario: Negetive test of oc set volume with claim-class paraters 
+  Scenario: Negetive test of oc set volume with claim-class paraters
     Given I have a project
 
     # new-app
@@ -729,7 +728,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | app=mydb |
     When I execute on the pod:
       | grep | opt2 | /proc/mounts |
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :set_volume client command with:
       | resource | dc/mydb  |
       | action   | --remove |

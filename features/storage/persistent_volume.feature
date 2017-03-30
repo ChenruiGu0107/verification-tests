@@ -376,9 +376,8 @@ Feature: Persistent Volume Claim binding policies
 
     # Create storageclass
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
-      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                     |
+      | ["metadata"]["name"] | sc-<%= project.name %>      |
+      | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
 
     # Create dynamic pvc
@@ -393,7 +392,7 @@ Feature: Persistent Volume Claim binding policies
       | resource | pv |
     Then the output should contain:
       | dynamic-pvc-<%= project.name %> |
-    
+
     # Create pod using above pvc
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc-<%= project.name %> |
@@ -428,7 +427,7 @@ Feature: Persistent Volume Claim binding policies
       | mount |
     Then the output should not contain:
       | <%= pvc.volume_name(user: user) %> |
-    
+
     Examples:
       | provisioner    | platform |
       | cinder         | cinder   |

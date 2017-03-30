@@ -111,9 +111,8 @@ Feature: storageClass related feature
   Scenario Outline: No dynamic provision when no default storage class
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
-      | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                     |
+      | ["metadata"]["name"] | sc-<%= project.name %>      |
+      | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
     # "oc get storageclass -o yaml"
     # should contain string 'kind: StorageClass' when there are storageclass
@@ -340,13 +339,13 @@ Feature: storageClass related feature
       | resource | storageclass/sc1-<%= project.name %> |
     Then the output should match:
       | IsDefaultClass.*Yes |
-      | Annotations.*storageclass.beta.kubernetes.io/is-default-class=true |
+      | Annotations.*.kubernetes.io/is-default-class=true |
       | Provisioner.*kubernetes.io/gce-pd |
     When I run the :describe admin command with:
       | resource | storageclass/sc-<%= project.name %> |
     Then the output should match:
       | IsDefaultClass.*No |
-      | Annotations.*storageclass.beta.kubernetes.io/is-default-class=false |
+      | Annotations.*.kubernetes.io/is-default-class=false |
       | Parameters.*type=pd-ssd,zone=us-central1-b |
 
   # @author chaoyang@redhat.com
@@ -444,7 +443,7 @@ Feature: storageClass related feature
       | ProvisioningIgnoreAlpha                         |
       | using "volume.beta.kubernetes.io/storage-class" |
     """
-    
+
   # @author chaoyang@redhat.com
   # @case_id OCP-10164 OCP-10425
   @admin
@@ -464,7 +463,7 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
-    """ 
+    """
     When I run the :describe client command with:
       | resource | pvc/pvc-<%= project.name %> |
     Then the output should contain:
@@ -472,7 +471,7 @@ Feature: storageClass related feature
       | InvalidParameterValue |
       | <errorMessage>        |
     """
-   
+
     Examples:
       | type | size | errorMessage                  |
       | sc1  | 5Gi  | at least 500 GiB              |
@@ -495,7 +494,7 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
-    """ 
+    """
     When I run the :describe client command with:
       | resource | pvc/pvc1-<%= project.name %> |
     And the output should contain:
@@ -517,7 +516,7 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc2-<%= project.name %>  |
     Then the step should succeed
     And I wait up to 60 seconds for the steps to pass:
-    """ 
+    """
     When I run the :describe client command with:
       | resource | pvc/pvc2-<%= project.name %> |
     And the output should contain:

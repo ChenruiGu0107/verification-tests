@@ -617,9 +617,8 @@ Feature: change the policy of user/service account
   Scenario: Basic user could not get deeper storageclass object info
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %> |
-      | ["provisioner"]                                                                 | kubernetes.io/aws-ebs  |
-      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | "false"                |
+      | ["metadata"]["name"] | sc-<%= project.name %> |
+      | ["provisioner"]      | kubernetes.io/aws-ebs  |
     Then the step should succeed
     When I run the :get client command with:
       | resource | storageclass |
