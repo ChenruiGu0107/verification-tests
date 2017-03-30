@@ -125,3 +125,44 @@ Feature: cacert related scenarios
     And the output should match:
       | .*error.*public master must be a valid URL.* |
     And the expression should be true> not File.exist?("certdir/master.server.crt")
+
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-12626
+  @admin
+  Scenario: admin user can access all api with client certificate by defalut 
+    Given I use the first master host
+    And I run commands on the host:
+      | curl -k <%= env.api_endpoint_url %>/oapi/v1/identities --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
+    Then the step should succeed
+    And I run commands on the host:
+      | curl -k <%= env.api_endpoint_url %>/oapi/v1/users --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
+    Then the step should succeed
+    And I run commands on the host:
+      | curl -k <%= env.api_endpoint_url %>/oapi/v1/projects --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
+    Then the step should succeed
+    And I run commands on the host:
+      | curl -k <%= env.api_endpoint_url %>/api/v1/nodes --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
+    Then the step should succeed
+    And I run commands on the host:
+      | curl -k <%= env.api_endpoint_url %>/api/v1/persistentvolumes --cert /etc/origin/master/admin.crt --cacert /etc/origin/master/ca.crt --key /etc/origin/master/admin.key |
+    Then the step should succeed
+
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-11073
+  @admin
+  Scenario: admin user can do all command line operations with client certificate by defalut
+    Given I use the first master host
+    And I run commands on the host:
+      |  oc get oauthaccesstokens |
+    Then the step should succeed
+    And I run commands on the host:
+      |  oc get groups            |
+    Then the step should succeed
+    And I run commands on the host:
+      |  oc get daemonsets        |
+    Then the step should succeed
+    And I run commands on the host:
+      |  oc get images            |
+    Then the step should succeed
