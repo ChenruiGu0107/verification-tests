@@ -546,3 +546,131 @@ Feature: deployment related steps
     And the step should fail
     And the output should match:
       | cannot be handled as a Deployment.*fractional integer |
+  
+  # @author: geliu@redhat.com
+  # @case_id: OCP-11599
+  Scenario: Cleanup policy - Cleanup all previous RSs older than the latest N replica sets in pause
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-1.yaml |
+    Then the step should succeed
+    Given 10 pods become ready with labels:
+      | app=hello-openshift |
+    When I run the :describe client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the output should match:
+      | Available\\s+True\\s+MinimumReplicasAvailable |
+    When I run the :get client command with:
+      | resource | deployment |
+      | o        | yaml       |
+    Then the output by order should match:
+      | message: Deployment has minimum availability |
+      | reason: MinimumReplicasAvailable             |
+      | status: "True"                               |
+      | type: Available                              | 
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                                           |
+      | resource_name | hello-openshift                                                                                                      |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"docker.io/aosqe/hello-openshift","name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | deployment |
+      | o        | yaml       |
+    Then the output should match:
+      | .*[Ii]mage.*docker.io/aosqe/hello-openshift.* |
+    Given 10 pods become ready with labels:  
+      | app=hello-openshift |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                                        |
+      | resource_name | hello-openshift                                                                                                   |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/deployment-example","name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | deployment |
+      | o        | yaml       |
+    Then the output should match:
+      | .*[Ii]mage.*openshift/deployment-example.* |
+    Given 10 pods become ready with labels:  
+      | app=hello-openshift |
+    Then the step should succeed
+    When I run the :rollout_history client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | revision      | 3               |
+    Then the step should succeed
+    And the output should match:
+      | .*[iI]mage.*openshift/deployment-example.* |
+    When I run the :rollout_pause client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed     
+    Given 10 pods become ready with labels:  
+      | app=hello-openshift |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | deployment |
+      | o        | yaml       |
+    Then the output by order should match:
+      | .*[Pp]aused.*:.*true |
+    When I run the :patch client command with:
+      | resource      | deployment                          |
+      | resource_name | hello-openshift                     |
+      | p             | {"spec":{"revisionHistoryLimit":1}} |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | deployment |
+      | o        | yaml       |
+    Then the output should match:
+      | .*revisionHistoryLimit.*:.*1.*|
+    Given 10 pods become ready with labels:   
+      | app=hello-openshift |
+    Then the step should succeed
+    When I run the :rollout_history client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | revision      | 2               |
+    Then the step should succeed
+    And the output should match:
+      | .*[iI]mage.*docker.io/aosqe/hello-openshift.* |
+    When I run the :rollout_history client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | revision      | 3               |
+    Then the step should succeed
+    And the output should match:
+      | .*[iI]mage.*openshift/deployment-example.* |
+    When I run the :rollout_history client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | revision      | 1               |
+    Then the step should fail
+    And the output should match:
+      | .*error.*unable to find the specified revision.* |
+    When I run the :rollout_resume client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+    When I run the :rollout_history client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | revision      | 1               |
+    Then the step should fail
+    And the output should match:
+      | .*error.*unable to find the specified revision.* |
+    When I run the :rollout_history client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | revision      | 2               |
+    Then the step should succeed
+    And the output should match:
+      | .*[iI]mage.*docker.io/aosqe/hello-openshift.* |
+    When I run the :rollout_history client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | revision      | 3               |
+    Then the step should succeed
+    And the output should match:
+      | .*[iI]mage.*openshift/deployment-example.* |
