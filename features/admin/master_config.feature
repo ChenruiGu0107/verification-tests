@@ -423,3 +423,68 @@ Feature: test master config related steps
     Then the step should succeed
     And the output should contain:
      | NAME       | 509116_user                |
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-10594
+  @admin
+  @destructive
+  Scenario: The client certificate validation should be optional
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - name: my_request_header_provider
+        challenge: false
+        login: false
+        provider:
+          apiVersion: v1
+          kind: RequestHeaderIdentityProvider
+          headers:
+          - X-Remote-User
+          - SSO-User
+    """
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    And I select a random node's host
+    When I run commands on the host:
+      | curl <%= env.api_endpoint_url %>/oauth/authorize?response_type=token\&client_id=openshift-challenging-client -H "SSO-User: admin" -k -I |
+    Then the step should succeed
+    And the output should contain:
+      | Cache-Control: no-cache |
+      | access_token=           |
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - name: my_request_header_provider
+        challenge: false
+        login: false
+        provider:
+          apiVersion: v1
+          kind: RequestHeaderIdentityProvider
+          clientCA: ca.crt
+          headers:
+          - X-Remote-User
+          - SSO-User
+    """
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    And I select a random node's host
+    When I run commands on the host:
+      | curl <%= env.api_endpoint_url %>/oauth/authorize?response_type=token\&client_id=openshift-challenging-client -H "SSO-User: admin" -k -I |
+    Then the step should succeed
+    And the output should contain:
+      | error=access_denied&error_description=The+resource+owner+or+authorization+server+denied+the+request |
+    Given I use the first master host
+    And I run commands on the host:
+      | curl <%= env.api_endpoint_url %>/oauth/authorize?response_type=token\&client_id=openshift-challenging-client -H "SSO-User: admin" --cacert /etc/origin/master/ca.crt --cert /etc/origin/master/admin.crt --key /etc/origin/master/admin.key -k -I |
+    Then the step should succeed
+    And the output should contain:
+      | Cache-Control: no-cache |
+      | access_token=           |
