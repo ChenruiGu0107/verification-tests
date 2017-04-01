@@ -182,6 +182,18 @@ When(/^I delete all resources by labels:$/) do |table|
   @result = project.delete_all_labeled(*table.raw.flatten, by: user)
 end
 
+When(/^I delete all resources from the project$/) do
+    step %Q/I run the :delete client command with:/, table(%{
+     | object_type | all  |
+     | all         | true |
+   })
+    step %Q/I run the :delete client command with:/, table(%{
+     | object_type | secrets |
+     | all         | true    |
+   })
+end
+
+
 Then(/^the project should be empty$/) do
   @result = project.empty?(user: user)
   unless @result[:success]
