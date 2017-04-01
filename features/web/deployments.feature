@@ -539,7 +539,7 @@ Feature: Check deployments function
     And I click the following "a" element:
       | text  | frontend |
     Then the step should succeed
-    Given the expression should be true> browser.url.start_with? "#{browser.base_url}/console/project/#{project.name}/browse/rs"
+    Given the expression should be true> browser.url =~ /browse\/rs/
     When I perform the :click_to_goto_one_replicaset_page web console action with:
       | project_name         | <%= project.name %> |
       | k8s_replicasets_name | frontend            |
