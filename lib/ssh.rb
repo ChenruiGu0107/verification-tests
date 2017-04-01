@@ -311,26 +311,50 @@ module CucuShift
         return @session
       end
 
+      # TODO: unify with [Command#wait]
+      private def wait_scp(channel)
+        success = true
+        # FYI I think SSH gem is not solid for multi-threading
+        # what if channel fails before we havea chance to register
+        #   `on_open_failed` hook?
+        # one remedy could be to stop loop thread while creating a channel
+        channel.on_open_failed do |ch, code, desc|
+          success = false
+          err = "could not open SSH channel on #{host}: #{code} #{desc}"
+          logger.error(err)
+        end
+        loop_thread!
+
+        closed = wait_for(3600) do
+          if !channel.active? || channel.connection.closed?
+            true
+          end
+        end
+
+        if closed && channel.active?
+          logger.error self.error
+        elsif closed
+          return
+        else
+          logger.error "SCP timeout"
+        end
+      rescue Net::SCP::Error
+        # we can reconsider dismissing such errors
+      end
+
       # @param [String] local the local filename to upload
       # @param [String] remote the directory, where to upload
       def scp_to(local, remote)
-        begin
-          puts session.exec!("mkdir -p #{remote} || echo ERROR")
-          session.scp.upload!(local, remote, :recursive=>true)
-        rescue Net::SCP::Error
-          logger.error("SCP failed!")
-        end
+        wait_scp \
+          session.scp.upload(local, remote, :recursive=>true, preserve: true)
       end
 
       # @param [String] remote the absolute path to be copied from
       # @param [String] local directory
       def scp_from(remote, local)
-        begin
-          FileUtils.mkdir_p local
-          session.scp.download!(remote, local, :recursive=>true)
-        rescue Net::SCP::Error
-          logger.error("SCP failed!")
-        end
+        FileUtils.mkdir_p local
+        wait_scp \
+          session.scp.download(remote, local, :recursive=>true, preserve: true)
       end
 
       def exec(command, opts={})

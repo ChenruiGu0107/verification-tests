@@ -420,12 +420,14 @@ module CucuShift
     def mkdir(remote_dir, opts={})
       parents = opts[:parents] || ! opts.has_key?(:parents) ? " -p" : ""
       if opts[:raw]
-        res = exec_raw("mkdir#{parents} '#{remote_dir}'", **opts)
+        res = exec_raw("mkdir -v#{parents} '#{remote_dir}'", **opts)
       else
-        res = exec("mkdir#{parents} '#{remote_dir}'", **opts)
+        res = exec("mkdir -v#{parents} '#{remote_dir}'", **opts)
       end
 
-      return res[:success]
+      raise "error creating dir #{remote_dir}" unless res[:success]
+
+      return res[:response].include? remote_dir
     end
 
     def touch(file, opts={})
