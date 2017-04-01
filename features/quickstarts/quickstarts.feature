@@ -1,7 +1,7 @@
 Feature: quickstarts.feature
 
   # @author cryan@redhat.com haowang@redhat.com
-  # @case_id 497613 OCP-12609 OCP-12605 OCP-12606 OCP-12539 OCP-12541 OCP-9569 OCP-9570 508737
+  # @case_id 497613 OCP-12609 OCP-12605 OCP-12606 OCP-12541 OCP-9569 OCP-9570 508737
   Scenario Outline: quickstart test
     Given I have a project
     When I run the :new_app client command with:
@@ -23,6 +23,22 @@ Feature: quickstarts.feature
       | cakephp-mysql-example     | cakephp-mysql-example    | CakePHP | 2     |
       | nodejs-mongodb-example    | nodejs-mongodb-example   | Node.js | 2     |
       | rails-postgresql-example  | rails-postgresql-example | Rails   | 2     |
+
+  # @author shiywang@redhat.com
+  # @case_id OCP-12824
+  Scenario: Django-ex quickstart test
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://raw.githubusercontent.com/openshift/django-ex/master/openshift/templates/django.json |
+    Then the step should succeed
+    And the "django-example-1" build was created
+    And the "django-example-1" build completed
+    And 1 pods become ready with labels:
+      | app=django-example |
+    When I use the "django-example" service
+    Then I wait for a web server to become available via the "django-example" route
+    Then the output should contain "Django"
+
 
   # @author cryan@redhat.com
   # @case_id OCP-9605 OCP-12650
