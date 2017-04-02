@@ -108,3 +108,76 @@ Feature: templates.feature
     Then the step should succeed
     And the output should contain:
       | openshift |
+
+  # @author bingli@redhat.com
+  # @case_id OCP-13264
+  Scenario: Deploy Redis database using default template "redis-persistent"
+  Given I have a project
+  When I run the :new_app client command with:
+    | template | redis-persistent          |
+    | param    | REDIS_PASSWORD=mypassword |
+  Then the step should succeed
+  And the "redis" PVC becomes :bound within 300 seconds
+  And a pod becomes ready with labels:
+    | deployment=redis-1 |
+  And I wait up to 60 seconds for the steps to pass:
+  """
+  When I execute on the pod:
+    | bash | -c | redis-cli -h 127.0.0.1 -p 6379 -a mypassword append mykey "myvalue" |
+  Then the step should succeed
+  """ 
+  When I execute on the pod:
+    | bash | -c | redis-cli -h 127.0.0.1 -p 6379 -a mypassword get mykey |
+  Then the step should succeed
+  And the output should contain:
+    | myvalue |
+  When I run the :env client command with:
+    | resource | dc/redis                   |
+    | e        | REDIS_PASSWORD=newpassword |
+  And a pod becomes ready with labels:
+    | deployment=redis-2 |
+  When I execute on the pod:
+    | bash | -c | redis-cli -h 127.0.0.1 -p 6379 -a mypassword get mykey |
+  And the output should contain:
+    | Authentication required |
+  Then I execute on the pod:
+    | bash | -c | redis-cli -h 127.0.0.1 -p 6379 -a newpassword get mykey |
+  Then the step should succeed
+  And the output should contain:
+    | myvalue |
+
+  # @author bingli@redhat.com
+  # @case_id OCP-10502
+  Scenario: Create new application using default template "jenkins-persistent"
+  Given I have a project
+  When I run the :new_app client command with:
+    | template | jenkins-persistent             |
+    | param    | JENKINS_SERVICE_NAME=myjenkins |
+    | param    | ENABLE_OAUTH=false             |
+  Then the step should succeed
+  And the "myjenkins" PVC becomes :bound within 300 seconds
+  And a pod becomes ready with labels:
+    | app=jenkins-persistent |
+    | deployment=myjenkins-1 |
+  And I get project routes
+  Then the output should contain "myjenkins"
+  Given I wait up to 300 seconds for the steps to pass:
+    """
+    When I open web server via the "https://<%= route("myjenkins", service("myjenkins")).dns(by: user) %>/login" url
+    Then the output should contain "Jenkins"
+    And the output should not contain "ready to work"
+    """
+  Given I have a browser with:
+    | rules    | lib/rules/web/images/jenkins_2/                                      |
+    | base_url | https://<%= route("myjenkins", service("myjenkins")).dns(by: user) %> |
+  When I perform the :jenkins_standard_login web action with:
+    | username | admin    |
+    | password | password |
+  Then the step should succeed
+  Given I wait up to 60 seconds for the steps to pass:
+    """
+    Then the expression should be true> /Dashboard \[Jenkins\]/ =~ browser.title
+    """
+  When I perform the :jenkins_create_freestyle_job web action with:
+    | job_name | <%= project.name %> |
+  Then the step should succeed
