@@ -30,28 +30,27 @@ Feature: hotdeploy.feature
       | https://github.com/openshift-qe/sinatra-hot-deploy.git | openshift/ruby:2.0 | RACK_ENV=development       | sinatra-hot-deploy | s/legen/hotdeploy_test/g | config.ru |
 
   # @author wzheng@redhat.com
-  # @case_id OCP-12470,OCP-11801
   Scenario Outline: Enable hot deploy for sinatra app - ruby-rhel7 which is created from imagestream via oc new-app
     Given I have a project
     When I create a new application with:
-      | app_repo |https://github.com/openshift-qe/sinatra-hot-deploy-ruby22.git |
+      | app_repo |https://github.com/openshift-qe/hot-deploy-ruby.git |
       | image_stream | openshift/<image> |
       | env | RACK_ENV=development |
     Then the step should succeed
-    And the "sinatra-hot-deploy-ruby22-1" build was created
-    And the "sinatra-hot-deploy-ruby22-1" build completed
-    Given I wait for the "sinatra-hot-deploy-ruby22" service to become ready
+    And the "hot-deploy-ruby-1" build was created
+    And the "hot-deploy-ruby-1" build completed
+    Given I wait for the "hot-deploy-ruby" service to become ready
     When I execute on the pod:
       | sed | -i | s/Hello/hotdeploy_test/g | app.rb |
     Then the step should succeed
-    When I expose the "sinatra-hot-deploy-ruby22" service
-    Then I wait for a web server to become available via the "sinatra-hot-deploy-ruby22" route
+    When I expose the "hot-deploy-ruby" service
+    Then I wait for a web server to become available via the "hot-deploy-ruby" route
     And the output should contain "hotdeploy_test"
 
     Examples:
       |image|
-      |ruby:2.2|
-      |ruby:2.3|
+      |ruby:2.2| # @case_id OCP-12470
+      |ruby:2.3| # @case_id OCP-11801
 
   # @author wzheng@redhat.com
   # @case_id OCP-12142,OCP-11921
