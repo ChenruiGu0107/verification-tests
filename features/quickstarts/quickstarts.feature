@@ -23,6 +23,7 @@ Feature: quickstarts.feature
       | cakephp-mysql-example     | cakephp-mysql-example    | CakePHP | 2     |
       | nodejs-mongodb-example    | nodejs-mongodb-example   | Node.js | 2     |
       | rails-postgresql-example  | rails-postgresql-example | Rails   | 2     |
+      | dotnet-example            | dotnet-example           | ASP.NET | 1     | # @case_id OCP-13749
 
   # @author shiywang@redhat.com
   # @case_id OCP-12824
@@ -222,3 +223,21 @@ Feature: quickstarts.feature
       | cakephp-mysql-persistent |mysql     |cakephp-mysql-persistent| CakePHP| 2     | # @case_id OCP-12492
       | dancer-mysql-persistent  |database  |dancer-mysql-persistent | Dancer | 2     | # @case_id OCP-13658
       | nodejs-mongo-persistent  |mongodb   |nodejs-mongo-persistent | Node.js| 2     | # @case_id OCP-12216
+      | dotnet-pgsql-persistent  |postgresql| musicstore             | ASP.NET| 2     | # @case_id OCP-13751
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-13750
+  Scenario: Dotnet-example quickstart test with dotnet-1.1	
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | dotnet-example                       |
+      | p        | DOTNET_IMAGE_STREAM_TAG=dotnet:1.1   |
+      | p        | SOURCE_REPOSITORY_REF=dotnetcore-1.1 |
+    Then the step should succeed
+    And the "dotnet-example-1" build was created
+    And the "dotnet-example-1" build completed
+    And a pod becomes ready with labels:
+      |app=dotnet-example|
+    When I use the "dotnet-example" service
+    Then I wait for a web server to become available via the "dotnet-example" route
+    Then the output should contain "ASP.NET"
