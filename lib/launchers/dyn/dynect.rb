@@ -9,9 +9,7 @@ module CucuShift
     extend Common::BaseHelper
 
     def initialize(opts={})
-      args = opts.dup
-      args.merge! conf[:services, :dyndns]
-      args.merge! get_env_credentials
+      args = conf[:services, :dyndns].merge(get_env_credentials).merge(opts)
       unless args[:user_name] && args[:password]
         raise "no Dynect credentials found"
       end
