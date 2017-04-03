@@ -188,3 +188,70 @@ check_autoscaler_doc_link_on_add_autoscaler_page_online:
       xpath: //a[contains(@href,"https://docs.openshift.com/online/dev_guide/pod_autoscaling.html") and contains(.,'Learn more')]
 goto_cli_page:
   url: /console/command-line
+check_learn_more_link:
+  action: check_deploments_learn_more_link
+  action: check_pods_learn_more_link
+  action: check_services_learn_more_link
+  action: check_routes_learn_more_link
+  action: check_builds_learn_more_link
+  action: check_pipelines_learn_more_link
+  action: check_quota_learn_more_link
+  action: check_membership_tab_user_learn_more_link
+  action: check_configmaps_learn_more_link
+  action: check_secrets_learn_more_link
+  action: check_storage_learn_more_link
+check_deploments_learn_more_link:
+  action: goto_deployments_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/dev_guide/deployments/how_deployments_work.html") and contains(.,'Learn More')]
+check_pods_learn_more_link:
+  action: goto_pods_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/architecture/core_concepts/pods_and_services.html#pods") and contains(.,'Learn More')]
+check_services_learn_more_link:
+  action: goto_services_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/architecture/core_concepts/pods_and_services.html#services") and contains(.,'Learn More')]
+check_routes_learn_more_link:
+  action: goto_routes_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/architecture/core_concepts/routes.html") and contains(.,'Learn More')]
+check_builds_learn_more_link:
+  action: goto_builds_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/architecture/core_concepts/builds_and_image_streams.html#builds") and contains(.,'Learn More')]
+check_pipelines_learn_more_link:
+  action: goto_pipelines_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/architecture/core_concepts/builds_and_image_streams.html#pipeline-build") and contains(.,'Learn More')]
+check_quota_learn_more_link:
+  action: goto_quota_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/dev_guide/compute_resources.html") and contains(.,'Learn More')]
+check_membership_tab_user_learn_more_link:
+  action: goto_membership_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/architecture/additional_concepts/authorization.html#roles") and contains(.,'Learn More')]
+check_configmaps_learn_more_link:
+  action: goto_configmaps_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/dev_guide/configmaps.html") and contains(.,'Learn More')]
+check_secrets_learn_more_link:
+  action: goto_secrets_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/dev_guide/secrets.html") and contains(.,'Learn More')]
+check_storage_learn_more_link:
+  action: goto_storage_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/architecture/additional_concepts/storage.html") and contains(.,'Learn More')]

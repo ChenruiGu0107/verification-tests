@@ -82,3 +82,11 @@ Feature: Check links in Openshift
       | project_name | <%= project.name %>  |
       | dc_name      | nodejs-sample        |
     Then the step should succeed
+
+  # @author chali@redhat.com
+  # @case_id OCP-10542
+  Scenario: There is doc link for each resource on web console
+    Given I create a new project
+    When I perform the :check_learn_more_link web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed

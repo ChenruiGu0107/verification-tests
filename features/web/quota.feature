@@ -42,7 +42,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     #Check used quota when "pod1" exists
-    When I perform the :goto_settings_page web console action with:
+    When I perform the :goto_quota_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
     When I perform the :check_used_value web console action with:
@@ -76,7 +76,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     #Check used quota when only "pod2" exists
-    When I perform the :goto_settings_page web console action with:
+    When I perform the :goto_quota_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
     When I perform the :check_used_value web console action with:
@@ -131,7 +131,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     #Check used quota when "besteffort" pod exists
-    When I perform the :goto_settings_page web console action with:
+    When I perform the :goto_quota_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
     When I perform the :check_used_value web console action with:
@@ -149,7 +149,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     #Check used quota when only "notbesteffort" pod exists
-    When I perform the :goto_settings_page web console action with:
+    When I perform the :goto_quota_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
     When I perform the :check_used_value web console action with:

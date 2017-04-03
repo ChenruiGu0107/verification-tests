@@ -32,7 +32,7 @@ cancel_edit_general_informantion:
   action: click_cancel
   action: check_specific_project_info
 check_settings_page:
-  action: goto_settings_page
+  action: goto_quota_page
   elements:
   - selector:
       xpath: //h1[contains(.,'Quota')]
@@ -63,15 +63,15 @@ check_default_limit:
   - selector:
       xpath: //td[contains(.,'<resource_type>')]/parent::tr/td[contains(.,'<default_limit>')]
 check_project_without_quota_settings:
-  action: goto_settings_page
+  action: goto_quota_page
   elements:
   #check quota
   - selector:
       text: There are no resource quotas set on this project.
-goto_settings_page:
+goto_quota_page:
   url: /console/project/<project_name>/quota
 check_quota_scope_type:
-  action: goto_settings_page
+  action: goto_quota_page
   elements:
   - selector:
       xpath: //div[@class="ng-binding ng-scope" and contains(text(),'<scope_type>')]
