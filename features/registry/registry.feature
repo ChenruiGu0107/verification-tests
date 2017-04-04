@@ -44,7 +44,7 @@ Feature: Testing registry
     Then the step should succeed
 
   # @author: haowang@redhat.com
-  # @case_id: OCP-10898
+  # @case_id OCP-10898
   @admin
   Scenario: Have size information for any image pushed
     Given I have a project
@@ -62,7 +62,7 @@ Feature: Testing registry
       | Image Size:.* |
 
   # @author haowang@redhat.com
-  # @case_id: OCP-12400
+  # @case_id OCP-12400
   @admin
   @destructive
   Scenario: Prune images by command oadm_prune_images
@@ -345,7 +345,7 @@ Feature: Testing registry
     And the "busybox:centos" image stream tag was created
 
   # @author: haowang@redhat.com
-  # @case_id: OCP-11310
+  # @case_id OCP-11310
   @admin
   Scenario: Have size information for images pushed to internal registry
     Given I have a project
@@ -372,7 +372,7 @@ Feature: Testing registry
       | Image Size:.* |
 
   # @author haowang@redhat.com
-  # @case_id: OCP-11544
+  # @case_id OCP-11544
   @admin
   @destructive
   Scenario: Create docker registry with special ports
@@ -451,7 +451,7 @@ Feature: Testing registry
     Then the step should succeed
 
   # @author haowang@redhat.com
-  # @case_id: OCP-11215
+  # @case_id OCP-11215
   @admin
   @destructive
   Scenario: Create docker registry with options mount-host and service-account

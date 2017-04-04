@@ -213,7 +213,7 @@ Feature: oc set image related tests
       | dctest-2:\n.*[Ii]mage.*openshift/hello-openshift    |
 
   # @author: yinzhou@redhat.com
-  # @case_id: OCP-11623
+  # @case_id OCP-11623
   @admin
   Scenario: Can not prune image by conflicted condition flags
     Given I have a project
@@ -234,7 +234,7 @@ Feature: oc set image related tests
 
 
   # @author: yinzhou@redhat.com
-  # @case_id: OCP-11332
+  # @case_id OCP-11332
   @admin
   Scenario: Admin can understand/manage image use and prune unreferenced image
     Given I have a project
@@ -265,7 +265,7 @@ Feature: oc set image related tests
 
 
   # @author: yinzhou@redhat.com
-  # @case_id: OCP-10909
+  # @case_id OCP-10909
   @admin
   Scenario: Could add/remove signatures to the images
     Given I have a project

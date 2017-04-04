@@ -1,7 +1,7 @@
 Feature: idle service related scenarios
 
   # @author: hongli@redhat.com
-  # @case_id: OCP-10935
+  # @case_id OCP-10935
   Scenario: Pod can be changed to un-idle when there is route coming
     Given I have a project
     When I run the :create client command with:
@@ -117,7 +117,7 @@ Feature: idle service related scenarios
     """
 
   # @author: hongli@redhat.com
-  # @case_id: OCP-10216
+  # @case_id OCP-10216
   @admin
   Scenario: The iptables rules for the service should be replaced by the REDIRECT rule after being idled
     Given I have a project
@@ -172,7 +172,7 @@ Feature: idle service related scenarios
       | KUBE-SEP-.+  all  --  0.0.0.0/0\s+0.0.0.0/0\s+/\* <%= cb.proj_name %>/test-service:http \*/                                     |
 
   # @author: hongli@redhat.com
-  # @case_id: OCP-10215
+  # @case_id OCP-10215
   @admin
   @destructive
   Scenario: The idled rc/dc will not be unidled if set the enableUnidling to false

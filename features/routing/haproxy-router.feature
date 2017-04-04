@@ -279,7 +279,7 @@ Feature: Testing haproxy router
     """
 
   # @author hongli@redhat.com 
-  # @case_id: OCP-10207
+  # @case_id OCP-10207
   Scenario: Should use the same cookies for secure and insecure access when insecureEdgeTerminationPolicy set to allow for edge route
     Given I have a project
     When I run the :create client command with:
@@ -1943,7 +1943,7 @@ Feature: Testing haproxy router
   
 
   # @author: hongli@redhat.com
-  # @case_id: OCP-12683
+  # @case_id OCP-12683
   @admin
   @destructive
   Scenario: The health check interval of backend can be set by env variable or annotations

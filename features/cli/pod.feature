@@ -384,7 +384,7 @@ Feature: pods related scenarios
 
 
   # @author: chezhang@redhat.com
-  # @case_id: OCP-11362
+  # @case_id OCP-11362
   Scenario: Specify safe namespaced kernel parameters for pod with invalid value	
     Given I have a project
     When I run the :create client command with:

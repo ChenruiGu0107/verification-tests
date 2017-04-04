@@ -436,7 +436,7 @@ Feature: Routes related features on web console
     Then the step should succeed
 
   # @author: yanpzhan@redhat.com
-  # @case_id: OCP-10906
+  # @case_id OCP-10906
   Scenario: Create route pointing to multiple services
     Given I have a project
     When I run the :create client command with:

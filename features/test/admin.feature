@@ -30,7 +30,7 @@ Feature: Testing Admin Scenarios
       |blobs/sha|
 
   # @author: yinzhou@redhat.com
-  # @case_id: OCP-9748
+  # @case_id OCP-9748
   @admin
   Scenario: Use options minify/raw/flatten to check the output of kubeconfig setting
     When I run the :oadm_config_view admin command with:

@@ -738,7 +738,7 @@ Feature: ServiceAccount and Policy Managerment
       |system:serviceaccount:<%= project.name %>:<%= cb.serviceaccount_name %>|
 
   # @author yinzhou@redhat.com
-  # @case_id: OCP-10836
+  # @case_id OCP-10836
   @admin
   Scenario: Admin and Editor have the power to impersonate SAs in their namespace
     Given I have a project

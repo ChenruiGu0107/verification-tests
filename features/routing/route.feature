@@ -1,7 +1,7 @@
 Feature: Testing route
 
   # @author: zzhao@redhat.com
-  # @case_id: OCP-11883
+  # @case_id OCP-11883
   Scenario: Be able to add more alias for service
     Given I have a project
     When I run the :create client command with:
@@ -31,7 +31,7 @@ Feature: Testing route
     Then I wait for a web server to become available via the "header-test-insecure-dup" route
 
   # @author: zzhao@redhat.com
-  # @case_id: OCP-12122
+  # @case_id OCP-12122
   Scenario: Alias will be invalid after removing it
     Given I have a project
     When I run the :create client command with:
@@ -172,7 +172,7 @@ Feature: Testing route
       | :8080        |
 
   # @author: zzhao@redhat.com
-  # @case_id: OCP-10762
+  # @case_id OCP-10762
   Scenario: Check the header forward format
     Given I have a project
     When I run the :create client command with:
@@ -187,7 +187,7 @@ Feature: Testing route
     Then the output should contain ";host=<%= route.dns(by: user) %>;proto=http"
 
   # @author: yadu@redhat.com
-  # @case_id: OCP-9717
+  # @case_id OCP-9717
   Scenario: Config insecureEdgeTerminationPolicy to an invalid value for route
     Given I have a project
     When I run the :create client command with:
@@ -210,7 +210,7 @@ Feature: Testing route
 
  
   # @author: zzhao@redhat.com
-  # @case_id: OCP-12652
+  # @case_id OCP-12652
   Scenario: The later route should be HostAlreadyClaimed when there is a same host exist
     Given I have a project
     When I run the :create client command with:
@@ -1009,7 +1009,7 @@ Feature: Testing route
     Then the output should contain "Hello-OpenShift"
 
   # @author: yadu@redhat.com
-  # @case_id: OCP-9576
+  # @case_id OCP-9576
   Scenario: Customize the default routing subdomain
     Given I have a project
     Given I store default router subdomain in the :subdomain clipboard
@@ -1111,7 +1111,7 @@ Feature: Testing route
     """
 
   # @author: zzhao@redhat.com
-  # @case_id: OCP-13248
+  # @case_id OCP-13248
   Scenario: The hostname should be converted to available route when met special character
     Given I have a project
     When I run the :create client command with:

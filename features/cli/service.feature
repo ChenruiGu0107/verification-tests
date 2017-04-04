@@ -163,7 +163,7 @@ Feature: service related scenarios
       | Hello-OpenShift-1 https-8443 |
 
   # @author: chezhang@redhat.com
-  # @case_id: OCP-12351
+  # @case_id OCP-12351
   Scenario: ExternalName service type can be created successful
     Given I have a project
     Given I have a pod-for-ping in the project
@@ -207,7 +207,7 @@ Feature: service related scenarios
     And the output should match "<%= cb.address %>"
 
   # @author: chezhang@redhat.com
-  # @case_id: OCP-12376
+  # @case_id OCP-12376
   Scenario: Negative test for ExternalName Service type		
     Given I have a project
     When I run the :create client command with:

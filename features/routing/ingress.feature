@@ -1,7 +1,7 @@
 Feature: Testing ingress object
 
   # @author: hongli@redhat.com
-  # @case_id: OCP-11069
+  # @case_id OCP-11069
   @admin
   @destructive
   Scenario: haproxy support ingress object
@@ -58,7 +58,7 @@ Feature: Testing ingress object
     And the output should contain "Hello-OpenShift-Path-Test"
 
   # @author: hongli@redhat.com
-  # @case_id: OCP-11438
+  # @case_id OCP-11438
   @admin
   @destructive
   Scenario: haproxy support ingress object with path
@@ -116,7 +116,7 @@ Feature: Testing ingress object
     And the output should contain "Hello-OpenShift-Path-Test"
     
   # @author: hongli@redhat.com
-  # @case_id: OCP-11692
+  # @case_id OCP-11692
   @admin
   @destructive
   Scenario: haproxy support ingress object with TLS
@@ -179,7 +179,7 @@ Feature: Testing ingress object
     And the output should contain "Hello-OpenShift-1"
 
   # @author: hongli@redhat.com
-  # @case_id: OCP-11874
+  # @case_id OCP-11874
   @admin
   @destructive
   Scenario: updating ingress object
@@ -261,7 +261,7 @@ Feature: Testing ingress object
     """
 
   # @author: hongli@redhat.com
-  # @case_id: OCP-12846 OCP-12848
+  # @case_id OCP-12846 OCP-12848
   @admin
   @destructive
   Scenario: adding or updating host value of ingress resource is not permitted by default
@@ -310,7 +310,7 @@ Feature: Testing ingress object
     And the output should contain "cannot change hostname"
 
   # @author: hongli@redhat.com
-  # @case_id: OCP-12847 OCP-12849
+  # @case_id OCP-12847 OCP-12849
   @admin
   @destructive
   Scenario: adding or updating host value of ingress resource is permitted when disabling the admission control

@@ -543,7 +543,7 @@ Feature: create app on web console related
       | mylabel=my-hello-openshift |
 
   # @author: yapei@redhat.com
-  # @case_id: OCP-11301
+  # @case_id OCP-11301
   Scenario: Deploy Image from ImageStreamTag on web console
     Given I have a project
     When I perform the :deploy_from_image_stream_tag_with_image_stream_more_than_24_chars web console action with:

@@ -856,7 +856,7 @@ Feature: change the policy of user/service account
       | User "<%= user.name %>" cannot delete persistentvolumes at the cluster scope |
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13095
+  # @case_id OCP-13095
   @admin
   Scenario: Add add-cluster-role-to-user support for -z 
     Given I have a project
@@ -905,7 +905,7 @@ Feature: change the policy of user/service account
       | Users:\\s+<%= user(1, switch: false).name %> |
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-9551
+  # @case_id OCP-9551
   Scenario: User can know if he can create podspec against the current scc rules via CLI
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538262/PodSecurityPolicySubjectReview_privileged_false.json"
@@ -936,7 +936,7 @@ Feature: change the policy of user/service account
       | <none> |
  
   # @author: chuyu@redhat.com
-  # @case_id: OCP-9552
+  # @case_id OCP-9552
   @admin
   Scenario: User can know which serviceaccount and SA groups can create the podspec against the current sccs by CLI
     Given I have a project
@@ -993,7 +993,7 @@ Feature: change the policy of user/service account
       | .*default.*restricted |
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-9553
+  # @case_id OCP-9553
   Scenario: User can know whether the PodSpec he's describing will actually be allowed by the current SCC rules via CLI
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc538263/PodSecurityPolicySubjectReview.json"
@@ -1028,7 +1028,7 @@ Feature: change the policy of user/service account
       | .*restricted |
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13480
+  # @case_id OCP-13480
   @admin
   @destructive
   Scenario: Allow to make a role binding to a service account if no rolebindingrestriction exists
@@ -1056,7 +1056,7 @@ Feature: change the policy of user/service account
       | .*view.*/view.*deployer |
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13479
+  # @case_id OCP-13479
   @admin
   @destructive
   Scenario: Allow to make a role binding to a group matched one rolebindingrestriction
@@ -1101,7 +1101,7 @@ Feature: change the policy of user/service account
     Then the step should succeed
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13478
+  # @case_id OCP-13478
   @admin
   @destructive
   Scenario: Allow to make a role binding to a user matched one rolebindingrestriction
@@ -1146,7 +1146,7 @@ Feature: change the policy of user/service account
     Then the step should succeed
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13477
+  # @case_id OCP-13477
   @admin
   @destructive
   Scenario: Allow to make a role binding to a group if no rolebindingrestriction exists
@@ -1187,7 +1187,7 @@ Feature: change the policy of user/service account
     Then the step should succeed
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13476
+  # @case_id OCP-13476
   @admin
   @destructive
   Scenario: Allow to make a role binding to a user if no rolebindingrestriction exists
@@ -1223,7 +1223,7 @@ Feature: change the policy of user/service account
     Then the step should succeed
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13475
+  # @case_id OCP-13475
   @admin
   @destructive
   Scenario: Restrict making a role binding to a user not matched any rolebindingrestriction
@@ -1256,7 +1256,7 @@ Feature: change the policy of user/service account
       | rolebindings "view" is forbidden |
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13474
+  # @case_id OCP-13474
   @admin
   @destructive
   Scenario: Restrict making a role binding to a group not matched any rolebindingrestriction
@@ -1292,7 +1292,7 @@ Feature: change the policy of user/service account
       | rolebindings "view" is forbidden |
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13473
+  # @case_id OCP-13473
   @admin
   @destructive
   Scenario: Restrict making a role binding to a service account not matched any rolebindingrestriction
@@ -1325,7 +1325,7 @@ Feature: change the policy of user/service account
       | rolebindings "view" is forbidden |
 
   # @author: chuyu@redhat.com
-  # @case_id: OCP-13409
+  # @case_id OCP-13409
   @admin
   @destructive
   Scenario: Allow to make a role binding to a service account matched one rolebindingrestriction

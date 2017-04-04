@@ -1,7 +1,7 @@
 Feature: deployment related features
 
   # @author: xxing@redhat.com
-  # @case_id: OCP-12543
+  # @case_id OCP-12543
   Scenario: Restart a failed deployment by oc deploy
     Given I have a project
     When I run the :create client command with:
@@ -27,7 +27,7 @@ Feature: deployment related features
     Then the output should match "hooks.*#1.*deployed"
 
   # @author: xxing@redhat.com
-  # @case_id: OCP-11072
+  # @case_id OCP-11072
   Scenario: CLI rollback dry run
     Given I have a project
     When I run the :create client command with:
@@ -56,7 +56,7 @@ Feature: deployment related features
       | Replicas:\\s+1        |
 
   # @author: xxing@redhat.com
-  # @case_id: OCP-12034
+  # @case_id OCP-12034
   Scenario: Can't stop a deployment in Complete status
     Given I have a project
     When I run the :new_app client command with:

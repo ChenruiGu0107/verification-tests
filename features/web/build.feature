@@ -1,7 +1,7 @@
 Feature: build related feature on web console
 
   # @author: xxing@redhat.com
-  # @case_id: OCP-10627
+  # @case_id OCP-10627
   Scenario: Check the build information from web console
     When I create a new project via web
     Then the step should succeed
@@ -44,7 +44,7 @@ Feature: build related feature on web console
       | #2 |
 
   # @author: xxing@redhat.com
-  # @case_id: OCP-10674
+  # @case_id OCP-10674
   Scenario: Cancel the New/Pending/Running build on web console
     When I create a new project via web
     Then the step should succeed
@@ -827,7 +827,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author: xxia@redhat.com
-  # @case_id: OCP-12436
+  # @case_id OCP-12436
   Scenario: Check build trigger info when the trigger is ConfigChange on web
     Given I have a project
     When I run the :create client command with:
@@ -842,7 +842,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author: xxia@redhat.com
-  # @case_id: OCP-12494
+  # @case_id OCP-12494
   Scenario: Check build trigger info when the trigger is ImageChange on web
     Given I have a project
     When I run the :create client command with:
@@ -857,7 +857,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author: xxia@redhat.com
-  # @case_id: OCP-12499
+  # @case_id OCP-12499
   Scenario: Check build trigger info when the trigger is manual start-build on web
     Given I have a project
     When I run the :create client command with:
@@ -1097,7 +1097,7 @@ Feature: build related feature on web console
     Then the step should fail
 
   # @author: xxia@redhat.com
-  # @case_id: OCP-12476, OCP-12486
+  # @case_id OCP-12476, OCP-12486
   Scenario Outline: Check build trigger info about webhook on web
     Given I have a project
     When I run the :new_app client command with:
@@ -1168,7 +1168,7 @@ Feature: build related feature on web console
       | github  | github/testdata/  | pushevent.json | X-Github-Event | push    |            |           | GitHub webhook: Added license e79d887 authored by Anonymous User |
 
   # @author: yapei@redhat.com
-  # @case_id: OCP-10477
+  # @case_id OCP-10477
   Scenario: Check webhook URL are consistent
     Given I have a project
     When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -1200,7 +1200,7 @@ Feature: build related feature on web console
     Then the step should succeed
 
   # @author: xiaocwan@redhat.com
-  # @case_id: OCP-10286,OCP-11584,OCP-11277
+  # @case_id OCP-10286,OCP-11584,OCP-11277
   Scenario Outline: Check BC page when runPolicy set to Serial Parallel and SerialLatestOnly
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc526202/bc.json"
@@ -1247,7 +1247,7 @@ Feature: build related feature on web console
       | SerialLatestOnly  | Serial latest only | Cancelled       | Running       |
 
   # @author: etrott@redhat.com
-  # @case_id: OCP-10891
+  # @case_id OCP-10891
   Scenario: Environment variables management for BC and DC
     Given I have a project
     When I run the :new_app client command with:

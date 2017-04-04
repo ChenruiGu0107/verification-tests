@@ -1,7 +1,7 @@
 Feature: filter on create page
 
   # @author: yapei@redhat.com
-  # @case_id: OCP-10692
+  # @case_id OCP-10692
   Scenario: search and filter for things on the create page
     Given the master version <= "3.3"
     When I create a new project via web
@@ -354,7 +354,7 @@ Feature: filter on create page
       | nodejs-sample |
 
   # @author: yanpzhan@redhat.com
-  # @case_id: OCP-11698
+  # @case_id OCP-11698
   Scenario: Display existing labels in label suggestion list according to different resources
     Given I have a project
     When I perform the :create_app_from_image web console action with:

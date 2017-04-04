@@ -490,7 +490,7 @@ Feature: SDN related networking scenarios
     """
 
   # @author: yadu@redhat.com
-  # @case_id: OCP-9934
+  # @case_id OCP-9934
   @admin
   @destructive
   Scenario: Restart master service could fix the invalid ip in hostip
@@ -524,7 +524,7 @@ Feature: SDN related networking scenarios
       | <%= cb.hostip %> | 
 
   # @author: yadu@redhat.com
-  # @case_id: OCP-9754
+  # @case_id OCP-9754
   @admin
   @destructive
   Scenario: Master can be started normally when unset serviceNetworkCIDR
@@ -538,7 +538,7 @@ Feature: SDN related networking scenarios
 
 
   # @author bmeng@redhat.com
-  # @case_id: OCP-10538
+  # @case_id OCP-10538
   @admin
   @destructive
   Scenario: IPAM garbage collection to release the un-used IPs on node

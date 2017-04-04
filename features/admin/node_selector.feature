@@ -1,7 +1,7 @@
 Feature: NodeSelector related tests
 
   # @author: chezhang@redhat.com
-  # @case_id: OCP-12793
+  # @case_id OCP-12793
   @admin
   @destructive
   Scenario: ClusterDefaultNodeSelector will be ignored if namespace nodeSelector exist		
@@ -52,7 +52,7 @@ Feature: NodeSelector related tests
       | "region": "west"  |
 
   # @author: chezhang@redhat.com
-  # @case_id: OCP-12792
+  # @case_id OCP-12792
   @admin
   @destructive
   Scenario: NodeSelector in pod should merge with clusterDefaultNodeSelector		
@@ -107,7 +107,7 @@ Feature: NodeSelector related tests
       | forbidden: pod node label selector conflicts with its namespace node label selector |
 
   # @author: chezhang@redhat.com
-  # @case_id: OCP-12791
+  # @case_id OCP-12791
   @admin
   @destructive
   Scenario: NodeSelector in pod should merge with namespace nodeSelector			
@@ -160,7 +160,7 @@ Feature: NodeSelector related tests
       | forbidden: pod node label selector conflicts with its namespace node label selector |
 
   # @author: chezhang@redhat.com
-  # @case_id: OCP-12790
+  # @case_id OCP-12790
   @admin
   @destructive
   Scenario: Pod create should fail when nodeSelector conflicts with whitelist				
