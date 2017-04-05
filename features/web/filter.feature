@@ -1,6 +1,6 @@
 Feature: filter on create page
 
-  # @author: yapei@redhat.com
+  # @author yapei@redhat.com
   # @case_id OCP-10692
   Scenario: search and filter for things on the create page
     Given the master version <= "3.3"
@@ -353,7 +353,7 @@ Feature: filter on create page
     And the output should not contain:
       | nodejs-sample |
 
-  # @author: yanpzhan@redhat.com
+  # @author yanpzhan@redhat.com
   # @case_id OCP-11698
   Scenario: Display existing labels in label suggestion list according to different resources
     Given I have a project

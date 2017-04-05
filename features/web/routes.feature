@@ -435,7 +435,7 @@ Feature: Routes related features on web console
       | route_name  | service-unsecure-route |
     Then the step should succeed
 
-  # @author: yanpzhan@redhat.com
+  # @author yanpzhan@redhat.com
   # @case_id OCP-10906
   Scenario: Create route pointing to multiple services
     Given I have a project

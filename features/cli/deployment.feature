@@ -1,6 +1,6 @@
 Feature: deployment related steps
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11421
   Scenario: Add perma-failed - Deplyment succeed after change pod template by edit deployment
     Given I have a project
@@ -73,7 +73,7 @@ Feature: deployment related steps
       | type: Progressing                                           |
     """
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11046
   Scenario: Add perma-failed - Deployment failed after pausing and resuming
     Given I have a project
@@ -165,7 +165,7 @@ Feature: deployment related steps
       | type: Progressing                                         |
     """
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11681
   Scenario: Add perma-failed - Failing deployment can be rolled back successful
     Given I have a project
@@ -263,7 +263,7 @@ Feature: deployment related steps
       | type: Progressing                                           |
     """
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-12110
   Scenario: Add perma-failed - Rolling back to a failing deployment revision
     Given I have a project
@@ -423,7 +423,7 @@ Feature: deployment related steps
       | type: Progressing                                         |
     """
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11865
   Scenario: Add perma-failed - Make a change outside pod template for failing deployment	
     Given I have a project
@@ -514,7 +514,7 @@ Feature: deployment related steps
       | type: Progressing                                         |
     """
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-12009
   Scenario: Add perma-failed - Negative value test of progressDeadlineSeconds in failing deployment	
     Given I have a project

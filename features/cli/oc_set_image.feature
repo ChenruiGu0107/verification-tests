@@ -212,7 +212,7 @@ Feature: oc set image related tests
       | dctest-1:\n.*[Ii]mage.*openshift/hello-openshift    |
       | dctest-2:\n.*[Ii]mage.*openshift/hello-openshift    |
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-11623
   @admin
   Scenario: Can not prune image by conflicted condition flags
@@ -233,7 +233,7 @@ Feature: oc set image related tests
     And the output should match " cannot be specified with "
 
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-11332
   @admin
   Scenario: Admin can understand/manage image use and prune unreferenced image
@@ -264,7 +264,7 @@ Feature: oc set image related tests
       | <%= cb.ruby_image_id %>\\s+<none> |
 
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-10909
   @admin
   Scenario: Could add/remove signatures to the images

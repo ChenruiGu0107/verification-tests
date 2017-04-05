@@ -1,5 +1,5 @@
 Feature: Health related feature on web console
-  # @author: xxia@redhat.com
+  # @author xxia@redhat.com
   # @case_id OCP-12423
   Scenario Outline: Check, set and remove readiness and liveness probe for dc and standalone rc in web
     # One case, 2 scenarios: dc and standalone rc
@@ -122,7 +122,7 @@ Feature: Health related feature on web console
       | dc   | dctest        | dctest-1         | dctest-2               | goto_one_dc_page            | switch_dc_health_check_tab |
       | rc   | rctest        | hello-openshift  | hello-openshift-fedora | goto_one_standalone_rc_page | null                       |
 
-  # @author: yapei@redhat.com
+  # @author yapei@redhat.com
   # @case_id OCP-11993
   Scenario: Health Check for k8s deployment
     Given I have a project
@@ -222,7 +222,7 @@ Feature: Health related feature on web console
       | liveness_probe   | Liveness Probe: ls -l /usr/bin/sh | 
     Then the step should fail
 
-  # @author: yapei@redhat.com
+  # @author yapei@redhat.com
   # @case_id OCP-12100
   Scenario: Health Check for k8s replicaset
     Given I have a project

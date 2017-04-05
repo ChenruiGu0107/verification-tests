@@ -542,7 +542,7 @@ Feature: create app on web console related
       | app=hello-openshift |
       | mylabel=my-hello-openshift |
 
-  # @author: yapei@redhat.com
+  # @author yapei@redhat.com
   # @case_id OCP-11301
   Scenario: Deploy Image from ImageStreamTag on web console
     Given I have a project

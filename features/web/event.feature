@@ -1,5 +1,5 @@
 Feature: check event feature on web console
-  # @author: yanpzhan@redhat.com
+  # @author yanpzhan@redhat.com
   # @case_id OCP-10783
   Scenario: Check events tab on individual resource pages
     Given I have a project

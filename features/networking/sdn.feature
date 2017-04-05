@@ -489,7 +489,7 @@ Feature: SDN related networking scenarios
     And the output should contain "200"
     """
 
-  # @author: yadu@redhat.com
+  # @author yadu@redhat.com
   # @case_id OCP-9934
   @admin
   @destructive
@@ -523,7 +523,7 @@ Feature: SDN related networking scenarios
     And the output should contain:
       | <%= cb.hostip %> | 
 
-  # @author: yadu@redhat.com
+  # @author yadu@redhat.com
   # @case_id OCP-9754
   @admin
   @destructive

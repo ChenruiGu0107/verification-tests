@@ -383,7 +383,7 @@ Feature: pods related scenarios
     Then the step should succeed
 
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11362
   Scenario: Specify safe namespaced kernel parameters for pod with invalid value	
     Given I have a project

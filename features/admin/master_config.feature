@@ -1,6 +1,6 @@
 Feature: test master config related steps
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-9906
   @admin
   @destructive
@@ -46,14 +46,14 @@ Feature: test master config related steps
     And the output should contain:
       | cannot create more than |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-11265
   @admin
   @destructive
   Scenario: User can configure a password identity provider with special characters in the name
     Given I have a project
-    Given I have LDAP service in my project    
- 
+    Given I have LDAP service in my project
+
     When I execute on the pod:
       | bash |
       | -c   |
@@ -105,7 +105,7 @@ Feature: test master config related steps
     And the output should contain:
       | NAME       | my idp #2?:uid=user,dc=example,dc=com |
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-10955
   @admin
   @destructive
@@ -150,7 +150,7 @@ Feature: test master config related steps
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-11358
   @admin
   @destructive
@@ -195,7 +195,7 @@ Feature: test master config related steps
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
 
-    # @author: chuyu@redhat.com
+    # @author chuyu@redhat.com
     # @case_id OCP-10792
     @admin
     @destructive
@@ -280,7 +280,7 @@ Feature: test master config related steps
       | NAME          | my_request_header_provider:testlogin |
       | USER NAME     | login                                |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-11928
   @admin
   @destructive
@@ -318,7 +318,7 @@ Feature: test master config related steps
       | password | password                    |
     Then the step should succeed
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-10619
   @admin
   @destructive
@@ -360,7 +360,7 @@ Feature: test master config related steps
     When label "<%= cb.proj_name %>=hello" is added to the "<%= cb.nodes[0].name %>" node
     Then the pod named "hello-openshift" status becomes :running
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-11530
   @admin
   @destructive

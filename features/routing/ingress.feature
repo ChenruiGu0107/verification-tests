@@ -1,6 +1,6 @@
 Feature: Testing ingress object
 
-  # @author: hongli@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-11069
   @admin
   @destructive
@@ -57,7 +57,7 @@ Feature: Testing ingress object
     Then the step should succeed
     And the output should contain "Hello-OpenShift-Path-Test"
 
-  # @author: hongli@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-11438
   @admin
   @destructive
@@ -115,7 +115,7 @@ Feature: Testing ingress object
     Then the step should succeed
     And the output should contain "Hello-OpenShift-Path-Test"
     
-  # @author: hongli@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-11692
   @admin
   @destructive
@@ -178,7 +178,7 @@ Feature: Testing ingress object
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1"
 
-  # @author: hongli@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-11874
   @admin
   @destructive
@@ -260,7 +260,7 @@ Feature: Testing ingress object
     And the output should contain "Hello-OpenShift-2"
     """
 
-  # @author: hongli@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-12846 OCP-12848
   @admin
   @destructive
@@ -309,7 +309,7 @@ Feature: Testing ingress object
     Then the step should fail
     And the output should contain "cannot change hostname"
 
-  # @author: hongli@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-12847 OCP-12849
   @admin
   @destructive

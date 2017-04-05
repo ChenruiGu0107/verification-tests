@@ -553,7 +553,7 @@ Feature: SCC policy related scenarios
     And the output should not contain:
       | <%= user.name %>        |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-11010
   Scenario: User can know if he can create podspec against the current scc rules via selfsubjectsccreview
     Given I have a project
@@ -572,7 +572,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["reason"] == "CantAssignSecurityContextConstraintProvider"
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-11398
   Scenario: User can know whether the PodSpec his describing will actually be allowed by the current SCC rules via subjectsccreview
     Given I have a project
@@ -584,7 +584,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedBy"]["name"] == "restricted"
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-11667
   @admin
   Scenario: User can know which serviceaccount and SA groups can create the podspec against the current sccs
@@ -598,7 +598,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     And the expression should be true> @result[:parsed]["status"]["allowedServiceAccounts"][0]["allowedBy"]["name"] == "restricted"
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-11237
   @admin
   Scenario: Cluster admin can configure the default capabilities for scc
@@ -630,7 +630,7 @@ Feature: SCC policy related scenarios
     And the output should not contain:
       | SETPCAP |
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-11775
   @admin
   Scenario: Create or update scc with illegal capability name should fail with prompt message
@@ -671,7 +671,7 @@ Feature: SCC policy related scenarios
     Then the step should fail
     And the output should contain "capability is listed in allowedCapabilities and requiredDropCapabilities"
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-12064
   @admin
   Scenario: Wildcard SCC for volumes is respected

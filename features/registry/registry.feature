@@ -43,7 +43,7 @@ Feature: Testing registry
       | docker pull docker.io/library/centos:latest |
     Then the step should succeed
 
-  # @author: haowang@redhat.com
+  # @author haowang@redhat.com
   # @case_id OCP-10898
   @admin
   Scenario: Have size information for any image pushed
@@ -344,7 +344,7 @@ Feature: Testing registry
     Then the step should succeed
     And the "busybox:centos" image stream tag was created
 
-  # @author: haowang@redhat.com
+  # @author haowang@redhat.com
   # @case_id OCP-11310
   @admin
   Scenario: Have size information for images pushed to internal registry
