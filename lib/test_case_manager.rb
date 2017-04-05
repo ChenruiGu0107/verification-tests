@@ -173,7 +173,7 @@ module CucuShift
     # executed from within the attacher thread to actually upload/attach log;
     def handle_attach(dir)
       ## upload files
-      artifacts_filer.mkdir artifacts_base_remote_path
+      artifacts_filer.mkdir artifacts_base_remote_path, raw: true
       artifacts_filer.copy_to(dir, artifacts_base_remote_path, raw: true)
     rescue => e
       Kernel.puts exception_to_string(e)
