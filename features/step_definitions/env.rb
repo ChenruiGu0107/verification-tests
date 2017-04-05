@@ -36,7 +36,7 @@ Given /^I store master (major|image)? version in the#{OPT_SYM} clipboard$/ do |t
 
   cb_name = 'master_version' unless cb_name
   if type == "image"
-    cb[cb_name] = res[:response].match(/\w*[origin|ose]-pod\s+(v\d+.\d+.\d+.\d+)/).captures[0]
+    cb[cb_name] = res[:response].match(/\w*[origin|ose]-pod\s+(v\d+(?:\.\d+){2,3})/).captures[0]
   elsif type == "major"
     cb[cb_name] = res[:response].match(/\w*[origin|ose]-pod\s+v(\d+.\d+.\d+)/).captures[0]
   else
