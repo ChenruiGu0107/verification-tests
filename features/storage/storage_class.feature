@@ -566,6 +566,7 @@ Feature: storageClass related feature
       | ProvisioningFailed                                         |
       | StorageClass "sc-notexisted-<%= project.name %>" not found |
     """
+
   # @author lxia@redhat.com
   # @case_id OCP-11830
   @admin
@@ -613,3 +614,51 @@ Feature: storageClass related feature
     Examples:
       | provisioner | region1_zone1 | region1_zone2 | region2_zone1  |
       | gce-pd      | us-central1-a | us-central1-b | europe-west1-d |
+
+  # @author lxia@redhat.com
+  # @case_id OCP-13352
+  @admin
+  @destructive
+  Scenario: Create storageclass with beta api
+    Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["apiVersion"]                                                                  | storage.k8s.io/v1beta1 |
+      | ["metadata"]["name"]                                                            | sc1-<%= cb.sc_name %>  |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
+      | ["provisioner"]                                                                 | kubernetes.io/manual   |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["apiVersion"]                                                                  | storage.k8s.io/v1beta1 |
+      | ["metadata"]["name"]                                                            | sc2-<%= cb.sc_name %>  |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                   |
+      | ["provisioner"]                                                                 | kubernetes.io/manual   |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["apiVersion"]                                                             | storage.k8s.io/v1beta1 |
+      | ["metadata"]["name"]                                                       | sc3-<%= cb.sc_name %>  |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                  |
+      | ["provisioner"]                                                            | kubernetes.io/manual   |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["apiVersion"]                                                             | storage.k8s.io/v1beta1 |
+      | ["metadata"]["name"]                                                       | sc4-<%= cb.sc_name %>  |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                   |
+      | ["provisioner"]                                                            | kubernetes.io/manual   |
+    Then the step should succeed
+
+    When I run the :describe admin command with:
+      | resource | storageclass          |
+      | name     | sc1-<%= cb.sc_name %> |
+      | name     | sc2-<%= cb.sc_name %> |
+      | name     | sc3-<%= cb.sc_name %> |
+      | name     | sc4-<%= cb.sc_name %> |
+    Then the step should succeed
+    And the output by order should match:
+      | sc1-<%= cb.sc_name %>                                  |
+      | storageclass.beta.kubernetes.io/is-default-class=false |
+      | sc2-<%= cb.sc_name %>                                  |
+      | storageclass.beta.kubernetes.io/is-default-class=true  |
+      | sc3-<%= cb.sc_name %>                                  |
+      | storageclass.kubernetes.io/is-default-class=false      |
+      | sc4-<%= cb.sc_name %>                                  |
+      | storageclass.kubernetes.io/is-default-class=true       |
