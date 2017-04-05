@@ -326,9 +326,7 @@ module CucuShift
         loop_thread!
 
         closed = wait_for(3600) do
-          if !channel.active? || channel.connection.closed?
-            true
-          end
+          !channel.active? || channel.connection.closed?
         end
 
         if closed && channel.active?
@@ -338,7 +336,8 @@ module CucuShift
         else
           logger.error "SCP timeout"
         end
-      rescue Net::SCP::Error
+      rescue Net::SCP::Error => e
+        logger.error e
         # we can reconsider dismissing such errors
       end
 
@@ -411,7 +410,26 @@ module CucuShift
           # no active channels are present and I'm not sure how this can
           # affect session close
           # @loop_thread = Thread.new { session.loop(1) {|s| s.busy?(include_invisible=true)} }
-          @loop_thread = Thread.new { loop {session.process(1)} }
+          @loop_thread = Thread.new {
+            begin
+              loop { session.process(1) }
+            rescue => e
+              # NET::SSH high level API is not very suitable for multi-streams.
+              # One can register `on_open_failed` hook only after channel is
+              # created. If the loop thread is running at that time, the
+              # channel may fail earlier than the hook is regustered.
+              # For the time being, lets log the errors we see. We can patch
+              # NET::SSH and NET::SCP upsteam to allow setting the hook
+              # upon stream creation and after that we would be able to catch
+              # errors per individual channels.
+              unless e.message == "closed stream"
+                logger.error "SSH IO thread error!"
+                logger.error e
+                retry
+              end
+              raise e
+            end
+          }
           @loop_thread.name = "SSH-#{user}@#{host}"
         end
       end
