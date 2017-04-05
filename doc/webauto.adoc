@@ -41,7 +41,7 @@ parent_web_rule:
   action: child_web_rule_2
 child_web_rule_1:
   url: /console
-child_web_rule_2
+child_web_rule_2:
   element:
     selector:
       text: Login
