@@ -270,7 +270,7 @@ Feature: pod related features
     Then the step should fail
     And the output should contain "429"
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11366
   @admin
   @destructive
@@ -310,7 +310,7 @@ Feature: pod related features
       | image: docker.io/ocpqe/hello-pod:latest                                                           |
       | imageID: docker-pullable.*sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-10974
   @admin
   @destructive
@@ -349,7 +349,7 @@ Feature: pod related features
       | image: docker.io/ocpqe/hello-pod@sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
       | imageID: docker-pullable.*sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f        |
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-10598
   @admin
   @destructive
@@ -384,7 +384,7 @@ Feature: pod related features
     And the output should contain:
       | Hello OpenShift |
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-10345
   @admin
   @destructive
@@ -402,7 +402,7 @@ Feature: pod related features
     Then the step should fail
     And the output should contain "pod node label selector conflicts with its project node label selector"
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11116
   @admin
   @destructive
@@ -436,7 +436,7 @@ Feature: pod related features
     Then the output should match:
       | hello-openshift.*no nodes available to schedule pods |
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11466
   @admin
   @destructive
@@ -465,7 +465,7 @@ Feature: pod related features
     Then the step should succeed
     And the pod named "hello-pod" status becomes :running
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11752
   @admin
   Scenario: Pod will not be copied to nodes which does not match it's node selector
@@ -489,7 +489,7 @@ Feature: pod related features
     Then the output should match:
       | nodeName: <%= cb.nodes[0].name %> |
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11925
   @admin
   @destructive
@@ -524,7 +524,7 @@ Feature: pod related features
     Then the output should match:
       | nodeName: <%= cb.nodes[0].name %> |
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-12047
   @admin
   Scenario: When node labels change, DaemonSet will add pods to newly matching nodes and delete pods from not-matching nodes
@@ -570,7 +570,7 @@ Feature: pod related features
       | nodeName: <%= cb.nodes[1].name %> |
     """
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-12338
   @admin
   @destructive
@@ -637,7 +637,7 @@ Feature: pod related features
       | usernamechanged |
     """
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-11595
   @admin
   @destructive
@@ -678,7 +678,7 @@ Feature: pod related features
       | openshift/ruby-20-centos7:latest |
     """
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-12898
   @admin
   Scenario: PDB take effective with absolute number with beta1
@@ -763,7 +763,7 @@ Feature: pod related features
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 429
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-12900
   @admin
   Scenario: PDB take effective with percentage number with beta1
@@ -818,7 +818,7 @@ Feature: pod related features
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 429
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13289
   @admin
   Scenario: PDBs represent percentage in StatefulSet
@@ -872,7 +872,7 @@ Feature: pod related features
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 429
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13303
   @admin
   Scenario: PDBs represent percentage in Deployment
@@ -921,7 +921,7 @@ Feature: pod related features
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 429
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13305
   @admin
   Scenario: PDBs represent percentage in ReplicaSet

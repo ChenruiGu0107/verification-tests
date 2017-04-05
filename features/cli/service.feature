@@ -162,7 +162,7 @@ Feature: service related scenarios
     And the output should contain:
       | Hello-OpenShift-1 https-8443 |
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-12351
   Scenario: ExternalName service type can be created successful
     Given I have a project
@@ -206,7 +206,7 @@ Feature: service related scenarios
     Then the step should succeed
     And the output should match "<%= cb.address %>"
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-12376
   Scenario: Negative test for ExternalName Service type		
     Given I have a project

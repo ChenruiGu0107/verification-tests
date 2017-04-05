@@ -1942,7 +1942,7 @@ Feature: Testing haproxy router
     And the output should contain "Content-Encoding: gzip"
   
 
-  # @author: hongli@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-12683
   @admin
   @destructive

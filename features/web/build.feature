@@ -1,6 +1,6 @@
 Feature: build related feature on web console
 
-  # @author: xxing@redhat.com
+  # @author xxing@redhat.com
   # @case_id OCP-10627
   Scenario: Check the build information from web console
     When I create a new project via web
@@ -43,7 +43,7 @@ Feature: build related feature on web console
       | #1 |
       | #2 |
 
-  # @author: xxing@redhat.com
+  # @author xxing@redhat.com
   # @case_id OCP-10674
   Scenario: Cancel the New/Pending/Running build on web console
     When I create a new project via web
@@ -826,7 +826,7 @@ Feature: build related feature on web console
       | build_log_context | error: failed to fetch requested repository "https://github.com/openshift/nonexist" |
     Then the step should succeed
 
-  # @author: xxia@redhat.com
+  # @author xxia@redhat.com
   # @case_id OCP-12436
   Scenario: Check build trigger info when the trigger is ConfigChange on web
     Given I have a project
@@ -841,7 +841,7 @@ Feature: build related feature on web console
       | trigger_info      | Build configuration change |
     Then the step should succeed
 
-  # @author: xxia@redhat.com
+  # @author xxia@redhat.com
   # @case_id OCP-12494
   Scenario: Check build trigger info when the trigger is ImageChange on web
     Given I have a project
@@ -856,7 +856,7 @@ Feature: build related feature on web console
       | trigger_info      | Image change for ruby-22-centos7:latest |
     Then the step should succeed
 
-  # @author: xxia@redhat.com
+  # @author xxia@redhat.com
   # @case_id OCP-12499
   Scenario: Check build trigger info when the trigger is manual start-build on web
     Given I have a project
@@ -876,7 +876,7 @@ Feature: build related feature on web console
       | trigger_info      | Manual build        |
     Then the step should succeed
 
-  # @author: yapei@redhat.com
+  # @author yapei@redhat.com
   # @case_id OCP-10830
   @admin
   Scenario: Check settings for Custom strategy build with no inputs
@@ -907,7 +907,7 @@ Feature: build related feature on web console
       | GitHub webhooks  |
       | Generic webhooks |
 
-  # @author: yapei@redhat.com
+  # @author yapei@redhat.com
   # @case_id OCP-11269
   Scenario: Check settings for Source strategy build with no inputs
     Given I have a project
@@ -1096,7 +1096,7 @@ Feature: build related feature on web console
       | resource_name | nodejs-app-2-build  |
     Then the step should fail
 
-  # @author: xxia@redhat.com
+  # @author xxia@redhat.com
   # @case_id OCP-12476, OCP-12486
   Scenario Outline: Check build trigger info about webhook on web
     Given I have a project
@@ -1167,7 +1167,7 @@ Feature: build related feature on web console
       | type    | path              | file           | header1        | header2 | url_before | url_after | trigger_info |
       | github  | github/testdata/  | pushevent.json | X-Github-Event | push    |            |           | GitHub webhook: Added license e79d887 authored by Anonymous User |
 
-  # @author: yapei@redhat.com
+  # @author yapei@redhat.com
   # @case_id OCP-10477
   Scenario: Check webhook URL are consistent
     Given I have a project
@@ -1199,7 +1199,7 @@ Feature: build related feature on web console
       | generic_webhook_trigger | <%= cb.generic_webhook[0].scan(/oapi.*/)[0] %>  |
     Then the step should succeed
 
-  # @author: xiaocwan@redhat.com
+  # @author xiaocwan@redhat.com
   # @case_id OCP-10286,OCP-11584,OCP-11277
   Scenario Outline: Check BC page when runPolicy set to Serial Parallel and SerialLatestOnly
     Given I have a project
@@ -1246,7 +1246,7 @@ Feature: build related feature on web console
       | Parallel          | Parallel           | Running         | Running       |
       | SerialLatestOnly  | Serial latest only | Cancelled       | Running       |
 
-  # @author: etrott@redhat.com
+  # @author etrott@redhat.com
   # @case_id OCP-10891
   Scenario: Environment variables management for BC and DC
     Given I have a project

@@ -855,7 +855,7 @@ Feature: change the policy of user/service account
     And the output should contain:
       | User "<%= user.name %>" cannot delete persistentvolumes at the cluster scope |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13095
   @admin
   Scenario: Add add-cluster-role-to-user support for -z 
@@ -904,7 +904,7 @@ Feature: change the policy of user/service account
       | Role:\\s+tc467927                            |
       | Users:\\s+<%= user(1, switch: false).name %> |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-9551
   Scenario: User can know if he can create podspec against the current scc rules via CLI
     Given I have a project
@@ -935,7 +935,7 @@ Feature: change the policy of user/service account
     And the output should match:
       | <none> |
  
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-9552
   @admin
   Scenario: User can know which serviceaccount and SA groups can create the podspec against the current sccs by CLI
@@ -992,7 +992,7 @@ Feature: change the policy of user/service account
     And the output should match:
       | .*default.*restricted |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-9553
   Scenario: User can know whether the PodSpec he's describing will actually be allowed by the current SCC rules via CLI
     Given I have a project
@@ -1027,7 +1027,7 @@ Feature: change the policy of user/service account
     And the output should match:
       | .*restricted |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13480
   @admin
   @destructive
@@ -1055,7 +1055,7 @@ Feature: change the policy of user/service account
     And the output should match:
       | .*view.*/view.*deployer |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13479
   @admin
   @destructive
@@ -1100,7 +1100,7 @@ Feature: change the policy of user/service account
       | n        | <%= project.name %> |
     Then the step should succeed
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13478
   @admin
   @destructive
@@ -1145,7 +1145,7 @@ Feature: change the policy of user/service account
       | n        | <%= project.name %> |
     Then the step should succeed
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13477
   @admin
   @destructive
@@ -1186,7 +1186,7 @@ Feature: change the policy of user/service account
       | n        | <%= project.name %> |
     Then the step should succeed
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13476
   @admin
   @destructive
@@ -1222,7 +1222,7 @@ Feature: change the policy of user/service account
       | n        | <%= project.name %> |
     Then the step should succeed
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13475
   @admin
   @destructive
@@ -1255,7 +1255,7 @@ Feature: change the policy of user/service account
     And the output should contain:
       | rolebindings "view" is forbidden |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13474
   @admin
   @destructive
@@ -1291,7 +1291,7 @@ Feature: change the policy of user/service account
     And the output should contain:
       | rolebindings "view" is forbidden |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13473
   @admin
   @destructive
@@ -1324,7 +1324,7 @@ Feature: change the policy of user/service account
     And the output should contain:
       | rolebindings "view" is forbidden |
 
-  # @author: chuyu@redhat.com
+  # @author chuyu@redhat.com
   # @case_id OCP-13409
   @admin
   @destructive

@@ -1,6 +1,6 @@
 Feature: NodeSelector related tests
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-12793
   @admin
   @destructive
@@ -51,7 +51,7 @@ Feature: NodeSelector related tests
     And the output should not match:
       | "region": "west"  |
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-12792
   @admin
   @destructive
@@ -106,7 +106,7 @@ Feature: NodeSelector related tests
     And the output should match:
       | forbidden: pod node label selector conflicts with its namespace node label selector |
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-12791
   @admin
   @destructive
@@ -159,7 +159,7 @@ Feature: NodeSelector related tests
     And the output should match:
       | forbidden: pod node label selector conflicts with its namespace node label selector |
 
-  # @author: chezhang@redhat.com
+  # @author chezhang@redhat.com
   # @case_id OCP-12790
   @admin
   @destructive

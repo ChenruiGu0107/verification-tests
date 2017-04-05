@@ -1,5 +1,5 @@
 Feature: metrics related scenarios
-  # @author: pruan@redhat.com
+  # @author pruan@redhat.com
   # @case_id OCP-11821
   Scenario: User can insert data to hawkular metrics in their own tanent when USER_WRITE_ACCESS parameter is 'true'
     Given I have a project
@@ -13,7 +13,7 @@ Feature: metrics related scenarios
     Then the expression should be true> @result[:parsed][0]['minTimestamp'] == 1460111065369
     And the expression should be true> @result[:parsed][0]['maxTimestamp'] == 1460413065369
 
-  # @author: pruan@redhat.com
+  # @author pruan@redhat.com
   # @case_id OCP-11979
   Scenario: User can not create metrics in the tenant which owned by other user
     Given I have a project
@@ -26,7 +26,7 @@ Feature: metrics related scenarios
     # for older oc version, the status code was 401
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
 
-  # @author: pruan@redhat.com
+  # @author pruan@redhat.com
   # @case_id OCP-12084
   Scenario: User can only read metrics data when USER_WRITE_ACCESS is specified to false
     Given I have a project
@@ -41,7 +41,7 @@ Feature: metrics related scenarios
     # for older oc version, the status code was 401
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
 
-  # @author: pruan@redhat.com
+  # @author pruan@redhat.com
   # @case_id OCP-10512
   @admin
   Scenario: Check hawkular alerts endpoint is accessible
@@ -55,7 +55,7 @@ Feature: metrics related scenarios
       | path         | /alerts/status       |
     Then the expression should be true> @result[:parsed]['status'] == 'STARTED'
 
-  # @author: pruan@redhat.com
+  # @author pruan@redhat.com
   # @case_id OCP-10928
   Scenario: User cannot create metrics in _system tenant even if USER_WRITE_ACCESS parameter is 'true'
     Given I have a project
@@ -65,7 +65,7 @@ Feature: metrics related scenarios
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
     Then the expression should be true> @result[:exitstatus] == 403
 
-  # @author: pruan@redhat.com
+  # @author pruan@redhat.com
   # @case_id OCP-12168
   Scenario: User can only read metrics data when USER_WRITE_ACCESS parameter is not specified
     Given I have a project
@@ -80,7 +80,7 @@ Feature: metrics related scenarios
     # for older oc version, the status code was 401
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
 
-  # @author: pruan@redhat.com
+  # @author pruan@redhat.com
   # @case_id OCP-10927
   @admin
   Scenario: Access the external Hawkular Metrics API interface as cluster-admin
@@ -113,7 +113,7 @@ Feature: metrics related scenarios
     And evaluation of `@result[:parsed].map { |e| e['type'] }.uniq` is stored in the :counter_result clipboard
     And the expression should be true> cb.counter_result == ['counter']
 
-  # @author: pruan@redhat.com
+  # @author pruan@redhat.com
   # @case_id OCP-11336
   Scenario: Insert data into Cassandra DB through external Hawkular Metrics API interface without Hawkular-tenant specified
     Given I have a project

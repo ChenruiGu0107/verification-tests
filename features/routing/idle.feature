@@ -1,6 +1,6 @@
 Feature: idle service related scenarios
 
-  # @author: hongli@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-10935
   Scenario: Pod can be changed to un-idle when there is route coming
     Given I have a project
@@ -116,7 +116,7 @@ Feature: idle service related scenarios
       | service-unsecure.*\d+.\d+.\d+.\d+:8080,\d+.\d+.\d+.\d+:8080 |
     """
 
-  # @author: hongli@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-10216
   @admin
   Scenario: The iptables rules for the service should be replaced by the REDIRECT rule after being idled
@@ -171,7 +171,7 @@ Feature: idle service related scenarios
       | KUBE-SVC-.+  tcp  --  0.0.0.0/0\s+<%= cb.service_ip %>\s+/\* <%= cb.proj_name %>/test-service:http cluster IP \*/ tcp dpt:27017 |
       | KUBE-SEP-.+  all  --  0.0.0.0/0\s+0.0.0.0/0\s+/\* <%= cb.proj_name %>/test-service:http \*/                                     |
 
-  # @author: hongli@redhat.com
+  # @author hongli@redhat.com
   # @case_id OCP-10215
   @admin
   @destructive

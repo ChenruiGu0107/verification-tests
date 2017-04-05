@@ -29,7 +29,7 @@ Feature: Testing Admin Scenarios
     And the output should contain:
       |blobs/sha|
 
-  # @author: yinzhou@redhat.com
+  # @author yinzhou@redhat.com
   # @case_id OCP-9748
   @admin
   Scenario: Use options minify/raw/flatten to check the output of kubeconfig setting

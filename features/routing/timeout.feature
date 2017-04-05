@@ -1,6 +1,6 @@
 Feature: Testing timeout route
 
-  # @author: yadu@redhat.com
+  # @author yadu@redhat.com
   # @case_id OCP-11982
   Scenario: Set timeout for unsecure route
     Given I have a project
@@ -28,7 +28,7 @@ Feature: Testing timeout route
     When I open web server via the "http://<%= route.dns(by: user) %>/delay/5" url
     Then the output should contain "504 Gateway"
 
-  # @author: yadu@redhat.com
+  # @author yadu@redhat.com
   # @case_id OCP-11347
   Scenario: Set timeout for edge route
     Given I have a project
@@ -70,7 +70,7 @@ Feature: Testing timeout route
       | -k                                                                                         |
     Then the output should contain "504 Gateway"
 
-  # @author: yadu@redhat.com
+  # @author yadu@redhat.com
   # @case_id OCP-11635
   Scenario: Set timeout for passthough route
     Given I have a project
@@ -114,7 +114,7 @@ Feature: Testing timeout route
     Then the step should fail
     Then the output should contain "curl: (56)"
 
-  # @author: yadu@redhat.com
+  # @author yadu@redhat.com
   # @case_id OCP-11826
   Scenario: Set timeout for reencrypt route
     Given I have a project
