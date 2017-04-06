@@ -71,3 +71,7 @@ Given /^I try to restart the master service on all master nodes$/ do
   @result = CucuShift::ResultHash.aggregate_results(results)
 end
 
+Given /^I use the first master host$/ do
+  ensure_admin_tagged
+  @host = env.master_hosts.first
+end
