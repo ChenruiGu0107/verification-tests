@@ -230,6 +230,17 @@ module CucuShift
           gsub(/([a-z])([A-Z])/, '\1_\2').
           downcase
       end
+
+      def to_utf8(str)
+        # error occurs only when combining string of different character sets
+        # when characters in one are invalid within the other, e.g.
+        # [["0xa0".to_i(16),"0xa1".to_i(16)].pack("c*"), "asd", "№"].join
+        if str.encoding == Encoding::UTF_8
+          str
+        else
+          str.encode('utf-8', :invalid => :replace, :undef => :replace)
+        end
+      end
     end
   end
 end
