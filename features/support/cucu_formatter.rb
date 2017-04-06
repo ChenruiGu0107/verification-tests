@@ -176,7 +176,7 @@ class CucuFormatter
     end
     msg = %Q[<div class="step_line_container step_line_info">#{link}</div>\n]
 
-    def msg.html_ready?
+    def msg.html_safe?
       true
     end
 
@@ -267,6 +267,7 @@ class CucuFormatter
   end
 
   def build_step_text_line(step_line)
+    step_line = to_utf8 step_line
     # <br> not needed as we use `white-space: pre-wrap;` in css
     step_line = CGI.escapeHTML(step_line).lines.to_a.join #('<br />')
     if step_line =~ /ERROR>/
@@ -308,7 +309,7 @@ class CucuFormatter
     end
     # step messages
     step_lines = step_hash[:messages].map do |step_line|
-      if step_line.respond_to?(:html_ready?) && step_line.html_ready?
+      if step_line.respond_to?(:html_safe?) && step_line.html_safe?
         step_line
       else
         build_step_text_line step_line
@@ -321,7 +322,7 @@ class CucuFormatter
     end
     # backtrace
     if step_hash[:backtrace]
-      backtrace = %Q[<div class="step_backtrace">#{step_hash[:backtrace].join('<br />')}</div>\n]
+      backtrace = to_utf8 %Q[<div class="step_backtrace">#{step_hash[:backtrace].join('<br />')}</div>\n]
     else
       backtrace = nil
     end
@@ -331,18 +332,15 @@ class CucuFormatter
   def build_scenario(scenario_hash, feature_name)
     scenario_hash[:name] = scenario_hash[:name].lines.to_a.join('<br />')
     feature_name = feature_name.lines.to_a.join('<br />')
-    # Build steps
-    steps = []
-    scenario_hash[:steps].each do |step|
-      steps.push(self.build_step(step))
-    end
-    steps = steps.join("\n")
+    steps = scenario_hash[:steps].map {|step| self.build_step(step)}.join("\n")
+
     # css
     if scenario_hash[:status] == :passed
       status = 'pass'
     else
       status = 'fail'
     end
+
     # Scenario name
     if scenario_hash[:arg]
       scenario_name = %Q[#{scenario_hash[:name]},  Outline arguments: <span class="step_arg">#{scenario_hash[:arg]}</span>]
@@ -407,16 +405,13 @@ class CucuFormatter
       scenario_artifacts_dir(scenario_hash),
       file_name
     )
-    begin
-      html_body = html_body.encode('utf-8', :invalid => :replace, :undef => :replace)
-      File.write(file_path, @template.gsub(/#HTML_BODY#/) { html_body })
-    rescue => e
-      output = "Failed to generate log file for scenario: "
-      output << "#{scenario_hash[:name]}, #{scenario_hash[:arg]}\n"
-      output << exception_to_string(e) << "\n"
-      @io.write(output)
-      Kernel.puts(output)
-    end
+    File.write(file_path, @template.gsub(/#HTML_BODY#/) { html_body })
+  rescue => e
+    output = "Failed to generate log HTML file for scenario: " \
+             "#{scenario_hash[:name]}, #{scenario_hash[:arg]}\n" \
+             "#{exception_to_string(e)}\n"
+    @io.write(output)
+    Kernel.puts(output)
   end
 
   def scenario_status(scenario_hash)
