@@ -444,3 +444,100 @@ Feature: ConfigMap related features
     Then the step should succeed
     When I run the :check_empty_configmap_page_loaded_error web console action
     Then the step should succeed
+
+  # @author xxing@redhat.com
+  # @case_id OCP-12184
+  Scenario: Show envs from a ConfigMap for Pods
+    Given the master version > "3.4"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml         |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-env.yaml |
+    Then the step should succeed
+    Given the pod named "dapi-test-pod" status becomes :succeeded
+    When I perform the :goto_one_pod_page web console action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | dapi-test-pod       |
+    Then the step should succeed
+    When I run the :click_on_environment_tab web console action
+    Then the step should succeed
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | SPECIAL_LEVEL_KEY                                       |
+      | env_var_value | Set to the key special.how in config map special-config |
+    When I perform the :check_environment_tab web console action with:
+      | env_var_key   | SPECIAL_TYPE_KEY                                         |
+      | env_var_value | Set to the key special.type in config map special-config |
+    Then the step should succeed
+
+  # @author xxing@redhat.com
+  # @case_id OCP-12108
+  Scenario: Filter on ConfigMap page
+    Given the master version > "3.4"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml         |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap-example.yaml |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | configmap      |
+      | name     | example-config |
+      | key_val  | example=yes    |
+    Then the step should succeed
+    When I run the :label client command with:
+      | resource | configmap      |
+      | name     | special-config |
+      | key_val  | special=yes    |
+      | key_val  | example=no     |
+    Then the step should succeed
+    When I perform the :goto_configmaps_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :filter_resources_with_exists_option web console action with:
+      | label_key     | example |
+      | filter_action | exists  |
+    Then the step should succeed
+    When I perform the :check_filtered_resource_entry web console action with:
+      | resource_name | example-config |
+    Then the step should succeed
+    When I perform the :check_filtered_resource_entry web console action with:
+      | resource_name | special-config |
+    Then the step should succeed
+    When I run the :clear_all_filters web console action
+    Then the step should succeed
+    When I perform the :filter_resources web console action with:
+      | label_key     | special |
+      | label_value   | yes     |
+      | filter_action | in ...  |
+    Then the step should succeed
+    When I perform the :check_filtered_resource_entry web console action with:
+      | resource_name | special-config |
+    Then the step should succeed
+    When I perform the :check_filtered_resource_entry_missing web console action with:
+      | resource_name | example-config |
+    Then the step should succeed
+    When I run the :clear_all_filters web console action
+    Then the step should succeed
+    When I perform the :filter_resources_with_exists_option web console action with:
+      | label_key     | example        |
+      | filter_action | does not exist |
+    Then the step should succeed
+    When I run the :check_no_configmap_to_show_warnings web console action
+    Then the step should succeed
+    When I run the :clear_all_filters web console action
+    Then the step should succeed
+    When I perform the :filter_resources web console action with:
+      | label_key     | example    |
+      | label_value   | yes        |
+      | filter_action | not in ... |
+    Then the step should succeed
+    When I perform the :filter_resources web console action with:
+      | label_key     | special |
+      | label_value   | yes     |
+      | filter_action | in ...  |
+    Then the step should succeed
+    When I perform the :check_filtered_resource_entry web console action with:
+      | resource_name | special-config |
+    Then the step should succeed
+    When I perform the :check_filtered_resource_entry_missing web console action with:
+      | resource_name | example-config |
+    Then the step should succeed

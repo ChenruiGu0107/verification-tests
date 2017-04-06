@@ -26,14 +26,19 @@ check_empty_configmap_page_loaded_error:
   - selector:
       xpath: //p[contains(.,'not found')]
 check_key_value_pairs_on_configmap_page:
-  element:
+  element: &check_key_value_pairs_on_configmap_page
     selector:
       xpath: //tr[@ng-repeat and td[contains(normalize-space(),'<configmap_key>')] and td[@class='value' and contains(normalize-space(),'<configmap_value>')]]
 check_missing_key_value_pairs_on_configmap_page:
   element:
-    selector:
-      xpath: //tr[@ng-repeat and td[contains(normalize-space(),'<configmap_key>')] and td[@class='value' and contains(normalize-space(),'<configmap_value>')]]
+    <<: *check_key_value_pairs_on_configmap_page
     missing: true
+check_no_configmap_to_show_warnings:
+  elements:
+  - selector:
+      xpath: //div[contains(@class,'alert')]//span[contains(.,'The active filters are hiding all config maps')]
+  - selector:
+      xpath: //tr//td[contains(.,'No config maps to show')]
 check_volume_type_is_configmap:
   element:
     selector:

@@ -16,6 +16,14 @@ check_save_button_disabled:
   elements:
   - selector:
       xpath: //button[@disabled='disabled' and text()='Save']
+check_filtered_resource_entry:
+  element: &check_filtered_resource_entry
+    selector:
+      xpath: //table//td[a[contains(normalize-space(),'<resource_name>')]]
+check_filtered_resource_entry_missing:
+  element:
+    <<: *check_filtered_resource_entry
+    missing: true
 choose_resource_type:
   elements:
   - selector:
