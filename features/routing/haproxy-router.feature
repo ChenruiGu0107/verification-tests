@@ -2234,6 +2234,7 @@ Feature: Testing haproxy router
   # @case_id OCP-10043
   Scenario: Set balance leastconn for passthrough routes
     Given I have a project
+    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -2258,11 +2259,21 @@ Feature: Testing haproxy router
 
     Given I have a pod-for-ping in the project
     And I use the "service-secure" service
-    When I wait up to 15 seconds for a secure web server to become available via the "route-pass" route
+    When I execute on the pod:
+      | curl                                                   |
+      | -ksS                                                   |
+      | --resolve                                              |
+      | <%= route("route-pass").dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-pass").dns(by: user) %> |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And evaluation of `@result[:response]` is stored in the :first_access clipboard
-    When I wait up to 15 seconds for a secure web server to become available via the "route-pass" route
+    When I execute on the pod:
+      | curl                                                   |
+      | -ksS                                                   |
+      | --resolve                                              |
+      | <%= route("route-pass").dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("route-pass").dns(by: user) %> |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
     And the expression should be true> cb.first_access != @result[:response]
