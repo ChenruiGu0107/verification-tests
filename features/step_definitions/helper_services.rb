@@ -32,6 +32,63 @@ Given /^I have a NFS service in the(?: "([^ ]+?)")? project$/ do |project_name|
   #   `service("nfs-service").ip`
 end
 
+#This is a step to create nfs-provisioner pod or dc in the project
+Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ do |deploymode, project_name|
+  ensure_admin_tagged
+  _service = deploymode == "service" ? true : false
+  _project = project(project_name)
+  unless project.exists?(user: user)
+    raise "project #{project_name} does not exist"
+  end
+  _deployment = deployment("nfs-provisioner", _project)
+  if _deployment.exists?(user: user, quiet: true)
+    logger.info "nfs-provisioner already exists, will delete and re-create"
+    @result = admin.cli_exec(:delete, n: _project.name, object_type: "deployment", object_name_or_id: _deployment.name)
+    raise "could not delete nfs-provisioner deployment" unless @result[:success]
+  end
+  # Create sc, scc, clusterrole and etc    
+  step 'I create the serviceaccount "nfs-provisioner"'
+  step %Q{the following scc policy is created: https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/openshift-scc.yaml}
+  step %Q/SCC "nfs-provisioner" is added to the "system:serviceaccount:<%= project.name %>:nfs-provisioner" service account/
+  step %Q{I download a file from "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/clusterrole.yaml"}
+  cr = YAML.load(@result[:response])
+  path = @result[:abs_path]
+  cr["apiVersion"] = "v1"
+  File.write(path, cr.to_yaml)
+  @result = admin.cli_exec(:create, f: path)
+  raise "could not create nfs-provisioner ClusterRole" unless @result[:success]
+  step %Q/admin ensures "nfs-provisioner-runner" clusterrole is deleted after scenario/
+  step %Q/cluster role "nfs-provisioner-runner" is added to the "system:serviceaccount:<%= project.name %>:nfs-provisioner" service account/
+  env.nodes.map(&:host).each do |host|
+    setup_commands = [
+      "mkdir -p /srv/",
+      "chcon -Rt svirt_sandbox_file_t /srv/"
+    ]
+    res = host.exec_admin(*setup_commands)
+    raise "Set up hostpath for nfs-provisioner failed" unless @result[:success]
+  end
+  if _service 
+    @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/deployment-sa.yaml")
+    raise "could not create nfs-provisioner deployment" unless @result[:success]
+    step %Q/a pod becomes ready with labels:/, table(%{
+      | app=nfs-provisioner |
+      })
+  else
+    cb.nfsprovisioner = rand_str(5, :dns)
+    step %Q{I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/pod.yaml" replacing paths:}, table(%{
+      | ["spec"]["serviceAccount"] | nfs-provisioner                          |
+      | ["metadata"]["name"]       | nfs-provisioner-<%= cb.nfsprovisioner %> |
+      })
+    step %Q/the pod named "nfs-provisioner-<%= cb.nfsprovisioner %>" becomes ready/
+  end
+  unless storage_class("nfs-provisioner-"+project.name).exists?(user: admin, quiet: true)
+    step %Q{admin creates a StorageClass from "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/class.yaml" where:}, table(%{
+      | ["metadata"]["name"] | nfs-provisioner-<%= project.name %> |
+      })
+    step %Q/the step should succeed/
+  end
+end
+
 #The following helper step will create a squid proxy, and
 #save the service ip of the proxy pod for later use in the scenario.
 Given /^I have a proxy configured in the project$/ do
