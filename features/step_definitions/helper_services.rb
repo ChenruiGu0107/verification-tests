@@ -420,7 +420,9 @@ Given /^I have a registry in my project$/ do
   cb.reg_svc_ip = "#{service("registry").ip(user: user)}"
   cb.reg_svc_port = "#{service("registry").ports(user: user)[0].dig("port")}"
   cb.reg_svc_url = "#{cb.reg_svc_ip}:#{cb.reg_svc_port}"
+  cb.reg_svc_name = "registry"
 end
+
 Given /^I have a registry with htpasswd authentication enabled in my project$/ do
   ensure_admin_tagged
   if CucuShift::Project::SYSTEM_PROJECTS.include?(project(generate: false).name)
@@ -456,6 +458,13 @@ Given /^I have a registry with htpasswd authentication enabled in my project$/ d
   cb.reg_svc_ip = "#{service("registry").ip(user: user)}"
   cb.reg_svc_port = "#{service("registry").ports(user: user)[0].dig("port")}"
   cb.reg_svc_url = "#{cb.reg_svc_ip}:#{cb.reg_svc_port}"
+  cb.reg_svc_name = "registry"
   cb.reg_user = "testuser"
   cb.reg_pass = "testpassword"
+  step %Q/I run the :set_probe client command with:/, table(%{
+    | resource  | dc/registry               |
+    | readiness |                           |
+    | get_url   | http://:5000/ |
+  })
+  step %Q/the step should succeed/
 end

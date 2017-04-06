@@ -33,3 +33,40 @@ Feature: registry related test scenario
     And I run commands on the host:
       | docker login -u test -p test <%= cb.reg_svc_url %> |
     Then the step failed
+
+  @admin
+  @destructive
+  Scenario: simplified steps for registry with htpasswd auth
+    Given I have a project
+    Given I select a random node's host
+    And I have a registry with htpasswd authentication enabled in my project
+    And I add the insecure registry to docker config on the node
+    And I log into auth registry on the node
+    When I docker push on the node to the registry the following images:
+      | docker.io/busybox:latest | busybox:latest |
+      | centos/ruby-22-centos7   | test/centos7   |
+    Then the step should succeed
+
+  @admin
+  @destructive
+  Scenario: test registry with no auth
+    Given I have a project
+    Given I select a random node's host
+    And I have a registry in my project
+    And I add the insecure registry to docker config on the node
+    And I log into auth registry on the node
+    When I docker push on the node to the registry the following images:
+      | docker.io/busybox:latest | busybox:latest |
+    Then the step should succeed
+  
+  @admin
+  @destructive
+  Scenario: Fail to push to auth registry without login
+    Given I have a project
+    Given I select a random node's host
+    And I have a registry with htpasswd authentication enabled in my project
+    And I add the insecure registry to docker config on the node
+    When I docker push on the node to the registry the following images:
+      | docker.io/busybox:latest | busybox:latest |
+      | centos/ruby-22-centos7   | test/centos7   |
+    Then the step should fail

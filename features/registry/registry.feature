@@ -528,3 +528,31 @@ Feature: Testing registry
     And the "busybox:latest" image stream tag was created
     And evaluation of `image_stream_tag("busybox:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do exist in the registry
+    
+  # @author mcurlej@redhat.com
+  # @case_id OCP-10788
+  Scenario: Can import private image from docker hub and another openshift embed docker registry
+    Given I have a project
+    When I run the :new_secret client command with:
+      | secret_name     | docker-secret                                                        |
+      | credential_file | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | docker_image | qeopenshift/ruby-22-centos7:latest |
+    Then the step should succeed
+    And the "ruby-22-centos7" image stream was created
+    When I run the :tag client command with:
+      | source_type | docker                             |
+      | source      | qeopenshift/ruby-22-centos7:latest |
+      | dest        | ruby-22-centos7-1:latest           |
+    Then the step should succeed
+    And the "ruby-22-centos7-1" image stream was created
+    When I run the :get client command with:
+      | resource      | is              |
+      | resource_name | ruby-22-centos7 |
+      | o             | json            |
+    And I save the output to file> is.json
+    Then I run oc create over "is.json" replacing paths:
+      | ["metadata"]["name"] | ruby-22-centos7-2 |
+    Then the step should succeed
+    And the "ruby-22-centos7-2" image stream was created
