@@ -334,8 +334,10 @@ goto_one_deployment_environment_tab:
   action: goto_environment_tab
 check_dc_strategy:
   action: check_dc_loaded_completely
-  elements:
-  - selector:
+  action: check_dc_strategy_on_dc_page
+check_dc_strategy_on_dc_page:
+  element:
+    selector:
       xpath: //div[@ng-if="deploymentConfig.spec.strategy.type"]/dd[contains(.,'<dc_strategy>')]
 check_dc_manual_cli_trigger:
   action: check_dc_loaded_completely
