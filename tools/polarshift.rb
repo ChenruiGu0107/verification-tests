@@ -46,9 +46,9 @@ module CucuShift
       end
 
       command :"update-automation" do |c|
-        c.syntax = 'dyn.rb create_a [options]'
-        c.description = 'create A record depending on opts'
-        c.option('--wait', "wait on message bus for operation to complete")
+        c.syntax = "#{$0} update-automation [options]"
+        c.description = 'Update test case automation related fields.'
+        c.option('--no-wait', "Wait on message bus for operation to complete.")
         c.action do |args, options|
           setup_global_opts(options)
           if args.empty?
@@ -74,7 +74,9 @@ module CucuShift
           end
 
           ## prepare user/password to the bus early to catch message
-          bus_client = msgbus.new_client
+          if options.no_wait.nil?
+            bus_client = msgbus.new_client
+          end
 
           puts "Updating cases: #{updates.keys.join(", ")}.."
           res = polarshift.
@@ -87,14 +89,16 @@ module CucuShift
               puts "unknown importer response:\n#{res[:response]}"
               exit false
             end
-            puts "waiting for a bus message with selector: #{filter}"
-            message = nil
-            bus_client.subscribe(msgbus.default_queue, selector:filter) do |msg|
-              message = msg
-              bus_client.close
+            if options.no_wait.nil?
+              puts "waiting for a bus message with selector: #{filter}"
+              message = nil
+              bus_client.subscribe(msgbus.default_queue, selector:filter) do |m|
+                message = m
+                bus_client.close
+              end
+              bus_client.join
+              puts STOMPBus.msg_to_str(message)
             end
-            bus_client.join
-            puts STOMPBus.msg_to_str(message)
           else
             puts "HTTP Status: #{res[:exitcode]}, Response:\n#{res[:response]}"
             exit false
