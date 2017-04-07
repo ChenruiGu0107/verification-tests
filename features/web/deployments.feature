@@ -836,10 +836,8 @@ Feature: Check deployments function
     Then the step should succeed
     When I run the :click_save_button web console action
     Then the step should succeed
-    When I perform the :check_dc_strategy web console action with:
-      | project_name | <%= project.name %> |
-      | dc_name      | hooks               |
-      | dc_strategy  | Custom              |
+    When I perform the :check_dc_strategy_on_dc_page web console action with:
+      | dc_strategy | Custom |
     Then the step should succeed
     When I get the visible text on web html page
     Then the output should not contain "Hooks"

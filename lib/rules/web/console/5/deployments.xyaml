@@ -339,9 +339,11 @@ goto_one_deployment_environment_tab:
   action: goto_environment_tab
 check_dc_strategy:
   action: goto_one_dc_page
+  action: check_dc_strategy_on_dc_page
+check_dc_strategy_on_dc_page:
   action: click_on_configuration_tab
-  elements:
-  - selector:
+  element:
+    selector:
       xpath: //dt[@ng-if-start='deploymentConfig.spec.strategy.type']/following-sibling::dd[contains(.,'<dc_strategy>')]
 check_dc_manual_cli_trigger:
   action: check_dc_loaded_completely
@@ -825,7 +827,7 @@ select_dc_strategy_type:
 check_dc_custom_strategy_settings:
   elements:
   - selector:
-      xpath: //a[contains(@href,'deployment_strategies.html#custom-strategy') and contains(normalize-space(),'Learn More')]
+      xpath: //a[contains(@href,'custom-strategy') and contains(normalize-space(),'Learn More')]
   - selector:
       id: imageName
     type: input
@@ -833,7 +835,6 @@ check_dc_custom_strategy_settings:
       xpath: //label[contains(normalize-space(),'Command')]
   - selector:
       xpath: //div[contains(@ng-if,'Custom')]//label[contains(normalize-space(),'Environment Variables')]
-  action: click_to_show_dc_advanced_strategy_options
 click_to_show_dc_advanced_strategy_options:
   element:
     selector:

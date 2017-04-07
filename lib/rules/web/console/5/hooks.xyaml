@@ -7,7 +7,7 @@ check_dc_recreate_strategy_default_settings:
   - selector:
       xpath: //div[contains(@ng-model,'strategyData.type')]//span[@aria-label='Select box activate']//span[contains(text(),'Recreate')]
   - selector:
-      xpath: //a[contains(@href,'deployment_strategies.html#recreate-strategy') and contains(normalize-space(),'Learn More')]
+      xpath: //a[contains(@href,'recreate-strategy') and contains(normalize-space(),'Learn More')]
   - selector:
       xpath: //input[@id='strategyTimeout' and @placeholder='600']
     type: input
