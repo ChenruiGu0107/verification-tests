@@ -42,6 +42,19 @@ class STOMPBus
           {host: h}
         }
       end
+      if pile_of_opts[:port]
+        hosts.each { |h|
+          h[:port] = pile_of_opts[:port]
+          h[:port] = Integer(h[:port]) if String === h[:port]
+        }
+      end
+      if pile_of_opts[:ssl]
+        hosts.each { |h|
+          h[:ssl] = pile_of_opts[:ssl]
+          h[:ssl] = to_bool(h[:ssl]) if String === h[:ssl]
+        }
+      end
+
       if service_hosts
         hosts.map! { |h| service_hosts.first.merge h }
       end
