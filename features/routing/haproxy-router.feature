@@ -1200,10 +1200,13 @@ Feature: Testing haproxy router
     And I wait until number of replicas match "1" for replicationController "tc-518936-2"
     Given I store in the clipboard the pods labeled:
       | deployment=tc-518936-2 |
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I run the :logs client command with:
-      | resource_name| pods/<%= cb.pods[0].name%> |
+      | resource_name| <%= cb.pods[0].name%> |
     Then the output should contain:
       | must be a positive duration |
+    """
     When I run the :env client command with:
       | resource | dc/tc-518936 |
       | e | RELOAD_INTERVAL=abc |
@@ -1211,10 +1214,13 @@ Feature: Testing haproxy router
     And I wait until number of replicas match "1" for replicationController "tc-518936-3"
     Given I store in the clipboard the pods labeled:
       | deployment=tc-518936-3 |
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I run the :logs client command with:
-      | resource_name| pods/<%= cb.pods[0].name%> |
+      | resource_name| <%= cb.pods[0].name%> |
     Then the output should contain:
       | Invalid RELOAD_INTERVAL |
+    """
 
   # @author zzhao@redhat.com
   # @case_id OCP-12572 OCP-12935
