@@ -81,13 +81,14 @@ Feature: Add env variables to image feature
   Scenario Outline: Add env variables to postgresql image
     Given I have a project
     When I run the :new_app client command with:
-      | name         | psql                           |
-      | docker_image | <image>                        |
-      | env          | POSTGRESQL_USER=user           |
-      | env          | POSTGRESQL_PASSWORD=redhat     |
-      | env          | POSTGRESQL_DATABASE=sampledb   |
-      | env          | POSTGRESQL_MAX_CONNECTIONS=42  |
-      | env          | POSTGRESQL_SHARED_BUFFERS=64MB |
+      | name              | psql                           |
+      | docker_image      | <image>                        |
+      | env               | POSTGRESQL_USER=user           |
+      | env               | POSTGRESQL_PASSWORD=redhat     |
+      | env               | POSTGRESQL_DATABASE=sampledb   |
+      | env               | POSTGRESQL_MAX_CONNECTIONS=42  |
+      | env               | POSTGRESQL_SHARED_BUFFERS=64MB |
+      | insecure_registry | true                           |
     Then the step should succeed
     And a pod becomes ready with labels:
       | deployment=psql-1 |
@@ -120,9 +121,9 @@ Feature: Add env variables to image feature
       | 42              |
     Examples:
       | image |
-      | <%= product_docker_repo %>openshift3/postgresql-92-rhel7 |
-      | <%= product_docker_repo %>rhscl/postgresql-94-rhel7      |
-      | <%= product_docker_repo %>rhscl/postgresql-95-rhel7      |
+      | <%= product_docker_repo %>openshift3/postgresql-92-rhel7 | # @case_id OCP-11452
+      | <%= product_docker_repo %>rhscl/postgresql-94-rhel7      | # @case_id OCP-12201
+      | <%= product_docker_repo %>rhscl/postgresql-95-rhel7      | # @case_id OCP-10867
 
   # @author cryan@redhat.com
   # @case_id OCP-10653
