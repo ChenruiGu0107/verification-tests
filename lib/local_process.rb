@@ -74,15 +74,16 @@ module CucuShift
       when IO, Symbol
         res[:out] = opts[:stdout]
       else
-        raise "don't know how to handle stdout: #{opts[:stdout].class}"
+        raise "don't know how to handle stdout: #{opts[:stdout].inspect}"
       end
 
       ## deal with stderr
-      if opts[:stderr].equal? opts[:stdout]
+      stderr = opts[:stderr].nil? ? :stdin : opts[:stderr]
+      if stderr == :stdin || stderr.equal?(opts[:stdout])
         res[:err] = [:child, :out]
       else
-        case opts[:stderr]
-        when nil
+        case stderr
+        when :stderr
           @err_r, @err_w = IO.pipe
           @err_r.binmode if opts[:binmode]
           res[:err] = @err_w
@@ -92,9 +93,9 @@ module CucuShift
             e
           end
         when IO, Symbol
-          res[:err] = opts[:stderr]
+          res[:err] = stderr
         else
-          raise "don't know how to handle stderr: #{opts[:stderr].class}"
+          raise "don't know how to handle stderr: #{opts[:stderr].inspect}"
         end
       end
 

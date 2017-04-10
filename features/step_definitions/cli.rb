@@ -118,6 +118,7 @@ end
 When /^I process and create:$/ do |table|
   # run the process command, then pass it in as stdin to 'oc create'
   process_opts = opts_array_process(table.raw)
+  process_opts << [:_stderr, :stderr]
   @result = user.cli_exec(:process, process_opts)
   if @result[:success]
     @result = user.cli_exec(:create, {f: "-", _stdin: @result[:stdout]})
