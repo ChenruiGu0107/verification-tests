@@ -417,17 +417,19 @@ module CucuShift
               # NET::SSH high level API is not very suitable for multi-streams.
               # One can register `on_open_failed` hook only after channel is
               # created. If the loop thread is running at that time, the
-              # channel may fail earlier than the hook is regustered.
+              # channel may fail earlier than the hook is registered.
               # For the time being, lets log the errors we see. We can patch
               # NET::SSH and NET::SCP upsteam to allow setting the hook
-              # upon stream creation and after that we would be able to catch
+              # upon stream creation. After that we would be able to catch
               # errors per individual channels.
-              unless e.message == "closed stream"
+              if session.closed?
+                logger.error "SSH IO thread quit due to: #{e.inspect}"
+                raise e
+              else
                 logger.error "SSH IO thread error!"
                 logger.error e
                 retry
               end
-              raise e
             end
           }
           @loop_thread.name = "SSH-#{user}@#{host}"
