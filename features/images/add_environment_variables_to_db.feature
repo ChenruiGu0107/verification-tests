@@ -1,6 +1,5 @@
 Feature: Add env variables to image feature
   # @author dyan@redhat.com
-  # @case_id OCP-11085 OCP-12385
   Scenario Outline: Add env variables to mysql image
     Given I have a project
     When I run the :create client command with:
@@ -10,7 +9,7 @@ Feature: Add env variables to image feature
       | resource | template |
     Then the step should succeed
     And the output should contain:
-      | mysql-ephemeral   MySQL database service, without persistent storage. |
+      | mysql-ephemeral |
     And I run the :new_app client command with:
       | template | mysql-ephemeral |
     Then the step should succeed
@@ -73,8 +72,9 @@ Feature: Add env variables to image feature
 
     Examples:
       | template |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-55-env-var-test.json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-56-env-var-test.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-55-env-var-test.json | # @case_id OCP-11085
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-56-env-var-test.json | # @case_id OCP-12385
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mysql-57-env-var-test.json | # @case_id OCP-12393
 
   # @author wewang@redhat.com cryan@redhat.com
   # @case_id OCP-11452 OCP-12201 OCP-10867
