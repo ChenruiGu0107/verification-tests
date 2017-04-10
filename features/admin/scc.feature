@@ -689,3 +689,24 @@ Feature: SCC policy related scenarios
     When I run the :create client command with:
       | f | gitrepo-selinux-fsgroup-test.json |
     Then the step should succeed
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-13573
+  @admin
+  Scenario: Verify the privileged SCC allow to request any capabilities
+    Given I have a project
+    Given the first user is cluster-admin
+    Given I use the first master host
+    And I run the :get admin command with:
+      | resource      | scc                             |
+      | resource_name | privileged                      |
+      | o             | jsonpath={.allowedCapabilities} |
+    Then the step should succeed
+    And the output should match:
+      | [*] |
+    And I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/stuartchuan/v3-testfiles/master/authorization/scc/pod_requests_cap_fsetid.json |
+      | n | <%= project.name %>                                                                                              |
+    Then the step should succeed
+    When I get project pod named "pod-add-fsetid" as JSON
+    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['securityContext']['capabilities']['add'][0] == "FSETID"
