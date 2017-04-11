@@ -105,7 +105,7 @@ Feature: oc debug related scenarios
   Scenario: oc debug with or without init container for pod
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/testfile-openshift/master/initContainer/init-containers-success.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/init-containers-success.yaml |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=hello-pod |
@@ -121,6 +121,7 @@ Feature: oc debug related scenarios
       | Init Containers: |
       | success          |
       | /bin/true        |
+    Given I ensure "hello-pod-debug" pod is deleted
     When I run the :debug background client command with:
       | resource             | pod/hello-pod |
       | keep_init_containers | false         |
