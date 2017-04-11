@@ -141,10 +141,10 @@ Feature: Testing abrouting
     """
     When I execute on the pod:
       | curl                                                                     |
-      | -sS                                                                       |
+      | -I                                                                       |
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | -k                                                                       |
-    Then the output should contain "503"
+    Then the output should contain "503 Service Unavailable"
     """
 
   # @author yadu@redhat.com
