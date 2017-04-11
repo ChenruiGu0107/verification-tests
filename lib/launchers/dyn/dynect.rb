@@ -9,9 +9,7 @@ module CucuShift
     extend Common::BaseHelper
 
     def initialize(opts={})
-      args = opts.dup
-      args.merge! conf[:services, :dyndns]
-      args.merge! get_env_credentials
+      args = conf[:services, :dyndns].merge(get_env_credentials).merge(opts)
       unless args[:user_name] && args[:password]
         raise "no Dynect credentials found"
       end
@@ -78,6 +76,7 @@ module CucuShift
       name.end_with?('.') ? name[0..-2] : "#{name}.#{@domain_suffix}"
     end
 
+    # @return see #fqdn
     def dyn_create_a_records(record, target, auth_token=@auth_token, retries=@@dyn_retries)
       fqdn = fqdn(record)
       path = "ARecord/#{@zone}/#{fqdn}/"
@@ -90,6 +89,21 @@ module CucuShift
       return fqdn
     end
     alias dyn_create_a_record dyn_create_a_records
+
+    # replace all A records for a given FQDN, see
+    #   https://help.dyn.com/replace-a-records-api/
+    # @param record [String] absolute or relative DNS name
+    # @param ips [Array<String>] target IPs
+    # @return see #fqdn
+    def dyn_replace_a_records(record, ips, auth_token=@auth_token, retries=@@dyn_retries)
+      fqdn = fqdn(record)
+      path = "ARecord/#{@zone}/#{fqdn}/"
+      req = { :ARecords =>
+        [ips].flatten.map { |ip| {:rdata => { :address => ip }, :ttl => "60"} }
+      }
+      dyn_put(path, req, auth_token, retries)
+      return fqdn
+    end
 
     # @return [String] random `timed` FQDN
     def dyn_create_random_a_wildcard_records(target, auth_token=@auth_token, retries=@@dyn_retries)
@@ -124,6 +138,18 @@ module CucuShift
       end
       return time
     end
+
+    # @param record [String] record string as obtained from API
+    # @return [Array<type, zone, fqdn>]
+    def parse_record(record)
+      m = %r%^(?:/REST/)?(\w+)Record/([-\w.]+)/(\*?[-\w.]+)/%.match record
+      return [m[1], m[2], m[3]]
+    end
+
+    # @param record [String] record string as obtained from API
+    # @return [Hash] with record details obtained from API
+    # def get_record(record)
+    # end
 
     # @return [Array] of name, [Time], record_api_path
     def dyn_get_timed_a_records(auth_token=@auth_token, retries=@@dyn_retries)
@@ -165,9 +191,8 @@ module CucuShift
       records = dyn_get_all_zone_records(auth_token, retries)
       record_names = records.map {|r| r.gsub(%r{^.*/([^/]+)/\d+$}, '\\1')}
       to_delete = record_names.size.times.each_with_object([]) do |i, memo|
-        if record_names[i].count(".") < 3
+        if record_names[i].size <= @domain_suffix.size
           # for safety ignore top level records
-          # we may make this smarter to depend on the top level domain
         elsif pattern.kind_of? Regexp
           memo << records[i] if record_names[i].match(pattern)
         else

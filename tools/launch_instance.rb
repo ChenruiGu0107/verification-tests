@@ -67,6 +67,15 @@ module CucuShift
         end
       end
 
+      command :fiddle do |c|
+        c.syntax = "#{__FILE__} fiddle"
+        c.description = 'enter a pry shell to play with API'
+        c.action do |args, options|
+          require 'pry'
+          binding.pry
+        end
+      end
+
       run!
     end
 
@@ -350,21 +359,22 @@ module CucuShift
         self.dns_component = task[:name]
       when "dns_hostnames"
         begin
+          dyn = nil
           changed = false
-          dyn = get_dyn
           erb_binding.local_variable_get(:hosts).each do |host|
             if !host.has_hostname?
+              dyn ||= get_dyn
               changed = true
               dns_record = host[:cloud_instance_name] || rand_str(3, :dns)
               dns_record = dns_record.gsub("_","-")
               dns_record = "#{dns_record}.#{dns_component}"
-              host.update_hostname dyn.dyn_create_a_records(dns_record, host.ip)
+              host.update_hostname dyn.dyn_replace_a_records(dns_record, host.ip)
               host[:fix_hostnames] = true
             end
           end
           dyn.publish if changed
         ensure
-          dyn.close if changed
+          dyn.close if dyn
         end
       when "wildcard_dns"
         begin
@@ -380,14 +390,13 @@ module CucuShift
           end
 
           dns_record = "*.#{dns_component}"
-          dyn.dyn_delete_matching_records(dns_record) if task[:overwrite]
-          fqdn = dyn.dyn_create_a_records(dns_record, ips)
+          fqdn = dyn.dyn_replace_a_records(dns_record, ips)
           if task[:store_in]
             erb_binding.local_variable_set task[:store_in].to_sym, fqdn
           end
           dyn.publish
         ensure
-          dyn.close
+          dyn.close if dyn
         end
       when "playbook"
         inventory_erb = ERB.new(readfile(task[:inventory], config_dir))
