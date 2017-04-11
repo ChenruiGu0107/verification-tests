@@ -7,7 +7,7 @@ Feature: Health related feature on web console
     When I run the :create client command with:
       | f    |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/<kind>-with-two-containers.yaml |
     Then the step should succeed
-    
+
     Given a pod becomes ready with labels:
       | run |
     When I perform the :<action_name> web console action with:
@@ -175,7 +175,7 @@ Feature: Health related feature on web console
       | container_name | hello-openshift-fedora |
       | health_kind    | liveness               |
       | command_arg    | -l                     |
-    Then the step should succeed   
+    Then the step should succeed
     When I perform the :add_another_arg_of_command_probe web console action with:
       | container_name | hello-openshift-fedora |
       | health_kind    | liveness               |
@@ -195,7 +195,7 @@ Feature: Health related feature on web console
       | container_name   | hello-openshift-fedora                         |
       | readiness_probe  | Readiness Probe: GET /health on port 8080      |
       | liveness_probe   | Liveness Probe: ls -l /usr/bin/sh              |
-    Then the step should succeed    
+    Then the step should succeed
     When I perform the :goto_k8s_deployment_health_check_page web console action with:
       | project_name        | <%= project.name %> |
       | k8s_deployment_name | hello-openshift     |
@@ -203,7 +203,7 @@ Feature: Health related feature on web console
     When I perform the :remove_probe web console action with:
       | container_name | hello-openshift |
       | health_kind    | readiness       |
-    Then the step should succeed    
+    Then the step should succeed
     When I perform the :remove_probe web console action with:
       | container_name | hello-openshift-fedora |
       | health_kind    | liveness               |
@@ -219,7 +219,7 @@ Feature: Health related feature on web console
     Then the step should fail
     When I perform the :check_liveness_probe web console action with:
       | container_name   | hello-openshift-fedora            |
-      | liveness_probe   | Liveness Probe: ls -l /usr/bin/sh | 
+      | liveness_probe   | Liveness Probe: ls -l /usr/bin/sh |
     Then the step should fail
 
   # @author yapei@redhat.com
@@ -265,7 +265,7 @@ Feature: Health related feature on web console
     When I perform the :check_readiness_probe web console action with:
       | container_name   | hello-openshift-fedora                    |
       | readiness_probe  | Readiness Probe: GET /health on port 8080 |
-    Then the step should succeed    
+    Then the step should succeed
     When I perform the :goto_k8s_replicaset_health_check_page web console action with:
       | project_name        | <%= project.name %> |
       | k8s_replicaset_name | frontend            |
@@ -273,7 +273,7 @@ Feature: Health related feature on web console
     When I perform the :remove_probe web console action with:
       | container_name | hello-openshift |
       | health_kind    | liveness        |
-    Then the step should succeed    
+    Then the step should succeed
     When I perform the :remove_probe web console action with:
       | container_name | hello-openshift-fedora |
       | health_kind    | readiness              |
@@ -287,5 +287,5 @@ Feature: Health related feature on web console
     Then the step should fail
     When I perform the :check_readiness_probe web console action with:
       | container_name   | hello-openshift-fedora                    |
-      | liveness_probe   | Readiness Probe: GET /health on port 8080 | 
+      | liveness_probe   | Readiness Probe: GET /health on port 8080 |
     Then the step should fail
