@@ -1396,3 +1396,88 @@ Feature: test master config related steps
     When evaluation of `YAML.load pod("ruby-ex-2-build").env_var("BUILD", user: user)` is stored in the :build clipboard
     Then the expression should be true> cb.build.dig("spec", "strategy", "sourceStrategy", "env", 0, "name") == "FOO"
     Then the expression should be true> cb.build.dig("spec", "strategy", "sourceStrategy", "env", 0, "value") == "test"
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-12050
+  @admin
+  @destructive
+  Scenario: User can not login when identity exists and references to the user which not exist
+    Given I have a project
+    And I restore user's context after scenario
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        mappingMethod: generate
+        name: anypassword
+        provider:
+          apiVersion: v1
+          kind: AllowAllPasswordIdentityProvider
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 509119_user                 |
+      | password | password                    |
+    Then the step should succeed
+    When I run the :delete admin command with:
+      | object_type       | users              |
+      | object_name_or_id | 509119_user        |
+    Then the step should succeed
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 509119_user                 |
+      | password | password                    |
+    Then the step should fail
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 509119_test                 |
+      | password | password                    |
+    Then the step should succeed
+    Given admin ensures identity "anypassword:509119_user" is deleted
+    Then the step should succeed
+    When I run the :delete admin command with:
+      | object_type       | users              |
+      | object_name_or_id | 509119_test        |
+    Then the step should succeed
+    Given admin ensures identity "anypassword:509119_test" is deleted
+    Then the step should succeed
+    Given master config is restored from backup
+    And the master service is restarted on all master nodes
+
+  # @author: chuyu@redhat.com
+  # @case_id: OCP-12190
+  @admin
+  @destructive
+  Scenario: osc login can be prompted messages for how to generate a token with challenge=false for identity provider
+    Given I have a project
+    And I restore user's context after scenario
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: false
+        login: true
+        mappingMethod: claim
+        name: anypassword
+        provider:
+          apiVersion: v1
+          kind: AllowAllPasswordIdentityProvider
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+    Then the step should fail
+    And the output should match "You must obtain an API token by visiting.*oauth/token/request"
+    Given master config is restored from backup
+    And the master service is restarted on all master nodes

@@ -42,10 +42,10 @@ Given /^I restore user's context after scenario$/ do
   @result = user.cli_exec(:config, subcommand: "current-context")
   raise "could not get current-context" unless @result[:success]
 
-  _current_context = @result[:response]
+  _current_context = @result[:response].strip
   _user = user
 
   teardown_add {
-    _user.cli_exec(:config_set_context, name: _current_context)
+    _user.cli_exec(:config_use_context, name: _current_context)
   }
 end
