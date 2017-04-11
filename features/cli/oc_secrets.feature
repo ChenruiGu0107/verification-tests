@@ -258,7 +258,6 @@ Feature: oc_secrets.feature
   Scenario: Remove secret from SA
     Given a "test1/testfile1" file is created with the following lines:
     |test1|
-    
     Given I have a project
     When I run the :new_secret client command with:
       | secret_name     | testsecret1     |
@@ -332,37 +331,27 @@ Feature: oc_secrets.feature
     Then the step should succeed
     And the output should not contain "testsecret1"
     And the output should not contain "testsecret2"
-
     When I run the :secrets client command with:
     | action         | unlink    |
     | serviceaccount | default   |
     | secrets_name   | test-test |
     Then the step should fail
     And the output should match:
-    | .*"test-test" not found|
- 
-    When I run the :secrets client command with:
-    | action         | unlink      |
-    | serviceaccount | default     |
-    | secrets_name   | testsecret1 |
-    Then the step should succeed
+    | .*"test-test" not found| 
     When I run the :describe client command with:
       | resource | serviceaccount/default |
     Then the step should succeed
-    And the output should not contain "testsecret1"
-    
+    And the output should not contain "testsecret1" 
     When I run the :secrets client command with:
       | action         | link                   |
       | serviceaccount | serviceaccount/default |
       | secrets_name   | secret/testsecret1     |
     Then the step should succeed  
-    
     When I run the :get client command with:
       | resource      | serviceaccount/default |
       | o             | json                   |
     Then the step should succeed
     And the expression should be true> @result[:parsed]['secrets'].any? {|p| p['name'].include? 'testsecret1'}
-
     When I run the :secrets client command with:
     | action         | unlink      |
     | serviceaccount | default     |
@@ -371,12 +360,10 @@ Feature: oc_secrets.feature
     Then the step should fail
     And the output should match:
     | .*test-test.* not found|
-
     When I run the :describe client command with:
       | resource | serviceaccount/default|
     Then the step should succeed
     And the output should not contain "testsecret1"
-  
     When I run the :secrets client command with:
       | action         | link                   |
       | serviceaccount | serviceaccount/default |
@@ -384,7 +371,6 @@ Feature: oc_secrets.feature
     Then the step should fail
     And the output should match:
     |.*test-test.* not found|
-    
     When I run the :secrets client command with:
       | action         | link                        |
       | serviceaccount | serviceaccount/default-test |
@@ -392,7 +378,6 @@ Feature: oc_secrets.feature
     Then the step should fail
     And the output should match:
     | .*default-test.* not found|
-  
     When I run the :secrets client command with:
     | action         | unlink                      |
     | serviceaccount | serviceaccount/default_test |
