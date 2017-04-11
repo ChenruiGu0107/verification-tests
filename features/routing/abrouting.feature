@@ -149,7 +149,7 @@ Feature: Testing abrouting
 
   # @author yadu@redhat.com
   # @case_id OCP-12076
-  Scenario: Set weight for unsecure route
+  Scenario: Set backends weight for unsecure route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
