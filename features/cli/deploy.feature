@@ -946,7 +946,7 @@ Feature: deployment related features
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/<file_name>|
     Then the step should succeed
     When the pod named "<pod_name>" is present
-    And I wait for the steps to pass:
+    And I wait up to 300 seconds for the steps to pass:
 
     """
       When I get project pod named "<pod_name>" as JSON
