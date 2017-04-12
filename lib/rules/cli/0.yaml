@@ -457,6 +457,7 @@
     :to_docker: --to-docker=<value>
     :to : --to=<value>
     :no-output: --no-output=<value>
+    :env_file: --env-file=<value>
 :new_project:
   :cmd: oc new-project <project_name>
   #:expected:

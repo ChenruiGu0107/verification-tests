@@ -2794,6 +2794,41 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given the "ruby-hello-world-3" build was created
 
+  # @author shiywang@redhat.com
+  # @case_id OCP-11419
+  Scenario: Supply oc new-build parameter list+env vars via a file
+    Given I have a project
+    Given a "test1.env" file is created with the following lines:
+    """
+    MYSQL_DATABASE=test
+    """
+    When I run the :new_build client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | env_file | test1.env                                     |
+    And the step should succeed
+    When I run the :env client command with:
+      | resource | po/ruby-hello-world-1-build |
+      | list     | true                        |
+    And the output should match:
+      | MYSQL_DATABASE |
+      | test           |
+    When I run the :delete client command with:
+      | object_type | all  |
+      | all         | true |
+    Given a "test2.env" file is created with the following lines:
+    """
+    APPLE=CLEMENTINE
+    """
+    When I run the :new_build client command with:
+      | app_repo | https://github.com/openshift/ruby-hello-world |
+      | env_file | test2.env                                     |
+    When I run the :env client command with:
+      | resource | po/ruby-hello-world-1-build |
+      | list     | true                        |
+    And the output should match:
+      | APPLE      |
+      | CLEMENTINE |
+
   # @author xiuwang@redhat.com
   # @case_id OCP-11025
   Scenario: oc start-build with url 
