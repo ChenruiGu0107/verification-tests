@@ -183,14 +183,17 @@ When(/^I delete all resources by labels:$/) do |table|
 end
 
 When(/^I delete all resources from the project$/) do
-    step %Q/I run the :delete client command with:/, table(%{
-     | object_type | all  |
-     | all         | true |
-   })
-    step %Q/I run the :delete client command with:/, table(%{
-     | object_type | secrets |
-     | all         | true    |
-   })
+  step %Q/I run the :delete client command with:/, table(%{
+    | object_type | all  |
+    | all         | true |
+  })
+  raise "unable to delete all resources, see logs" unless @result[:success]
+
+  step %Q/I run the :delete client command with:/, table(%{
+    | object_type | secrets |
+    | all         | true    |
+  })
+  raise "unable to delete secrets, see logs" unless @result[:success]
 end
 
 
