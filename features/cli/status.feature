@@ -4,12 +4,6 @@ Feature: Check oc status cli
   Scenario: Show RC info and indicate bad secrets reference in 'oc status'
     Given I have a project
 
-    # Check project status when project is empty
-    When I run the :status client command
-    Then the step should succeed
-    And the output should contain:
-      | You have no services, deployment configs, or build configs |
-
     # Check standalone RC info is dispalyed in oc status output
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/standalone-rc.yaml |
@@ -19,13 +13,25 @@ Feature: Check oc status cli
     Then the step should succeed
     Then the output should match:
       | rc/<%= cb.stdrc_name %> runs openshift/origin |
-      | rc/<%= cb.stdrc_name %> created |
-      | \\d warning.*'oc status -v' to see details |
+      | rc/<%= cb.stdrc_name %> created               |
+      | \\d warning.*'oc status -v' to see details    |
     When I run the :status client command with:
       | v ||
     Then the step should succeed
     Then the output should match:
       | rc/<%= cb.stdrc_name %> is attempting to mount a missing secret secret/<%= cb.mysecret_name %> |
+    # Clear out memory and cpu usage to fit into online quota limits
+    Given I ensure "<%= cb.stdrc_name %>" rc is deleted
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should succeed
+    When I run the :status client command
+    Then the step should succeed
+    And the output should contain:
+      | pod/hello-openshift runs aosqe/hello-openshift |
+    # Clear out memory and cpu usage to fit into online quota limits
+    And I ensure "hello-openshift" pod is deleted
 
     # Check DC,RC info when has missing/bad secret reference
     When I run the :create client command with:
@@ -48,8 +54,8 @@ Feature: Check oc status cli
     Then the step should succeed
     And evaluation of `"rcmatchse"` is stored in the :matchrc_name clipboard
     Then I run the :describe client command with:
-      | resource    | rc |
-      | name | rcmatchse |
+      | resource | rc        |
+      | name     | rcmatchse |
     Then the step should succeed
     And the output should match:
       | Selector:\\s+name=database |
@@ -57,16 +63,11 @@ Feature: Check oc status cli
       | v ||
     Then the step should succeed
     Then the output should match:
-      | svc/database |
-      | dc/database deploys |
-      | rc/<%= cb.matchrc_name %> runs |
+      | svc/database                      |
+      | dc/database deploys               |
+      | rc/<%= cb.matchrc_name %> runs    |
       | rc/<%= cb.matchrc_name %> created |
-      | svc/frontend |
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
-    Then the step should succeed
-    When I run the :status client command
-    Then the step should succeed
+      | svc/frontend                      |
 
   # @author akostadi@redhat.com xxia@redhat.com
   # @case_id OCP-12383
