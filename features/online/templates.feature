@@ -1,4 +1,87 @@
 Feature: templates.feature
+  # @author zhaliu@redhat.com
+  # @case_id OCP-12744
+  Scenario: Create new application using default template "django-psql-persistent"
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | django-psql-persistent          |
+      | param    | NAME=django-psql-persistent     |
+      | param    | DATABASE_USER=user              |
+      | param    | DATABASE_NAME=testdb            |
+    Then the step should succeed
+    And the "postgresql" PVC becomes :bound within 300 seconds
+    And a pod becomes ready with labels:
+      | deploymentconfig=postgresql |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the "<%= pod.name %>" pod:
+      | bash | -c | psql -h 127.0.0.1 -U user -d testdb -c "CREATE TABLE test (product varchar(10));INSERT INTO test VALUES ('openshift');SELECT * FROM test;" |
+    Then the step should succeed
+    And the output should contain:
+      | openshift |
+    """
+    Then the "django-psql-persistent-1" build was created
+    And the "django-psql-persistent-1" build completed
+    And I wait for the "django-psql-persistent" service to become ready
+    Then I wait up to 60 seconds for a web server to become available via the "django-psql-persistent" route
+    Then the output should contain "Welcome to your Django application on OpenShift"
+
+  # @author zhaliu@redhat.com
+  # @case_id OCP-12745
+  Scenario: Create new application using default template "dancer-mysql-persistent"
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | dancer-mysql-persistent     |
+      | param    | NAME=dancer-mysql-persistent              |
+      | param    | DATABASE_USER=user              |
+      | param    | DATABASE_PASSWORD=user          |
+      | param    | DATABASE_NAME=testdb        |
+    Then the step should succeed
+    And the "database" PVC becomes :bound within 300 seconds
+    And a pod becomes ready with labels:
+      | deploymentconfig=database |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the "<%= pod.name %>" pod:
+      | bash | -c | mysql -h 127.0.0.1 -u user -puser -D testdb -e 'create table test (name VARCHAR(20));insert into test VALUES("openshift");select * from  test;' |
+    Then the step should succeed
+    And the output should contain:
+      | openshift |
+    """
+    Then the "dancer-mysql-persistent-1" build was created
+    And the "dancer-mysql-persistent-1" build completed
+    And I wait for the "dancer-mysql-persistent" service to become ready
+    Then I wait up to 60 seconds for a web server to become available via the "dancer-mysql-persistent" route
+    Then the output should contain "Welcome to your Dancer application on OpenShift"
+
+  # @author zhaliu@redhat.com
+  # @case_id OCP-12743
+  Scenario: Create new application using default template "cakephp-mysql-persistent"
+    Given I have a project
+    When I run the :new_app client command with:
+      | template | cakephp-mysql-persistent     |
+      | param    | NAME=cakephp-mysql-persistent              |
+      | param    | DATABASE_USER=user              |
+      | param    | DATABASE_PASSWORD=user          |
+      | param    | DATABASE_NAME=testdb        |
+    Then the step should succeed
+    And the "mysql" PVC becomes :bound within 300 seconds
+    And a pod becomes ready with labels:
+      | deploymentconfig=mysql |
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the "<%= pod.name %>" pod:
+      | bash | -c | mysql -h 127.0.0.1 -u user -puser -D testdb -e 'create table test (name VARCHAR(20));insert into test VALUES("openshift");select * from  test;' |
+    Then the step should succeed
+    And the output should contain:
+      | openshift |
+    """
+    Then the "cakephp-mysql-persistent-1" build was created
+    And the "cakephp-mysql-persistent-1" build completed
+    And I wait for the "cakephp-mysql-persistent" service to become ready
+    Then I wait up to 60 seconds for a web server to become available via the "cakephp-mysql-persistent" route
+    Then the output should contain "Welcome to your CakePHP application on OpenShift"
+
   # ONLY ONLINE related templates' scripts in this file
   # @author yasun@redhat.com
   # @case_id OCP-10508
