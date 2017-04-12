@@ -226,10 +226,10 @@ Feature: Health related feature on web console
   # @case_id OCP-12100
   Scenario: Health Check for k8s replicaset
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536594/replicaset-with-two-containers.yaml |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536594/replicaset-with-two-containers.yaml" replacing paths:
+      | ["spec"]["replicas"] | 2 |
     Then the step should succeed
-    Given 3 pods become ready with labels:
+    Given 2 pods become ready with labels:
       | app=guestbook |
     When I perform the :goto_k8s_replicaset_health_check_page web console action with:
       | project_name         | <%= project.name %> |

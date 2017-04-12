@@ -356,7 +356,7 @@ check_dc_config_trigger:
   - selector:
       xpath: //dt[contains(.,"Change Of")]/following-sibling::dd[contains(.,'<dc_config_change>')]
 check_dc_image_trigger:
-  action: check_dc_loaded_completely
+  action: click_on_configuration_tab
   element:
     selector:
       xpath: //dt[contains(.,"New Image For")]/following-sibling::dd[contains(.,'<dc_image>')]
@@ -638,7 +638,7 @@ check_label:
     selector:
       xpath: //span[contains(@class, "label-pair") and a[contains(@class, "label-key") and text()="<label_key>"] and a[contains(@class, "label-value") and text()="<label_value>"]]
 check_dc_image_stream:
-  action: check_dc_loaded_completely
+  action: click_on_configuration_tab
   element:
     selector:
       xpath: //div[@class="pod-template" and div[contains(text(), "<container_name>")]]//span[text()="<image_stream>"]

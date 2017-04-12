@@ -5,13 +5,12 @@ Feature: scale related features
   Scenario: Could scale up and down on overview page
     When I create a new project via web
     Then the step should succeed
-
     #Create pod with dc
-    Given I use the "<%= project.name %>" project
     When I run the :run client command with:
-      | name         | mytest                    |
-      | image        | aosqe/hello-openshift |
-      | -l           | label=test |
+      | name   | mytest                    |
+      | image  | aosqe/hello-openshift     |
+      | -l     | label=test                |
+      | limits | memory=256Mi              |
     Then the step should succeed
 
     Given a pod becomes ready with labels:

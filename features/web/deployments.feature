@@ -6,7 +6,6 @@ Feature: Check deployments function
     When I create a new project via web
     Then the step should succeed
     # create dc
-    Given I use the "<%= project.name %>" project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
@@ -665,7 +664,6 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
       | dc_name      | dctest              |
     Then the step should succeed
-
     When I run the :click_to_goto_edit_page web console action
     Then the step should succeed
     When I perform the :update_container_image_name web console action with:
@@ -683,7 +681,6 @@ Feature: Check deployments function
       | tag            | 5.5       |
     Then the step should succeed
     When I run the :click_save_button web console action
-
     Then the step should succeed
     When I perform the :check_dc_image_stream web console action with:
       | project_name   | <%= project.name %>   |
@@ -703,7 +700,6 @@ Feature: Check deployments function
       | dc_image     | openshift/php:5.5   |
     Then the step should succeed
     Given I wait until the status of deployment "dctest" becomes :complete
-
     When I run the :click_to_goto_edit_page web console action
     Then the step should succeed
     When I perform the :set_autostart_deployment_checkbox web console action with:

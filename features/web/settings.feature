@@ -153,7 +153,7 @@ Feature: check settings page on web console
     When I run the :goto_about_page web console action
     Then the step should succeed
     When I get the visible text on web html page
-    And evaluation of `@result[:response].scan(/^OpenShift Master:\nv(.+)/)[0][0]` is stored in the :master2 clipboard
+    And evaluation of `@result[:response].scan(/^OpenShift Master:\nv(.+)/)[0][0].split(' ')[0]` is stored in the :master2 clipboard
     And evaluation of `@result[:response].scan(/^Kubernetes Master:\nv(.+)/)[0][0]` is stored in the :kube2 clipboard
     Then the expression should be true> cb.master1 == cb.master2
     Then the expression should be true> cb.kube1 == cb.kube2
