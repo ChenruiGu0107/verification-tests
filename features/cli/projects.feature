@@ -7,6 +7,8 @@ Feature: projects related features via cli
       | project_name | <%= cb.proj_name %> |
       | display_name | <%= cb.proj_name %> |
     Then the step should succeed
+    Given I wait up to 30 seconds for the steps to pass:
+    """
     And I run the :get client command with:
       | resource | project |
       |  o       | json    |
@@ -14,6 +16,7 @@ Feature: projects related features via cli
       | display-name": "<%= cb.proj_name %>" |
     And the output should not contain:
       | displayName |
+    """
 
   # @author pruan@redhat.com
   # @case_id OCP-12616
