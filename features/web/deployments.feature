@@ -7,7 +7,7 @@ Feature: Check deployments function
     Then the step should succeed
     # create dc
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/cancel-deployment-gracefully.json |
     Then the step should succeed
     And evaluation of `"hooks"` is stored in the :dc_name clipboard
     When I perform the :wait_latest_deployments_to_deployed web console action with:
@@ -20,12 +20,8 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>   |
     Then the step should succeed
-    When I perform the :wait_latest_deployments_to_status web console action with:
-      | project_name | <%= project.name %> |
-      | dc_name      | <%= cb.dc_name %>   |
-      | status_name  | Running             |
-    Then the step should succeed
-    And I get the "disabled" attribute of the "button" web element:
+    Given I wait until the status of deployment "hooks" becomes :running
+    When I get the "disabled" attribute of the "button" web element:
       | text | Deploy |
     Then the output should contain "true"
     When I perform the :wait_latest_deployments_to_deployed web console action with:
@@ -38,6 +34,7 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>   |
     Then the step should succeed
+    Given I wait until the status of deployment "hooks" becomes :running
     When I perform the :cancel_deployments web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | <%= cb.dc_name %>   |

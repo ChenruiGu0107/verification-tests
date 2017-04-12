@@ -45,6 +45,9 @@ manually_deploy:
 cancel_deployments:
   action: goto_one_deployment_page
   action: click_cancel
+  element:
+    selector:
+      xpath: //dd[contains(normalize-space(),'Cancelled')]
 edit_replicas_on_dc_page:
   action: goto_one_dc_page
   action: click_on_configuration_tab
