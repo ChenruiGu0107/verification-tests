@@ -5,7 +5,7 @@ Feature: containers related features
     Given I have a project
     And evaluation of `"doublecontainers"` is stored in the :pod_name clipboard
     When I run the :create client command with:
-      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/double_containers.json  |
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json  |
     Then the step should succeed
     And the pod named "doublecontainers" becomes ready
     When I run the :describe client command with:

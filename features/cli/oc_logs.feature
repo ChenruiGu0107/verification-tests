@@ -19,7 +19,7 @@ Feature: oc logs related features
     When I create a new application with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     When I run the :create client command with:
-      | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/double_containers.json |
+      | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
