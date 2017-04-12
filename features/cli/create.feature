@@ -508,6 +508,7 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     """
     And the output should contain "Hello"
+    And I delete all resources from the project
     #Check https github url
     Given an 8 character random string of type :dns952 is stored into the :appname1 clipboard
     When I run the :new_app client command with:
@@ -525,6 +526,7 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     """
     And the output should contain "Hello"
+    And I delete all resources from the project
     #Check http github url
     Given an 8 character random string of type :dns952 is stored into the :appname2 clipboard
     When I run the :new_app client command with:
@@ -542,6 +544,7 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     """
     And the output should contain "Hello"
+    And I delete all resources from the project
     #Check git github url
     Given an 8 character random string of type :dns952 is stored into the :appname3 clipboard
     When I run the :new_app client command with:
@@ -559,6 +562,7 @@ Feature: creating 'apps' with CLI
     Then the step should succeed
     """
     And the output should contain "Hello"
+    And I delete all resources from the project
     #Check master branch
     Given an 8 character random string of type :dns952 is stored into the :appname4 clipboard
     When I run the :new_app client command with:
@@ -570,6 +574,7 @@ Feature: creating 'apps' with CLI
       | resource | buildconfig |
       | name | <%= cb.appname4 %> |
     Then the output should match "Ref:\s+master"
+    And I delete all resources from the project
     #Check invalid branch
     Given an 8 character random string of type :dns952 is stored into the :appname5 clipboard
     When I run the :new_app client command with:
@@ -578,6 +583,7 @@ Feature: creating 'apps' with CLI
       | name | <%= cb.appname5 %> |
       | env | MYSQL_USER=test,MYSQL_PASSWORD=test,MYSQL_DATABASE=test |
     Then the output should contain "error"
+    And I delete all resources from the project
     #Check non-master branch
     Given an 8 character random string of type :dns952 is stored into the :appname6 clipboard
     When I run the :new_app client command with:
@@ -589,6 +595,7 @@ Feature: creating 'apps' with CLI
       | resource | buildconfig |
       | name | <%= cb.appname6 %> |
     Then the output should match "Ref:\s+beta4"
+    And I delete all resources from the project
     #Check non-existing docker file
     Then I run the :new_app client command with:
       | app_repo | https://github.com/openshift-qe/sample-php |
