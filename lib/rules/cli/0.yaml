@@ -431,6 +431,8 @@
     :search_raw: --search <value>
     :strategy: --strategy=<value>
     :template: --template=<value>
+    :param_file: --param-file=<value>
+    :env_file: --env-file <value>
 :new_build:
   :cmd: oc new-build
   :options:
