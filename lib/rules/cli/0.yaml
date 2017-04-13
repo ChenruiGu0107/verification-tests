@@ -441,6 +441,8 @@
     :app_repo: <value>
     :binary: --binary <value>
     :build_secret: --build-secret=<value>
+    :build_env: --build-env=<value>
+    :build_env_file: --build-env-file=<value>
     :context_dir: --context-dir=<value>
     :code: --code=<value>
     :docker_image: --docker-image=<value>
