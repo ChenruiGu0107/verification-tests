@@ -1571,6 +1571,188 @@ Feature: jenkins.feature
       | 1   |
       | 2   |
 
+  # @author shiywang@redhat.com
+  # @case_id OCP-12325 OCP-12328
+  Scenario Outline: Verify build using jenkins pipeline DSL
+    Given I have a project
+    And I have an ephemeral jenkins v<ver> application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                           |
+      | user_name | system:serviceaccount:<%=project.name%>:default |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | frontend |
+    Then the step should succeed
+    And the "frontend-1" build was created
+    And the "frontend-1" build completed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    And I log in to jenkins
+    When I perform the :jenkins_create_pipeline_job web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-12325/pipeline_verify_build.groovy"
+    And I replace lines in "pipeline_verify_build.groovy":
+      | <repl_env> | <%= env.api_endpoint_url %> |
+      | <repl_ns>  | <%= project.name %>         |
+    # The use of the 'dump' method in dsl_text escapes the groovy content to be
+    # used by watir/selenium.
+    When I perform the :jenkins_pipeline_insert_script web action with:
+      | job_name        | openshifttest                                         |
+      | editor_position | row: 1, column: 1                                     |
+      | dsl_text        | <%= File.read('pipeline_verify_build.groovy').dump %> |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | openshifttest |
+      | job_number | 1             |
+      | time_out   | 60            |
+    Then the step should succeed
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
+
+  # @author shiywang@redhat.com
+  # @case_id OCP-12347 OCP-12349
+  Scenario Outline: Verify deployment using jenkins pipeline DSL
+    Given I have a project
+    And I have an ephemeral jenkins v<ver> application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                           |
+      | user_name | system:serviceaccount:<%=project.name%>:default |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | frontend |
+    Then the step should succeed
+    And the "frontend-1" build was created
+    And the "frontend-1" build completed
+    When I run the :rollout_latest client command with:
+      | resource | frontend |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    And I log in to jenkins
+    When I perform the :jenkins_create_pipeline_job web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-12347/pipeline_verify_deployment.groovy"
+    And I replace lines in "pipeline_verify_deployment.groovy":
+      | <repl_env> | <%= env.api_endpoint_url %> |
+      | <repl_ns>  | <%= project.name %>         |
+    # The use of the 'dump' method in dsl_text escapes the groovy content to be
+    # used by watir/selenium.
+    When I perform the :jenkins_pipeline_insert_script web action with:
+      | job_name        | openshifttest                                              |
+      | editor_position | row: 1, column: 1                                          |
+      | dsl_text        | <%= File.read('pipeline_verify_deployment.groovy').dump %> |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | openshifttest |
+      | job_number | 1             |
+      | time_out   | 60            |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | dc |
+    And the output should match:
+      | frontend\s+1\s+1\s+1\s+config |
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
+
+  # @author shiywang@redhat.com
+  # @case_id OCP-12371 OCP-12374
+  Scenario Outline: Verify service using jenkins pipeline DSL
+    Given I have a project
+    And I have an ephemeral jenkins v<ver> application
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/application-template.json |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | admin                                           |
+      | user_name | system:serviceaccount:<%=project.name%>:default |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | frontend |
+    Then the step should succeed
+    And the "frontend-1" build was created
+    And the "frontend-1" build completed
+    When I run the :rollout_latest client command with:
+      | resource | frontend |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=jenkins |
+    And I have a browser with:
+      | rules    | lib/rules/web/images/jenkins_<ver>/                               |
+      | base_url | https://<%= route("jenkins", service("jenkins")).dns(by: user) %> |
+    And I log in to jenkins
+    When I perform the :jenkins_create_pipeline_job web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-12371/pipeline_verify_service.groovy"
+    And I replace lines in "pipeline_verify_service.groovy":
+      | <repl_env> | <%= env.api_endpoint_url %> |
+      | <repl_ns>  | <%= project.name %>         |
+    # The use of the 'dump' method in dsl_text escapes the groovy content to be
+    # used by watir/selenium.
+    When I perform the :jenkins_pipeline_insert_script web action with:
+      | job_name        | openshifttest                                           |
+      | editor_position | row: 1, column: 1                                       |
+      | dsl_text        | <%= File.read('pipeline_verify_service.groovy').dump %> |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | openshifttest |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | openshifttest |
+      | job_number | 1             |
+      | time_out   | 60            |
+    Then the step should succeed
+    When I perform the :jenkins_create_pipeline_job web action with:
+      | job_name | openshifttest1 |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/OCP-12371/pipeline_verify_service_failed.groovy"
+    And I replace lines in "pipeline_verify_service_failed.groovy":
+      | <repl_env> | <%= env.api_endpoint_url %> |
+      | <repl_ns>  | <%= project.name %>         |
+    # The use of the 'dump' method in dsl_text escapes the groovy content to be
+    # used by watir/selenium.
+    When I perform the :jenkins_pipeline_insert_script web action with:
+      | job_name        | openshifttest1                                                 |
+      | editor_position | row: 1, column: 1                                              |
+      | dsl_text        | <%= File.read('pipeline_verify_service_failed.groovy').dump %> |
+    Then the step should succeed
+    When I perform the :jenkins_build_now web action with:
+      | job_name | openshifttest1 |
+    Then the step should succeed
+    When I perform the :jenkins_verify_job_success web action with:
+      | job_name   | openshifttest1 |
+      | job_number | 1              |
+      | time_out   | 60             |
+    Then the step should fail
+    Examples:
+      | ver |
+      | 1   |
+      | 2   |
+
   # @author dyan@redhat.com
   # @case_id OCP-13207 OCP-13208 OCP-13209 OCP-13210
   Scenario Outline: Switch to 32bit JDK for Jenkins

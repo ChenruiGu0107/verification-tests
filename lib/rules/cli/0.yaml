@@ -633,6 +633,8 @@
     :revision: --revision=<value>
 :rollout_latest:
   :cmd: oc rollout latest <resource>
+  :options:
+      :f: -f <value>
 :rollout_pause:
   :cmd: oc rollout pause <resource> <name>
   :options:
