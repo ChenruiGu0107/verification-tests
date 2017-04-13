@@ -582,19 +582,11 @@ Feature: Testing route
       | -L |
       | http://<%= route("myroute", service("service-unsecure")).dns(by: user) %>/ |
       | -k |
-      | -c |
-      | /tmp/cookie |
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift |
       | HTTP/1.1 302 Found |
       | Location: https:// |
-    And I execute on the pod:
-      | cat |
-      | /tmp/cookie |
-    Then the step should succeed
-    And the output should match:
-      | FALSE.*TRUE |
 
   # @author zzhao@redhat.com
   # @case_id OCP-12566
@@ -1146,3 +1138,78 @@ Feature: Testing route
       | edge-test-     |
       | pass-test-     |
       | reen-test-     |
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-13753
+  Scenario: Check the cookie if using secure mode when insecureEdgeTerminationPolicy to Redirect for edge/reencrypt route
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    # Create edge termination route
+    When I run the :create_route_edge client command with:
+      | name     | myroute           |
+      | service  | service-unsecure  |
+      | insecure_policy | Redirect   |
+    Then the step should succeed
+   
+    Given I have a pod-for-ping in the project 
+    When I execute on the pod:
+      | curl |
+      | -v |
+      | -L |
+      | http://<%= route("myroute", service("service-unsecure")).dns(by: user) %>/ |
+      | -k |
+      | -c |
+      | /tmp/cookie |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+      | HTTP/1.1 302 Found |
+      | Location: https:// |
+    And I execute on the pod:
+      | cat |
+      | /tmp/cookie |
+    Then the step should succeed
+    And the output should match:
+      | FALSE.*TRUE |
+
+    #create reencrypt termination route
+    Given I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen                    |
+      | service    | service-secure          |
+      | destcacert | route_reencrypt_dest.ca |
+      | insecure_policy | Redirect           |
+    Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -v |
+      | -L |
+      | http://<%= route("reen", service("service-secure")).dns(by: user) %>/ |
+      | -k |
+      | -c |
+      | /tmp/cookie-reen |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+      | HTTP/1.1 302 Found |
+      | Location: https:// |
+    """
+    And I execute on the pod:
+      | cat |
+      | /tmp/cookie-reen |
+    Then the step should succeed
+    And the output should match:
+      | FALSE.*TRUE |
+

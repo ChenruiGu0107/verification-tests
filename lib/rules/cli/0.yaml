@@ -181,6 +181,7 @@
     :cacert: --ca-cert=<value>
     :destcacert: --dest-ca-cert=<value>
     :path: --path=<value>
+    :insecure_policy: --insecure-policy=<value>
     :wildcardpolicy: --wildcard-policy=<value>
     :help: --help
 :create_secret:
