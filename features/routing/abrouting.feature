@@ -187,7 +187,7 @@ Feature: Testing abrouting
       | (20%) |
       | (80%) |
     Given I have a pod-for-ping in the project
-    Given I run the steps 20 times:
+    Given I run the steps 40 times:
     """
     When I execute on the pod:
       | curl      |
@@ -200,10 +200,10 @@ Feature: Testing abrouting
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
-    Then the expression should be true> cb.accesslength2 == 16
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
-    Then the expression should be true> cb.accesslength1 == 4
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
+    Then the expression should be true> (28..36).include? cb.accesslength2
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
+    Then the expression should be true> (4..12).include? cb.accesslength1
     When I run the :set_backends client command with:
       | routename | service-unsecure      |
       | adjust    | true                  |
@@ -215,7 +215,7 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | (10%) |
       | (90%) |
-    Given I run the steps 20 times:
+    Given I run the steps 40 times:
     """
     When I execute on the pod:
       | curl      |
@@ -228,10 +228,10 @@ Feature: Testing abrouting
     And the "access1.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength4 clipboard
-    Then the expression should be true> cb.accesslength4 == 18
-    Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength3 clipboard
-    Then the expression should be true> cb.accesslength3 == 2
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength4 clipboard
+    Then the expression should be true> (32..39).include? cb.accesslength4
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength3 clipboard
+    Then the expression should be true> (1..8).include? cb.accesslength3
 
 
   # @author yadu@redhat.com
@@ -266,17 +266,17 @@ Feature: Testing abrouting
     Then the step should succeed
     When I run the :set_backends client command with:
       | routename | route-edge            |
-      | service   | service-unsecure=60   |
+      | service   | service-unsecure=20   |
       | service   | service-unsecure-2=80 |
     Then the step should succeed
     When I run the :set_backends client command with:
       | routename | route-edge  |
     Then the step should succeed
     Then the output should contain 1 times:
-      | 60 |
-      | 80 |
+      | 20% |
+      | 80% |
     Given I have a pod-for-ping in the project
-    Given I run the steps 20 times:
+    Given I run the steps 40 times:
     """
     When I execute on the pod:
       | curl |
@@ -289,38 +289,10 @@ Feature: Testing abrouting
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
-    Then the expression should be true> cb.accesslength2 == 12
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
-    Then the expression should be true> cb.accesslength1 == 8
-    When I run the :set_backends client command with:
-      | routename | route-edge             |
-      | adjust    | true                   |
-      | service   | service-unsecure=20    |
-    When I run the :set_backends client command with:
-      | routename | route-edge |
-    Then the step should succeed
-    Then the output should contain 1 times:
-      | (20%) |
-      | (80%) |
-    Given I run the steps 20 times:
-    """
-    When I execute on the pod:
-      | curl |
-      | --resolve |
-      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
-      | -ksS |
-    Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-
-    And the "access1.log" file is appended with the following lines:
-      | #{@result[:response].strip} |
-    """
-    Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength4 clipboard
-    Then the expression should be true> cb.accesslength4 == 16
-    Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength3 clipboard
-    Then the expression should be true> cb.accesslength3 == 4
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
+    Then the expression should be true> (28..36).include? cb.accesslength2
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
+    Then the expression should be true> (4..12).include? cb.accesslength1
 
 
   # @author yadu@redhat.com
@@ -365,7 +337,7 @@ Feature: Testing abrouting
       | (20%) |
       | (80%) |
     Given I have a pod-for-ping in the project
-    Given I run the steps 20 times:
+    Given I run the steps 40 times:
     """
     When I execute on the pod:
       | curl |
@@ -378,10 +350,10 @@ Feature: Testing abrouting
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
-    Then the expression should be true> cb.accesslength2 == 16
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
-    Then the expression should be true> cb.accesslength1 == 4
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
+    Then the expression should be true> (28..36).include? cb.accesslength2
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
+    Then the expression should be true> (4..12).include? cb.accesslength1
     When I run the :set_backends client command with:
       | routename | route-pass            |
       | adjust    | true                  |
@@ -393,7 +365,7 @@ Feature: Testing abrouting
     Then the output should contain 1 times:
       | (40%) |
       | (60%) |
-    Given I run the steps 20 times:
+    Given I run the steps 40 times:
     """
     When I execute on the pod:
       | curl |
@@ -406,10 +378,10 @@ Feature: Testing abrouting
     And the "access1.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength4 clipboard
-    Then the expression should be true> cb.accesslength4 == 12
-    Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength3 clipboard
-    Then the expression should be true> cb.accesslength3 == 8
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength4 clipboard
+    Then the expression should be true> (20..28).include? cb.accesslength4
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength3 clipboard
+    Then the expression should be true> (12..20).include? cb.accesslength3
 
 
   # @author yadu@redhat.com
@@ -465,7 +437,7 @@ Feature: Testing abrouting
       | (70%) |
     Given I have a pod-for-ping in the project
     And CA trust is added to the pod-for-ping
-    Given I run the steps 10 times:
+    Given I run the steps 20 times:
     """
     When I execute on the pod:
       | curl |
@@ -480,10 +452,10 @@ Feature: Testing abrouting
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
-    Then the expression should be true> cb.accesslength2 == 7
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
-    Then the expression should be true> cb.accesslength1 == 3
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
+    Then the expression should be true> (13..15).include? cb.accesslength2
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
+    Then the expression should be true> (2..4).include? cb.accesslength1
     When I run the :set_backends client command with:
       | routename | route-reencrypt        |
       | adjust    | true                   |
@@ -495,7 +467,7 @@ Feature: Testing abrouting
       | (10%) |
       | (90%) |
     Then the step should succeed
-    Given I run the steps 10 times:
+    Given I run the steps 20 times:
     """
     When I execute on the pod:
       | curl |
@@ -511,10 +483,10 @@ Feature: Testing abrouting
     And the "access1.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength4 clipboard
-    Then the expression should be true> cb.accesslength4 == 9
-    Given evaluation of `File.read("access1.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength3 clipboard
-    Then the expression should be true> cb.accesslength3 == 1
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength4 clipboard
+    Then the expression should be true> (17..19).include? cb.accesslength4
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength3 clipboard
+    Then the expression should be true> (1..3).include? cb.accesslength3
 
   # @author yadu@redhat.com
   # @case_id OCP-11306
@@ -568,7 +540,7 @@ Feature: Testing abrouting
 
   # @author yadu@redhat.com
   # @case_id OCP-12088
-  Scenario: Set backends weight for edge route
+  Scenario: Set multiple backends weight for route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
@@ -633,9 +605,9 @@ Feature: Testing abrouting
     ## for setup that has multiple routers, we should do fuzzy match.
     # instead of a hard limit and do exact match.  We will pass the test if the
     # count is between a range depending on number of routers
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-3")}.length` is stored in the :accesslength3 clipboard
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-3").size` is stored in the :accesslength3 clipboard
     Then the expression should be true> (24..36).include? cb.accesslength3
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-2")}.length` is stored in the :accesslength2 clipboard
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
     Then the expression should be true> (12..24).include? cb.accesslength2
-    Given evaluation of `File.read("access.log").split("\n").select {|str| str.include?("Hello-OpenShift-1")}.length` is stored in the :accesslength1 clipboard
+    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
     Then the expression should be true> (6..12).include? cb.accesslength1
