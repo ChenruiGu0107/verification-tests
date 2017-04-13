@@ -222,21 +222,23 @@ Feature: oc run related scenarios
       | env       | MYENV1=v1,MYENV2=v2   |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | pod        |
-      | resource_name | myrun-pod  |
-      | o             | json       |
+      | resource      | pod       |
+      | resource_name | myrun-pod |
+      | o             | json      |
     Then the step should succeed
     And the output should contain:
       | "name": "MYENV1" |
       | "value": "v1     |
       | "name": "MYENV2" |
       | "value": "v2"    |
+    # Clear out memory and cpu usage to fit into online quota limits
+    Given I ensure "myrun-pod" pod is deleted
     When I run the :run client command with:
-      | name      | myrun-pod-2             |
-      | image     | aosqe/hello-openshift   |
-      | generator | run-pod/v1              |
-      | limits    | cpu=200m,memory=512Mi   |
-      | requests  | cpu=100m,memory=256Mi   |
+      | name      | myrun-pod-2           |
+      | image     | aosqe/hello-openshift |
+      | generator | run-pod/v1            |
+      | limits    | cpu=200m,memory=512Mi |
+      | requests  | cpu=100m,memory=256Mi |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | pod          |
@@ -246,11 +248,13 @@ Feature: oc run related scenarios
     And the output should contain:
       |  "limits":          |
       |  "memory": "512Mi"  |
+    # Clear out memory and cpu usage to fit into online quota limits
+    Given I ensure "myrun-pod-2" pod is deleted
     When I run the :run client command with:
-      | name      | myrun-pod-3             |
-      | image     | aosqe/hello-openshift   |
-      | generator | run-pod/v1              |
-      | restart   | OnFailure               |
+      | name      | myrun-pod-3           |
+      | image     | aosqe/hello-openshift |
+      | generator | run-pod/v1            |
+      | restart   | OnFailure             |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | pod          |
@@ -259,16 +263,18 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       |  "restartPolicy": "OnFailure" |
+    # Clear out memory and cpu usage to fit into online quota limits
+    Given I ensure "myrun-pod-3" pod is deleted
     When I run the :run client command with:
-      | name      | myrun-pod-4             |
-      | image     | aosqe/hello-openshift   |
-      | generator | run-pod/v1              |
-      | port      | 8888                    |
+      | name      | myrun-pod-4           |
+      | image     | aosqe/hello-openshift |
+      | generator | run-pod/v1            |
+      | port      | 8888                  |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | pod          |
-      | resource_name | myrun-pod-4  |
-      | o             | json         |
+      | resource      | pod         |
+      | resource_name | myrun-pod-4 |
+      | o             | json        |
     And the output should contain:
       |  "containerPort": 8888  |
     When I run the :run client command with:
@@ -278,9 +284,9 @@ Feature: oc run related scenarios
       | overrides | {"apiVersion":"v1","spec":{"replicas":3}} |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | dc     |
-      | resource_name | test   |
-      | o             | json   |
+      | resource      | dc   |
+      | resource_name | test |
+      | o             | json |
     Then the step should succeed
     And the output should contain:
       | "replicas": 3 |
