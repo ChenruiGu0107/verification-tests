@@ -115,14 +115,14 @@ Feature: containers related features
     Then the step should succeed
     And the pod named "hello-openshift" becomes ready
     When I execute on the "hello-openshift_notexist" pod:
-      |date|
+      | date |
     Then the step should fail
     Then the output should match:
       | [Ee]rror.*pods.*hello-openshift_notexist.*not found |
     When I run the :exec client command with:
-      | pod   | hello-openshift  |
-      | c | hello-openshift-notexist |
-      | exec_command | date |
+      | pod          | hello-openshift          |
+      | c            | hello-openshift-notexist |
+      | exec_command | date                     |
     Then the step should fail
     Then the output should match:
       |[Ee]rror.*container hello-openshift-notexist.*not valid|
