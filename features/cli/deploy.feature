@@ -1252,10 +1252,13 @@ Feature: deployment related features
     Then the output should not contain "hooks-2"
     Given a pod becomes ready with labels:
       | deployment=hooks-1 |
+    Given I wait up to 60 seconds for the steps to pass:
+    """
     When I get project pods
     And the output should contain:
       | DeadlineExceeded |
       | hooks-1          |
+    """
 
   # @author yinzhou@redhat.com
   # @case_id OCP-10617
