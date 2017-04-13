@@ -57,3 +57,44 @@ Feature: ONLY ONLINE Storage related scripts in this file
     And the output should contain:
       | mkdir /var/lib/docker/volumes/ |
       | permission denied              |
+
+  # @author yasun@redhat.com
+  # @case_id OCP-13108
+  Scenario: Basic user could not get pv object info
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/claim.json" replacing paths:
+      | ["metadata"]["name"]                           | ebsc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]   | 1Gi                      |
+    And the step should succeed
+    And the "ebsc-<%= project.name %>" PVC becomes :bound
+    And evaluation of `pvc("ebsc-#{project.name}").volume_name(user: user)` is stored in the :pv_name clipboard
+
+    When I run the :describe client command with:
+      | resource          | pvc                      |
+      | name              | ebsc-<%= project.name %> |
+    And the step should succeed
+
+    When I run the :get client command with:
+      | resource          | pv                |
+      | resource_name     | <%= cb.pv_name %> |
+    And the step should fail
+    And the output should contain:
+      | Forbidden     |
+      | cannot get    |
+
+    When I run the :describe client command with:
+      | resource          | pv                |
+      | name              | <%= cb.pv_name %> |
+    And the step should fail
+    And the output should contain:
+      | Forbidden     |
+      | cannot get    |
+
+    When I run the :delete client command with:
+      | object_type       | pv                |
+      | object_name_or_id | <%= cb.pv_name %> |
+    And the step should fail
+    And the output should contain:
+      | Forbidden     |
+      | cannot delete |
+ 
