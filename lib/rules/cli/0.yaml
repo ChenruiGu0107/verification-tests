@@ -415,6 +415,7 @@
     :docker_image: --docker-image=<value>
     :dry_run: --dry-run=<value>
     :env: --env=<value>
+    :env_file: --env-file=<value>
     :file: --file=<value>
     :group: --group=<value>
     :image: --image=<value>
