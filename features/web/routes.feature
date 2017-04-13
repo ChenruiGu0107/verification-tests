@@ -533,3 +533,58 @@ Feature: Routes related features on web console
       | second_svc_name | service-unsecure-3 |
       | weight_two      | 27                 |
     Then the step should succeed
+
+  # @author: hasha@redhat.com
+  # @case_id: OCP-11426
+  Scenario: Provide helpful error page for app 503 response
+    Given the master version >= "3.5"		
+    Given I have a project
+    When I run the :new_app client command with:
+      | docker_image | openshift/hello-openshift:latest |
+      | name         | hello                            |
+    Then the step should succeed
+
+    When I expose the "hello" service
+    Then the step should succeed
+
+    Given a pod becomes ready with labels:
+      | app=hello |
+    And evaluation of `pod.name` is stored in the :pod_name clipboard
+
+    When I open web server via the "http://not-exist-<%= route("hello").dns(by: user) %>/" url
+    Then the output should contain:
+      | Application is not available |
+      | Possible reasons             |
+      | The host doesn't exist       |
+      | doesn't have a matching path |
+      | all pods are down            |
+
+    When I run the :expose client command with:
+      | resource      | service |
+      | resource_name | hello   |
+      | path          | /test   |
+      | name          | hello2  |
+    Then the step should succeed
+    
+    When I open web server via the "hello2" route
+    Then the output should contain:
+      | Application is not available |
+      | Possible reasons             |
+      | The host doesn't exist       |
+      | doesn't have a matching path |
+      | all pods are down            |
+
+    When I run the :scale client command with:
+      | resource | dc    |
+      | name     | hello |
+      | replicas | 0     |
+    Then the step should succeed
+    And I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear
+    
+    When I open web server via the "hello" route
+    Then the output should contain:
+      | Application is not available |
+      | Possible reasons             |
+      | The host doesn't exist       |
+      | doesn't have a matching path |
+      | all pods are down            |
