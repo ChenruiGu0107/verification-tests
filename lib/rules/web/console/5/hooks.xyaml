@@ -2,6 +2,69 @@
 add_dc_hook_command:
   action: set_dc_hook_command
   action: click_add_hook_cmd
+check_dc_hook_common_settings_from_dc_page:
+  elements:
+  - selector:
+      xpath: |
+        //lifecycle-hook[@type='<hook_type>' and h4[contains(.,'<hook_name>')] and dl[dt[contains(.,'Action')] and dd[contains(.,'<hook_action>')] and dt[contains(.,
+          'Failure Policy')] and dd[contains(.,'<failure_policy>')]]]
+  - selector:
+      xpath: //lifecycle-hook[@type='<hook_type>']//h5[contains(.,'<container_name>')]
+check_dc_hook_with_execnewpod_action_from_dc_page:
+  action: check_dc_hook_command_from_dc_page
+  action: check_dc_hook_env_var_from_dc_page
+  action: check_dc_hook_volume_from_dc_page
+check_dc_hook_volume_from_dc_page:
+  element:
+    selector:
+      xpath: //lifecycle-hook[@type='<hook_type>']//div[contains(@ng-repeat,'volume') and contains(.,'<volume_name>')]
+check_dc_hook_with_tagimage_action_from_dc_page:
+  element:
+    selector:
+      xpath: //lifecycle-hook[@type='<hook_type>']//div[a[contains(.,'<istag_name>')]]
+check_dc_hook_command_from_dc_page:
+  scripts:
+  - command: |
+        var values = "<hook_command>".split(",");
+        var el = document.querySelectorAll('code.command span[class~=truncated-content]');
+        for (var i=0; i < values.length; i++) {
+          for (var j=0; j < el.length; j++) {
+            if(el[j].textContent == values[i]) {
+             match = true;
+             break;
+            } else {
+             match = false;
+            }
+          }
+        }
+        return match;     
+    expect_result: true
+check_dc_hook_env_var_from_dc_page:
+  scripts:
+  - command: |
+        var values = "<env_var>".split(",");
+        var el = document.querySelectorAll('dd div[ng-repeat~=env] div[title]');
+        for (var i=0; i < values.length; i++) {
+          for (var j=0; j < el.length; j++) {
+            if(el[j].textContent == values[i]) {
+             match = true;
+             break;
+            } else {
+             match = false;
+            }
+          }
+        }
+        return match;
+    expect_result: true
+check_dc_hook_missing_from_dc_page:
+  element:
+    selector:
+      xpath: //lifecycle-hook[@type='<hook_type>' and h4[contains(.,'<hook_name>')]]
+    missing: true
+check_dc_hook_part_missing_from_dc_page:
+  element:
+    selector:
+      xpath: //h3[contains(.,'Hooks')]/parent::div//div[contains(.,'none') or contains(.,'None')]
 check_dc_recreate_strategy_default_settings:
   elements:
   - selector:
