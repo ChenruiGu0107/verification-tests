@@ -40,6 +40,10 @@ module CucuShift
       return get_cached_prop(prop: :docker_image_repository, user: user, cached: cached, quiet: quiet)
     end
 
+    def docker_registry_ip_or_hostname(user)
+      return self.docker_image_repository(user).match(/[^\/]*\//)[0]
+    end
+
     def tags(user:, cached: true, quiet: false)
       return get_cached_prop(prop: :tags, user: user, cached: cached, quiet: quiet)
     end
