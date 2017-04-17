@@ -27,8 +27,6 @@ Feature: ONLY ONLINE related feature's scripts in this file
       | build strategy Docker is not allowed |
 
   # @author etrott@redhat.com
-  # @case_id OCP-9993
-  # @case_id OCP-9997
   Scenario Outline: Maven repository can be used to providing dependency caching for xPaas and wildfly STI builds
     Given I create a new project
     Given I perform the :create_app_from_image_with_bc_env_and_git_options web console action with:
@@ -82,10 +80,23 @@ Feature: ONLY ONLINE related feature's scripts in this file
     Then the step should succeed
     When I perform the :check_build_log_content web console action with:
       | build_log_context | Downloading: https://mirror.openshift.com/nexus/content/groups/public/ |
+
+    # @case_id OCP-9993
     Examples: xPaas STI builds
-      | image                               | image_tag | source_url                                                   | git_ref | context_dir           |
-      | jboss-eap64-openshift               | 1.3       | https://github.com/jboss-developer/jboss-eap-quickstarts.git | 6.4.x   | kitchensink           |
-      | jboss-webserver30-tomcat8-openshift | 1.2       | https://github.com/jboss-openshift/openshift-quickstarts.git | master  | tomcat-websocket-chat |
+      | image                               | image_tag | source_url                                                   | git_ref  | context_dir           |
+      | jboss-eap64-openshift               | 1.1       | https://github.com/jboss-developer/jboss-eap-quickstarts.git | 6.4.x    | kitchensink           |
+      | jboss-eap64-openshift               | 1.2       | https://github.com/jboss-developer/jboss-eap-quickstarts.git | 6.4.x    | kitchensink           |
+      | jboss-eap64-openshift               | 1.3       | https://github.com/jboss-developer/jboss-eap-quickstarts.git | 6.4.x    | kitchensink           |
+      | jboss-eap64-openshift               | 1.4       | https://github.com/jboss-developer/jboss-eap-quickstarts.git | 6.4.x    | kitchensink           |
+      | jboss-eap70-openshift               | 1.3       | https://github.com/jboss-developer/jboss-eap-quickstarts.git | 7.0.0.GA | kitchensink           |
+      | jboss-eap70-openshift               | 1.4       | https://github.com/jboss-developer/jboss-eap-quickstarts.git | 7.0.0.GA | kitchensink           |
+      | jboss-webserver30-tomcat8-openshift | 1.1       | https://github.com/jboss-openshift/openshift-quickstarts.git | master   | tomcat-websocket-chat |
+      | jboss-webserver30-tomcat8-openshift | 1.2       | https://github.com/jboss-openshift/openshift-quickstarts.git | master   | tomcat-websocket-chat |
+      
+    # @case_id OCP-9997
     Examples: wildfly STI builds
       | image   | image_tag | source_url                                          | git_ref | context_dir |
+      | wildfly | 8.1       | https://github.com/bparees/openshift-jee-sample.git | master  | /           |
+      | wildfly | 9.0       | https://github.com/bparees/openshift-jee-sample.git | master  | /           |
       | wildfly | 10.0      | https://github.com/bparees/openshift-jee-sample.git | master  | /           |
+      | wildfly | 10.1      | https://github.com/bparees/openshift-jee-sample.git | master  | /           |
