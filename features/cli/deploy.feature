@@ -1028,11 +1028,11 @@ Feature: deployment related features
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     And I replace resource "dc" named "hooks" saving edit to "tmp_out.yaml":
-      | replicas: 1 | replicas: 3 |
+      | replicas: 1 | replicas: 2 |
     Then the step should succeed
     And I wait until the status of deployment "hooks" becomes :complete
     And I get project rc as JSON
-    Then the expression should be true> @result[:parsed]['items'][0]['status']['replicas'] == 3
+    Then the expression should be true> @result[:parsed]['items'][0]['status']['replicas'] == 2
 
   # @author pruan@redhat.com
   # @case_id OCP-12056
@@ -1044,22 +1044,22 @@ Feature: deployment related features
     When I run the :scale client command with:
       | resource | dc    |
       | name     | hooks |
-      | replicas | 10    |
+      | replicas | 2     |
     Then the step should succeed
     When I get project dc named "hooks" as JSON
-    Then the expression should be true> @result[:parsed]['spec']['replicas'] == 10
+    Then the expression should be true> @result[:parsed]['spec']['replicas'] == 2
 
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            |       |
-    And I wait until number of replicas match "10" for replicationController "hooks-1"
+    And I wait until number of replicas match "2" for replicationController "hooks-1"
 #      And 10 pods become ready with labels:
 #        |name=mysql|
     Then I run the :scale client command with:
       | resource | dc    |
       | name     | hooks |
-      | replicas | 5     |
-    And I wait until number of replicas match "5" for replicationController "hooks-1"
+      | replicas | 1     |
+    And I wait until number of replicas match "1" for replicationController "hooks-1"
 
 
   # @author pruan@redhat.com
@@ -1219,13 +1219,13 @@ Feature: deployment related features
     Then I run the :scale client command with:
       | resource | deploymentconfig |
       | name     | hooks            |
-      | replicas | 4                |
-    Given I wait until number of replicas match "4" for replicationController "hooks"
+      | replicas | 2                |
+    Given I wait until number of replicas match "2" for replicationController "hooks"
     Then I run the :scale client command with:
       | resource | deploymentconfig |
       | name     | hooks            |
-      | replicas | 2                |
-    Given I wait until number of replicas match "2" for replicationController "hooks"
+      | replicas | 1                |
+    Given I wait until number of replicas match "1" for replicationController "hooks"
     When I run the :deploy client command with:
       | deployment_config | hooks |
       | latest            | true  |
@@ -1239,12 +1239,12 @@ Feature: deployment related features
     When I run the :patch client command with:
       | resource      |dc                        |
       | resource_name | hooks                    |
-      | p             | {"spec":{"replicas": 4}} |
+      | p             | {"spec":{"replicas": 2}} |
     Then the step should succeed
     When I get project pod named "hooks-2-deploy" as JSON
     Then the output should contain ""activeDeadlineSeconds": 5"
     When I get project dc named "hooks" as JSON
-    Then the output should contain ""replicas": 4"
+    Then the output should contain ""replicas": 2"
     Given all existing pods die with labels:
       | deployment=hooks-2 |
     When I get project pods with labels:
@@ -1445,18 +1445,18 @@ Feature: deployment related features
       | docker_image   | <%= project_docker_repo %>openshift/deployment-example |
     Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
-    Then I run the :scale client command with:
-      | resource | deploymentconfig   |
-      | name     | deployment-example |
-      | replicas | 3                  |
-    Then the step should succeed
     When I run the :deploy client command with:
       | deployment_config | deployment-example |
       | latest            |                    |
     Then the step should succeed
+    Then I run the :scale client command with:
+      | resource | deploymentconfig   |
+      | name     | deployment-example |
+      | replicas | 2                  |
+    Then the step should succeed
     And I wait until the status of deployment "deployment-example" becomes :complete
     When I get project dc named "deployment-example" as JSON
-    Then the expression should be true> @result[:parsed]['spec']['replicas'] == 3
+    Then the expression should be true> @result[:parsed]['spec']['replicas'] == 2
 
   # @author qwang@redhat.com
   # @case_id OCP-12356
@@ -1605,16 +1605,6 @@ Feature: deployment related features
     When I run the :scale client command with:
       | resource | deployment      |
       | name     | hello-openshift |
-      | replicas | 5               |
-    Then the step should succeed
-    When I run the :get client command with:
-      | resource      | deployment         |
-      | resource_name | hello-openshift    |
-      | template      | {{.spec.replicas}} |
-    Then the output should match "5"
-    When I run the :scale client command with:
-      | resource | deployment      |
-      | name     | hello-openshift |
       | replicas | 2               |
     Then the step should succeed
     When I run the :get client command with:
@@ -1622,6 +1612,16 @@ Feature: deployment related features
       | resource_name | hello-openshift    |
       | template      | {{.spec.replicas}} |
     Then the output should match "2"
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 1               |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deployment         |
+      | resource_name | hello-openshift    |
+      | template      | {{.spec.replicas}} |
+    Then the output should match "1"
     When I run the :rollout_pause client command with:
       | resource | deployment      |
       | name     | hello-openshift |
@@ -1867,10 +1867,10 @@ Feature: deployment related features
   Scenario: Deployment config with automatic=false in ICT
     #Given the master version >= "3.4"
     Given I have a project
-    Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
-    And I replace lines in "application-template-stibuild.json":
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/application-template-with-resources.json"
+    And I replace lines in "application-template-with-resources.json":
       |"automatic": true|"automatic": false|
-    When I process and create "application-template-stibuild.json"
+    When I process and create "application-template-with-resources.json"
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     And 20 seconds have passed
