@@ -94,6 +94,7 @@ Feature: oc run related scenarios
     When I run the :run client command with:
       | name         | myrun                 |
       | image        | aosqe/hello-openshift |
+      | limits       | memory=256Mi          |
     Then the step should succeed
     Given I wait until the status of deployment "myrun" becomes :running
     When I run the :get client command with:
@@ -115,7 +116,8 @@ Feature: oc run related scenarios
     When I run the :run client command with:
       | name         | myrun-rc              |
       | image        | aosqe/hello-openshift |
-      | generator    | run-controller/v1 |
+      | generator    | run-controller/v1     |
+      | limits       | memory=256Mi          |
     Then the step should succeed
     Given I wait until replicationController "myrun-rc" is ready
     When I run the :get client command with:
@@ -132,7 +134,8 @@ Feature: oc run related scenarios
     When I run the :run client command with:
       | name         | myrun-pod             |
       | image        | aosqe/hello-openshift |
-      | generator    | run-pod/v1 |
+      | generator    | run-pod/v1            |
+      | limits       | memory=256Mi          |
     Then the step should succeed
     When I run the :get client command with:
       | resource | dc |
