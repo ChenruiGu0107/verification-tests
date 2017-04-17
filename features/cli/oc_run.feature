@@ -53,21 +53,24 @@ Feature: oc run related scenarios
       | name         | webapp                |
       | image        | training/webapp       |
       | -l           | test=one              |
+      | limits       | memory=256Mi          |
     Then the step should succeed
-    And I wait until replicationController "webapp-1" is ready
+    And I wait for the pod named "webapp-1-deploy" to die
 
     When I run the :run client command with:
       | name         | webapp2               |
       | image        | training/webapp       |
       | replicas     | 2                     |
       | -l           | label=webapp2         |
+      | limits       | memory=256Mi          |
     Then the step should succeed
-    And I wait until replicationController "webapp2-1" is ready
+    And I wait for the pod named "webapp2-1-deploy" to die
 
     When I run the :run client command with:
       | name         | webapp3               |
       | image        | training/webapp       |
       | overrides    | {"apiVersion":"v1","spec":{"replicas":2}} |
+      | limits       | memory=256Mi          |
     Then the step should succeed
     When I run the :get client command with:
       | resource      | dc                 |
@@ -75,7 +78,7 @@ Feature: oc run related scenarios
       | output        | yaml               |
     Then the step should succeed
     And the output should contain:
-      | replicas: 2       |
+      | replicas: 2   |
 
     When I run the :run client command with:
       | name         | webapp4               |
@@ -83,6 +86,7 @@ Feature: oc run related scenarios
       | attach       | true                  |
       | restart      | Never                 |
       | _timeout     | 15                    |
+      | limits       | memory=256Mi          |
     Then the step should have timed out
     And the output should match:
       | [Ww]aiting for pod .*webapp4 to be running       |
