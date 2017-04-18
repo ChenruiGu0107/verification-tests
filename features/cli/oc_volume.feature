@@ -161,17 +161,15 @@ Feature: oc_volume.feature
       | name      | myrc1                 |
       | image     | aosqe/hello-openshift |
       | generator | run-controller/v1     |
+      | limits    | cpu=200m,memory=512Mi |
+      | requests  | cpu=100m,memory=256Mi |
     Then the step should succeed
     When I run the :run client command with:
       | name      | myrc2                 |
       | image     | aosqe/hello-openshift |
       | generator | run-controller/v1     |
-    Then the step should succeed
-    When I run the :run client command with:
-      | name      | myrc3                 |
-      | image     | aosqe/hello-openshift |
-      | generator | run-controller/v1     |
-      | -l        | label=myrc3           |
+      | limits    | cpu=200m,memory=512Mi |
+      | requests  | cpu=100m,memory=256Mi |
     Then the step should succeed
     When I run the :secrets client command with:
       | action | new        |
@@ -180,10 +178,10 @@ Feature: oc_volume.feature
     Then the step should succeed
 
     Given a pod becomes ready with labels:
-      | label=myrc3 |
+      |  run=myrc2 |
     When I run the :get client command with:
       | resource      | rc                             |
-      | resource_name | myrc3                          |
+      | resource_name | myrc2                          |
       | template      | {{.status.observedGeneration}} |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :version clipboard
@@ -200,15 +198,14 @@ Feature: oc_volume.feature
     And the output should contain:
       | myrc1 |
       | myrc2 |
-      | myrc3 |
 
     When I run the :volume client command with:
       | resource | rc     |
       | all      | true   |
       | action   | --list |
     Then the step should succeed
-    And the output should match 3 times:
-      | replicationcontrollers/myrc[123] |
+    And the output should match 2 times:
+      | replicationcontrollers/myrc[12]  |
       |   secret/my-secret as secret     |
       |     mounted at /etc              |
 
@@ -219,7 +216,7 @@ Feature: oc_volume.feature
     """
     When I run the :get client command with:
       | resource      | rc                             |
-      | resource_name | myrc3                          |
+      | resource_name | myrc2                          |
       | template      | {{.status.observedGeneration}} |
     Then the step should succeed
     And the output should not contain "<%= cb.version %>"
@@ -238,7 +235,6 @@ Feature: oc_volume.feature
     And the output should contain:
       | myrc1 |
       | myrc2 |
-      | myrc3 |
 
   # @author gpei@redhat.com
   # @case_id OCP-12247
