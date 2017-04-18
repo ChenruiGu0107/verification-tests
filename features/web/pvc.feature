@@ -435,7 +435,6 @@ Feature: Add pvc to pod from web related
     Then the step should succeed
 
   # @author wehe@redhat.com
-  # @case_id OCP-10444 OCP-10557 OCP-10556
   @admin
   Scenario Outline: Create persist volume claim with storage class on web console
     Given I have a project
@@ -582,6 +581,7 @@ Feature: Add pvc to pod from web related
 
     Examples:
       | provisioner | 
-      | aws-ebs     |
-      | gce-pd      |
-      | cinder      |
+      | aws-ebs     | # @case_id OCP-10444
+      | gce-pd      | # @case_id OCP-10557
+      | cinder      | # @case_id OCP-10556
+      | azure-disk  | # @case_id OCP-10458

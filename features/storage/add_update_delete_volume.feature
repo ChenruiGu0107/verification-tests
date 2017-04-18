@@ -548,7 +548,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | claimName: pvc2-<%= project.name %> |
 
   # @author wehe@redhat.com
-  # @case_id OCP-10414 OCP-10489 OCP-10490
   @admin
   Scenario Outline: oc set volume with claim-class parameter test
     Given I have a project
@@ -605,9 +604,10 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
 
     Examples:
       | provisioner |
-      | gce-pd      |
-      | aws-ebs     |
-      | cinder      |
+      | gce-pd      | # @case_id OCP-10414
+      | aws-ebs     | # @case_id OCP-10489
+      | cinder      | # @case_id OCP-10490
+      | azure-disk  | # @case_id OCP-13729
 
   # @author wehe@redhat.com
   # @case_id OCP-10415

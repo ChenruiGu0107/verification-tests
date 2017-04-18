@@ -84,6 +84,81 @@ Feature: storage security check
       | awsElasticBlockStore | volumeID    | ebs    |
       | cinder               | volumeID    | cinder |
 
+  # @author wehe@redhat.com
+  # @case_id OCP-13915  
+  @admin
+  Scenario: azure disk volume security testing 
+    Given I have a project
+    And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/security/azure-selinux-fsgroup-test.yml" replacing paths:
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"] | s0:c13,c2                     |
+      | ["spec"]["securityContext"]["fsGroup"]                 | 24680                         |
+      | ["spec"]["securityContext"]["runAsUser"]               | 1000160000                    |
+      | ["spec"]["volumes"][0]["azureDisk"]["diskName"]        | <%= cb.vid.split("/").last %> |
+      | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]         | <%= cb.vid %>                 |
+    Then the step should succeed
+    And the pod named "azdsecurity" becomes ready
+    When I execute on the pod:
+      | id | -u |
+    Then the step should succeed
+    And the output should contain:
+      | 1000160000 |
+    When I execute on the pod:
+      | id | -G |
+    Then the step should succeed
+    And the output should contain:
+      | 24680 |
+    When I execute on the pod:
+      | ls | -lZd | /mnt/azure |
+    Then the step should succeed
+    And the output should contain:
+      | 24680                |
+      | svirt_sandbox_file_t |
+      | s0:c2,c13            |
+    When I execute on the pod:
+      | touch | /mnt/azure/testfile |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -lZ | /mnt/azure/testfile |
+    Then the step should succeed
+    And the output should contain:
+      | 24680 |
+    Given I ensure "azdsecurity" pod is deleted
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/security/azure-privileged-test.yml" replacing paths:
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"] | s0:c13,c2                     |
+      | ["spec"]["securityContext"]["fsGroup"]                 | 24680                         |
+      | ["spec"]["volumes"][0]["azureDisk"]["diskName"]        | <%= cb.vid.split("/").last %> |
+      | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]         | <%= cb.vid %>                 |
+    Then the step should succeed
+    And the pod named "azdsecprv" becomes ready
+    When I execute on the pod:
+      | id |
+    Then the step should succeed
+    And the output should contain:
+      | uid=0 |
+    When I execute on the pod:
+      | id | -G |
+    Then the step should succeed
+    And the output should contain:
+      | 24680 |
+    When I execute on the pod:
+      | ls | -lZd | /mnt/azure |
+    Then the step should succeed
+    And the output should contain:
+      | 24680 |
+    When I execute on the pod:
+      | touch | /mnt/azure/testfile |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -lZ | /mnt/azure/testfile |
+    Then the step should succeed
+    And the output should contain:
+      | 24680                |
+      | svirt_sandbox_file_t |
+      | s0:c2,c13            |
+
   # @author chaoyang@redhat.com
   # @case_id OCP-9709
   @admin

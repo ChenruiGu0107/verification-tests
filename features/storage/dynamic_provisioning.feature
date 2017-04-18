@@ -126,6 +126,51 @@ Feature: Dynamic provisioning
       | ebs            |
       | gce            |
 
+  # @author wehe@redhat.com
+  # @case_id OCP-13787
+  @admin
+  Scenario: azure disk dynamic provisioning
+    Given admin creates a project with a random schedulable node selector
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
+      | ["metadata"]["name"] | sc-<%= project.name %> |
+    Then the step should succeed
+    Given evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
+    And I run the steps 3 times:
+    """
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
+      | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
+      | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |   
+    Then the step should succeed
+    And the "dpvc-#{cb.i}" PVC becomes :bound within 120 seconds
+    And I save volume id from PV named "#{ pvc.volume_name }" in the :disk clipboard
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dpvc-#{cb.i} |
+      | ["metadata"]["name"]                                         | mypod#{cb.i} |
+    Then the step should succeed
+    And the pod named "mypod#{cb.i}" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/azure/testfile_#{cb.i} |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | pod |
+      | all         |     |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | pvc |
+      | all         |     |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    Then I wait for the resource "pv" named "#{ pvc.volume_name }" to disappear within 1200 seconds
+    Given I use the "<%= node.name %>" node
+    And I run commands on the host:
+      | mount |
+    And the output should not contain:
+      | #{ pvc.volume_name }       |
+      | #{cb.disk.split("/").last} |
+    """
+
   # @author lxia@redhat.com
   # @case_id OCP-12667
   @admin
@@ -173,6 +218,49 @@ Feature: Dynamic provisioning
 
     Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 1200 seconds
+
+  # @author wehe@redhat.com
+  # @case_id OCP-13889
+  @admin
+  Scenario: azure disk dynamic provisioning with multiple access modes
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
+      | ["metadata"]["name"] | sc-<%= project.name %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce          |
+      | ["spec"]["accessModes"][1]                                             | ReadWriteMany          |
+      | ["spec"]["accessModes"][2]                                             | ReadOnlyMany           |
+    Then the step should succeed
+    And the "azpvc" PVC becomes :bound within 120 seconds
+    When I run the :get admin command with:
+      | resource      | pv                     |
+      | resource_name | <%= pvc.volume_name %> |
+    Then the step should succeed
+    And the output should contain:
+      | azpvc |
+      | Bound |
+      | RWO |
+      | ROX |
+      | RWX |
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml | 
+      | n | <%= project.name %>                                                                                       |
+    Then the step should succeed
+    Given the pod named "azpvcpo" becomes ready
+    When I execute on the pod:
+      | touch | /mnt/azure/testfile |
+    When I run the :delete client command with:
+      | object_type | pod |
+      | all         |     |
+    Then the step should succeed
+    When I run the :delete client command with:
+      | object_type | pvc |
+      | all         |     |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I wait for the resource "pv" named "<%= pvc.volume_name %>" to disappear within 1200 seconds
 
   # @author lxia@redhat.com
   # @case_id OCP-10790
@@ -247,8 +335,29 @@ Feature: Dynamic provisioning
       | ebs            |
       | gce            |
 
+  # @author wehe@redhat.com
+  # @case_id OCP-13902
+  @admin
+  Scenario: azure disk dynamic pvc shows lost after pv is deleted
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
+      | ["metadata"]["name"] | sc-<%= project.name %> |
+    Then the step should succeed
+    Given evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
+    And I run the steps 3 times:
+    """
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
+      | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
+      | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |   
+    Then the step should succeed
+    And the "dpvc-#{cb.i}" PVC becomes :bound within 120 seconds
+    Given admin ensures "#{ pvc.volume_name }" pv is deleted
+    And the "dpvc-#{cb.i}" PVC becomes :lost within 300 seconds
+    """
+
   # @author jhou@redhat.com
-  # @case_id OCP-10360 OCP-10361 OCP-10362
   @admin
   @destructive
   Scenario Outline: No volume and PV provisioned when provisioner is disabled
@@ -271,7 +380,8 @@ Feature: Dynamic provisioning
 
     Examples:
       | provisioner |
-      | aws-ebs     |
-      | gce-pd      |
-      | cinder      |
+      | aws-ebs     | # @case_id OCP-10360
+      | gce-pd      | # @case_id OCP-10361
+      | cinder      | # @case_id OCP-10362
+      | azure-disk  | # @case_id OCP-13903
 
