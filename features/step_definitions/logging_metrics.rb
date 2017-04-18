@@ -11,18 +11,41 @@ And /^I save the (logging|metrics) project name to the#{OPT_SYM} clipboard$/ do 
     cb_name = clipboard_name
   end
   if svc_type == 'logging'
-    expected_dc_name = "logging-kibana"
+    expected_rc_name = "logging-kibana-1"
   else
-    expected_dc_name = "hawkular-metrics"
+    expected_rc_name = "hawkular-metrics"
   end
   found_proj = CucuShift::Project.get_matching(user: admin) { |project, project_hash|
-    dc(expected_dc_name, project).exists?(user: admin, quiet: true)
+    rc(expected_rc_name, project).exists?(user: admin, quiet: true)
   }
   if found_proj.count != 1
-    raise ("There are #{found_proj.count} logging services installed in any projects within the system, expected 1")
+    raise ("Found #{found_proj.count} logging services installed in the cluster, expected 1")
   else
     cb[cb_name] = found_proj[0].name
   end
+end
+
+Given /^there should be (\d+) (logging|metrics) services? installed/ do |count, svc_type|
+  ensure_admin_tagged
+
+  if svc_type == 'logging'
+    expected_rc_name = "logging-kibana-1"
+  else
+    expected_rc_name = "hawkular-metrics"
+  end
+
+  found_proj = CucuShift::Project.get_matching(user: admin) { |project, project_hash|
+    rc(expected_rc_name, project).exists?(user: admin, quiet: true)
+  }
+  raise ("Found #{found_proj.count} logging services installed in the cluster, expected #{count}") if found_proj.count != Integer(count)
+end
+
+# short-hand for the generic uninstall step if we are just using the generic install
+Given /^I remove (logging|metrics) service installed in the#{OPT_QUOTED} project using ansible$/ do | svc_type, proj_name|
+  proj_name = project.name if proj_name.nil?
+  step %Q/#{svc_type} service is uninstalled from the "#{proj_name}" project with ansible using:/, table(%{
+    | inventory| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/generic_uninstall_inventory |
+  })
 end
 
 # helper step that does the following:
@@ -96,4 +119,192 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
 
   @result = CucuShift::Http.request(url: url, **https_opts, method: op_type)
   @result[:parsed] = YAML.load(@result[:response])
+end
+
+# unless project name is given we assume all logging pods are installed under the proejct logging
+Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
+  proj_name = project.name if proj_name.nil?
+  org_proj_name = project.name
+  org_user = user
+  if proj_name == 'logging'
+    ensure_admin_tagged
+    step %Q/I switch to cluster admin pseudo user/
+    project(proj_name)
+  end
+  begin
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | component=curator     |
+      | logging-infra=curator |
+      | provider=openshift    |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | component=es                |
+      | logging-infra=elasticsearch |
+      | provider=openshift          |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | component=fluentd     |
+      | logging-infra=fluentd |
+      | provider=openshift    |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | component=kibana     |
+      | logging-infra=kibana |
+      | provider=openshift   |
+      })
+  ensure
+    @user = org_user
+    project(org_proj_name)
+  end
+end
+
+# unless project name is given we assume all metrics pods are installed under the proejct logging
+Given /^all metrics pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
+
+  target_proj = proj_name.nil? ? project.name : proj_name
+  raise ("Metrics must be installed into the 'openshift-infra") if target_proj != 'openshift-infra'
+
+  org_proj_name = project.name
+  org_user = user
+
+  ensure_admin_tagged
+  step %Q/I switch to cluster admin pseudo user/
+  project(target_proj)
+  begin
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | metrics-infra=hawkular-cassandra |
+      | type=hawkular-cassandra          |
+      })
+
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | metrics-infra=hawkular-metrics |
+      | name=hawkular-metrics          |
+      })
+
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | metrics-infra=heapster |
+      | name=heapster          |
+      })
+  ensure
+    @user = org_user
+    project(org_proj_name)
+  end
+end
+# Parameters in the inventory that need to be replaced should be in ERB format
+# if not project name is given, then we assume will use the project mapping of
+# logging ==> 'logging', metrics ==> 'openshift-infra'
+Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OPT_QUOTED} project with ansible using:$/ do |svc_type, op, proj, table|
+  ensure_admin_tagged
+  if op == 'installed'
+    step %Q/there should be 0 #{svc_type} service installed/
+  end
+
+  # check tht logging/metric is not installed in the target cluster already.
+  ansible_opts = opts_array_to_hash(table.raw)
+  target_proj = proj.nil? ? project.name : proj
+  if svc_type == 'metrics' and target_proj != 'openshift-infra'
+    raise ("Metrics must be installed into the 'openshift-infra")
+  end
+
+  logger.info("Performing operation '#{op[0..-3]}' to #{target_proj}...")
+
+  step %Q/I register clean-up steps:/, table(%{
+    | I remove #{svc_type} service installed in the "#{target_proj}" project using ansible |
+    })
+
+  raise "Must provide inventory option!" unless ansible_opts.keys.include? 'inventory'.to_sym
+
+  step %Q/I store default router subdomain in the :subdomain clipboard/
+  step %Q/I store master major version in the :master_version clipboard/
+  step %Q/I create the "tmp" directory/
+  # prep the inventory file.
+  cb.master_url = env.master_hosts.first.hostname
+  cb.api_port = '8443' if cb.api_port.nil?
+
+  step %Q/I download a file from "<%= "#{ansible_opts[:inventory]}" %>" into the "tmp" dir/
+
+  if op == 'installed'
+    new_path = "tmp/install_inventory"
+  else
+    new_path = "tmp/uninstall_inventory"
+  end
+  cb.target_proj = target_proj
+  # we may not have the minor version of the image loaded. so just use the
+  # major version label
+  cb.master_version = cb.master_version[0..2]
+  loaded = ERB.new(File.read(@result[:abs_path])).result binding
+  File.write(new_path, loaded)
+  # create a tmp directory which will store the following files to be 'oc rsync to the pod created
+  # 1. inventory
+  # 2. libra.pem
+  # 3. admin.kubeconfig from the master node
+  pem_file_path = expand_path(env.master_hosts.first[:ssh_private_key])
+  FileUtils.copy(pem_file_path, "tmp/")
+  @result = admin.cli_exec(:oadm_config_view, flatten: true, minify: true)
+  File.write(File.expand_path("tmp/admin.kubeconfig"), @result[:response])
+
+  # to save time we are going to check if the base-ansible-pod already exists
+  # use admin user to get the information so we don't need to swtich user.
+  unless pod("base-ansible-pod").exists?(user: admin)
+    step %Q/I run the :create client command with:/, table(%{
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_pod.json |
+    })
+    step %Q/the step should succeed/
+    step %Q/the pod named "base-ansible-pod" becomes ready/
+    # fix uid to match the correct value
+    cb.sed_cmd = 'echo -e ",s/1234321/`id -u`/g\\012 w" | ed -s /etc/passwd'
+    step %Q/I execute on the pod:/, table(%{
+      | bash              |
+      | -c                |
+      | <%= cb.sed_cmd %> |
+    })
+  end
+  step %Q/I run the :rsync client command with:/, table(%{
+    | source      | <%= localhost.absolutize("tmp") %> |
+    | destination | base-ansible-pod:/tmp              |
+    | loglevel    | 5                                  |
+    })
+  # checkout the openshift-anisble.  XXX: note, master has issues will need to
+  # checkout from 1.5 for the time being
+  if pod("base-ansible-pod").exists?(user: admin)
+    step %Q/I execute on the pod:/, table(%{
+      | bash                                                                                                                 |
+      | -c                                                                                                                   |
+      | cd /tmp/tmp/ && rm -rf openshift-ansible && git clone https://github.com/openshift/openshift-ansible/ |
+      })
+    step %Q/the step should succeed/
+  end
+
+  if svc_type == 'logging'
+    ansible_template_path = "openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml"
+  else
+    ansible_template_path = "openshift-ansible/playbooks/common/openshift-cluster/openshift_metrics.yml"
+  end
+  step %Q/I execute on the pod:/, table(%{
+    | bash                                                                                                |
+    | -c                                                                                                  |
+    | cd /tmp/tmp && ansible-playbook -i /tmp/<%= "#{new_path}" %> -vvv <%= "#{ansible_template_path}" %> |
+    })
+  step %Q/the step should succeed/
+
+  # the openshift-ansible playbook restarts master at the end, we need to run the following to just check the master is ready.
+  step %Q/I wait for the steps to pass:/,
+    """
+      And I store master major version in the :tmp clipboard
+    """
+  if op == 'installed'
+    if svc_type == 'logging'
+      # there are 4 pods we need to verify that should be running  logging-curator,
+      # logging-es, logging-fluentd, and logging-kibana
+      step %Q/all logging pods are running in the "#{target_proj}" project/
+    else
+      step %Q/all metrics pods are running in the "#{target_proj}" project/
+    end
+  else
+    if svc_type == 'logging'
+      step %Q/there should be 0 logging service installed/
+    else
+      step %Q/there should be 0 metrics service installed/
+    end
+  end
 end

@@ -119,7 +119,7 @@ Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
 
   # keep last waiting @result as the @result for knowing how pod failed
   @result[:matching].each do |pod|
-    @result = pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES, user, 900)
+    @result = pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES, user, ready_timeout)
 
     unless @result[:success]
       raise "pod #{pod.name} did not reach expected status"
@@ -144,19 +144,37 @@ Given /^I wait for the pod(?: named "(.+)")? to die( regardless of current statu
 end
 
 Given /^all existing pods die with labels:$/ do |table|
-  labels = table.raw.flatten # dimentions irrelevant
+  labels = table.raw.flatten # dimensions irrelevant
   timeout = 10 * 60
   start_time = monotonic_seconds
 
   current_pods = CucuShift::Pod.get_matching(user: user, project: project,
-                    get_opts: {l: selector_to_label_arr(*labels)})
+                                             get_opts: {l: selector_to_label_arr(*labels)})
 
   current_pods.each do |pod|
     @result =
-      pod.wait_till_status(CucuShift::Pod::TERMINAL_STATUSES, user,
-                           timeout - monotonic_seconds + start_time)
+        pod.wait_till_status(CucuShift::Pod::TERMINAL_STATUSES, user,
+                             timeout - monotonic_seconds + start_time)
     unless @result[:success]
       raise "pod #{pod.name} did not die within allowed time"
+    end
+  end
+end
+
+Given /^all existing pods are ready with labels:$/ do |table|
+  labels = table.raw.flatten # dimensions irrelevant
+  timeout = 15 * 60
+  start_time = monotonic_seconds
+
+  current_pods = CucuShift::Pod.get_matching(user: user, project: project,
+                                             get_opts: {l: selector_to_label_arr(*labels)})
+
+  current_pods.each do |pod|
+    @result =
+      pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES, user,
+                           timeout - monotonic_seconds + start_time)
+    unless @result[:success]
+      raise "pod #{pod.name} did not become ready within allowed time"
     end
   end
 end
