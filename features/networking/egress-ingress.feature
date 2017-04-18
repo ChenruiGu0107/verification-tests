@@ -413,3 +413,37 @@ Feature: Egress-ingress related networking scenarios
       | --connect-timeout |
       | 5 |
     Then the step should succeed
+
+  # @author yadu@redhat.com
+  # @case_id OCP-13249
+  @admin
+  @destructive
+  Scenario: The openflow rules for the project with egressnetworkpolicy will not be corrupted by the restart node.service
+    Given the env is using multitenant network
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    Given I create a new project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/533253_policy.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/533253_policy.json |
+      | n | <%= cb.proj2 %> |
+    Then the step should succeed
+
+    Given I select a random node's host
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13\|grep 10.3.0.0 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13\|grep 10.3.0.0) |
+    And the output should contain 2 times:
+      | actions=drop |
+      | reg0=0x      |
+    Given the node service is restarted on the host
+    Given the node service is verified
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13\|grep 10.3.0.0 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13\|grep 10.3.0.0) |
+    And the output should contain 2 times:
+      | actions=drop |
+      | reg0=0x      |
