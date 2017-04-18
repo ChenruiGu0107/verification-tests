@@ -27,7 +27,7 @@ Feature: oc get related command
       | NAMESPACE                                       |
       | default\\s+dc/docker-registry                   |
       | default\\s+svc/docker-registry                  |
-      | default\\s+po/docker-registry                   |   
+      | default\\s+po/docker-registry                   |
       | <%= project.name %>\\s+is/origin-ruby-sample    |
       | <%= project.name %>\\s+dc/database              |
       | <%= project.name %>\\s+svc/database             |
@@ -45,7 +45,7 @@ Feature: oc get related command
     When I run the :get client command with:
       | resource     | all                      |
       | l            | test=<%= project.name %> |
-    Then the step should succeed   
+    Then the step should succeed
     And the output should contain:
       | dc/database    |
       | svc/database   |
@@ -63,20 +63,8 @@ Feature: oc get related command
     Examples:
       | resource-type |
       | bc            |
-      | configmaps    |
-      | ds            |
-      | dc            |
-      | ev            |
-      | ep            |
       | hpa           |
-      | jobs          |
-      | limits        |
       | pvc           |
-      | policies      |
-      | quota         |
-      | rs            |
-      | rc            |
-      | routes        |
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-10497
