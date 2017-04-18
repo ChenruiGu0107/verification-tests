@@ -64,13 +64,3 @@ Feature: Api proxy related cases
     Then the step should succeed
     And the output should match:
       |system:master-proxy|
-
-  # @author yinzhou@redhat.com
-  # @case_id OCP-11531
-  @admin
-  Scenario: User can use token to access api
-    Given I have a project
-    And I select a random node's host
-    When I run commands on the host:
-      | curl -k <%= env.api_endpoint_url %>/oapi/v1/users/~ -H "Authorization: Bearer <%= user.get_bearer_token.token %> " |
-    Then the step should succeed
