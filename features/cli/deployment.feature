@@ -472,7 +472,7 @@ Feature: deployment related steps
     When I run the :patch client command with:
       | resource      | deployment                                                                                                     |
       | resource_name | hello-openshift                                                                                                |
-      | p             | {"spec":{"replicas":5}} |
+      | p             | {"spec":{"replicas":3}} |
     Then the step should succeed
     When I run the :describe client command with:
       | resource | deployment      |
