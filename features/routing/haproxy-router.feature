@@ -1684,7 +1684,6 @@ Feature: Testing haproxy router
   # @case_id OCP-11619
   Scenario: Limit the number of TCP connection per IP in specified time period
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -1699,8 +1698,8 @@ Feature: Testing haproxy router
 
     Given I have a pod-for-ping in the project
     When I execute on the pod:
-      | bash | -c | for i in {1..10} ; do curl -ksS --resolve <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
-    Then the output should contain 10 times:
+      | bash | -c | for i in {1..20} ; do curl -ksS https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
+    Then the output should contain 20 times:
       | Hello-OpenShift |
     And the output should not contain "(35)"
 
@@ -1712,18 +1711,16 @@ Feature: Testing haproxy router
     Then the step should succeed
 
     When I execute on the pod:
-      | bash | -c | for i in {1..10} ; do curl -ksS --resolve <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
-    Then the output should contain 4 times:
+      | bash | -c | for i in {1..20} ; do curl -ksS https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
+    Then the output should contain:
       | Hello-OpenShift |
-    And the output should contain 6 times:
       | (35) |
 
     Given 6 seconds have passed
     When I execute on the pod:
-      | bash | -c | for i in {1..10} ; do curl -ksS --resolve <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
-    Then the output should contain 4 times:
+      | bash | -c | for i in {1..20} ; do curl -ksS https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
+    Then the output should contain:
       | Hello-OpenShift |
-    And the output should contain 6 times:
       | (35) |
 
 
