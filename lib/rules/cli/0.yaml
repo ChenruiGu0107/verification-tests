@@ -367,6 +367,7 @@
     :from: --from=<value>
     :image_name: <value>
     :insecure: --insecure=<value>
+    :reference-policy: --reference-policy=<value>
 :label:
   :cmd: oc label <resource>
   :options:

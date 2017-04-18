@@ -347,3 +347,40 @@ Feature: oc import-image related feature
       | o               | yaml               |
     Then the output should match:
       | [Ll]astTriggeredImage.*:.*<%= project.name %>\/deployment-example@sha256.*|
+  # @author geliu@redhat.com
+  # @case_id OCP-12766
+  Scenario: Allow imagestream request build config triggers by different mode('TagreferencePolicy':source/local)
+    Given I have a project
+    When I run the :import_image client command with:
+      | from       | centos/ruby-22-centos7 |
+      | confirm    | true                   |
+      | image_name | ruby-22-centos7:latest |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | image_stream | ruby-22-centos7                          |
+      | code         | https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource_name   | ruby-ex |
+      | resource        | bc      |
+      | o               | yaml    |
+    Then the expression should be true> @result[:parsed]['spec']['triggers'][3]['imageChange']['lastTriggeredImageID'].include? 'centos/ruby-22-centos7'
+    When I run the :delete client command with:
+      | all_no_dash ||
+      | all         ||
+    Then the step should succeed
+    When I run the :import_image client command with:
+      | from            | centos/ruby-22-centos7 |
+      | confirm         | true                   |
+      | image_name      | ruby-22-centos7:latest |
+      | reference-policy| local                  |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | image_stream | ruby-22-centos7                          |
+      | code         | https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource_name   | ruby-ex |
+      | resource        | bc      |
+      | o               | yaml    |
+    Then the expression should be true> @result[:parsed]['spec']['triggers'][3]['imageChange']['lastTriggeredImageID'].include? '<%= project.name %>/ruby-22-centos7'
