@@ -121,7 +121,7 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
   @result[:parsed] = YAML.load(@result[:response])
 end
 
-# unless project name is given we assume all logging pods are installed under the proejct logging
+# unless project name is given we assume all logging pods are installed under the current project
 Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
   proj_name = project.name if proj_name.nil?
   org_proj_name = project.name
@@ -158,7 +158,7 @@ Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
   end
 end
 
-# unless project name is given we assume all metrics pods are installed under the proejct logging
+# we force all metrics pods to be installed under the project 'openshift-infra'
 Given /^all metrics pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
 
   target_proj = proj_name.nil? ? project.name : proj_name
@@ -191,8 +191,9 @@ Given /^all metrics pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
   end
 end
 # Parameters in the inventory that need to be replaced should be in ERB format
-# if not project name is given, then we assume will use the project mapping of
-# logging ==> 'logging', metrics ==> 'openshift-infra'
+# if no project name is given, then we assume will use the project mapping of
+# logging ==> current_project_name , metrics ==> 'openshift-infra'
+# step will raise exception if metrics name is not 'openshift-infra'
 Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OPT_QUOTED} project with ansible using:$/ do |svc_type, op, proj, table|
   ensure_admin_tagged
   if op == 'installed'

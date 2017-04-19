@@ -122,3 +122,172 @@ Feature: metrics related scenarios
       | path         | /metrics/gauges                                                                                   |
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
     Then the expression should be true> @result[:exitstatus] == 400
+
+  @admin
+  # @author penli@redhat.com
+  # @case_id OCP-10515
+  # bz #1401383 #1421953
+  # run this case in m1.large on OpenStack, m4.large on AWS, or n1-standard-2 on GCE
+  Scenario: Scale up and down hawkular-metrics replicas
+    Given I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    And I store master major version in the :master_version clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin-metrics/master/metrics-deployer-setup.yaml |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | edit                                                     |
+      | user_name | system:serviceaccount:<%=project.name%>:metrics-deployer |
+    When I run the :policy_add_role_to_user client command with:
+      | role      | view                                             |
+      | user_name | system:serviceaccount:<%=project.name%>:hawkular |
+    Then the step should succeed
+    Given cluster role "cluster-reader" is added to the "heapster" service account
+    When I run the :new_secret client command with:
+      | secret_name     | metrics-deployer  |
+      | credential_file | nothing=/dev/null |
+    Then the step should succeed
+    When I create a new application with:
+      | template | metrics-deployer-template                                     |
+      | param    | HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.<%= cb.subdomain%> |
+      | param    | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/            |
+      | param    | USE_PERSISTENT_STORAGE=false                                  |
+      | param    | IMAGE_VERSION=<%= cb.master_version%>                         |
+      | param    | MASTER_URL=<%= env.api_endpoint_url %>                        |
+    Then the step should succeed
+    And all pods in the project are ready
+    And I wait for the "hawkular-cassandra" service to become ready
+    And I wait for the "hawkular-metrics" service to become ready
+    And I wait for the "heapster" service to become ready
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    And I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | hawkular-metrics       |
+      | replicas | 2                      |
+    Then I wait until number of replicas match "2" for replicationController "hawkular-metrics"
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    And I wait for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name    | pods/<%= pod.name %>|
+    And the output should match:
+      | Metrics service started   |
+    """
+    And I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | hawkular-metrics       |
+      | replicas | 1                      |
+    Then I wait until number of replicas match "1" for replicationController "hawkular-metrics"
+
+  # @author xiazhao@redhat.com
+  # @case_id OCP-10776
+  @admin
+  @smoke
+  Scenario: Deploy metrics stack with persistent storage
+    Given I have a project
+    And I have a NFS service in the project
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_pv.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    And I store default router subdomain in the :subdomain clipboard
+    And I store master major version in the :master_version clipboard
+    When I run the :create_serviceaccount client command with:
+      | serviceaccount_name | metrics-deployer |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | edit                                                     |
+      | user_name | system:serviceaccount:<%=project.name%>:metrics-deployer |
+    Then the step should succeed
+    Given cluster role "cluster-reader" is added to the "heapster" service account
+    Given the "empty" file is created with the following lines:
+    """
+    """
+    When I run the :new_secret client command with:
+      | secret_name     | metrics-deployer |
+      | credential_file | empty            |
+    Then the step should succeed
+    When I create a new application with:
+      | template | metrics-deployer-template                                                                                                                  |
+      | param    | HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.<%= cb.subdomain%>                                                                              |
+      | param    | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/,USE_PERSISTENT_STORAGE=true,CASSANDRA_PV_SIZE=5Gi,IMAGE_VERSION=<%= cb.master_version%> |
+      | param    | MASTER_URL=<%= env.api_endpoint_url %>                                                                                                     |
+    Then the step should succeed
+    And all pods in the project are ready
+    And I wait for the "hawkular-cassandra" service to become ready
+    And I wait for the "hawkular-metrics" service to become ready
+    And I wait for the "heapster" service to become ready
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-cassandra |
+    And I wait for the steps to pass:
+    """
+    When I get project pod named "<%= pod.name %>" as YAML
+    Then the output should contain:
+      | persistentVolumeClaim |
+    """
+
+
+  # @author chunchen@redhat.com
+  # @case_id OCP-12205,521419
+  # @author xiazhao@redhat.com
+  # @case_id OCP-11574
+  # @author penli@redhat.com
+  @admin
+  @smoke
+  Scenario: Access heapster interface,Check jboss wildfly version from hawkular-metrics pod logs
+    Given I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    And I store master major version in the :master_version clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin-metrics/master/metrics-deployer-setup.yaml |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | edit                                                     |
+      | user_name | system:serviceaccount:<%=project.name%>:metrics-deployer |
+    When I run the :policy_add_role_to_user client command with:
+      | role      | view                                             |
+      | user_name | system:serviceaccount:<%=project.name%>:hawkular |
+    Then the step should succeed
+    Given cluster role "cluster-reader" is added to the "heapster" service account
+    When I run the :new_secret client command with:
+      | secret_name     | metrics-deployer  |
+      | credential_file | nothing=/dev/null |
+    Then the step should succeed
+    When I create a new application with:
+      | template | metrics-deployer-template                                     |
+      | param    | HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.<%= cb.subdomain%> |
+      | param    | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/            |
+      | param    | USE_PERSISTENT_STORAGE=false                                  |
+      | param    | IMAGE_VERSION=<%= cb.master_version%>                         |
+      | param    | MASTER_URL=<%= env.api_endpoint_url %>                        |
+    Then the step should succeed
+    And all pods in the project are ready
+    And I wait for the "hawkular-cassandra" service to become ready
+    And I wait for the "hawkular-metrics" service to become ready
+    And I wait for the "heapster" service to become ready
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    And I wait for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name    | pods/<%= pod.name %>|
+    And the output should match:
+      | JBoss EAP .*GA   |
+    """
+    Given the first user is cluster-admin
+    Given I wait for the steps to pass:
+    """
+    When I perform the :access_heapster rest request with:
+      | project_name | <%=project.name%> |
+    Then the step should succeed
+    """
+    When I perform the :access_pod_network_metrics rest request with:
+      | project_name | <%=project.name%> |
+      | pod_name     | <%=pod.name%>     |
+      | type         | tx                |
+    Then the step should succeed
+    When I perform the :access_pod_network_metrics rest request with:
+      | project_name | <%=project.name%> |
+      | pod_name     | <%=pod.name%>     |
+      | type         | rx                |
+    Then the step should succeed
