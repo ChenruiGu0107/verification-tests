@@ -68,7 +68,7 @@ module CucuShift
           if options.header
             msg[:header] = YAML.load options.header
           elsif ENV["STOMP_HEADER"] && !ENV["STOMP_HEADER"].strip.empty?
-            msg[:header] = YAML.load msg[:header]
+            msg[:header] = YAML.load ENV["STOMP_HEADER"]
           else
             msg[:header] = {}
           end
