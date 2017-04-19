@@ -271,6 +271,17 @@ create_config_map_without_value:
   action: set_config_map_name
   action: set_config_map_key
   action: click_create_button
+  action: check_config_map_entry
+check_config_map_entry:
+  element:
+    selector:
+      xpath: //td[@data-title="Name" and a[text()="<target_config_map_name>"]]
+check_unable_to_create_config_map_without_value:
+  action: goto_configmaps_page
+  action: click_create_config_map_link
+  action: set_config_map_name
+  action: set_config_map_key
+  action: check_create_button_disabled
 pick_key_and_set_path:
   action: pick_key_from_list
   action: set_specified_path
