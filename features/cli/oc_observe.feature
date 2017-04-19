@@ -63,7 +63,8 @@ Feature: oc observe related tests
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
-    Given I wait until the status of deployment "database" becomes :running
+    Given I wait for the "frontend" dc to appear
+    Given I wait for the "database" dc to appear
     When I run the :observe client command with:
       | resource       | dc         |
       | maximum_errors | 1          |

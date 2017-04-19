@@ -180,6 +180,7 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       | test-b |
+    Given I ensure "test-b" pod is deleted
     When I run the :run client command with:
       | name    | test-c                |
       | image   | aosqe/hello-openshift |
@@ -190,6 +191,7 @@ Feature: oc run related scenarios
     Then the step should succeed
     And the output should contain:
       | test-c |
+    Given I ensure "test-c" pod is deleted
     # Negative test
     When I run the :run client command with:
       | name    | test-f                |

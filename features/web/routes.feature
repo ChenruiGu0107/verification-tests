@@ -165,19 +165,10 @@ Feature: Routes related features on web console
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
     Then the step should succeed
     Given the pod named "hello-pod" becomes ready
-    When I execute on the pod:
-      | wget |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem |
-      | -O |
-      | /tmp/ca.pem |
-    Then the step should succeed
     # create passthrough route on web console
     When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |
       | service_name | service-secure     |
-    Then the step should succeed
-    When I perform the :set_hostname web console action with:
-      | hostname | passthrough-<%= rand_str(5, :dns) %>.example.com |
     Then the step should succeed
     When I perform the :select_tls_termination_type web console action with:
       | tls_termination_type | Passthrough |
@@ -186,12 +177,11 @@ Feature: Routes related features on web console
     Then the step should succeed
     # check route is accessible
     When I execute on the pod:
-      | curl |
-      | --resolve |
+      | curl                                                                                               |
+      | -k                                                                                                 |   
+      | --resolve                                                                                          |
       | <%= route("service-secure", service("service-secure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= route("service-secure", service("service-secure")).dns(by: user) %>/ |
-      | --cacert |
-      | /tmp/ca.pem |
+      | https://<%= route("service-secure", service("service-secure")).dns(by: user) %>/                   |
     Then the output should contain "Hello-OpenShift"
 
   # @author yapei@redhat.com
