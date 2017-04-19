@@ -44,7 +44,7 @@ Feature: oc patch related scenarios
     And I create a new application with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
     Then the step should succeed
-    Given I wait until the status of deployment "database" becomes :running
+    Given I wait for the "database" dc to appear
     When I run the :patch client command with:
       | resource      | dc              |
       | resource_name | database        |
