@@ -2,6 +2,7 @@
 *.swo
 *.swn
 /private*/
+/junit-report/
 /Gemfile.lock
 /tools/Gemfile.lock
 /tools/Gemfiles_local/Gemfile*.lock
