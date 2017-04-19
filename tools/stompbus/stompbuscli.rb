@@ -58,10 +58,9 @@ module CucuShift
             msg = YAML.load_file options.file
             msg[:body] = msg[:body].to_json unless String === msg[:body]
           elsif options.message
-            msg = {}
-            msg[:body] = options.message
+            msg = { body: options.message }
           elsif ENV["STOMP_MESSAGE"] && !ENV["STOMP_MESSAGE"].strip.empty?
-            msg[:body] = ENV["STOMP_MESSAGE"]
+            msg = { body: ENV["STOMP_MESSAGE"] }
           else
             raise "you must specify message to be sent"
           end

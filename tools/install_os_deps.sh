@@ -32,7 +32,7 @@ else
     exit 3
 fi
 
-cat ${TOOLS_HOME}/os_deps/$file | grep -v '^\s*#' | xargs $(need_sudo) $cmd
+cat "${TOOLS_HOME}/os_deps/$file" | grep -v '^\s*#' | xargs $(need_sudo) $cmd
 $additional_deps
 # have to do these manually prior to bundler or else hell will break loose
 # We need to use 'gem install bundler' beacause for RHEL, using 'yum install rubygem-bundler'
