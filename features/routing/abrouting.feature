@@ -228,9 +228,9 @@ Feature: Testing abrouting
     And the "access1.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength4 clipboard
+    Given evaluation of `File.read("access1.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength4 clipboard
     Then the expression should be true> (32..39).include? cb.accesslength4
-    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength3 clipboard
+    Given evaluation of `File.read("access1.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength3 clipboard
     Then the expression should be true> (1..8).include? cb.accesslength3
 
 
@@ -378,9 +378,9 @@ Feature: Testing abrouting
     And the "access1.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength4 clipboard
+    Given evaluation of `File.read("access1.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength4 clipboard
     Then the expression should be true> (20..28).include? cb.accesslength4
-    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength3 clipboard
+    Given evaluation of `File.read("access1.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength3 clipboard
     Then the expression should be true> (12..20).include? cb.accesslength3
 
 
@@ -483,9 +483,9 @@ Feature: Testing abrouting
     And the "access1.log" file is appended with the following lines:
       | #{@result[:response].strip} |
     """
-    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength4 clipboard
+    Given evaluation of `File.read("access1.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength4 clipboard
     Then the expression should be true> (17..19).include? cb.accesslength4
-    Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength3 clipboard
+    Given evaluation of `File.read("access1.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength3 clipboard
     Then the expression should be true> (1..3).include? cb.accesslength3
 
   # @author yadu@redhat.com
