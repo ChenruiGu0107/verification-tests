@@ -17,7 +17,7 @@ class STOMPBus
 
   def initialize(**opts)
     service_name = opts.delete(:service_name) || :stomp_bus
-    service_opts = conf[:services, service_name].dup
+    service_opts = conf[:services, service_name]&.dup || {}
     service_hosts = service_opts.delete(:hosts)
 
     default_hosts = [{}]
@@ -28,9 +28,6 @@ class STOMPBus
     pile_of_opts = {}
     pile_of_opts.merge! self.class.load_env_vars
     pile_of_opts.merge! opts
-
-    @default_queue = pile_of_opts.delete(:default_queue) ||
-      service_opts.delete(:default_queue)
 
     if param_hosts
       hosts = param_hosts
@@ -89,6 +86,8 @@ class STOMPBus
                                       final_opts[:sslctx_newparm][:ca_path])
     end
 
+    @default_queue = final_opts.delete(:default_queue)
+
     # check if we have all the required options
     self.class.check_opts(final_opts)
     @opts = final_opts
@@ -139,14 +138,15 @@ class STOMPBus
     env_opts = {}
     env_prefix = "STOMP_BUS_"
     ENV.each do |var, value|
-      if var.start_with?(env_prefix) && !value.empty?
+      if var.start_with?(env_prefix) && !value.strip.empty?
         env_opt = var[env_prefix.length..-1].downcase.to_sym
         env_opts[env_opt] = value == "false" ? false : value
       end
     end
 
-    if ENV["STOMP_BUS_CREDENTIALS"] && !ENV["STOMP_BUS_CREDENTIALS"].empty?
-      opts[:login],opts[:passcode] = env_opts.delete(:credentials).split(":", 2)
+    if env_opts[:credentials]
+      env_opts[:login], env_opts[:passcode] =
+        env_opts.delete(:credentials).split(":", 2)
     end
 
     return env_opts
