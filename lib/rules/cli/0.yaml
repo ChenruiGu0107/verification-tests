@@ -442,6 +442,7 @@
     :allow_missing_imagestream_tags: --allow-missing-imagestream-tags=<value>
     :app_repo: <value>
     :binary: --binary <value>
+    :build_arg: --build-arg=<value>
     :build_secret: --build-secret=<value>
     :build_env: --build-env=<value>
     :build_env_file: --build-env-file=<value>
@@ -865,6 +866,7 @@
   :cmd: oc start-build
   :options:
     :buildconfig: <value>
+    :build_arg: --build-arg=<value>
     :follow: --follow=<value>
     :from_build: --from-build=<value>
     :from_file: --from-file=<value>
