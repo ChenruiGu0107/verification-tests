@@ -84,12 +84,15 @@ set_resource_limit_single:
     op: click
 set_resource_limit_online:
   elements:
-  - selector:
-      xpath: //h2[text()='Container <container_name>']/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]//compute-resource//input
+  - selector: &resource_amount_selector_online
+      xpath: //h2[text()='Container <container_name>']/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]//compute-resource//div[contains(@class,'resource-amount')]/input
     op: clear
   - selector:
-      xpath: //h2[text()='Container <container_name>']/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]//compute-resource//input
+      <<: *resource_amount_selector_online
     op: send_keys <resource_amount>
   - selector:
-      xpath: //h2[text()='Container <container_name>']/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]//compute-resource//option[@label='<amount_unit>']
+      xpath: //h2[text()='Container <container_name>']/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]//compute-resource//div[contains(@class,'ui-select-match')]/span
+    op: click
+  - selector:
+      xpath: //h2[text()='Container <container_name>']/following::edit-request-limit[@type='<resource_type>'][<sequence_id>]//compute-resource//div[span[normalize-space()='<amount_unit>']]
     op: click
