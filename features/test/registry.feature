@@ -70,3 +70,8 @@ Feature: registry related test scenario
       | docker.io/busybox:latest | busybox:latest |
       | centos/ruby-22-centos7   | test/centos7   |
     Then the step should fail
+
+  Scenario: Obtain registry ip by creating a build in the project
+    Given I have a project
+    Given I obtain default registry IP HOSTNAME by a dummy build in the project
+    Then the expression should be true> cb.int_reg_ip.to_s =~ /\d+\.\d+\.\d+\.\d+/

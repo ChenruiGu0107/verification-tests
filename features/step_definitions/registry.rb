@@ -143,3 +143,40 @@ Given /^I log into auth registry on the node$/ do
   })
   step 'the step should succeed'
 end
+
+#TODO: better random name generator
+Given /^I obtain default registry IP HOSTNAME by a dummy build in the project$/ do
+  #generate a dummy image
+  dummy_image = "dummy-image-" + rand(999999).to_s
+  step %Q/I run the :new_app client command with:/, table(%{
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+      | name     | #{dummy_image}                                                  |
+      })
+  step 'the step should succeed'
+  
+  #copy registry ip to clipboard
+  cb[:int_reg_ip] = image_stream(dummy_image).docker_registry_ip_or_hostname(user: user)
+
+  #clean up dummy image
+  step %Q/I run the :delete client command with:/, table(%{
+      | object_type       | is               |
+      | object_name_or_id | #{dummy_image}   |
+      | object_name_or_id | ruby-22-centos7  |
+      })
+  step 'the step should succeed'
+  step %Q/I run the :delete client command with:/, table(%{
+      | object_type       | buildconfig    |
+      | object_name_or_id | #{dummy_image} |
+      })
+  step 'the step should succeed'
+  step %Q/I run the :delete client command with:/, table(%{
+      | object_type       | deploymentconfig |
+      | object_name_or_id | #{dummy_image}   |
+      })
+  step 'the step should succeed'
+  step %Q/I run the :delete client command with:/, table(%{
+      | object_type       | service        |
+      | object_name_or_id | #{dummy_image} |
+      })
+  step 'the step should succeed'
+end
