@@ -674,3 +674,144 @@ Feature: deployment related steps
     Then the step should succeed
     And the output should match:
       | .*[iI]mage.*openshift/deployment-example.* |
+
+  # @author: geliu@redhat.com
+  # @case_id: OCP-12073
+  Scenario: Proportionally scale - Rollout deployment succed in unpause and pause
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-1.yaml |
+    Then the step should succeed
+    Given 10 pods become ready with labels:
+      | app=hello-openshift |
+    When I run the :get client command with:
+      | resource | deployment      |
+      | o        | yaml            |
+    Then the output should match:
+      | .*replicas:.*10.* |
+    When I run the :get client command with:
+      | resource | rs   |
+    Then the output should match:
+      |  hello-openshift-.*10.*|
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                              |
+      | resource_name | hello-openshift                                                                                         |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist","name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | pods |
+    Then the output should not match:
+      | .*hello-openshift.*ContainerCreating.* |
+    """
+    When I run the :get client command with:
+      | resource | rs   |
+    Then the output by order should match:
+      |  hello-openshift-.*8.*|
+      |  hello-openshift-.*5.*|
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 20              |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                               |
+      | resource_name | hello-openshift                                                                                          |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist1","name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | pods |
+    Then the output should not match:
+      | .*hello-openshift.*ContainerCreating.* |
+    """ 
+    When I run the :get client command with:
+      | resource | rs   |
+    Then the output should match:
+      | .*hello-openshift-.*9.* |
+      | .*hello-openshift-.*9.* |
+      | .*hello-openshift-.*5.* |
+    When I run the :rollout_pause client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | deployment |
+      | o        | yaml       |
+    Then the output by order should match:
+      | .*[Pp]aused.*:.*true |
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                               |
+      | resource_name | hello-openshift                                                                                          |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist2","name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 50              |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | pods |
+    Then the output should not match:
+      | .*hello-openshift.*ContainerCreating.* |
+    """
+    When I run the :get client command with:
+      | resource | rs   |
+    Then the output should match:
+      | .*hello-openshift-.*21.* |
+      | .*hello-openshift-.*21.* |
+      | .*hello-openshift-.*11.* |
+    When I run the :rollout_resume client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | pods |
+    Then the output should not match:
+      | .*hello-openshift.*ContainerCreating.*|
+    """
+    When I run the :get client command with:
+      | resource | rs   |
+    Then the output should match:
+      | .*hello-openshift-.*21.* |
+      | .*hello-openshift-.*16.* |
+      | .*hello-openshift-.*11.* |
+      | .*hello-openshift-.*5.*  |
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                                           |
+      | resource_name | hello-openshift                                                                                                      |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"docker.io/aosqe/hello-openshift","name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 8               |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | pods |
+    Then the output should not match:
+      | .*hello-openshift.*ContainerCreating.* |
+    """
+    When I run the :get client command with:
+      | resource | rs   |
+    Then the output should match:
+      | .*hello-openshift-.*0.* |
+      | .*hello-openshift-.*0.* |
+      | .*hello-openshift-.*0.* |
+      | .*hello-openshift-.*8.* |
+    When I run the :rollout_history client command with:
+      | resource      | deployment      |
+      | resource_name | hello-openshift |
+      | revision      | 4               |
+    Then the step should succeed
+    And the output should match:
+      | .*nonexist2.* |
