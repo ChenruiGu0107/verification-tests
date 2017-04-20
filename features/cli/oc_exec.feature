@@ -8,12 +8,6 @@ Feature: containers related features
       | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json  |
     Then the step should succeed
     And the pod named "doublecontainers" becomes ready
-    When I run the :describe client command with:
-      | resource | pod       |
-      | name | <%= cb.pod_name %> |
-    Then the output should contain:
-      | Image:		jhou/hello-openshift |
-      | Image:		jhou/hello-openshift-fedora |
     When I run the :exec client command with:
       | pod | <%= cb.pod_name %>  |
     #| c | hello-openshift |
