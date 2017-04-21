@@ -100,7 +100,7 @@ Feature: env.feature
     Given I have a project
     When I run the :new_app client command with:
       | app_repo | ruby:2.2~https://github.com/openshift/ruby-hello-world |
-      | env      | DB_USER=wzheng                                         |
+      | env      | DB_USER=test                                           |
     Then the step should succeed
     And the "ruby-hello-world-1" build was created
     And the "ruby-hello-world-1" build completed
@@ -108,7 +108,7 @@ Feature: env.feature
       | resource | pods |
       | list     | true |
       | all      | true |
-    And the output should contain "DB_USER=wzheng"
+    And the output should contain "DB_USER=test"
     And I delete all resources from the project
     When I run the :new_app client command with:
       | app_repo | ruby:2.2~https://github.com/openshift/ruby-hello-world |
@@ -124,7 +124,7 @@ Feature: env.feature
     And I delete all resources from the project
     Given a "test" file is created with the following lines:
     """
-    DB_USER=wzheng
+    DB_USER=test
     """
     When I run the :new_app client command with:
       | app_repo | ruby:2.2~https://github.com/openshift/ruby-hello-world |
@@ -136,7 +136,7 @@ Feature: env.feature
       | resource | pods |
       | list     | true |
       | all      | true |
-    And the output should contain "DB_USER=wzheng"
+    And the output should contain "DB_USER=test"
     And I delete all resources from the project
     Given a "test" file is created with the following lines:
     """
@@ -153,3 +153,51 @@ Feature: env.feature
       | list     | true |
       | all      | true |
     And the output should contain "RACK_ENV=development"
+
+  # @author shiywang@redhat.com
+  # @case_id OCP-12888
+  Scenario: Can set env vars on buildconfig with new-app --build-env and --build-env-file
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo  | ruby:2.2~https://github.com/openshift/ruby-hello-world |
+      | build_env | DB_USER=test                                           |
+    Then the step should succeed
+    When I run the :env client command with:
+      | resource | pods/ruby-hello-world-1-build |
+      | list     | true                          |
+    And the output should contain "{"name":"DB_USER","value":"test"}"
+    And I delete all resources from the project
+    When I run the :new_app client command with:
+      | app_repo  | ruby:2.2~https://github.com/openshift/ruby-hello-world |
+      | build_env | RACK_ENV=development                                   |
+    Then the step should succeed
+    When I run the :env client command with:
+      | resource | pods/ruby-hello-world-1-build |
+      | list     | true                          |
+    And the output should contain "{"name":"RACK_ENV","value":"development"}"
+    And I delete all resources from the project
+    Given a "test" file is created with the following lines:
+    """
+    DB_USER=test
+    """
+    When I run the :new_app client command with:
+      | app_repo       | ruby:2.2~https://github.com/openshift/ruby-hello-world |
+      | build_env_file | test                                                   |
+    Then the step should succeed
+    When I run the :env client command with:
+      | resource | pods/ruby-hello-world-1-build |
+      | list     | true                          |
+    And the output should contain "{"name":"DB_USER","value":"test"}"
+    And I delete all resources from the project
+    Given a "test" file is created with the following lines:
+    """
+    RACK_ENV=development
+    """
+    When I run the :new_app client command with:
+      | app_repo       | ruby:2.2~https://github.com/openshift/ruby-hello-world |
+      | build_env_file | test                                                   |
+    Then the step should succeed
+    When I run the :env client command with:
+      | resource | pods/ruby-hello-world-1-build |
+      | list     | true                          |
+    And the output should contain "{"name":"RACK_ENV","value":"development"}"
