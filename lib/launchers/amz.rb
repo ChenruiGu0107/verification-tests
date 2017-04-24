@@ -415,7 +415,21 @@ module CucuShift
           end
         }
         inst_tags << {key: "Name", value: tag_name[i] || tag_name.last}
-        inst = instance.wait_until_running
+        begin
+          inst = instance.wait_until_running
+        rescue Aws::Waiters::Errors::FailureStateError => e
+          r = e.response
+          logger.error r.data
+          if r.error
+            logger.error e
+            raise r.error
+          else
+            raise e
+          end
+        rescue Aws::Waiters::Errors::UnexpectedError => e
+          logger.error e
+          raise e.error
+        end
         logger.info("Tagging instance with #{inst_tags} ..")
         inst.create_tags({ tags: inst_tags })
         inst.tags.concat inst_tags # odd that we need this
