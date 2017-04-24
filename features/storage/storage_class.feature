@@ -698,3 +698,56 @@ Feature: storageClass related feature
       | IsDefaultClass:\sNo   |
       | sc2-<%= cb.sc_name %> |
       | IsDefaultClass:\sNo   |
+
+  # @author lxia@redhat.com
+  # @case_id OCP-13665
+  @admin
+  @destructive
+  Scenario: Create storageclass with both beta and stable annotations
+    Given the master version >= "3.6"
+    Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["apiVersion"]                                                                  | storage.k8s.io/v1beta1 |
+      | ["metadata"]["name"]                                                            | sc1-<%= cb.sc_name %>  |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | false                  |
+      | ["provisioner"]                                                                 | kubernetes.io/manual   |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["apiVersion"]                                                                  | storage.k8s.io/v1     |
+      | ["metadata"]["name"]                                                            | sc2-<%= cb.sc_name %> |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                  |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | true                  |
+      | ["provisioner"]                                                                 | kubernetes.io/manual  |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["apiVersion"]                                                                  | storage.k8s.io/v1beta1 |
+      | ["metadata"]["name"]                                                            | sc3-<%= cb.sc_name %>  |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | true                   |
+      | ["provisioner"]                                                                 | kubernetes.io/manual   |
+    Then the step should succeed
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["apiVersion"]                                                                  | storage.k8s.io/v1     |
+      | ["metadata"]["name"]                                                            | sc4-<%= cb.sc_name %> |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                  |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | false                 |
+      | ["provisioner"]                                                                 | kubernetes.io/manual  |
+    Then the step should succeed
+
+    When I run the :describe admin command with:
+      | resource | storageclass          |
+      | name     | sc1-<%= cb.sc_name %> |
+      | name     | sc2-<%= cb.sc_name %> |
+      | name     | sc3-<%= cb.sc_name %> |
+      | name     | sc4-<%= cb.sc_name %> |
+    Then the step should succeed
+    And the output by order should match:
+      | sc1-<%= cb.sc_name %> |
+      | IsDefaultClass:\sNo   |
+      | sc2-<%= cb.sc_name %> |
+      | IsDefaultClass:\sYes  |
+      | sc3-<%= cb.sc_name %> |
+      | IsDefaultClass:\sYes  |
+      | sc4-<%= cb.sc_name %> |
+      | IsDefaultClass:\sNo   |
