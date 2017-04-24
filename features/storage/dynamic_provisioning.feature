@@ -385,3 +385,25 @@ Feature: Dynamic provisioning
       | cinder      | # @case_id OCP-10362
       | azure-disk  | # @case_id OCP-13903
 
+  # @author chaoyang@redhat.com
+  # case_id OCP-13943
+  @smoke
+  Scenario: Dynamic provision smoke test 
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas               |
+    Then the step should succeed
+    Given the pod named "pod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | ls | -ld | /mnt/iaas/ |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/iaas/testfile |
+    Then the step should succeed
