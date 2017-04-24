@@ -1,5 +1,4 @@
 require 'yaml'
-require 'master_config'
 
 module CucuShift
   module IAAS
