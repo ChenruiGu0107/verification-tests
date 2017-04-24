@@ -68,7 +68,7 @@ module CucuShift
       end
 
       def tags
-        tags_raw.split(/\s+/).reject(&:nil?).reject(&:empty?)
+        tags_raw ? tags_raw.split(/\s+/).reject(&:nil?).reject(&:empty?) : []
       end
 
       def automated?
