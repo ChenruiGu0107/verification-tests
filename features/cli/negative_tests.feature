@@ -163,12 +163,7 @@ Feature: negative tests
     And the output should match:
       | details.*oc describe.*oc get all |
 
-    # oc logs should not only prompt message about pod
-    # there is bug: #https://bugzilla.redhat.com/show_bug.cgi?id=1391838
+    # oc logs
     When I run the :logs client command with:
       | resource_name | :false |
-    Then the step should fail
-    And the output should contain:
-      | bc              |
-      | dc              |
-   
+    Then the step should fail 
