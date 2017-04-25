@@ -218,7 +218,7 @@ Feature: buildconfig.feature
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     Then the step should fail
-    And the output should contain "not found"
+    And the output should match "(not found|unable to find)"
     When I run the :patch client command with:
       | resource      | buildconfig                                                                                                                        |
       | resource_name | ruby22-sample-build                                                                                                                |
@@ -227,7 +227,7 @@ Feature: buildconfig.feature
     When I run the :start_build client command with:
       | buildconfig | ruby22-sample-build |
     Then the step should fail
-    And the output should contain "must be retrieved"
+    And the output should match "must (be retrieved|have a name and ID)"
 
   # @author wewang@redhat.com
   # @case_id OCP-11172
@@ -384,7 +384,7 @@ Feature: buildconfig.feature
 
   # @author wzheng@redhat.com
   # @case_id OCP-12837
-  Scenario: S2I extended build failure reason display if use incorrect sourcePath	
+  Scenario: S2I extended build failure reason display if use incorrect sourcePath
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/invalid_sourcePath.json |
