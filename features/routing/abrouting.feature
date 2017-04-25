@@ -191,8 +191,8 @@ Feature: Testing abrouting
     """
     When I execute on the pod:
       | curl      |
-      | --resolve |
       | -sS       |
+      | --resolve |
       | <%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
     Then the step should succeed
@@ -219,8 +219,8 @@ Feature: Testing abrouting
     """
     When I execute on the pod:
       | curl      |
-      | --resolve |
       | -sS       |
+      | --resolve |
       | <%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |
       | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
     Then the step should succeed
@@ -386,7 +386,6 @@ Feature: Testing abrouting
 
   # @author yadu@redhat.com
   # @case_id OCP-11970
-  @case_id OCP-11809
   Scenario: Set backends weight for reencrypt route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -455,7 +454,7 @@ Feature: Testing abrouting
     Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
     Then the expression should be true> (13..15).include? cb.accesslength2
     Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
-    Then the expression should be true> (2..4).include? cb.accesslength1
+    Then the expression should be true> (5..7).include? cb.accesslength1
     When I run the :set_backends client command with:
       | routename | route-reencrypt        |
       | adjust    | true                   |
