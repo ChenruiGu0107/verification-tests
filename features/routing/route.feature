@@ -741,28 +741,25 @@ Feature: Testing route
     And all pods in the project are ready
     When I expose the "test-service" service
     Then the step should succeed
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | bash | -c | for i in {1..5} ; do curl --resolve <%= route.dns(by: user) %>:80:<%= cb.router_ip[0] %> http://<%= route.dns(by: user) %>/ ; done |
+    Then the output should contain "Hello OpenShift"
+    And the output should not contain "Empty reply from server"
     When I run the :annotate client command with:
       | resource     | route                                                           |
       | resourcename | test-service                                                    |
       | keyval       | haproxy.router.openshift.io/rate-limit-connections=true         |
-      | keyval       | haproxy.router.openshift.io/rate-limit-connections.rate-http=3  |
+      | keyval       | haproxy.router.openshift.io/rate-limit-connections.rate-http=2  |
     Then the step should succeed
-
-    Given I have a pod-for-ping in the project
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | bash | -c | for i in {1..5} ; do curl --resolve <%= route.dns(by: user) %>:80:<%= cb.router_ip[0] %> http://<%= route.dns(by: user) %>/ ; done |
-    Then the output should contain 3 times:
+    Then the output should contain:
       | Hello OpenShift |
-    And the output should contain 2 times:
       | Empty reply from server |
-
-    Given 15 seconds have passed
-    When I execute on the pod:
-      | bash | -c | for i in {1..5} ; do curl --resolve <%= route.dns(by: user) %>:80:<%= cb.router_ip[0] %> http://<%= route.dns(by: user) %>/ ; done |
-    Then the output should contain 3 times:
-      | Hello OpenShift |
-    And the output should contain 2 times:
-      | Empty reply from server |
+    """
 
   # @author zzhao@redhat.com
   # @case_id OCP-12573
