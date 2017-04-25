@@ -432,6 +432,6 @@ Feature: Persistent Volume Claim binding policies
       | provisioner    | platform |
       | cinder         | cinder   |
       | gce-pd         | gce      |
-      | aws-ebd        | aws      |
+      | aws-ebs        | aws      |
       | azure-disk     | azure    |
       | vsphere-volume | vsphere  |
