@@ -386,18 +386,16 @@ Feature: Testing route
     When I open web server via the "http://<%= cb.unsecure %>/test/" url
     Then the output should not contain "Hello-OpenShift-Path-Test"
     """
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json"
-    And I replace lines in "route_unsecure.json":
-      | unsecure.example.com | <%= cb.unsecure %> |
-    When I run the :create client command with:
-      | f | route_unsecure.json |
+    When I run the :expose client command with:
+      | resource      | service          |
+      | resource_name | service-unsecure |
     Then the step should succeed
     Given I wait up to 20 seconds for the steps to pass:
     """
-    When I open web server via the "http://<%= route("route", service("service-unsecure")).dns(by: user) %>/test/" url
+    When I open web server via the "http://<%= route.dns(by: user) %>/test/" url
     Then the output should contain "Hello-OpenShift-Path-Test"
     """
-    When I open web server via the "http://<%= route("route", service("service-unsecure")).dns(by: user) %>/" url
+    And I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
 
   # @author zzhao@redhat.com
@@ -602,12 +600,15 @@ Feature: Testing route
     When I expose the "service-unsecure" service
     Then the step should succeed
     Given I have a pod-for-ping in the project
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | <%= route.dns(by: user) %> |
       | -c |
       | /tmp/cookie |
     Then the output should contain "Hello-OpenShift"
+    """
     And I execute on the pod:
       | cat | 
       | /tmp/cookie |
