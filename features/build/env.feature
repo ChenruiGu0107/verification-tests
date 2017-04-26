@@ -102,8 +102,8 @@ Feature: env.feature
       | app_repo | ruby:2.2~https://github.com/openshift/ruby-hello-world |
       | env      | DB_USER=test                                           |
     Then the step should succeed
-    And the "ruby-hello-world-1" build was created
-    And the "ruby-hello-world-1" build completed
+    Given a pod becomes ready with labels:
+      |deployment=ruby-hello-world-1|
     When I run the :env client command with:
       | resource | pods |
       | list     | true |
@@ -114,8 +114,8 @@ Feature: env.feature
       | app_repo | ruby:2.2~https://github.com/openshift/ruby-hello-world |
       | env      | RACK_ENV=development                                   |
     Then the step should succeed
-    And the "ruby-hello-world-1" build was created
-    And the "ruby-hello-world-1" build completed
+    Given a pod becomes ready with labels:
+      |deployment=ruby-hello-world-1|
     When I run the :env client command with:
       | resource | pods |
       | list     | true |
@@ -130,8 +130,8 @@ Feature: env.feature
       | app_repo | ruby:2.2~https://github.com/openshift/ruby-hello-world |
       | env_file | test                                                   |
     Then the step should succeed
-    And the "ruby-hello-world-1" build was created
-    And the "ruby-hello-world-1" build completed
+    Given a pod becomes ready with labels:
+      |deployment=ruby-hello-world-1|
     When I run the :env client command with:
       | resource | pods |
       | list     | true |
@@ -146,8 +146,8 @@ Feature: env.feature
       | app_repo | ruby:2.2~https://github.com/openshift/ruby-hello-world |
       | env_file | test                                                   |
     Then the step should succeed
-    And the "ruby-hello-world-1" build was created
-    And the "ruby-hello-world-1" build completed
+    Given a pod becomes ready with labels:
+      |deployment=ruby-hello-world-1|
     When I run the :env client command with:
       | resource | pods |
       | list     | true |
