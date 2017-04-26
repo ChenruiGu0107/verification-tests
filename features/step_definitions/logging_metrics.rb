@@ -244,43 +244,14 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   @result = admin.cli_exec(:oadm_config_view, flatten: true, minify: true)
   File.write(File.expand_path("tmp/admin.kubeconfig"), @result[:response])
 
-  # to save time we are going to check if the base-ansible-pod already exists
-  # use admin user to get the information so we don't need to swtich user.
-  unless pod("base-ansible-pod").exists?(user: admin)
-    step %Q/I run the :create client command with:/, table(%{
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_pod.json |
-    })
-    step %Q/the step should succeed/
-    step %Q/the pod named "base-ansible-pod" becomes ready/
-    # fix uid to match the correct value
-    cb.sed_cmd = 'echo -e ",s/1234321/`id -u`/g\\012 w" | ed -s /etc/passwd'
-    step %Q/I execute on the pod:/, table(%{
-      | bash              |
-      | -c                |
-      | <%= cb.sed_cmd %> |
-    })
-  end
-  step %Q/I run the :rsync client command with:/, table(%{
-    | source      | <%= localhost.absolutize("tmp") %> |
-    | destination | base-ansible-pod:/tmp              |
-    | loglevel    | 5                                  |
-    })
-  # checkout the openshift-anisble.  XXX: note, master has issues will need to
-  # checkout from 1.5 for the time being
-  if pod("base-ansible-pod").exists?(user: admin)
-    step %Q/I execute on the pod:/, table(%{
-      | bash                                                                                                                 |
-      | -c                                                                                                                   |
-      | cd /tmp/tmp/ && rm -rf openshift-ansible && git clone https://github.com/openshift/openshift-ansible/ |
-      })
-    step %Q/the step should succeed/
-  end
+  step %Q/I have a pod with openshift-ansible playbook installed/
 
   if svc_type == 'logging'
     ansible_template_path = "openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml"
   else
-    ansible_template_path = "openshift-ansible/playbooks/common/openshift-cluster/openshift_metrics.yml"
+    ansible_template_path = "openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml"
   end
+
   step %Q/I execute on the pod:/, table(%{
     | bash                                                                                                |
     | -c                                                                                                  |
@@ -308,4 +279,77 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
       step %Q/there should be 0 metrics service installed/
     end
   end
+end
+
+# check openshift-ansible is installed in a node, if not, then do yum -y install openshift-ansible*
+Given /^openshift-ansible is installed in the #{QUOTED} node$/ do | node_name |
+  ensure_admin_tagged
+  # switch to use the target node
+  @host = node(node_name).host
+  res = @host.exec("ls /usr/share/ansible/openshift-ansible/")
+  unless res[:success]
+    logger.info("Installing openshift-ansible via yum")
+    yum_install_cmd = "yum -y install openshift-ansible*"
+    res = @host.exec(yum_install_cmd)
+    has_playbooks = @host.exec("ls /usr/share/ansible/openshift-ansible/playbooks")
+    raise "Unable to install openshift-ansible via yum" unless has_playbooks[:success]
+  end
+end
+
+# wrapper step to
+# 1. spin up a openshift-ansible pod
+# 2. install openshift-ansible playbook (via yum or git)
+Given /^I have a pod with openshift-ansible playbook installed$/ do
+  ensure_admin_tagged
+  # to save time we are going to check if the base-ansible-pod already exists
+  # use admin user to get the information so we don't need to swtich user.
+  unless pod("base-ansible-pod").exists?(user: admin)
+    step %Q/I run the :create client command with:/, table(%{
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_pod.json |
+    })
+    step %Q/the step should succeed/
+    step %Q/the pod named "base-ansible-pod" becomes ready/
+    # fix uid to match the correct value
+    cb.sed_cmd = 'echo -e ",s/1234321/`id -u`/g\\012 w" | ed -s /etc/passwd'
+    step %Q/I execute on the pod:/, table(%{
+      | bash              |
+      | -c                |
+      | <%= cb.sed_cmd %> |
+    })
+  end
+  step %Q/I run the :rsync client command with:/, table(%{
+    | source      | <%= localhost.absolutize("tmp") %> |
+    | destination | base-ansible-pod:/tmp              |
+    | loglevel    | 5                                  |
+    })
+  step %Q/the step should succeed/
+
+  # depending on global option defined in config/config.yaml we either install
+  # openshift-ansible via yum or just do git clone from branch name
+  if conf[:openshift_ansible_installer] == "yum"
+    # first check if openshift-ansible playbook is install in the master
+    step %Q/openshift-ansible is installed in the "<%= env.master_hosts.first.hostname %>" node/
+    step %Q/I rsync files from node named "<%= env.master_hosts.first.hostname %>" to pod named "base-ansible-pod" using parameters:/, table(%{
+      | src_dir | /usr/share/ansible/openshift-ansible/        |
+      | dst_dir | base-ansible-pod:/tmp/tmp/openshift-ansible/ |
+      })
+    step %Q/the step should succeed/
+    # plugins are needed
+    step %Q/I rsync files from node named "<%= env.master_hosts.first.hostname %>" to pod named "base-ansible-pod" using parameters:/, table(%{
+      | src_dir | /usr/share/ansible_plugins/                |
+      | dst_dir | base-ansible-pod:/tmp/tmp/ansible_plugins/ |
+      })
+    step %Q/the step should succeed/
+  elsif conf[:openshift_ansible_installer] == "git"
+    step %Q/I execute on the pod:/, table(%{
+      | bash                                                                                                                                                      |
+      | -c                                                                                                                                                        |
+      | cd /tmp/tmp/ && rm -rf openshift-ansible  && git clone https://github.com/openshift/openshift-ansible/ -b <%= conf[:openshift_ansible_git_repo_branch] %> |
+
+      })
+    step %Q/the step should succeed/
+  else
+    raise "Installation method '#{conf[:openshift_ansible]}' is currently not supported"
+  end
+
 end

@@ -7,6 +7,10 @@ global:
   debug_in_after_hook_always: false
   debug_attacher_timeout: false
 
+  # installer can be 'yum' or 'git'
+  openshift_ansible_installer: yum
+  openshift_ansible_git_repo_branch: master
+
   # base docker registry prefixes for quickstarts;
   #   (one is for the upstream community supported *projects* and the other one
   #   is for the Red Hat enterprise supported *products*);

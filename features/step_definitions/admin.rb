@@ -65,3 +65,15 @@ Given /^the system container id for the#{OPT_QUOTED} pod is stored in the#{OPT_S
   raise "Can't find containter id for system pod" if system_pod_container_id.nil?
   cb[cb_name] = system_pod_container_id[1].strip
 end
+
+# use oc rsync to copy files from node to a pod
+# required table params are src_dir and dst_dir
+Given /^I rsync files from node named #{QUOTED} to pod named #{QUOTED} using parameters:$/ do | node_name, pod_name, table |
+  ensure_admin_tagged
+  opts = opts_array_to_hash(table.raw)
+  raise "Not all requried parameters given, expected #{opts.keys}" if opts.keys.sort != [:dst_dir, :src_dir]
+  step %Q/I run commands on the host:/, table(%{
+    | oc rsync "#{opts[:src_dir]}" "#{opts[:dst_dir]}" --namespace "#{project.name}" |
+  })
+  step %Q/the step should succeed/
+end
