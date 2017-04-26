@@ -2,7 +2,7 @@ Feature: idle service related scenarios
 
   # @author hongli@redhat.com
   # @case_id OCP-10935
-  Scenario: Pod can be changed to un-idle when there is route coming
+  Scenario: Pod can be changed to un-idle when there is unsecure or edge or passthrough route coming
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json |
@@ -86,6 +86,17 @@ Feature: idle service related scenarios
       | service-secure.*\d+.\d+.\d+.\d+:8443,\d+.\d+.\d+.\d+:8443 |
       | service-unsecure.*\d+.\d+.\d+.\d+:8080,\d+.\d+.\d+.\d+:8080 |
     """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-13837
+  Scenario: Pod can be changed to un-idle when there is reencrypt route coming
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json |
+    Then the step should succeed
+    Given I wait until replicationController "test-rc" is ready
+    And I wait until number of replicas match "2" for replicationController "test-rc"
+
     # check reencrypt route
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
