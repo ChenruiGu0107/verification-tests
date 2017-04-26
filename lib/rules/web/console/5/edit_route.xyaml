@@ -50,7 +50,6 @@ remove_service_from_route:
   action: click_to_goto_edit_page
   action: remove_a_service_from_route
   action: save_edit_route
-  action: check_the_rest_services
 remove_and_keep_one_service_for_route:
   action: goto_one_route_page
   action: click_to_goto_edit_page
@@ -117,21 +116,21 @@ set_the_second_service_with_empty_weight:
       xpath: //div[@ng-repeat="alternate in route.alternateServices"][1]//osc-routing-service[@model='alternate']//input[@name="weight"]
     op: clear
 check_no_weight_table_for_route:
-  scripts:
-  - command: return document.querySelectorAll("table").length == 0
-    expect_result: true
-check_the_rest_services:
-  scripts:
-  - command: return document.querySelectorAll("tbody tr").length == <rest_svc_number>
-    expect_result: true
-  elements:
-  - selector:
-      xpath: //td[contains(., 'service-unsecure')]/following::td[contains(text(), '2')]
-  - selector:
-      xpath: //td[contains(., 'service-unsecure-3')]/following::td[contains(text(), '5')]
+  element:
+    selector:
+      tag_name: table
+    missing: true
+check_services_count:
+  element:
+    selector:
+      xpath: //table[thead[contains(.,'Service')] and count(tbody/tr)=<svc_number>]
+check_service_weight:
+  element:
+    selector:
+      xpath: //td[contains(., '<name>')]/following::td[contains(text(), '<weight>')]
 remove_a_service_from_route:
-  elements:
-  - selector:
+  element:
+    selector:
       xpath: //div[@ng-repeat="alternate in route.alternateServices"][1]/a[contains(.,"Remove Service")]
     op: click
 split_traffic_across_multiple_services:
@@ -142,16 +141,16 @@ split_traffic_across_multiple_services:
 set_the_first_service_to_route:
   elements:
   - selector:
-      xpath: //osc-routing-service[@model='route.to']//span[contains(@class,'ui-select-match-text')]
+      xpath: //osc-routing-service[@model='route.to']//div/span[span//span[text()='<first_svc_name>']]
     op: click
   - selector:
-      xpath: //osc-routing-service[@model='route.to']//span/div[text()='<first_svc_name>']
+      xpath: //osc-routing-service[@model='route.to']//div[span/div[text()='<first_svc_name>']]
     op: click
-  - selector:
+  - selector: &first_service_weight_input
       xpath: //osc-routing-service[@model='route.to']//input[@name="weight"]
     op: clear
   - selector:
-      xpath: //osc-routing-service[@model='route.to']//input[@name="weight"]
+      <<: *first_service_weight_input
     op: send_keys <weight_one>
 set_the_second_service_to_route:
   elements:

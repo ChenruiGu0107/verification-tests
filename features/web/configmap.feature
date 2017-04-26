@@ -1,5 +1,5 @@
 Feature: ConfigMap related features
-  
+
   # @author yapei@redhat.com
   # @case_id OCP-11859
   Scenario: Create ConfigMap with invalid value on web console
@@ -196,7 +196,7 @@ Feature: ConfigMap related features
     When I perform the :check_configmap_specified_key_and_path_in_volume_on_dc web console action with:
       | project_name   | <%= project.name %> |
       | dc_name        | myrun               |
-      | specified_key  | special.how         |
+      | specified_key  | special.how         |
       | specified_path | prop/configmap.how  |
     Then the step should succeed
     When I perform the :check_configmap_specified_key_and_path_in_volume web console action with:
@@ -215,7 +215,7 @@ Feature: ConfigMap related features
       | dc_name        | myrun               |
       | configmap_name | example-config      |
     Then the step should fail
-    
+
   # @author yapei@redhat.com
   # @case_id OCP-11410
   Scenario: Add values from secret as volume

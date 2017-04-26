@@ -323,7 +323,10 @@ Feature: Routes related features on web console
     When I perform the :create_unsecured_route_from_service_or_overview_page web console action with:
       | route_name | service-unsecure-route |
     Then the step should succeed
-
+    # check redirection to service page, cause we created route from service page
+    When I perform the :check_redirection_to_service_page web console action with:
+      | service_name | service-unsecure |
+    Then the step should succeed
     When I perform the :cancel_edit_route_with_path web console action with:
       | project_name | <%= project.name%>   |
       | route_name | service-unsecure-route |
@@ -402,27 +405,42 @@ Feature: Routes related features on web console
     When I perform the :create_unsecured_route_from_service_or_overview_page web console action with:
       | route_name | service-unsecure-route |
     Then the step should succeed
+    # check redirection to service page, cause we created route from service page
+    When I perform the :check_redirection_to_service_page web console action with:
+      | service_name | service-unsecure |
+    Then the step should succeed
 
     When I perform the :update_route_point_to_three_services web console action with:
-      | project_name | <%= project.name%>    |
-      | route_name  | service-unsecure-route |
-      | first_svc_name  | service-unsecure   |
-      | second_svc_name | service-unsecure-2 |
-      | third_svc_name  | service-unsecure-3 |
-      | weight_one   | 2                     |
-      | weight_two   | 3                     |
-      | weight_three | 5                     |
+      | project_name    | <%= project.name%>     |
+      | route_name      | service-unsecure-route |
+      | first_svc_name  | service-unsecure       |
+      | second_svc_name | service-unsecure-2     |
+      | third_svc_name  | service-unsecure-3     |
+      | weight_one      | 2                      |
+      | weight_two      | 3                      |
+      | weight_three    | 5                      |
     Then the step should succeed
 
     When I perform the :remove_service_from_route web console action with:
-      | project_name | <%= project.name%>    |
-      | route_name  | service-unsecure-route |
-      | rest_svc_number  | 2                 |
+      | project_name    | <%= project.name%>     |
+      | route_name      | service-unsecure-route |
+      | rest_svc_number | 2                      |
+    Then the step should succeed
+    When I perform the :check_services_count web console action with:
+      | svc_number | 2 |
+    Then the step should succeed
+    When I perform the :check_service_weight web console action with:
+      | name   | service-unsecure |
+      | weight | 2                |
+    Then the step should succeed
+    When I perform the :check_service_weight web console action with:
+      | name   | service-unsecure-3 |
+      | weight | 5                  |
     Then the step should succeed
 
     When I perform the :remove_and_keep_one_service_for_route web console action with:
-      | project_name | <%= project.name%>    |
-      | route_name  | service-unsecure-route |
+      | project_name | <%= project.name%>     |
+      | route_name   | service-unsecure-route |
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
@@ -527,7 +545,7 @@ Feature: Routes related features on web console
   # @author: hasha@redhat.com
   # @case_id: OCP-11426
   Scenario: Provide helpful error page for app 503 response
-    Given the master version >= "3.5"		
+    Given the master version >= "3.5"
     Given I have a project
     When I run the :new_app client command with:
       | docker_image | openshift/hello-openshift:latest |
@@ -555,7 +573,7 @@ Feature: Routes related features on web console
       | path          | /test   |
       | name          | hello2  |
     Then the step should succeed
-    
+
     When I open web server via the "hello2" route
     Then the output should contain:
       | Application is not available |
@@ -570,7 +588,7 @@ Feature: Routes related features on web console
       | replicas | 0     |
     Then the step should succeed
     And I wait for the resource "pod" named "<%= cb.pod_name %>" to disappear
-    
+
     When I open web server via the "hello" route
     Then the output should contain:
       | Application is not available |
