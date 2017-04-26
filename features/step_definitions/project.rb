@@ -202,6 +202,12 @@ When(/^I delete all resources from the project$/) do
     raise "not all pods actually deleted: " \
       "#{project.pods(by: user).map(&:name).join(?,)}"
   end
+
+  step %Q/I run the :delete client command with:/, table(%{
+    | object_type | pvc  |
+    | all         | true |
+  })
+  raise "unable to delete pvc, see logs" unless @result[:success]
 end
 
 
