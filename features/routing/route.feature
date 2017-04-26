@@ -1015,7 +1015,7 @@ Feature: Testing route
 
   # @author zzhao@redhat.com
   # @case_id OCP-11036
-  Scenario: Add http and https redirect support for passthrough and reencrypt termination	
+  Scenario: Set insecureEdgeTerminationPolicy to Redirect for passthrough route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
@@ -1056,7 +1056,20 @@ Feature: Testing route
       | p             | {"spec":{"tls":{"insecureEdgeTerminationPolicy":"Allow"}}} |
     Then the step should fail
     And the output should contain "acceptable values are None, Redirect, or empty"
- 
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-11839
+  Scenario: Set insecureEdgeTerminationPolicy to Redirect and Allow for reencrypt route
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+
     #create reencrypt termination route
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
     When I run the :create_route_reencrypt client command with:
