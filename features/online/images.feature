@@ -183,7 +183,7 @@ Feature: ONLY ONLINE Images related scripts in this file
         | resource_type   | memory |
         | limit_type      | |
         | amount_unit     | MiB    |
-        | resource_amount | 800    |
+        | resource_amount | 400    |
       Then the step should succeed
       When I run the :click_save_button web console action
       Then the step should succeed
@@ -193,11 +193,11 @@ Feature: ONLY ONLINE Images related scripts in this file
       When I execute on the pod:
         | cat | /etc/my.cnf.d/tuning.cnf |
       Then the output should contain:
-        | key_buffer_size = 80M          |
-        | read_buffer_size = 40M         |
-        | innodb_buffer_pool_size = 400M |
-        | innodb_log_file_size = 120M    |
-        | innodb_log_buffer_size = 120M  |
+        | key_buffer_size = 40M          |
+        | read_buffer_size = 20M         |
+        | innodb_buffer_pool_size = 200M |
+        | innodb_log_file_size = 60M    |
+        | innodb_log_buffer_size = 60M  |
 
   # @author etrott@redhat.com
   # @case_id OCP-12373
