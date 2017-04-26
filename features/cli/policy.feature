@@ -624,7 +624,7 @@ Feature: change the policy of user/service account
       | resource | storageclass |
     Then the step should succeed
     And the output should contain:
-      | sc-<%= project.name %> | 
+      | sc-<%= project.name %> |
 
     When I run the :get client command with:
       | resource      | storageclass           |
@@ -633,7 +633,7 @@ Feature: change the policy of user/service account
     Then the step should fail
     And the output should contain:
       | cannot get storage.k8s.io.storageclasses at the cluster scope |
-    
+
     When I run the :describe client command with:
       | resource | storageclass           |
       | name     | sc-<%= project.name %> |
@@ -684,7 +684,7 @@ Feature: change the policy of user/service account
       | resource | storageclass           |
       | name     | sc-<%= project.name %> |
     Then the step should succeed
-    
+
     # Update storageclass
     Then I replace lines in "storageclass-io1.yaml":
       | 25 | 30 |
@@ -749,7 +749,7 @@ Feature: change the policy of user/service account
     When I run the :replace client command with:
       | f     | pv-rwo.yaml |
       | force | true        |
-    And the step should succeed 
+    And the step should succeed
 
     When I run the :describe client command with:
       | resource | pv                     |
@@ -759,7 +759,7 @@ Feature: change the policy of user/service account
       | RWX |
     And the output should not contain:
       | RWO |
-     
+
     When I run the :delete client command with:
       | object_type       | pv                    |
       | object_name_or_id | pv-<%=project.name %> |
@@ -771,13 +771,9 @@ Feature: change the policy of user/service account
   @admin
   Scenario: User with role storage-admin can get pvc object info
     Given I have a project
-    Given cluster role "storage-admin" is added to the "first" user
-
-    When I switch to the second user
-    Given I create a new project
     And evaluation of `project.name` is stored in the :project clipboard
 
-    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/pvc.yaml" 
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/pvc.yaml"
     And I replace lines in "pvc.yaml":
       | ebsc | pvc-<%= cb.project %> |
     And the step should succeed
@@ -786,8 +782,8 @@ Feature: change the policy of user/service account
       | f | pvc.yaml |
     And the step should succeed
 
-    When I switch to the first user
-
+    Given I switch to the second user
+    And cluster role "storage-admin" is added to the "second" user
     When I run the :get client command with:
       | resource | pvc               |
       | n        | <%= cb.project %> |
@@ -811,7 +807,7 @@ Feature: change the policy of user/service account
     And the step should fail
     And the output should contain:
       | User "<%= user.name %>" cannot delete persistentvolumeclaims |
-    
+
     When I run the :delete client command with:
       | object_type       | pvc                   |
       | object_name_or_id | pvc-<%= cb.project %> |
@@ -858,7 +854,7 @@ Feature: change the policy of user/service account
   # @author chuyu@redhat.com
   # @case_id OCP-13095
   @admin
-  Scenario: Add add-cluster-role-to-user support for -z 
+  Scenario: Add add-cluster-role-to-user support for -z
     Given I have a project
     Given I find a bearer token of the system:serviceaccount:<%= project.name %>:default service account
     Given I switch to the system:serviceaccount:<%= project.name %>:default service account
@@ -868,7 +864,7 @@ Feature: change the policy of user/service account
     Given I run the :oadm_add_cluster_role_to_user admin command with:
       | role_name | system:node-reader  |
       | z         | default             |
-      | n         | <%= project.name %> | 
+      | n         | <%= project.name %> |
     Then the step should succeed
     And I register clean-up steps:
       """
@@ -882,7 +878,7 @@ Feature: change the policy of user/service account
     """
     When I run the :get client command with:
       | resource | nodes |
-    Then the step should succeed  
+    Then the step should succeed
     """
 
   # @author yinzhou@redhat.com
@@ -934,7 +930,7 @@ Feature: change the policy of user/service account
     Then the step should succeed
     And the output should match:
       | <none> |
- 
+
   # @author chuyu@redhat.com
   # @case_id OCP-9552
   @admin
