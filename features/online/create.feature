@@ -137,9 +137,9 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
   Scenario: Create Laravel application with a MySQL database using default template laravel-mysql-example
     Given I have a project
     Then I run the :new_app client command with:
-      | template | laravel-mysql-example |
+      | template | laravel-mysql-persistent |
     Then the step should succeed
     And all pods in the project are ready
     Then the step should succeed
-    And I wait for the "laravel-mysql-example" service to become ready
-    Then I wait for a web server to become available via the "laravel-mysql-example" route
+    And I wait for the "laravel-mysql-persistent" service to become ready
+    Then I wait for a web server to become available via the "laravel-mysql-persistent" route
