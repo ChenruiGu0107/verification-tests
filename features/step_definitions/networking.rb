@@ -152,3 +152,43 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
     teardown_add iptables_verify
   end
 end
+
+
+Given /^admin adds( and overwrites)? following annotations to the "(.+?)" netnamespace:$/ do |overwrite, netnamespace, table|
+  ensure_admin_tagged
+  _admin = admin
+  _netnamespace = netns(netnamespace, env)
+  _annotations = _netnamespace.annotations
+
+  table.raw.flatten.each { |annotation|
+    if overwrite
+      @result = _admin.cli_exec(:annotate, resource: "netnamespace", resourcename: netnamespace, keyval: annotation, overwrite: true)
+    else
+      @result = _admin.cli_exec(:annotate, resource: "netnamespace", resourcename: netnamespace, keyval: annotation)
+    end
+    raise "The annotation '#{annotation}' was not successfully added to the netnamespace '#{netnamespace}'!" unless @result[:success]
+  }
+
+  teardown_add {
+    current_annotations = _netnamespace.annotations(cached: false)
+    
+    unless current_annotations == _annotations
+      current_annotations.keys.each do |annotation|
+        @result = _admin.cli_exec(:annotate, resource: "netnamespaces", resourcename: netnamespace, keyval: "#{annotation}-")
+        raise "The annotation '#{annotation}' was not removed from the netnamespace '#{netnamespace}'!" unless @result[:success]
+      end
+
+      if _annotations
+        _annotations.each do |annotation, value|
+          @result = _admin.cli_exec(:annotate, resource: "netnamespaces", resourcename: netnamespace, keyval: "#{annotation}=#{value}")
+          raise "The annotation '#{annotation}' was not successfully added to the netnamespace '#{netnamespace}'!" unless @result[:success]
+        end
+      end
+      # verify if the restoration process was succesfull
+      current_annotations = _netnamespace.annotations(cached: false)
+      unless current_annotations == _annotations
+        raise "The restoration of netnamespace '#{netnamespace}' was not successfull!"
+      end
+    end
+  } 
+end

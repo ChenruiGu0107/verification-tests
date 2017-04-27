@@ -25,6 +25,8 @@ require 'openshift/security_context_constraint'
 require 'openshift/host_subnet'
 require 'openshift/cluster_resource_quota'
 require 'openshift/stateful_set'
+require 'openshift/net_namespace'
+
 module CucuShift
   # @note this is our default cucumber World extension implementation
   class DefaultWorld
@@ -538,6 +540,10 @@ module CucuShift
         return var.last
       end
     end
+    
+    def netns(name=nil, env=nil)
+      cluster_resource(NetNamespace, name, env)
+    end
 
     def cluster_role(name = nil, env = nil)
       cluster_resource(ClusterRole, name, env)
@@ -609,7 +615,8 @@ module CucuShift
         cluster_resource_quota: "clusterresourcequotas",
         stateful_set: "statefulsets",
         storage_class: "storageclasses",
-        scc: "securitycontextconstraints"
+        scc: "securitycontextconstraints",
+        netns: "netnamespaces"
       }
       type = shorthands[type.to_sym] if shorthands[type.to_sym]
 
