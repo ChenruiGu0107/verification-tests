@@ -32,3 +32,14 @@ select_hpa_from_list:
   - selector:
       xpath: //span[@class="ui-select-choices-row-inner"]//div[contains(.,"Horizontal")]
     op: click
+check_resource_missing_on_other_resources_page:
+  action: goto_other_resources_page
+  action: check_resource_missing
+check_resource_missing:
+  elements:
+  - selector:
+      xpath: //span[contains(@class,"ui-select-placeholder") and contains(.,"Choose a resource")]
+    op: click
+  - selector:
+      xpath: //span[@class="ui-select-choices-row-inner"]//div[text()="<resource_name>"]
+    missing: true

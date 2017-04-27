@@ -16,25 +16,23 @@ check_events_page:
       text: Pod
 goto_events_page:
   url: /console/project/<project_name>/browse/events
-check_event_tab_on_build_page:
+click_on_events_tab_on_build_page:
   action: goto_one_build_page
-  action: check_event_tab
-check_event_tab_on_dc_page:
+  action: click_on_events_tab
+click_on_events_tab_on_dc_page:
   action: goto_one_dc_page
-  action: check_event_tab
-check_event_tab_on_deployment_page:
+  action: click_on_events_tab
+click_on_events_tab_on_deployment_page:
   action: goto_one_deployment_page
-  action: check_event_tab
-check_event_tab_on_pod_page:
+  action: click_on_events_tab
+click_on_events_tab_on_pod_page:
   action: goto_one_pod_page
-  action: check_event_tab
-check_event_tab_on_service_page:
+  action: click_on_events_tab
+click_on_events_tab_on_service_page:
   action: goto_one_service_page
-  action: check_event_tab
-check_event_tab_on_standalone_rc_page:
+  action: click_on_events_tab
+click_on_events_tab_on_standalone_rc_page:
   action: goto_one_standalone_rc_page
-  action: check_event_tab
-check_event_tab:
   action: click_on_events_tab
 check_event_message:
   element:

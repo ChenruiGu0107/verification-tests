@@ -68,7 +68,16 @@ filter_resources_with_exists_option:
       class: label-filter-add
     type: button
     op: click
-
+click_on_label_key:
+  element:
+    selector:
+      xpath: //span[a[contains(@class,"label-key") and text()="<label_key>"] and a[contains(@class,"label-value") and text()="<label_value>"]]/a[contains(@class,"label-key")]
+    op: click
+click_on_label_value:
+  element:
+    selector:
+      xpath: //span[a[contains(@class,"label-key") and text()="<label_key>"] and a[contains(@class,"label-value") and text()="<label_value>"]]/a[contains(@class,"label-value")]
+    op: click
 clear_one_filter:
   elements:
   - selector:

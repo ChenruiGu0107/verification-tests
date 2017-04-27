@@ -1041,7 +1041,7 @@ Feature: Check deployments function
     When I perform the :click_on_one_deployment web console action with:
       | k8s_deployments_name | hello-openshift |
     Then the step should succeed
-    When I run the :check_event_tab web console action
+    When I run the :click_on_events_tab web console action
     Then the step should succeed
     When I run the :get client command with:
       | resource | rs   |
@@ -1065,7 +1065,7 @@ Feature: Check deployments function
     Then the step should succeed
     When I run the :click_save_button web console action
     Then the step should succeed
-    When I run the :check_event_tab web console action
+    When I run the :click_on_events_tab web console action
     Then the step should succeed
     # https://bugzilla.redhat.com/show_bug.cgi?id=1423461
     When I perform the :check_event_message web console action with:
@@ -1082,7 +1082,7 @@ Feature: Check deployments function
       | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
     Then the step should succeed
 
-    When I perform the :filter_by_keyword_on_events_tab web console action with:
+    When I perform the :filter_by_keyword web console action with:
       | keyword | <%= cb.rs_name %> |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
@@ -1094,7 +1094,7 @@ Feature: Check deployments function
       | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
     Then the step should succeed
 
-    When I perform the :filter_by_keyword_on_events_tab web console action with:
+    When I perform the :filter_by_keyword web console action with:
       | keyword | <%= cb.rs_name_new %> |
     Then the step should succeed
     When I perform the :check_event_message_missing web console action with:
@@ -1106,7 +1106,7 @@ Feature: Check deployments function
       | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
     Then the step should succeed
 
-    When I perform the :filter_by_keyword_on_events_tab web console action with:
+    When I perform the :filter_by_keyword web console action with:
       | keyword | test |
     Then the step should succeed
     When I run the :check_all_events_hidden_by_filter web console action
@@ -1210,9 +1210,9 @@ Feature: Check deployments function
     When I perform the :check_ready_pods_number_in_table web console action with:
       | pods_number | 1 |
     Then the step should succeed
-    When I run the :check_event_tab web console action
+    When I run the :click_on_events_tab web console action
     Then the step should succeed
-    When I perform the :filter_by_keyword_on_events_tab web console action with:
+    When I perform the :filter_by_keyword web console action with:
       | keyword | delete |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
@@ -1225,9 +1225,9 @@ Feature: Check deployments function
     When I perform the :check_ready_pods_number_in_table web console action with:
       | pods_number | 2 |
     Then the step should succeed
-    When I run the :check_event_tab web console action
+    When I run the :click_on_events_tab web console action
     Then the step should succeed
-    When I perform the :filter_by_keyword_on_events_tab web console action with:
+    When I perform the :filter_by_keyword web console action with:
       | keyword | create |
     Then the step should succeed
     When I perform the :check_event_message web console action with:

@@ -16,25 +16,23 @@ check_events_page:
       text: Pod
 goto_events_page:
   url: /console/project/<project_name>/browse/events
-check_event_tab_on_build_page:
+click_on_events_tab_on_build_page:
   action: goto_one_build_page
-  action: check_event_tab
-check_event_tab_on_dc_page:
+  action: click_on_events_tab
+click_on_events_tab_on_dc_page:
   action: goto_one_dc_page
-  action: check_event_tab
-check_event_tab_on_deployment_page:
+  action: click_on_events_tab
+click_on_events_tab_on_deployment_page:
   action: goto_one_deployment_page
-  action: check_event_tab
-check_event_tab_on_pod_page:
+  action: click_on_events_tab
+click_on_events_tab_on_pod_page:
   action: goto_one_pod_page
-  action: check_event_tab
-check_event_tab_on_service_page:
+  action: click_on_events_tab
+click_on_events_tab_on_service_page:
   action: goto_one_service_page
-  action: check_event_tab
-check_event_tab_on_standalone_rc_page:
+  action: click_on_events_tab
+click_on_events_tab_on_standalone_rc_page:
   action: goto_one_standalone_rc_page
-  action: check_event_tab
-check_event_tab:
   action: click_on_events_tab
 check_event_message:
   element:
@@ -50,7 +48,7 @@ check_all_events_hidden_by_filter:
   element:
     selector:
       xpath: //span[normalize-space(text())="All events hidden by filter." and a[text()="Clear Filter"]]
-filter_by_keyword_on_events_tab:
+filter_by_keyword:
   elements:
   - selector:
       xpath: //input[@type="search"]
@@ -58,3 +56,20 @@ filter_by_keyword_on_events_tab:
   - selector:
       xpath: //input[@type="search"]
     op: send_keys <keyword>
+sort_by:
+  elements:
+  - selector:
+      xpath: //span[text()="Sort by"]/following-sibling::div//button[@data-toggle="dropdown"]
+    op: click
+  - selector:
+      xpath: //span[text()="Sort by"]/following-sibling::div//ul/li/a[text()="<sort_field>"]
+    op: click
+check_messages_order:
+  element:
+    selector:
+      xpath: //tr[td[(@data-title="Reason" or @data-title="Message") and span[.="<first_reason>"]] and td[@data-title="Message" and self::td//span[contains(.,"<first_message>")]]]/following-sibling::tr[td[(@data-title="Reason" or @data-title="Message") and span[.="<second_reason>"]] and td[@data-title="Message" and self::td//span[contains(.,"<second_message>")]]]
+change_sort_direction:
+  element:
+    selector:
+      xpath: //span[text()="Sort by"]/following-sibling::div//button[@ng-click="changeDirection()"]
+    op: click

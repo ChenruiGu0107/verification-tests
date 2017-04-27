@@ -114,10 +114,19 @@ click_show_annotations:
   - selector:
       text: Show Annotations
     op: click
+check_annotation:
+  element:
+    selector:
+      xpath: //div[@ng-if="annotations"]//tr[td[contains(@class,"key") and text()="<key>"] and td[contains(@class,"value") and contains(.,"<value>")]]
 click_edit:
   element:
     selector:
       xpath: //a[text()='Edit']
+    op: click
+click_edit_YAML:
+  element:
+    selector:
+      xpath: //a[text()='Edit YAML']
     op: click
 click_remove_button:
   element:
@@ -129,6 +138,9 @@ click_save_button:
   - selector:
       xpath: //button[contains(text(),'Save') and not(@disabled)]
     op: click
+click_to_goto_edit_YAML_page:
+  action: click_actions_button
+  action: click_edit_YAML
 click_to_goto_edit_page:
   action: click_actions_button
   action: click_edit

@@ -13,28 +13,28 @@ Feature: check event feature on web console
     Then the step should succeed
 
     Given the "nodejs-sample-1" build completed
-    And I perform the :check_event_tab_on_build_page web console action with:
+    And I perform the :click_on_events_tab_on_build_page web console action with:
       | project_name      | <%= project.name %>           |
       | bc_and_build_name | nodejs-sample/nodejs-sample-1 |
     Then the step should succeed
 
-    When I perform the :check_event_tab_on_dc_page web console action with:
+    When I perform the :click_on_events_tab_on_dc_page web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | nodejs-sample       |
     Then the step should succeed
 
-    When I perform the :check_event_tab_on_deployment_page web console action with:
+    When I perform the :click_on_events_tab_on_deployment_page web console action with:
       | project_name | <%= project.name %> |
       | dc_name      | nodejs-sample       |
       | dc_number    | 1                   |
     Then the step should succeed
 
-    When I perform the :check_event_tab_on_pod_page web console action with:
+    When I perform the :click_on_events_tab_on_pod_page web console action with:
       | project_name | <%= project.name %>   |
       | pod_name     | nodejs-sample-1-build |
     Then the step should succeed
 
-    When I perform the :check_event_tab_on_service_page web console action with:
+    When I perform the :click_on_events_tab_on_service_page web console action with:
       | project_name | <%= project.name %> |
       | service_name | nodejs-sample       |
     Then the step should succeed
@@ -45,7 +45,7 @@ Feature: check event feature on web console
       | generator    | run/v1                |
     Then the step should succeed
 
-    When I perform the :check_event_tab_on_standalone_rc_page web console action with:
+    When I perform the :click_on_events_tab_on_standalone_rc_page web console action with:
       | project_name | <%= project.name %> |
       | rc_name      | testpod             |
     Then the step should succeed
