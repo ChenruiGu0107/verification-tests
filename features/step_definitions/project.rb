@@ -148,7 +148,7 @@ Given /^admin creates a project with a random schedulable node selector$/ do
   step %Q/label "<%= project.name %>=label" is added to the "<%= node.name %>" node/
   step %Q/I switch to cluster admin pseudo user/
   step %Q/I use the "<%= project.name %>" project/
-end 
+end
 
 When /^admin deletes the #{QUOTED} project$/ do |project_name|
   p = project(project_name)
@@ -194,6 +194,14 @@ When(/^I delete all resources from the project$/) do
     | all         | true    |
   })
   raise "unable to delete secrets, see logs" unless @result[:success]
+
+  deleted = wait_for(120) {
+    project.pods(by: user, get_opts: {_quiet: true}).empty?
+  }
+  unless deleted
+    raise "not all pods actually deleted: " \
+      "#{project.pods(by: user).map(&:name).join(?,)}"
+  end
 end
 
 
