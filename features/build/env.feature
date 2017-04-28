@@ -16,15 +16,15 @@ Feature: env.feature
       | resource_name | mongo-data-mongodb-0                                                            |
       | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     And the step should succeed
+    Given the pod named "mongodb-0" status becomes :running
     When I run the :env client command with:
       | resource | pod/mongodb-0 |
       | list     | true          |
     And the step should succeed
     And the output should contain:
       | VOLUME_CAPACITY=2Gi |
-    When I run the :delete client command with:
-      | object_type | all  |
-      | all         | true |
+    When I delete all resources from the project
+    Then the step should succeed
     When I run the :new_app client command with:
       | app_repo | mongodb-petset-persistent.yaml |
       | e        | APPLE1=apple                                                                                                     |
@@ -36,6 +36,7 @@ Feature: env.feature
       | resource_name | mongo-data-mongodb-0                                                            |
       | p             | {"metadata":{"annotations":{"volume.alpha.kubernetes.io/storage-class":"foo"}}} |
     And the step should succeed
+    Given the pod named "mongodb-0" status becomes :running
     When I run the :env client command with:
       | resource | pod/mongodb-0 |
       | list     | true          |
