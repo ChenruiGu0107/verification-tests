@@ -314,9 +314,34 @@ require "base64"
           end
         end
 
+        res_param = {}
+        if action_body[:if_param]
+          res_param[:success] = true
+          if action_body[:if_param].kind_of? String
+            unless user_opts.has_key? action_body[:if_param].to_sym
+              # param was not found so we return to caller
+              res_param[:response] = "parameter '#{action_body[:if_param]}' not in user_opts"
+              return res_param
+            end
+          elsif action_body[:if_param].kind_of? Hash
+            unless action_body[:if_param].all? { |name, value| user_opts[name]==value }
+              # params from user_opts and from the if_param rule differ
+              res_param[:response] = "parameters '#{(action_body[:if_param].to_a - user_opts.to_a).to_h}' not in user_opts"
+              return res_param
+            end
+          else action_body[:if_param].kind_of? Array
+            unless action_body[:if_param].all? { |name| user_opts.has_key? name.to_sym }
+              # param was not found so we return to caller
+              res_param[:response] = "parameters with '#{(action_body[:if_param].map &:to_sym) - user_opts.keys}' names not in user_opts"
+              return res_param
+            end
+          end
+        end
+
         res = run_action(action_body[:ref].to_sym, **user_opts)
         res_join(res, res_if) if res_if
         res_join(res, res_unless) if res_unless
+        res_join(res, res_param) unless res_param.empty?
         return res
       else
         raise "unknown action rule body type: #{action_body.class}"
