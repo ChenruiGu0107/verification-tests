@@ -42,6 +42,13 @@ Feature: storage security check
     Then the step should succeed
     And the output should contain:
       | 24680 |
+    When I execute on the pod:
+      | cp | /hello | /mnt |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/hello |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
     Given I ensure "pod-<%= project.name %>" pod is deleted
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/<type>/security/<type>-privileged-test.json" replacing paths:
@@ -77,6 +84,13 @@ Feature: storage security check
       | 24680                |
       | svirt_sandbox_file_t |
       | s0:c2,c13            |
+    When I execute on the pod:
+      | cp | /hello | /mnt |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/hello |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
 
     Examples:
       | storage_type         | volume_name | type   |
