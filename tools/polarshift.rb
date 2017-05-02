@@ -66,11 +66,11 @@ module CucuShift
 
           # print what we are going to do to user
           updates.each do |c, updates|
-            say "Automation script field for #{HighLine.color c, :bold}:\n"
+            puts "Automation script field for #{HighLine.color c, :bold}:\n"
             updates.each do |field, update|
-              say "#{HighLine.color(field.to_s.upcase, :magenta, :bold)}: #{HighLine.color(update.strip, :green)}"
+              puts "#{HighLine.color(field.to_s.upcase, :magenta, :bold)}: #{HighLine.color(update.strip, :green)}"
             end
-            say "======================================"
+            puts "======================================"
           end
 
           ## prepare user/password to the bus early to catch message
