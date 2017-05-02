@@ -556,3 +556,47 @@ Feature: Testing registry
       | ["metadata"]["name"] | ruby-22-centos7-2 |
     Then the step should succeed
     And the "ruby-22-centos7-2" image stream was created
+
+  # @author: yinzhou@redhat.com
+  # @case_id: OCP-12059
+  @destructive
+  @admin
+  Scenario: Pull image with secrets from private remote registry in the OpenShift registry      
+    Given I have a project
+    And I select a random node's host
+    And I have a registry with htpasswd authentication enabled in my project
+    And I add the insecure registry to docker config on the node
+    And I log into auth registry on the node
+    When I docker push on the node to the registry the following images:
+      | docker.io/busybox:latest | busybox:latest |
+    Then the step should succeed
+    When I run the :oc_secrets_new_dockercfg client command with:
+      |secret_name      |test                     |
+      |docker_email     |serviceaccount@redhat.com|
+      |docker_password  |<%= cb.reg_pass %>       |
+      |docker_server    |<%= cb.reg_svc_url %>    |
+      |docker_username  |<%= cb.reg_user %>       |
+    Then the step should succeed
+    When I run the :tag client command with:
+      | source_type  | docker                                           |
+      | source       | <%= cb.reg_svc_url %>/<%= project.name%>/busybox |
+      | dest         | mystream:latest                                  |
+      | insecure     | true                                             |
+    Then the step should succeed
+    Given evaluation of `image_stream_tag("mystream:latest").digest(user:user)` is stored in the :digest clipboard
+    And I register clean-up steps:
+    """
+    When I run the :delete admin command with:
+      | object_type       | image               |
+      | object_name_or_id | <%= cb.digest %>    |
+    Then the step should succeed
+    """
+    When I run the :policy_add_role_to_user client command with:
+      | role            | registry-viewer   |
+      | user name       | system:anonymous  |
+    Then the step should succeed
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    When I run commands on the host:
+      | docker logout <%= cb.integrated_reg_ip %> |
+      | docker pull <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
+    Then the step should succeed
