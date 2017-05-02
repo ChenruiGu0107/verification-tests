@@ -600,3 +600,24 @@ Feature: Testing registry
       | docker logout <%= cb.integrated_reg_ip %> |
       | docker pull <%= cb.integrated_reg_ip %>/<%= project.name %>/mystream:latest |
     Then the step should succeed
+
+  # @author mcurlej@redhat.com
+  # @case_id: OCP-10849
+  @admin
+  @destructive
+  Scenario: Create the integrated registry as a daemonset by oadm command
+    Given I switch to cluster admin pseudo user
+    When default registry is verified using a pod in a project after scenario
+    Then the master service is restarted on all master nodes after scenario
+    And default docker-registry dc is deleted
+    And default docker-registry service is deleted
+    And admin ensures "docker-registry" daemonset is deleted from the "default" project after scenario
+    When I run the :oadm_registry admin command with:
+      | namespace | default |
+      | daemonset | true    |
+    And <%= daemon_set("docker-registry").desired_number_scheduled(user: admin) %> pods become ready with labels:
+      | docker-registry=default |
+    Then the step should succeed
+    When I secure the default docker daemon set registry
+    Then the master service is restarted on all master nodes
+    And default registry is verified using a pod in a project

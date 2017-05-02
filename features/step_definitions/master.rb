@@ -53,12 +53,21 @@ Given /^the value with path #{QUOTED} in master config is stored into the#{OPT_S
   cb[cb_name] = eval "config_hash#{path}"
 end
 
-Given /^the master service is restarted on all master nodes$/ do
+Given /^the master service is restarted on all master nodes( after scenario)?$/ do |after|
   ensure_destructive_tagged
 
-  env.master_services.each { |service|
-    service.restart_all(raise: true)
+  _master_services = env.master_services
+  p = proc {
+    _master_services.each { |service|
+      service.restart_all(raise: true)
+    }
   }
+  
+  if after
+    teardown_add p
+  else
+    p.call
+  end
 end
 
 Given /^I try to restart the master service on all master nodes$/ do

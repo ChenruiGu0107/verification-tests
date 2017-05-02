@@ -90,7 +90,6 @@ Given /^all the image layers in the#{OPT_SYM} clipboard do( not)? exist in the r
   end
 end
 
-
 Given /^I add the insecure registry to docker config on the node$/ do
   ensure_destructive_tagged
   raise "You need to create a insecure private docker registry first!" unless cb.reg_svc_url
@@ -179,4 +178,148 @@ Given /^I obtain default registry IP HOSTNAME by a dummy build in the project$/ 
       | object_name_or_id | #{dummy_image} |
       })
   step 'the step should succeed'
+end
+
+Given /^default docker-registry dc is deleted$/ do
+  _admin = admin
+
+  _dc = dc("docker-registry", project("default", switch: false))
+  @result = _dc.get_checked(user: _admin)
+  step %Q/I save the output to file> dc.yaml/ 
+  _dc.ensure_deleted(user: admin)
+  _svc = service("docker-registry", project("default", switch: false))
+
+  teardown_add {
+    # we need to check registry service exists before we create dc
+    # if the default docker registry service does not exist it will raise an error
+    # if we didnt do that the pod will be created but will be missing
+    # necessary env vars. It will then respond with HTTP error 500 on push.
+    #
+    # more on this: https://github.com/openshift/origin/issues/10585#issuecomment-279696070
+    #
+    raise "The default docker registry service needs to exist before running this step." unless _svc.exists?(user: _admin)
+    _dc.ensure_deleted(user: admin)
+    @result = _admin.cli_exec(:create, f: "dc.yaml", n: "default")
+    raise "The deployment config of the default docker registry was not restored!" unless @result[:success]
+  }
+end
+
+Given /^default docker-registry service is deleted$/ do
+  _admin = admin
+  _svc = service("docker-registry", project("default", switch: false))
+  @result = _svc.get_checked(user: _admin)
+  step %Q/I save the output to file> svc.yaml/ 
+  _svc.ensure_deleted(user: admin)
+  teardown_add {
+    _svc.ensure_deleted(user: admin)
+    @result = _admin.cli_exec(:create, f: "svc.yaml", n: "default")
+    raise "The service of the default docker registry was not restored!" unless @result[:success]
+  }
+end
+
+ Given /^default registry is verified using a pod in a project( after scenario)?$/ do |after|
+  p = proc {
+    step %Q/I switch to the first user/
+    step %Q/I create a new project/
+    step %Q/I run the :new_app client command with:/, table(%{
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+    })
+    step %Q/the step should succeed/
+    step %Q/I wait for the "ruby-ex" service to become ready/
+    step %Q/the project is deleted/
+  }
+
+  if after
+    teardown_add p
+  else
+    p.call
+  end
+end
+
+Given /^I secure the default docker(?: (daemon set))? registry$/ do |deployment_type|
+  _admin = admin
+  _svc = service("docker-registry", project("default", switch: false))
+  cb.default_reg_svc_ip = _svc.ip(user: _admin, cached: false)
+  cb.default_reg_svc_port = _svc.ports(user: _admin, cached: false)[0]["port"]
+  signer_path = "/etc/origin/master"
+  _host = env.master_hosts[0]
+
+  # remove the old tls certificates files if exists
+  _host.exec_admin("rm -f registry.crt registry.key")
+  step %Q/the step should succeed/
+
+  _host.exec_admin("oadm ca create-server-cert --signer-cert=#{signer_path}/ca.crt --signer-key=#{signer_path}/ca.key --signer-serial=#{signer_path}/ca.serial.txt --hostnames=#{cb.default_reg_svc_ip},docker-registry.default.svc.cluster.local --cert=registry.crt --key=registry.key")
+  step %Q/the step should succeed/
+
+  registry_secret_name = "registry-secret-#{rand_str(5, :dns)}"
+  registry_secret_mount = "/etc/secrets"
+  
+  _host.exec_admin("oc secret new #{registry_secret_name} registry.crt registry.key")
+  step %Q/the step should succeed/
+  
+  _secret = secret(registry_secret_name, project("default", switch: false))
+
+  teardown_add {
+    _host.exec_admin("oc secret unlink sa/default #{registry_secret_name}")
+    _secret.ensure_deleted(user: _admin)
+  }
+
+  _host.exec_admin("oc secret link sa/default #{registry_secret_name}")
+  step %Q/the step should succeed/
+  
+  _deployment = ""
+  if deployment_type
+    _deployment = "ds"
+  else
+    _deployment = "dc"
+  end
+
+  step 'I run the :volume admin command with:', table(%{
+      | resource    | #{_deployment}/docker-registry       | 
+      | add         | true                     |
+      | type        | secret                   |
+      | secret-name | #{registry_secret_name}  |
+      | mount-path  | #{registry_secret_mount} |
+  })
+  step %Q/the step should succeed/
+  step 'I run the :set_probe admin command with:', table(%{
+      | resource  | #{_deployment}/docker-registry    | 
+      | liveness  | true                  |
+      | readiness | secret                |
+      | get_url   | https://:5000/healthz |
+  })
+  step %Q/the step should succeed/
+  step 'I run the :env admin command with:', table(%{
+      | resource    | #{_deployment}/docker-registry                                                  | 
+      | keyval      | REGISTRY_HTTP_TLS_CERTIFICATE=#{registry_secret_mount}/registry.crt |
+      | keyval      | REGISTRY_HTTP_TLS_KEY=#{registry_secret_mount}/registry.key         |
+  })
+  step %Q/the step should succeed/
+  # the pods are not automatically updated when the daemon set deployment is updated
+  # we need to delete the pods, so they will get recreated with new config.
+  if _deployment == "ds"
+    step %Q/I run the :delete admin command with:/, table(%{
+      | object_type | pods                    |
+      | l           | docker-registry=default |
+    })
+    step %Q/the step should succeed/
+    num_pods = daemon_set("docker-registry", project("default", switch: false)).desired_number_scheduled(user: admin)
+    step %Q/#{num_pods} pods become ready with labels:/, table(%{
+         | docker-registry=default |
+    })
+  else
+  # waiting for all the pods to finish building and our final pod
+  # to become available with label.
+  # NOTE: If the system will react slower, there is a possibility
+  # that the below step will catch the old pod as ready as it has the same labels
+    step %Q/1 pods become ready with labels:/, table(%{
+         | deploymentconfig=docker-registry |
+    })
+  end
+  # need to wait few seconds until the registry is up and running
+  # if a master service restart is done right after the pod is created
+  # without this time interval kubelet will not be able to make a http
+  # request to kubernetes, that its up and the pod will fail
+  step %Q/20 seconds have passed/
+
 end

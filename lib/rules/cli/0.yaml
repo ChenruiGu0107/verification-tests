@@ -26,6 +26,8 @@
   :cmd: oc secrets add serviceaccount/<sa_name> secrets/<secret_name>
   :options:
     :for: --for=<value>
+:secret_unlink:
+  :cmd: oc secrets unlink serviceaccount/<sa_name> secrets/<secret_name>
 :annotate:
   :cmd: oc annotate
   :options:
@@ -1113,6 +1115,7 @@
     :mount_host: --mount-host=<value>
     :ports: --ports=<value>
     :serviceaccount: --service-account=<value>
+    :daemonset: --daemonset=<value>
 :oadm_remove_cluster_role_from_user:
   :cmd: oadm policy remove-cluster-role-from-user <role_name>
   :options:

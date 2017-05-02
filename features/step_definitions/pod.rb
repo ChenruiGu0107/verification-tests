@@ -100,7 +100,7 @@ Given /^all pods in the project are ready$/ do
   end
 end
 
-Given /^([0-9]+) pods become ready with labels:$/ do |count, table|
+Given /^#{NUMBER} pods become ready with labels:$/ do |count, table|
   labels = table.raw.flatten # dimentions irrelevant
   pod_timeout = 10 * 60
   ready_timeout = 15 * 60

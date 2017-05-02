@@ -26,6 +26,7 @@ require 'openshift/host_subnet'
 require 'openshift/cluster_resource_quota'
 require 'openshift/stateful_set'
 require 'openshift/net_namespace'
+require 'openshift/daemon_set'
 
 module CucuShift
   # @note this is our default cucumber World extension implementation
@@ -362,6 +363,22 @@ module CucuShift
       project_resource(StatefulSet, name, project)
     end
 
+    #  @return DaemonSet by name from scenario cache;
+    #   with no params given, returns last requested ds;
+    #   otherwise creates a [DaemonSet] object
+    # @note you need the project already created
+    def daemon_set(name = nil, project = nil)
+      project_resource(DaemonSet, name, project)
+    end
+
+    #  @return Secret by name from scenario cache;
+    #   with no params given, returns last requested Secret;
+    #   otherwise creates a [Secret] object
+    # @note you need the project already created
+    def secret(name = nil, project = nil)
+      project_resource(Secret, name, project)
+    end
+
     # @return dc (DeploymentConfig) by name from scenario cache;
     #   with no params given, returns last requested dc;
     #   otherwise creates a [DeploymentConfig] object
@@ -616,7 +633,8 @@ module CucuShift
         stateful_set: "statefulsets",
         storage_class: "storageclasses",
         scc: "securitycontextconstraints",
-        netns: "netnamespaces"
+        netns: "netnamespaces",
+        ds: "daemonsets"
       }
       type = shorthands[type.to_sym] if shorthands[type.to_sym]
 
