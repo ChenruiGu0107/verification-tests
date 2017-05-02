@@ -1,9 +1,6 @@
 Feature: ONLY ONLINE STI related scripts in this file
 
   # @author etrott@redhat.com
-  # @case_id OCP-10089
-  # @case_id OCP-10088
-  # @case_id OCP-10087
   Scenario Outline: Private Repository can be used to providing dependency caching for STI builds
     Given I have a project
     Given I perform the :create_app_from_image_with_bc_env_and_sample_repo web console action with:
@@ -53,6 +50,7 @@ Feature: ONLY ONLINE STI related scripts in this file
       | build_status_name | Complete                |
     Then the step should succeed
 
+    # @case_id OCP-10089
     Examples: Python
       | image  | image_tag | env_name      | env_value                                              | error_message               |
       | python | 2.7       | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ | Cannot fetch index base URL |
@@ -60,13 +58,16 @@ Feature: ONLY ONLINE STI related scripts in this file
       | python | 3.4       | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ | Cannot fetch index base URL |
       | python | 3.5       | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ | Cannot fetch index base URL |
 
+    # @case_id OCP-10088
     Examples: Ruby
       | image | image_tag | env_name       | env_value                    | error_message              |
       # ruby 2.0 has no environment variable for mirror url.
       | ruby | 2.2 | RUBYGEM_MIRROR | https://gems.ruby-china.org/ | Could not fetch specs from |
       | ruby | 2.3 | RUBYGEM_MIRROR | https://gems.ruby-china.org/ | Could not fetch specs from |
 
+    # @case_id OCP-10087
     Examples: Perl
       | image | image_tag | env_name    | env_value                                      | error_message |
       | perl  | 5.16      | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching      |
       | perl  | 5.20      | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching      |
+      | perl  | 5.24      | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching      |
