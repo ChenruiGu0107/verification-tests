@@ -28,6 +28,7 @@ Feature: ONLY ONLINE Infra related scripts in this file
       | o             | yaml         |
     Then the output should contain:
       | activeDeadlineSeconds: 3600 |
+    And I delete all resources from the project
     When I create a new application with:
       | template | rails-pgsql-persistent |
     Then the step should succeed
