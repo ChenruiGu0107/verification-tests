@@ -1710,6 +1710,7 @@ Feature: Testing haproxy router
       | keyval | haproxy.router.openshift.io/rate-limit-connections.rate-tcp=5 |
     Then the step should succeed
 
+    Given 10 seconds have passed
     When I execute on the pod:
       | bash | -c | for i in {1..20} ; do curl -ksS https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ ; done |
     Then the output should contain:
