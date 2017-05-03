@@ -78,6 +78,13 @@ Feature: NFS Persistent Volume
       | touch | /mnt/test_file |
     Then the step should succeed
     And the output should not contain "Permission denied"
+    When I execute on the pod:
+      | cp | /hello | /mnt |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/hello |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
 
     Given I ensure "mypod-<%= project.name %>" pod is deleted
     And I ensure "nfsc-<%= project.name %>" pvc is deleted
