@@ -139,6 +139,12 @@ Feature: storage security check
     Then the step should succeed
     And the output should contain:
       | 24680 |
+    When I execute on the pod:
+      | cp | /hello | /mnt/azure |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/azure/hello |
+    Then the step should succeed
     Given I ensure "azdsecurity" pod is deleted
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/security/azure-privileged-test.yml" replacing paths:
       | ["spec"]["securityContext"]["seLinuxOptions"]["level"] | s0:c13,c2                     |
@@ -172,11 +178,16 @@ Feature: storage security check
       | 24680                |
       | svirt_sandbox_file_t |
       | s0:c2,c13            |
+    When I execute on the pod:
+      | cp | /hello | /mnt/azure |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/azure/hello |
+    Then the step should succeed
 
   # @author chaoyang@redhat.com
   # @case_id OCP-9709
   @admin
-  @destructive
   Scenario: secret volume security check
     Given I have a project
     When I run the :create client command with:
@@ -209,6 +220,89 @@ Feature: storage security check
     And the outputs should contain:
       | 123456 |
       | system_u:object_r:svirt_sandbox_file_t:s0 |
+    When I execute on the pod:
+      | cp | /hello | /mnt/secret |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/secret/hello |
+    Then the step should succeed
+
+  # @author wehe@redhat.com
+  # @case_id OCP-14139
+  @admin
+  Scenario: downwardapi using a volume plugin with security testing
+    Given I have a project
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/pod-dapi-security.yaml |
+    Then the step should succeed
+    Given the pod named "dapisec" becomes ready
+    When I execute on the pod:
+      | id | -G |
+    Then the step should succeed
+    And the outputs should contain "123456"
+    When I execute on the pod:
+      | ls | -lZd | /mnt/dapi/ |
+    Then the step should succeed
+    And the outputs should contain:
+      | 123456 |
+      | system_u:object_r:svirt_sandbox_file_t:s0 |
+    When I execute on the pod:
+      | touch | /mnt/dapi/file |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -lZ | /mnt/dapi/file |
+    Then the step should succeed
+    And the outputs should contain:
+      | 123456 |
+      | system_u:object_r:svirt_sandbox_file_t:s0 |
+    When I execute on the pod:
+      | cp | /hello | /mnt/dapi |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/dapi/hello |
+    Then the step should succeed
+
+  # @author wehe@redhat.com
+  # @case_id OCP-14138
+  @admin
+  Scenario: Consume ConfigMap via volume plugin with security testing
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/configmap.yaml |
+    Then the step should succeed
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run the :create client command with:
+      | filename | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-security.yaml |
+    Then the step should succeed
+    Given the pod named "configsec" becomes ready
+    When I execute on the pod:
+      | id | -G |
+    Then the step should succeed
+    And the outputs should contain "123456"
+    When I execute on the pod:
+      | ls | -lZd | /mnt/configmap/ |
+    Then the step should succeed
+    And the outputs should contain:
+      | 123456 |
+      | system_u:object_r:svirt_sandbox_file_t:s0 |
+    When I execute on the pod:
+      | touch | /mnt/configmap/file |
+    Then the step should succeed
+    When I execute on the pod:
+      | ls | -lZ | /mnt/configmap/file |
+    Then the step should succeed
+    And the outputs should contain:
+      | 123456 |
+      | system_u:object_r:svirt_sandbox_file_t:s0 |
+    When I execute on the pod:
+      | cp | /hello | /mnt/configmap |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/configmap/hello |
+    Then the step should succeed
 
   # @author chaoyang@redhat.com
   # @author wehe@redhat.com
