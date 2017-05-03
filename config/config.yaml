@@ -66,7 +66,7 @@ environments:
     hosts_type: Host # we can't basically access that host so this should work
     type: StaticEnvironment
     user_manager: auto
-    #set OPENSHIFT_ENV_DED_PREVIEW_STG_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #set OPENSHIFT_ENV_DEV_PREVIEW_STG_USER_MANAGER_USERS=:user_token1,:user_token2,...
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
@@ -90,7 +90,7 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
-  online:
+  online: &preview
     hosts: api.preview.openshift.com:etcd:master:node
     web_console_url: https://console.preview.openshift.com
     hosts_type: Host # we can't basically access that host so this should work
@@ -126,6 +126,7 @@ environments:
     cli: SharedLocalCliExecutor
     admin_cli: MasterKubeconfigLocalAdminCliExecutor
     api_port: 8443
+  preview: *preview
   qe:
     hosts: api.qe.openshift.com:etcd:master:node
     web_console_url: https://console.qe.openshift.com
