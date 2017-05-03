@@ -151,3 +151,28 @@ Feature:Create apps using new_app cmd feature
       |buildcfg              |
       |nodejs-example        |
       |nodejs-mongodb-example|
+  
+  # @author wzheng@redhat.com
+  # @case_id OCP-14099
+  Scenario: Create Passenger app from imagestream - passenger-40-rhel7
+    Given I have a project
+    When I run the :import_image client command with:
+      | from       | <%= product_docker_repo %>rhscl/passenger-40-rhel7 |
+      | confirm    | true                                               |
+      | image_name | passenger-40-rhel7                                 |
+      | insecure   | true                                               |
+    Then the step should succeed
+    When I run the :new_app client command with:
+      | image_stream | passenger-40-rhel7                                |
+      | app_repo     | https://github.com/sclorg/passenger-container.git |
+      | context_dir  | 4.0/test/puma-test-app                            |
+    Then the step should succeed
+    And the "passenger-container-1" build was created
+    And the "passenger-container-1" build completed
+    When I run the :expose client command with:
+      | resource      | service             |
+      | resource_name | passenger-container |
+    Then the step should succeed
+    When I use the "passenger-container" service
+    Then I wait for a web server to become available via the "passenger-container" route
+    Then the output should contain "Hello world"
