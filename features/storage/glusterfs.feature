@@ -126,6 +126,15 @@ Feature: Storage of GlusterFS plugin testing
       | touch | /mnt/glusterfs/gluster_testfile |
     Then the step should succeed
 
+    # Testing execute permission
+    Given I execute on the "glusterpd-<%= project.name %>" pod:
+      | cp | /hello | /mnt/glusterfs/hello |
+    When I execute on the "glusterpd-<%= project.name %>" pod:
+      | /mnt/glusterfs/hello |
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift Storage |
+
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/security/gluster_pod_sg.json" replacing paths:
       | ["metadata"]["name"]                              | glusterpd-negative-<%= project.name %> |
       | ["spec"]["securityContext"]["supplementalGroups"] | [123460]                               |
@@ -196,6 +205,15 @@ Feature: Storage of GlusterFS plugin testing
       | ls | /mnt/gluster/ |
     Then the output should contain:
       | gluster_testfile |
+
+    # Testing execute permission
+    Given I execute on the "gluster" pod:
+      | cp | /hello | /mnt/gluster/hello |
+    When I execute on the "gluster" pod:
+      | /mnt/gluster/hello |
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift Storage |
 
   # @author jhou@redhat.com
   # @case_id OCP-10265

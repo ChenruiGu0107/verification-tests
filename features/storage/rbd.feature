@@ -96,6 +96,15 @@ Feature: Storage of Ceph plugin testing
     Then the output should contain:
       | 123456 |
 
+    # Testing execute permission
+    Given I execute on the "rbd-<%= project.name %>" pod:
+      | cp | /hello | /mnt/rbd/hello |
+    When I execute on the "rbd-<%= project.name %>" pod:
+      | /mnt/rbd/hello |
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift Storage |
+
   # @author jhou@redhat.com
   # @case_id OCP-9635
   @admin
