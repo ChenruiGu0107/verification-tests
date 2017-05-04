@@ -52,6 +52,12 @@ Feature: ISCSI volume plugin testing
       | ls | -l | /mnt/iscsi/iscsi_testfile |
     Then the output should contain:
       | 123456 |
+    When I execute on the pod:
+      | cp | /hello | /mnt/iscsi |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/iscsi/hello |
+    Then the step should succeed
 
   # @author jhou@redhat.com
   # @case_id OCP-9706
