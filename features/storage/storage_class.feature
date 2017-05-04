@@ -800,7 +800,33 @@ Feature: storageClass related feature
     Then the step should succeed
     And the output should match "storageClassName:\ssc-<%= project.name %>"
     When I run the :describe admin command with:
-      | resource | storageclass           |
-      | name     | sc-<%= project.name %> |
+      | resource | pv                     |
+      | name     | <%= pvc.volume_name %> |
+    Then the step should succeed
+    And the output should match "storageClassName:\ssc-<%= project.name %>"
+
+  # @author lxia@redhat.com
+  # @case_id OCP-13668
+  @admin
+  Scenario: Dynamic provisioning using non-default storageclass by attribute storageClassName
+    Given the master version >= "3.6"
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-without-annotations.yaml" where:
+      | ["metadata"]["name"] | sc-<%= project.name %> |
+      | ["provisioner"]      | kubernetes.io/gce-pd   |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+    When I run the :describe client command with:
+      | resource | pvc                     |
+      | name     | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the output should match "storageClassName:\ssc-<%= project.name %>"
+    When I run the :describe admin command with:
+      | resource | pv                     |
+      | name     | <%= pvc.volume_name %> |
     Then the step should succeed
     And the output should match "storageClassName:\ssc-<%= project.name %>"
