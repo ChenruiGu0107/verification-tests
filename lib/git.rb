@@ -14,7 +14,6 @@ module CucuShift
       @dir = dir
       @host = host || Host.localhost
       @user = user
-
       raise "need uri or dir" unless uri || dir
     end
 
@@ -74,13 +73,19 @@ module CucuShift
     end
 
     def set_git_config
-      res = host.exec_as(user, "git config user.name")
+      res = host.exec_as(user, "git -C #{dir} config user.name")
       unless res[:success]
-        host.exec_as(user, "git config user.name #{host.shell_escape 'CucuShift User'}")
+        res = host.exec_as(user, "git -C #{dir} config user.name #{host.shell_escape 'CucuShift User'}")
+        unless res[:success]
+          raise "git config user.name failed"
+        end
       end
-      res = host.exec_as(user, "git config user.email")
+      res = host.exec_as(user, "git -C #{dir} config user.email")
       unless res[:success]
-        host.exec_as(user, "git config user.email #{host.shell_escape 'cucushift@example.com'}")
+        res = host.exec_as(user, "git -C #{dir} config user.email #{host.shell_escape 'cucushift@example.com'}")
+        unless res[:success]
+          raise "git config user.email failed"
+        end
       end
     end
 
