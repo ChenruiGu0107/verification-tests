@@ -1,6 +1,7 @@
 Feature: Check deployments function
   # @author yapei@redhat.com
   # @case_id OCP-10679
+  @smoke
   Scenario: make deployment from web console
     # create a project on web console
     When I create a new project via web
