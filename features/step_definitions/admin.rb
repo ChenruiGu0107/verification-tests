@@ -77,3 +77,47 @@ Given /^I rsync files from node named #{QUOTED} to pod named #{QUOTED} using par
   })
   step %Q/the step should succeed/
 end
+
+
+require 'configparser'
+require 'oga'
+
+Given /^I save installation inventory from master to the#{OPT_SYM} clipboard$/ do | cb_name |
+  ensure_admin_tagged
+
+  cb_name ||= :installation_inventory
+  host = env.master_hosts.first
+  qe_inventory_file = 'qe-inventory-host-file'
+  @result = host.exec("cat /tmp/#{qe_inventory_file}")
+  conf = nil
+  if @result[:success]
+    config = ConfigParser.new
+    config.parse(@result[:response].each_line)
+    cb[cb_name] = config
+  else
+    raise "'#{qe_inventory_file}' does not exists"
+  end
+end
+
+# get the puddle information from master's /tmp/qe-inventory-host-file
+# @returns a copule of clipboard informaiton:
+#  1. :installation_inventory contains the installation inventory
+#  2. :rpms contains an array of all the rpms for the puddle
+#  3. :puddle_url
+#  4. :rpm_name
+Given /^I save the rpm names? matching #{RE} from puddle to the#{OPT_SYM} clipboard$/ do | package_pattern, cb_name |
+  ensure_admin_tagged
+  cb_name ||= :rpm_names
+  step %Q/I save installation inventory from master to the clipboard/
+  rpm_repos_key = cb[:installation_inventory].keys.include?('openshift_playbook_rpm_repos') ? 'openshift_playbook_rpm_repos' : 'openshift_additional_repos'
+  puddle_url = eval(cb[:installation_inventory][rpm_repos_key])[0][:baseurl]
+  cb.puddle_url = puddle_url
+  @result = CucuShift::Http.get(url: puddle_url + "/Packages")
+
+  doc = Oga.parse_html(@result[:response])
+  rpms = (doc.css('a').select { |l| l.attributes[0].value if l.attributes[0].value.end_with? 'rpm'  }).map { |r| r.children[0].text}
+  cb.rpms = rpms
+  rpm_names = rpms.select { |r| r =~ /#{package_pattern}/ }
+  raise "No matching rpm found for #{package_pattern}" if rpm_names.count == 0
+  cb[cb_name] = rpm_names
+end

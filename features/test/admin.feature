@@ -59,3 +59,9 @@ Feature: Testing Admin Scenarios
     Given admin uses the "<%= project.name %>" project
     When I run oc create as admin over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/limits/tc508038/limit.yaml
     Then the step should succeed
+
+  @admin
+  Scenario: get rpm information from puddle
+    Given I save the rpm name for "openshift-ansible" package from puddle to the :playbook_rpm_name clipboard
+    And I download a file from "<%= cb.puddle_url + "/Packages/" + cb.playbook_rpm_name.first %>"
+    Then the step should succeed

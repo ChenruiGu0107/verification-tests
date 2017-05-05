@@ -281,18 +281,32 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   end
 end
 
-# check openshift-ansible is installed in a node, if not, then do yum -y install openshift-ansible*
+# check openshift-ansible is installed in a node, if not, then do rpm or yum
+# installation
 Given /^openshift-ansible is installed in the #{QUOTED} node$/ do | node_name |
   ensure_admin_tagged
   # switch to use the target node
-  @host = node(node_name).host
-  res = @host.exec("ls /usr/share/ansible/openshift-ansible/")
+  host = node(node_name).host
+  check_host = host.exec("cat /etc/redhat-release")
+  raise "No release information in node" unless check_host[:success]
+
+  if check_host[:response].include? "Atomic Host" and !conf[:openshift_ansible_installer].start_with? 'git'
+    raise "Installation method not support currently in Atomic Host"
+  end
+
+  res = host.exec_admin("ls /usr/share/ansible/openshift-ansible/")
   unless res[:success]
-    logger.info("Installing openshift-ansible via yum")
-    yum_install_cmd = "yum -y install openshift-ansible*"
-    res = @host.exec(yum_install_cmd)
-    has_playbooks = @host.exec("ls /usr/share/ansible/openshift-ansible/playbooks")
-    raise "Unable to install openshift-ansible via yum" unless has_playbooks[:success]
+    if conf[:openshift_ansible_installer] == 'yum'
+      logger.info("Installing openshift-ansible via yum")
+      yum_install_cmd = "yum -y install openshift-ansible*"
+      res = host.exec_admin(yum_install_cmd)
+      has_playbooks = host.exec_admin("ls /usr/share/ansible/openshift-ansible/playbooks")
+      raise "Unable to install openshift-ansible via yum" unless has_playbooks[:success]
+    elsif conf[:openshift_ansible_installer] == 'git'
+      pass
+    else
+      raise "Unsupported installation method"
+    end
   end
 end
 
@@ -316,17 +330,25 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
       | -c                |
       | <%= cb.sed_cmd %> |
     })
+    step %Q/the step should succeed/
   end
+
+  if conf[:openshift_ansible_installer].start_with? 'git#'
+    branch_name = conf[:openshift_ansible_installer][4..-1]
+  end
+  step %Q`I save the rpm names matching /openshift-ansible/ from puddle to the :openshift_ansible_rpms clipboard`
+
+  # extract the commit id for git checkout later
+  commit_id = cb.openshift_ansible_rpms[0].match(/git.\d+.(\w+)/)[1]
   step %Q/I run the :rsync client command with:/, table(%{
     | source      | <%= localhost.absolutize("tmp") %> |
     | destination | base-ansible-pod:/tmp              |
     | loglevel    | 5                                  |
     })
   step %Q/the step should succeed/
-
   # depending on global option defined in config/config.yaml we either install
-  # openshift-ansible via yum or just do git clone from branch name
-  if conf[:openshift_ansible_installer] == "yum"
+  # openshift-ansible via rpm or just do git clone from branch name
+  if conf[:openshift_ansible_installer] == "yum" or conf[:openshift_ansible_installer] == "rpm"
     # first check if openshift-ansible playbook is install in the master
     step %Q/openshift-ansible is installed in the "<%= env.master_hosts.first.hostname %>" node/
     step %Q/I rsync files from node named "<%= env.master_hosts.first.hostname %>" to pod named "base-ansible-pod" using parameters:/, table(%{
@@ -340,12 +362,16 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
       | dst_dir | base-ansible-pod:/tmp/tmp/ansible_plugins/ |
       })
     step %Q/the step should succeed/
-  elsif conf[:openshift_ansible_installer] == "git"
+  elsif conf[:openshift_ansible_installer].start_with? "git"
+    if branch_name
+      git_cmd = "cd /tmp/tmp/ && rm -rf openshift-ansible  && git clone https://github.com/openshift/openshift-ansible/ -b #{branch_name}"
+    else
+      git_cmd = "cd /tmp/tmp/ && rm -rf openshift-ansible  && git clone https://github.com/openshift/openshift-ansible/ && cd openshift-ansible && git checkout #{commit_id}"
+    end
     step %Q/I execute on the pod:/, table(%{
-      | bash                                                                                                                                                      |
-      | -c                                                                                                                                                        |
-      | cd /tmp/tmp/ && rm -rf openshift-ansible  && git clone https://github.com/openshift/openshift-ansible/ -b <%= conf[:openshift_ansible_git_repo_branch] %> |
-
+      | bash       |
+      | -c         |
+      | #{git_cmd} |
       })
     step %Q/the step should succeed/
   else

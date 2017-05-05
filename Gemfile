@@ -29,6 +29,7 @@ gem 'pry'
 # gem 'pry-byebug', :require => false
 gem 'byebug'
 gem 'jira-ruby'
+gem 'configparser'
 
 # replacemen for nokogiri as it's easier to install w/o system lib dependencies
 gem 'oga'

@@ -5,3 +5,5 @@ QUOTED = '"(.+?)"'
 HTTP_URL = '(https?:\/\/.+)'
 USER = 'the( \\S+)? user'
 NUMBER = '([0-9]+|<%=.+?%>)'
+# use for regular expression
+RE='/(.+?)/'
