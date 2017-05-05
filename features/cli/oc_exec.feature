@@ -123,6 +123,7 @@ Feature: containers related features
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-11083
+  @smoke
   Scenario: [origin_infra_311] Executing a command in container
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json"

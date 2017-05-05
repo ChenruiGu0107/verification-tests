@@ -48,6 +48,7 @@ Feature: check page info related
 
   # @author wsun@redhat.com
   # @case_id OCP-10605
+  @smoke
   Scenario: Check Events page
     Given I login via web console
     Given I have a project

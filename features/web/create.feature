@@ -81,6 +81,7 @@ Feature: create app on web console related
 
   # @author xxing@redhat.com
   # @case_id OCP-11171
+  @smoke
   Scenario Outline: Create application from image on web console
     Given I have a project
     Given I wait for the :create_app_from_image_with_advanced_git_options web console action to succeed with:
@@ -498,6 +499,7 @@ Feature: create app on web console related
 
   # @author yapei@redhat.com
   # @case_id OCP-10879
+  @smoke
   Scenario: Deploy from ImageName on web console
     Given I have a project
     When I perform the :deploy_from_image_stream_name_with_nonexist_image web console action with:

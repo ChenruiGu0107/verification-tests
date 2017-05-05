@@ -419,6 +419,7 @@ Feature: resouces related scenarios
 
   # @author xxia@redhat.com
   # @case_id OCP-10741
+  @smoke
   Scenario: Get/watch resources with oc get
     Given I have a project
     And I run the :run client command with:
