@@ -4,6 +4,7 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
   # @case_id OCP-10106
   # @case_id OCP-12688
   # @case_id OCP-12687
+  @smoke
   Scenario Outline: Maven repository can be used to providing dependency caching for xPaas templates
     Given I have a project
     When I perform the :create_app_from_template_without_label web console action with:

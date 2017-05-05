@@ -194,6 +194,7 @@ Feature: templates.feature
 
   # @author bingli@redhat.com
   # @case_id OCP-13264
+  @smoke
   Scenario: Deploy Redis database using default template "redis-persistent"
   Given I have a project
   When I run the :new_app client command with:
