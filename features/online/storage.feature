@@ -56,7 +56,6 @@ Feature: ONLY ONLINE Storage related scripts in this file
 
   # @author yasun@redhat.com
   # @case_id OCP-13108
-  @smoke
   Scenario: Basic user could not get pv object info
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/claim.json" replacing paths:
