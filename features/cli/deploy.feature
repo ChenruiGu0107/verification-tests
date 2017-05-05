@@ -131,6 +131,7 @@ Feature: deployment related features
 
   # @author xxing@redhat.com
   # @case_id OCP-10643
+  @smoke
   Scenario: Manually make deployment
     Given I have a project
     When I run the :create client command with:
@@ -999,6 +1000,7 @@ Feature: deployment related features
 
   # @author yadu@redhat.com
   # @case_id OCP-9567
+  @smoke
   Scenario: Recreate deployment strategy
     Given I have a project
     When I run the :create client command with:
@@ -1600,6 +1602,7 @@ Feature: deployment related features
 
   # @author yinzhou@redhat.com
   # @case_id OCP-11326
+  @smoke
   Scenario: Support verbs of Deployment in OpenShift
     Given I have a project
     When I run the :create client command with:
@@ -1719,6 +1722,7 @@ Feature: deployment related features
 
   # @author mcurlej@redhat.com
   # @case_id OCP-10902
+  @smoke
   Scenario: Auto cleanup old RCs
     Given I have a project
     When I run the :create client command with:

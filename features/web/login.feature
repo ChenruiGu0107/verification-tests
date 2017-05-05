@@ -2,6 +2,7 @@ Feature: login related scenario
 
   # @author wjiang@redhat.com
   # @case_id OCP-12239
+  @smoke
   Scenario: login and logout via web
     Given I login via web console
     Given I run the :logout web console action

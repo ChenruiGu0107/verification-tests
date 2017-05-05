@@ -181,6 +181,7 @@ Feature: oc import-image related feature
 
   # @author wjiang@redhat.com
   # @case_id OCP-12052
+  @smoke
   Scenario: Import image when spec.DockerImageRepository with some tags defined when Kind==DockerImage
     Given I have a project
     When I run the :create client command with:
