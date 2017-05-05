@@ -71,24 +71,24 @@ check_card_version_missing_in_catalog:
 check_all_categories_in_language_catalog:
   elements:
   - selector:
-      xpath: //div[h2[text()='Languages']]//a[normalize-space()='Java']
+      xpath: //div[h2[normalize-space(text())='Languages']]//a[normalize-space()='Java']
   - selector:
-      xpath: //div[h2[text()='Languages']]//a[normalize-space()='JavaScript']
+      xpath: //div[h2[normalize-space(text())='Languages']]//a[normalize-space()='JavaScript']
   - selector:
-      xpath: //div[h2[text()='Languages']]//a[normalize-space()='.NET']
+      xpath: //div[h2[normalize-space(text())='Languages']]//a[normalize-space()='.NET']
   - selector:
-      xpath: //div[h2[text()='Languages']]//a[normalize-space()='Perl']
+      xpath: //div[h2[normalize-space(text())='Languages']]//a[normalize-space()='Perl']
   - selector:
-      xpath: //div[h2[text()='Languages']]//a[normalize-space()='PHP']
+      xpath: //div[h2[normalize-space(text())='Languages']]//a[normalize-space()='PHP']
   - selector:
-      xpath: //div[h2[text()='Languages']]//a[normalize-space()='Python']
+      xpath: //div[h2[normalize-space(text())='Languages']]//a[normalize-space()='Python']
   - selector:
-      xpath: //div[h2[text()='Languages']]//a[normalize-space()='Ruby']
+      xpath: //div[h2[normalize-space(text())='Languages']]//a[normalize-space()='Ruby']
 check_all_categories_in_technologies_catalog:
   elements:
   - selector:
-      xpath: //div[h2[text()='Technologies']]//a[normalize-space()='Continuous Integration & Deployment']
+      xpath: //div[h2[normalize-space(text())='Technologies']]//a[normalize-space()='Continuous Integration & Deployment']
   - selector:
-      xpath: //div[h2[text()='Technologies']]//a[normalize-space()='Data Stores']
+      xpath: //div[h2[normalize-space(text())='Technologies']]//a[normalize-space()='Data Stores']
   - selector:
-     xpath: //div[h2[text()='Technologies']]//a[normalize-space()='Uncategorized']
+      xpath: //div[h2[normalize-space(text())='Technologies']]//a[normalize-space()='Uncategorized']
