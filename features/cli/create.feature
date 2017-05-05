@@ -774,6 +774,7 @@ Feature: creating 'apps' with CLI
 
   # @author mcurlej@redhat.com
   # @case_id OCP-12260
+  @smoke
   Scenario: Create and update the docker images tag from remote repositories via api
     Given I have a project
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag.json

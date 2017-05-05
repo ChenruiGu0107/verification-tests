@@ -1,6 +1,7 @@
 Feature: replicaSet related tests
   # @author pruan@redhat.com
   # @case_id OCP-10917
+  @smoke
   Scenario: Support endpoints of RS in OpenShift
     Given I have a project
     When I run the :create client command with:
