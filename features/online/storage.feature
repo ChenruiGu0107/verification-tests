@@ -1,7 +1,6 @@
 Feature: ONLY ONLINE Storage related scripts in this file
   # @author bingli@redhat.com
   # @case_id OCP-9967
-  @smoke
   Scenario: Delete pod with mounting error
     Given I have a project
     When I run the :create client command with:
@@ -98,7 +97,6 @@ Feature: ONLY ONLINE Storage related scripts in this file
 
   # @author yasun@redhat.com
   # @case_id OCP-9923
-  @smoke
   Scenario: Claim requesting to get the maximum capacity
     Given I have a project
     When I run the :create client command with:
