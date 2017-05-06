@@ -142,7 +142,7 @@ require "base64"
         exitstatus: -1
       }
       rules[action.to_sym].each do |rule, spec|
-        logger.info("#{rule}..")
+        logger.info("#{rule}..") unless rule == :action
         case rule
         when :url
           res_join result, handle_url(spec, **user_opts)
