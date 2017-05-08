@@ -80,7 +80,7 @@ Feature: route related features via cli
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/route_unsecure.json |
     Then the step should fail
-    And the output should contain "routes "route" already exists"
+    And the output should contain ""route" already exists"
 
   # @author xiuwang@redhat.com
   # @case_id OCP-11209
