@@ -17,6 +17,7 @@ Feature: oc_volume.feature
 
   # @author xxia@redhat.com
   # @case_id OCP-12194
+  @smoke
   Scenario: Create a pod that consumes the secret in a volume
     Given I have a project
     When I run the :secrets client command with:

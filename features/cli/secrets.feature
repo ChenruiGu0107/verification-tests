@@ -176,6 +176,7 @@ Feature: secrets related scenarios
 
   # @author qwang@redhat.com
   # @case_id OCP-12281
+  @smoke
   Scenario: Pods do not have access to each other's secrets in the same namespace
     Given I have a project
     When I run the :create client command with:
@@ -787,6 +788,7 @@ Feature: secrets related scenarios
 
   # @author chezhang@redhat.com
   # @case_id OCP-10814
+  @smoke
   Scenario: Consume the same Secrets as environment variables in multiple pods
     Given I have a project
     When I run the :create client command with:
@@ -831,6 +833,7 @@ Feature: secrets related scenarios
 
   # @author chezhang@redhat.com
   # @case_id OCP-11260
+  @smoke
   Scenario: Using Secrets as Environment Variables
     Given I have a project
     When I run the :create client command with:
@@ -1305,6 +1308,7 @@ Feature: secrets related scenarios
 
   # @author qwang@redhat.com
   # @case_id OCP-11311
+  @smoke
   Scenario: Secret volume should update when secret is updated
     Given I have a project
     When I run the :create client command with:

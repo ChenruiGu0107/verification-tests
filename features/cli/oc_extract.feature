@@ -1,6 +1,7 @@
 Feature: oc extract related scenarios
   # @author chezhang@redhat.com
   # @case_id OCP-11815
+  @smoke
   Scenario: Extract configmap or secret from file
     Given I have a project
     Given a "secret.yaml" file is created with the following lines:
