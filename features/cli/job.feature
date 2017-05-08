@@ -589,9 +589,9 @@ Feature: job.feature
     Then status becomes :running of 1 pods labeled:
       | run=sj3 |
     When I run the :patch client command with:
-      | resource      | scheduledjob                             |
-      | resource_name | sj3                                      |
-      | p             | {"spec":{"startingDeadlineSeconds":"1"}} |
+      | resource      | scheduledjob                           |
+      | resource_name | sj3                                    |
+      | p             | {"spec":{"startingDeadlineSeconds":1}} |
     Then the step should succeed
     Given 70 seconds have passed
     When I run the :delete client command with:
