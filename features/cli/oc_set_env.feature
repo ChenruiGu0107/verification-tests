@@ -187,6 +187,7 @@ Feature: oc_set_env.feature
 
   # @author chezhang@redhat.com
   # @case_id OCP-10888
+  @smoke
   Scenario: Set pod env vars from configmap
     Given I have a project
     When I run the :create client command with:

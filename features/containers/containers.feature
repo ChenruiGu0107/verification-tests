@@ -3,6 +3,7 @@ Feature: Container test feature
   # @author cryan@redhat.com
   # @case_id OCP-9863
   # @bug_id 1292666
+  @smoke
   Scenario: Setuid binaries shouldn't work inside of a running container
     Given I have a project
     When I run the :create client command with:

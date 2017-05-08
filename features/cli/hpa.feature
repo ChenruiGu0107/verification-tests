@@ -68,6 +68,7 @@ Feature: hpa scale
 
   # @author chezhang@redhat.com
   # @case_id OCP-11259
+  @smoke
   Scenario: Creates autoscaler for replication controller by oc autoscale
     Given I have a project
     When I run the :create client command with:

@@ -1,6 +1,7 @@
 Feature: configMap
   # @author chezhang@redhat.com
   # @case_id OCP-10805
+  @smoke
   Scenario: Consume ConfigMap in environment variables
     Given I have a project
     When I run the :create client command with:
@@ -31,6 +32,7 @@ Feature: configMap
 
   # @author chezhang@redhat.com
   # @case_id OCP-11255
+  @smoke
   Scenario: Consume ConfigMap via volume plugin
     Given I have a project
     When I run the :create client command with:
@@ -108,6 +110,7 @@ Feature: configMap
 
   # @author chezhang@redhat.com
   # @case_id OCP-9882
+  @smoke
   Scenario: Set command-line arguments with ConfigMap
     Given I have a project
     When I run the :create client command with:
@@ -171,6 +174,7 @@ Feature: configMap
 
   # @author chezhang@redhat.com
   # @case_id OCP-9880
+  @smoke
   Scenario: Create ConfigMap from file
     Given I have a project
     Given I create the "configmap-test" directory

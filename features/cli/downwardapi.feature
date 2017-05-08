@@ -14,6 +14,7 @@ Feature: Downward API
 
   # @author cryan@redhat.com
   # @case_id OCP-10628
+  @smoke
   Scenario: downward api pod name and pod namespace as env variables
     Given I have a project
     When I run the :create client command with:
@@ -29,6 +30,7 @@ Feature: Downward API
 
   # @author qwang@redhat.com
   # @case_id OCP-10708
+  @smoke
   Scenario: Container consume infomation from the downward API using a volume plugin
     Given I have a project
     When I run the :create client command with:
