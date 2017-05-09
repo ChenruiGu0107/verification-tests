@@ -35,6 +35,15 @@ Feature: vSphere test scenarios
       | rm | /mnt/vsphere/testfile |
     Then the step should succeed
 
+    # Testing execute permission
+    Given I execute on the pod:
+      | cp | /hello | /mnt/vsphere/hello |
+    When I execute on the pod:
+      | /mnt/vsphere/hello |
+    Then the step should succeed
+    And the output should contain:
+      | Hello OpenShift Storage |
+
     # Testing reclaim policy
     Given I ensure "mypod" pod is deleted
     And I ensure "pvc-<%= project.name %>" pvc is deleted
