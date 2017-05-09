@@ -41,6 +41,7 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+    api_port: 443
   ded_stage_aws:
     hosts: api.ded-stage-aws.openshift.com:etcd:master:node
     web_console_url: https://console.ded-stage-aws.openshift.com
@@ -51,6 +52,7 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+    api_port: 443
   dev_preview_int:
     hosts: api.dev-preview-int.openshift.com:etcd:master:node
     web_console_url: https://console.dev-preview-int.openshift.com
@@ -61,6 +63,7 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+    api_port: 443
   dev_preview_stg:
     hosts: api.dev-preview-stg.openshift.com:etcd:master:node
     web_console_url: https://console.dev-preview-stg.openshift.com
@@ -71,6 +74,7 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+    api_port: 443
   free_int:
     hosts: api.free-int.openshift.com:etcd:master:node
     web_console_url: https://console.free-int.openshift.com
@@ -81,6 +85,7 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+    api_port: 443
   free_stg:
     hosts: api.free-stg.openshift.com:etcd:master:node
     web_console_url: https://console.free-stg.openshift.com
@@ -91,6 +96,7 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+    api_port: 443
   online: &preview
     hosts: api.preview.openshift.com:etcd:master:node
     web_console_url: https://console.preview.openshift.com
@@ -101,6 +107,7 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+    api_port: 443
   origin:
     # hosts: use OPENSHIFT_ENV_ORIGIN_HOSTS=host:role1:...,host2:role1:...
     hosts_type: SSHAccessibleHost
@@ -138,6 +145,7 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+    api_port: 443
   stage:
     hosts: api.stage.openshift.com:etcd:master:node
     web_console_url: https://console.stage.openshift.com
@@ -148,6 +156,7 @@ environments:
     #user_manage_users:
     cli: SharedLocalCliExecutor
     admin_cli: false
+    api_port: 443
 
 optional_classes:
   tcms_tc_manager:
