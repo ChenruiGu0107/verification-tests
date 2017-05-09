@@ -183,3 +183,44 @@ Feature: ONLY ONLINE Storage related scripts in this file
     And the output should contain:
       | openshift-test-1 |
     """
+
+  # @author yasun@redhat.com
+  # @case_id OCP-9791
+  Scenario: Emptydir volume size is limited in online openshiftd when new an app using emptydir
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/mysql       |
+      | env          | MYSQL_USER=tester     |
+      | env          | MYSQL_PASSWORD=test   |
+      | env          | MYSQL_DATABASE=testdb |
+      | name         | mydb                  |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | app=mydb |
+    When I execute on the pod:
+      | bash | -lc | dd if=/dev/zero of=/var/lib/mysql/data/openshift-test-1 bs=100M count=6 |
+    Then the step should fail
+    And the output should contain:
+      | Disk quota exceeded |
+
+  # @author yasun@redhat.com
+  # @case_id OCP-9792
+  Scenario: Volume emptyDir is limited in the Pod in online openshift
+    Given I have a project
+    And evaluation of `project.mcs(user: user)` is stored in the :proj_selinux_options clipboard
+    And evaluation of `project.supplemental_groups(user: user).begin` is stored in the :supplemental_groups clipboard
+    And evaluation of `project.uid_range(user: user).begin` is stored in the :uid_range clipboard
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/emptydir/emptydir_pod_selinux_test.json" replacing paths:
+      | ["spec"]["containers"][0]["securityContext"]["runAsUser"] | <%= cb.uid_range %>             |
+      | ["spec"]["containers"][1]["securityContext"]["runAsUser"] | <%= cb.uid_range %>             |
+      | ["spec"]["securityContext"]["fsGroup"]                    | <%= cb.supplemental_groups %>   |
+      | ["spec"]["securityContext"]["supplementalGroups"]         | [<%= cb.supplemental_groups %>] |
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]    | <%= cb.proj_selinux_options %>  |
+    Then the step should succeed
+    Given the pod named "emptydir" becomes ready
+    Then I execute on the pod:
+      | bash | -lc | dd if=/dev/zero of=/tmp/openshift-test-1 bs=100M count=6 |
+    Then the step should fail
+    And the output should contain:
+      | Disk quota exceeded |
