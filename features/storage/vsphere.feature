@@ -37,9 +37,9 @@ Feature: vSphere test scenarios
 
     # Testing execute permission
     Given I execute on the pod:
-      | cp | /hello | /mnt/glusterfs/hello |
+      | cp | /hello | /mnt/vsphere/hello |
     When I execute on the pod:
-      | /mnt/glusterfs/hello |
+      | /mnt/vsphere/hello |
     Then the step should succeed
     And the output should contain:
       | Hello OpenShift Storage |
