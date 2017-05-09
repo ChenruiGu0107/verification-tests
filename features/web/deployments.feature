@@ -994,11 +994,11 @@ Feature: Check deployments function
     Then the step should succeed
     When I run the :delete_autoscaler web console action
     Then the step should succeed
-    When I perform the :check_autoscaler_info web console action with:
+    When I perform the :check_autoscaler_info_missing web console action with:
       | min_pods           | 1  |
       | max_pods           | 15 |
       | cpu_request_target | 50 |
-    Then the step should fail
+    Then the step should succeed
     When I run the :click_add_autoscaler_link web console action
     Then the step should succeed
 
