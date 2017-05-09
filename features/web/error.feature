@@ -7,12 +7,15 @@ Feature: error page on web console
       | project_name | <%= project.name %> |
       | input_str    | <%= project.name %> |
     Then the step should succeed
+    And I wait up to 30 seconds for the steps to pass:
+    """
     When I perform the :goto_overview_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I perform the :check_error_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
+    """
     # switch to second user,create new project
     Given I switch to the second user
     Given an 8 characters random string of type :dns is stored into the :project2 clipboard
