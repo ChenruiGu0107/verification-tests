@@ -15,7 +15,6 @@ Feature: negative testing
     Then the step should fail
     And the output should match:
       | [Ii]nvalid value     |
-      | must match the regex |
     # spec.accessModes
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["spec"]["accessModes"][0] | invalidMode |
