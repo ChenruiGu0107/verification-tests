@@ -593,6 +593,10 @@ delete_autoscaler_from_dc_page:
 delete_autoscaler:
   action: click_remove_autoscaler_link
   action: click_delete
+check_redirection_to_dc_page:
+  element:
+    selector:
+      xpath: //breadcrumbs[count(ol/li)=2]//li[contains(., 'Deployments')]/following-sibling::li[contains(., '<dc_name>')]
 check_warning_info_for_rc_with_multiple_autoscale:
   action: goto_one_deployment_page
   elements:
@@ -740,6 +744,7 @@ update_label_on_edit_autoscaler_page:
   action: goto_edit_autoscaler_page
   action: update_label_value_on_edit_autoscaler_page
   action: click_save_button
+  action: check_redirection_to_dc_page
 update_label_value_on_edit_autoscaler_page:
   elements:
   - selector: &label_value_field |

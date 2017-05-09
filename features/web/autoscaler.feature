@@ -116,10 +116,13 @@ Feature: AutoScaler relative cases
       | dc_name      | myrun               |
       | label_key    | test1               |
     Then the step should succeed
-    When I perform the :check_hpa_labels_on_other_resources_page web console action with:
+    When I perform the :check_redirection_to_dc_page web console action with:
+      | dc_name | myrun |
+    Then the step should succeed
+    When I perform the :check_hpa_labels_on_other_resources_page_missing web console action with:
       | project_name | <%= project.name %> |
       | hpa_name     | myrun               |
       | label_key    | test1               |
       | label_value  | value1update        |
-    Then the step should fail
+    Then the step should succeed
     And the output should contain "element not found"
