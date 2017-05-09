@@ -1224,3 +1224,44 @@ Feature: Testing route
     And the output should match:
       | FALSE.*TRUE |
 
+  # @author zzhao@redhat.com
+  # @case_id OCP-13254
+  Scenario: The HTTP_X_FORWARDED_FOR should be the client IP for ELB env
+    Given I have a project
+    When I run the :create client command with:
+      | f  |   https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/dc.json  |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f  |   https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+  
+    #Get the client ip by access the website http://ipecho.net/plain
+    When I execute on the pod:
+      | bash | -c | curl -s http://ipecho.net/plain |
+    Then the step should succeed
+    And evaluation of `@result[:response].strip` is stored in the :client_ip clipboard
+
+    When I expose the "header-test-insecure" service
+    Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | curl http://<%= route("header-test-insecure", service("header-test-insecure")).dns(by: user) %> |
+    Then the step should succeed
+    And the output should contain "x-forwarded-for: <%= cb.client_ip %>"
+    """
+    #Create the edge route
+    When I run the :create_route_edge client command with:
+      | name     | myroute              |
+      | service  | header-test-insecure |
+    Then the step should succeed
+
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | bash | -c | curl https://<%= route("myroute", service("header-test-insecure")).dns(by: user) %> -k |
+    Then the step should succeed
+    And the output should contain:
+      | x-forwarded-for: <%= cb.client_ip %> |
+    """
