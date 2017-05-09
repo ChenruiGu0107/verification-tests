@@ -70,3 +70,23 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
       | You have access to the following projects and can switch between them with 'oc project <projectname>': |
       | * <%= @projects[0].name %>                                                                             |
       | <%= @projects[1].name %>                                                                               |
+
+  # @author yasun@redhat.com
+  # @case_id OCP-14100
+  Scenario: Should use and show the existing projects after the user login - starter
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %>         |
+      | token    | <%= user.get_bearer_token.token %>  |
+    Then the step should succeed
+    And the output should contain:
+      | You don't have any projects. You can try to create a new project |
+    When I run the :config_view client command
+    Then the step should succeed
+    And the output should match:
+      | current-context: /.+/<%= user.name %>          |
+    Given I create a new project
+    When I run the :config_view client command
+    Then the step should succeed
+    And the output should match:
+      | name: <%= project.name %>/.+/<%= user.name %>                     |
+      | current-context: <%= project.name %>/.+/<%= user.name %>          |
