@@ -96,33 +96,34 @@ check_route_link_on_overview:
   elements:
   - selector:
       xpath: //div[@kind='Service']/descendant::a[contains(@href, "<route_host_name>")]
+expand_resource_entry:
+  element:
+    selector:
+      xpath: //div[@class='list-pf-container' and div//h3[contains(.,'<resource_name>')] and div//span[@ng-if='!row.expanded'] and div//h3//span[translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='<resource_type>']]
+    op: click
+    optional: true
 check_dc_idle_text_on_overview:
   action: check_idle_donut_text_on_overview
   elements:
   - selector:
       xpath: //a[contains(.,'Start <previous_replicas> pod')]
+check_idle_donut_text_on_overview:
+  params:
+    donut_text: Idle
+  action: check_donut_text_on_overview
 check_donut_text_on_overview:
   action: goto_overview_page
+  action: expand_resource_entry
   elements:
   - selector:
       xpath: //div[@class="deployment-donut"]
-  scripts:
-    - command: return document.querySelectorAll('text[class=c3-chart-arcs-title] tspan')[0].innerHTML.contains("<donut_text>")
-      expect_result: true
-check_idle_donut_text_on_overview:
-  action: goto_overview_page
-  elements:
   - selector:
-      xpath: //div[@class="deployment-donut"]
-    timeout: 20
-  scripts:
-    - command: return document.querySelectorAll('text[class=c3-chart-arcs-title] tspan')[0].innerHTML.contains("Idle")
-      expect_result: true
+      xpath: //*[contains(@class,'c3-chart-arcs-title')]/*[text()='<donut_text>']
 click_resume:
   element:
     selector:
       xpath: //a[@role="button" and contains(.,'Resume')]
-    op: click 
+    op: click
 click_resume_on_overview_page:
   action: goto_overview_page
   action: click_resume
