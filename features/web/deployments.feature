@@ -328,13 +328,13 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I perform the :check_overview_tile web console action with:
-      | resource_type | Deployment                |
-      | resource_name | hello-openshift           |
       | image_name    | openshift/hello-openshift |
+      | resource_type | deployment                |
+      | resource_name | hello-openshift           |
       | scaled_number | 4                         |
     Then the step should succeed
     When I perform the :check_latest_deployment_version_on_overview web console action with:
-      | resource_type | Deployment      |
+      | resource_type | deployment      |
       | resource_name | hello-openshift |
       | version       | #1              |
     Then the step should succeed
@@ -352,7 +352,7 @@ Feature: Check deployments function
       | scaled_number | 4                     |
     Then the step should succeed
     When I perform the :check_latest_deployment_version_on_overview web console action with:
-      | resource_type | Deployment      |
+      | resource_type | deployment      |
       | resource_name | hello-openshift |
       | version       | #2              |
     Then the step should succeed

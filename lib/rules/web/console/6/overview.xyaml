@@ -71,8 +71,8 @@ check_pod_template_source_info:
       xpath: //osc-git-link
 check_latest_deployment_version_on_overview:
   element:
-    selector:
-      xpath: //div[@class="overview-tile" and //div[@class="overview-tile-header" and //div[normalize-space(text())="<resource_type>" and //a[normalize-space(text())="<resource_name>"]]]]//span[contains(@class, "shield-number") and contains(text(), "<version>")]
+    selector: # translate() used to make case insensitive check for resource_type (always use lower case <resource_type>)
+      xpath: //h3[div[contains(@class,'component-label') and contains(translate(.,'DRS','drs'),'<resource_type>')] and a[contains(.,'<resource_name>')] and span[contains(.,'<version>')]]
 check_pod_template_image:
   elements:
   - selector:
@@ -99,8 +99,8 @@ check_route_link_on_overview:
       xpath: //div[@kind='Service']/descendant::a[contains(@href, "<route_host_name>")]
 expand_resource_entry:
   element:
-    selector:
-      xpath: //div[@class='list-pf-container' and div//h3[contains(.,'<resource_name>')] and div//span[@ng-if='!row.expanded'] and div//h3//span[translate(normalize-space(text()), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='<resource_type>']]
+    selector: # translate() used to make case insensitive check for resource_type (always use lower case <resource_type>)
+      xpath: //div[@class='list-pf-container' and div//h3[contains(.,'<resource_name>')] and div//span[@ng-if='!row.expanded'] and div//h3//span[translate(normalize-space(text()), 'DRS', 'drs')='<resource_type>']]
     op: click
     optional: true
 check_dc_idle_text_on_overview:
