@@ -51,3 +51,65 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
     Then I wait for a web server to become available via the "openjdk18" route
     And the output should contain:
       | Hello World |
+
+  # @author bingli@redhat.com
+  # @case_id OCP-10509
+  Scenario: Check online default images
+    When I run the :get client command with:
+      | resource      | imagestreamtag  |
+      | n             | openshift       |
+    Then the step should succeed
+    And the output should contain:
+      | dotnet:latest                           |
+      | dotnet:1.1                              |
+      | dotnet:1.0                              |
+      | jboss-webserver30-tomcat7-openshift:1.1 |
+      | jboss-webserver30-tomcat7-openshift:1.2 |
+      | jboss-webserver30-tomcat8-openshift:1.1 |
+      | jboss-webserver30-tomcat8-openshift:1.2 |
+      | jenkins:latest                          |
+      | jenkins:1                               |
+      | jenkins:2                               |
+      | mariadb:latest                          |
+      | mariadb:10.1                            |
+      | mongodb:latest                          |
+      | mongodb:2.4                             |
+      | mongodb:2.6                             |
+      | mongodb:3.2                             |
+      | mysql:latest                            |
+      | mysql:5.5                               |
+      | mysql:5.6                               |
+      | mysql:5.7                               |
+      | nodejs:latest                           |
+      | nodejs:0.10                             |
+      | nodejs:4                                |
+      | nodejs:6                                |
+      | perl:latest                             |
+      | perl:5.16                               |
+      | perl:5.20                               |
+      | perl:5.24                               |
+      | php:latest                              |
+      | php:5.5                                 |
+      | php:5.6                                 |
+      | php:7.0                                 |
+      | postgresql:latest                       |
+      | postgresql:9.2                          |
+      | postgresql:9.4                          |
+      | postgresql:9.5                          |
+      | python:latest                           |
+      | python:2.7                              |
+      | python:3.3                              |
+      | python:3.4                              |
+      | python:3.5                              |
+      | redhat-openjdk18-openshift:1.0          |
+      | redis:latest                            |
+      | redis:3.2                               |
+      | ruby:latest                             |
+      | ruby:2.0                                |
+      | ruby:2.2                                |
+      | ruby:2.3                                |
+      | wildfly:latest                          |
+      | wildfly:8.1                             |
+      | wildfly:9.0                             |
+      | wildfly:10.0                            |
+      | wildfly:10.1                            |
