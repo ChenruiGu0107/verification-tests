@@ -121,8 +121,8 @@ Feature: build related feature on web console
     Then the step should succeed
     # check source repo on Configuration tab
     When I perform the :check_buildconfig_source_repo web console action with:
-      | project_name  | <%= project.name %>  |
-      | bc_name       | ruby-sample-build    |
+      | project_name    | <%= project.name %>                           |
+      | bc_name         | ruby-sample-build                             |
       | source_repo_url | https://github.com/openshift/ruby-hello-world |
     Then the step should succeed
     # change source repo on edit page and save the changes
@@ -133,6 +133,11 @@ Feature: build related feature on web console
     Then the step should succeed
     When I run the :click_save_button web console action
     Then the step should succeed
+    When I run the :describe client command with:
+      | resource | bc                |
+      | name     | ruby-sample-build |
+    Then the output should match:
+      | URL:\\s+https://github.com/yapei/ruby-hello-world |
     When I perform the :check_buildconfig_source_repo web console action with:
       | project_name    | <%= project.name %> |
       | bc_name         | ruby-sample-build   |
