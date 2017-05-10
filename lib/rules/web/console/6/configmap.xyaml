@@ -82,7 +82,7 @@ click_create_config_map_link:
 click_to_add_item:
   element:
     selector:
-      xpath: //a[contains(.,'Add item')]
+      xpath: //a[contains(.,'Add Item')]
     op: click
 click_to_add_configmap_item:
   element:
