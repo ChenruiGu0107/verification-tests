@@ -46,3 +46,54 @@ Feature: ONLY ONLINE Infra related scripts in this file
       | o             | yaml                           |
     Then the output should contain:
       | activeDeadlineSeconds: 3600 |
+
+  # @author yasun@redhat.com
+  # @case_id OCP-11952
+  Scenario: RunOnceDuration plugin limits activeDeadlineSeconds when creating and update run-once pod
+    Given I have a project
+    When I run the :run client command with:
+      | name    | run-once-pod     |
+      | image   | openshift/origin |
+      | command | true             |
+      | cmd     | sleep            |
+      | cmd     | 4000s            |
+      | restart | Never            |
+    And the pod named "run-once-pod" status becomes :running
+    Then I run the :get client command with:
+      | resource      | pod          |
+      | resource_name | run-once-pod |
+      | o             | yaml         |
+    And the output should contain:
+      | activeDeadlineSeconds: 3600 |
+
+    When I run the :patch client command with:
+      | resource      | pod                                     |
+      | resource_name | run-once-pod                            |
+      | p             | {"spec":{"activeDeadlineSeconds":2000}} |
+    Then the step should succeed
+    Then I run the :get client command with:
+      | resource      | pod          |
+      | resource_name | run-once-pod |
+      | o             | yaml         |
+    And the output should contain:
+      | activeDeadlineSeconds: 2000 |
+
+    When I run the :patch client command with:
+      | resource      | pod                                     |
+      | resource_name | run-once-pod                            |
+      | p             | {"spec":{"activeDeadlineSeconds":3000}} |
+    Then the step should fail
+    And the output should contain:
+      | must be less than or equal to previous value |
+
+    When I run the :patch client command with:
+      | resource      | pod                                     |
+      | resource_name | run-once-pod                            |
+      | p             | {"spec":{"activeDeadlineSeconds":1000}} |
+    Then the step should succeed
+    Then I run the :get client command with:
+      | resource      | pod          |
+      | resource_name | run-once-pod |
+      | o             | yaml         |
+    And the output should contain:
+      | activeDeadlineSeconds: 1000 |
