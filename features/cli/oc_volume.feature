@@ -62,6 +62,7 @@ Feature: oc_volume.feature
 
   # @author xxia@redhat.com
   # @case_id OCP-11906
+  @smoke
   Scenario: Add secret volume to dc and rc
     Given I have a project
     When I run the :run client command with:
@@ -114,6 +115,7 @@ Feature: oc_volume.feature
 
   # @author xxia@redhat.com
   # @case_id OCP-11141
+  @smoke
   Scenario: Add gitRepo volume to pod, dc and rc
     Given I have a project
     And I run the :run client command with:
