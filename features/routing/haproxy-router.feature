@@ -3103,3 +3103,38 @@ Feature: Testing haproxy router
       | resource_name | <%= cb.router_pod_new %>  |
     Then the step should succeed
     And the output should not contain "Recovered from panic"
+
+  # @author yadu@redhat.com
+  # @case_id OCP-10914
+  Scenario: Protect from ddos by limiting TCP concurrent connection for route
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready 
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | bash | -c | for i in {1..10} ; do curl -sS  http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ & done |
+    Then the output should contain 10 times:
+      | Hello-OpenShift |
+    And the output should not contain "Empty reply from server"
+
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | service-unsecure |
+      | keyval       | haproxy.router.openshift.io/rate-limit-connections=true |
+      | keyval       | haproxy.router.openshift.io/rate-limit-connections.concurrent-tcp=2 |
+    Then the step should succeed
+
+    Given 10 seconds have passed
+    When I execute on the pod:
+      | bash | -c | for i in {1..10} ; do curl -sS  http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ & done |
+    Then the output should contain:
+      | Hello-OpenShift |
+      | Empty reply from server |
