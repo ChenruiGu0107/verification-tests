@@ -710,3 +710,27 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     When I get project pod named "pod-add-fsetid" as JSON
     Then the expression should be true> @result[:parsed]['spec']['containers'][0]['securityContext']['capabilities']['add'][0] == "FSETID"
+  
+  # @author mcurlej@redhat.com
+  # @case_id OCP-11498
+  @admin
+  Scenario: Cannot run process with root in the container when using MustRunAsNonRoot as the RunAsUserStrategy
+    Given I have a project
+    When the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_user_mustrunasnonroot.yaml
+    Then the step should succeed
+    When SCC "scc-user-mustrunasnonroot" is added to the "default" user
+    Then the step should succeed 
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_root.json |
+    Then the step should fail
+    And the output should contain "forbidden"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_outrange.json |
+    Then the step should succeed
+    And the pod named "pod-uid-outrange" status becomes :running
+    When I run the :get client command with:
+      | resource      | pod              |
+      | resource_name | pod-uid-outrange |
+      | o             | yaml             |
+    Then the step should succeed
+    And the expression should be true> pod.containers(user: user)["pod-uid-outrange"].scc["runAsUser"] == 1000
