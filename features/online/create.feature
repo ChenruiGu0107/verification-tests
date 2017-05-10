@@ -1,10 +1,6 @@
 Feature: ONLY ONLINE Create related feature's scripts in this file
 
   # @author etrott@redhat.com
-  # @case_id OCP-10106
-  # @case_id OCP-12688
-  # @case_id OCP-12687
-  @smoke
   Scenario Outline: Maven repository can be used to providing dependency caching for xPaas templates
     Given I have a project
     When I perform the :create_app_from_template_without_label web console action with:
@@ -84,16 +80,24 @@ Feature: ONLY ONLINE Create related feature's scripts in this file
     When I perform the :check_build_log_content web console action with:
       | build_log_context | https://repo1.maven.org/non-existing/ |
     Then the step should succeed
+    # @case_id OCP-10106
+    @smoke
     Examples: MAVEN
       | template                             | app-name | env_name         | env_var_value                   | default_env_log                                                       | custom_env_log                               |
       | jws30-tomcat8-mongodb-persistent-s2i | jws-app  | MAVEN_MIRROR_URL | https://repo1.maven.org/maven2/ | Downloading: https://mirror.openshift.com/nexus/content/groups/public | Downloading: https://repo1.maven.org/maven2/ |
       | eap64-mysql-persistent-s2i           | eap-app  | MAVEN_MIRROR_URL | https://repo1.maven.org/maven2/ | Downloading: https://mirror.openshift.com/nexus/content/groups/public | Downloading: https://repo1.maven.org/maven2/ |
+    # @case_id OCP-12688
     Examples: CPAN
       | template                | app-name                | env_name    | env_var_value                                  | default_env_log                       | custom_env_log                                          |
       | dancer-mysql-persistent | dancer-mysql-persistent | CPAN_MIRROR | https://mirror.openshift.com/mirror/perl/CPAN/ | Fetching http://www.cpan.org/authors/ | Fetching https://mirror.openshift.com/mirror/perl/CPAN/ |
+    # @case_id OCP-12687
     Examples: PIP
       | template               | app-name                | env_name      | env_var_value                                          | default_env_log | custom_env_log                                             |
       | django-psql-persistent | django-psql-persistent  | PIP_INDEX_URL | https://mirror.openshift.com/mirror/python/web/simple/ |                 | Downloading https://mirror.openshift.com/mirror/python/web |
+    # @case_id OCP-12689
+    Examples: RUBYGEM
+      | template               | app-name               | env_name       | env_var_value                | default_env_log                                  | custom_env_log                                          |
+      | rails-pgsql-persistent | rails-pgsql-persistent | RUBYGEM_MIRROR | https://gems.ruby-china.org/ | Fetching gem metadata from https://rubygems.org/ | Fetching gem metadata from https://gems.ruby-china.org/ |
 
   # @author etrott@redhat.com
   # @case_id OCP-10149
