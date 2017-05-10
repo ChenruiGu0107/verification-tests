@@ -329,7 +329,7 @@ Feature: create app on web console related
     Then the step should fail
     When I get the html of the web page
     Then the output should match:
-      | API version v1beta3.* is not supported |
+      | API version v1beta3.* |
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-11233
@@ -351,8 +351,7 @@ Feature: create app on web console related
     Then the step should fail
     When I get the html of the web page
     Then the output should match:
-      | [Ff]ailed to create |
-      |  annot create.*fake |
+      | not.*create.*fake |
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-9794
