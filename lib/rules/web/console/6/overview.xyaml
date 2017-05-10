@@ -78,6 +78,7 @@ check_pod_template_image:
   - selector:
       xpath: //div//span[contains(.,'<image_name>')]
 check_overview_tile:
+  action: expand_resource_entry
   action: check_pod_template_image
   action: check_pod_scaled_numbers
 check_standalone_rc_info_on_overview:

@@ -542,7 +542,7 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I perform the :check_overview_tile web console action with:
-      | resource_type | Replica Set               |
+      | resource_type | replica set               |
       | resource_name | frontend                  |
       | image_name    | openshift/hello-openshift |
       | scaled_number | 3                         |
