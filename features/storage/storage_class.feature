@@ -440,8 +440,7 @@ Feature: storageClass related feature
     When I run the :describe client command with:
       | resource | pvc/pvc-<%= project.name %> |
     Then the output should contain:
-      | ProvisioningIgnoreAlpha                         |
-      | using "volume.beta.kubernetes.io/storage-class" |
+      | ProvisioningIgnoreAlpha |
     """
 
   # @author chaoyang@redhat.com
