@@ -176,9 +176,8 @@ module CucuShift
         params.type = machine_type
         params.os_profile = os_profile(name, os_opts)
         params.hardware_profile = hw_profile(hardware_opts)
-        storage_account_name, storage_account = create_storage_account(location, resource_group)
-        params.storage_profile = storage_profile(name, storage_account_name, storage_opts)
-        params.network_profile = network_profile(location, resource_group, name ,network_opts)
+        params.storage_profile = storage_profile(location, resource_group, name, storage_opts)
+        params.network_profile = network_profile(location, resource_group, name, network_opts)
         params.location = location
 
         compute_client.virtual_machines.create_or_update_async(
@@ -245,19 +244,45 @@ module CucuShift
     end
 
     # @return [StorageProfile] return OS Profile based on supplied options
-    private def storage_profile(vmname, storage_account_name, opts)
+    # @note When storage_options => os_disk => params => image is provided
+    #   in config, then storage account grom that URI will be used. When
+    #   storage_options => :storage_account is provided, then it will be used.
+    #   Otherwise a new storage account will be created.
+    private def storage_profile(location, resource_group, vmname, opts)
       ComputeModels::StorageProfile.new.tap do |store_profile|
-        store_profile.image_reference = ComputeModels::ImageReference.new.tap do |ref|
-          ref.publisher = opts[:os_disk][:params][:publisher]
-          ref.offer = opts[:os_disk][:params][:offer]
-          ref.sku = opts[:os_disk][:params][:sku]
-          ref.version = opts[:os_disk][:params][:version]
+        if opts[:os_disk][:params][:image]
+          unless opts[:os_disk][:params][:image].include? ".blob.core.windows."
+            raise "unknown image uri format: #{opts[:os_disk][:params][:image]}"
+          end
+          storage_account_name = opts[:os_disk][:params][:image].gsub(%r{^.*//([\w]+).blob.core.windows.net.*$}, "\\1")
+        else
+          if opts[:storage_account]
+            storage_account_name = opts[:storage_account]
+          else
+            storage_account_name, storage_account = create_storage_account(location, resource_group)
+          end
+          store_profile.image_reference = ComputeModels::ImageReference.new.tap do |ref|
+            ref.publisher = opts[:os_disk][:params][:publisher]
+            ref.offer = opts[:os_disk][:params][:offer]
+            ref.sku = opts[:os_disk][:params][:sku]
+            ref.version = opts[:os_disk][:params][:version]
+          end
         end
         type = Object.const_get opts[:os_disk][:type]
         unless type = ComputeModels::DiskCreateOptionTypes::FromImage
           raise "only fromImage is presently supported"
         end
         store_profile.os_disk = ComputeModels::OSDisk.new.tap do |os_disk|
+          if opts[:os_disk][:params][:image]
+            unless opts[:os_disk][:params][:os_type]
+              raise "please specify os_disk=>params=>os_type"
+            end
+            os_disk.image = ComputeModels::VirtualHardDisk.new.tap do |vhd|
+              vhd.uri = opts[:os_disk][:params][:image]
+            end
+            # e.g. Azure::ARM::Compute::Models::OperatingSystemTypes::Linux
+            os_disk.os_type = Object.const_get opts[:os_disk][:params][:os_type]
+          end
           os_disk.name = "#{vmname}"
           os_disk.caching = ComputeModels::CachingTypes::ReadWrite
           os_disk.create_option = type
@@ -322,10 +347,16 @@ module CucuShift
           dns.domain_name_label = vmname
         end
       end
-      logger.info "creating a new dynamic allocated ip address.."
+      logger.info "creating a new dynamic allocated public" \
+                  "ip address '#{vmname}'.."
+
+      # first remove existing ip as update does not work across resource groups
+      net_client.network_interfaces.delete(group, "#{vmname}-0")
+      net_client.public_ipaddresses.delete(group, vmname)
+
       public_ip = net_client.public_ipaddresses.create_or_update(group, vmname, public_ip_params)
 
-      logger.info "creating a new network interface.."
+      logger.info "creating a new network interface '#{vmname}-0'.."
       nic = net_client.network_interfaces.create_or_update(
         group,
         "#{vmname}-0",
@@ -403,6 +434,13 @@ if __FILE__ == $0
   storage_account = CucuShift::Azure.instance_storage_account vms[0][0]
   resource_group = vms[0][0].resource_group
   azure.delete_instance "test-terminate"
-  logger.info "deleting storage account #{storage_account}"
-  azure.storage_client.storage_accounts.delete(resource_group, storage_account)
+
+
+  puts "Do you want to delete storage account: #{storage_account} (y/N)?"
+  do_delete = gets.chomp
+  if do_delete == ?y
+    logger.info "deleting storage account #{storage_account}?"
+    azure.storage_client.storage_accounts.
+      delete(resource_group, storage_account)
+  end
 end
