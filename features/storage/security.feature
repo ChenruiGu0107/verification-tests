@@ -341,6 +341,7 @@ Feature: storage security check
       | file1 |
 
   # @author wehe@redhat.com
+  # @author chaoyang@redhat.com
   # @case_id OCP-9698
   @admin
   @destructive
@@ -357,69 +358,84 @@ Feature: storage security check
 
     #Verify the seLinux options
     When I run the :exec client command with:
-      | pod | <%= pod.name %> |
-      | c | c1 |
-      | exec_command | id |
-    Then the output should contain:
-      | uid=1000160000 |
-      | groups=123456,654321 |
+      | pod          | <%= pod.name %> |
+      | c            | c1              |
+      | exec_command | id              |
+    Then the output should match:
+      | uid=1000160000.*groups=.*123456,654321 |
     When I run the :exec client command with:
-      | pod | <%= pod.name %> |
-      | c | c1 |
-      | exec_command | -- |
-      | exec_command | ls |
-      | exec_command_arg | -lZd |
-      | exec_command_arg | /tmp/ |
+      | pod              | <%= pod.name %> |
+      | c                | c1              |
+      | exec_command     | --              |
+      | exec_command     | ls              |
+      | exec_command_arg | -lZd            |
+      | exec_command_arg | /tmp/           |
     Then the output should contain:
-      | 123456 |
+      | 123456                         |
       | svirt_sandbox_file_t:s0:c2,c13 |
     When I run the :exec client command with:
-      | pod | <%= pod.name %> |
-      | c | c1 |
-      | exec_command | touch |
-      | exec_command_arg | /tmp/file1 |
+      | pod              | <%= pod.name %> |
+      | c                | c1              |
+      | exec_command     | touch           |
+      | exec_command_arg | /tmp/file1      |
     Then the step should succeed
     When I run the :exec client command with:
-      | pod | <%= pod.name %> |
-      | c | c1 |
-      | exec_command | -- |
-      | exec_command | ls |
-      | exec_command_arg | -lZ |
-      | exec_command_arg | /tmp/ |
+      | pod              | <%= pod.name %> |
+      | c                | c1              |
+      | exec_command     | --              |
+      | exec_command     | ls              |
+      | exec_command_arg | -lZ             |
+      | exec_command_arg | /tmp/           |
     Then the output should contain:
-      | 1000160000 123456 |
+      | 1000160000 123456                    |
       | svirt_sandbox_file_t:s0:c2,c13 file1 |
+   When I run the :exec client command with:
+      | pod              | <%= pod.name %> |
+      | c                | c1              |
+      | exec_command     | --              |
+      | exec_command     | cp              |
+      | exec_command_arg | /hello          |
+      | exec_command_arg | /tmp            |
+    Then the step should succeed
     When I run the :exec client command with:
-      | pod | <%= pod.name %> |
-      | c | c2 |
-      | exec_command | id |
+      | pod          | <%= pod.name %> |
+      | c            | c1              |
+      | exec_command | --              |
+      | exec_command | /tmp/hello      |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
+
+    When I run the :exec client command with:
+      | pod          | <%= pod.name %> |
+      | c            | c2              |
+      | exec_command | id              |
     Then the output should contain:
-      | uid=1000160200 |
+      | uid=1000160200               |
       | groups=0(root),123456,654321 |
     When I run the :exec client command with:
-      | pod | <%= pod.name %> |
-      | c | c2 |
-      | exec_command | -- |
-      | exec_command | ls |
-      | exec_command_arg | -lZd |
-      | exec_command_arg | /tmp/ |
+      | pod              | <%= pod.name %> |
+      | c                | c2              |
+      | exec_command     | --              |
+      | exec_command     | ls              |
+      | exec_command_arg | -lZd            |
+      | exec_command_arg | /tmp/           |
     Then the output should contain:
-      | 123456 |
+      | 123456                         |
       | svirt_sandbox_file_t:s0:c2,c13 |
     When I run the :exec client command with:
-      | pod | <%= pod.name %> |
-      | c | c2 |
-      | exec_command | touch |
-      | exec_command_arg | /tmp/file2 |
+      | pod              | <%= pod.name %> |
+      | c                | c2              |
+      | exec_command     | touch           |
+      | exec_command_arg | /tmp/file2      |
     Then the step should succeed
     When I run the :exec client command with:
-      | pod | <%= pod.name %> |
-      | c | c2 |
-      | exec_command | -- |
-      | exec_command | ls |
-      | exec_command_arg | -lZ |
-      | exec_command_arg | /tmp/ |
+      | pod              | <%= pod.name %> |
+      | c                | c2              |
+      | exec_command     | --              |
+      | exec_command     | ls              |
+      | exec_command_arg | -lZ             |
+      | exec_command_arg | /tmp/           |
     Then the output should contain:
-      | 1000160200 123456 |
+      | 1000160200 123456              |
       | svirt_sandbox_file_t:s0:c2,c13 |
-      | file2 |
+      | file2                          |
