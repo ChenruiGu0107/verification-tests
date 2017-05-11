@@ -390,7 +390,7 @@ Feature: Dynamic provisioning
   @smoke
   Scenario: Dynamic provision smoke test 
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
@@ -407,3 +407,10 @@ Feature: Dynamic provisioning
     When I execute on the pod:
       | touch | /mnt/iaas/testfile |
     Then the step should succeed
+    When I execute on the pod:
+      | cp | /hello | /mnt/iaas/ |
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/iaas/hello |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
