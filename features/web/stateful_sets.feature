@@ -121,11 +121,11 @@ Feature: Stateful Set related feature on web console
     Then the step should succeed
     When I perform the :check_event_message web console action with:
       | reason  | Successful create |
-      | message | pet: world-1      |
+      | message | world-1           |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
       | reason  | Successful create |
-      | message | pet: world-0      |
+      | message | world-0           |
     Then the step should succeed
 
     When I perform the :sort_by web console action with:
@@ -133,17 +133,17 @@ Feature: Stateful Set related feature on web console
     Then the step should succeed
     When I perform the :check_messages_order web console action with:
       | first_reason   | Successful create |
-      | first_message  | pet: world-0      |
+      | first_message  | world-0           |
       | second_reason  | Successful create |
-      | second_message | pet: world-1      |
+      | second_message | world-1           |
     Then the step should succeed
     When I run the :change_sort_direction web console action
     Then the step should succeed
     When I perform the :check_messages_order web console action with:
       | first_reason   | Successful create |
-      | first_message  | pet: world-1      |
+      | first_message  | world-1           |
       | second_reason  | Successful create |
-      | second_message | pet: world-0      |
+      | second_message | world-0           |
     Then the step should succeed
 
     When I perform the :filter_by_keyword web console action with:
@@ -151,11 +151,11 @@ Feature: Stateful Set related feature on web console
     Then the step should succeed
     When I perform the :check_event_message_missing web console action with:
       | reason  | Successful create |
-      | message | pet: world-1      |
+      | message | world-1           |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
       | reason  | Successful create |
-      | message | pet: world-0      |
+      | message | world-0           |
     Then the step should succeed
 
     When I run the :click_to_goto_edit_YAML_page web console action

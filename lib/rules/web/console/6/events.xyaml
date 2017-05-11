@@ -59,7 +59,7 @@ filter_by_keyword:
 sort_by:
   elements:
   - selector:
-      xpath: //span[text()="Sort by"]/following-sibling::div//button[@data-toggle="dropdown"]
+      xpath: //span[text()="Sort by"]/following-sibling::div//button[contains(@class,"dropdown")]
     op: click
   - selector:
       xpath: //span[text()="Sort by"]/following-sibling::div//ul/li/a[text()="<sort_field>"]

@@ -865,7 +865,7 @@ set_dc_strategy_cmd_line:
 add_env_var_key_for_dc_custom_strategy:
   elements:
   - selector:
-      xpath: //key-value-editor[contains(@entries,'custom')]//div[@ng-if='(!cannotAdd) && addRowLink']/a
+      xpath: //key-value-editor[contains(@entries,'custom')]//a[normalize-space(text())='Add Environment Variable']
     op: click
   - selector:
       xpath: //key-value-editor[contains(@entries,'custom')]//div[@ng-repeat='entry in entries'][last()]/div[1]//input
