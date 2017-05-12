@@ -48,6 +48,7 @@ Feature:Create apps using new_app cmd feature
 
   # @author haowang@redhat.com
   # @case_id OCP-9653 OCP-12215 OCP-13513
+  @smoke
   Scenario Outline: create nodejs resource from imagestream via oc new-app
     Given I have a project
     When I run the :new_app client command with:

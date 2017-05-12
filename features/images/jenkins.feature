@@ -410,6 +410,7 @@ Feature: jenkins.feature
 
   # @author cryan@redhat.com
   # @case_id OCP-11179 OCP-11369
+  @smoke
   Scenario Outline: Trigger build of application from jenkins job with persistent volume
     Given I have a project
     When I run the :new_app client command with:
