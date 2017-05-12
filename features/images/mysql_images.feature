@@ -1,6 +1,7 @@
 Feature: mysql_images.feature
   # @author haowang@redhat.com
   # @case_id OCP-9722
+  @smoke
   Scenario: mysql persistent template
     Given I have a project
     When I run the :new_app client command with:

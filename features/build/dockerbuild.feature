@@ -30,6 +30,7 @@ Feature: dockerbuild.feature
 
   # @author wzheng@redhat.com
   # @case_id OCP-12115
+  @smoke
   Scenario: Docker build with both SourceURI and context dir
     Given I have a project
     When I run the :create client command with:

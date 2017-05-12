@@ -1,6 +1,7 @@
 Feature: stibuild.feature
   # @author haowang@redhat.com
   # @case_id OCP-11464
+  @smoke
   Scenario: STI build with SourceURI and context dir
     Given I have a project
     When I run the :new_app client command with:
