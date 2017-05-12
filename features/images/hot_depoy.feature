@@ -30,6 +30,7 @@ Feature: hotdeploy.feature
       | https://github.com/openshift-qe/django-ex.git          | openshift/python:3.5 | APP_CONFIG=gunicorn.conf.py | django-ex          | s/Welcome/hotdeploy_test/g | /opt/app-root/src/welcome/templates/welcome/index.html | # @case_id: OCP-12324
       | https://github.com/openshift-qe/sinatra-hot-deploy.git | openshift/ruby:2.0   | RACK_ENV=development        | sinatra-hot-deploy | s/legen/hotdeploy_test/g   | config.ru                                              | # @case_id: OCP-12454
   # @author wzheng@redhat.com
+  @smoke
   Scenario Outline: Enable hot deploy for sinatra app - ruby-rhel7 which is created from imagestream via oc new-app
     Given I have a project
     When I create a new application with:

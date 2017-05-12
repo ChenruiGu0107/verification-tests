@@ -244,6 +244,7 @@ Feature: general_db.feature
 
   # @author xiuwang@redhat.com
   # @case_id OCP-11597
+  @smoke
   Scenario: Create mongo resources with persistent template for mongodb-32-rhel7 images
     Given I have a project
     Then the step should succeed

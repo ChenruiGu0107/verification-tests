@@ -174,6 +174,7 @@ Feature: Postgresql images test
 
   # wewang@redhat.com
   # @case_id 508092  519475  OCP-12070
+  @smoke
   Scenario Outline: Verify DB can be connect after change admin and user password and re-deployment for persistent storage
     Given I have a project
     And I download a file from "<file>"

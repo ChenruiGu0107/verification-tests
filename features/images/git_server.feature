@@ -81,6 +81,7 @@ Feature: git server related scenarios
 
   # @author shiywang@redhat.com
   # @case_id OCP-11166
+  @smoke
   Scenario: Do automatic build and deployment using private gitserver
     Given I have a project
     Given I have an http-git service in the project

@@ -2754,6 +2754,7 @@ Feature: build 'apps' with CLI
 
   # @author cryan@redhat.com
   # @case_id OCP-11825
+  @smoke
   Scenario: forcePull for extended build
     Given I have a project
     When I run the :create client command with:
