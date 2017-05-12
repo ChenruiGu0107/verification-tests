@@ -56,6 +56,7 @@ Feature: Pod related networking scenarios
 
   # @author yadu@redhat.com
   # @case_id OCP-10031
+  @smoke
   Scenario: Container could reach the dns server
     Given I have a project
     When I run the :create client command with:

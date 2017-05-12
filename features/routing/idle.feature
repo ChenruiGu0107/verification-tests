@@ -2,6 +2,7 @@ Feature: idle service related scenarios
 
   # @author hongli@redhat.com
   # @case_id OCP-10935
+  @smoke
   Scenario: Pod can be changed to un-idle when there is unsecure or edge or passthrough route coming
     Given I have a project
     When I run the :create client command with:

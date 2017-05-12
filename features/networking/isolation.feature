@@ -1,7 +1,6 @@
 Feature: networking isolation related scenarios
   # @author bmeng@redhat.com
   # @case_id OCP-9565
-  @smoke
   @admin
   Scenario: The pods in default namespace can communicate with all the other pods
     Given the env is using multitenant network
@@ -84,7 +83,6 @@ Feature: networking isolation related scenarios
 
   # @author bmeng@redhat.com
   # @case_id OCP-9564
-  @smoke
   @admin
   Scenario: Only the pods nested in a same namespace can communicate with each other
     Given the env is using multitenant network

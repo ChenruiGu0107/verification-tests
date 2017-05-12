@@ -1,6 +1,7 @@
 Feature: Service related networking scenarios
   # @author bmeng@redhat.com
   # @case_id OCP-12540
+  @smoke
   Scenario: Linking external services to OpenShift multitenant
     Given I have a project
     When I run the :create client command with:

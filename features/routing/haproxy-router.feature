@@ -169,6 +169,7 @@ Feature: Testing haproxy router
 
   # @author bmeng@redhat.com
   # @case_id OCP-11903
+  @smoke
   Scenario: haproxy cookies based sticky session for unsecure routes
     #create route and service which has two endpoints
     Given I have a project
@@ -2378,6 +2379,7 @@ Feature: Testing haproxy router
 
   # @author yadu@redhat.com
   # @case_id OCP-11418
+  @smoke
   Scenario: Disable haproxy hash based sticky session for reencrypt termination routes
     Given I have a project
     And I store default router IPs in the :router_ip clipboard

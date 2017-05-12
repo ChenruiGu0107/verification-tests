@@ -2,6 +2,7 @@ Feature: Testing route
 
   # @author zzhao@redhat.com
   # @case_id OCP-11883
+  @smoke
   Scenario: Be able to add more alias for service
     Given I have a project
     When I run the :create client command with:
@@ -32,6 +33,7 @@ Feature: Testing route
 
   # @author zzhao@redhat.com
   # @case_id OCP-12122
+  @smoke
   Scenario: Alias will be invalid after removing it
     Given I have a project
     When I run the :create client command with:
@@ -137,6 +139,7 @@ Feature: Testing route
 
   # @author yadu@redhat.com
   # @case_id OCP-10660
+  @smoke
   Scenario: Service endpoint can be work well if the mapping pod ip is updated
     Given I have a project
     When I run the :create client command with:
@@ -211,6 +214,7 @@ Feature: Testing route
  
   # @author zzhao@redhat.com
   # @case_id OCP-12652
+  @smoke
   Scenario: The later route should be HostAlreadyClaimed when there is a same host exist
     Given I have a project
     When I run the :create client command with:
@@ -228,6 +232,7 @@ Feature: Testing route
     
   # @author bmeng@redhat.com
   # @case_id OCP-12472
+  @smoke
   Scenario: Edge terminated route with custom cert
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -440,6 +445,7 @@ Feature: Testing route
 
   # @author zzhao@redhat.com
   # @case_id OCP-12564
+  @smoke
   Scenario: The path specified in route can work well for reencrypt terminated
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
@@ -717,6 +723,7 @@ Feature: Testing route
 
   # @author yadu@redhat.com
   # @case_id OCP-10024
+  @smoke
   Scenario: Route could NOT be updated after created
     Given I have a project
     When I run the :create client command with:
