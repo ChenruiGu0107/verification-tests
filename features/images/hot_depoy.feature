@@ -1,6 +1,7 @@
 Feature: hotdeploy.feature
 
   # @author wzheng@redhat.com
+  @smoke
   Scenario Outline: Hot deploy test
     Given I have a project
     When I create a new application with:
@@ -53,6 +54,7 @@ Feature: hotdeploy.feature
 
   # @author wzheng@redhat.com
   # @case_id OCP-12142,OCP-11921
+  @smoke
   Scenario Outline: Enable hot deploy for perl which is created from imagestream via oc new-app
     Given I have a project
     When I create a new application with:

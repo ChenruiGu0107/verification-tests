@@ -197,6 +197,7 @@ Feature: quickstarts.feature
       | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc508973/dancer-mysql.json | dancer-mysql-example | Dancer  | 2     |
 
   # @author xiuwang@redhat.com
+  @smoke
   Scenario Outline: quickstart with persistent volume test
     Given I have a project
     When I run the :new_app client command with:

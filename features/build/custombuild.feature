@@ -2,6 +2,7 @@ Feature: custombuild.feature
 
   # @author wzheng@redhat.com
   # @case_id OCP-11443
+  @smoke
   Scenario: Build with custom image - origin-custom-docker-builder
     Given I have a project
     When I run the :create client command with:
