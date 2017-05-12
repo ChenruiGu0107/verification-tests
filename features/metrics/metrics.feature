@@ -291,3 +291,113 @@ Feature: metrics related scenarios
       | pod_name     | <%=pod.name%>     |
       | type         | rx                |
     Then the step should succeed
+
+  # @author: penli@redhat.com
+  # @case_id: OCP-10988
+  @admin
+  @destructive
+  Scenario: Move the commitlog to another volume-emptydir
+    Given I have a project
+    And I store default router subdomain in the :subdomain clipboard
+    And I store master major version in the :master_version clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin-metrics/master/metrics-deployer-setup.yaml |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | edit                                                     |
+      | user_name | system:serviceaccount:<%=project.name%>:metrics-deployer |
+    When I run the :policy_add_role_to_user client command with:
+      | role      | view                                             |
+      | user_name | system:serviceaccount:<%=project.name%>:hawkular |
+    Then the step should succeed
+    Given cluster role "cluster-reader" is added to the "heapster" service account
+    When I run the :new_secret client command with:
+      | secret_name     | metrics-deployer  |
+      | credential_file | nothing=/dev/null |
+    Then the step should succeed
+    When I create a new application with:
+      | template | metrics-deployer-template                                     |
+      | param    | HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.<%= cb.subdomain%> |
+      | param    | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/            |
+      | param    | USE_PERSISTENT_STORAGE=false                                  |
+      | param    | IMAGE_VERSION=<%= cb.master_version%>                         |
+      | param    | MASTER_URL=<%= env.api_endpoint_url %>                        |
+    Then the step should succeed
+    And all pods in the project are ready
+    And I wait for the "hawkular-cassandra" service to become ready
+    And I wait for the "hawkular-metrics" service to become ready
+    And I wait for the "heapster" service to become ready
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    And I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | hawkular-cassandra-1   |
+      | replicas | 0                      |
+    When I run the :patch client command with:
+      | resource      | rc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+      | resource_name | hawkular-cassandra-1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hawkular-cassandra-1","command":["/opt/apache-cassandra/bin/cassandra-docker.sh","--cluster_name=hawkular-metrics","--data_volume=/cassandra_data","--commitlog_volume=/cassandra_commitlog","--internode_encryption=all","--require_node_auth=true", "--enable_client_encryption=true","--require_client_auth=true","--keystore_file=/secret/cassandra.keystore","--keystore_password_file=/secret/cassandra.keystore.password","--truststore_file=/secret/cassandra.truststore","--truststore_password_file=/secret/cassandra.truststore.password","--cassandra_pem_file=/secret/cassandra.pem"]}]}}}} |
+    Then the step should succeed
+    When I run the :volume client command with:
+      | resource      | rc                   |
+      | resource_name | hawkular-cassandra-1 |
+      | action        | --add                |
+      | name          | cassandra-commitlog  |
+      | mount-path    | /cassandra_commitlog |
+      | type          | emptydir             |
+    Then the step should succeed
+    And I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | hawkular-cassandra-1   |
+      | replicas | 1                      |
+    And I wait for the "hawkular-cassandra" service to become ready
+    Then I wait until number of replicas match "1" for replicationController "hawkular-cassandra-1"
+
+
+
+  # @author: lizhou@redhat.com
+  # @case_id: OCP-13983
+  # This case only support version >=3.5, for version =<3.4 see OCP-10988.
+  @admin
+  @destructive
+  Scenario: Move the commitlog to another volume-emptydir version >= 3.5
+    # Deploy metrics
+    Given the master version >= "3.5"
+    Given I have a project
+    Given cluster role "cluster-admin" is added to the "first" user
+    And metrics service is installed in the "openshift-infra" project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory |
+    # Scale down
+    # Given I switch to cluster admin pseudo user
+    And I use the "openshift-infra" project
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    And I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | hawkular-cassandra-1   |
+      | replicas | 0                      |
+    Then the step should succeed
+
+    # Move commitLog to another volume-emptydir
+    When I run the :patch client command with:
+      | resource      | rc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+      | resource_name | hawkular-cassandra-1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hawkular-cassandra-1","command":["/opt/apache-cassandra/bin/cassandra-docker.sh","--cluster_name=hawkular-metrics","--data_volume=/cassandra_data","--commitlog_volume=/cassandra_commitlog","--internode_encryption=all","--require_node_auth=true", "--enable_client_encryption=true","--require_client_auth=true","--keystore_file=/secret/cassandra.keystore","--keystore_password_file=/secret/cassandra.keystore.password","--truststore_file=/secret/cassandra.truststore","--truststore_password_file=/secret/cassandra.truststore.password","--cassandra_pem_file=/secret/cassandra.pem"]}]}}}} |
+    Then the step should succeed
+    When I run the :volume client command with:
+      | resource      | rc                   |
+      | resource_name | hawkular-cassandra-1 |
+      | action        | --add                |
+      | name          | cassandra-commitlog  |
+      | mount-path    | /cassandra_commitlog |
+      | type          | emptydir             |
+    Then the step should succeed
+
+    #Scale up and check
+    When I run the :scale client command with:
+      | resource | replicationcontrollers |
+      | name     | hawkular-cassandra-1   |
+      | replicas | 1                      |
+    Then the step should succeed
+    And I wait for the "hawkular-cassandra" service to become ready
+    Then I wait until number of replicas match "1" for replicationController "hawkular-cassandra-1"

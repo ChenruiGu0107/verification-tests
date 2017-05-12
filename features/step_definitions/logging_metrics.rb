@@ -260,10 +260,8 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   step %Q/the step should succeed/
 
   # the openshift-ansible playbook restarts master at the end, we need to run the following to just check the master is ready.
-  step %Q/I wait for the steps to pass:/,
-    """
-      And I store master major version in the :tmp clipboard
-    """
+  step %Q/the master is operational/
+
   if op == 'installed'
     if svc_type == 'logging'
       # there are 4 pods we need to verify that should be running  logging-curator,
@@ -315,14 +313,18 @@ end
 # 2. install openshift-ansible playbook (via yum or git)
 Given /^I have a pod with openshift-ansible playbook installed$/ do
   ensure_admin_tagged
+  # we need to save the original project name for post test cleanup
+  cb.org_project_for_ansible ||= project
   # to save time we are going to check if the base-ansible-pod already exists
   # use admin user to get the information so we don't need to swtich user.
-  unless pod("base-ansible-pod").exists?(user: admin)
+  unless pod("base-ansible-pod", cb.org_project_for_ansible).exists?(user: admin)
     step %Q/I run the :create client command with:/, table(%{
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_pod.json |
     })
     step %Q/the step should succeed/
     step %Q/the pod named "base-ansible-pod" becomes ready/
+    # save it for future use
+    cb.ansible_runner_pod = pod
     # fix uid to match the correct value
     cb.sed_cmd = 'echo -e ",s/1234321/`id -u`/g\\012 w" | ed -s /etc/passwd'
     step %Q/I execute on the pod:/, table(%{
@@ -331,51 +333,95 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
       | <%= cb.sed_cmd %> |
     })
     step %Q/the step should succeed/
-  end
 
-  if conf[:openshift_ansible_installer].start_with? 'git#'
-    branch_name = conf[:openshift_ansible_installer][4..-1]
-  end
-  step %Q`I save the rpm names matching /openshift-ansible/ from puddle to the :openshift_ansible_rpms clipboard`
-
-  # extract the commit id for git checkout later
-  commit_id = cb.openshift_ansible_rpms[0].match(/git.\d+.(\w+)/)[1]
-  step %Q/I run the :rsync client command with:/, table(%{
-    | source      | <%= localhost.absolutize("tmp") %> |
-    | destination | base-ansible-pod:/tmp              |
-    | loglevel    | 5                                  |
-    })
-  step %Q/the step should succeed/
-  # depending on global option defined in config/config.yaml we either install
-  # openshift-ansible via rpm or just do git clone from branch name
-  if conf[:openshift_ansible_installer] == "yum" or conf[:openshift_ansible_installer] == "rpm"
-    # first check if openshift-ansible playbook is install in the master
-    step %Q/openshift-ansible is installed in the "<%= env.master_hosts.first.hostname %>" node/
-    step %Q/I rsync files from node named "<%= env.master_hosts.first.hostname %>" to pod named "base-ansible-pod" using parameters:/, table(%{
-      | src_dir | /usr/share/ansible/openshift-ansible/        |
-      | dst_dir | base-ansible-pod:/tmp/tmp/openshift-ansible/ |
-      })
-    step %Q/the step should succeed/
-    # plugins are needed
-    step %Q/I rsync files from node named "<%= env.master_hosts.first.hostname %>" to pod named "base-ansible-pod" using parameters:/, table(%{
-      | src_dir | /usr/share/ansible_plugins/                |
-      | dst_dir | base-ansible-pod:/tmp/tmp/ansible_plugins/ |
-      })
-    step %Q/the step should succeed/
-  elsif conf[:openshift_ansible_installer].start_with? "git"
-    if branch_name
-      git_cmd = "cd /tmp/tmp/ && rm -rf openshift-ansible  && git clone https://github.com/openshift/openshift-ansible/ -b #{branch_name}"
-    else
-      git_cmd = "cd /tmp/tmp/ && rm -rf openshift-ansible  && git clone https://github.com/openshift/openshift-ansible/ && cd openshift-ansible && git checkout #{commit_id}"
+    if conf[:openshift_ansible_installer].start_with? 'git#'
+      branch_name = conf[:openshift_ansible_installer][4..-1]
     end
-    step %Q/I execute on the pod:/, table(%{
-      | bash       |
-      | -c         |
-      | #{git_cmd} |
+    step %Q`I save the rpm names matching /openshift-ansible/ from puddle to the :openshift_ansible_rpms clipboard`
+
+    # extract the commit id for git checkout later
+    commit_id = cb.openshift_ansible_rpms[0].match(/git.\d+.(\w+)/)[1]
+    step %Q/I run the :rsync client command with:/, table(%{
+      | source      | <%= localhost.absolutize("tmp") %> |
+      | destination | base-ansible-pod:/tmp              |
+      | loglevel    | 5                                  |
       })
     step %Q/the step should succeed/
-  else
-    raise "Installation method '#{conf[:openshift_ansible]}' is currently not supported"
+    # depending on global option defined in config/config.yaml we either install
+    # openshift-ansible via rpm or just do git clone from branch name
+    if conf[:openshift_ansible_installer] == "yum" or conf[:openshift_ansible_installer] == "rpm"
+      # first check if openshift-ansible playbook is install in the master
+      step %Q/openshift-ansible is installed in the "<%= env.master_hosts.first.hostname %>" node/
+      step %Q/I rsync files from node named "<%= env.master_hosts.first.hostname %>" to pod named "base-ansible-pod" using parameters:/, table(%{
+        | src_dir | /usr/share/ansible/openshift-ansible/        |
+        | dst_dir | base-ansible-pod:/tmp/tmp/openshift-ansible/ |
+        })
+      step %Q/the step should succeed/
+      # plugins are needed
+      step %Q/I rsync files from node named "<%= env.master_hosts.first.hostname %>" to pod named "base-ansible-pod" using parameters:/, table(%{
+        | src_dir | /usr/share/ansible_plugins/                |
+        | dst_dir | base-ansible-pod:/tmp/tmp/ansible_plugins/ |
+        })
+      step %Q/the step should succeed/
+    elsif conf[:openshift_ansible_installer].start_with? "git"
+      if branch_name
+        git_cmd = "cd /tmp/tmp/ && rm -rf openshift-ansible  && git clone https://github.com/openshift/openshift-ansible/ -b #{branch_name}"
+      else
+        git_cmd = "cd /tmp/tmp/ && rm -rf openshift-ansible  && git clone https://github.com/openshift/openshift-ansible/ && cd openshift-ansible && git checkout #{commit_id}"
+      end
+      step %Q/I execute on the pod:/, table(%{
+        | bash       |
+        | -c         |
+        | #{git_cmd} |
+        })
+      step %Q/the step should succeed/
+    else
+      raise "Installation method '#{conf[:openshift_ansible]}' is currently not supported"
+    end
   end
-
 end
+
+
+require 'configparser'
+require 'oga'
+
+Given /^I save installation inventory from master to the#{OPT_SYM} clipboard$/ do | cb_name |
+  ensure_admin_tagged
+
+  cb_name ||= :installation_inventory
+  host = env.master_hosts.first
+  qe_inventory_file = 'qe-inventory-host-file'
+  @result = host.exec("cat /tmp/#{qe_inventory_file}")
+  conf = nil
+  if @result[:success]
+    config = ConfigParser.new
+    config.parse(@result[:response].each_line)
+    cb[cb_name] = config
+  else
+    raise "'#{qe_inventory_file}' does not exists"
+  end
+end
+
+# get the puddle information from master's /tmp/qe-inventory-host-file
+# @returns a copule of clipboard informaiton:
+#  1. :installation_inventory contains the installation inventory
+#  2. :rpms contains an array of all the rpms for the puddle
+#  3. :puddle_url
+#  4. :rpm_name
+Given /^I save the rpm names? matching #{RE} from puddle to the#{OPT_SYM} clipboard$/ do | package_pattern, cb_name |
+  ensure_admin_tagged
+  cb_name ||= :rpm_names
+  step %Q/I save installation inventory from master to the clipboard/
+  rpm_repos_key = cb[:installation_inventory].keys.include?('openshift_playbook_rpm_repos') ? 'openshift_playbook_rpm_repos' : 'openshift_additional_repos'
+  puddle_url = eval(cb[:installation_inventory][rpm_repos_key])[0][:baseurl]
+  cb.puddle_url = puddle_url
+  @result = CucuShift::Http.get(url: puddle_url + "/Packages")
+
+  doc = Oga.parse_html(@result[:response])
+  rpms = (doc.css('a').select { |l| l.attributes[0].value if l.attributes[0].value.end_with? 'rpm'  }).map { |r| r.children[0].text}
+  cb.rpms = rpms
+  rpm_names = rpms.select { |r| r =~ /#{package_pattern}/ }
+  raise "No matching rpm found for #{package_pattern}" if rpm_names.count == 0
+  cb[cb_name] = rpm_names
+end
+

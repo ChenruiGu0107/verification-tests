@@ -384,3 +384,28 @@ Given /^I try to restart the node service on node#{OPT_QUOTED}$/ do |node_name|
   ensure_destructive_tagged
   @results = node(node_name).service.restart_all
 end
+
+Given /^I have (?:(at least ))?(\d+) nodes?$/ do |quantifier, nodes|
+  num_of_nodes = nodes.to_i
+  nodes_found = env.nodes.count
+  @result = {}
+  if quantifier
+    @result[:success] = nodes_found >= num_of_nodes
+  else
+    @result[:success] = nodes_found == num_of_nodes
+  end
+  raise "number of nodes '#{nodes_found}' in the setup does not meet the criteria of #{quantifier}#{nodes} nodes" unless @result[:success]
+end
+
+# use oc rsync to copy files from node to a pod
+# required table params are src_dir and dst_dir
+Given /^I rsync files from node named #{QUOTED} to pod named #{QUOTED} using parameters:$/ do | node_name, pod_name, table |
+  ensure_admin_tagged
+  opts = opts_array_to_hash(table.raw)
+  raise "Not all requried parameters given, expected #{opts.keys}" if opts.keys.sort != [:dst_dir, :src_dir]
+  step %Q/I run commands on the host:/, table(%{
+    | oc rsync "#{opts[:src_dir]}" "#{opts[:dst_dir]}" --namespace "#{project.name}" |
+  })
+  step %Q/the step should succeed/
+end
+

@@ -62,7 +62,7 @@ Given /^the master service is restarted on all master nodes( after scenario)?$/ 
       service.restart_all(raise: true)
     }
   }
-  
+
   if after
     teardown_add p
   else
@@ -83,4 +83,21 @@ end
 Given /^I use the first master host$/ do
   ensure_admin_tagged
   @host = env.master_hosts.first
+end
+
+Given /^the master is operational$/ do
+  ensure_admin_tagged
+  success = wait_for(60) {
+    admin.cli_exec(:get, resource_name: "default", resource: "project")[:success]
+  }
+  raise "Timed out waiting for master to become functional." unless success
+end
+
+Given /^the etcd version is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
+  ensure_admin_tagged
+  cb_name ||= :etcd_version
+  @result = env.master_hosts.first.exec("openshift version")
+  etcd_version = @result[:response].match(/etcd (.+)$/)[1]
+  raise "Can not retrieve the etcd version" if etcd_version.nil?
+  cb[cb_name] = etcd_version
 end

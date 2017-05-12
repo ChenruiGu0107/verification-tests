@@ -216,3 +216,22 @@ Given /^I collect the deployment log for pod "(.+)" until it disappears$/ do |po
   @result  = res_cache
 end
 
+# pod_info is the user pod, for example.... deployment-example
+# the step will do 'docker ps | grep deployment-example' to filter out a target
+Given /^the system container id for the#{OPT_QUOTED} pod is stored in the#{OPT_SYM} clipboard$/ do | pod_name, cb_name |
+  cb_name ||= :system_pod_container_id
+  system_pod_container_id_regexp=/^(.*)\s+.*(ose|origin)-pod:.+\s+"\/pod"/
+  pod_name = pod(pod_name).name
+  res = host.exec("docker ps | grep #{pod_name}")
+  system_pod_container_id = nil
+  if res[:success]
+    res[:response].split("\n").each do | line |
+      system_pod_container_id = system_pod_container_id_regexp.match(line)
+      break unless system_pod_container_id.nil?
+    end
+  else
+    raise "Can't find matching docker information for #{pod_name}"
+  end
+  raise "Can't find containter id for system pod" if system_pod_container_id.nil?
+  cb[cb_name] = system_pod_container_id[1].strip
+end

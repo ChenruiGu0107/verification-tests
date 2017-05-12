@@ -152,7 +152,7 @@ Given /^I obtain default registry IP HOSTNAME by a dummy build in the project$/ 
       | name     | #{dummy_image}                                                  |
       })
   step 'the step should succeed'
-  
+
   #copy registry ip to clipboard
   cb[:int_reg_ip] = image_stream(dummy_image).docker_registry_ip_or_hostname(user: user)
 
@@ -185,7 +185,7 @@ Given /^default docker-registry dc is deleted$/ do
 
   _dc = dc("docker-registry", project("default", switch: false))
   @result = _dc.get_checked(user: _admin)
-  step %Q/I save the output to file> dc.yaml/ 
+  step %Q/I save the output to file> dc.yaml/
   _dc.ensure_deleted(user: admin)
   _svc = service("docker-registry", project("default", switch: false))
 
@@ -208,7 +208,7 @@ Given /^default docker-registry service is deleted$/ do
   _admin = admin
   _svc = service("docker-registry", project("default", switch: false))
   @result = _svc.get_checked(user: _admin)
-  step %Q/I save the output to file> svc.yaml/ 
+  step %Q/I save the output to file> svc.yaml/
   _svc.ensure_deleted(user: admin)
   teardown_add {
     _svc.ensure_deleted(user: admin)
@@ -253,10 +253,10 @@ Given /^I secure the default docker(?: (daemon set))? registry$/ do |deployment_
 
   registry_secret_name = "registry-secret-#{rand_str(5, :dns)}"
   registry_secret_mount = "/etc/secrets"
-  
+
   _host.exec_admin("oc secret new #{registry_secret_name} registry.crt registry.key")
   step %Q/the step should succeed/
-  
+
   _secret = secret(registry_secret_name, project("default", switch: false))
 
   teardown_add {
@@ -266,7 +266,7 @@ Given /^I secure the default docker(?: (daemon set))? registry$/ do |deployment_
 
   _host.exec_admin("oc secret link sa/default #{registry_secret_name}")
   step %Q/the step should succeed/
-  
+
   _deployment = ""
   if deployment_type
     _deployment = "ds"
@@ -275,7 +275,7 @@ Given /^I secure the default docker(?: (daemon set))? registry$/ do |deployment_
   end
 
   step 'I run the :volume admin command with:', table(%{
-      | resource    | #{_deployment}/docker-registry       | 
+      | resource    | #{_deployment}/docker-registry       |
       | add         | true                     |
       | type        | secret                   |
       | secret-name | #{registry_secret_name}  |
@@ -283,14 +283,14 @@ Given /^I secure the default docker(?: (daemon set))? registry$/ do |deployment_
   })
   step %Q/the step should succeed/
   step 'I run the :set_probe admin command with:', table(%{
-      | resource  | #{_deployment}/docker-registry    | 
+      | resource  | #{_deployment}/docker-registry    |
       | liveness  | true                  |
       | readiness | secret                |
       | get_url   | https://:5000/healthz |
   })
   step %Q/the step should succeed/
   step 'I run the :env admin command with:', table(%{
-      | resource    | #{_deployment}/docker-registry                                                  | 
+      | resource    | #{_deployment}/docker-registry                                                  |
       | keyval      | REGISTRY_HTTP_TLS_CERTIFICATE=#{registry_secret_mount}/registry.crt |
       | keyval      | REGISTRY_HTTP_TLS_KEY=#{registry_secret_mount}/registry.key         |
   })
@@ -323,3 +323,29 @@ Given /^I secure the default docker(?: (daemon set))? registry$/ do |deployment_
   step %Q/20 seconds have passed/
 
 end
+
+Given /^default registry service ip is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
+  # save the orignial project name
+  org_proj_name = project.name
+  cb_name ||= :registry_ip
+  cb[cb_name] = service("docker-registry", project('default')).url(user: :admin)
+  project(org_proj_name)
+end
+
+Given /^default registry route is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
+  # save the orignial project name
+  org_proj_name = project.name
+  cb_name ||= :registry_route
+  cb[cb_name] = route("docker-registry", service("docker-registry",project('default'))).dns(by: :admin)
+  project(org_proj_name)
+end
+
+# store the default registry scheme type by doing 'oc get dc/docker-registry -o yaml'
+Given /^I store the default registry scheme to the#{OPT_SYM} clipboard$/ do |cb_name|
+  ensure_admin_tagged
+  cb_name ||= :registry_scheme
+  @result = admin.cli_exec(:get, resource: 'dc', resource_name: 'docker-registry', o: 'yaml')
+  @result[:parsed] = YAML.load(@result[:response])
+  cb[cb_name] = @result[:parsed].dig('spec', 'template', 'spec', 'containers')[0].dig('livenessProbe','httpGet','scheme').downcase
+end
+
