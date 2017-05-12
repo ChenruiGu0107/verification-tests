@@ -1045,6 +1045,8 @@ Feature: Testing route
     Then the step should succeed
     # Acess the route
     Given I have a pod-for-ping in the project
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
       | -v |
@@ -1056,7 +1058,7 @@ Feature: Testing route
       | Hello-OpenShift |
       | HTTP/1.1 302 Found |
       | Location: https:// |
-    
+    """ 
     When I run the :patch client command with:
       | resource      | route              |
       | resource_name | myroute            |
