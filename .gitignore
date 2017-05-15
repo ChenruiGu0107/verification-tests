@@ -1,6 +1,4 @@
-*.swp
-*.swo
-*.swn
+*.sw[a-p]
 /private*/
 /junit-report/
 /Gemfile.lock
