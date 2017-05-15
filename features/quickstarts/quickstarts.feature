@@ -1,7 +1,7 @@
 Feature: quickstarts.feature
 
   # @author cryan@redhat.com haowang@redhat.com
-  # @case_id 497613 OCP-12609 OCP-12605 OCP-12606 OCP-12541 OCP-9569 OCP-9570 508737
+  # @case_id 497613 OCP-12605 OCP-9569 OCP-9570 508737
   Scenario Outline: quickstart test
     Given I have a project
     When I run the :new_app client command with:
@@ -17,12 +17,12 @@ Feature: quickstarts.feature
 
     Examples: OS Type
       | template                  | buildcfg                 | output  | podno |
-      | django-psql-example       | django-psql-example      | Django  | 2     |
+      | django-psql-example       | django-psql-example      | Django  | 2     | # @case_id OCP-12609
       | dancer-example            | dancer-example           | Dancer  | 1     |
-      | dancer-mysql-example      | dancer-mysql-example     | Dancer  | 2     |
-      | cakephp-mysql-example     | cakephp-mysql-example    | CakePHP | 2     |
+      | dancer-mysql-example      | dancer-mysql-example     | Dancer  | 2     | # @case_id OCP-12606
+      | cakephp-mysql-example     | cakephp-mysql-example    | CakePHP | 2     | # @case_id OCP-12541
       | nodejs-mongodb-example    | nodejs-mongodb-example   | Node.js | 2     |
-      | rails-postgresql-example  | rails-postgresql-example | Rails   | 2     |
+      | rails-postgresql-example  | rails-postgresql-example | Rails   | 2     | # @case_id OCP-12296
       | dotnet-example            | dotnet-example           | ASP.NET | 1     | # @case_id OCP-13749
 
   # @author shiywang@redhat.com
@@ -42,7 +42,6 @@ Feature: quickstarts.feature
 
 
   # @author cryan@redhat.com
-  # @case_id OCP-9605 OCP-12650
   Scenario Outline: Application with base images with oc command
     Given I have a project
     When I run the :new_app client command with:
@@ -73,8 +72,8 @@ Feature: quickstarts.feature
     Then the output should contain "OpenShift"
     Examples:
       | json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/python-27-rhel7-stibuild.json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499622/python-27-centos7-stibuild.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/python-27-rhel7-stibuild.json | # @case_id OCP-9605
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc499622/python-27-centos7-stibuild.json | # @case_id OCP-12650
 
   # @author wzheng@redhat.com
   # @case_id OCP-11178

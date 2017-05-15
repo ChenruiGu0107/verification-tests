@@ -74,7 +74,6 @@ Feature: build 'apps' with CLI
       | ruby-hello-world |
 
   # @author chunchen@redhat.com
-  # @case_id OCP-11463, OCP-11712, OCP-11098
   Scenario Outline: [origin_devexp_288] Push image with Docker credentials for build
     Given I have a project
     When I run the :new_secret client command with:
@@ -94,9 +93,9 @@ Feature: build 'apps' with CLI
 
     Examples:
       | template_file                                  |
-      | tc476357/application-template-stibuild.json    |
-      | tc476356/application-template-dockerbuild.json |
-      | tc476355/application-template-custombuild.json |
+      | tc476357/application-template-stibuild.json    | # @case_id OCP-11712
+      | tc476356/application-template-dockerbuild.json | # @case_id OCP-11463
+      | tc476355/application-template-custombuild.json | # @case_id OCP-11098
 
   # @author xxing@redhat.com
   # @case_id OCP-11140
@@ -493,7 +492,6 @@ Feature: build 'apps' with CLI
       | cancelled      |
 
   # @author pruan@redhat.com
-  # @case_id OCP-11770, OCP-11942, OCP-11224, OCP-11550
   Scenario Outline: when delete the bc,the builds pending or running should be deleted
     Given I have a project
     When I run the :create client command with:
@@ -513,10 +511,10 @@ Feature: build 'apps' with CLI
 
     Examples:
       | number | build_status |
-      | 517369 | :pending     |
-      | 517370 | :running     |
-      | 517367 | :complete    |
-      | 517368 | :failed      |
+      | 517369 | :pending     | # @case_id OCP-11770
+      | 517370 | :running     | # @case_id OCP-11942
+      | 517367 | :complete    | # @case_id OCP-11224
+      | 517368 | :failed      | # @case_id OCP-11550
 
   # @author pruan@redhat.com
   # @case_id OCP-10765
@@ -1870,7 +1868,6 @@ Feature: build 'apps' with CLI
     And the output should contain "must provide a value"
 
   # @author yantan@redhat.com
-  # @case_id OCP-11580 OCP-11268
   Scenario Outline: Do sti/custom build with no inputs in buildconfig
     Given I have a project
     When I run the :create client command with:
@@ -1903,8 +1900,8 @@ Feature: build 'apps' with CLI
 
     Examples:
       | bc_name              | build_name             | file_name                                                                                             |
-      | ruby-sample-build-ns | ruby-sample-build-ns-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525736/Nonesrc-sti.json    |
-      | ruby-sample-build-nc | ruby-sample-build-nc-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525735/Nonesrc-docker.json |
+      | ruby-sample-build-ns | ruby-sample-build-ns-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525736/Nonesrc-sti.json    | # @case_id OCP-11580
+      | ruby-sample-build-nc | ruby-sample-build-nc-1 | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc525735/Nonesrc-docker.json | # @case_id OCP-11268
 
   # @author yantan@redhat.com
   # @case_id OCP-10668
@@ -2274,7 +2271,6 @@ Feature: build 'apps' with CLI
     Given the "ruby-hello-world-1" build completes
 
   # @author haowang@redhat.com
-  # @case_id OCP-12066 OCP-11954
   Scenario Outline: The default runpolicy is Serial build -- new-build/new-app command
     Given I have a project
     When I run the :<cmd> client command with:
@@ -2335,8 +2331,8 @@ Feature: build 'apps' with CLI
 
     Examples:
       | cmd       |
-      | new_build |
-      | new_app   |
+      | new_build | # @case_id OCP-12066
+      | new_app   | # @case_id OCP-11954
 
   # @author haowang@redhat.com
   # @case_id OCP-11271
@@ -2665,7 +2661,6 @@ Feature: build 'apps' with CLI
       | Binary |
 
   # @author cryan@redhat.com
-  # @case_id OCP-10236 OCP-10237 OCP-10238 OCP-10239 OCP-10240 OCP-10241 OCP-10242 OCP-10243 OCP-10244 OCP-10245 OCP-10246 OCP-10369 OCP-13512
   # @bug_id 1368114
   Scenario Outline: image build behind proxy
     Given I have a project
@@ -2684,19 +2679,19 @@ Feature: build 'apps' with CLI
     And the output should contain "Using HTTP proxy http://<%= cb.proxy_ip %>:3128"
     Examples:
       | image                 | repo             |
-      | openshift/nodejs:0.10 | nodejs-ex        |
-      | openshift/nodejs:4    | nodejs-ex        |
-      | openshift/nodejs:6    | nodejs-ex        |
-      | openshift/ruby:2.0    | ruby-hello-world |
-      | openshift/ruby:2.2    | ruby-hello-world |
-      | openshift/ruby:2.3    | ruby-hello-world |
-      | openshift/perl:5.16   | dancer-ex        |
-      | openshift/perl:5.20   | dancer-ex        |
-      | openshift/perl:5.24   | dancer-ex        |
-      | openshift/python:3.5  | django-ex        |
-      | openshift/python:3.4  | django-ex        |
-      | openshift/python:3.3  | django-ex        |
-      | openshift/python:2.7  | django-ex        |
+      | openshift/nodejs:0.10 | nodejs-ex        | # @case_id OCP-10236
+      | openshift/nodejs:4    | nodejs-ex        | # @case_id OCP-10238
+      | openshift/nodejs:6    | nodejs-ex        | # @case_id OCP-13512
+      | openshift/ruby:2.0    | ruby-hello-world | # @case_id OCP-10237
+      | openshift/ruby:2.2    | ruby-hello-world | # @case_id OCP-10239
+      | openshift/ruby:2.3    | ruby-hello-world | # @case_id OCP-10240
+      | openshift/perl:5.16   | dancer-ex        | # @case_id OCP-10241
+      | openshift/perl:5.20   | dancer-ex        | # @case_id OCP-10242
+      | openshift/perl:5.24   | dancer-ex        | # @case_id OCP-10369
+      | openshift/python:3.5  | django-ex        | # @case_id OCP-10243
+      | openshift/python:3.4  | django-ex        | # @case_id OCP-10246
+      | openshift/python:3.3  | django-ex        | # @case_id OCP-10245
+      | openshift/python:2.7  | django-ex        | # @case_id OCP-10244
 
   # @author cryan@redhat.com
   # @case_id OCP-11634

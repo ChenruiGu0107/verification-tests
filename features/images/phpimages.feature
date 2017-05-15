@@ -25,7 +25,6 @@ Feature: phpimages.feature
       | error |
 
   # @author wzheng@redhat.com
-  # @case_id OCP-10838,OCP-11274
   @no-online
   Scenario Outline: Update php image to autoconfigure based on available memory
     Given I have a project
@@ -57,5 +56,5 @@ Feature: phpimages.feature
       | ServerLimit           256 |
     Examples:
       | template1 | template2|
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526520/php-55-template.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526520/php-55-template-noresource.json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526521/php-56-template.json |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526521/php-56-template-noresource.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526520/php-55-template.json | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526520/php-55-template-noresource.json | # @case_id OCP-10838
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526521/php-56-template.json |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc526521/php-56-template-noresource.json | # @case_id OCP-11274

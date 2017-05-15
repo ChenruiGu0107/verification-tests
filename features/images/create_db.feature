@@ -1,6 +1,5 @@
 Feature:Create apps using new_app cmd feature
   # @author wewang@redhat.com
-  # @case_id OCP-9660 OCP-9662 OCP-11964
   Scenario Outline: Create postgresql resources from imagestream via oc new-app -postgresql-94-rhel7
     Given I have a project
 
@@ -42,6 +41,6 @@ Feature:Create apps using new_app cmd feature
 
     Examples:
       | psql_image |
-      | openshift/postgresql:9.4 |
-      | openshift/postgresql:9.2 |
-      | openshift/postgresql:9.5 |
+      | openshift/postgresql:9.4 | # @case_id OCP-9660
+      | openshift/postgresql:9.2 | # @case_id OCP-9662
+      | openshift/postgresql:9.5 | # @case_id OCP-11964

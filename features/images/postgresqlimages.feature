@@ -30,7 +30,6 @@ Feature: Postgresql images test
       | 9.2   |
 
   # @author cryan@redhat.com
-  # @case_id OCP-10858 OCP-11284 OCP-11292
   Scenario Outline: Check memory limits env vars when pod is set with memory limit - postgresql
     Given I have a project
     When I run the :new_app client command with:
@@ -57,12 +56,11 @@ Feature: Postgresql images test
     Then the output should contain "effective_cache_size = 128MB"
     Examples:
       | image                          |
-      | openshift3/postgresql-92-rhel7 |
-      | rhscl/postgresql-94-rhel7      |
-      | rhscl/postgresql-95-rhel7      |
+      | openshift3/postgresql-92-rhel7 | # @case_id OCP-10858
+      | rhscl/postgresql-94-rhel7      | # @case_id OCP-11284
+      | rhscl/postgresql-95-rhel7      | # @case_id OCP-11292
 
   # @author wewang@redhat.com
-  # @case_id OCP-11793 OCP-11590 OCP-12388
   Scenario Outline: Use customized values for memory limits env vars - postgresql
     Given I have a project
     When I run the :new_app client command with:
@@ -85,12 +83,11 @@ Feature: Postgresql images test
     Then the output should contain "effective_cache_size = 64MB"
     Examples:
       | image                          |
-      | openshift3/postgresql-92-rhel7 |
-      | rhscl/postgresql-94-rhel7      |
-      | rhscl/postgresql-95-rhel7      |
+      | openshift3/postgresql-92-rhel7 | # @case_id OCP-11590
+      | rhscl/postgresql-94-rhel7      | # @case_id OCP-11793
+      | rhscl/postgresql-95-rhel7      | # @case_id OCP-12388
 
   # @author wewang@redhat.com
-  # @case_id OCP-11959 OCP-12068 OCP-12409
   Scenario Outline: Use default values for memory limits env vars - postgresql
     Given I have a project
     When I run the :run client command with:
@@ -109,6 +106,6 @@ Feature: Postgresql images test
 
     Examples:
       | image                          |
-      | openshift3/postgresql-92-rhel7 |
-      | rhscl/postgresql-94-rhel7      |
-      | rhscl/postgresql-95-rhel7      |
+      | openshift3/postgresql-92-rhel7 | # @case_id OCP-11959
+      | rhscl/postgresql-94-rhel7      | # @case_id OCP-12068
+      | rhscl/postgresql-95-rhel7      | # @case_id OCP-12409

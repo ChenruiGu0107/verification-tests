@@ -18,7 +18,6 @@ Feature: Openshift build and configuration of enviroment variables check
       | OpenShift |
 
   # @author cryan@redhat.com
-  # @case_id OCP-10273 OCP-10274 OCP-10271 OCP-10272
   Scenario Outline: Add PIP_INDEX_URL env var to Python S2I
     Given I have a project
     When I run the :new_build client command with:
@@ -31,13 +30,12 @@ Feature: Openshift build and configuration of enviroment variables check
     Then the output should contain "Cannot fetch index base URL http://not/a/valid/index/"
     Examples:
       | py_image |
-      | 2.7      |
-      | 3.3      |
-      | 3.4      |
-      | 3.5      |
+      | 2.7      | # @case_id OCP-10272
+      | 3.3      | # @case_id OCP-10271
+      | 3.4      | # @case_id OCP-10273
+      | 3.5      | # @case_id OCP-10274
 
   # @author wewang@redhat.com
-  # @case_id OCP-10878 OCP-11300 OCP-11603 OCP-11806
   @no-online
   Scenario Outline: Update python image to autoconfigure based on available memory
     Given I have a project
@@ -109,7 +107,7 @@ Feature: Openshift build and configuration of enviroment variables check
 
     Examples:
       | app_repo | image_stream |
-      | https://github.com/openshift/django-ex  | openshift/python:2.7 |
-      | https://github.com/openshift/django-ex  | openshift/python:3.4 |
-      | https://github.com/openshift/django-ex  | openshift/python:3.5 |
-      | https://github.com/openshift/django-ex  | openshift/python:3.3 |
+      | https://github.com/openshift/django-ex  | openshift/python:2.7 | # @case_id OCP-10878
+      | https://github.com/openshift/django-ex  | openshift/python:3.4 | # @case_id OCP-11603
+      | https://github.com/openshift/django-ex  | openshift/python:3.5 | # @case_id OCP-11806
+      | https://github.com/openshift/django-ex  | openshift/python:3.3 | # @case_id OCP-11300

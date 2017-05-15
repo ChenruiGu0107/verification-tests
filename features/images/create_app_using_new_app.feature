@@ -1,6 +1,5 @@
 Feature:Create apps using new_app cmd feature
   # @author xiuwang@redhat.com
-  # @case_id OCP-9657 OCP-9658
   Scenario Outline: Create tomcat7 application from imagestream via oc new_app
     Given I have a project
 
@@ -21,8 +20,8 @@ Feature:Create apps using new_app cmd feature
 
     Examples:
       | jws_image                                            |
-      | openshift/jboss-webserver30-tomcat7-openshift:latest |
-      | openshift/jboss-webserver30-tomcat8-openshift:latest |
+      | openshift/jboss-webserver30-tomcat7-openshift:latest | # @case_id OCP-9657
+      | openshift/jboss-webserver30-tomcat8-openshift:latest | # @case_id OCP-9658
 
   # @author xiuwang@redhat.com
   # @case_id OCP-10595
@@ -47,7 +46,6 @@ Feature:Create apps using new_app cmd feature
     And the output should contain "Hello from OpenShift v3"
 
   # @author haowang@redhat.com
-  # @case_id OCP-9653 OCP-12215 OCP-13513
   @smoke
   Scenario Outline: create nodejs resource from imagestream via oc new-app
     Given I have a project
@@ -99,7 +97,6 @@ Feature:Create apps using new_app cmd feature
     And the output should not contain "ruby-hello-world-1"
 
   # @author cryan@redhat.com
-  # @case_id OCP-9666 OCP-10366
   Scenario Outline: Create jenkins resources with oc new-app from imagestream
     Given I have a project
     When I run the :new_app client command with:
@@ -132,8 +129,8 @@ Feature:Create apps using new_app cmd feature
     """
     Examples:
       | ver |
-      | 1   |
-      | 2   |
+      | 1   | # @case_id OCP-9666
+      | 2   | # @case_id OCP-10366
 
   # @author xiuwang@redhat.com
   # @case_id OCP-12216 OCP-12265

@@ -83,7 +83,6 @@ Feature: stibuild.feature
       | Build configuration change |
 
   # @author xiuwang@redhat.com
-  # @case_id OCP-12041,OCP-11911,OCP-11739
   @admin
   Scenario Outline: Trigger s2i/docker/custom build using additional imagestream
     Given I have a project
@@ -121,9 +120,9 @@ Feature: stibuild.feature
 
     Examples:
       |template|
-      |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc498848/tc498848-s2i.json|
-      |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc498847/tc498847-docker.json|
-      |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc498846/tc498846-custom.json|
+      |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc498848/tc498848-s2i.json   | # @case_id OCP-12041
+      |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc498847/tc498847-docker.json| # @case_id OCP-11911
+      |https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc498846/tc498846-custom.json| # @case_id OCP-11739
 
   # @author wzheng@redhat.com
   # @case_id OCP-13448

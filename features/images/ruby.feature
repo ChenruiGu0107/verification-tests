@@ -1,7 +1,6 @@
 Feature: ruby.feature
 
   # @author haowang@redhat.com
-  # @case_id OCP-10810 OCP-11257 OCP-13135 OCP-13136
   Scenario Outline: Tune puma workers according to memory limit ruby-22-rhel7 ruby-20-rhel7
     Given I have a project
     When I run the :create client command with:
@@ -21,10 +20,10 @@ Feature: ruby.feature
     """
     Examples:
       | template                                                                                                                  |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521461/template.json  |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521462/template.json  |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/OCP-13135/template.json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/OCP-13136/template.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521461/template.json  | # @case_id OCP-10810
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/tc521462/template.json  | # @case_id OCP-11257
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/OCP-13135/template.json | # @case_id OCP-13135
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/language-image-templates/OCP-13136/template.json | # @case_id OCP-13136
 
   # @author xiuwang@redhat.com
   # @case_id OCP-12370
@@ -50,7 +49,6 @@ Feature: ruby.feature
     """
 
   # @author dyan@redhat.com
-  # @case_id OCP-12274 OCP-12303
   Scenario Outline: Add RUBYGEM_MIRROR env var to Ruby S2I
     Given I have a project
     When I run the :new_build client command with:
@@ -63,6 +61,6 @@ Feature: ruby.feature
     Then the output should contain "Could not fetch specs from http://not/a/valid/index/"
     Examples:
       | image |
-      | 2.2   |
-      | 2.3   |
+      | 2.2   | # @case_id OCP-12274
+      | 2.3   | # @case_id OCP-12303
 

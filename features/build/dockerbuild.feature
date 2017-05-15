@@ -109,7 +109,6 @@ Feature: dockerbuild.feature
       | timed out |
 
   # @author dyan@redhat.com
-  # @case_id OCP-11109, OCP-11120
   Scenario Outline: Docker and STI build with dockerImage with specified tag
     Given I have a project
     When I run oc create over "<template>" replacing paths:
@@ -138,8 +137,8 @@ Feature: dockerbuild.feature
 
     Examples:
       | template | strategy |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json | dockerStrategy |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc482273/test-template-stibuild.json    | sourceStrategy |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479297/test-template-dockerbuild.json | dockerStrategy | # @case_id OCP-11109
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc482273/test-template-stibuild.json    | sourceStrategy | # @case_id OCP-11120
 
   # @author dyan@redhat.com
   # @case_id OCP-10789

@@ -1,7 +1,6 @@
 Feature: nodejs.feature
 
   # @author dyan@redhat.com
-  # @case_id OCP-12183 OCP-12231 OCP-13516
   Scenario Outline: Add NPM_MIRROR env var to Nodejs S2I
     Given I have a project
     When I run the :new_build client command with:
@@ -15,5 +14,5 @@ Feature: nodejs.feature
     Examples:
       | image |
       | 0.10  | # @case_id OCP-12183
-      | 4     | # @case_id OCP-12183
+      | 4     | # @case_id OCP-12231
       | 6     | # @case_id OCP-13516

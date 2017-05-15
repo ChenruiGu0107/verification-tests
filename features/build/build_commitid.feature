@@ -1,7 +1,5 @@
 Feature: dockerbuild.feature
   # @author wewang@redhat.com
-  # @case_id OCP-11213
-  # @case_id OCP-10743
   @admin
   Scenario Outline: Store commit id in sti build
     Given I have a project
@@ -100,7 +98,7 @@ Feature: dockerbuild.feature
       | Output to:.*DockerImage.*                     |
 
     Examples:
-      | file                                                  |   file_name                              |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json   | ruby22rhel7-template-docker.json  |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json      | ruby22rhel7-template-sti.json     |
+      | file                                                                                                      | file_name                        |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json | ruby22rhel7-template-docker.json | # @case_id OCP-10743
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json    | ruby22rhel7-template-sti.json    | # @case_id OCP-11213
 

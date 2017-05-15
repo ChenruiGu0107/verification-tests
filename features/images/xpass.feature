@@ -24,7 +24,6 @@ Feature: xpass.feature
     And a pod becomes ready with labels:
       | application=broker |
   # @author haowang@redhat.com
-  # @case_id OCP-9586 OCP-12524 OCP-12429 OCP-12414 OCP-9746 OCP-9745
   Scenario Outline: jbosseap template
     Given I have a project
     When I run the :create client command with:
@@ -40,12 +39,12 @@ Feature: xpass.feature
 
     Examples: OS Type
       | template             | podno |
-      | eap64-amq-s2i        | 2     |
-      | eap64-basic-s2i      | 1     |
-      | eap64-https-s2i      | 1     |
-      | eap64-mongodb-s2i    | 2     |
-      | eap64-mysql-s2i      | 2     |
-      | eap64-postgresql-s2i | 2     |
+      | eap64-amq-s2i        | 2     | # @case_id OCP-9586
+      | eap64-basic-s2i      | 1     | # @case_id OCP-9745
+      | eap64-https-s2i      | 1     | # @case_id OCP-9746
+      | eap64-mongodb-s2i    | 2     | # @case_id OCP-12429
+      | eap64-mysql-s2i      | 2     | # @case_id OCP-12414
+      | eap64-postgresql-s2i | 2     | # @case_id OCP-12524
   # @author haowang@redhat.com
   # @case_id OCP-9749
   Scenario: Create amq application from template in web console - amq62-ssl
@@ -115,7 +114,6 @@ Feature: xpass.feature
     And  the output should contain "JBoss"
 
   # @author xiuwang@redhat.com
-  # @case_id OCP-9581 OCP-9582 OCP-9813 OCP-9814
   Scenario Outline: Create tomcat7/tomcat8 application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -137,13 +135,12 @@ Feature: xpass.feature
 
     Examples:
       | template                |
-      | jws30-tomcat7-basic-s2i |
-      | jws30-tomcat8-basic-s2i |
-      | jws30-tomcat7-https-s2i |
-      | jws30-tomcat8-https-s2i |
+      | jws30-tomcat7-basic-s2i | # @case_id OCP-9581
+      | jws30-tomcat8-basic-s2i | # @case_id OCP-9582
+      | jws30-tomcat7-https-s2i | # @case_id OCP-9814
+      | jws30-tomcat8-https-s2i | # @case_id OCP-9813
 
   # @author xiuwang@redhat.com
-  # @case_id OCP-9583 OCP-9587
   Scenario Outline: Create tomcat7/tomcat8 with mongodb application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -175,11 +172,10 @@ Feature: xpass.feature
 
     Examples:
       | template                  |
-      | jws30-tomcat7-mongodb-s2i |
-      | jws30-tomcat8-mongodb-s2i |
+      | jws30-tomcat7-mongodb-s2i | # @case_id OCP-9587
+      | jws30-tomcat8-mongodb-s2i | # @case_id OCP-9583
 
   # @author xiuwang@redhat.com
-  # @case_id OCP-9590 OCP-9591
   Scenario Outline: Create tomcat7/tomcat8 with postgresql application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -211,11 +207,10 @@ Feature: xpass.feature
 
     Examples:
       | template                      |
-      |  jws30-tomcat7-postgresql-s2i |
-      |  jws30-tomcat8-postgresql-s2i |
+      |  jws30-tomcat7-postgresql-s2i | # @case_id OCP-9590
+      |  jws30-tomcat8-postgresql-s2i | # @case_id OCP-9591
 
   # @author xiuwang@redhat.com
-  # @case_id OCP-9588 OCP-9589
   Scenario Outline: Create tomcat7/tomcat8 with mysql application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -246,10 +241,9 @@ Feature: xpass.feature
 
     Examples:
       | template                 |
-      |  jws30-tomcat7-mysql-s2i |
-      |  jws30-tomcat8-mysql-s2i |
+      |  jws30-tomcat7-mysql-s2i | # @case_id OCP-9588
+      |  jws30-tomcat8-mysql-s2i | # @case_id OCP-9589
   # @author haowang@redhat.com
-  # @case_id OCP-9585 OCP-9743 OCP-9740 OCP-9744
   Scenario Outline: jbosseap templates with pv
     Given I have a project
     When I run the :create client command with:
@@ -271,10 +265,10 @@ Feature: xpass.feature
 
     Examples: OS Type
       | template                        | podno | pvc                      |
-      | eap64-amq-persistent-s2i        | 2     | eap-app-amq-claim        |
-      | eap64-mongodb-persistent-s2i    | 2     | eap-app-mongodb-claim    |
-      | eap64-mysql-persistent-s2i      | 2     | eap-app-mysql-claim      |
-      | eap64-postgresql-persistent-s2i | 2     | eap-app-postgresql-claim |
+      | eap64-amq-persistent-s2i        | 2     | eap-app-amq-claim        | # @case_id OCP-9585
+      | eap64-mongodb-persistent-s2i    | 2     | eap-app-mongodb-claim    | # @case_id OCP-9743
+      | eap64-mysql-persistent-s2i      | 2     | eap-app-mysql-claim      | # @case_id OCP-9740
+      | eap64-postgresql-persistent-s2i | 2     | eap-app-postgresql-claim | # @case_id OCP-9744
   # @author haowang@redhat.com
   # @case_id OCP-9739
   Scenario: Create amq application from pre-installed templates : amq62-persistent-ssl
@@ -316,7 +310,6 @@ Feature: xpass.feature
       | application=broker |
 
   # @author dyan@redhat.com
-  # @case_id OCP-11725 OCP-11749
   Scenario Outline: Create tomcat7/tomcat8 with mongodb with persistent volume application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -354,11 +347,10 @@ Feature: xpass.feature
 
     Examples:
       | template                  |
-      | jws30-tomcat7-mongodb-persistent-s2i |
-      | jws30-tomcat8-mongodb-persistent-s2i |
+      | jws30-tomcat7-mongodb-persistent-s2i | # @case_id OCP-11749
+      | jws30-tomcat8-mongodb-persistent-s2i | # @case_id OCP-11725
 
   # @author dyan@redhat.com
-  # @case_id OCP-11891 OCP-11901
   Scenario Outline: Create tomcat7/tomcat8 with postgresql with persistent volume application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -396,11 +388,10 @@ Feature: xpass.feature
 
     Examples:
       | template                      |
-      |  jws30-tomcat7-postgresql-persistent-s2i |
-      |  jws30-tomcat8-postgresql-persistent-s2i |
+      |  jws30-tomcat7-postgresql-persistent-s2i | # @case_id OCP-11901
+      |  jws30-tomcat8-postgresql-persistent-s2i | # @case_id OCP-11891
 
   # @author dyan@redhat.com
-  # @case_id OCP-11922 OCP-11923
   Scenario Outline: Create tomcat7/tomcat8 with mysql with persistent volume application via installed template
     Given I have a project
     When I run the :create client command with:
@@ -437,8 +428,8 @@ Feature: xpass.feature
 
     Examples:
       | template                 |
-      |  jws30-tomcat7-mysql-persistent-s2i |
-      |  jws30-tomcat8-mysql-persistent-s2i |
+      |  jws30-tomcat7-mysql-persistent-s2i | # @case_id OCP-11922
+      |  jws30-tomcat8-mysql-persistent-s2i | # @case_id OCP-11923
 
   # @author haowang@redhat.com
   # @case_id OCP-12449
