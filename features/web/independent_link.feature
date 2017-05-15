@@ -27,7 +27,7 @@ Feature: Independent link related scenarios
     Then the step should succeed
     When I perform the :choose_one_project web console action with:
       | project_name   | <%= project.name %>            |
-    Then the step should succeed  
+    Then the step should succeed
     And I wait for the steps to pass:
     """
     Given the expression should be true> browser.url =~ /fromtemplate.template=ruby-helloworld-sample.namespace=openshift.templateParamsMap.*ADMIN_USERNAME.*adminuser/
@@ -49,6 +49,8 @@ Feature: Independent link related scenarios
       | project_name | my-new-project  |
       | display_name | my display name |
       | description  | my description  |
+    Then the step should succeed
+    When I run the :click_create_button web console action
     Then the step should succeed
     And I wait for the steps to pass:
     """
@@ -109,7 +111,7 @@ Feature: Independent link related scenarios
     Then the step should succeed
     When I perform the :choose_one_project web console action with:
       | project_name   | <%= project.name %>            |
-    Then the step should succeed  
+    Then the step should succeed
     And I wait for the steps to pass:
     """
     Given the expression should be true> browser.url =~ /fromtemplate.template=ruby-helloworld-sample.namespace=openshift.templateParamsMap.*ADMIN_USERNAME.*adminuser/

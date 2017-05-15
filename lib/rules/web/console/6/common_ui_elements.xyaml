@@ -1,7 +1,7 @@
 check_create_button_disabled:
   elements:
   - selector:
-      xpath: //button[@disabled='disabled' and text()='Create']
+      xpath: //button[@disabled='disabled' and normalize-space(text())='Create']
 check_error_for_invalid_value:
   elements:
     - selector:

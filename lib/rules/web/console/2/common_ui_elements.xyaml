@@ -14,4 +14,7 @@ click_delete_button:
   - selector:
       xpath: //button[contains(.,"Delete")]
     op: click
-
+check_create_button_disabled:
+  elements:
+  - selector:
+      xpath: //button[@disabled='disabled' and text()='Create']

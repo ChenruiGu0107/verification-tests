@@ -38,40 +38,40 @@ Feature: projects related features via web
     When I get the html of the web page
     Then the output should contain "This name is already in use. Please choose a different name."
     # Create a project with <2 characters name
-    When I perform the :new_project web console action with:
+    When I perform the :fail_to_create_new_project web console action with:
       | project_name | <%= rand_str(1) %> |
       | display_name | :null              |
       | description  ||
-    Then the step should fail
+    Then the step should succeed
     When I run the :get_disabled_project_submit_button web console action
     Then the step should succeed
     # Create a project with uper-case letters
-    When I perform the :new_project web console action with:
+    When I perform the :fail_to_create_new_project web console action with:
       | project_name | ABCDE |
       | display_name | :null |
       | description  ||
-    Then the step should fail
+    Then the step should succeed
     When I run the :confirm_error_for_invalid_project_name web console action
     Then the step should succeed
-    When I perform the :new_project web console action with:
+    When I perform the :fail_to_create_new_project web console action with:
       | project_name | -<%= rand_str(4,:dns) %> |
       | display_name | :null                    |
       | description  ||
-    Then the step should fail
+    Then the step should succeed
     When I run the :confirm_error_for_invalid_project_name web console action
     Then the step should succeed
-    When I perform the :new_project web console action with:
+    When I perform the :fail_to_create_new_project web console action with:
       | project_name | <%= rand_str(4,:dns) %>- |
       | display_name | :null                    |
       | description  ||
-    Then the step should fail
+    Then the step should succeed
     When I run the :confirm_error_for_invalid_project_name web console action
     Then the step should succeed
-    When I perform the :new_project web console action with:
+    When I perform the :fail_to_create_new_project web console action with:
       | project_name | <%= rand_str(4,:dns) %>#% |
       | display_name | :null                     |
       | description  ||
-    Then the step should fail
+    Then the step should succeed
     When I run the :confirm_error_for_invalid_project_name web console action
     Then the step should succeed
 
