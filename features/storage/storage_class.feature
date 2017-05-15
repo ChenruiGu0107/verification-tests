@@ -619,25 +619,25 @@ Feature: storageClass related feature
   @destructive
   Scenario Outline: Create storageclass with specific api
     Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-with-beta-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/<version> |
       | ["metadata"]["name"]                                                            | sc1-<%= cb.sc_name %>    |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                    |
       | ["provisioner"]                                                                 | kubernetes.io/manual     |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-with-beta-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/<version> |
       | ["metadata"]["name"]                                                            | sc2-<%= cb.sc_name %>    |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                     |
       | ["provisioner"]                                                                 | kubernetes.io/manual     |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                             | storage.k8s.io/<version> |
       | ["metadata"]["name"]                                                       | sc3-<%= cb.sc_name %>    |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | false                    |
       | ["provisioner"]                                                            | kubernetes.io/manual     |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                             | storage.k8s.io/<version> |
       | ["metadata"]["name"]                                                       | sc4-<%= cb.sc_name %>    |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                     |
@@ -705,28 +705,28 @@ Feature: storageClass related feature
   Scenario: Create storageclass with both beta and stable annotations
     Given the master version >= "3.6"
     Given a 5 characters random string of type :dns is stored into the :sc_name clipboard
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-with-beta-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1beta1 |
       | ["metadata"]["name"]                                                            | sc1-<%= cb.sc_name %>  |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | false                  |
       | ["provisioner"]                                                                 | kubernetes.io/manual   |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-with-beta-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1     |
       | ["metadata"]["name"]                                                            | sc2-<%= cb.sc_name %> |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                  |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | true                  |
       | ["provisioner"]                                                                 | kubernetes.io/manual  |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1beta1 |
       | ["metadata"]["name"]                                                            | sc3-<%= cb.sc_name %>  |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | false                  |
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | true                   |
       | ["provisioner"]                                                                 | kubernetes.io/manual   |
     Then the step should succeed
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-with-stable-annotations.yaml" where:
       | ["apiVersion"]                                                                  | storage.k8s.io/v1     |
       | ["metadata"]["name"]                                                            | sc4-<%= cb.sc_name %> |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                  |
@@ -747,9 +747,9 @@ Feature: storageClass related feature
       | sc2-<%= cb.sc_name %> |
       | IsDefaultClass:\sYes  |
       | sc3-<%= cb.sc_name %> |
-      | IsDefaultClass:\sYes  |
-      | sc4-<%= cb.sc_name %> |
       | IsDefaultClass:\sNo   |
+      | sc4-<%= cb.sc_name %> |
+      | IsDefaultClass:\sYes  |
 
   # @author lxia@redhat.com
   # @case_id OCP-13666
@@ -758,10 +758,10 @@ Feature: storageClass related feature
   Scenario: Dynamic provisioning using default storageclass
     Given the master version >= "3.6"
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %> |
-      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"]      | true                   |
-      | ["provisioner"]                                                                 | kubernetes.io/gce-pd   |
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-with-stable-annotations.yaml" where:
+      | ["metadata"]["name"]                                                       | sc-<%= project.name %> |
+      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                   |
+      | ["provisioner"]                                                            | kubernetes.io/gce-pd   |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
@@ -771,12 +771,12 @@ Feature: storageClass related feature
       | resource | pvc                     |
       | name     | pvc-<%= project.name %> |
     Then the step should succeed
-    And the output should match "storageClassName:\ssc-<%= project.name %>"
+    And the output should match "StorageClass:\ssc-<%= project.name %>"
     When I run the :describe admin command with:
       | resource | pv                     |
       | name     | <%= pvc.volume_name %> |
     Then the step should succeed
-    And the output should match "storageClassName:\ssc-<%= project.name %>"
+    And the output should match "StorageClass:\ssc-<%= project.name %>"
 
   # @author lxia@redhat.com
   # @case_id OCP-13667
@@ -797,12 +797,12 @@ Feature: storageClass related feature
       | resource | pvc                     |
       | name     | pvc-<%= project.name %> |
     Then the step should succeed
-    And the output should match "storageClassName:\ssc-<%= project.name %>"
+    And the output should match "StorageClass:\ssc-<%= project.name %>"
     When I run the :describe admin command with:
       | resource | pv                     |
       | name     | <%= pvc.volume_name %> |
     Then the step should succeed
-    And the output should match "storageClassName:\ssc-<%= project.name %>"
+    And the output should match "StorageClass:\ssc-<%= project.name %>"
 
   # @author lxia@redhat.com
   # @case_id OCP-13668
@@ -823,12 +823,12 @@ Feature: storageClass related feature
       | resource | pvc                     |
       | name     | pvc-<%= project.name %> |
     Then the step should succeed
-    And the output should match "storageClassName:\ssc-<%= project.name %>"
+    And the output should match "StorageClass:\ssc-<%= project.name %>"
     When I run the :describe admin command with:
       | resource | pv                     |
       | name     | <%= pvc.volume_name %> |
     Then the step should succeed
-    And the output should match "storageClassName:\ssc-<%= project.name %>"
+    And the output should match "StorageClass:\ssc-<%= project.name %>"
 
   # @author lxia@redhat.com
   # @case_id OCP-13669
@@ -850,12 +850,12 @@ Feature: storageClass related feature
       | resource | pvc                     |
       | name     | pvc-<%= project.name %> |
     Then the step should succeed
-    And the output should match "storageClassName:\ssc-<%= project.name %>"
+    And the output should match "StorageClass:\ssc-<%= project.name %>"
     When I run the :describe admin command with:
       | resource | pv                     |
       | name     | <%= pvc.volume_name %> |
     Then the step should succeed
-    And the output should match "storageClassName:\ssc-<%= project.name %>"
+    And the output should match "StorageClass:\ssc-<%= project.name %>"
 
   # @author lxia@redhat.com
   # @case_id OCP-13670
@@ -881,9 +881,9 @@ Feature: storageClass related feature
       | resource | pvc                     |
       | name     | pvc-<%= project.name %> |
     Then the step should succeed
-    And the output should match "storageClassName:\ssc1-<%= project.name %>"
+    And the output should match "StorageClass:\ssc1-<%= project.name %>"
     When I run the :describe admin command with:
       | resource | pv                     |
       | name     | <%= pvc.volume_name %> |
     Then the step should succeed
-    And the output should match "storageClassName:\ssc1-<%= project.name %>"
+    And the output should match "StorageClass:\ssc1-<%= project.name %>"
