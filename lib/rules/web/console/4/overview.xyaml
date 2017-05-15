@@ -71,8 +71,8 @@ check_pod_template_source_info:
       xpath: //osc-git-link
 check_latest_deployment_version_on_overview:
   element:
-    selector:
-      xpath: //div[@class="overview-tile" and //div[@class="overview-tile-header" and //div[normalize-space(text())="<resource_type>" and //a[normalize-space(text())="<resource_name>"]]]]//span[contains(@class, "shield-number") and contains(text(), "<version>")]
+    selector: # translate() used to make case insensitive check for resource_type (always use lower case <resource_type>)
+      xpath: //div[@class="overview-tile" and //div[@class="overview-tile-header" and //div[translate(normalize-space(text()),'DRS','drs')="<resource_type>" and //a[normalize-space(text())="<resource_name>"]]]]//span[contains(@class, "shield-number") and contains(text(), "<version>")]
 check_pod_template_image:
   elements:
   - selector:
@@ -121,7 +121,7 @@ click_resume:
   element:
     selector:
       xpath: //a[@role="button" and contains(.,'Resume')]
-    op: click 
+    op: click
 click_resume_on_overview_page:
   action: goto_overview_page
   action: click_resume

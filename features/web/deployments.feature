@@ -226,23 +226,30 @@ Feature: Check deployments function
     When I perform the :check_deployment_idle_text web console action with:
       | project_name      | <%= project.name %> |
       | dc_name           | hello-openshift     |
-      | dc_number         |   1                 |
-      | previous_replicas |   1                 |
+      | dc_number         | 1                   |
+      | previous_replicas | 1                   |
     Then the step should succeed
     When I perform the :check_dc_idle_text_on_overview web console action with:
       | project_name      | <%= project.name %> |
+      # parameter dc_name used for v3 only, could be refactored
       | dc_name           | hello-openshift     |
-      | previous_replicas |   1                 |
+      | resource_type     | deployment          |
+      | resource_name     | hello-openshift     |
+      | previous_replicas | 1                   |
     Then the step should succeed
+    # check_idle_donut_text_on_overview almost duplicate check_dc_idle_text_on_overview for all versions > 3
     When I perform the :check_idle_donut_text_on_overview web console action with:
-      | project_name | <%= project.name %> |
-      | dc_name      | hello-openshift     |
+      | project_name  | <%= project.name %> |
+      # parameter dc_name used for v3 only, could be refactored
+      | dc_name       | hello-openshift     |
+      | resource_type | deployment          |
+      | resource_name | hello-openshift     |
     Then the step should succeed
     # check replicas after wake up
     When I perform the :click_wake_up_option_on_overview web console action with:
       | project_name      | <%= project.name %> |
       | dc_name           | hello-openshift     |
-      | previous_replicas |   1                 |
+      | previous_replicas | 1                   |
     Then the step should succeed
     Given I wait until number of replicas match "1" for replicationController "hello-openshift-1"
     When I perform the :check_dc_replicas web console action with:
@@ -272,22 +279,29 @@ Feature: Check deployments function
     When I perform the :check_standalone_rc_idle_text web console action with:
       | project_name      | <%= project.name %> |
       | rc_name           | hello-pod           |
-      | previous_replicas |  2                  |
+      | previous_replicas | 2                   |
     Then the step should succeed
     When I perform the :check_dc_idle_text_on_overview web console action with:
-      | project_name      | <%= project.name %> |
-      | dc_name           | hello-pod           |
-      | previous_replicas |   2                 |
+      | project_name      | <%= project.name %>    |
+      # parameter dc_name used for v3 only, could be refactored
+      | dc_name           | hello-openshift        |
+      | resource_type     | replication controller |
+      | resource_name     | hello-pod              |
+      | previous_replicas | 2                      |
     Then the step should succeed
+    # check_idle_donut_text_on_overview almost duplicate check_dc_idle_text_on_overview for all versions > 3
     When I perform the :check_idle_donut_text_on_overview web console action with:
-      | project_name | <%= project.name %> |
-      | dc_name      | hello-pod           |
+      | project_name  | <%= project.name %> |
+      # parameter dc_name used for v3 only, could be refactored
+      | dc_name       | hello-openshift     |
+      | resource_type | deployment          |
+      | resource_name | hello-openshift     |
     Then the step should succeed
     # check replicas after wake up
     When I perform the :click_wake_up_option_on_rc_page web console action with:
       | project_name      | <%= project.name %> |
       | rc_name           | hello-pod           |
-      | previous_replicas |  2                  |
+      | previous_replicas | 2                   |
     Then the step should succeed
     Given I wait until number of replicas match "2" for replicationController "hello-pod"
     When I perform the :check_standalone_rc_replicas web console action with:
@@ -314,13 +328,13 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I perform the :check_overview_tile web console action with:
-      | resource_type | Deployment                |
-      | resource_name | hello-openshift           |
       | image_name    | openshift/hello-openshift |
+      | resource_type | deployment                |
+      | resource_name | hello-openshift           |
       | scaled_number | 4                         |
     Then the step should succeed
     When I perform the :check_latest_deployment_version_on_overview web console action with:
-      | resource_type | Deployment      |
+      | resource_type | deployment      |
       | resource_name | hello-openshift |
       | version       | #1              |
     Then the step should succeed
@@ -338,7 +352,7 @@ Feature: Check deployments function
       | scaled_number | 4                     |
     Then the step should succeed
     When I perform the :check_latest_deployment_version_on_overview web console action with:
-      | resource_type | Deployment      |
+      | resource_type | deployment      |
       | resource_name | hello-openshift |
       | version       | #2              |
     Then the step should succeed
@@ -528,7 +542,7 @@ Feature: Check deployments function
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I perform the :check_overview_tile web console action with:
-      | resource_type | Replica Set               |
+      | resource_type | replica set               |
       | resource_name | frontend                  |
       | image_name    | openshift/hello-openshift |
       | scaled_number | 3                         |
@@ -980,11 +994,11 @@ Feature: Check deployments function
     Then the step should succeed
     When I run the :delete_autoscaler web console action
     Then the step should succeed
-    When I perform the :check_autoscaler_info web console action with:
+    When I perform the :check_autoscaler_info_missing web console action with:
       | min_pods           | 1  |
       | max_pods           | 15 |
       | cpu_request_target | 50 |
-    Then the step should fail
+    Then the step should succeed
     When I run the :click_add_autoscaler_link web console action
     Then the step should succeed
 

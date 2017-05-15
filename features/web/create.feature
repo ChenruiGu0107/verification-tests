@@ -56,7 +56,7 @@ Feature: create app on web console related
   # @case_id OCP-9561
   Scenario: Create app from template containing invalid type on web console
     When I create a project via web with:
-      | display_name | :null               |
+      | display_name | :null |
       | description  ||
     Then the step should succeed
     Given I use the "<%= project.name %>" project
@@ -76,8 +76,8 @@ Feature: create app on web console related
       | param_five    | :null  |
     Then the step should fail
     When I get the html of the web page
-    Then the output should contain 3 times:
-      | Cannot create |
+    Then the output should match:
+      | not (be )?create |
 
   # @author xxing@redhat.com
   # @case_id OCP-11171
@@ -329,7 +329,7 @@ Feature: create app on web console related
     Then the step should fail
     When I get the html of the web page
     Then the output should match:
-      | API version v1beta3.* is not supported |
+      | API version v1beta3.* |
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-11233
@@ -351,8 +351,7 @@ Feature: create app on web console related
     Then the step should fail
     When I get the html of the web page
     Then the output should match:
-      | [Ff]ailed to create |
-      |  annot create.*fake |
+      | not.*create.*fake |
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-9794

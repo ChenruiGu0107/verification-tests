@@ -362,7 +362,7 @@ change_source_repo_url:
 add_new_env_var:
   element:
     selector:
-      xpath: //div[@ng-if="(!cannotAdd) && addRowLink"]/a
+      xpath: //a[normalize-space(text())="Add Environment Variable"]
     op: click
 add_env_var_key:
   element:
