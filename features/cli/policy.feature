@@ -631,27 +631,40 @@ Feature: change the policy of user/service account
       | resource_name | sc-<%= project.name %> |
       | o             | yaml                   |
     Then the step should fail
-    And the output should contain:
-      | cannot get storage.k8s.io.storageclasses at the cluster scope |
+    And the output should match:
+      | Error.*storageclasses.* at the cluster scope |
+
+    When I run the :get client command with:
+      | resource | storageclass |
+      | o        | yaml         |
+    Then the step should fail
+    And the output should match:
+      | Error.*storageclasses.* at the cluster scope |
 
     When I run the :describe client command with:
       | resource | storageclass           |
       | name     | sc-<%= project.name %> |
     Then the step should fail
-    And the output should contain:
-      | cannot get storage.k8s.io.storageclasses at the cluster scope |
+    And the output should match:
+      | Error.*storageclasses.* at the cluster scope |
 
     When I run the :delete client command with:
       | object_type       | storageclass           |
       | object_name_or_id | sc-<%= project.name %> |
-    And the output should contain:
-      | cannot delete storage.k8s.io.storageclasses at the cluster scope |
+    And the output should match:
+      | Error.*storageclasses.* at the cluster scope |
 
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml |
     Then the step should fail
-    And the output should contain:
-      | cannot create storage.k8s.io.storageclasses at the cluster scope |
+    And the output should match:
+      | Error.*storageclasses.* at the cluster scope |
+
+    When I run the :get client command with:
+      | resource      | storageclass           |
+      | resource_name | sc-<%= project.name %> |
+    Then the step should succeed
+
 
   # @author chaoyang@redhat.com
   # @case_id OCP-10448
