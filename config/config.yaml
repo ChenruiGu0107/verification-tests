@@ -221,6 +221,38 @@ services:
     # host_opts:
       # ssh_private_key: relative/path
       # user: the_username
+  azure:
+    # auth:
+    #   # az login --service-principal -u client_id --tenant tenant_id
+    #   tenant_id: 123134-1233-1233-1233-1231312331ff
+    #   client_id: 123123-1233-3123-1233-123123f1f3ff
+    #   client_secret: client_secret_string
+    # subscription_id: "12313212-1231231-12321-123213-12312313"
+    # resource_group: my-resource-group
+    location: westus
+    network_options: {}
+    # os_options:
+    #   ssh_key: public/key/path
+    hardware_options:
+      # https://docs.microsoft.com/en-us/azure/virtual-machines/windows/sizes-general
+      # https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux
+      vm_size: Standard_D1_v2
+    storage_options:
+      os_disk:
+        type: Azure::ARM::Compute::Models::DiskCreateOptionTypes::FromImage
+        params:
+          # please specify image and os_type OR publisher/offer/sku/version
+          # image: https://mystorageaccount.blob.core.windows.net/something/rhel-73-20170502.vhd
+          os_type: Azure::ARM::Compute::Models::OperatingSystemTypes::Linux
+          publisher: RedHat
+          offer: RHEL
+          sku: "7.3"
+          version: latest
+      data_disks: not implemented
+    host_connect_opts:
+      user: faux
+      ssh_private_key: private/key/path
+      class: SSHAccessibleHost
   GCE:
     # project: yourproject
     zone: us-central1-a

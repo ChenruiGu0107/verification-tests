@@ -283,6 +283,12 @@ module CucuShift
         res = amz.launch_instances(tag_name: host_names,
                                    image: launch_opts.delete(:image),
                                    create_opts: launch_opts)
+      when "azure"
+        unless user_data_string.empty?
+          raise "RHEL does not support user-data in Azure yet"
+        end
+        azure = CucuShift::Azure.new
+        res = azure.create_instances(host_names, **launch_opts)
       when "openstack"
         ostack = CucuShift::OpenStack.new(service_name: service_name)
         create_opts = {}

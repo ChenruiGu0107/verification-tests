@@ -79,6 +79,10 @@ module CucuShift
           result << array[rand(36)] if length > 1# end with non-hyphen
         when :num
           result << "%0#{length}d" % rand(10 ** length)
+        when :lowercase_num
+          for c in 'a'..'z' do array.push(c) end
+          for n in '0'..'9' do array.push(n) end
+          (length - 1).times { result << array[rand(array.length)] }
         else # :nospace_sane
           for c in 'a'..'z' do array.push(c) end
           for c in 'A'..'Z' do array.push(c) end
