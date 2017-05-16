@@ -6,6 +6,7 @@ Utility to enable some PolarShift operations via CLI
 """
 
 require 'commander'
+require 'pathname'
 
 require_relative 'common/load_path'
 
@@ -61,6 +62,7 @@ module CucuShift
           parser = GherkinParse.new
           cases_loc = parser.locations_for *args
           cases_spec = parser.spec_for cases_loc
+          print_fileno(cases_loc)
 
           updates = generate_case_updates(project_id, cases_spec)
 
@@ -128,6 +130,19 @@ module CucuShift
         [ case_id, update ]
       end
       return Hash[updates]
+    end
+
+    def print_fileno(locations)
+      puts "To execute listed test cases on command line, use this filter:"
+      home = Pathname.new(::CucuShift::HOME)
+      puts HighLine.color(
+        locations.
+          map(&:last).
+          map {|c| c.join(?:)}.
+          map {|c| Pathname.new(c).relative_path_from(home).to_s}.
+          join(" "),
+        :bright_blue
+      )
     end
 
     # @return [Array<String, Array>] same as [GherkinParse#cases_spec] but
