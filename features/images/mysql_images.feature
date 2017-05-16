@@ -155,7 +155,6 @@ Feature: mysql_images.feature
       | 10 |
 
   # @author haowang@redhat.com
-  # @case_id OCP-11177 OCP-11747 OCP-11837
   Scenario Outline: Data remains after pod being re-created for clustered mysql - mysql-55-rhel7 mysql-56-rhel7
     Given I have a project
     And I download a file from "<file>"
@@ -240,7 +239,6 @@ Feature: mysql_images.feature
       | rh-mysql57 |centos/mysql-57-centos7   | rhscl/mysql-57-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.7/examples/replica/mysql_replica.json | # @case_id OCP-11837
 
   # @author haowang@redhat.com
-  # @case_id OCP-12045 OCP-12202
   Scenario Outline: Data remains after pod being scaled up from 0 for clustered mysql - mysql-55-rhel7 mysql-57-rhel7
     Given I have a project
     And I download a file from "<file>"
@@ -326,10 +324,9 @@ Feature: mysql_images.feature
       | 10 |
     Examples:
       | sclname    |image                     | org_image                  | template       | file                                                                                             |
-      | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
-      | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
+      | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json | # @case_id OCP-12045
+      | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json | # @case_id OCP-12202
   # @author haowang@redhat.com
-  # @case_id OCP-12288 OCP-12343
   Scenario Outline: Data remains after redeployment clustered mysql - mysql-55-rhel7 mysql-56-rhel7
     Given I have a project
     And I download a file from "<file>"
@@ -404,11 +401,10 @@ Feature: mysql_images.feature
       | 10 |
     Examples:
       | sclname    |image                     | org_image                  | template       | file                                                                                             |
-      | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json |
-      | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json |
+      | mysql55    |openshift/mysql-55-centos7| openshift3/mysql-55-rhel7  | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.5/examples/replica/mysql_replica.json | # @case_id OCP-12288
+      | rh-mysql56 |centos/mysql-56-centos7   | rhscl/mysql-56-rhel7       | mysql_replica.json  | https://raw.githubusercontent.com/openshift/mysql/master/5.6/examples/replica/mysql_replica.json | # @case_id OCP-12343
 
   # @author wzheng@redhat.com
-  # @case_id OCP-10845,OCP-11278
   Scenario Outline: Check memory limits env vars when pod is set with memory limit
     Given I have a project
     When I run the :run client command with:
@@ -430,11 +426,10 @@ Feature: mysql_images.feature
 
     Examples:
       | image                     | file                                         |
-      | openshift3/mysql-55-rhel7 | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf |
-      | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     |
+      | openshift3/mysql-55-rhel7 | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf | # @case_id OCP-10845
+      | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     | # @case_id OCP-11278
 
   # @author wzheng@redhat.com
-  # @case_id OCP-11955,OCP-12067
   Scenario Outline: Use default values for memory limits env vars
     Given I have a project
     When I run the :run client command with:
@@ -458,11 +453,10 @@ Feature: mysql_images.feature
 
     Examples:
       | image                     | file                                         |
-      | openshift3/mysql-55-rhel7 | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf |
-      | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     |
+      | openshift3/mysql-55-rhel7 | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf | # @case_id OCP-11955
+      | rhscl/mysql-56-rhel7      | /etc/my.cnf.d/tuning.cnf                     | # @case_id OCP-12067
 
   # @author wzheng@redhat.com
-  # @case_id OCP-11585,OCP-11789
   Scenario Outline: Use customized values for memory limits env vars
     Given I have a project
     When I run the :run client command with:
@@ -483,8 +477,8 @@ Feature: mysql_images.feature
 
     Examples:
       | image                      | file                                         |
-      | openshift3/mysql-55-rhel7  | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf |
-      | rhscl/mysql-56-rhel7       | /etc/my.cnf.d/tuning.cnf                     |
+      | openshift3/mysql-55-rhel7  | /opt/rh/mysql55/root/etc/my.cnf.d/tuning.cnf | # @case_id OCP-11585
+      | rhscl/mysql-56-rhel7       | /etc/my.cnf.d/tuning.cnf                     | # @case_id OCP-11789
 
   # @author yantan@redhat.com
   # @case_id OCP-11513

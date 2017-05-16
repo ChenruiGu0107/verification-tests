@@ -1,7 +1,6 @@
 Feature: oc_rsync.feature
 
   # @author cryan@redhat.com
-  # @case_id OCP-10727 OCP-11204 OCP-11538
   Scenario Outline: Copying files from container to host using oc rsync
     Given I have a project
     When I run the :new_app client command with:
@@ -42,12 +41,11 @@ Feature: oc_rsync.feature
     Given the "rsync_folder/lvl2/test1" file is present
     Examples:
       | strategy     |
-      | tar          |
-      | rsync        |
-      | rsync-daemon |
+      | tar          | # @case_id OCP-11538
+      | rsync        | # @case_id OCP-10727
+      | rsync-daemon | # @case_id OCP-11204
 
   # @author cryan@redhat.com
-  # @case_id OCP-11763 OCP-11934 OCP-12054
   Scenario Outline: Copying files from host to container using oc rsync
     Given I have a project
     When I run the :new_app client command with:
@@ -84,12 +82,11 @@ Feature: oc_rsync.feature
     And the output should contain "test1"
     Examples:
       | strategy     |
-      | tar          |
-      | rsync        |
-      | rsync-daemon |
+      | tar          | # @case_id OCP-12054
+      | rsync        | # @case_id OCP-11763
+      | rsync-daemon | # @case_id OCP-11934
 
   # @author cryan@redhat.com
-  # @case_id OCP-12257 OCP-12293 OCP-12320
   Scenario Outline: oc rsync with --delete option
     Given I have a project
     When I run the :new_app client command with:
@@ -139,9 +136,9 @@ Feature: oc_rsync.feature
     Given the "test/testfile3" file is not present
     Examples:
       | strategy     |
-      | tar          |
-      | rsync        |
-      | rsync-daemon |
+      | tar          | # @case_id OCP-12320
+      | rsync        | # @case_id OCP-12257
+      | rsync-daemon | # @case_id OCP-12293
 
   # @author cryan@redhat.com
   # @case_id OCP-12208

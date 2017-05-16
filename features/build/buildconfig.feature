@@ -324,7 +324,6 @@ Feature: buildconfig.feature
     Then the "ruby-ex-2" build was created
 
   # @author haowang@redhat.com
-  # @case_id OCP-11110 OCP-11474
   Scenario Outline: Build with images pulled from private repositories
     Given I have a project
     When I run the :new_secret client command with:
@@ -339,8 +338,8 @@ Feature: buildconfig.feature
 
     Examples:
       | template                                                                                                       |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479540/test-buildconfig-docker.json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479541/test-buildconfig-s2i.json    |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479540/test-buildconfig-docker.json | # @case_id OCP-11110
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc479541/test-buildconfig-s2i.json    | # @case_id OCP-11474
 
   # @author wzheng@redhat.com
   # @case_id OCP-12016

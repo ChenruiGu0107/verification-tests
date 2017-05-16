@@ -29,7 +29,6 @@ Feature: Configuration of environment variables check
     #| centos7 | docker.io/openshift/ruby-20-centos7 |
 
   # @author xiuwang@redhat.com
-  # @case_id OCP-12648 OCP-12649
   Scenario Outline: Check environment variables of perl image
     Given I have a project
     When I run the :new_app client command with:
@@ -44,11 +43,10 @@ Feature: Configuration of environment variables check
       | CPAN_MIRROR=        |
     Examples:
       | template                       |
-      | perl516rhel7-env-sti.json      |
-      | perl-516-centos7-stibuild.json |
+      | perl516rhel7-env-sti.json      | # @case_id OCP-12648
+      | perl-516-centos7-stibuild.json | # @case_id OCP-12649
 
   # @author wzheng@redhat.com
-  # @case_id OCP-9599 OCP-12645
   Scenario Outline: Configuration of enviroment variables check
     Given I have a project
     When I run the :new_app client command with:
@@ -73,11 +71,10 @@ Feature: Configuration of environment variables check
       | PHP_INI_SCAN_DIR=/opt/rh/php55/root/etc/ |
     Examples:
       | template                     |
-      | php-55-rhel7-stibuild.json   |
-      | php-55-centos7-stibuild.json |
+      | php-55-rhel7-stibuild.json   | # @case_id OCP-12645
+      | php-55-centos7-stibuild.json | # @case_id OCP-9599
 
   # @author wewang@redhat.com
-  # @case_id OCP-9601 OCP-9602 OCP-9603
   Scenario Outline: Openshift build and configuration of enviroment variables check - python
     Given I have a project
     When I run the :new_app client command with:
@@ -105,9 +102,9 @@ Feature: Configuration of environment variables check
       | APP_CONFIG=<conf>/test/setup-test-app |
     Examples:
       | template                   | conf |
-      | python-27-rhel7-var.json   | 2.7  |
-      | python-27-centos7-var.json | 2.7  |
-      | python-33-rhel7-var.json   | 3.3  |
+      | python-27-rhel7-var.json   | 2.7  | # @case_id OCP-9603
+      | python-27-centos7-var.json | 2.7  | # @case_id OCP-9602
+      | python-33-rhel7-var.json   | 3.3  | # @case_id OCP-9601
 
   # @author cryan@redhat.com
   # @case_id OCP-11143
@@ -160,7 +157,6 @@ Feature: Configuration of environment variables check
       | test8=\$\$\$\$\$\$\$\(zzhao\)   |
 
   # @author cryan@redhat.com haowang@redhat.com
-  # @case_id OCP-11784 OCP-12424
   @no-online
   Scenario Outline: Users can override the the env tuned by ruby base image
     Given I have a project
@@ -188,8 +184,8 @@ Feature: Configuration of environment variables check
     """
     Examples:
       | imagestream        |
-      | openshift/ruby:2.2 |
-      | openshift/ruby:2.3 |
+      | openshift/ruby:2.2 | # @case_id OCP-11784
+      | openshift/ruby:2.3 | # @case_id OCP-12424
 
   # @author haowang@redhat.com
   # @case_id OCP-11575 OCP-13141

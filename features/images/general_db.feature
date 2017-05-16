@@ -26,7 +26,6 @@ Feature: general_db.feature
     Then I wait for a web server to become available via the "jws-http-route" route
 
   # @author haowang@redhat.com
-  # @case_id OCP-10581 OCP-12044
   Scenario Outline: Add env variables to mongodb image
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/<template>" replacing paths:
@@ -52,8 +51,8 @@ Feature: general_db.feature
       | quiet = false      |
     Examples:
       | template                            | command                                         | image             |
-      | mongodb-24-rhel7-env-test.json      | scl enable mongodb24 "cat /etc/mongod.conf"     | openshift3/mongodb-24-rhel7  |
-      | mongodb-26-rhel7-env-test.json      | scl enable rh-mongodb26 "cat /etc/mongod.conf"  | rhscl/mongodb-26-rhel7  |
+      | mongodb-24-rhel7-env-test.json      | scl enable mongodb24 "cat /etc/mongod.conf"     | openshift3/mongodb-24-rhel7  | # @case_id OCP-10581
+      | mongodb-26-rhel7-env-test.json      | scl enable rh-mongodb26 "cat /etc/mongod.conf"  | rhscl/mongodb-26-rhel7  | # @case_id OCP-12044
 
   # @author haowang@redhat.com
   # @case_id OCP-9723
@@ -110,7 +109,6 @@ Feature: general_db.feature
       | 2.6 |
 
   # @author haowang@redhat.com
-  # @case_id OCP-11165 OCP-12491 OCP-12437
   Scenario Outline: Verify cluster mongodb can be connect after change admin and user password or redeployment for ephemeral storage - mongodb-24-rhel7 mongodb-26-rhel7
     Given I have a project
     And I download a file from "https://raw.githubusercontent.com/openshift/mongodb/master/2.4/examples/replica/mongodb-clustered.json"
@@ -147,9 +145,9 @@ Feature: general_db.feature
       | <output> |
     Examples:
       | image                       | sclname      | output |
-      | openshift3/mongodb-24-rhel7 | mongodb24    | 2.4    |
-      | rhscl/mongodb-26-rhel7      | rh-mongodb26 | 2.6    |
-      | rhscl/mongodb-32-rhel7      | rh-mongodb32 | 3.2    |
+      | openshift3/mongodb-24-rhel7 | mongodb24    | 2.4    | # @case_id OCP-11165
+      | rhscl/mongodb-26-rhel7      | rh-mongodb26 | 2.6    | # @case_id OCP-12491
+      | rhscl/mongodb-32-rhel7      | rh-mongodb32 | 3.2    | # @case_id OCP-12437
 
   # @author haowang@redhat.com
   # @case_id OCP-9580

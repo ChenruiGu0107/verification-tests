@@ -1,7 +1,6 @@
 Feature: MariaDB images test
 
   # @author cryan@redhat.com
-  # @case_id OCP-11598 OCP-11800
   Scenario Outline: Deploy mariadb image
     Given I have a project
     When I run the :new_app client command with:
@@ -24,11 +23,10 @@ Feature: MariaDB images test
     And the output should contain "openshift"
     Examples:
       | image             |
-      | mariadb-100-rhel7 |
-      | mariadb-101-rhel7 |
+      | mariadb-100-rhel7 | # @case_id OCP-11598
+      | mariadb-101-rhel7 | # @case_id OCP-11800
 
   # @author haowang@redhat.com
-  # @case_id OCP-10868 OCP-11293
   Scenario Outline: Add env vars to mariadb image
     Given I have a project
     And I download a file from "<file>"
@@ -53,5 +51,5 @@ Feature: MariaDB images test
 
     Examples:
       | file                                                                                                                | template                      |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mariadb-100-env-var-test.json | mariadb-100-env-var-test.json |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mariadb-101-env-var-test.json | mariadb-101-env-var-test.json |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mariadb-100-env-var-test.json | mariadb-100-env-var-test.json | # @case_id OCP-10868
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/mariadb-101-env-var-test.json | mariadb-101-env-var-test.json | # @case_id OCP-11293

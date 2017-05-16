@@ -160,7 +160,6 @@ Feature: buildlogic.feature
       |  not allowed |
 
   # @author haowang@redhat.com
-  # @case_id OCP-10651 OCP-11148 OCP-10652 OCP-11149
   Scenario Outline: ForcePull image for build
     Given I have a project
     When I run the :create client command with:
@@ -177,13 +176,12 @@ Feature: buildlogic.feature
 
     Examples:
       | template                                                                                                                    |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStream.json      |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStream.json         |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-dockerimage.json      |
-      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-dockerimage.json         |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStream.json      | # @case_id OCP-10651
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStream.json         | # @case_id OCP-11148
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-dockerimage.json      | # @case_id OCP-10652
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-dockerimage.json         | # @case_id OCP-11149
 
   # @author haowang@redhat.com
-  # @case_id OCP-11500 OCP-11735
   Scenario Outline: ForcePull image for build using ImageSteamImage
     Given I have a project
     When I run the :get client command with:
@@ -206,9 +204,9 @@ Feature: buildlogic.feature
       | Force Pull:\s+(true\|yes)|
 
     Examples:
-      | strategy       | template                                                                                                                   |
-      | dockerStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStreamImage.json |
-      | sourceStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStreamImage.json    |
+      | strategy       | template                                                                                                                    |
+      | dockerStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-docker-ImageStreamImage.json | # @case_id OCP-11500
+      | sourceStrategy | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/forcePull/buildconfig-s2i-ImageStreamImage.json    | # @case_id OCP-11735
 
   # @author yantan@redhat.com
   # @case_id OCP-10745

@@ -1,7 +1,6 @@
 Feature: perl.feature
 
   # @author dyan@redhat.com
-  # @case_id OCP-11856 OCP-12005 OCP-12107
   Scenario Outline: Add CPAN_MIRROR env var to Perl S2I
     Given I have a project
     When I run the :new_build client command with:
@@ -14,7 +13,7 @@ Feature: perl.feature
     Then the output should contain "http://not/a/valid/index/"
     Examples:
       | image |
-      | 5.16  |
-      | 5.20  |
-      | 5.24  |
+      | 5.16  | # @case_id OCP-11856
+      | 5.20  | # @case_id OCP-12005
+      | 5.24  | # @case_id OCP-12107
 
