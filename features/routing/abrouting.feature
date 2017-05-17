@@ -327,17 +327,17 @@ Feature: Testing abrouting
     Then the step should succeed
     When I run the :set_backends client command with:
       | routename | route-pass          |
-      | service   | service-secure=20   |
-      | service   | service-secure-2=80 |
+      | service   | service-secure=30   |
+      | service   | service-secure-2=70 |
     Then the step should succeed
     When I run the :set_backends client command with:
       | routename | route-pass  |
     Then the step should succeed
     Then the output should contain 1 times:
-      | (20%) |
-      | (80%) |
+      | (30%) |
+      | (70%) |
     Given I have a pod-for-ping in the project
-    Given I run the steps 40 times:
+    Given I run the steps 20 times:
     """
     When I execute on the pod:
       | curl |
@@ -351,37 +351,9 @@ Feature: Testing abrouting
       | #{@result[:response].strip} |
     """
     Given evaluation of `File.read("access.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength2 clipboard
-    Then the expression should be true> (28..36).include? cb.accesslength2
+    Then the expression should be true> (12..19).include? cb.accesslength2
     Given evaluation of `File.read("access.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength1 clipboard
-    Then the expression should be true> (4..12).include? cb.accesslength1
-    When I run the :set_backends client command with:
-      | routename | route-pass            |
-      | adjust    | true                  |
-      | service   | service-secure=+20%   |
-    Then the step should succeed
-    When I run the :set_backends client command with:
-      | routename | route-pass  |
-    Then the step should succeed
-    Then the output should contain 1 times:
-      | (40%) |
-      | (60%) |
-    Given I run the steps 40 times:
-    """
-    When I execute on the pod:
-      | curl |
-      | --resolve |
-      | <%= route("route-pass", service("route-pass")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= route("route-pass", service("route-pass")).dns(by: user) %>/ |
-      | -ksS |
-    Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    And the "access1.log" file is appended with the following lines:
-      | #{@result[:response].strip} |
-    """
-    Given evaluation of `File.read("access1.log").scan("Hello-OpenShift-2").size` is stored in the :accesslength4 clipboard
-    Then the expression should be true> (20..28).include? cb.accesslength4
-    Given evaluation of `File.read("access1.log").scan("Hello-OpenShift-1").size` is stored in the :accesslength3 clipboard
-    Then the expression should be true> (12..20).include? cb.accesslength3
+    Then the expression should be true> (1..8).include? cb.accesslength1
 
 
   # @author yadu@redhat.com
