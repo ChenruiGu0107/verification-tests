@@ -192,9 +192,7 @@ group_services:
   - selector:
       xpath: //div[contains(@class,"ui-select-choices-row") and */div[text()="<service_name>"]]
     op: click
-  - selector:
-      text: OK
-    op: click
+  action: click_ok
 remove_service_from_group:
   elements:
   - selector:

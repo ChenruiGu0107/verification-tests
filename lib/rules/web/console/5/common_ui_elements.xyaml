@@ -148,3 +148,8 @@ delete_resource:
   action: click_actions_button
   action: click_delete
   action: click_delete
+click_ok:
+  element:
+    selector:
+      text: OK
+    op: click

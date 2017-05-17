@@ -19,8 +19,20 @@ set_ace_editor_content:
     editor_xpath: //div[contains(@class,"editor")]
   scripts:
   - command: |
-        editor_element = $x("<editor_xpath>");
-        editor = ace.edit(editor_element[0]);
+        editor_element = document.evaluate(`<editor_xpath>`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        editor = ace.edit(editor_element);
         editor.setValue(`<content>`);
         return true;
     expect_result: true
+check_ace_editor_content_has:
+  params:
+    editor_xpath: //div[contains(@class,'editor')]
+  scripts:
+  - command: |
+        editor_element = document.evaluate(`<editor_xpath>`, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        editor = ace.edit(editor_element);
+        editor_content = editor.getValue();
+        return editor_content.includes(`<content>`);
+    expect_result: true
+
+

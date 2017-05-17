@@ -1425,3 +1425,38 @@ Feature: build related feature on web console
     When I perform the :check_invalid_env_key_warning_message web console action with:
       | message | Please enter a valid key |
     Then the step should succeed
+
+  # @author etrott@redhat.com
+  # @case_id OCP-11029
+  Scenario: Edit Pipeline bc on web console
+    Given the master version >= "3.5"
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/jenkins/pipeline/samplepipeline.yaml |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | sample-pipeline |
+    Then the step should succeed
+    When I perform the :goto_pipeline_configuration_tab web console action with:
+      | project_name  | <%= project.name %> |
+      | pipeline_name | sample-pipeline     |
+    Then the step should succeed
+    When I run the :check_jenkinsfile_link web console action
+    Then the step should succeed
+    When I run the :close_jenkinsfile_modal_window web console action
+    Then the step should succeed
+    When I run the :click_to_goto_edit_page web console action
+    Then the step should succeed
+    When I run the :check_jenkinsfile_link web console action
+    Then the step should succeed
+    When I run the :copy_snippets_to_ace_editor web console action
+    Then the step should succeed
+    When I run the :hide_jenkinsfile_examples web console action
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I run the :click_on_configuration_tab web console action
+    Then the step should succeed
+    When I perform the :check_ace_editor_content_has web console action with:
+      | content | Promote to production |
+    Then the step should succeed

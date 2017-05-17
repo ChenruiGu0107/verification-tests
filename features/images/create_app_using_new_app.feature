@@ -149,7 +149,7 @@ Feature:Create apps using new_app cmd feature
       |buildcfg              |
       |nodejs-example        |
       |nodejs-mongodb-example|
-  
+
   # @author wzheng@redhat.com
   # @case_id OCP-14099
   Scenario: Create Passenger app from imagestream - passenger-40-rhel7
