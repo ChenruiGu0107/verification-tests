@@ -631,8 +631,8 @@ Feature: buildlogic.feature
       | perl:5.16 | 100Mi  | 10  | # @case_id OCP-10855
       | perl:5.20 | 100Mi  | 10  | # @case_id OCP-11283
       | perl:5.24 | 100Mi  | 10  | # @case_id OCP-11378
-      | perl:5.16 | 204Mi  | 68  | # @case_id OCP-13144
-      | perl:5.20 | 204Mi  | 68  | # @case_id OCP-13145
+      | perl:5.16 | 480Mi  | 64  | # @case_id OCP-13144
+      | perl:5.20 | 480Mi  | 64  | # @case_id OCP-13145
 
   # @author shiywang@redhat.com
   # @case_id OCP-10835
