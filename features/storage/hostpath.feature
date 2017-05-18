@@ -169,3 +169,14 @@ Feature: Storage of Hostpath plugin testing
     Then the step should succeed
     And the output should contain:
       | 1000130002 |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-13676
+  @admin
+  Scenario: Setting mount options for volume plugins that doesn't support it
+    Given I switch to cluster admin pseudo user
+    When I run the :create client command with:
+        | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/hostpath_invalid_mount_options.yaml |
+    Then the step should fail
+    And the output should contain:
+      | may not specify mount options for this volume type |

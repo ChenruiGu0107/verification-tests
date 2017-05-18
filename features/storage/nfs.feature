@@ -689,3 +689,117 @@ Feature: NFS Persistent Volume
     When I execute on the pod:
       | ls | /mnt/nfs/nfs-<%= project.name %> | 
     Then the step should succeed
+
+  # @author jhou@redhat.com
+  # @case_id OCP-13912
+  @admin
+  Scenario: Setting NFS read-only mount option in PV's annotation
+    Given I have a project
+    And I have a NFS service in the project
+
+    # Set read-only mount option
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-mount-option.yaml" where:
+      | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
+      | ["metadata"]["name"]                                                   | nfs-<%= project.name %>          |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro,nfsvers=4                     |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
+    Then the step should succeed
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+    Then the step should succeed
+    Given the pod named "mypod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | ls | /mnt |
+    Then the step should succeed
+    When I execute on the pod:
+      | touch | /mnt/test_file |
+    Then the step should fail
+    And the output should contain:
+      | Read-only file system |
+    When I execute on the pod:
+      | mount |
+    Then the output should contain:
+      | ro     |
+      | vers=4 |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-14282
+  @admin
+  Scenario: Setting NFS noexec mount option in PV annotation
+    Given I have a project
+    And I have a NFS service in the project
+
+    # Set read-only mount option
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-mount-option.yaml" where:
+      | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
+      | ["metadata"]["name"]                                                   | nfs-<%= project.name %>          |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | rw,nfsvers=4,noexec              |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
+    Then the step should succeed
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+    Then the step should succeed
+    Given the pod named "mypod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | cp | /hello | /mnt/hello |
+    Then the step should succeed
+    When I execute on the pod:
+      | mount |
+    Then the output should contain:
+      | noexec |
+      | vers=4 |
+    When I execute on the pod:
+      | /mnt/hello |
+    Then the step should fail
+    And the output should contain:
+      | Permission denied |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-13467
+  @admin
+  Scenario: Setting NFS mount options in PV annotation
+    Given I have a project
+    And I have a NFS service in the project
+
+    # Set read-only mount option
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-mount-option.yaml" where:
+      | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %>     |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                        |
+      | ["metadata"]["name"]                                                   | nfs-<%= project.name %>              |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | nfsvers=4.1,hard,timeo=600,retrans=2 |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
+      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
+    Then the step should succeed
+    And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json" replacing paths:
+      | ["spec"]["containers"][0]["image"]                           | aosqe/hello-openshift     |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | nfsc-<%= project.name %>  |
+      | ["metadata"]["name"]                                         | mypod-<%= project.name %> |
+    Then the step should succeed
+    Given the pod named "mypod-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | mount |
+    Then the output should contain:
+      | vers=4.1  |
+      | retrans=2 |
+      | hard      |
+      | timeo=600 |
