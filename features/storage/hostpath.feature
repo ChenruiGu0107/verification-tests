@@ -134,6 +134,21 @@ Feature: Storage of Hostpath plugin testing
     Then the step should succeed
     And the output should contain:
       | 1000130001 |
+    When I run the :exec client command with:
+      | pod              | localpd-<%= cb.proj_name %> |
+      | container        | a                           |
+      | oc_opts_end      |                             |
+      | exec_command     | cp                          |
+      | exec_command_arg | /hello                      |
+      | exec_command_arg | /example/hostpath/a         |
+    Then the step should succeed
+    When I run the :exec client command with:
+      | pod          | localpd-<%= cb.proj_name %> |
+      | container    | a                           |
+      | oc_opts_end  |                             |
+      | exec_command | /example/hostpath/a/hello   |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
 
     When I run the :exec client command with:
       | pod          | localpd-<%= cb.proj_name %> |
