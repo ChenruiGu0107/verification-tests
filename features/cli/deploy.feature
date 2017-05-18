@@ -593,9 +593,12 @@ Feature: deployment related features
     And I replace resource "rc" named "hooks-3":
       | Complete | Pending |
     Then the step should succeed
-    When I run the :deploy client command with:
-      | deployment_config | hooks |
-      | latest            | true  |
+    And I wait up to 30 seconds for the steps to pass:
+    """
+    When I run the :rollout_latest client command with:
+      | resource | hooks |
+    Then the step should succeed
+    """
     And I wait until the status of deployment "hooks" becomes :complete
     Then I run the :describe client command with:
       | resource | dc    |

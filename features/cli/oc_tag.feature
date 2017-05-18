@@ -29,7 +29,6 @@ Feature: oc tag related scenarios
       | source_type  | <source_type>              |
       | source       | <source>                   |
       | dest         | <deststream>:tag           |
-      | alias        | true                       |
     Then the step should succeed
 
     # Same reason as above. Need wait, instead of one-time check
