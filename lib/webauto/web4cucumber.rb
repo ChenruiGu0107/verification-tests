@@ -24,7 +24,8 @@ require "base64"
       :button => :button,
       :element => :elements,
       :input => :input,
-      :js => :execute_script
+      :js => :execute_script,
+      :iframe => :iframe
     }
 
     ELEMENT_TIMEOUT = 10
@@ -291,6 +292,8 @@ require "base64"
       when String, Symbol
         return run_action(action_body.to_sym, **user_opts)
       when Hash
+        raise '"ref: action" must be provided within action rule of type '\
+              'hash/dictionary' unless action_body[:ref]
         res_if = nil
         res_unless = nil
 
@@ -337,10 +340,35 @@ require "base64"
           end
         end
 
-        res = run_action(action_body[:ref].to_sym, **user_opts)
+        res_context ={}
+        if action_body[:context]
+          res_context[:success], context_elements  = wait_for_elements(
+            {
+              :type => :iframe,
+              :selector => action_body[:context],
+              :context => user_opts[:_context]
+            })
+          unless res_context[:success]
+            res_context[:response] = "Context element #{action_body[:context]}" \
+                                     "wasn't found.Skipping action #{action_body[:ref]}"
+            return res_context
+          end
+          user_opts[:_context] = context_elements.first.first.last
+        end
+
+        case action_body[:ref]
+        when String, Symbol
+          res = run_action(action_body[:ref].to_sym, **user_opts)
+        when Array
+          res = {}
+          action_body[:ref].each { | action |
+            res_join res, run_action(action.to_sym, **user_opts)
+          }
+        end
         res_join(res, res_if) if res_if
         res_join(res, res_unless) if res_unless
         res_join(res, res_param) unless res_param.empty?
+        res_join(res, res_context) unless res_context.empty?
         return res
       else
         raise "unknown action rule body type: #{action_body.class}"
@@ -382,15 +410,34 @@ require "base64"
         rule[:timeout] = Integer(replace_angle_brackets(rule[:timeout], user_opts))
       end
 
+      # context was provided with user_opts
+      rule[:context] = user_opts[:_context]
+
+      res = {}
+      # # context was provided within element rule
+      # if rule[:context]
+      #   rule[:context] = selector_param_setter(rule[:context], user_opts)
+      #   success, context_elements = wait_for_elements({:type => :iframe, :selector => rule[:context], :_context => rule[:_context]})
+      #   rule[:_context] = context_elements.first.first.last
+      #   context_res = {
+      #     instruction: "handle context #{rule[:context]}",
+      #     success: success,
+      #     response: "context element#{success ? "" : ' not'} found: #{rule[:context]}",
+      #     exitstatus: -1
+      #   }
+      #   res_join(res, context_res)
+      # end
+
       # based on opts[:missing] it'll wait for element to appear/dissapear
       success, elements = wait_for_elements(rule)
 
-      res = {
+      element_res = {
         instruction: "handle #{element_rule}",
         success: !! ( success || element_rule[:optional] ),
         response: "element#{success ^ element_rule[:missing] ? "" : ' not'} found: #{element_rule}",
         exitstatus: -1
       }
+      res_join res, element_res
 
       # save screenshot if missing/required element found/not found
       unless success || element_rule[:optional]
@@ -406,9 +453,9 @@ require "base64"
         # first element searched for, first field [the actual element list], last found element [this must be most inner element]
         element = elements.first.first.last
         opres = handle_operation(element, op, **user_opts)
-        # if we selecting element when page is not fully loaded, watir can lost
-        # this element and "op" will fail on it. If we will get this error
-        # rerunning of `handle_element` function can help.
+        # If we are selecting an element before page is fully loaded,
+        # Watir can lose this element and its op will fail. Retrying
+        # handle_element on such error can help.
         if opres[:response].include? "#<Watir::Exception::UnknownObjectException: unable to locate element"
           return handle_element(element_rule, **user_opts)
         else
@@ -497,13 +544,12 @@ require "base64"
       logger.embed Base64.strict_encode64(browser.html), "text/html;base64", "#{filename}.html"
     end
 
-    def get_elements(type, selector)
+    def get_elements(type:, context:, selector:)
       type = type ? type.to_sym : :element # generic element when type absent
-
       raise "unknown web element type '#{type}'" unless FUNMAP.has_key? type
 
       # note that this is lazily evaluated so errors may occur later
-      res = browser.public_send(FUNMAP[type], selector)
+      res = context.public_send(FUNMAP[type], selector)
 
       # we want to always return an array
       if res.nil?
@@ -519,8 +565,8 @@ require "base64"
       return res
     end
 
-    def get_visible_elements(type, selector)
-      return get_elements(type, selector).select { |e| e.present? }
+    def get_visible_elements(element_opts)
+      return get_elements(**element_opts).select { |e| e.present? }
     end
 
     # return HTML code of current page
@@ -589,7 +635,7 @@ require "base64"
     #   for a given timeout to appear or dissapear; that means there is one
     #   timeout to check all requested elements
     # @param opts [Hash] with possible keys: :type, :selector, :list, :visible, :missing
-    #   :timeout
+    #   :timeout, :context
     # @return [Array] of `[status, [[[elements], type, selector], ..] ]`
     def wait_for_elements(opts)
       # expect either :list of [:type, :selector] pairs or
@@ -598,15 +644,21 @@ require "base64"
       only_visible = opts.has_key?(:visible) ? opts[:visible] : true
       missing = opts.has_key?(:missing) ? opts[:missing] : false
       timeout = opts[:timeout] || ELEMENT_TIMEOUT # in seconds
+      context = opts[:context] || browser
 
       start = Time.now
       result = nil
       begin
         result = {:list => [], :success => true}
         break if elements.all? { |type, selector|
+          element_opts = {
+            :type => type,
+            :context => context,
+            :selector => selector
+          }
           e = only_visible ?
-              get_visible_elements(type, selector) :
-              get_elements(type, selector)
+              get_visible_elements(**element_opts) :
+              get_elements(**element_opts)
           result[:list] << [e, opts[:type], opts[:selector]] unless e.empty?
           e.empty? == missing
         }
