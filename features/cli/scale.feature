@@ -139,7 +139,6 @@ Feature: scaling related scenarios
       | resource | ReplicationController |
       | name     | hooks-1               |
       | replicas | 2                     |
-    Given I wait until number of replicas match "2" for replicationController "hooks-1"
     Given I wait until number of replicas match "1" for replicationController "hooks-1"
     Then I run the :scale client command with:
       | resource | deploymentconfig |

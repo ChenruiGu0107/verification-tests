@@ -24,7 +24,7 @@ Feature: replicaSet related tests
       | resource_name | frontend |
     Then the step should not succeed
     And the output should contain:
-      | replicasets "frontend" not found |
+      | "frontend" not found |
 
   # @author pruan@redhat.com
   # @case_id OCP-11327

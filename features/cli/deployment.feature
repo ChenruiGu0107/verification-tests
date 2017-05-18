@@ -21,7 +21,7 @@ Feature: deployment related steps
       | MinimumReplicasUnavailable                     |
       | status: "False"                                |
       | type: Available                                |
-      | Replica set "hello-openshift.*" is progressing |
+      | "hello-openshift.*" is progressing             |
       | ReplicaSetUpdated                              |
       | status: "True"                                 |
       | type: Progressing                              |
@@ -41,7 +41,7 @@ Feature: deployment related steps
       | MinimumReplicasUnavailable                                |
       | status: "False"                                           |
       | type: Available                                           |
-      | Replica set "hello-openshift.*" has timed out progressing |
+      | "hello-openshift.*" has timed out progressing             |
       | ProgressDeadlineExceeded                                  |
       | status: "False"                                           |
       | type: Progressing                                         |
@@ -67,7 +67,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                                    |
       | status: "True"                                              |
       | type: Available                                             |
-      | Replica set "hello-openshift.*" has successfully progressed |
+      | "hello-openshift.*" has successfully progressed             |
       | NewReplicaSetAvailable                                      |
       | status: "True"                                              |
       | type: Progressing                                           |
@@ -159,7 +159,7 @@ Feature: deployment related steps
       | MinimumReplicasUnavailable                                |
       | status: "False"                                           |
       | type: Available                                           |
-      | Replica set "hello-openshift.*" has timed out progressing |
+      | "hello-openshift.*" has timed out progressing             |
       | ProgressDeadlineExceeded                                  |
       | status: "False"                                           |
       | type: Progressing                                         |
@@ -188,7 +188,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                                    |
       | status: "True"                                              |
       | type: Available                                             |
-      | Replica set "hello-openshift.*" has successfully progressed |
+      | "hello-openshift.*" has successfully progressed             |
       | NewReplicaSetAvailable                                      |
       | status: "True"                                              |
       | type: Progressing                                           |
@@ -212,7 +212,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                       |
       | status: "True"                                 |
       | type: Available                                |
-      | Replica set "hello-openshift.*" is progressing |
+      | "hello-openshift.*" is progressing             |
       | ReplicaSetUpdated                              |
       | status: "True"                                 |
       | type: Progressing                              |
@@ -232,7 +232,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                                  |
       | status: "True"                                            |
       | type: Available                                           |
-      | Replica set "hello-openshift.*" has timed out progressing |
+      | "hello-openshift.*" has timed out progressing             |
       | ProgressDeadlineExceeded                                  |
       | status: "False"                                           |
       | type: Progressing                                         |
@@ -257,7 +257,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                                    |
       | status: "True"                                              |
       | type: Available                                             |
-      | Replica set "hello-openshift.*" has successfully progressed |
+      | "hello-openshift.*" has successfully progressed             |
       | NewReplicaSetAvailable                                      |
       | status: "True"                                              |
       | type: Progressing                                           |
@@ -286,7 +286,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                                    |
       | status: "True"                                              |
       | type: Available                                             |
-      | Replica set "hello-openshift.*" has successfully progressed |
+      | "hello-openshift.*" has successfully progressed             |
       | NewReplicaSetAvailable                                      |
       | status: "True"                                              |
       | type: Progressing                                           |
@@ -310,7 +310,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                       |
       | status: "True"                                 |
       | type: Available                                |
-      | Replica set "hello-openshift.*" is progressing |
+      | "hello-openshift.*" is progressing             |
       | ReplicaSetUpdated                              |
       | status: "True"                                 |
       | type: Progressing                              |
@@ -330,7 +330,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                                  |
       | status: "True"                                            |
       | type: Available                                           |
-      | Replica set "hello-openshift.*" has timed out progressing |
+      | "hello-openshift.*" has timed out progressing             |
       | ProgressDeadlineExceeded                                  |
       | status: "False"                                           |
       | type: Progressing                                         |
@@ -354,7 +354,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                       |
       | status: "True"                                 |
       | type: Available                                |
-      | Replica set "hello-openshift.*" is progressing |
+      | "hello-openshift.*" is progressing             |
       | ReplicaSetUpdated                              |
       | status: "True"                                 |
       | type: Progressing                              |
@@ -374,7 +374,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                                  |
       | status: "True"                                            |
       | type: Available                                           |
-      | Replica set "hello-openshift.*" has timed out progressing |
+      | "hello-openshift.*" has timed out progressing             |
       | ProgressDeadlineExceeded                                  |
       | status: "False"                                           |
       | type: Progressing                                         |
@@ -397,7 +397,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                                |
       | status: "True"                                          |
       | type: Available                                         |
-      | Replica set "hello-openshift.*" is progressing |
+      | "hello-openshift.*" is progressing                      |
       | ReplicaSetUpdated                                       |
       | status: "True"                                          |
       | type: Progressing                                       |
@@ -417,7 +417,7 @@ Feature: deployment related steps
       | MinimumReplicasAvailable                                  |
       | status: "True"                                            |
       | type: Available                                           |
-      | Replica set "hello-openshift.*" has timed out progressing |
+      | "hello-openshift.*" has timed out progressing             |
       | ProgressDeadlineExceeded                                  |
       | status: "False"                                           |
       | type: Progressing                                         |
@@ -444,7 +444,7 @@ Feature: deployment related steps
       | MinimumReplicasUnavailable                     |
       | status: "False"                                |
       | type: Available                                |
-      | Replica set "hello-openshift.*" is progressing |
+      | "hello-openshift.*" is progressing             |
       | ReplicaSetUpdated                              |
       | status: "True"                                 |
       | type: Progressing                              |
@@ -464,7 +464,7 @@ Feature: deployment related steps
       | MinimumReplicasUnavailable                                |
       | status: "False"                                           |
       | type: Available                                           |
-      | Replica set "hello-openshift.*" has timed out progressing |
+      | "hello-openshift.*" has timed out progressing             |
       | ProgressDeadlineExceeded                                  |
       | status: "False"                                           |
       | type: Progressing                                         |
@@ -488,7 +488,7 @@ Feature: deployment related steps
       | MinimumReplicasUnavailable                     |
       | status: "False"                                |
       | type: Available                                |
-      | Replica set "hello-openshift.*" is progressing |
+      | "hello-openshift.*" is progressing             |
       | ReplicaSetUpdated                              |
       | status: "True"                                 |
       | type: Progressing                              |
@@ -508,7 +508,7 @@ Feature: deployment related steps
       | MinimumReplicasUnavailable                                |
       | status: "False"                                           |
       | type: Available                                           |
-      | Replica set "hello-openshift.*" has timed out progressing |
+      | "hello-openshift.*" has timed out progressing             |
       | ProgressDeadlineExceeded                                  |
       | status: "False"                                           |
       | type: Progressing                                         |
