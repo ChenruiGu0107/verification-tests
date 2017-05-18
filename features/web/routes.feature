@@ -67,6 +67,9 @@ Feature: Routes related features on web console
     When I perform the :create_unsecured_route_from_service_or_overview_page web console action with:
       | route_name | service-unsecure-route |
     Then the step should succeed
+    When I perform the :check_route_name_in_table_row web console action with:
+      | route_name | service-unsecure-route |
+    Then the step should succeed
 
     When I perform the :check_routes_page web console action with:
       | project_name | <%= project.name %> |
@@ -93,11 +96,17 @@ Feature: Routes related features on web console
       | route_name   | myroute1            |
       | target_port  | 443                 |
     Then the step should succeed
+    When I perform the :check_route_name_in_table_row web console action with:
+      | route_name | myroute1 |
+    Then the step should succeed
     When I perform the :create_route_dont_specify_hostname_from_routes_page web console action with:
       | project_name | <%= project.name %> |
       | service_name | multi-portsvc       |
       | route_name   | myroute2            |
       | target_port  | 80                  |
+    Then the step should succeed
+    When I perform the :check_route_name_in_table_row web console action with:
+      | route_name | myroute2 |
     Then the step should succeed
     When I perform the :check_route_page_loaded_successfully web console action with:
       | project_name | <%= project.name %> |
@@ -178,7 +187,7 @@ Feature: Routes related features on web console
     # check route is accessible
     When I execute on the pod:
       | curl                                                                                               |
-      | -k                                                                                                 |   
+      | -k                                                                                                 |
       | --resolve                                                                                          |
       | <%= route("service-secure", service("service-secure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("service-secure", service("service-secure")).dns(by: user) %>/                   |

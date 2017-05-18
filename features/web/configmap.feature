@@ -432,11 +432,9 @@ Feature: ConfigMap related features
     Then the step should succeed
     When I run the :check_save_button_disabled web console action
     Then the step should succeed
-    When I perform the :goto_one_configmap_page web console action with:
+    When I perform the :delete_resources_configmap web console action with:
       | project_name    | <%= project.name %> |
       | config_map_name | special-config      |
-    Then the step should succeed
-    When I run the :delete_resource web console action
     Then the step should succeed
     When I perform the :goto_one_configmap_page web console action with:
       | project_name    | <%= project.name %> |

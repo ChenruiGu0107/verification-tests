@@ -55,9 +55,21 @@ delete_resources_rc:
 delete_resources_deploymentconfig:
   action: goto_one_dc_page
   action: delete_resource
+  params:
+    resource_name: <dc_name>
+  action: check_resource_deleted_message
 delete_resources_buildconfig:
   action: goto_one_buildconfig_page
   action: delete_resource
+  params:
+    resource_name: <bc_name>
+  action: check_resource_deleted_message
+delete_resources_configmap:
+  action: goto_one_configmap_page
+  action: delete_resource
+  params:
+    resource_name: <config_map_name>
+  action: check_resource_deleted_message
 delete_resources_route:
   action: goto_one_route_page
   action: delete_resource
@@ -71,3 +83,7 @@ delete_resource_with_viewer:
       text: Actions
     type: button
     visible: false
+check_resource_deleted_message:
+  element:
+    selector:
+      xpath: //div[contains(.,"'<resource_name>' was marked for deletion.")]

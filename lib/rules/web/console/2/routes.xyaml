@@ -11,11 +11,14 @@ check_response_string:
 check_route_name:
   action: goto_routes_page
   elements:
-  - selector:
-      xpath: //tr//td[@data-title='Name']/a[contains(text(), '<route_name>')]
+  - selector: &route_name_selector
+      xpath: //tr//td[@data-title='Name' or @data-title='Route']/a[contains(text(), '<route_name>')]
     op: click
   - selector:
       xpath: //h1[contains(text(),'<route_name>')]
+check_route_name_in_table_row:
+  element:
+   selector: *route_name_selector
 check_route_to:
   action: goto_routes_page
   elements:

@@ -623,6 +623,9 @@ Feature: Check deployments function
       | project_name       | <%= project.name %> |
       | dc_name            | myrun               |
     Then the step should succeed
+    When I perform the :check_pause_message web console action with:
+      | dc_name | myrun |
+    Then the step should succeed
     When I perform the :check_pause_message_on_dc_page web console action with:
       | project_name       | <%= project.name %> |
       | dc_name            | myrun               |

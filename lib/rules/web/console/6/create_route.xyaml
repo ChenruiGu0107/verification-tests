@@ -112,7 +112,7 @@ set_tls_termination:
       xpath: //div[@input-id='tlsTermination']
     op: click
   - selector:
-      xpath: //div/span/span[contains(.,'<tls_termination_type>')]      
+      xpath: //div/span/span[contains(.,'<tls_termination_type>')]
     op: click
 set_policy_for_insecure_traffic:
   elements:

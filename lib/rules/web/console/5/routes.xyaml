@@ -8,14 +8,20 @@ check_response_string:
   elements:
   - selector:
       xpath: //body[contains(.,"<response_string>")]
-check_route_name:
+check_route_name_on_routes_page:
   action: goto_routes_page
-  elements:
-  - selector:
-      xpath: //tr//td[@data-title='Name']/a[contains(text(), '<route_name>')]
-    op: click
-  - selector:
+  action: click_to_goto_one_route_page
+  element:
+    selector:
       xpath: //h1[contains(.,'<route_name>')]
+click_to_goto_one_route_page:
+  element:
+    selector: &route_name_selector
+      xpath: //tr//td[@data-title='Name' or @data-title='Route']/a[contains(text(), '<route_name>')]
+    op: click
+check_route_name_in_table_row:
+  element:
+   selector: *route_name_selector
 check_route_to:
   action: goto_routes_page
   elements:
@@ -25,7 +31,7 @@ check_route_to:
   - selector:
       xpath: //h1[contains(.,'<route_name>')]
 check_routes_page:
-  action: check_route_name
+  action: check_route_name_on_routes_page
   action: check_route_to
 check_basic_content_on_route_page:
   elements:

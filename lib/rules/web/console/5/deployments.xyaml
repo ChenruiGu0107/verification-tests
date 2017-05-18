@@ -430,6 +430,8 @@ check_deployment_idle_text:
       xpath: //deployment-donut//a[contains(.,'Start <previous_replicas> pod')]
 check_pause_message_on_dc_page:
   action: goto_one_dc_page
+  action: check_pause_message
+check_pause_message:
   action: check_pause_message_related_with_dc_on_dc_page
   action: check_general_message_for_pause_on_dc_page
   action: check_resume_deployment_option_exist_on_dc_page

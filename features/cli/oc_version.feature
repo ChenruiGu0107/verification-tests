@@ -1,7 +1,7 @@
 Feature: oc_version.feature
 
   # @author chali@redhat.com
-  # @case_id OCP-12077
+  # @case_id OCP-10277
   Scenario:Get server openshift version from oc version
     Given a "empty1" file is created with the following lines:
       |                 |
