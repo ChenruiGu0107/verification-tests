@@ -596,9 +596,10 @@ delete_autoscaler:
   action: click_remove_autoscaler_link
   action: click_delete
 check_redirection_to_dc_page:
-  element:
-    selector:
-      xpath: //breadcrumbs[count(ol/li)=2]//li[contains(., 'Deployments')]/following-sibling::li[contains(., '<dc_name>')]
+  params:
+    resource: Deployments
+    name: <dc_name>
+  action: check_redirection_to_resource_page
 check_warning_info_for_rc_with_multiple_autoscale:
   action: goto_one_deployment_page
   elements:

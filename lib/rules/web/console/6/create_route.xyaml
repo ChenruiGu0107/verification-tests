@@ -43,10 +43,14 @@ create_unsecured_route_pointing_to_two_services:
   action: check_redirection_to_service_page
   action: goto_one_route_page
   action: check_two_services_weight_on_route_page
+create_unsecured_route_pointing_to_four_services_from_service_page:
+  action: open_create_route_page_from_service_page
+  action: create_unsecured_route_pointing_to_four_services
 create_unsecured_route_pointing_to_four_services:
   action: set_route_name
   action: create_route_with_four_services
   action: click_create_button
+  action: check_redirection_to_service_page
   action: goto_one_route_page
   action: check_four_services_weight_on_route_page
 create_route_with_two_services:

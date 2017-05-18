@@ -185,8 +185,11 @@ require "base64"
         exitstatus: -1
       }
       user_opts = params.map {|key, vals|
-        if vals.instance_of?(String)
+        case vals
+        when String
           [key, replace_angle_brackets(vals, user_opts)]
+        when Fixnum
+          [key, vals]
         else
           [key].push vals.map {|val|
             replace_angle_brackets(val, user_opts)

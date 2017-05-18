@@ -4,3 +4,7 @@ check_resource_succesfully_updated_message:
   element:
     selector:
       text: <resource> <name> was successfully updated.
+check_redirection_to_resource_page:
+  element:
+    selector:
+      xpath: //breadcrumbs[count(ol/li)=2]//li[contains(., '<resource>')]/following-sibling::li[contains(., '<name>')]
