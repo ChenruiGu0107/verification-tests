@@ -579,6 +579,10 @@ delete_autoscaler_from_dc_page:
 delete_autoscaler:
   action: click_remove_autoscaler_link
   action: click_delete
+check_redirection_to_dc_page:
+  element:
+    selector:
+      xpath: //breadcrumbs[count(ol/li)=2]//li[contains(., 'Deployments')]/following-sibling::li[contains(., '<dc_name>')]
 check_warning_info_for_rc_with_multiple_autoscale:
   action: goto_one_deployment_page
   elements:
@@ -711,6 +715,7 @@ update_min_max_cpu_request_for_autoscaler_from_dc_page:
   action: goto_one_dc_page
   action: click_on_configuration_tab
   action: update_min_max_cpu_request_for_autoscaler
+  action: check_redirection_to_dc_page
 update_min_max_cpu_request_for_autoscaler_from_k8s_deployment_page:
   action: goto_one_k8s_deployment_page
   action: click_on_configuration_tab

@@ -731,6 +731,7 @@ update_min_max_cpu_request_for_autoscaler_from_dc_page:
   action: goto_one_dc_page
   action: click_on_configuration_tab
   action: update_min_max_cpu_request_for_autoscaler
+  action: check_redirection_to_dc_page
 update_min_max_cpu_request_for_autoscaler_from_k8s_deployment_page:
   action: goto_one_k8s_deployment_page
   action: click_on_configuration_tab

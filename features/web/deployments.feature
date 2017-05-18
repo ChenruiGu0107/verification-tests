@@ -481,7 +481,7 @@ Feature: Check deployments function
     When I perform the :update_min_max_cpu_request_for_autoscaler_from_dc_page web console action with:
       | project_name       | <%= project.name %> |
       | dc_name            | myrun               |
-      | min_pods           |  2                  |
+      | min_pods           | 2                   |
       | max_pods           | 15                  |
       | cpu_req_per        | 85                  |
     Then the step should succeed
