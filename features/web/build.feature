@@ -204,13 +204,13 @@ Feature: build related feature on web console
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/image-source.yaml |
     Then the step should succeed
     When I run the :get client command with:
-      | resource      | bc |
+      | resource      | bc               |
       | resource_name | imagedockerbuild |
       | o             | json             |
     Then the step should succeed
     Then the expression should be true> @result[:parsed]['spec']['source']['images'].length == 1
     When I run the :get client command with:
-      | resource      | bc |
+      | resource      | bc               |
       | resource_name | imagesourcebuild |
       | o             | json             |
     Then the step should succeed
@@ -228,21 +228,19 @@ Feature: build related feature on web console
     Then the step should succeed
     # change bc
     When I perform the :add_bc_source_and_destination_paths web console action with:
-      | project_name     | <%= project.name %>  |
-      | bc_name          | imagedockerbuild     |
-      | image_source_from | Image Stream Tag    |
-      | image_source_namespace | openshift      |
-      | image_source_is | ruby |
-      | image_source_tag | 2.2 |
-      | source_path | /usr/bin/ruby |
-      | dest_dir  | user/test |
-    Then the step should succeed
-    When I run the :click_save_button web console action
+      | project_name           | <%= project.name %> |
+      | bc_name                | imagedockerbuild    |
+      | image_source_from      | Image Stream Tag    |
+      | image_source_namespace | openshift           |
+      | image_source_is        | ruby                |
+      | image_source_tag       | 2.2                 |
+      | source_path            | /usr/bin/ruby       |
+      | dest_dir               | user/test           |
     Then the step should succeed
     # for bc has more than one imagestream source, couldn't add
     When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:
-      | project_name | <%= project.name %>  |
-      | bc_name      | imagesourcebuild     |
+      | project_name | <%= project.name %> |
+      | bc_name      | imagesourcebuild    |
     Then the step should succeed
     When I perform the :add_image_source_path web console action with:
       | source_path | /ust/test |
@@ -250,7 +248,7 @@ Feature: build related feature on web console
     And the output should contain "element not found"
     # check image source via CLI
     When I run the :get client command with:
-      | resource      | bc |
+      | resource      | bc               |
       | resource_name | imagedockerbuild |
       | o             | json             |
     Then the step should succeed

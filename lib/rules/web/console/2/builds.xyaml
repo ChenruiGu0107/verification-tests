@@ -202,6 +202,7 @@ add_bc_source_and_destination_paths:
   action: add_image_source_path
   action: add_image_source_dest_path
   action: save_source_and_dest_paths
+  action: click_save_button
 change_bc_source_repo_url:
   action: check_buildconfig_edit_page_loaded_completely
   action: change_source_repo_url

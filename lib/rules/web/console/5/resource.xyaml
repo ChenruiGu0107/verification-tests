@@ -1,0 +1,6 @@
+--- # resource related rules
+
+check_resource_succesfully_updated_message:
+  element:
+    selector:
+      text: <resource> <name> was successfully updated.
