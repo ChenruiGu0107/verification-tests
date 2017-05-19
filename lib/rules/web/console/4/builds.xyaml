@@ -298,7 +298,7 @@ add_bc_source_and_destination_paths:
   action: choose_image_source_tag
   action: add_image_source_path
   action: add_image_source_dest_path
-  action: save_source_and_dest_paths
+  action: click_save_button
 change_bc_source_repo_url:
   action: check_buildconfig_edit_page_loaded_completely
   action: change_source_repo_url
@@ -355,7 +355,6 @@ add_image_source_dest_path:
   - selector:
       xpath: //key-value-editor[@entries='imageSourcePaths']//div[contains(@class,'key-value-editor-entry')][count(//key-value-editor[@entries='imageSourcePaths']//div[contains(@class,'key-value-editor-entry')])-1]//input[@placeholder="Destination Dir"]
     op: send_keys <dest_dir>
-save_source_and_dest_paths: {}
 change_source_repo_url:
   elements:
   - selector:

@@ -494,22 +494,18 @@ Feature: Routes related features on web console
       | ["spec"]["selector"]["name"] | caddy-docker-4 |
     Then the step should succeed
 
-    When I perform the :open_create_route_page_from_service_page web console action with:
-      | project_name | <%= project.name%> |
-      | service_name | service-unsecure   |
-    Then the step should succeed
-
-    When I perform the :create_unsecured_route_pointing_to_four_services web console action with:
-      | project_name    | <%= project.name%> |
-      | route_name | service-unsecure-route  |
-      | first_svc_name  | service-unsecure   |
-      | second_svc_name | service-unsecure-2 |
-      | third_svc_name  | service-unsecure-3 |
-      | forth_svc_name  | service-unsecure-4 |
-      | weight_one      | 3                  |
-      | weight_two      | 6                  |
-      | weight_three    | 3                  |
-      | weight_four     | 12                 |
+    When I perform the :create_unsecured_route_pointing_to_four_services_from_service_page web console action with:
+      | project_name    | <%= project.name%>      |
+      | service_name    | service-unsecure        |
+      | route_name      | service-unsecure-route  |
+      | first_svc_name  | service-unsecure        |
+      | second_svc_name | service-unsecure-2      |
+      | third_svc_name  | service-unsecure-3      |
+      | forth_svc_name  | service-unsecure-4      |
+      | weight_one      | 3                       |
+      | weight_two      | 6                       |
+      | weight_three    | 3                       |
+      | weight_four     | 12                      |
     Then the step should succeed
 
     When I perform the :check_update_weight_with_valid_value web console action with:

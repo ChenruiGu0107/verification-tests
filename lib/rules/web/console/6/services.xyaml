@@ -31,6 +31,7 @@ goto_services_page:
 goto_one_service_page:
   url: console/project/<project_name>/browse/services/<service_name>
 check_redirection_to_service_page:
-  element:
-    selector:
-      xpath: //h1[contains(.,"<service_name>")]
+  params:
+    resource: Services
+    name: <service_name>
+  action: check_redirection_to_resource_page

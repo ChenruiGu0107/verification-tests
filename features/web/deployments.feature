@@ -346,7 +346,7 @@ Feature: Check deployments function
     Given 4 pods become ready with labels:
       | app=hello-openshift |
     When I perform the :check_overview_tile web console action with:
-      | resource_type | Deployment            |
+      | resource_type | deployment            |
       | resource_name | hello-openshift       |
       | image_name    | yapei/hello-openshift |
       | scaled_number | 4                     |
@@ -481,12 +481,14 @@ Feature: Check deployments function
     When I perform the :update_min_max_cpu_request_for_autoscaler_from_dc_page web console action with:
       | project_name       | <%= project.name %> |
       | dc_name            | myrun               |
-      | min_pods           |  2                  |
+      | min_pods           | 2                   |
       | max_pods           | 15                  |
       | cpu_req_per        | 85                  |
     Then the step should succeed
     When I perform the :check_autoscaler_min_pod_on_overview_page web console action with:
       | project_name  | <%= project.name %> |
+      | resource_name | myrun               |
+      | resource_type | deployment          |
       | min_pods      | 2                   |
     Then the step should succeed
     When I perform the :check_autoscaler_max_pod_on_overview_page web console action with:

@@ -152,54 +152,44 @@ set_the_first_service_to_route:
   - selector:
       <<: *first_service_weight_input
     op: send_keys <weight_one>
-set_the_second_service_to_route:
+set_additional_service_to_route:
   elements:
   - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][1]//span[contains(@class,'ui-select-match-text')]
+      xpath: //div[@ng-repeat="alternate in route.alternateServices"][<service_id>]//span[contains(@class,'ui-select-match-text')]
     op: click
   - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][1]//span/div[text()='<second_svc_name>']
+      xpath: //div[@ng-repeat="alternate in route.alternateServices"][<service_id>]//span/div[text()='<svc_name>']
     op: click
   - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][1]//osc-routing-service[@model='alternate']//input[@name="weight"]
+      xpath: //div[@ng-repeat="alternate in route.alternateServices"][<service_id>]//osc-routing-service[@model='alternate']//input[@name="weight"]
     op: clear
   - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][1]//osc-routing-service[@model='alternate']//input[@name="weight"]
-    op: send_keys <weight_two>
+      xpath: //div[@ng-repeat="alternate in route.alternateServices"][<service_id>]//osc-routing-service[@model='alternate']//input[@name="weight"]
+    op: send_keys <weight>
+set_the_second_service_to_route:
+  params:
+    svc_name: <second_svc_name>
+    weight: <weight_two>
+    service_id: 1
+  action: set_additional_service_to_route
+set_the_third_service_to_route:
+  params:
+    svc_name: <third_svc_name>
+    weight: <weight_three>
+    service_id: 2
+  action: set_additional_service_to_route
+set_the_forth_service_to_route:
+  params:
+    svc_name: <forth_svc_name>
+    weight: <weight_four>
+    service_id: 3
+  action: set_additional_service_to_route
 expand_add_another_service:
   elements:
   - selector:
       text: Add Another Service
     type: a
     op: click
-set_the_third_service_to_route:
-  elements:
-  - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][2]//span[contains(@class,'ui-select-match-text')]
-    op: click
-  - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][2]//span/div[text()='<third_svc_name>']
-    op: click
-  - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][2]//osc-routing-service[@model='alternate']//input[@name="weight"]
-    op: clear
-  - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][2]//osc-routing-service[@model='alternate']//input[@name="weight"]
-    op: send_keys <weight_three>
-set_the_forth_service_to_route:
-  elements:
-  - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][3]//span[contains(@class,'ui-select-match-text')]
-    op: click
-  - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][3]//span/div[text()='<forth_svc_name>']
-    op: click
-  - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][3]//osc-routing-service[@model='alternate']//input[@name="weight"]
-    op: clear
-  - selector:
-      xpath: //div[@ng-repeat="alternate in route.alternateServices"][3]//osc-routing-service[@model='alternate']//input[@name="weight"]
-    op: send_keys <weight_four>
 check_four_services_weight_on_route_page:
   action: check_three_services_weight_on_route_page
   elements:
