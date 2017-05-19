@@ -185,7 +185,7 @@ Feature: metrics related scenarios
   # @case_id OCP-10776
   @admin
   @smoke
-  Scenario: Deploy metrics stack with persistent storage
+  Scenario: Version < 3.4 deploy metrics stack with persistent storage
     Given I have a project
     And I have a NFS service in the project
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_pv.json" where:
@@ -296,7 +296,7 @@ Feature: metrics related scenarios
   # @case_id: OCP-10988
   @admin
   @destructive
-  Scenario: Move the commitlog to another volume-emptydir
+  Scenario: Version = 3.4 move the commitlog to another volume-emptydir
     Given I have a project
     And I store default router subdomain in the :subdomain clipboard
     And I store master major version in the :master_version clipboard
@@ -357,10 +357,10 @@ Feature: metrics related scenarios
 
   # @author: lizhou@redhat.com
   # @case_id: OCP-13983
-  # This case only support version >=3.5, for version =<3.4 see OCP-10988.
+  # This case only support version >=3.5, for version =3.4 see OCP-10988.
   @admin
   @destructive
-  Scenario: Move the commitlog to another volume-emptydir version >= 3.5
+  Scenario: Version >= 3.5 move the commitlog to another volume-emptydir
     # Deploy metrics
     Given the master version >= "3.5"
     Given I have a project
@@ -401,3 +401,75 @@ Feature: metrics related scenarios
     Then the step should succeed
     And I wait for the "hawkular-cassandra" service to become ready
     Then I wait until number of replicas match "1" for replicationController "hawkular-cassandra-1"
+
+  # @author lizhou@redhat.com
+  # @case_id OCP-13911
+  # This is the dup case of OCP-10776, to support deploy steps changes on OCP v3.4
+  # Run this case in m1.large on OpenStack, m3.large on AWS, or n1-standard-2 on GCE
+  @admin
+  @smoke
+  Scenario: Version = 3.4 deploy metrics stack with persistent storage
+    Given I have a project
+    And I have a NFS service in the project
+
+    # Create PV
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_pv.json" where:
+      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
+    
+    And I store default router subdomain in the :subdomain clipboard
+    And I store master major version in the :master_version clipboard
+
+    # Create ServiceAccount
+    When I run the :create_serviceaccount client command with:
+      | serviceaccount_name | metrics-deployer |
+    Then the step should succeed
+
+    # Add role to user
+    When I run the :policy_add_role_to_user client command with:
+      | role      | edit                                                     |
+      | user_name | system:serviceaccount:<%=project.name%>:metrics-deployer |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role      | view                                             |
+      | user_name | system:serviceaccount:<%=project.name%>:hawkular |
+    Then the step should succeed
+
+    # Add cluster role to user cluster-reader
+    Given cluster role "cluster-reader" is added to the "heapster" service account
+
+    # Create secret
+    When I run the :new_secret client command with:
+      | secret_name     | metrics-deployer  |
+      | credential_file | nothing=/dev/null |
+    Then the step should succeed
+
+    # Create new app
+    When I create a new application with:
+      | template | metrics-deployer-template                                     |
+      | param    | HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.<%= cb.subdomain%> |
+      | param    | IMAGE_PREFIX=<%= product_docker_repo %>openshift3/            |
+      | param    | USE_PERSISTENT_STORAGE=true                                   |
+      | param    | CASSANDRA_PV_SIZE=5Gi                                         |
+      | param    | IMAGE_VERSION=<%= cb.master_version%>                         |
+      | param    | MASTER_URL=<%= env.api_endpoint_url %>                        |
+      | param    | MODE=deploy                                                   |
+    Then the step should succeed
+
+    # Verify all pods and serivce are ready
+    And all pods in the project are ready
+    And I wait for the "hawkular-cassandra" service to become ready
+    And I wait for the "hawkular-metrics" service to become ready
+    And I wait for the "heapster" service to become ready
+
+    # Verify the storage are being used
+    Given a pod becomes ready with labels:
+      | metrics-infra=hawkular-cassandra |
+    And I wait for the steps to pass:
+    """
+    When I get project pod named "<%= pod.name %>" as YAML
+    Then the output should contain:
+      | persistentVolumeClaim |
+    """
+    # nfs bug 1337479, 1367161, so delete cassandra pod before post clean up work
+    # keep this step until bug fixed.
+    And I ensure "hawkular-cassandra-1" rc is deleted
