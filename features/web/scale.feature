@@ -22,7 +22,9 @@ Feature: scale related features
 
     #check replicas is 1
     When I perform the :check_pod_scaled_numbers web console action with:
-      | scaled_number | 1 |
+      | resource_name | mytest     |
+      | resource_type | deployment |
+      | scaled_number | 1          |
     Then the step should succeed
 
     #scale up 3 times
