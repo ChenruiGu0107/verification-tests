@@ -11,6 +11,7 @@ check_project_overview_without_resource:
     op: click
 check_autoscaler_min_pod_on_overview_page:
   action: goto_overview_page
+  action: expand_resource_entry
   element:
     selector:
        xpath: //div[contains(.,'Autoscaled')]/span[contains(.,'min') and contains(.,'<min_pods>')]
