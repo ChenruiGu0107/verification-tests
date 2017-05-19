@@ -449,7 +449,7 @@ Feature: Add pvc to pod from web related
       | pvc_name         | pvc-1               |
       | pvc_access_mode  | ReadOnlyMany        |
       | storage_size     | 0.001               |
-      | storage_unit     | TiB                 | 
+      | storage_unit     | TiB                 |
     Then the step should succeed
 
     When I perform the :check_pvcs_detail_on_storage_page web console action with:
@@ -497,7 +497,7 @@ Feature: Add pvc to pod from web related
       | pvc_access_mode | RWX (Read-Write-Many) |
       | storage_size    | 2 GiB                 |
     Then the step should succeed
-    
+
     # Create RWO type pvc
     Given I wait up to 180 seconds for the steps to pass:
     """
@@ -526,7 +526,7 @@ Feature: Add pvc to pod from web related
       | pvc_access_mode | RWO (Read-Write-Once) |
       | storage_size    | 1025 MiB              |
     Then the step should succeed
-    
+
     # Create No Storage Class pvc
     Given I wait up to 180 seconds for the steps to pass:
     """
@@ -552,7 +552,7 @@ Feature: Add pvc to pod from web related
       | pvc_name        | nsc                    |
       | pvc_access_mode | RWO (Read-Write-Once)  |
       | storage_size    | 1 GiB                  |
-    Then the step should succeed    
+    Then the step should succeed
 
     # Delete all pvc from web console
     When I perform the :delete_resources_pvc web console action with:
@@ -580,7 +580,7 @@ Feature: Add pvc to pod from web related
     Then the step should succeed
 
     Examples:
-      | provisioner | 
+      | provisioner |
       | aws-ebs     | # @case_id OCP-10444
       | gce-pd      | # @case_id OCP-10557
       | cinder      | # @case_id OCP-10556
