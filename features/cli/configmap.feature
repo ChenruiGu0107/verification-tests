@@ -354,8 +354,8 @@ Feature: configMap
     When I run the :describe client command with:
       | resource | configmap            |
       | name     | configmap-test-multi |
-    Then the output should match:
-      | data-1.*7 bytes |
+    Then the output should contain:
+      | data-1 |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-multi-volume.yaml | 
     Then the step should succeed
@@ -381,8 +381,8 @@ Feature: configMap
     When I run the :describe client command with:
       | resource | configmap            |
       | name     | configmap-test-multi |
-    Then the output should match:
-      | data-1.*7 bytes |
+    Then the output should contain:
+      | data-1 |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-same.yaml | 
     Then the step should succeed
@@ -405,8 +405,8 @@ Feature: configMap
     When I run the :describe client command with:
       | resource | configmap            |
       | name     | configmap-test-multi |
-    Then the output should match:
-      | data-1.*7 bytes |
+    Then the output should contain:
+      | data-1 |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-same.yaml | 
     Then the step should succeed
@@ -432,10 +432,10 @@ Feature: configMap
     When I run the :describe client command with:
       | resource | configmap     |
       | name     | default-files |
-    Then the output should match:
-      | configs.*7 bytes       |
-      | network.*7 bytes       |
-      | start-script.*29 bytes |
+    Then the output should contain:
+      | configs |
+      | network |
+      | start-script |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-path.yaml | 
     Then the step should succeed
