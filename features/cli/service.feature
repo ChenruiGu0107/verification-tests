@@ -197,7 +197,6 @@ Feature: service related scenarios
     Then the output by order should match:
       | name: my-svc                |
       | externalName: www.baidu.com |
-      | ports: null                 |
       | type: ExternalName          |
     When I execute on the pod:
       | sh |
@@ -226,7 +225,7 @@ Feature: service related scenarios
     When I run the :get client command with:
       | resource | svc |
     Then the step should succeed
-    And the output should match "my-svc-invalid.*abc123.abc123.com.*s"
+    And the output should match "my-svc-invalid.*abc123.abc123.com"
     When I run the :describe client command with:
       | resource | svc            |
       | name     | my-svc-invalid |
@@ -241,7 +240,6 @@ Feature: service related scenarios
     Then the output by order should match:
       | name: my-svc-invalid            |
       | externalName: abc123.abc123.com |
-      | ports: null                     |
       | type: ExternalName              |
     Given I have a pod-for-ping in the project
     When I execute on the pod:
