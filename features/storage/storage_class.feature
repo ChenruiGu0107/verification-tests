@@ -788,9 +788,9 @@ Feature: storageClass related feature
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd   |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                              | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
     When I run the :describe client command with:
@@ -841,9 +841,9 @@ Feature: storageClass related feature
       | ["provisioner"]      | kubernetes.io/gce-pd   |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                              | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-      | ["spec"]["storageClassName"]                                      | sc-<%= project.name %>  |
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+      | ["spec"]["storageClassName"]                                           | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
     When I run the :describe client command with:
@@ -872,9 +872,9 @@ Feature: storageClass related feature
       | ["provisioner"]      | kubernetes.io/gce-pd    |
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                              | pvc-<%= project.name %> |
-      | ["metadata"]["annotations"]["volume.kubernetes.io/storage-class"] | sc1-<%= project.name %> |
-      | ["spec"]["storageClassName"]                                      | sc2-<%= project.name %> |
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %> |
+      | ["spec"]["storageClassName"]                                           | sc2-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
     When I run the :describe client command with:
