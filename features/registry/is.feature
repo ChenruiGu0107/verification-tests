@@ -18,3 +18,136 @@ Feature: Testing imagestream
     And the "busybox:v1.3-3" image stream tag was created
     And the "busybox:v1.3-4" image stream tag was created
     And the "busybox:v1.2-5" image stream tag was created
+
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-13893
+  @destructive
+  @admin
+  Scenario: Shouldn't prune the image with week and strong reference witch the strong reference is imagestream
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role            | registry-admin   |
+      | user name       | system:anonymous |
+    Then the step should succeed
+    And evaluation of `project.name` is stored in the :original_proj clipboard
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And default registry route is stored in the :registry_hostname clipboard
+    And I run commands on the host:
+      | docker logout  <%= cb.integrated_reg_ip %>                                                                                                     |
+      | docker pull docker.io/busybox:latest;docker tag  docker.io/busybox:latest  <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
+      | docker push <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest                                                                |
+    Then the step should succeed
+    When I use the "<%= cb.original_proj %>" project
+    When I run the :get client command with:
+      | resource      | istag                    |
+      | resource_name | mystream:latest          |
+      | template      | {{.image.metadata.name}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :digest1 clipboard
+    When I run the :tag client command with:
+      | source_type  | docker                                                              |
+      | source       | <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
+      | dest         | <%= cb.original_proj %>/myisb:latest                                |
+      | insecure     | true                                                                |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker pull docker.io/openshift/hello-openshift:latest;docker tag  docker.io/openshift/hello-openshift:latest  <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
+      | docker push <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
+    Then the step should succeed
+    When I use the "<%= cb.original_proj %>" project
+    When I run the :get client command with:
+      | resource      | istag                    |
+      | resource_name | mystream:latest          |
+      | template      | {{.image.metadata.name}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :digest2 clipboard
+    And I run commands on the host:
+      | docker pull docker.io/openshift/deployment-example:latest;docker tag  docker.io/openshift/deployment-example:latest  <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
+      | docker push <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
+    Then the step should succeed
+    When I use the "<%= cb.original_proj %>" project
+    When I run the :get client command with:
+      | resource      | istag                    |
+      | resource_name | mystream:latest          |
+      | template      | {{.image.metadata.name}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :digest3 clipboard
+    Given cluster role "system:image-pruner" is added to the "first" user
+    And I run the :oadm_prune_images client command with:
+      | keep_tag_revisions | 1                           |
+      | keep_younger_than  | 0                           |
+      | registry_url       | <%= cb.registry_hostname %> |
+      | confirm            | true                        |
+    Then the step should succeed
+    And the output should not contain:
+      | <%= cb.digest1 %> |
+      | <%= cb.digest3 %> |
+    And the output should contain:
+      | <%= cb.digest2 %> |
+
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-13878
+  @destructive
+  @admin
+  Scenario: Shouldn't prune the image with week and strong reference which the strong reference is imagestreamtag
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    Given default registry route is stored in the :registry_hostname clipboard
+    Given I have a project
+    When I run the :new_build client command with:
+      | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    Then the "ruby-ex-1" build completes
+    When I run the :get client command with:
+      | resource      | istag                    |
+      | resource_name | ruby-ex:latest           |
+      | template      | {{.image.metadata.name}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :digest1 clipboard
+    When I run the :tag client command with:
+      | source_type  | docker                                                         |
+      | source       | <%= cb.integrated_reg_ip %>/<%= project.name %>/ruby-ex:latest |
+      | dest         | <%= project.name %>/ruby-ex:20                                 |
+      | insecure     | true                                                           |
+    Then the step should succeed
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-2" build was created
+    Then the "ruby-ex-2" build completes
+    When I run the :get client command with:
+      | resource      | istag                    |
+      | resource_name | ruby-ex:latest           |
+      | template      | {{.image.metadata.name}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :digest2 clipboard
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-3" build was created
+    Then the "ruby-ex-3" build completes
+    When I run the :get client command with:
+      | resource      | istag                    |
+      | resource_name | ruby-ex:latest           |
+      | template      | {{.image.metadata.name}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :digest3 clipboard
+    Then I run the :delete client command with:
+      | object_type       | buildConfig |
+      | object_name_or_id | ruby-ex     |
+    Then the step should succeed
+    Given cluster role "system:image-pruner" is added to the "first" user
+    And I run the :oadm_prune_images client command with:
+      | keep_tag_revisions | 1                           |
+      | keep_younger_than  | 0                           |
+      | registry_url       | <%= cb.registry_hostname %> |
+      | confirm            | true                        |
+    Then the step should succeed
+    And the output should not contain:
+      | <%= cb.digest1 %> |
+      | <%= cb.digest3 %> |
+    And the output should contain:
+      | <%= cb.digest2 %> |
