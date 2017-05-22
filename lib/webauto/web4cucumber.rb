@@ -544,7 +544,7 @@ require "base64"
       logger.embed Base64.strict_encode64(browser.html), "text/html;base64", "#{filename}.html"
     end
 
-    def get_elements(type:, context:, selector:)
+    def get_elements(type:, context:browser, selector:)
       type = type ? type.to_sym : :element # generic element when type absent
       raise "unknown web element type '#{type}'" unless FUNMAP.has_key? type
 

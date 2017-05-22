@@ -744,9 +744,8 @@ Feature: create app on web console related
     Then the step should succeed
     When I run the :confirm_errors_with_invalid_template_label web console action
     Then the step should succeed
-    When I get the "disabled" attribute of the "button" web element:
-      | text | Create |
-    Then the output should contain "true"
+    When I run the :check_create_button_disabled web console action
+    Then the step should succeed
     When I perform the :delete_env_var web console action with:
       | env_var_key | test3!#! |
     Then the step should succeed

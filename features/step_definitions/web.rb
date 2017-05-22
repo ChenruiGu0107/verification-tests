@@ -67,7 +67,8 @@ When /^I get the (?:"([^"]*)" attribute|content) of the "([^"]*)" web element:$/
   #  [ key, YAML.load(value) ]
   #end
 
-  found_elements = browser.get_visible_elements(element_type, selector)
+  found_elements = browser.get_visible_elements(type:     element_type,
+                                                selector: selector)
 
   if found_elements.empty?
     raise "can not find this #{element_type} element with #{selector}"
