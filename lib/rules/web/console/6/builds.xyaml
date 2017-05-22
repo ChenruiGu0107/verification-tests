@@ -147,23 +147,29 @@ check_build_environment:
   action: goto_build_environment_tab
   action: check_environment_tab
 check_environment_tab:
-  elements:
-  - selector:
+  action: check_environment_variable
+check_environment_variable:
+  element:
+    selector:
       xpath: //div[contains(@class,'key-value-editor-input')]/input
   scripts:
-    - command: |
-            var key = "<env_var_key>",
-                value = "<env_var_value>",
-                rows = document.querySelectorAll('div[class~=key-value-editor-entry]'),
-                inputs = [];
-            for (var i =0; i< rows.length; i++) {
-              inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input');
-              if (inputs.length == 2 && inputs[0].value == key && inputs[1].value == value) {
-                return true;
-              }
-            }
-            return false;
-      expect_result: true
+  - command: |
+        var key = "<env_var_key>",
+            value = "<env_var_value>",
+            rows = document.querySelectorAll('div[class~=key-value-editor-entry]');
+        for (var i =0; i< rows.length; i++) {
+          let inputs = rows[i].querySelectorAll('div[class~=key-value-editor-input] input');
+          if (inputs.length == 2) {
+            if (inputs[0].value == key && inputs[1].value == value)
+              return true;
+          } else if (inputs.length == 1) {
+            let div = rows[i].querySelectorAll('div[class~=key-value-editor-input] div div div');
+            if (inputs[0].value == key && div.length == 1 && div[0].textContent.replace(/(\n+)/gm," ").includes(value))
+              return true;
+          }
+        }
+        return false;
+    expect_result: true
 check_env_var_missing:
   elements:
   - selector:
