@@ -19,7 +19,7 @@ And /^I save the (logging|metrics) project name to the#{OPT_SYM} clipboard$/ do 
     rc(expected_rc_name, project).exists?(user: admin, quiet: true)
   }
   if found_proj.count != 1
-    raise ("Found #{found_proj.count} logging services installed in the cluster, expected 1")
+    raise ("Found #{found_proj.count} #{svc_type} services installed in the cluster, expected 1")
   else
     cb[cb_name] = found_proj[0].name
   end
@@ -37,7 +37,9 @@ Given /^there should be (\d+) (logging|metrics) services? installed/ do |count, 
   found_proj = CucuShift::Project.get_matching(user: admin) { |project, project_hash|
     rc(expected_rc_name, project).exists?(user: admin, quiet: true)
   }
-  raise ("Found #{found_proj.count} logging services installed in the cluster, expected #{count}") if found_proj.count != Integer(count)
+  if found_proj.count != Integer(count)
+    raise ("Found #{found_proj.count} #{svc_type} services installed in the cluster, expected #{count}")
+  end
 end
 
 # short-hand for the generic uninstall step if we are just using the generic install
@@ -196,7 +198,9 @@ end
 # step will raise exception if metrics name is not 'openshift-infra'
 Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OPT_QUOTED} project with ansible using:$/ do |svc_type, op, proj, table|
   ensure_admin_tagged
+
   if op == 'installed'
+
     step %Q/there should be 0 #{svc_type} service installed/
   end
 
@@ -208,10 +212,11 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   end
 
   logger.info("Performing operation '#{op[0..-3]}' to #{target_proj}...")
-
-  step %Q/I register clean-up steps:/, table(%{
-    | I remove #{svc_type} service installed in the "#{target_proj}" project using ansible |
-    })
+  if op == 'installed'
+    step %Q/I register clean-up steps:/, table(%{
+      | I remove #{svc_type} service installed in the "#{target_proj}" project using ansible |
+      })
+  end
 
   raise "Must provide inventory option!" unless ansible_opts.keys.include? 'inventory'.to_sym
 
@@ -243,39 +248,44 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   FileUtils.copy(pem_file_path, "tmp/")
   @result = admin.cli_exec(:oadm_config_view, flatten: true, minify: true)
   File.write(File.expand_path("tmp/admin.kubeconfig"), @result[:response])
+  org_user = user
+  begin
+    step %Q/I switch to cluster admin pseudo user/
+    step %Q/I have a pod with openshift-ansible playbook installed/
 
-  step %Q/I have a pod with openshift-ansible playbook installed/
-
-  if svc_type == 'logging'
-    ansible_template_path = "openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml"
-  else
-    ansible_template_path = "openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml"
-  end
-
-  step %Q/I execute on the pod:/, table(%{
-    | bash                                                                                                |
-    | -c                                                                                                  |
-    | cd /tmp/tmp && ansible-playbook -i /tmp/<%= "#{new_path}" %> -vvv <%= "#{ansible_template_path}" %> |
-    })
-  step %Q/the step should succeed/
-
-  # the openshift-ansible playbook restarts master at the end, we need to run the following to just check the master is ready.
-  step %Q/the master is operational/
-
-  if op == 'installed'
     if svc_type == 'logging'
-      # there are 4 pods we need to verify that should be running  logging-curator,
-      # logging-es, logging-fluentd, and logging-kibana
-      step %Q/all logging pods are running in the "#{target_proj}" project/
+      ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml"
     else
-      step %Q/all metrics pods are running in the "#{target_proj}" project/
+      ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml"
     end
-  else
-    if svc_type == 'logging'
-      step %Q/there should be 0 logging service installed/
+
+    step %Q/I execute on the pod:/, table(%{
+      | bash                                                                                                  |
+      | -c                                                                                                    |
+      | cd /usr/share && ansible-playbook -i /tmp/<%= "#{new_path}" %> -vvv <%= "#{ansible_template_path}" %> |
+      })
+    step %Q/the step should succeed/
+
+    # the openshift-ansible playbook restarts master at the end, we need to run the following to just check the master is ready.
+    step %Q/the master is operational/
+
+    if op == 'installed'
+      if svc_type == 'logging'
+        # there are 4 pods we need to verify that should be running  logging-curator,
+        # logging-es, logging-fluentd, and logging-kibana
+        step %Q/all logging pods are running in the "#{target_proj}" project/
+      else
+        step %Q/all metrics pods are running in the "#{target_proj}" project/
+      end
     else
-      step %Q/there should be 0 metrics service installed/
+      if svc_type == 'logging'
+        step %Q/there should be 0 logging service installed/
+      else
+        step %Q/there should be 0 metrics service installed/
+      end
     end
+  ensure
+    @user = org_user
   end
 end
 
@@ -318,62 +328,54 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
   # to save time we are going to check if the base-ansible-pod already exists
   # use admin user to get the information so we don't need to swtich user.
   unless pod("base-ansible-pod", cb.org_project_for_ansible).exists?(user: admin)
-    step %Q/I run the :create client command with:/, table(%{
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_ansible_pod.json |
+    step %Q/I run the :create admin command with:/, table(%{
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/base_fedora_pod.yaml |
+      | n | <%= project.name %>                                                                                     |
     })
     step %Q/the step should succeed/
     step %Q/the pod named "base-ansible-pod" becomes ready/
     # save it for future use
     cb.ansible_runner_pod = pod
-    # fix uid to match the correct value
-    cb.sed_cmd = 'echo -e ",s/1234321/`id -u`/g\\012 w" | ed -s /etc/passwd'
-    step %Q/I execute on the pod:/, table(%{
-      | bash              |
-      | -c                |
-      | <%= cb.sed_cmd %> |
-    })
-    step %Q/the step should succeed/
 
     if conf[:openshift_ansible_installer].start_with? 'git#'
       branch_name = conf[:openshift_ansible_installer][4..-1]
     end
     step %Q`I save the rpm names matching /openshift-ansible/ from puddle to the :openshift_ansible_rpms clipboard`
-
+    cb.repo_url = cb.puddle_url.split('x86_64')[0] + "puddle.repo"
     # extract the commit id for git checkout later
     commit_id = cb.openshift_ansible_rpms[0].match(/git.\d+.(\w+)/)[1]
-    step %Q/I run the :rsync client command with:/, table(%{
+    step %Q/I run the :rsync admin command with:/, table(%{
       | source      | <%= localhost.absolutize("tmp") %> |
       | destination | base-ansible-pod:/tmp              |
       | loglevel    | 5                                  |
+      | n           | <%= project.name %>                |
       })
     step %Q/the step should succeed/
-    # depending on global option defined in config/config.yaml we either install
+
+    download_cmd = "cd /etc/yum.repos.d/; curl -L -O #{cb.repo_url}"
+
+    @result = pod.exec("bash", "-c", download_cmd, as: user)
+    step %Q/the step should succeed/
+    install_ansible_cmd = 'yum -y install ansible'
+    @result = pod.exec("bash", "-c", install_ansible_cmd, as: user)
+    step %Q/the step should succeed/
     # openshift-ansible via rpm or just do git clone from branch name
     if conf[:openshift_ansible_installer] == "yum" or conf[:openshift_ansible_installer] == "rpm"
-      # first check if openshift-ansible playbook is install in the master
-      step %Q/openshift-ansible is installed in the "<%= env.master_hosts.first.hostname %>" node/
-      step %Q/I rsync files from node named "<%= env.master_hosts.first.hostname %>" to pod named "base-ansible-pod" using parameters:/, table(%{
-        | src_dir | /usr/share/ansible/openshift-ansible/        |
-        | dst_dir | base-ansible-pod:/tmp/tmp/openshift-ansible/ |
-        })
-      step %Q/the step should succeed/
-      # plugins are needed
-      step %Q/I rsync files from node named "<%= env.master_hosts.first.hostname %>" to pod named "base-ansible-pod" using parameters:/, table(%{
-        | src_dir | /usr/share/ansible_plugins/                |
-        | dst_dir | base-ansible-pod:/tmp/tmp/ansible_plugins/ |
+      install_openshift_ansible_cmd = 'yum -y install openshift-ansible*'
+      step %Q/I execute on the pod:/, table(%{
+        | bash                             |
+        | -c                               |
+        | #{install_openshift_ansible_cmd} |
         })
       step %Q/the step should succeed/
     elsif conf[:openshift_ansible_installer].start_with? "git"
       if branch_name
-        git_cmd = "cd /tmp/tmp/ && rm -rf openshift-ansible  && git clone https://github.com/openshift/openshift-ansible/ -b #{branch_name}"
+        git_cmd = "cd /usr/share/ansible && git clone https://github.com/openshift/openshift-ansible/ -b #{branch_name}"
       else
-        git_cmd = "cd /tmp/tmp/ && rm -rf openshift-ansible  && git clone https://github.com/openshift/openshift-ansible/ && cd openshift-ansible && git checkout #{commit_id}"
+        git_cmd = "cd /usr/share/ansible && git clone https://github.com/openshift/openshift-ansible/ && cd openshift-ansible && git checkout #{commit_id}"
       end
-      step %Q/I execute on the pod:/, table(%{
-        | bash       |
-        | -c         |
-        | #{git_cmd} |
-        })
+
+      @result = pod.exec("bash", "-c", git_cmd, as: user)
       step %Q/the step should succeed/
     else
       raise "Installation method '#{conf[:openshift_ansible]}' is currently not supported"
