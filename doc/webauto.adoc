@@ -21,6 +21,7 @@ consist of the following rules:
 * `url:`
 * `element:`/`elements:`
 * `scripts:`
+* `params:`
 
 Any combination of rules could be used to locate required elements on the web
 page and perform operations on it.
@@ -45,6 +46,94 @@ child_web_rule_2:
   element:
     selector:
       text: Login
+----
+
+Actions could run optionally if some defined conditions were met.
+
+==== `if_element:`
+Example with element condition:
+
+[source,yaml]
+----
+click_save_button_if_exists:
+  action:
+    if_element:
+      selector:
+        tag_name: button
+        text: Save
+    ref: click_save_button
+----
+
+In the example above the `click_save_button` action will run only in case
+when `selector` rule can successfully select an element on the page.
+
+==== `if_param:`
+Set of examples with parameter condition:
+
+* to check if parameter key was defined:
+
+[source,yaml]
+----
+single_param_name_condition:
+  action:
+    if_param: namespace
+    ref: do_smth_with_namespace
+----
+
+* to check if several parameter keys were defined:
+
+[source,yaml]
+----
+multiple_param_name_condition:
+  action:
+    if_param:
+    - namespace
+    - image
+    ref: do_smth_with_namespace_and_image
+----
+
+* to check if parameter key and value were defined:
+
+[source,yaml]
+----
+param_condition:
+  action:
+    if_param:
+      namespace: openshift
+    ref: do_smth_with_openshift_namespace
+----
+
+==== `context:`
+You will need to use this rule only if you want to work with elements which is
+located in an iframe:
+
+[source,yaml]
+----
+single_param_name_condition:
+  action:
+    context:
+      tag_name: iframe
+    ref: do_smth_in_iframe
+----
+
+Specify an iframe selector in the `context` rule to work inside it.
+`ref` action and all nested action will run inside specified `context`.
+
+==== `ref:`
+As you already could noticed this rule is used to reference another action which
+will run if all conditions were met or context was successfully provided. Also
+you can run multiple actions:
+
+[source,yaml]
+----
+single_param_name_condition:
+  action:
+    if_param:
+      more_actions: true
+    ref:
+    - first_action
+    - middle_action
+    - last_action
 ----
 
 === URL redirection
@@ -185,9 +274,7 @@ run_js_code:
     expect_result: true
 ----
 
-Make sure, that your command return `true`/`false` value and `expect_result:`
-field exists.
-There are two rules to run JavaScript code
+Make sure, that your return value is matching the `expected_result`.
 
 ==== `command:`
 The JavaScript code could be placed inline in the `*.xyaml` file.
@@ -195,6 +282,84 @@ The JavaScript code could be placed inline in the `*.xyaml` file.
 ==== `file:`
 This option take as a parameter name of the JavaScript file located in the
 `/lib/rules/web/snippets/` directory. The `snippets` directory can be specified in the `Web4Cucumber` constructor.
+
+=== JavaScript Snippets
+
+All this snippets were created to keep web rules cleaner and don't copy
+the same code between different versions. If you want to add another snippet -
+make sure that you code is (almost) not affected by cluster version.
+
+==== `jquery.simulate.drag-sortable.js`
+This snippets is used to simulate drag&drop in jQuery sortable list.
+Basically this is a jQuery extension, which could be used to move selected
+element in the list on some number of positions above/below. See example:
+
+[source,yaml]
+----
+reorder_environment_variable:
+  scripts:
+  - file: jquery.simulate.drag-sortable
+    expect_result: true
+  - command: |
+        $(html_element).simulateDragSortable({ move: 1, handle: ".as-sortable-item-handle"});
+        return true;
+expect_result: true
+----
+
+Here we are trying to move `html_element` 1 position below by the handle with
+`as-sortable-item-handle` class.
+
+==== `json-patch.js`
+The library stored in `window.qe_jsonpatch` variable.
+
+Look at http://jsonpatch.com/ to see existing operations.
+Example of usage:
+
+[source,yaml]
+----
+pathc_json:
+  scripts:
+  - file: json-patch
+    expect_result: ~
+  - command: |
+        let json_object = {
+              "baz": "qux"
+            },
+            patch = [
+              { "op": "replace", "path": "/baz", "value": "boo" }
+            ],
+            result_json = '{"baz":"boo"}';
+        window.qe_jsonpatch.apply(json_object, patches);
+        return JSON.stringify(json_object) == result_json;
+expect_result: true
+----
+
+==== `ace-editor.js`
+The library stored in `window.qe_ace_editor` variable.
+
+This snippet provide you an easy way to communicate with ace editor on the page.
+Example of usage:
+
+[source,yaml]
+----
+patch_ace_editor_content:
+  scripts:
+  - file: json-patch
+    expect_result: ~
+  - file: ace-editor
+    expect_result: ~
+  - command: |
+        editor = ace.edit("<editor_id>");
+        window.qe_ace_editor.patch(editor, "<content_type>", <patch>);
+        return true;
+expect_result: true
+----
+
+The `qe_ace_editor` function takes as parameters:
+
+* `editor` - object which you can get by calling `ace.edit(editor_id);` or `ace.edit(editor_element);`
+* `content_type` - type of content in the editor ("JSON" or "YAML")
+* `patch` - actual patch you want to apply to the content (look at `json-patch`)
 
 === Parameters
 To make web rule widely usable for many Scenarios there is an option to provide
@@ -213,6 +378,19 @@ In the web rule, provided parameter will be replaced by <key>:
 goto_dc_tab:
   url: /console/project/<project_name>/create?tab=<tab_name>
 ----
+
+Also you could set default parameters directly in the web rule:
+
+[source,yaml]
+----
+lets_use_default_params:
+  params:
+    project_name: hello_world
+    tab_name: configuration
+  url: /console/project/<project_name>/create?tab=<tab_name>
+----
+
+They will be overwritten with parameters provided with the step table.
 
 == How to call the web rule from Scenario?
 There are two common ways to call web rules from `*.feature` file:
