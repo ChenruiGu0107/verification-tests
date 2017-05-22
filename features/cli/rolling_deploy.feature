@@ -171,6 +171,7 @@ Feature: rolling deployment related scenarios
       | "type": "ConfigChange" |
       | "replicas": 1 |
 
+    And I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
@@ -191,6 +192,7 @@ Feature: rolling deployment related scenarios
       | "replicas": 2 |
 
     ## post rest request for curl new json
+    And I wait until the status of deployment "hooks" becomes :complete
     When I perform the :rollback_deploy rest request with:
       | project_name            | <%= project.name %> |
       | deploy_name             | hooks-1 |
@@ -231,6 +233,7 @@ Feature: rolling deployment related scenarios
       | "type": "ConfigChange" |
       | "replicas": 1 |
 
+    And I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
@@ -251,6 +254,7 @@ Feature: rolling deployment related scenarios
       | "replicas": 2 |
 
     ## post rest request for curl new json
+    And I wait until the status of deployment "hooks" becomes :complete
     When I perform the :rollback_deploy rest request with:
       | project_name            | <%= project.name %> |
       | deploy_name             | hooks-1 |
@@ -306,6 +310,7 @@ Feature: rolling deployment related scenarios
       | "type": "ConfigChange" |
       | "replicas": 1 |
 
+    And I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
@@ -326,6 +331,7 @@ Feature: rolling deployment related scenarios
       | "replicas": 2 |
 
     ## post rest request for curl new json
+    And I wait until the status of deployment "hooks" becomes :complete
     When I perform the :rollback_deploy rest request with:
       | project_name            | <%= project.name %> |
       | deploy_name             | hooks-1 |
@@ -379,6 +385,7 @@ Feature: rolling deployment related scenarios
       | "type": "ConfigChange" |
       | "replicas": 1 |
 
+    And I wait until the status of deployment "hooks" becomes :complete
     When I run the :replace client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/updatev1.json |
     Then the step should succeed
@@ -399,6 +406,7 @@ Feature: rolling deployment related scenarios
       | "replicas": 2 |
 
     ## post rest request for curl new json
+    And I wait until the status of deployment "hooks" becomes :complete
     When I perform the :rollback_deploy rest request with:
       | project_name            | <%= project.name %> |
       | deploy_name             | hooks-1 |
