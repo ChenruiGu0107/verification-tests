@@ -212,7 +212,7 @@ Feature: pods related scenarios
       | resource_name | hello-openshift                        |
       | p             | {"spec":{"activeDeadlineSeconds":5.5}} |
     Then the step should fail
-    And the output should contain "fractional integer"
+    And the output should match "(fractional integer|cannot convert float64 to int64)"
     When I run the :patch client command with:
       | resource      | pod                                    |
       | resource_name | hello-openshift                        |
@@ -417,5 +417,5 @@ Feature: pods related scenarios
       | resource | po        |
       | name     | hello-pod |
     Then the output should match:
-      | RunContainerError.*runContainer: Error response from daemon |
+      | Warning.*Error syncing pod.*shm_rmid_forced: invalid argument |
     """

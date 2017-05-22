@@ -17,8 +17,8 @@ Feature: configMap
       | resource | configmap      |
       | name     | special-config |
     Then the output should match:
-      | special.how.*4 bytes  |
-      | special.type.*5 bytes |
+      | special.how  |
+      | special.type |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-env.yaml |
     Then the step should succeed
@@ -48,8 +48,8 @@ Feature: configMap
       | resource | configmap      |
       | name     | special-config |
     Then the output should match:
-      | special.how.*4 bytes  |
-      | special.type.*5 bytes |
+      | special.how  |
+      | special.type |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-volume1.yaml |
     Then the step should succeed
@@ -126,8 +126,8 @@ Feature: configMap
       | resource | configmap      |
       | name     | special-config |
     Then the output should match:
-      | special.how.*4 bytes  |
-      | special.type.*5 bytes |
+      | special.how  |
+      | special.type |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-command.yaml |
     Then the step should succeed
@@ -203,8 +203,8 @@ Feature: configMap
       | resource  | configmap     |
       | name      | game-config-1 |
     Then the output should match:
-      | Name.*game-config-1       |
-      | game.properties.*bytes    |
+      | Name.*game-config-1 |
+      | game.properties     |
     When I get project configmap named "game-config-1" as YAML
     Then the output by order should match:
       | game.properties: \|                  |
@@ -225,9 +225,9 @@ Feature: configMap
       | resource  | configmap     |
       | name      | game-config-2 |
     Then the output should match:
-      | Name.*game-config-2       |
-      | game.properties.*bytes    |
-      | ui.properties.*bytes      |
+      | Name.*game-config-2 |
+      | game.properties     |
+      | ui.properties       |
     When I get project configmap named "game-config-2" as YAML
     Then the output by order should match:
       | game.properties: \|                  |
@@ -319,9 +319,9 @@ Feature: configMap
       | resource  | configmap   |
       | name      | game-config |
     Then the output should match:
-      | Name.*game-config       |
-      | game.properties.*bytes  |
-      | ui.properties.*bytes    |
+      | Name.*game-config |
+      | game.properties   |
+      | ui.properties     |
     When I get project configmap named "game-config" as YAML
     Then the output by order should match:
       | game.properties: \|                  |

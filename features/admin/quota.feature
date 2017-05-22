@@ -1299,7 +1299,7 @@ Feature: Quota related scenarios
       | scopes | BestEffort,NotBestEffort |
       | n      | <%= project.name %>      |
     Then the step should fail
-    And the output should contain "spec.scopes: Invalid value: ["BestEffort","NotBestEffort"]: conflicting scopes"
+    And the output should match "Invalid value.*BestEffort.*NotBestEffort.*conflicting scopes"
 
   # @author qwang@redhat.com
   # @case_id OCP-11827
@@ -1312,7 +1312,7 @@ Feature: Quota related scenarios
       | scopes | Terminating,NotTerminating |
       | n      | <%= project.name %>        |
     Then the step should fail
-    And the output should contain "spec.scopes: Invalid value: ["Terminating","NotTerminating"]: conflicting scopes"
+    And the output should match "Invalid value.*Terminating.*NotTerminating.*conflicting scopes"
 
   # @author wmeng@redhat.com
   # @case_id OCP-10278
