@@ -21,6 +21,7 @@ Feature: test master config related steps
             - maxProjects: 1
     """
     Then the step should succeed
+    And the master service is restarted on all master nodes
     When I run the :label admin command with:
       | resource | user             |
       | name     | <%= user.name %> |
