@@ -344,13 +344,6 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
     cb.repo_url = cb.puddle_url.split('x86_64')[0] + "puddle.repo"
     # extract the commit id for git checkout later
     commit_id = cb.openshift_ansible_rpms[0].match(/git.\d+.(\w+)/)[1]
-    step %Q/I run the :rsync admin command with:/, table(%{
-      | source      | <%= localhost.absolutize("tmp") %> |
-      | destination | base-ansible-pod:/tmp              |
-      | loglevel    | 5                                  |
-      | n           | <%= project.name %>                |
-      })
-    step %Q/the step should succeed/
 
     download_cmd = "cd /etc/yum.repos.d/; curl -L -O #{cb.repo_url}"
 
@@ -381,6 +374,8 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
       raise "Installation method '#{conf[:openshift_ansible]}' is currently not supported"
     end
   end
+  @result = admin.cli_exec(:rsync, source: localhost.absolutize("tmp"), destination: "base-ansible-pod:/tmp", loglevel: 5, n: cb.org_project_for_ansible.name)
+  step %Q/the step should succeed/
 end
 
 
@@ -394,7 +389,6 @@ Given /^I save installation inventory from master to the#{OPT_SYM} clipboard$/ d
   host = env.master_hosts.first
   qe_inventory_file = 'qe-inventory-host-file'
   @result = host.exec("cat /tmp/#{qe_inventory_file}")
-  conf = nil
   if @result[:success]
     config = ConfigParser.new
     config.parse(@result[:response].each_line)
