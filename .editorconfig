@@ -1,5 +1,7 @@
+# download the plugin for your IDE from http://editorconfig.org/#download
 root = true
 
+## default style
 [*]
 indent_style = space
 indent_size = 2
@@ -14,7 +16,12 @@ charset = utf-8
 indent_size = 2
 
 [*.go]
-indent_size = 8
+indent_size = tab
+indent_style = tab
+tab_width = 2
+
+[*.js]
+indent_size = 2
 
 # gherkins
 [*.feature]
@@ -38,3 +45,7 @@ indent_size = 2
 
 [*.yaml]
 indent_size = 2
+
+# Tab indentation (no size specified)
+[Makefile]
+indent_style = tab
