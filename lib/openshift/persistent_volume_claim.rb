@@ -43,8 +43,10 @@ module CucuShift
     def storage_class(user: nil, cached: true, quiet: false)
       metadata = get_cached_prop(prop: :metadata, user: user, cached: cached, quiet: quiet)
       spec = get_cached_prop(prop: :spec, user: user, cached: true, quiet: quiet)
-      return metadata.dig('annotations', 'volume.kubernetes.io/storage-class')      || \
-             metadata.dig('annotations', 'volume.beta.kubernetes.io/storage-class') || \
+      # From some weird reason, beta annotations take precedence over "stable" ones in Kubernetes.
+      # https://bugzilla.redhat.com/show_bug.cgi?id=1448385#c1
+      return metadata.dig('annotations', 'volume.beta.kubernetes.io/storage-class') || \
+             metadata.dig('annotations', 'volume.kubernetes.io/storage-class')      || \
              spec['storageClassName']
     end
   end
