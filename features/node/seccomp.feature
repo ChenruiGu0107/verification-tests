@@ -8,11 +8,6 @@ Feature: Seccomp
       | filename  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
     Then the step should succeed
     Given the pod named "hello-openshift" becomes ready
-    When  I run the :describe client command with:
-      | resource | pod             |
-      | name     | hello-openshift |
-    Then the output should contain:
-      | Security:[seccomp=unconfined] |
     When I execute on the pod:
       | grep | Seccomp | /proc/self/status |
     Then the output should contain:
