@@ -1,3 +1,8 @@
+wait_cancel:
+  element:
+    selector:
+      xpath: //button[contains(.,"Cancel")]
+    timeout: 60
 choose_resource_type:
   elements:
   - selector:

@@ -48,13 +48,12 @@ manually_deploy:
     op: click
   - selector:
       xpath: //span[contains(text(),'has started')]
-cancel_deployments:
-  action: goto_one_deployment_page
+cancel_deployment_on_one_deployment_page:
+  action: wait_cancel
   action: click_cancel
-  elements:
-  - selector:
-      xpath: //span[contains(text(),'Cancelling deployment')]
-    timeout: 60
+  element:
+    selector:
+      xpath: //dd[contains(normalize-space(),'Cancelled')]
 edit_replicas_on_dc_page:
   action: goto_one_dc_page
   elements:

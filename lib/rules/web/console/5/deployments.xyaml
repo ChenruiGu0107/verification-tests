@@ -42,8 +42,8 @@ manually_deploy:
     op: click
   - selector:
       xpath: //span[contains(text(),'has started')]
-cancel_deployments:
-  action: goto_one_deployment_page
+cancel_deployment_on_one_deployment_page:
+  action: wait_cancel
   action: click_cancel
   element:
     selector:
