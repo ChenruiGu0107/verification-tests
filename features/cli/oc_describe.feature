@@ -156,6 +156,5 @@ Feature: Return description with cli
     Then the step should succeed
     When I run the :describe client command with:
       | resource | event    |
-    Then the step should fail
     And the output should not match:
       | no description.* [Ee]vent.*\n\s+no description.* [Ee]vent |
