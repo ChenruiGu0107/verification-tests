@@ -789,11 +789,14 @@ Feature: creating 'apps' with CLI
     """
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/tc519471/image-stream-tag-update.json
     Then the step should succeed
-    When I get project istag
-    Then the step should succeed
-    And the output should contain:
+    And I wait for the steps to pass:
+    """
+    I get project istag
+    the step should succeed
+    the output should contain:
       | registry.access.redhat.com/rhel7.1 |
       | registry.access.redhat.com/rhel7.2 |
+    """
 
   # @author cryan@redhat.com
   # @case_id OCP-12240
