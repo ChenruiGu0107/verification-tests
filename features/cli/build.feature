@@ -2817,7 +2817,8 @@ Feature: build 'apps' with CLI
     """
     When I run the :new_build client command with:
       | app_repo | https://github.com/openshift/ruby-hello-world |
-      | env_file | test2.env                                     |
+      | env_file | -                                             |
+      | _stdin   | <%= File.read("test2.env") %>                 |
     When I run the :env client command with:
       | resource | po/ruby-hello-world-1-build |
       | list     | true                        |
