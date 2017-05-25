@@ -2306,8 +2306,6 @@ Feature: Testing haproxy router
       | keyval       | haproxy.router.openshift.io/disable_cookies=true |
     Then the step should succeed
     Given I have a pod-for-ping in the project
-    Given I run the steps 5 times:
-    """
     When I execute on the pod:
       | curl |
       | -sS |
@@ -2316,17 +2314,12 @@ Feature: Testing haproxy router
       | /tmp/cookies |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
-    And evaluation of `@result[:response]` is stored in the :first_access clipboard
     When I execute on the pod:
-      | curl |
-      | -sS |
-      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
-      | -b |
-      | /tmp/cookies |
+      | bash | -c | for i in {1..10} ; do curl -sS  http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ -b /tmp/cookies ; done |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    And the expression should be true> cb.first_access != @result[:response]
-    """
+    And the output should contain:
+      | Hello-OpenShift-1 |
+      | Hello-OpenShift-2 |
 
   # @author yadu@redhat.com
   # @case_id OCP-11042
@@ -2353,8 +2346,6 @@ Feature: Testing haproxy router
       | keyval       | haproxy.router.openshift.io/disable_cookies=true |
     Then the step should succeed
     Given I have a pod-for-ping in the project
-    Given I run the steps 5 times:
-    """
     When I execute on the pod:
       | curl |
       | -sS |
@@ -2364,18 +2355,12 @@ Feature: Testing haproxy router
       | /tmp/cookies |
     Then the step should succeed
     And the output should contain "Hello-OpenShift"
-    And evaluation of `@result[:response]` is stored in the :first_access clipboard
     When I execute on the pod:
-      | curl |
-      | -sS |
-      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
-      | -k |
-      | -b |
-      | /tmp/cookies |
+      | bash | -c | for i in {1..10} ; do curl -ksS  https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ -b /tmp/cookies ; done |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    And the expression should be true> cb.first_access != @result[:response]
-    """
+    And the output should contain:
+      | Hello-OpenShift-1 |
+      | Hello-OpenShift-2 |
 
   # @author yadu@redhat.com
   # @case_id OCP-11418
