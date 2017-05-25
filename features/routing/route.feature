@@ -403,6 +403,22 @@ Feature: Testing route
     And I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
 
+    #Create one path with slash at the end
+    When I run the :expose client command with:
+      | resource      | service          |
+      | resource_name | service-unsecure |
+      | path          | /                |
+      | name          | slash-test       |
+    Then the step should succeed
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the "http://<%= route("slash-test", service("service-unsecure")).dns(by: user) %>/test/" url
+    Then the output should contain "Hello-OpenShift-Path-Test"
+    """
+    When I open web server via the "http://<%= route("slash-test", service("service-unsecure")).dns(by: user) %>/" url
+    Then the output should contain "Hello-OpenShift"
+    
+
   # @author zzhao@redhat.com
   # @case_id OCP-12562
   Scenario: The path specified in route can work well for edge terminated
