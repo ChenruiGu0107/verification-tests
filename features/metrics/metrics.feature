@@ -415,7 +415,7 @@ Feature: metrics related scenarios
     # Create PV
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_pv.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    
+
     And I store default router subdomain in the :subdomain clipboard
     And I store master major version in the :master_version clipboard
 
@@ -473,3 +473,22 @@ Feature: metrics related scenarios
     # nfs bug 1337479, 1367161, so delete cassandra pod before post clean up work
     # keep this step until bug fixed.
     And I ensure "hawkular-cassandra-1" rc is deleted
+
+  # @author pruan@redhat.com
+  # @case_id OCP-11868
+  @admin
+  @destructive
+  Scenario: Metrics Admin Command - Deploy set PV type 'pv'
+    Given the master version >= "3.5"
+    Given I have a project
+    And I have a NFS service in the project
+    # Create PV
+    Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_pv.json" where:
+      | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
+      | ["spec"]["capacity"]["storage"] | 10Gi                             |
+
+    And metrics service is installed in the "openshift-infra" project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11868/inventory |
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-infra" project
+    And the "metrics-cassandra-1" PVC becomes :bound

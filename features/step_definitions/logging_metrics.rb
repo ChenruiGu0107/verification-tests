@@ -219,8 +219,8 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   end
 
   raise "Must provide inventory option!" unless ansible_opts.keys.include? 'inventory'.to_sym
-
-  step %Q/I store default router subdomain in the :subdomain clipboard/
+  # use ruby instead of step to bypass user restriction
+  cb.subdomain = env.router_default_subdomain(user: user, project: project)
   step %Q/I store master major version in the :master_version clipboard/
   step %Q/I create the "tmp" directory/
   # prep the inventory file.
