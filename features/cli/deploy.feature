@@ -593,7 +593,7 @@ Feature: deployment related features
     And I replace resource "rc" named "hooks-3":
       | Complete | Pending |
     Then the step should succeed
-    And I wait up to 30 seconds for the steps to pass:
+    And I wait for the steps to pass:
     """
     When I run the :rollout_latest client command with:
       | resource | hooks |
@@ -1949,3 +1949,63 @@ Feature: deployment related features
     When I get project dc named "frontend" as JSON
     Then the output should not contain:
       | lastTriggeredImage     |
+
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-14336
+  @admin
+  Scenario: Should show deployment conditions correctly
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-ignores-deployer.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc                                       |
+      | resource_name | database                                 |
+      | template      | {{(index .status.conditions 1).reason }} |
+    Then the step should succeed
+    And the output should match "NewReplicationControllerCreated"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/testhook.json |
+    Then the step should succeed
+    And I wait until the status of deployment "hooks" becomes :complete
+    When I run the :get client command with:
+      | resource      | dc                                       |
+      | resource_name | hooks                                    |
+      | template      | {{(index .status.conditions 1).reason }} |
+    Then the step should succeed
+    And the output should match "NewReplicationControllerAvailable"
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            |       |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When  I run the :deploy client command with:
+      | deployment_config | hooks |
+      | cancel            |       |
+    And I run the :get client command with:
+      | resource      | dc                                       |
+      | resource_name | hooks                                    |
+      | template      | {{(index .status.conditions 1).reason }} |
+    Then the step should succeed
+    And the output should match "RolloutCancelled"
+    """
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/myquota.yaml"
+    Then the step should succeed
+    And I replace lines in "myquota.yaml":
+      | replicationcontrollers: "30" | replicationcontrollers: "1" |
+    When I run the :create admin command with:
+      | f | myquota.yaml        |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :deploy client command with:
+      | deployment_config | hooks |
+      | latest            |       |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | dc                                       |
+      | resource_name | hooks                                    |
+      | template      | {{(index .status.conditions 1).reason }} |
+    Then the step should succeed
+    And the output should match "ReplicationControllerCreateError"

@@ -578,19 +578,12 @@ Feature: Testing registry
       |docker_username  |<%= cb.reg_user %>       |
     Then the step should succeed
     When I run the :tag client command with:
-      | source_type  | docker                                           |
-      | source       | <%= cb.reg_svc_url %>/<%= project.name%>/busybox |
-      | dest         | mystream:latest                                  |
-      | insecure     | true                                             |
+      | source_type  | docker                        |
+      | source       | <%= cb.reg_svc_url %>/busybox |
+      | dest         | mystream:latest               |
+      | insecure     | true                          |
     Then the step should succeed
     Given evaluation of `image_stream_tag("mystream:latest").digest(user:user)` is stored in the :digest clipboard
-    And I register clean-up steps:
-    """
-    When I run the :delete admin command with:
-      | object_type       | image               |
-      | object_name_or_id | <%= cb.digest %>    |
-    Then the step should succeed
-    """
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-viewer   |
       | user name       | system:anonymous  |
