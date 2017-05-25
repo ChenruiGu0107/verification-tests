@@ -4,14 +4,15 @@ Feature: ONLY ONLINE STI related scripts in this file
   @smoke
   Scenario Outline: Private Repository can be used to providing dependency caching for STI builds
     Given I have a project
-    Given I perform the :create_app_from_image_with_bc_env_and_sample_repo web console action with:
-      | project_name | <%= project.name %>                               |
-      | image_name   | <image>                                           |
-      | image_tag    | <image_tag>                                       |
-      | namespace    | openshift                                         |
-      | app_name     | sti-sample                                        |
-      | bc_env_key   | <env_name>                                        |
-      | bc_env_value | https://mirror.openshift.com/mirror/non-existing/ |
+    Given I perform the :create_app_from_image web console action with:
+      | project_name    | <%= project.name %>                               |
+      | image_name      | <image>                                           |
+      | image_tag       | <image_tag>                                       |
+      | namespace       | openshift                                         |
+      | app_name        | sti-sample                                        |
+      | try_sample_repo | true                                              |
+      | bc_env_key      | <env_name>                                        |
+      | bc_env_value    | https://mirror.openshift.com/mirror/non-existing/ |
     Then the step should succeed
     When I perform the :wait_latest_build_to_status web console action with:
       | project_name | <%= project.name %> |

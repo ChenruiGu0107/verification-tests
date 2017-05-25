@@ -5,7 +5,7 @@ Feature: build related feature on web console
   Scenario: Check the build information from web console
     When I create a new project via web
     Then the step should succeed
-    When I perform the :create_app_from_image_change_bc_configchange web console action with:
+    When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                        |
       | image_name   | python                                     |
       | image_tag    | 3.3                                        |
@@ -940,12 +940,13 @@ Feature: build related feature on web console
   Scenario: Check Build,Deployment,Pod logs and Events on Monitoring
     When I create a new project via web
     Then the step should succeed
-    Given I perform the :create_app_from_image_with_sample_repo web console action with:
-      | project_name | <%= project.name %> |
-      | image_name   | nodejs              |
-      | image_tag    | latest              |
-      | namespace    | openshift           |
-      | app_name     | nodejs-app          |
+    Given I perform the :create_app_from_image web console action with:
+      | project_name    | <%= project.name %> |
+      | image_name      | nodejs              |
+      | image_tag       | latest              |
+      | namespace       | openshift           |
+      | app_name        | nodejs-app          |
+      | try_sample_repo | true                |
     Then the step should succeed
     When I perform the :wait_latest_build_to_status web console action with:
       | project_name | <%= project.name %> |

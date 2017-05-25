@@ -173,7 +173,7 @@ Feature: functions about resource limits on pod
   Scenario: Specify resource constraints when creating new app in web console with project limits not set
     When I create a new project via web
     Then the step should succeed
-    When I perform the :create_app_from_image_set_resource_limit web console action with:
+    When I perform the :create_app_from_image web console action with:
       | project_name   | <%= project.name %>                        |
       | image_name     | python                                     |
       | image_tag      | latest                                     |
@@ -193,7 +193,7 @@ Feature: functions about resource limits on pod
       | text  | Create      |
       | class | btn-primary |
     Then the output should contain "true"
-    When I perform the :create_app_from_image_set_resource_limit web console action with:
+    When I perform the :create_app_from_image web console action with:
       | project_name   | <%= project.name %>                        |
       | image_name     | python                                     |
       | image_tag      | latest                                     |
@@ -244,7 +244,7 @@ Feature: functions about resource limits on pod
       | cpu_request | 30 |
     Then the step should succeed
     When I perform the :create_app_from_image_set_cpu_resource_limit web console action with:
-      | cpu_limit   | 330 |
+      | cpu_limit | 330 |
     Then the step should succeed
     When I run the :create_app_from_image_submit web console action
     Then the step should fail
@@ -255,7 +255,7 @@ Feature: functions about resource limits on pod
       | text  | Create      |
       | class | btn-primary |
     Then the output should contain "true"
-    When I perform the :create_app_from_image_set_resource_limit web console action with:
+    When I perform the :create_app_from_image web console action with:
       | project_name   | <%= project.name %>                         |
       | image_name     | php                                         |
       | image_tag      | latest                                      |

@@ -76,6 +76,11 @@ create_app_from_image:
     ref: create_app_from_image_set_memory_resource_limit
   action:
     if_param:
+    - label_key
+    - label_value
+    ref: add_label_name_and_value
+  action:
+    if_param:
       sumbit_creation: 'true'
     ref: create_app_from_image_submit
 
@@ -84,45 +89,6 @@ create_app_from_image_base_action:
   action: create_app_from_image_navigate
   action: create_app_from_image_default_options
 # we can combine any of sub action rules to make different options
-create_app_from_image_with_advanced_git_options:
-  action: create_app_from_image_base_action
-  action: create_app_from_image_show_advanced_param
-  action: create_app_from_image_set_git_options
-  action: create_app_from_image_submit
-create_app_from_image_change_bc_configchange:
-  action: create_app_from_image_base_action
-  action: create_app_from_image_show_advanced_param
-  action: create_app_from_image_change_bc_config_trigger
-  action: create_app_from_image_submit
-create_app_from_image_with_label_options:
-  action: create_app_from_image_base_action
-  action: create_app_from_image_show_advanced_param
-  action: add_label_name_and_value
-  action: create_app_from_image_submit
-create_app_from_image_with_env_options:
-  action: create_app_from_image_base_action
-  action: create_app_from_image_show_advanced_param
-  action: create_app_from_image_add_bc_env_vars
-  action: create_app_from_image_add_dc_env_vars
-  action: create_app_from_image_submit
-create_app_from_image_with_bc_env_and_git_options:
-  action: create_app_from_image_base_action
-  action: create_app_from_image_show_advanced_param
-  action: create_app_from_image_add_bc_env_vars
-  action: create_app_from_image_set_git_options
-  action: create_app_from_image_submit
-create_app_from_image_with_sample_repo:
-  action: create_app_from_image_base_action
-  action: create_app_from_image_try_sample_repo
-  action: create_app_from_image_submit
-create_app_from_image_with_bc_env_and_sample_repo:
-  action: create_app_from_image_base_action
-  action: create_app_from_image_try_sample_repo
-  action: create_app_from_image_show_advanced_param
-  action: create_app_from_image_add_bc_env_vars
-  action: create_app_from_image_submit
-
-
 create_app_without_route_action:
   action: create_app_from_image_base_action
   action: create_app_from_image_show_advanced_param
@@ -152,14 +118,7 @@ create_app_from_image_check_default_resource_limit:
   action: create_app_from_image_check_memory_limit_range
   action: create_app_from_image_check_memory_default_request
   action: create_app_from_image_check_memory_default_limit
-create_app_from_image_set_resource_limit:
-  action: create_app_from_image_base_action
-  action: create_app_from_image_show_advanced_param
-  action: create_app_from_image_set_cpu_resource_request
-  action: create_app_from_image_set_cpu_resource_limit
-  action: create_app_from_image_set_memory_resource_request
-  action: create_app_from_image_set_memory_resource_limit
-  action: create_app_from_image_submit
+
 create_app_from_image_check_label:
   action: create_app_from_image_base_action
   action: create_app_from_image_try_sample_repo
@@ -319,45 +278,52 @@ create_app_from_image_check_cpu_limit_range:
     selector:
       xpath: //h3[contains(text(),'CPU')]/small[contains(text(),"<cpu_limit_range>")]
 create_app_from_image_check_cpu_default_request:
-  element: &cpu_resource_request
+  element:
     selector:
       xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Request"]/descendant::input[@placeholder="<default_cpu_req>"]
     type: input
 create_app_from_image_set_cpu_resource_request:
   element:
-    <<: *cpu_resource_request
+    selector:
+      xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Request"]/descendant::input
+    type: input
     op: send_keys <cpu_request>
-
 create_app_from_image_check_cpu_default_limit:
-  element: &cpu_resource_limit
+  element:
     selector:
       xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Limit"]/descendant::input[@placeholder="<default_cpu_lim>"]
     type: input
 create_app_from_image_set_cpu_resource_limit:
   element:
-    <<: *cpu_resource_limit
+    selector:
+      xpath: //edit-request-limit[@type="cpu"]/descendant::compute-resource[@label="Limit"]/descendant::input
+    type: input
     op: send_keys <cpu_limit>
 create_app_from_image_check_memory_limit_range:
   element:
     selector:
       xpath: //h3[contains(text(),'Memory')]/small[contains(text(),"<memory_limit_range>")]
 create_app_from_image_check_memory_default_request:
-  element: &memory_resource_request
+  element:
     selector:
       xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Request"]/descendant::input[@placeholder="<default_memory_req>"]
     type: input
 create_app_from_image_set_memory_resource_request:
   element:
-    <<: *memory_resource_request
+    selector:
+      xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Request"]/descendant::input
+    type: input
     op: send_keys <memory_request>
 create_app_from_image_check_memory_default_limit:
-  element: &memory_resource_limit
+  element:
     selector:
       xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Limit"]/descendant::input[@placeholder="<default_memory_lim>"]
     type: input
 create_app_from_image_set_memory_resource_limit:
   element:
-    <<: *memory_resource_limit
+    selector:
+      xpath: //edit-request-limit[@type="memory"]/descendant::compute-resource[@label="Limit"]/descendant::input
+    type: input
     op: send_keys <memory_limit>
 create_app_from_image_submit:
   action: click_create_button

@@ -84,15 +84,15 @@ Feature: create app on web console related
   @smoke
   Scenario Outline: Create application from image on web console
     Given I have a project
-    Given I wait for the :create_app_from_image_with_advanced_git_options web console action to succeed with:
-      | project_name | <%= project.name %> |
-      | image_name   | python              |
-      | image_tag    | 3.4                 |
-      | namespace    | openshift           |
-      | app_name     | python-sample       |
+    Given I wait for the :create_app_from_image web console action to succeed with:
+      | project_name | <%= project.name %>                        |
+      | image_name   | python                                     |
+      | image_tag    | 3.4                                        |
+      | namespace    | openshift                                  |
+      | app_name     | python-sample                              |
       | source_url   | https://github.com/openshift/django-ex.git |
-      | git_ref      | <git_ref>                |
-      | context_dir  | :null                 |
+      | git_ref      | <git_ref>                                  |
+      | context_dir  | :null                                      |
     Given the "python-sample-1" build was created
     Given the "python-sample-1" build completed
     Given I wait for the "python-sample" service to become ready
@@ -267,17 +267,17 @@ Feature: create app on web console related
   Scenario: Setting env vars for buildconfig on web can be available in assemble phase of STI build
     When I create a new project via web
     Then the step should succeed
-    When I perform the :create_app_from_image_with_env_options web console action with:
-      | namespace    | openshift |
-      | project_name | <%= project.name %> |
-      | image_name   | nodejs    |
-      | image_tag    | 0.10      |
-      | app_name     | nd        |
+    When I perform the :create_app_from_image web console action with:
+      | namespace    | openshift                          |
+      | project_name | <%= project.name %>                |
+      | image_name   | nodejs                             |
+      | image_tag    | 0.10                               |
+      | app_name     | nd                                 |
       | source_url   | https://github.com/yapei/nodejs-ex |
-      | bc_env_key   | BCvalue |
-      | bc_env_value | bcone   |
-      | dc_env_key   | DCvalue |
-      | dc_env_value | dcone   |
+      | bc_env_key   | BCvalue                            |
+      | bc_env_value | bcone                              |
+      | dc_env_key   | DCvalue                            |
+      | dc_env_value | dcone                              |
     Then the step should succeed
     When I perform the :check_build_log_tab web console action with:
       | project_name      | <%= project.name %> |

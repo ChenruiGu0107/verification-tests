@@ -29,7 +29,7 @@ Feature: ONLY ONLINE related feature's scripts in this file
   # @author etrott@redhat.com
   Scenario Outline: Maven repository can be used to providing dependency caching for xPaas and wildfly STI builds
     Given I create a new project
-    Given I perform the :create_app_from_image_with_bc_env_and_git_options web console action with:
+    Given I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                                             |
       | image_name   | <image>                                                         |
       | image_tag    | <image_tag>                                                     |
@@ -92,7 +92,7 @@ Feature: ONLY ONLINE related feature's scripts in this file
       | jboss-eap70-openshift               | 1.4       | https://github.com/jboss-developer/jboss-eap-quickstarts.git | 7.0.0.GA | kitchensink           |
       | jboss-webserver30-tomcat8-openshift | 1.1       | https://github.com/jboss-openshift/openshift-quickstarts.git | master   | tomcat-websocket-chat |
       | jboss-webserver30-tomcat8-openshift | 1.2       | https://github.com/jboss-openshift/openshift-quickstarts.git | master   | tomcat-websocket-chat |
-      
+
     # @case_id OCP-9997
     Examples: wildfly STI builds
       | image   | image_tag | source_url                                          | git_ref | context_dir |

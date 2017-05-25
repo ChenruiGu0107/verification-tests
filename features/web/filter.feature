@@ -160,7 +160,7 @@ Feature: filter on create page
     When I create a new project via web
     Then the step should succeed
 
-    When I perform the :create_app_from_image_with_label_options web console action with:
+    When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                        |
       | image_name   | python                                     |
       | image_tag    | 3.4                                        |
@@ -171,7 +171,7 @@ Feature: filter on create page
       | label_value  | test1                                      |
     Then the step should succeed
     Given the "python-sample-1" build was created
-    When I perform the :create_app_from_image_with_label_options web console action with:
+    When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                        |
       | image_name   | nodejs                                     |
       | image_tag    | 0.10                                       |
