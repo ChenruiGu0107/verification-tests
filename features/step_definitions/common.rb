@@ -116,7 +116,7 @@ Then /^(the|all)? outputs?( by order)? should( not)? (contain|match) "(.+)"(?: (
 end
 
 Then /^the output should equal #{QUOTED}$/ do |value|
-  unless value == @result[:response]
+  unless value.strip == @result[:response].strip
     raise "output does not equal epected value, see log"
   end
 end
