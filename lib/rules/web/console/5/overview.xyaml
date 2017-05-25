@@ -184,7 +184,7 @@ check_scale_down_disabled:
 group_services:
   elements:
   - selector:
-      xpath: //overview-service[div//a[text()="<primary_service_name>"]]//a[span[contains(text(),"Group service to <primary_service_name>")]]/i
+      xpath: //a[@title="Group service to <primary_service_name>"]
     op: click
   - selector:
       xpath: //div[@title="Choose a service"]/div/span
