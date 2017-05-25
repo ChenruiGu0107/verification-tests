@@ -446,3 +446,45 @@ Feature: configMap
     Then the step should succeed
     And the output should contain:
       | multiconfigmap-path-testing |
+      
+  # @author sijhu@redhat.com
+  # @case_id OCP-13211
+  Scenario: Negative test for Inject env var for all ConfigMap values
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/mdshuai/testfile-openshift/master/configmap/envfrom-cmap.yaml  |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | pod    |
+    Then the output should match:
+      | config-env-example       |
+      | configmaps "env-config" not found        |
+    """ 
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pod      |
+      | name     | config-env-example |
+    Then the output should match:
+      | Error syncing pod  |
+      | "env-config" not found |
+    """
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/mdshuai/testfile-openshift/master/configmap/cmap-for-env.yaml  |
+    Then the step should succeed
+    Given the pod named "config-env-example" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/mdshuai/testfile-openshift/master/configmap/invalid-envfrom-cmap.yaml   |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource | pod    |
+    Then the output should contain:
+      | invalid-config-env |
+      | [may not contain '%'] |
+    """
+
+
