@@ -57,3 +57,76 @@ Feature: ResourceQuata for storage
       | requested: persistentvolumeclaims=1 |
       | used: persistentvolumeclaims=5      |
       | limited: persistentvolumeclaims=5   |
+
+  # @author jhou@redhat.com
+  # @case_id OCP-14382
+  @admin
+  Scenario: Setting quota for a StorageClass
+    Given I have a project
+    And I have a nfs-provisioner service in the project
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    # Add ResourceQuata for the StorageClass
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/quota_for_storageclass.yml" replacing paths:
+      | ["spec"]["hard"]["nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/persistentvolumeclaims"] | 3    |
+      | ["spec"]["hard"]["nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/requests.storage"]       | 10Mi |
+    Then the step should succeed
+
+    # Consume 8Mi storage in the namespace
+    And I run the steps 2 times:
+    """
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-#{ cb.i }                       |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 4Mi                                 |
+    Then the step should succeed
+    And the "pvc-#{ cb.i }" PVC becomes :bound
+    """
+
+    # Try to exceed the 10Mi storage
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<% project.name %>              |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 4Mi                                 |
+    Then the step should fail
+    And the output should contain:
+      | exceeded quota                                                                                  |
+      | requested: nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/requests.storage=4Mi |
+      | used: nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/requests.storage=8Mi      |
+      | limited: nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/requests.storage=10Mi  |
+
+    # Try to exceed total number of PVCs
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvcnew                              |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Mi                                 |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvcnew2                             |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Mi                                 |
+    Then the step should fail
+    And the output should contain:
+      | exceeded quota                                                                                      |
+      | requested: nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/persistentvolumeclaims=1 |
+      | used: nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/persistentvolumeclaims=3      |
+      | limited: nfs-provisioner-<%= project.name %>.storageclass.storage.k8s.io/persistentvolumeclaims=3   |
+
+    # StorageClass without quota should not be limited
+    Given I run the :export admin command with:
+      | resource | storageclass                        |
+      | name     | nfs-provisioner-<%= project.name %> |
+    Then the step should succeed
+    And I save the output to file> storageclass_nfs_provisioner.json
+
+    When admin creates a StorageClass from "storageclass_nfs_provisioner.json" where:
+      | ["metadata"]["name"] | nfs-provisioner1-<%= project.name %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc1-<%= project.name %>             |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner1-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 11Mi                                 |
+    Then the step should succeed
+    And the "pvc1-<%= project.name %>" PVC becomes :bound
