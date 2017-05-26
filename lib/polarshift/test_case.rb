@@ -37,8 +37,13 @@ module CucuShift
 
       private def automation_script_parsed
         @automation_script ||=
-          YAML.load(automation_script_raw) rescue {"raw" =>
-                                                   automation_script_raw}
+          begin
+            parsed = YAML.load(automation_script_raw)
+            Hash === parsed ? parsed : {"raw" => automation_script_raw}
+          rescue
+            # reached on parse error
+            {"raw" => automation_script_raw}
+          end
       end
 
       # private def automation_script
