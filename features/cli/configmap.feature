@@ -86,9 +86,9 @@ Feature: configMap
       | resource | configmap      |
       | name     | example-config |
     Then the output should match:
-      | example.property.file.*56 bytes |
-      | example.property.1.*5 bytes     |
-      | example.property.2.*5 bytes     |
+      | example.property.file |
+      | example.property.1    |
+      | example.property.2    |
     When I run the :patch client command with:
       | resource | configmap |
       | resource_name | example-config |
@@ -98,9 +98,9 @@ Feature: configMap
       | resource | configmap      |
       | name     | example-config |
     Then the output should match:
-      | example.property.file.*56 bytes |
-      | example.property.1.*22 bytes    |
-      | example.property.2.*5 bytes     |
+      | example.property.file |
+      | example.property.1    |
+      | example.property.2    |
     When I run the :delete client command with:
       | object_type | configmap         |
       | object_name_or_id | example-config |
@@ -280,8 +280,8 @@ Feature: configMap
       | name      | special-config |
     Then the output should match:
       | Name.*special-config |
-      | special.how.*bytes   |
-      | special.type.*bytes  |
+      | special.how          |
+      | special.type         |
     When I get project configmap named "special-config" as YAML
     Then the output by order should match:
       | special.how: very    |

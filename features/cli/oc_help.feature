@@ -424,7 +424,6 @@ Feature: oc related features
       | --name=              |
       | --no-headers=        |
       | -o, --output=        |
-      | --output-version=    |
       | --record=            |
       | --save-config=       |
       | -a, --show-all=      |
