@@ -27,7 +27,7 @@ check_labels:
 select_hpa_from_list:
   elements:
   - selector:
-      xpath: //span[contains(@class,"ui-select-placeholder") and contains(.,"Choose a resource")]
+      xpath: //span[not(@disabled)]/span[contains(@class,'ui-select-placeholder') and contains(text(),'Choose a resource')]
     op: click
   - selector:
       xpath: //span[@class="ui-select-choices-row-inner"]//div[contains(.,"Horizontal")]
