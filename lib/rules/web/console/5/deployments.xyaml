@@ -748,6 +748,7 @@ update_label_on_edit_autoscaler_page:
   action: goto_edit_autoscaler_page
   action: update_label_value_on_edit_autoscaler_page
   action: click_save_button
+  action: check_redirection_to_dc_page
 update_label_value_on_edit_autoscaler_page:
   elements:
   - selector: &label_value_field |
