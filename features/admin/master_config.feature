@@ -602,3 +602,228 @@ Feature: test master config related steps
       | NAME       | newton		                    |
       | FULL NAME  | Isaac Newton	                    |
       | IDENTITIES | testldap:uid=newton,dc=example,dc=com  |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-9796
+  @admin
+  @destructive
+  Scenario: Configure projectrequestlimit to invalid specific number
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginOrderOverride:
+      - ProjectRequestLimit
+      pluginConfig:
+        ProjectRequestLimit:
+          configuration:
+            apiVersion: v1
+            kind: ProjectRequestLimitConfig
+            limits:
+            - selector:
+                admin: "true"
+              maxProjects: -1
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginOrderOverride:
+      - ProjectRequestLimit
+      pluginConfig:
+        ProjectRequestLimit:
+          configuration:
+            apiVersion: v1
+            kind: ProjectRequestLimitConfig
+            limits:
+            - selector:
+                admin: "true"
+              maxProjects: 1.23
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginOrderOverride:
+      - ProjectRequestLimit
+      pluginConfig:
+        ProjectRequestLimit:
+          configuration:
+            apiVersion: v1
+            kind: ProjectRequestLimitConfig
+            limits:
+            - selector:
+                admin: "true"
+              maxProjects: -2.3
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-9800
+  @admin
+  @destructive
+  Scenario: User can customize the projectrequestlimit admission controller configuration
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginOrderOverride:
+      - ProjectRequestLimit
+      pluginConfig:
+        ProjectRequestLimit:
+          configuration:
+            apiVersion: v1
+            kind: ProjectRequestLimitConfig
+            limits:
+            - selector: {}
+              maxProjects: 1
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I switch to the first user
+    Given I create a new project
+    Then the step should succeed
+    Given I create a new project
+    Then the step should fail
+    And the output should contain:
+      | cannot create more than |
+    Given I run the :delete client command with:
+      | object_type | project |
+      | all         |         |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginOrderOverride:
+      - ProjectRequestLimit
+      pluginConfig:
+        ProjectRequestLimit:
+          configuration:
+            apiVersion: v1
+            kind: ProjectRequestLimitConfig
+            limits:
+            - selector:
+                level: "platinum"
+              maxProjects: 1
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :label admin command with:
+      | resource | user             |
+      | name     | <%= user.name %> |
+      | key_val  | level=platinum   |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    When I run the :label admin command with:
+      | resource | user             |
+      | name     | <%= user.name %> |
+      | key_val  | level-           |
+    Then the step should succeed
+    """
+    Given I create a new project
+    Then the step should succeed
+    Given I create a new project
+    Then the step should fail
+    And the output should contain:
+      | cannot create more than |
+    Given I run the :delete client command with:
+      | object_type | project |
+      | all         |         |
+    Then the step should succeed
+    When I switch to the second user
+    Given I create a new project
+    Then the step should succeed
+    Given I create a new project
+    Then the step should succeed
+    Given I run the :delete client command with:
+      | object_type | project |
+      | all         |         |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginOrderOverride:
+      - ProjectRequestLimit
+      pluginConfig:
+        ProjectRequestLimit:
+          configuration:
+            apiVersion: v1
+            kind: ProjectRequestLimitConfig
+            limits:
+            - selector:
+                level: "platinum"
+              maxProjects: 2
+            - selector: {}
+              maxProjects: 1
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I switch to the first user
+    Given I create a new project
+    Then the step should succeed
+    Given I create a new project
+    Then the step should succeed
+    Given I create a new project
+    Then the step should fail
+    And the output should contain:
+      | cannot create more than |
+    Given I run the :delete client command with:
+      | object_type | project |
+      | all         |         |
+    Then the step should succeed
+    When I switch to the second user
+    Given I create a new project
+    Then the step should succeed
+    Given I create a new project
+    Then the step should fail
+    And the output should contain:
+      | cannot create more than |
+    Given I run the :delete client command with:
+      | object_type | project |
+      | all         |         |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginOrderOverride:
+      - ProjectRequestLimit
+      pluginConfig:
+        ProjectRequestLimit:
+          configuration:
+            apiVersion: v1
+            kind: ProjectRequestLimitConfig
+            limits:
+            - selector:
+                level: "platinum"
+              maxProjects: 1
+            - selector:
+                tag: golden
+              maxProjects: 2
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :label admin command with:
+      | resource | user             |
+      | name     | <%= user.name %> |
+      | key_val  | tag=golden       |
+    Then the step should succeed
+    And I register clean-up steps:
+    """
+    When I run the :label admin command with:
+      | resource | user             |
+      | name     | <%= user.name %> |
+      | key_val  | tag-             |
+    Then the step should succeed
+    """
+    When I switch to the first user
+    Given I create a new project
+    Then the step should succeed
+    Given I create a new project
+    Then the step should fail
+    And the output should contain:
+      | cannot create more than |
