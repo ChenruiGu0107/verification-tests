@@ -252,7 +252,7 @@ Feature: buildlogic.feature
       | docker_password | xxxxxx |
       | docker_email    | dyan@redhat.com |
     Then the step should succeed
-    When I run the :add_secret client command with:
+    When I run the :secret_add client command with:
       | sa_name | builder |
       | secret_name | pushme |
     Then the step should succeed

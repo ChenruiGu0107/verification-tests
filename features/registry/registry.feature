@@ -614,3 +614,51 @@ Feature: Testing registry
     When I secure the default docker daemon set registry
     Then the master service is restarted on all master nodes
     And default registry is verified using a pod in a project
+
+
+  # @author: yinzhou@redhat.com
+  # @case_id: OCP-10987
+  @destructive
+  @admin
+  Scenario: openshift should support image path which have more than two slashes
+    Given I have a project
+    And I select a random node's host
+    And I have a registry with htpasswd authentication enabled in my project
+    And I add the insecure registry to docker config on the node
+    And I log into auth registry on the node
+    When I docker push on the node to the registry the following images:
+      | docker.io/openshift/deployment-example:latest | test/test/deployment-example:latest |
+      | docker.io/openshift/ruby-22-centos7:latest    | test/test/ruby-22-centos7:latest    |
+    Then the step should succeed
+    When I run the :oc_secrets_new_dockercfg client command with:
+      |secret_name      |test                     |
+      |docker_email     |serviceaccount@redhat.com|
+      |docker_password  |<%= cb.reg_pass %>       |
+      |docker_server    |<%= cb.reg_svc_url %>    |
+      |docker_username  |<%= cb.reg_user %>       |
+    Then the step should succeed
+    When I run the :secret_add client command with:
+      | sa_name     | default |
+      | secret_name | test    |
+      | for         | pull    |
+    Then the step should succeed
+    When I run the :secret_add client command with:
+      | sa_name     | builder |
+      | secret_name | test    |
+    Then the step should succeed
+    When I run the :tag client command with:
+      | source_type  | docker                                                 |
+      | source       | <%= cb.reg_svc_url %>/test/test/ruby-22-centos7:latest |
+      | dest         | ruby-22-centos7:latest                                 |
+      | insecure     | true                                                   |
+    Then the step should succeed
+    When I run the :new_build client command with:
+      | code         | https://github.com/openshift/ruby-ex.git |
+      | image_stream | ruby-22-centos7:latest                   |
+    Then the step should succeed
+    And the "ruby-ex-1" build completed
+    When I run the :run client command with:
+      | name  | testdc                                                    |
+      | image | <%= cb.reg_svc_url %>/test/test/deployment-example:latest |
+    Then the step should succeed
+    And I wait until the status of deployment "testdc" becomes :complete

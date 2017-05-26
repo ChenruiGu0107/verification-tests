@@ -20,7 +20,7 @@ Feature: oc import-image related feature
       | secret_name     | sec-push                                                             |
       | credential_file | <%= expand_private_path(conf[:services, :docker_hub, :dockercfg]) %> |
     Then the step should succeed
-    When I run the :add_secret client command with:
+    When I run the :secret_add client command with:
       | sa_name         | builder                     |
       | secret_name     | sec-push                    |
     Then the step should succeed
