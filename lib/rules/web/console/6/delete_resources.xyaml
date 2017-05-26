@@ -46,12 +46,21 @@ delete_resources_pod:
 delete_resources_service:
   action: goto_one_service_page
   action: delete_resource
+  params:
+    resource_name: <service_name>
+  action: check_resource_deleted_message
 delete_resources_build:
   url: /console/project/<project_name>/browse/builds/<bc_name>/<build_name>
   action: delete_resource
+  params:
+    resource_name: <build_name>
+  action: check_resource_deleted_message
 delete_resources_rc:
   action: goto_one_deployment_page
   action: delete_resource
+  params:
+    resource_name: <dc_name>-<dc_number>
+  action: check_resource_deleted_message
 delete_resources_deploymentconfig:
   action: goto_one_dc_page
   action: delete_resource
@@ -73,9 +82,15 @@ delete_resources_configmap:
 delete_resources_route:
   action: goto_one_route_page
   action: delete_resource
+  params:
+    resource_name: <route_name>
+  action: check_resource_deleted_message
 delete_resources_imagestream:
   action: goto_one_image_stream_page
   action: delete_resource
+  params:
+    resource_name: <image_name>
+  action: check_resource_deleted_message
 delete_resource_with_viewer:
   element:
     # viewer cannot find "Actions","Delete"
