@@ -29,11 +29,11 @@ Feature: login related scenario
     When I perform the :new_project_navigate web console action with:
       | _nologin | true |
     Then the step should succeed
-    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO)"
+    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO|Log In)"
     When I access the "/console/project/<%= project.name %>/create" path in the web console
-    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO)"
+    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO|Log In)"
     When I access the "/console/project/<%= project.name %>/overview" path in the web console
-    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO)"
+    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO|Log In)"
 
   # @author xxing@redhat.com
   # @case_id OCP-12118
