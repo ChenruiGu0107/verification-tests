@@ -117,7 +117,7 @@ end
 
 Then /^the output should equal #{QUOTED}$/ do |value|
   unless value.strip == @result[:response].strip
-    raise "output does not equal epected value, see log"
+    raise "output does not equal expected value, see log"
   end
 end
 
