@@ -61,6 +61,7 @@ Feature: pods related scenarios
     Then the step should succeed
     And the output should contain:
       | groups=1234,5678, |
+    Given I ensure "hello-openshift" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510724/pod-supplementalGroups-multi-cotainers.yaml |
     Then the step should succeed
@@ -81,6 +82,7 @@ Feature: pods related scenarios
     Then the step should succeed
     And the output should contain:
       | groups=1234,5678, |
+    Given I ensure "multi-containers" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tc510724/pod-supplementalGroups-invalid.yaml |
     Then the step should fail

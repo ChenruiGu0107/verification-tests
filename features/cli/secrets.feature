@@ -803,11 +803,14 @@ Feature: secrets related scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job-secret-env.yaml |
     Then the step should succeed
+    And I wait for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | pods |
     Then the step should succeed
     And the output should contain 3 times:
       |  secret-env- |
+    """
     Given status becomes :succeeded of exactly 3 pods labeled:
       | app=test |
     Then the step should succeed

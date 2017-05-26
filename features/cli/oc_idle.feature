@@ -241,11 +241,15 @@ Feature: oc idle
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
     And the pod named "caddy-docker" becomes ready
+    And I wait for the steps to pass:
+    """
     When I run the :exec client command with:
       | pod              | caddy-docker              |
       | exec_command     | curl                      |
       | exec_command_arg | <%= cb.service_ip %>:8000 |
     Then the output should contain "Hello Pod!"
+    """
+    Given I ensure "caddy-docker" pod is deleted
     Given I wait until number of replicas match "2" for replicationController "hello-pod"
     When I run the :get client command with:
       | resource | endpoints |
