@@ -20,18 +20,25 @@ check_pvcs_on_storage_page:
       xpath: //h1[contains(.,'<pvc_name>')]
 check_pvcs_detail_on_storage_page:
   action: goto_storage_page
+  action: check_pvc_entry
+check_pvc_entry:
+  action:
+    if_params: pvc_status
+    ref: check_pvc_entry_status
   elements:
-  - selector:
-      xpath: //td/a[text()='<pvc_name>']/../following-sibling::td[@data-title='Status'][contains(.,'<pvc_status>')]
-    timeout: 60 
   - selector:
       xpath: //td/a[text()='<pvc_name>']/../following-sibling::td[@data-title='Capacity'][contains(.,'<storage_size>')]
   - selector:
       xpath: //td/a[text()='<pvc_name>']/../following-sibling::td[@data-title='Access Modes'][contains(.,'<pvc_access_mode>')]
+check_pvc_entry_status:
+  element:
+    selector:
+      xpath: //td/a[text()='<pvc_name>']/../following-sibling::td[@data-title='Status'][contains(.,'<pvc_status>')]
+    timeout: 60
 check_one_pvc_detail:
   action: goto_one_pvc_page
   elements:
-  - selector: 
+  - selector:
       xpath: //h1[contains(.,'<pvc_name>')]
   - selector:
       xpath: //dt[text()='Status:']
@@ -44,9 +51,15 @@ create_pvc_from_storage_page:
   action: open_create_pvc_page
   action: set_pvc_name
   action: set_pvc_access_mode
-  action: set_storage_size
-  action: set_storage_unit
+  action: # in some env configuration storage size cannot be changed
+    unless_element:
+      selector:
+        xpath: //div[label[contains(text(),'Size')]]//small[contains(text(),'cannot be changed')]
+    ref:
+    - set_storage_size
+    - set_storage_unit
   action: click_create_button
+  action: check_pvc_entry
 check_pvc_info:
   action: check_one_pvc_detail
   action: check_pvc_set_info
@@ -75,7 +88,7 @@ create_pvc_with_min_length_and_check: {}
 create_pvc_with_storage_class:
   action: goto_create_pvc_page
   action: set_pvc_name
-  action: set_storage_class 
+  action: set_storage_class
   action: set_pvc_access_mode
   action: set_storage_size
   action: set_storage_unit
@@ -83,7 +96,7 @@ create_pvc_with_storage_class:
 create_pvc_no_storage_class:
   action: goto_create_pvc_page
   action: set_pvc_name
-  action: set_no_storage_class 
+  action: set_no_storage_class
   action: set_pvc_access_mode
   action: set_storage_size
   action: set_storage_unit
@@ -120,8 +133,8 @@ set_pvc_access_mode:
       xpath: //label/input[@name='accessModes' and @value='<pvc_access_mode>']
     op: click
 set_storage_size:
-  elements:
-  - selector:
+  element:
+    selector:
       xpath: //input[@id='claim-amount']
     op: send_keys <storage_size>
 set_storage_unit:

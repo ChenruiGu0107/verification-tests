@@ -144,8 +144,9 @@ dismiss_build_log_on_overview:
 goto_overview_page:
   url: /console/project/<project_name>/overview
 check_pod_scaled_numbers:
-  elements:
-  - selector:
+  action: expand_resource_entry
+  element:
+    selector:
       xpath: //*[name()='tspan'][@class='donut-title-big-pf'][text()='<scaled_number>']
 check_pod_scaled_numbers_under_specified_resource:
   elements:

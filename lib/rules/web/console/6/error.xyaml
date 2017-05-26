@@ -40,7 +40,7 @@ confirm_errors_with_invalid_env_var:
   action: check_input_validation_error
 check_input_validation_error:
   elements:
-  - selector: &hover_error_tooltip
+  - selector:
       xpath: //span[span[contains(text(),'validation error') or contains(text(),'Validation error')]]//a
     visible: true
     op: click
