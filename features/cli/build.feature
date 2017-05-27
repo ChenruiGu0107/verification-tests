@@ -2800,6 +2800,7 @@ Feature: build 'apps' with CLI
     """
     When I run the :new_build client command with:
       | app_repo | https://github.com/openshift/ruby-hello-world |
+      | strategy | source                                        |
       | env_file | test1.env                                     |
     And the step should succeed
     When I run the :env client command with:
@@ -2817,10 +2818,13 @@ Feature: build 'apps' with CLI
     """
     When I run the :new_build client command with:
       | app_repo | https://github.com/openshift/ruby-hello-world |
+      | strategy | source                                        |
+      | to       | test                                          |
+      | name     | test                                          |
       | env_file | -                                             |
       | _stdin   | <%= File.read("test2.env") %>                 |
     When I run the :env client command with:
-      | resource | po/ruby-hello-world-1-build |
+      | resource | po/test-1-build |
       | list     | true                        |
     And the output should match:
       | APPLE      |
