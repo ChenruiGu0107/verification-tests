@@ -220,3 +220,39 @@ Feature: NodeSelector related tests
     Then the step should fail
     And the output should match:
       | forbidden: pod node label selector labels conflict with its namespace whitelist |
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12794
+  @admin
+  Scenario: Create namespace with node selector
+    Given evaluation of `rand_str(5, :dns)` is stored in the :project1 clipboard
+    And admin ensures "<%= cb.project1 %>" project is deleted after scenario
+    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/valid-namesapce.yaml" replacing paths:
+      | ["metadata"]["name"] | <%= cb.project1 %> |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource      | ns                 |
+      | resource_name | <%= cb.project1 %> |
+      | o             | json               |
+    Then the output should match:
+      | "scheduler.alpha.kubernetes.io/node-selector": "region=east,country=china" |
+    Given evaluation of `rand_str(5, :dns)` is stored in the :project2 clipboard
+    And admin ensures "<%= cb.project2 %>" project is deleted after scenario
+    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/invalid-namespace.yaml" replacing paths:
+      | ["metadata"]["name"] | <%= cb.project2 %> |
+    Then the step should succeed
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12795
+  @admin
+  Scenario: Shouldn't update node-selector after create namespace
+    Given evaluation of `rand_str(5, :dns)` is stored in the :project clipboard
+    And admin ensures "<%= cb.project %>" project is deleted after scenario
+    When I run oc create as admin over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/projects/ns1.yaml" replacing paths:
+      | ["metadata"]["name"] | <%= cb.project %> |
+    Then the step should succeed
+    When I run the :patch admin command with:
+      | resource      | ns  |
+      | resource_name | <%= cb.project %> |
+      | p             | {"metadata":{"annotations":{"scheduler.alpha.kubernetes.io/node-selector":"env=#=xyz%\|=\|"}}} |
+    Then the step should succeed
