@@ -1290,3 +1290,42 @@ Feature: Testing route
     And the output should contain:
       | x-forwarded-for: <%= cb.client_ip %> |
     """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-14059
+  Scenario: Use the default destination CA of router if the route does not specify one for reencrypt route
+    Given I have a project
+    When I run the :create client command with:
+      | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/reencrypt-without-all-cert.yaml |
+    Then the step should succeed
+    And all pods in the project are ready
+    Given I use the "serving-cert" service
+    When I wait up to 20 seconds for a secure web server to become available via the "serving-cert" route
+    And the output should contain "Welcome to nginx"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-14089
+  Scenario: route cannot be accessed if the backend cannot be matched the the default destination CA of router
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+    Then the step should succeed
+
+    Given I have a pod-for-ping in the project
+    When I run the :create_route_reencrypt client command with:
+      | name | route-reencrypt |
+      | service | service-secure |
+    Then the step should succeed
+    Given 10 seconds have passed 
+    #since the haproxy is using 'service.project.svc' to verify the hostname. but the pod caddy is using '*.example.com'. so it cannot match and will return 503 error.
+    When I execute on the pod:
+      | curl                                                                              |
+      | -I                                                                                |
+      | https://<%= route("route-reencrypt", service("service-secure")).dns(by: user) %>/ |
+      | -k                                                                                |
+    Then the step should succeed   
+    And the output should contain "503 Service Unavailable"
