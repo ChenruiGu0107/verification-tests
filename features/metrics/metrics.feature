@@ -492,3 +492,44 @@ Feature: metrics related scenarios
     And I switch to cluster admin pseudo user
     And I use the "openshift-infra" project
     And the "metrics-cassandra-1" PVC becomes :bound
+
+  # @author lizhou@redhat.com
+  # @case_id OCP-14162
+  # This is the dup case of OCP-12205, to support OCP >= v3.5
+  @admin
+  @smoke
+  Scenario: Version >= 3.5 access heapster interface, check jboss wildfly version from hawkular-metrics pod logs
+    # Deploy metrics
+    Given the master version >= "3.5"
+    Given I have a project
+    And metrics service is installed in the "openshift-infra" project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory |
+
+    Given I switch to cluster admin pseudo user
+    Given I use the "openshift-infra" project
+    And a pod becomes ready with labels:
+      | metrics-infra=hawkular-metrics |
+    And I wait for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name    | pods/<%= pod.name %>|
+    And the output should match:
+      | JBoss EAP .*GA   |
+    """
+    Given I wait for the steps to pass:
+    """
+    When I perform the :access_heapster rest request with:
+      | project_name | <%=project.name%> |
+    Then the step should succeed
+    """
+    When I perform the :access_pod_network_metrics rest request with:
+      | project_name | <%=project.name%> |
+      | pod_name     | <%=pod.name%>     |
+      | type         | tx                |
+    Then the step should succeed
+    When I perform the :access_pod_network_metrics rest request with:
+      | project_name | <%=project.name%> |
+      | pod_name     | <%=pod.name%>     |
+      | type         | rx                |
+    Then the step should succeed
+    
