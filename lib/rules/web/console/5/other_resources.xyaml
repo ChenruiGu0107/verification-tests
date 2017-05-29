@@ -14,20 +14,27 @@ check_hpa_labels_on_other_resources_page:
   action: select_hpa_from_list
   action: check_hpa_listed
   action: check_labels
+check_hpa_labels_on_other_resources_page_missing:
+  action: click_to_goto_other_resources_page
+  action: select_hpa_from_list
+  action: check_hpa_listed
+  action: check_labels_missing
 check_hpa_listed:
-  elements:
-  - selector:
+  element:
+    selector:
       xpath: //td[@data-title="Name" and contains(.,"<hpa_name>")]
 check_labels:
-  elements:
-  - selector:
-      xpath: //span[contains(@class,"k8s-label")]//a[contains(.,"<label_key>")]
-  - selector:
-      xpath: //span[contains(@class,"k8s-label")]//a[contains(.,"<label_value>")]
+  element: &check_labels
+    selector:
+      xpath: //span[contains(@class,"k8s-label")]/span[a[contains(.,"<label_key>")] and a[contains(.,"<label_value>")]]
+check_labels_missing:
+  element:
+    <<: *check_labels
+    missing: true
 select_hpa_from_list:
   elements:
   - selector:
-      xpath: //span[contains(@class,"ui-select-placeholder") and contains(.,"Choose a resource")]
+      xpath: //span[not(@disabled)]/span[contains(@class,'ui-select-placeholder') and contains(text(),'Choose a resource')]
     op: click
   - selector:
       xpath: //span[@class="ui-select-choices-row-inner"]//div[contains(.,"Horizontal")]

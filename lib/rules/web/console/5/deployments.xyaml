@@ -539,9 +539,13 @@ set_cpu_request_percentage:
       xpath: //input[@name="targetCPU"]
     op: send_keys <cpu_req_per>
 check_autoscaler_min_pods:
-  element:
+  element: &autoscaler_min_pods
     selector:
       xpath: //hpa//dt[contains(.,'Min Pods')]/following::dd[1][contains(.,'<min_pods>')]
+check_autoscaler_min_pods_missing:
+  element:
+    <<: *autoscaler_min_pods
+    missing: true
 check_autoscaler_min_pods_for_dc:
   action: click_on_configuration_tab
   action: check_autoscaler_min_pods
@@ -550,19 +554,27 @@ check_autoscaler_min_pods_on_rc_page:
   action: click_on_details_tab
   action: check_autoscaler_min_pods
 check_autoscaler_max_pods:
-  element:
+  element: &autoscaler_max_pods
     selector:
       xpath: //hpa//dt[contains(.,'Max Pods')]/following::dd[1][contains(.,'<max_pods>')]
+check_autoscaler_max_pods_missing:
+  element:
+    <<: *autoscaler_max_pods
+    missing: true
 check_autoscaler_max_pods_on_rc_page:
   action: goto_one_deployment_page
   action: check_autoscaler_max_pods
 check_autoscaler_cpu_request_target:
-  element:
+  element: &autoscaler_cpu_request_target
     selector:
       xpath: //hpa//dt[@ng-if-start="hpa.spec.cpuUtilization.targetPercentage"]/following::dd[1][contains(.,'<cpu_request_target>')]
 check_autoscaler_cpu_request_target_on_rc_page:
   action: goto_one_deployment_page
   action: check_autoscaler_cpu_request_target
+check_autoscaler_cpu_request_target_missing:
+  element:
+    <<: *autoscaler_cpu_request_target
+    missing: true
 check_dc_link_in_autoscaler_on_rc_page:
   action: goto_one_deployment_page
   element:
@@ -572,6 +584,10 @@ check_autoscaler_info:
   action: check_autoscaler_min_pods
   action: check_autoscaler_max_pods
   action: check_autoscaler_cpu_request_target
+check_autoscaler_info_missing:
+  action: check_autoscaler_min_pods_missing
+  action: check_autoscaler_max_pods_missing
+  action: check_autoscaler_cpu_request_target_missing
 delete_autoscaler_from_dc_page:
   action: goto_one_dc_page
   action: click_on_configuration_tab
@@ -732,6 +748,7 @@ update_label_on_edit_autoscaler_page:
   action: goto_edit_autoscaler_page
   action: update_label_value_on_edit_autoscaler_page
   action: click_save_button
+  action: check_redirection_to_dc_page
 update_label_value_on_edit_autoscaler_page:
   elements:
   - selector: &label_value_field |

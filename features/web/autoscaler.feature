@@ -100,10 +100,10 @@ Feature: AutoScaler relative cases
       | label_value  | value1              |
     Then the step should succeed
     When I perform the :update_label_on_edit_autoscaler_page web console action with:
-      | project_name | <%= project.name %> |
-      | dc_name      | myrun               |
-      | label_key    | test1               |
-      | new_label_value | value1update     |
+      | project_name    | <%= project.name %> |
+      | dc_name         | myrun               |
+      | label_key       | test1               |
+      | new_label_value | value1update        |
     Then the step should succeed
     When I perform the :check_hpa_labels_on_other_resources_page web console action with:
       | project_name | <%= project.name %> |
