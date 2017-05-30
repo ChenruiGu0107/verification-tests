@@ -419,3 +419,33 @@ Feature: pods related scenarios
     Then the output should match:
       | Warning.*Error syncing pod.*shm_rmid_forced: invalid argument |
     """
+
+  # @author sijhu@redhat.com
+  # @case_id OCP-10962
+  Scenario: Specify safe namespaced kernel parameters for pod
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/sysctls/pod-sysctl-safe.yaml  |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    When I execute on the "hello-pod" pod:
+      | cat | /proc/sys/kernel/shm_rmid_forced |
+    Then the step should succeed
+    Then the output should equal "1"
+    When I execute on the "hello-pod" pod:
+      | cat | /proc/sys/net/ipv4/ip_local_port_range |
+    Then the step should succeed
+    And the output should contain:
+      | 33768 |
+      | 61000 |
+    Given I ensure "hello-pod" pod is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/sysctls/net_ipv4_tcp_syncookies.yaml  |
+    Then the step should succeed
+    Given the pod named "hello-pod" is present
+    When I run the :describe client command with:
+      | resource | pods      |
+      | name     | hello-pod |
+    Then the output should match:
+      | Status:\\s+Pending |
+      | open /proc/sys/net/ipv4/tcp_syncookies: no such file or directory |
