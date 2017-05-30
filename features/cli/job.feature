@@ -85,15 +85,15 @@ Feature: job.feature
   Scenario: Create job with pod parallelism
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_0_activeDeadlineSeconds.yaml" replacing paths:
-      | ["spec"]["parallelism"]           | 3    |
+      | ["spec"]["parallelism"]           | 1    |
       | ["spec"]["completions"]           | null |
       | ["spec"]["activeDeadlineSeconds"] | null |
     Then the step should succeed
-    Given 3 pods become ready with labels:
+    Given 1 pods become ready with labels:
       | app=pi |
     When I get project pods with labels:
       | app=pi |
-    Then the output should contain 3 times:
+    Then the output should contain 1 times:
       |  zero- |
     # Check job-pod log
     Given evaluation of `@pods[0].name` is stored in the :pilog clipboard
