@@ -487,4 +487,39 @@ Feature: configMap
       | [may not contain '%'] |
     """
 
+  # @author sijhu@redhat.com
+  # @case_id OCP-13201
+  Scenario: Inject env var for all ConfigMap values
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/cmap-for-env.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | configmap  |
+      | name     | env-config |
+    Then the output by order should contain:
+      | REPLACE_ME:        | 
+      | a value            |
+      | duplicate_key:     |
+      | FROM_CONFIG_MAP    |
+      | number_of_members: | 
+      | 1                  |
+      | second_cmap_key:   | 
+      | test               |
+      | test:              |
+      | jfjjf/*j!          |                  
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/envfrom-cmap.yaml |
+    Then the step should succeed
+    And the pod named "config-env-example" becomes ready
+    When I execute on the "config-env-example" pod:
+      | env |
+    Then the step should succeed
+    And the output should contain:
+      | REPLACE_ME=a value     | 
+      | expansion=a value      |
+      | duplicate_key=FROM_ENV | 
+      | number_of_members=1    |
+      | second_cmap_key=test   | 
+      | test=jfjjf/*j!         |
 
