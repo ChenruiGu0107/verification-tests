@@ -396,6 +396,7 @@ module CucuShift
           end
 
           dns_record = "*.#{dns_component}"
+          logger.info "Creating '#{dns_record}' record for: #{ips.join(?,)}"
           fqdn = dyn.dyn_replace_a_records(dns_record, ips)
           if task[:store_in]
             erb_binding.local_variable_set task[:store_in].to_sym, fqdn
