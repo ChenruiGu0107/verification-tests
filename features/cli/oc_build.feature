@@ -7,7 +7,7 @@ Feature: oc build related scenarios
       | file  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc470422/application-template-stibuild.json |
     Then the step should succeed
     Given the "ruby-22-centos7" image stream becomes ready
-    And the "origin-ruby-sample" image stream becomes ready
+    And the "origin-ruby-sample" image stream was created
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build   |
       | o           | name                |
@@ -19,7 +19,7 @@ Feature: oc build related scenarios
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build   |
       | from_build  | ruby-sample-build-1 |
-      | o           | name                |   
+      | o           | name                |
     And the output should contain:
       | ruby-sample-build-3               |
     And the output should not match:
@@ -28,16 +28,16 @@ Feature: oc build related scenarios
     When I run the :start_build client command with:
       | buildconfig | ruby-sample-build   |
       | o           | invalidname         |
-    Then the step should fail 
+    Then the step should fail
     And the output should match:
-      | error.*[Uu]nsupported.*invalidname |   
+      | error.*[Uu]nsupported.*invalidname |
 
   # @author xiuwang@redhat.com
   # @case_id OCP-10963
-  Scenario: Explicit pull of base image for docker builds	
+  Scenario: Explicit pull of base image for docker builds
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo | git://github.com/openshift/ruby-hello-world.git | 
+      | app_repo | git://github.com/openshift/ruby-hello-world.git |
       | strategy | docker                                          |
     Then the step should succeed
     And the "ruby-hello-world-1" build completed
@@ -53,7 +53,7 @@ Feature: oc build related scenarios
     Then the step should succeed
 
     When I run the :new_build client command with:
-      | app_repo    | https://github.com/openshift/ruby-hello-world.git | 
+      | app_repo    | https://github.com/openshift/ruby-hello-world.git |
       | strategy    | docker                                            |
       | image_stream| ruby:2.2                                          |
       | name        | forcepullapp                                      |
@@ -61,7 +61,7 @@ Feature: oc build related scenarios
     When I run the :patch client command with:
       | resource      | bc                                                          |
       | resource_name | forcepullapp                                                |
-      | p             | {"spec":{"strategy":{"dockerStrategy":{"forcePull":true}}}} | 
+      | p             | {"spec":{"strategy":{"dockerStrategy":{"forcePull":true}}}} |
     Then the step should succeed
     And I git clone the repo "https://github.com/openshift/ruby-hello-world.git"
     And I run the :start_build client command with:
@@ -82,7 +82,7 @@ Feature: oc build related scenarios
     Then the step should succeed
 
     When I run the :new_build client command with:
-      | D    | FROM centos:7\nFROM centos:6 | 
+      | D    | FROM centos:7\nFROM centos:6 |
       | name | multifrom                    |
     Then the step should succeed
     And the "multifrom-1" build completed
