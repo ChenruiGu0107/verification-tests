@@ -48,22 +48,14 @@ Feature: oc attach related scenarios
   Scenario: Negative test for oc attach
     Given I have a project
     And I run the :exec_raw_oc_cmd_for_neg_tests client command with:
-      | arg | attach |
-      | test_do_not_use | -u |
+      | arg             | attach |
+      | test_do_not_use | -u     |
     Then the step should fail
     And the output should contain:
-      | Error: unknown shorthand flag: 'u' in -u |
-      | Usage:   |
-      | oc attach POD -c CONTAINER [options]  |
+      | Error: unknown shorthand flag: 'u' in -u            |
+      | Usage:                                              |
     When I run the :attach client command with:
       | pod | 123456-7890 |
     Then the step should fail
     And the output should contain:
       | pods "123456-7890" not found |
-    When I run the :attach client command with:
-      | pod | 123456-7890 |
-      | cmd_name | date   |
-    Then the step should fail
-    And the output should contain:
-      | error: expected a single argument: POD, saw 2: [123456-7890 date] |
-
