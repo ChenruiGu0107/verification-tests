@@ -9,18 +9,6 @@ Feature: oc_set_resources.feature
     Then the step should succeed
     And the pod named "hooks-1-deploy" becomes ready
     Given I wait for the pod named "hooks-1-deploy" to die
-    When I run the :get client command with:
-      | resource      | dc    |
-      | resource_name | hooks |
-      | o             | yaml  |
-    Then the step should succeed
-    And the output should not contain:
-      | limits:     |
-      | cpu.*       |
-      | memory.*    |
-      | requests:   |
-      | cpu.*       |
-      | memory.*    |
 
     # set limits/requests for resource
     When I run the :set_resources client command with:

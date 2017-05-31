@@ -320,7 +320,7 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `CucuShift::Common::Net.dns_lookup("github.com")` is stored in the :github_ip clipboard
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json"
     And I replace lines in "limit_policy.json":
-      | 0.0.0.0/0 | <%= cb.github_ip %>/24 |
+      | 0.0.0.0/0 | <%= cb.github_ip %>/32 |
     And I run the :create admin command with:
       | f | limit_policy.json |
       | n | <%= cb.proj1 %> |
