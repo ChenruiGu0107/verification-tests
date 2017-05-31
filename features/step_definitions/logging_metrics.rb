@@ -258,7 +258,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
       ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml"
     end
     step %Q/I execute on the pod:/, table(%{
-      | ansible-playbook | -i | /tmp/=#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
+      | ansible-playbook | -i | /tmp/#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
       })
     step %Q/the step should succeed/
 
