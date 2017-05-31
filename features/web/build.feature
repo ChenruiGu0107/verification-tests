@@ -851,8 +851,7 @@ Feature: build related feature on web console
     When I run the :create client command with:
       | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc528954/bc_imagechange.yaml |
     Then the step should succeed
-
-    Given the "ruby-ex-1" build was created
+    Given the "ruby-ex-1" build was created within 120 seconds
     When I perform the :check_build_trigger web console action with:
       | project_name      | <%= project.name %> |
       | bc_and_build_name | ruby-ex/ruby-ex-1   |
