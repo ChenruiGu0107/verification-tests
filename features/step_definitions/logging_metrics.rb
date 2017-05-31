@@ -252,17 +252,13 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   begin
     step %Q/I switch to cluster admin pseudo user/
     step %Q/I have a pod with openshift-ansible playbook installed/
-
     if svc_type == 'logging'
       ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml"
     else
       ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-metrics.yml"
     end
-
     step %Q/I execute on the pod:/, table(%{
-      | bash                                                                                                  |
-      | -c                                                                                                    |
-      | cd /usr/share && ansible-playbook -i /tmp/<%= "#{new_path}" %> -vvv <%= "#{ansible_template_path}" %> |
+      | ansible-playbook | -i | /tmp/=#{new_path} | #{conf[:ansible_log_level]} | #{ansible_template_path} |
       })
     step %Q/the step should succeed/
 

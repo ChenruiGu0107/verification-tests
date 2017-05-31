@@ -11,7 +11,15 @@ global:
   # default to git, specify branch by adding '#<branch_name>' after the keyword git
   # if no branch is specified, we will use the commit_id we get from qe-inventory-file from master node
   openshift_ansible_installer: git
-
+  # use this parameter to control the ansible output verboseness
+  # valid parameters are
+  # -v        The output data is displayed.
+  # -vv      Both the output and input data are displayed.
+  # -vvv    Includes information about connections to managed hosts.
+  # -vvvv  Adds extra verbosity options to the connection plug-ins, including
+  #          the users being used in the managed hosts to execute scripts, and
+  #          what scripts have been executed.
+  ansible_log_level: -vv
   # base docker registry prefixes for quickstarts;
   #   (one is for the upstream community supported *projects* and the other one
   #   is for the Red Hat enterprise supported *products*);
