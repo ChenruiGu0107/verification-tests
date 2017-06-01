@@ -151,3 +151,78 @@ Feature: Testing imagestream
       | <%= cb.digest3 %> |
     And the output should contain:
       | <%= cb.digest2 %> |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-13895
+  @destructive
+  @admin
+  Scenario: Should prune the extenal image correctly
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And default registry route is stored in the :registry_hostname clipboard
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type  | docker            |
+      | source       | docker.io/busybox |
+      | dest         | myis13895:latest  |
+    Then the step should succeed
+    When I run the :policy_add_role_to_user client command with:
+      | role            | registry-admin   |
+      | user name       | system:anonymous |
+    Then the step should succeed
+    And evaluation of `project.name` is stored in the :original_proj clipboard
+    And I select a random node's host
+    And I run commands on the host:
+      | docker logout  <%= cb.integrated_reg_ip %>                                       |
+      | docker pull <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/myis13895:latest |
+    Then the step should succeed
+    When I use the "<%= cb.original_proj %>" project
+    When I run the :get client command with:
+      | resource      | istag                    |
+      | resource_name | myis13895:latest         |
+      | template      | {{.image.metadata.name}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :digest1 clipboard
+    When I run the :tag client command with:
+      | source_type  | docker                    |
+      | source       | openshift/hello-openshift |
+      | dest         | myis13895:latest          |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker rmi -f <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/myis13895:latest |
+      | docker pull <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/myis13895:latest   |
+    Then the step should succeed
+    When I use the "<%= cb.original_proj %>" project
+    When I run the :get client command with:
+      | resource      | istag                    |
+      | resource_name | myis13895:latest         |
+      | template      | {{.image.metadata.name}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :digest2 clipboard
+    When I run the :tag client command with:
+      | source_type  | docker                       |
+      | source       | openshift/deployment-example |
+      | dest         | myis13895:latest             |
+    Then the step should succeed
+    And I run commands on the host:
+      | docker rmi -f <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/myis13895:latest |
+      | docker pull <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/myis13895:latest   |
+    Then the step should succeed
+    When I use the "<%= cb.original_proj %>" project
+    When I run the :get client command with:
+      | resource      | istag                    |
+      | resource_name | myis13895:latest         |
+      | template      | {{.image.metadata.name}} |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :digest3 clipboard
+    Given cluster role "system:image-pruner" is added to the "first" user
+    And I run the :oadm_prune_images client command with:
+      | keep_tag_revisions | 1                           |
+      | keep_younger_than  | 0                           |
+      | registry_url       | <%= cb.registry_hostname %> |
+      | confirm            | true                        |
+    Then the step should succeed
+    And the output should not contain:
+      | <%= cb.digest3 %> |
+    And the output should contain:
+      | <%= cb.digest1 %> |
+      | <%= cb.digest2 %> |
