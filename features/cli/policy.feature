@@ -567,7 +567,7 @@ Feature: change the policy of user/service account
       | resource_name | <%= user.name %> |
       | template      | {{.groups}}      |
     Then the step should succeed
-    And the output should match "<no value>|\\[\\]"
+    And the output should match "<no value>|\[\]"
     """
     Given I run the :oadm_groups_new admin command with:
       | group_name | <%= cb.group_name %> |
