@@ -60,9 +60,9 @@ click_create_button:
     type: button
     op: click
 click_cancel:
-  elements:
-  - selector:
-      xpath: //button[contains(.,"Cancel")]
+  element:
+    selector:
+      text: Cancel
     op: click
 click_on_configuration_tab:
   element:
