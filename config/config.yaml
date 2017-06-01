@@ -272,6 +272,7 @@ services:
       user: faux
       ssh_private_key: private/key/path
       class: SSHAccessibleHost
+    cloud_type: azure
   GCE:
     # project: yourproject
     zone: us-central1-a
