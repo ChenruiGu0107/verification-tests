@@ -10,9 +10,9 @@ Feature: oc attach related scenarios
     Given the pod named "<%= cb.pod_name %>" becomes ready
     When I run the :attach client command
     Then the step should fail
-    And the output should contain:
-      | error: POD is required for attach |
-      | 'oc attach -h' for help and examples |
+    And the output should match:
+      | error: (POD\|at least one argument) is required for attach |
+      | 'oc attach -h' for help and examples                       |
     When I run the :attach client command with:
       | h ||
     Then the step should succeed
