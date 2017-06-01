@@ -167,3 +167,46 @@ Feature: services related feature on web console
       | service_name         | service-unsecure-2 |
     Then the step should fail
     """
+
+  # @author etrott@redhat.com
+  # @case_id OCP-11416
+  Scenario: Display details on service page for LoadBalancer type service
+    Given the master version >= "3.5"
+    Given I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
+    Then the step should succeed
+    When I run the :create_service_loadbalancer client command with:
+      | name | hello-openshift |
+      | tcp  | 5678:8080       |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name     | myroute                 |
+      | service  | hello-openshift         |
+      | hostname | www.hello-openshift.com |
+    Then the step should succeed
+    When I perform the :goto_one_service_page web console action with:
+      | project_name | <%= project.name %> |
+      | service_name | hello-openshift     |
+    Then the step should succeed
+    When I run the :check_resource_details_list_on_service_page web console action
+    Then the step should succeed
+
+  # @author xiaocwan@redhat.com
+  # @case_id OCP-11039
+  Scenario: Display details on service page for ExternalName type service
+    Given the master version >= "3.5"
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/services/ExternalSvc-with-label-ports.yaml"
+    Then the step should succeed
+    And I replace lines in "ExternalSvc-with-label-ports.yaml":
+      | myproject | <%= project.name %> |
+    When I run the :create client command with:
+      | f | ExternalSvc-with-label-ports.yaml |
+    Then the step should succeed
+    When I perform the :goto_one_service_page web console action with:
+      | project_name | <%= project.name %> |
+      | service_name | mysvc               |
+    Then the step should succeed
+    When I run the :check_resource_details_list_on_service_page web console action
+    Then the step should succeed

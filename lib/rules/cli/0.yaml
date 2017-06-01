@@ -190,6 +190,10 @@
       :nodeport: --node-port=<value>
       :tcp: --tcp=<value>
       :dry_run: --dry-run=<value>
+:create_service_loadbalancer:
+  :cmd: oc create service loadbalancer <name>
+  :options:
+    :tcp: --tcp=<value>
 :create_serviceaccount:
   :cmd: oc create serviceaccount <serviceaccount_name>
 :cucushift_test_do_not_use:
