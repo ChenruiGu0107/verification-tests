@@ -82,7 +82,7 @@ Feature: persist page state
       | resource_type | Builds              |
     Then the step should succeed
     And I wait for the steps to pass:
-    """ 
+    """
     Given the expression should be true> browser.url.end_with? "/monitoring?hideOlderResources=true&kind=Builds"
     """
 
@@ -152,7 +152,7 @@ Feature: persist page state
       | filter_action | in ... |
     Then the step should succeed
     And I wait for the steps to pass:
-    """ 
+    """
     And the expression should be true> browser.url =~ /pods\?labelFilter=.*matchExpressions.*key.*label2.*operator.*In.*values.*test2/
     """
 
@@ -166,13 +166,13 @@ Feature: persist page state
       | filter_action | in ... |
     Then the step should succeed
     And I wait for the steps to pass:
-    """ 
+    """
     And the expression should be true> browser.url =~ /storage\?labelFilter=.*matchExpressions.*key.*label2.*operator.*In.*values.*test2/
     """
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-11642
-  Scenario: Persist page state when filter by kind on other resource page     
+  Scenario: Persist page state when filter by kind on other resource page
     Given the master version >= "3.4"
     Given I have a project
     When I perform the :goto_other_resources_page web console action with:
@@ -180,7 +180,7 @@ Feature: persist page state
     Then the step should succeed
 
     And I wait for the steps to pass:
-    """ 
+    """
     When I perform the :choose_resource_type web console action with:
       | resource_type | Daemon Set |
     Then the step should succeed
@@ -188,15 +188,15 @@ Feature: persist page state
     """
 
     And I wait for the steps to pass:
-    """ 
+    """
     When I perform the :choose_resource_type web console action with:
       | resource_type | Template |
     Then the step should succeed
-    Given the expression should be true> browser.url.end_with? "/other?kind=Template&group="
+    Given the expression should be true> browser.url.include? "/other?kind=Template&group="
     """
 
     And I wait for the steps to pass:
-    """ 
+    """
     When I perform the :choose_resource_type web console action with:
       | resource_type | Endpoints |
     Then the step should succeed
@@ -204,39 +204,39 @@ Feature: persist page state
     """
 
     And I wait for the steps to pass:
-    """ 
+    """
     When I perform the :choose_resource_type web console action with:
       | resource_type | Horizontal Pod Autoscaler |
     Then the step should succeed
-    Given the expression should be true> browser.url.end_with? "/other?kind=HorizontalPodAutoscaler&group=extensions"
+    Given the expression should be true> browser.url.include? "/other?kind=HorizontalPodAutoscaler&group="
     """
 
     And I wait for the steps to pass:
-    """ 
+    """
     When I perform the :choose_resource_type web console action with:
       | resource_type | Job |
     Then the step should succeed
-    Given the expression should be true> browser.url.end_with? "/other?kind=Job&group=extensions"
+    Given the expression should be true> browser.url.include? "/other?kind=Job&group="
     """
 
     And I wait for the steps to pass:
-    """ 
+    """
     When I perform the :choose_resource_type web console action with:
       | resource_type | Policy |
     Then the step should succeed
-    Given the expression should be true> browser.url.end_with? "/other?kind=Policy&group="
+    Given the expression should be true> browser.url.include? "/other?kind=Policy&group="
     """
 
     And I wait for the steps to pass:
-    """ 
+    """
     When I perform the :choose_resource_type web console action with:
       | resource_type | Policy Binding |
     Then the step should succeed
-    Given the expression should be true> browser.url.end_with? "/other?kind=PolicyBinding&group="
+    Given the expression should be true> browser.url.include? "/other?kind=PolicyBinding&group="
     """
 
     And I wait for the steps to pass:
-    """ 
+    """
     When I perform the :choose_resource_type web console action with:
       | resource_type | Service Account |
     Then the step should succeed
