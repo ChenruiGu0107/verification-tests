@@ -330,7 +330,6 @@ Feature: oc related features
       | --generator=         |
       | --no-headers=        |
       | -o, --output=        |
-      | --output-version=    |
       | --save-config=       |
       | --schema-cache-dir=  |
       | -a, --show-all=      |
@@ -351,7 +350,6 @@ Feature: oc related features
       | --generator=         |
       | --no-headers=        |
       | -o, --output=        |
-      | --output-version=    |
       | --save-config=       |
       | --schema-cache-dir=  |
       | -a, --show-all=      |
@@ -374,7 +372,6 @@ Feature: oc related features
       | --generator=         |
       | --no-headers=        |
       | -o, --output=        |
-      | --output-version=    |
       | --save-config=       |
       | --schema-cache-dir=  |
       | -a, --show-all=      |
@@ -396,7 +393,6 @@ Feature: oc related features
       | --generator=         |
       | --no-headers=        |
       | -o, --output=        |
-      | --output-version=    |
       | --save-config=       |
       | --schema-cache-dir=  |
       | -a, --show-all=      |
@@ -445,7 +441,6 @@ Feature: oc related features
       | --name=              |
       | --no-headers=        |
       | -o, --output=        |
-      | --output-version=    |
       | --record=            |
       | --save-config=       |
       | -a, --show-all=      |
@@ -466,7 +461,6 @@ Feature: oc related features
       | --name=              |
       | --no-headers=        |
       | -o, --output=        |
-      | --output-version=    |
       | --record=            |
       | --save-config=       |
       | -a, --show-all=      |
