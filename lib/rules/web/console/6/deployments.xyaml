@@ -841,7 +841,7 @@ check_invalid_env_key_warning_message:
             tooltip = (warn_messages != null) ? warn_message.nextElementSibling.firstElementChild : null;
         return tooltip;
     type: js
-    op: hover
+    op: click
   - selector:
       xpath: //div[starts-with(text(),'A valid environment variable name is')]
 select_dc_strategy_type:

@@ -36,8 +36,8 @@ Feature: projects related features via cli
     When I run the :new_project client command with:
       | project_name | <%= cb.proj_name %> |
     Then the step should fail
-    And the output should contain:
-      | project "<%= cb.proj_name %>" already exists |
+    And the output should match:
+      | project.* "<%= cb.proj_name %>" already exists |
     When I run the :new_project client command with:
       | project_name | <%= rand_str(1,:dns) %> |
     Then the step should fail
