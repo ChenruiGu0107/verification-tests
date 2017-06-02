@@ -974,3 +974,76 @@ Feature: pod related features
       | payload_file | Eviction.json       |
     Then the step should fail
     And the expression should be true> @result[:exitstatus] == 429
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13117
+  @admin
+  Scenario: SeLinuxOptions in pod should apply to container correctly
+    Given I have a project
+    Given SCC "privileged" is added to the "default" user
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/securityContext/pod-selinux.yaml |
+    Then the step should succeed
+    Given the pod named "selinux-pod" becomes ready
+    When I run the :get client command with:
+      | resource      | pod         |
+      | resource_name | selinux-pod |
+      | o             | json        |
+    Then the step should succeed
+    And the output by order should contain:
+      | "securityContext"      |
+      | "privileged": false    |
+      | "level": "s0:c25,c968" |
+      | "role": "unconfined_r" |
+      | "user": "unconfined_u" |
+      | "securityContext"      | 
+      | "seLinuxOptions"       |
+      |"level": "s0:c25,c968"  |
+      | "role": "unconfined_r" |
+      | "user": "unconfined_u" |
+    And evaluation of `pod('selinux-pod').container(user: user, name: 'hello-pod', cached: true).id` is stored in the :containerID clipboard
+    Given evaluation of `pod("selinux-pod").node_name(user: user)` is stored in the :node clipboard
+    Given I use the "<%= cb.node %>" node
+    Given I run commands on the host:
+       | docker inspect <%= cb.containerID %> |
+    Then the step should succeed
+    And the output should contain:
+      | "SecurityOpt"             |
+      | "label=user:unconfined_u" |
+      | "label=role:unconfined_r" |
+      | "label=level:s0:c25,c968" |
+      | "seccomp=unconfined"      |
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13374
+  @admin
+  Scenario: Pod and container level selinuxoptions should both work
+    Given I have a project
+    Given SCC "privileged" is added to the "default" user
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/securityContext/pod-selinux.yaml |
+    Then the step should succeed
+    Given the pod named "selinux-pod" becomes ready
+    When I execute on the pod:
+      | runcon |
+    Then the step should succeed
+    And the output should contain:
+      | unconfined_u:unconfined_r:svirt_lxc_net_t:s0:c25,c968 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/securityContext/container-selinux.yaml |
+    Then the step should succeed
+    Given the pod named "selinux-container" becomes ready
+    When I execute on the pod:
+      | runcon |
+    Then the step should succeed
+    And the output should contain:
+      | unconfined_u:unconfined_r:svirt_lxc_net_t:s0:c25,c968 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/securityContext/both-level.yaml |
+    Then the step should succeed
+    Given the pod named "both-level-pod" becomes ready
+    When I execute on the pod:
+      | runcon |
+    Then the step should succeed
+    And the output should contain:
+      | system_u:system_r:svirt_lxc_net_t:s0:c24,c965 |
