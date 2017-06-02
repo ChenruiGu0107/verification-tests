@@ -52,7 +52,26 @@ Feature: ansible install related feature
     When I get project pod named "<%= pod.name %>" as YAML
     Then the output should contain:
       | persistentVolumeClaim |
-    """    
+    """
     # nfs bug 1337479, 1367161, so delete cassandra rc before post clean up work
     # keep this step until bug fixed.
     And I ensure "hawkular-cassandra-1" rc is deleted
+
+  # @author pruan@redhat.com
+  # @case_id OCP-12186
+  @admin
+  @destructive
+  Scenario: Metrics Admin Command - fresh deploy with custom cert
+    Given the master version >= "3.5"
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    And metrics service is installed in the "openshift-infra" project with ansible using:
+      | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory |
+      | copy_custom_cert | true                                                                                                   |
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    And I run commands on the host:
+      | curl --resolve hawkular-metrics.<%= cb.subdomain %>:443: <%= cb.router_ip[0] %> https://hawkular-metrics.<%= cb.subdomain %> --cacert <%= host.workdir + "/ca.crt" %> |
+    And the output should contain:
+      | Hawkular Metrics                                |
+    """

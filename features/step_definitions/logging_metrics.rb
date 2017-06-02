@@ -200,7 +200,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   ensure_admin_tagged
 
   if op == 'installed'
-
     step %Q/there should be 0 #{svc_type} service installed/
   end
 
@@ -223,9 +222,24 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   cb.subdomain = env.router_default_subdomain(user: user, project: project)
   step %Q/I store master major version in the :master_version clipboard/
   step %Q/I create the "tmp" directory/
+
   # prep the inventory file.
   cb.master_url = env.master_hosts.first.hostname
   cb.api_port = '8443' if cb.api_port.nil?
+  if ansible_opts[:copy_custom_cert]
+    key_name = "cucushift_custom.key"
+    cert_name = "cucushift_custom.crt"
+    if svc_type == 'metrics'
+      hostnames = "hawkular-metrics.#{cb.subdomain}"
+    else
+      hostname = "kibana.#{cb.subdomain}"
+    end
+    # base_path corresponds to the inventory, for example https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory
+    base_path = "/tmp/#{File.basename(host.workdir)}/"
+    cb.key_path = "#{base_path}/#{key_name}"
+    cb.cert_path = "#{base_path}/#{cert_name}"
+    cb.ca_crt_path = "#{base_path}/ca.crt"
+  end
 
   step %Q/I download a file from "<%= "#{ansible_opts[:inventory]}" %>" into the "tmp" dir/
 
@@ -252,6 +266,21 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   begin
     step %Q/I switch to cluster admin pseudo user/
     step %Q/I have a pod with openshift-ansible playbook installed/
+    # we need to scp the key and crt and ca.crt to the ansible installer pod
+    # prior to the ansible install operation
+    if ansible_opts[:copy_custom_cert]
+      step %Q/the custom certs are generated with:/, table(%{
+        | key       | #{key_name}  |
+        | cert      | #{cert_name} |
+        | hostnames | #{hostnames} |
+        })
+
+      @result = host.exec_admin("cp -f /etc/origin/master/ca.crt #{host.workdir}")
+      step %Q/the step should succeed/
+      sync_certs_cmd = "oc project #{project.name}; oc rsync #{host.workdir} base-ansible-pod:/tmp"
+      @result = host.exec_admin(sync_certs_cmd)
+      step %Q/the step should succeed/
+    end
     if svc_type == 'logging'
       ansible_template_path = "/usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml"
     else
@@ -373,7 +402,6 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
   @result = admin.cli_exec(:rsync, source: localhost.absolutize("tmp"), destination: "base-ansible-pod:/tmp", loglevel: 5, n: cb.org_project_for_ansible.name)
   step %Q/the step should succeed/
 end
-
 
 require 'configparser'
 require 'oga'
