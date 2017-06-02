@@ -38,5 +38,10 @@ module CucuShift
       spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
       return spec['persistentVolumeReclaimPolicy']
     end
+
+    def storage_class_name(user: nil, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: true, quiet: quiet)
+      return  spec['storageClassName']
+    end
   end
 end
