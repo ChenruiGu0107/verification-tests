@@ -2771,7 +2771,8 @@ Feature: build 'apps' with CLI
   Scenario: Handle build naming collisions
     Given I have a project
     When I run the :new_build client command with:
-      | app_repo | https://github.com/openshift/ruby-hello-world.git |
+      | app_repo     | https://github.com/openshift/ruby-hello-world.git |
+      | image_stream | ruby:latest                                       |
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc539699/build.yaml"
     And I replace lines in "build.yaml":

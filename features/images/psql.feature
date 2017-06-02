@@ -238,9 +238,9 @@ Feature: Postgresql images test
 
     Examples:
       | file | image| new_image | template|
-      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:9.5  | postgresql:9.4 | postgresql-persistent-template.json |
-      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | postgresql:9.5  | postgresql:9.2 | postgresql-persistent-template.json |
-      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  |                 |                | postgresql-persistent-template.json | # @case_id OCP-12070
+      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | 9.5 | 9.4 | postgresql-persistent-template.json |
+      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  | 9.5 | 9.2 | postgresql-persistent-template.json |
+      | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/postgresql-persistent-template.json  |     |     | postgresql-persistent-template.json | # @case_id OCP-12070
 
   #wewang@redhat.com
   # @case_id 511969
