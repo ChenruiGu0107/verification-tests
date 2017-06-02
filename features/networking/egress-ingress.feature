@@ -447,3 +447,34 @@ Feature: Egress-ingress related networking scenarios
     And the output should contain 2 times:
       | actions=drop |
       | reg0=0x      |
+
+  # @author yadu@redhat.com
+  # @case_id OCP-14163
+  @admin
+  @destructive
+  Scenario: Egressnetworkpolicy will take effect as 0.0.0.0/0 when set to 0.0.0.0/32 in cidrSelector
+    Given the env is using multitenant network
+    Given I have a project
+    Given I have a pod-for-ping in the project
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json"
+    And I replace lines in "limit_policy.json":
+      | 0.0.0.0/0 | 0.0.0.0/32 |
+    And I run the :create admin command with:
+      | f | limit_policy.json |
+      | n | <%= project.name %> |
+    Then the step should succeed
+
+    Given I select a random node's host
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "30 seconds ago" \| grep controller.go |
+    Then the step should succeed
+    And the output should contain:
+      | Correcting CIDRSelector '0.0.0.0/32' to '0.0.0.0/0' |
+
+    When I use the "<%= project.name %>" project
+    When I execute on the pod:
+      | curl           |
+      | --head         |
+      | www.google.com |
+    Then the step should fail
+    And the output should contain "Couldn't resolve host"
