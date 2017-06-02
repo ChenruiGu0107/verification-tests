@@ -199,3 +199,94 @@ Feature: InitContainers
     Then the step should fail
     And the output should match:
       | exec.*not allowed.*exceeds.*permissions.*privileged.*Invalid value.*true |
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12911
+  Scenario: App container status depends on init containers exit code
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-success.yaml |
+    Then the step should succeed
+    Given the pod named "init-success" becomes ready
+    Given I ensure "init-success" pod is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/init-containers-fail.yaml |
+    Then the step should succeed
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | po        |
+      | resource_name | init-fail |
+    Then the output should match:
+      | init-fail\\s+0/1\\s+Init:CrashLoopBackOff\\s+2 |
+    """
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12914
+  Scenario: Init containers with readiness probe
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/init-containers-readiness.yaml |
+    Then the step should fail
+    And the output should contain:
+      | initContainers[0].readinessProbe: Invalid value |
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12893
+  Scenario: Init containers with restart policy "Always"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-always-fail.yaml |
+    Then the step should succeed
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | po               |
+      | resource_name | init-always-fail |
+    Then the output should match:
+      | init-always-fail\\s+0/1\\s+Init:CrashLoopBackOff\\s+2 |
+    """
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-always-succ.yaml |
+    Then the step should succeed
+    Given the pod named "init-always-succ" becomes ready
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12896
+  Scenario: Init containers with restart policy "Never"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-never-fail.yaml |
+    Then the step should succeed
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | po              |
+      | resource_name | init-never-fail |
+    Then the output should match:
+      | init-never-fail\\s+0/1\\s+Init:Error\\s+0 |
+    """
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-never-succ.yaml |
+    Then the step should succeed
+    Given the pod named "init-never-succ" becomes ready
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12894
+  Scenario: Init containers with restart policy "OnFailure"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-onfailure-fail.yaml |
+    Then the step should succeed
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | po                  |
+      | resource_name | init-onfailure-fail |
+    Then the output should match:
+      | init-onfailure-fail\\s+0/1\\s+Init:CrashLoopBackOff\\s+2 |
+    """
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-onfailure-succ.yaml |
+    Then the step should succeed
+    Given the pod named "init-onfailure-succ" becomes ready
