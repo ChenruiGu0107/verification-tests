@@ -851,3 +851,188 @@ Feature: test master config related steps
     Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-11146
+  @admin
+  @destructive
+  Scenario: openshift can not start when give invalid arguments for ldap authentication
+  Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/con/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "testldap"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "cn=read-only-admin,dc=example,dc=com"
+          bindPassword: "password"
+          ca: inexist.crt
+          kind: LDAPPasswordIdentityProvider
+          insecure: false
+          url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/con/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "testldap"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "cn=read-only-admin,dc=example,dc=com"
+          bindPassword: "password"
+          ca: ca.key
+          kind: LDAPPasswordIdentityProvider
+          insecure: false
+          url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/con/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "testldap"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "cn=read-only-admin,dc=example,dc=com"
+          bindPassword: "password"
+          ca: ""
+          kind: LDAPPasswordIdentityProvider
+          insecure: true
+          url: "ldaps://ldap.forumsys.com/dc=example,dc=com?uid"
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/con/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "testldap"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: ""
+          bindPassword: "password"
+          ca: ""
+          kind: LDAPPasswordIdentityProvider
+          insecure: false
+          url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/con/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "testldap"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "cn=read-only-admin,dc=example,dc=com"
+          bindPassword: ""
+          ca: ""
+          kind: LDAPPasswordIdentityProvider
+          insecure: false
+          url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/con/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "testldap"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id: null
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "cn=read-only-admin,dc=example,dc=com"
+          bindPassword: "password"
+          ca: ""
+          kind: LDAPPasswordIdentityProvider
+          insecure: false
+          url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
