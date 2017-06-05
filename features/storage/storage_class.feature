@@ -891,14 +891,12 @@ Feature: storageClass related feature
   # @author chaoyang@redhat.com
   # @case_id OCP-12872
   @admin
-  Scenario: Check storageclass info pv and pvc requested when pvc is using alpha annotation and no default storageclass	
+  Scenario: Check storageclass info pv and pvc requested when pvc is using alpha annotation and no default storageclass
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
-
     Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound
     And the "pvc-<%= project.name %>" PVC becomes :bound
     And the expression should be true> pvc.storage_class(user:user) == nil
     And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == nil
@@ -911,9 +909,9 @@ Feature: storageClass related feature
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
-     
+
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/pvc.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |	    
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
