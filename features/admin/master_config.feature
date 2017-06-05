@@ -827,3 +827,27 @@ Feature: test master config related steps
     Then the step should fail
     And the output should contain:
       | cannot create more than |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-11080
+  @admin
+  @destructive
+  Scenario: Error message should be shown up on startup stage when assertConfig.publicURL is different with oauthConfig.assertpublicURL
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/con/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        mappingMethod: claim
+        name: anypassword
+        provider:
+          apiVersion: v1
+          kind: AllowAllPasswordIdentityProvider
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
