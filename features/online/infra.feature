@@ -97,3 +97,23 @@ Feature: ONLY ONLINE Infra related scripts in this file
       | o             | yaml         |
     And the output should contain:
       | activeDeadlineSeconds: 1000 |
+
+  # @author zhaliu@redhat.com
+  # @case_id OCP-9788
+    Scenario: Restrict user using nodeName in Pod in online env	
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/clusterinfra/pod-with-nodename.yaml |
+    Then the step should fail
+    And the output should contain:
+      | pods "hello-openshift" is forbidden: node selection by nodeName is prohibited by policy for your role |
+
+  # @author zhaliu@redhat.com
+  # @case_id OCP-9903
+    Scenario: Restrict user using nodeName in DeploymentConfig in online env	
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/clusterinfra/deploymentconfig-with-nodename.yaml |
+    Then the step should fail
+    And the output should contain:
+      | deploymentconfigs "hello-openshift" is forbidden: node selection by nodeName is prohibited by policy for your role |
