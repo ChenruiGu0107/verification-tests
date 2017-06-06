@@ -94,8 +94,7 @@ Feature: storageClass related feature
       | resource      | pvc                                                                                               |
       | resource_name | pvc-<%= project.name %>                                                                           |
       | p             | {"metadata":{"annotations":{"volume.beta.kubernetes.io/storage-class":"sc-<%= project.name %>"}}} |
-    Then the step should succeed
-    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+  Then the step should fail
 
     Examples:
       | provisioner |
