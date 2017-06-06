@@ -82,7 +82,7 @@ Feature: oc proxy related scenarios
       | n        | <%= project.name %>                 |
       | config   | dummy.config|
     Then the step should fail
-    And the output should contain "does not allow access to the requested resource"
+    And the output should match "(does not allow access to the requested resource|Error from server.*Unauthorized.*get pods)"
 
     When I run the :proxy background client command with:
       | port          | <%= cb.port3 %>     |

@@ -113,6 +113,8 @@ Feature: oc debug related scenarios
       | resource             | pod/hello-pod |
       | keep_init_containers | true          |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I run the :describe client command with:
       | resource | pod             |
       | name     | hello-pod-debug |
@@ -121,12 +123,16 @@ Feature: oc debug related scenarios
       | Init Containers: |
       | success          |
       | /bin/true        |
+    """
     Given I ensure "hello-pod-debug" pod is deleted
     When I run the :debug background client command with:
       | resource             | pod/hello-pod |
       | keep_init_containers | false         |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I run the :describe client command with:
       | resource | pod             |
       | name     | hello-pod-debug |
     Then the output should not contain "Init Containers"
+    """

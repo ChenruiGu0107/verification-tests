@@ -16,10 +16,13 @@ check_help_info_when_user_have_no_permission:
   - selector:
       xpath: //code[contains(.,'<openshift_command>')]
 check_policy_command: {}
-click_project_display_name:
+click_delete_project:
   elements:
   - selector:
-      xpath: //div[@kind='Project' and @display-name='<project_name>']
+      xpath: //div[contains(@class,'project-info') and div//span[normalize-space(text())='<project_name>']]//a[contains(@class,'actions-dropdown-kebab')]
+    op: click
+  - selector:
+      xpath: //div[contains(@class,'project-info') and div//span[normalize-space(text())='<project_name>']]//a[normalize-space(text())='Delete Project']
     op: click
 confirm_error_for_invalid_project_name:
   element:
@@ -33,13 +36,13 @@ send_delete_string:
     op: send_keys <input_str>
 delete_project:
   action: check_project_list
-  action: click_project_display_name
+  action: click_delete_project
   action: send_delete_string
   action: confirm_delete_for_project_deletion
   action: check_project_deleted_message
 cancel_delete_project:
   action: check_project_list
-  action: click_project_display_name
+  action: click_delete_project
   action: confirm_cancel_for_project_deletion
   elements:
   - selector:
@@ -55,7 +58,7 @@ goto_projects_page:
   url: /console
 type_project_delete_string:
   action: check_project_list
-  action: click_project_display_name
+  action: click_delete_project
   action: send_delete_string
 check_delete_button_for_project_deletion:
   elements:
