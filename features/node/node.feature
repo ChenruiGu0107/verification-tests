@@ -442,3 +442,57 @@ Feature: Node management
     Then the step should succeed
     And the output should contain:
       | total 0 |
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-11467
+  @admin
+  @destructive
+  Scenario: Validation of pod manifest config
+    Given I select a random node's host
+    And node config is merged with the following hash:
+    """
+    podManifestConfig:
+      fileCheckIntervalSeconds: 30
+    """
+    Then the step should succeed
+    And I try to restart the node service on node
+    And the step should fail
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "podManifestConfig.path: Required value" |
+    Then the step should succeed
+    And node config is merged with the following hash:
+    """
+    podManifestConfig:
+      path: "/etc/origin/node/no-such-path"
+      fileCheckIntervalSeconds: 30
+    """
+    Then the step should succeed
+    And I try to restart the node service on node
+    Then the step should fail
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "podManifestConfig.*Invalid value: \"/etc/origin/node/no-such-path\"" |
+    Then the step should succeed
+    And node config is merged with the following hash:
+    """
+    podManifestConfig:
+      path: "/etc/origin/node"
+      fileCheckIntervalSeconds: -30
+    """
+    Then the step should succeed
+    And I try to restart the node service on node
+    Then the step should fail
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "podManifestConfig.*Invalid value: -30: interval has to be positive" |
+    Then the step should succeed
+    And node config is merged with the following hash:
+    """
+    podManifestConfig:
+      path: "/etc/origin/node"
+      fileCheckIntervalSeconds: test
+    """
+    Then the step should succeed
+    And I try to restart the node service on node
+    Then the step should fail
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "could not load config file.*got first char" |
+    Then the step should succeed
