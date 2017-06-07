@@ -721,3 +721,43 @@ Feature: buildlogic.feature
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/tc527410/longname-build-withlabel.json |
     Then the step should fail
     And the output should contain "must be no more than 63 characters"
+
+  # @author dyan@redhat.com
+  # @case_id OCP-13683
+  Scenario: Check s2i build substatus and times
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completed
+    When I run the :describe client command with:
+      | resource | build               |
+      | name     | ruby-sample-build-1 |
+    Then the step should succeed
+    And the output should match:
+      | Duration:\s+(\d+m)?\d+s        |
+      | FetchInputs:\s+(\d+m)?\d+s     |
+      | CommitContainer:\s+(\d+m)?\d+s |
+      | Assemble:\s+(\d+m)?\d+s        |
+      | PostCommit:\s+(\d+m)?\d+s      |
+      | PushImage:\s+(\d+m)?\d+s       |
+
+  # @author dyan@redhat.com
+  # @case_id OCP-13684
+  Scenario: Check docker build substatus and times
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json |
+    Then the step should succeed
+    Given the "ruby-sample-build-1" build completed
+    When I run the :describe client command with:
+      | resource | build               |
+      | name     | ruby-sample-build-1 |
+    Then the step should succeed
+    And the output should match:
+      | Duration:\s+(\d+m)?\d+s    |
+      | FetchInputs:\s+(\d+m)?\d+s |
+      | Build:\s+(\d+m)?\d+s       |
+      | PostCommit:\s+(\d+m)?\d+s  |
+      | PushImage:\s+(\d+m)?\d+s   |
+
