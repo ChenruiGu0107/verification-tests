@@ -1,17 +1,16 @@
 Feature: kubelet restart and node restart
   # @author lxia@redhat.com
-  # @case_id OCP-11613 OCP-11317 OCP-10907
   @admin
   @destructive
   Scenario Outline: kubelet restart should not affect attached/mounted volumes
-    Given admin creates a project with a random schedulable node selector 
+    Given admin creates a project with a random schedulable node selector
     And evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-#{cb.i}       |
       | ["spec"]["accessModes"][0]                   | #{cb.accessmodes[cb.i-1]} |
-      | ["spec"]["resources"]["requests"]["storage"] | #{cb.i}Gi                 |   
+      | ["spec"]["resources"]["requests"]["storage"] | #{cb.i}Gi                 |
     Then the step should succeed
     And the "dynamic-pvc-#{cb.i}" PVC becomes :bound
     When I run the :get admin command with:
@@ -31,12 +30,11 @@ Feature: kubelet restart and node restart
     # restart kubelet on the node
     Given I use the "<%= node.name %>" node
     And the node service is restarted on the host
-    # verify previous created files still exist
     And I wait up to 120 seconds for the steps to pass:
     """
-    # verify previous created files still exist
     Given I run the steps 3 times:
-    <%= '"'*3 %> 
+    <%= '"'*3 %>
+    # verify previous created files still exist
     When I execute on the "mypod#{cb.i}" pod:
       | ls | /mnt/<platform>/testfile_before_restart_#{cb.i} |
     Then the step should succeed
@@ -44,28 +42,27 @@ Feature: kubelet restart and node restart
     When I execute on the "mypod#{cb.i}" pod:
       | touch | /mnt/<platform>/testfile_after_restart_#{cb.i} |
     Then the step should succeed
-    <%= '"'*3 %> 
+    <%= '"'*3 %>
     """
 
     Examples:
       | platform |
-      | gce      |
-      | cinder   |
-      | aws      |
+      | gce      | # @case_id OCP-11613
+      | cinder   | # @case_id OCP-11317
+      | aws      | # @case_id OCP-10907
 
   # @author lxia@redhat.com
-  # @case_id OCP-11620 OCP-11330 OCP-10919
   @admin
   @destructive
   Scenario Outline: node restart should not affect attached/mounted volumes
-    Given admin creates a project with a random schedulable node selector 
+    Given admin creates a project with a random schedulable node selector
     And evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-#{cb.i}       |
       | ["spec"]["accessModes"][0]                   | #{cb.accessmodes[cb.i-1]} |
-      | ["spec"]["resources"]["requests"]["storage"] | #{cb.i}Gi                 |   
+      | ["spec"]["resources"]["requests"]["storage"] | #{cb.i}Gi                 |
     Then the step should succeed
     And the "dynamic-pvc-#{cb.i}" PVC becomes :bound
     When I run the :get admin command with:
@@ -85,12 +82,11 @@ Feature: kubelet restart and node restart
     # restart node
     Given I use the "<%= node.name %>" node
     And the host is rebooted and I wait it to become available
-    # verify previous created files still exist
     And I wait up to 120 seconds for the steps to pass:
     """
-    # verify previous created files still exist
     Given I run the steps 3 times:
-    <%= '"'*3 %> 
+    <%= '"'*3 %>
+    # verify previous created files still exist
     When I execute on the "mypod#{cb.i}" pod:
       | ls | /mnt/<platform>/testfile_before_restart_#{cb.i} |
     Then the step should succeed
@@ -98,114 +94,20 @@ Feature: kubelet restart and node restart
     When I execute on the "mypod#{cb.i}" pod:
       | touch | /mnt/<platform>/testfile_after_restart_#{cb.i} |
     Then the step should succeed
-    <%= '"'*3 %> 
+    <%= '"'*3 %>
     """
 
     Examples:
       | platform |
-      | gce      |
-      | cinder   |
-      | aws      |
+      | gce      | # @case_id OCP-11620
+      | cinder   | # @case_id OCP-11330
+      | aws      | # @case_id OCP-10919
 
   # @author wehe@redhat.com
-  # @case_id OCP-13333
-  @admin
-  @destructive
-  Scenario: azureDisk kubelet restart should not affect attached/mounted volume 
-    Given admin creates a project with a random schedulable node selector 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
-      | ["metadata"]["name"]      | sc-<%= project.name %> |
-    Then the step should succeed
-    Given evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
-    And I run the steps 3 times:
-    """
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
-      | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
-      | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |   
-    Then the step should succeed
-    And the "dpvc-#{cb.i}" PVC becomes :bound
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dpvc-#{cb.i} |
-      | ["metadata"]["name"]                                         | mypod#{cb.i} |
-    Then the step should succeed
-    And the pod named "mypod#{cb.i}" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/azure/testfile_before_restart_#{cb.i} |
-    Then the step should succeed
-    """
-    # restart kubelet on the node
-    Given I use the "<%= node.name %>" node
-    And the node service is restarted on the host
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    # verify previous created files still exist
-    Given I run the steps 3 times:
-    <%= '"'*3 %> 
-    When I execute on the "mypod#{cb.i}" pod:
-      | ls | /mnt/azure/testfile_before_restart_#{cb.i} |
-    Then the step should succeed
-    # write to the mounted storage
-    When I execute on the "mypod#{cb.i}" pod:
-      | touch | /mnt/azure/testfile_after_restart_#{cb.i} |
-    Then the step should succeed
-    <%= '"'*3 %> 
-    """
-
-  # @author wehe@redhat.com
-  # @case_id OCP-13435
-  @admin
-  @destructive
-  Scenario: azureDisk node restart should not affect attached/mounted volumes 
-    Given admin creates a project with a random schedulable node selector 
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
-      | ["metadata"]["name"]      | sc-<%= project.name %> |
-    Then the step should succeed
-    Given evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
-    And I run the steps 3 times:
-    """
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
-      | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
-      | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |
-    Then the step should succeed
-    And the "dpvc-#{cb.i}" PVC becomes :bound
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dpvc-#{cb.i} |
-      | ["metadata"]["name"]                                         | mypod#{cb.i} |
-    Then the step should succeed
-    And the pod named "mypod#{cb.i}" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/azure/testfile_before_restart_#{cb.i} |
-    Then the step should succeed
-    """
-    # restart kubelet on the node
-    Given I use the "<%= node.name %>" node
-    And the host is rebooted and I wait it to become available
-    And I wait up to 120 seconds for the steps to pass:
-    """
-    # verify previous created files still exist
-    Given I run the steps 3 times:
-    <%= '"'*3 %> 
-    When I execute on the "mypod#{cb.i}" pod:
-      | ls | /mnt/azure/testfile_before_restart_#{cb.i} |
-    Then the step should succeed
-    # write to the mounted storage
-    When I execute on the "mypod#{cb.i}" pod:
-      | touch | /mnt/azure/testfile_after_restart_#{cb.i} |
-    Then the step should succeed
-    <%= '"'*3 %> 
-    """
-
-  # @author jhou@redhat.com
-  # @case_id OCP-13631
   @admin
   @destructive
   Scenario Outline: kubelet restart should not affect attached/mounted volumes on IaaS
     Given admin creates a project with a random schedulable node selector
-
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %>      |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
@@ -215,23 +117,21 @@ Feature: kubelet restart and node restart
     And I run the steps 3 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-#{ cb.i }                 |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>        |
-      | ["spec"]["accessModes"][0]                                             | #{ cb.accessmodes[ cb.i-1 ] } |
-      | ["spec"]["resources"]["requests"]["storage"]                           | #{ cb.i }Gi                   |
+      | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
+      | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
+      | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |
     Then the step should succeed
-
-    And the "pvc-#{ cb.i }" PVC becomes :bound
-
+    And the "dpvc-#{cb.i}" PVC becomes :bound
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | mypod#{ cb.i }    |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-#{ cb.i }     |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<mount_path> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dpvc-#{cb.i} |
+      | ["metadata"]["name"]                                         | mypod#{cb.i} |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas    |
     Then the step should succeed
-    And the pod named "mypod#{ cb.i }" becomes ready
+    And the pod named "mypod#{cb.i}" becomes ready
 
     When I execute on the pod:
-      | touch | /mnt/<mount_path>/testfile_before_restart_#{ cb.i } |
+      | touch | /mnt/iaas/testfile_before_restart_#{cb.i} |
     Then the step should succeed
     """
 
@@ -243,23 +143,22 @@ Feature: kubelet restart and node restart
     # verify previous created files still exist
     Given I run the steps 3 times:
     <%= '"'*3 %>
-    When I execute on the "mypod#{ cb.i }" pod:
-      | ls | /mnt/<mount_path>/testfile_before_restart_#{ cb.i } |
+    When I execute on the "mypod#{cb.i}" pod:
+      | ls | /mnt/iaas/testfile_before_restart_#{cb.i} |
     Then the step should succeed
-
     # write to the mounted storage
     When I execute on the "mypod#{cb.i}" pod:
-      | touch | /mnt/<mount_path>/testfile_after_restart_#{ cb.i } |
+      | touch | /mnt/iaas/testfile_after_restart_#{cb.i} |
     Then the step should succeed
     <%= '"'*3 %>
     """
 
   Examples:
-      | provisioner    | mount_path |
-      | vsphere-volume | vsphere    |
+      | provisioner    |
+      | vsphere-volume | # @case_id OCP-13631
+      | azure-disk     | # @case_id OCP-13333
 
   # @author jhou@redhat.com
-  # @case_id OCP-13632
   @admin
   @destructive
   Scenario Outline: node restart should not affect attached/mounted volumes on IaaS
@@ -282,14 +181,14 @@ Feature: kubelet restart and node restart
     And the "pvc-#{ cb.i }" PVC becomes :bound
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
-      | ["metadata"]["name"]                                         | mypod#{ cb.i }    |
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-#{ cb.i }     |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<mount_path> |
+      | ["metadata"]["name"]                                         | mypod#{ cb.i } |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-#{ cb.i }  |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/iaas      |
     Then the step should succeed
     And the pod named "mypod#{ cb.i }" becomes ready
 
     When I execute on the pod:
-      | touch | /mnt/<mount_path>/testfile_before_restart_#{ cb.i } |
+      | touch | /mnt/iaas/testfile_before_restart_#{ cb.i } |
     Then the step should succeed
     """
 
@@ -302,15 +201,16 @@ Feature: kubelet restart and node restart
     Given I run the steps 3 times:
     <%= '"'*3 %>
     When I execute on the "mypod#{ cb.i }" pod:
-      | ls | /mnt/<mount_path>/testfile_before_restart_#{ cb.i } |
+      | ls | /mnt/iaas/testfile_before_restart_#{ cb.i } |
     Then the step should succeed
     # write to the mounted storage
     When I execute on the "mypod#{ cb.i }" pod:
-      | touch | /mnt/<mount_path>/testfile_after_restart_#{ cb.i } |
+      | touch | /mnt/iaas/testfile_after_restart_#{ cb.i } |
     Then the step should succeed
     <%= '"'*3 %>
     """
 
   Examples:
-    | provisioner    | mount_path |
-    | vsphere-volume | vsphere    |
+    | provisioner    |
+    | vsphere-volume | # @case_id OCP-13632
+    | azure-disk     | # @case_id OCP-13435
