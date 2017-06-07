@@ -662,3 +662,46 @@ Feature: Testing registry
       | image | <%= cb.reg_svc_url %>/test/test/deployment-example:latest |
     Then the step should succeed
     And I wait until the status of deployment "testdc" becomes :complete
+
+  # @author: yinzhou@redhat.com
+  # @case_id: OCP-10922
+  @destructive
+  @admin
+  Scenario: Admin can understand/manage image use and prune oversized image	
+    Given I have a project
+    When I run the :policy_add_role_to_user client command with:
+      | role            | registry-admin   |
+      | user name       | system:anonymous |
+    Then the step should succeed
+    And I select a random node's host
+    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And default registry route is stored in the :registry_ip clipboard
+    And the "~/.docker/config.json" file is restored on host after scenario
+    When I run commands on the host:
+      | docker logout <%= cb.integrated_reg_ip %>                                          |
+      | docker pull aosqe/singlelayer:latest                                               |
+      | docker tag docker.io/aosqe/singlelayer:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/singlelayer:latest             |
+      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/singlelayer:latest     |
+      | docker pull openshift/hello-openshift:latest                                       |
+      | docker tag docker.io/openshift/hello-openshift:latest  <%= cb.integrated_reg_ip %>/<%= project.name %>/hello-openshift:latest |
+      | docker push <%= cb.integrated_reg_ip %>/<%= project.name %>/hello-openshift:latest |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml"
+    Then the step should succeed
+    And I replace lines in "image-limit-range.yaml":
+      | storage: 1Gi | storage: 140Mi |
+    When I run the :create admin command with:
+      | f | image-limit-range.yaml |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    Given cluster role "system:image-pruner" is added to the "first" user
+    And I run the :oadm_prune_images client command with:
+      | prune_over_size_limit | true                  |
+      | confirm               | true                  |
+      | registry_url          | <%= cb.registry_ip %> |
+      | namespace             | <%= project.name %>   |
+    Then the step should succeed
+    And the output should contain:
+      | singlelayer |
+    And the output should not contain:
+      | hello-openshift |
