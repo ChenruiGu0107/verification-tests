@@ -590,3 +590,117 @@ Feature: SDN related networking scenarios
       | ls /var/lib/cni/networks/openshift-sdn \| wc -l |
     Then the step should succeed
     And the expression should be true> @result[:response].to_i < 41
+
+  # @author hongli@redhat.com
+  # @case_id OCP-13847
+  @admin
+  Scenario: an empty OPENSHIFT-ADMIN-OUTPUT-RULES chain is created in filter table at startup
+    Given the master version >= "3.6"
+    Given I select a random node's host
+    And the node service is verified
+
+    When I run commands on the host:
+      | iptables -S -t filter \| grep 'OPENSHIFT-ADMIN-OUTPUT-RULES' |
+    Then the step should succeed
+    And the output should contain:
+      | -N OPENSHIFT-ADMIN-OUTPUT-RULES |
+      | -A FORWARD -i tun0 ! -o tun0 -m comment --comment "administrator overrides" -j OPENSHIFT-ADMIN-OUTPUT-RULES |
+
+  # @author hongli@redhat.com
+  # @case_id OCP-14271
+  @admin
+  @destructive
+  Scenario: add rule to OPENSHIFT-ADMIN-OUTPUT-RULES chain
+    Given the master version >= "3.6"
+    Given I have a project
+    # create target pod and services for ping or curl
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given 1 pods become ready with labels:
+      | name=test-pods |
+    And evaluation of `pod.ip` is stored in the :target_pod_ip clipboard
+    And evaluation of `service("service-unsecure").ip(user: user)` is stored in the :service_unsecure_ip clipboard
+    And evaluation of `service("service-secure").ip(user: user)` is stored in the :service_secure_ip clipboard
+
+    # create a pod which under controlled by the rule
+    Given I have a pod-for-ping in the project
+    Then I use the "<%= pod.node_name(user: user) %>" node
+    And evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    Given I register clean-up steps:
+    """
+    When I run commands on the host:
+      | iptables -D OPENSHIFT-ADMIN-OUTPUT-RULES -s <%= cb.pod_ip %> -j REJECT |
+    Then the step should succeed
+    """
+    When I run commands on the host:
+      | iptables -A OPENSHIFT-ADMIN-OUTPUT-RULES -s <%= cb.pod_ip %> -j REJECT |
+    Then the step should succeed
+
+    # ensure external traffic is rejected but the connection between pods or services is not affected
+    When I execute on the pod:
+      | curl | --connect-timeout | 5 | www.redhat.com |
+    Then the step should fail
+    And the output should contain "Connection refused"
+    When I execute on the pod:
+      | ping | -c | 5 | <%= cb.target_pod_ip %> |
+    Then the step should succeed
+    And the output should contain "0% packet loss"
+    When I execute on the pod:
+      | curl | --connect-timeout | 5 | http://<%= cb.service_unsecure_ip %>:27017 |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    When I execute on the pod:
+      | curl | --connect-timeout | 5 | https://<%= cb.service_secure_ip %>:27443 | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+
+  # @author hongli@redhat.com
+  # @case_id OCP-14273
+  @admin
+  @destructive
+  Scenario: the rules in OPENSHIFT-ADMIN-OUTPUT-RULES should be applied after EgressNetworkPoliy
+    Given the master version >= "3.6"
+    Given I have a project
+    And I have a pod-for-ping in the project
+    Then I use the "<%= pod.node_name(user: user) %>" node
+    And evaluation of `pod.ip` is stored in the :pod_ip clipboard
+
+    # add one rule to log all traffic from the pod
+    Given I register clean-up steps:
+    """
+    When I run commands on the host:
+      | iptables -D OPENSHIFT-ADMIN-OUTPUT-RULES -s <%= cb.pod_ip %> -j LOG --log-prefix "ADMIN-RULES: " --log-level 4 |
+    Then the step should succeed
+    """
+    When I run commands on the host:
+      | iptables -A OPENSHIFT-ADMIN-OUTPUT-RULES -s <%= cb.pod_ip %> -j LOG --log-prefix "ADMIN-RULES: " --log-level 4 |
+    Then the step should succeed
+
+    # ensure the logs can be observed before apply EgressNetworkPolicy
+    When I execute on the pod:
+      | curl | --connect-timeout | 5 | www.redhat.com |
+    Then the step should succeed
+    When I run commands on the host:
+      | journalctl -k --since "10 seconds ago" |
+    Then the step should succeed
+    And the output should match "ADMIN-RULES.*SRC=<%= cb.pod_ip %>"
+
+    # apply the EgressNetworkPolicy to drop all external traffic
+    Given I switch to cluster admin pseudo user
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/internal-policy.json |
+      | n | <%= project.name %> |
+    Then the step should succeed
+
+    # ensure the logs cannot be observed after apply EgressNetworkPolicy
+    Given I switch to the first user
+    When I execute on the pod:
+      | curl | --connect-timeout | 5 | www.redhat.com |
+    Then the step should fail
+    And the output should contain "Connection timed out"
+    When I run commands on the host:
+      | journalctl -k --since "10 seconds ago" |
+    Then the step should succeed
+    And the output should not contain "ADMIN-RULES"
+
