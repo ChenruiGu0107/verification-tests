@@ -1933,8 +1933,8 @@ Feature: deployment related features
     And evaluation of `dc.last_image_for_trigger(user: user, type: 'ImageChange')` is stored in the :imagestreamimage3 clipboard
     And the expression should be true> cb.imagestreamimage != cb.imagestreamimage3
 
-# @author yinzhou@redhat.com
-# @case_id OCP-11834
+  # @author yinzhou@redhat.com
+  # @case_id OCP-11834
   Scenario: Paused deployments shouldn't update the image to template
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
@@ -2009,3 +2009,125 @@ Feature: deployment related features
       | template      | {{(index .status.conditions 1).reason }} |
     Then the step should succeed
     And the output should match "ReplicationControllerCreateError"
+
+
+  # @author azagayno@redhat.com
+  # @case_id OCP-12217
+  Scenario: Proportionally scale - Scale up deployment succeed in unpause and pause
+    Given I have a project
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-1.yaml |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | desired   | 10 |
+      | current   | 10 |
+      | updated   | 10 |
+      | available | 10 |
+
+    Given number of replicas of the current replica set for the "hello-openshift" deployment becomes:
+      | desired  | 10 |
+      | current  | 10 |
+      | ready    | 10 |
+
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 20              |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | desired   | 20 |
+      | current   | 20 |
+      | updated   | 20 |
+      | available | 20 |
+
+    Given number of replicas of the current replica set for the "hello-openshift" deployment becomes:
+      | desired  | 20 |
+      | current  | 20 |
+      | ready    | 20 |
+
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                                           |
+      | resource_name | hello-openshift                                                                                                      |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","image":"docker.io/aosqe/hello-openshift"}]}}}} |
+    Then the step should succeed
+
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 30              |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | desired   | 30 |
+      | current   | 30 |
+      | updated   | 30 |
+      | available | 30 |
+
+    Given number of replicas of the current replica set for the "hello-openshift" deployment becomes:
+      | desired  | 30 |
+      | current  | 30 |
+      | ready    | 30 |
+
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                     |
+      | resource_name | hello-openshift                                                                                |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","image":"not-exist"}]}}}} |
+    Then the step should succeed
+
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 40              |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | desired   | 40 |
+      | current   | 43 |
+      | updated   |  7 |
+      | available | 36 |
+
+    Given number of replicas of the current replica set for the "hello-openshift" deployment becomes:
+      | desired  | 7 |
+      | current  | 7 |
+      | ready    | 0 |
+
+    When I run the :rollout_pause client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 60              |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | desired   | 60 |
+      | current   | 63 |
+      | updated   | 10 |
+      | available | 53 |
+
+    Given number of replicas of the current replica set for the "hello-openshift" deployment becomes:
+      | desired  | 10 |
+      | current  | 10 |
+      | ready    |  0 |
+
+    When I run the :rollout_resume client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | desired   | 60 |
+      | current   | 63 |
+      | updated   | 10 |
+      | available | 53 |
+
+    Given number of replicas of the current replica set for the "hello-openshift" deployment becomes:
+      | desired  | 10 |
+      | current  | 10 |
+      | ready    |  0 |

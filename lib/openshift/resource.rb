@@ -1,5 +1,6 @@
-require 'yaml'
+# TODO: frozen_string_literal: true
 
+require 'yaml'
 require 'common'
 
 module CucuShift
@@ -15,6 +16,22 @@ module CucuShift
     # e.g. RESOURCE = "pods"
 
     attr_reader :props, :name
+
+    def annotation(annotation_name, user:, cached: true, quiet: false)
+      options = {
+        prop:   :annotations,
+        user:   user,
+        quiet:  quiet,
+        cached: cached,
+      }.freeze
+
+      get_cached_prop(options)&.fetch(annotation_name, nil)
+    end
+
+    def created_at(user:, cached: true, quiet: false)
+      get_cached_prop(prop: :created, user: user, cached: cached, quiet: quiet)
+    end
+    alias created created_at
 
     def env
       raise "need to be implemented by subclass"

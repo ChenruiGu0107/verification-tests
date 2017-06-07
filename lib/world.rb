@@ -557,7 +557,7 @@ module CucuShift
         return var.last
       end
     end
-    
+
     def netns(name=nil, env=nil)
       cluster_resource(NetNamespace, name, env)
     end
