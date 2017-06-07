@@ -94,7 +94,7 @@ Feature: storageClass related feature
       | resource      | pvc                                                                                               |
       | resource_name | pvc-<%= project.name %>                                                                           |
       | p             | {"metadata":{"annotations":{"volume.beta.kubernetes.io/storage-class":"sc-<%= project.name %>"}}} |
-  Then the step should fail
+    Then the expression should be true> @result[:success] == env.version_le("3.5", user: user)
 
     Examples:
       | provisioner |
