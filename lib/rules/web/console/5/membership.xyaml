@@ -150,3 +150,8 @@ check_permission_error_on_membership:
   element:
     selector:
       text: You do not have permission to view roles in this project.
+check_restrict_rolebinding_message_on_membership:
+  element:
+    selector:
+       xpath: >-
+         //div/span[contains(text(),'rolebindings "<role>" is forbidden: rolebindings to <output_word> "<name>" are not allowed in project "<project_name>"')]
