@@ -1036,3 +1036,73 @@ Feature: test master config related steps
     Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-10831
+  @admin
+  @destructive
+  Scenario: Apply a noexist file in the OpenShift config file
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "testldap"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "cn=read-only-admin,dc=example,dc=com"
+          bindPassword:
+            file: /etc/origin/master/bindasswordnoexist.txt
+          ca: ""
+          kind: LDAPPasswordIdentityProvider
+          insecure: true
+          url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
+
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "testldap"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "cn=read-only-admin,dc=example,dc=com"
+          bindPassword:
+            file: /etc/origin/master/bindPasswordnoexist.encrypted
+            keyFile: /etc/origin/master/bindPasswordnoexist.key
+          ca: ""
+          kind: LDAPPasswordIdentityProvider
+          insecure: true
+          url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
+    """
+    Then the step should succeed
+    Given I try to restart the master service on all master nodes
+    Then the step should fail
