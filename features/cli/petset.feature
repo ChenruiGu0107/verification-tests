@@ -1,7 +1,7 @@
 Feature: Petset Related Scenarios
 
   # @author cryan@redhat.com
-  # @case_id 532404
+  # @case_id OCP-10900
   Scenario: Check network identity works well after create petset
     Given I have a project
     When I run the :create client command with:
@@ -56,7 +56,7 @@ Feature: Petset Related Scenarios
       | Address 1:\s+\d+\.\d+\.\d+\.\d+\s+ip- |
 
   # @author cryan@redhat.com
-  # @case_id 532405
+  # @case_id OCP-11312
   Scenario: Deleting the Pet Set will not delete any pets
     Given I have a project
     When I run the :create client command with:
@@ -77,7 +77,7 @@ Feature: Petset Related Scenarios
       | Running |
 
   # @author cryan@redhat.com
-  # @case_id 532408
+  # @case_id OCP-11972
   Scenario: The only updatable field on a PetSet is replicas
     Given I have a project
     When I run the :create client command with:
