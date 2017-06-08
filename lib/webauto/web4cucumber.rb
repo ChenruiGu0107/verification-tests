@@ -1,7 +1,7 @@
 require 'find'
 require 'psych'
 require 'uri'
-require 'watir-webdriver'
+require 'watir'
 
 require "base64"
 
