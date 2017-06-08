@@ -20,7 +20,7 @@ module CucuShift
     end
 
     # @return [CucuShift::ResultHash] with :success if status is Bound
-    def ready?(user, quiet: false, cached: false)
+    def ready?(user: nil, quiet: false, cached: false)
       status?(user: user, status: :bound, quiet: quiet, cached: cached)
     end
 
