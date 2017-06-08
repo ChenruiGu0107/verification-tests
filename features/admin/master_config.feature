@@ -1106,3 +1106,58 @@ Feature: test master config related steps
     Then the step should succeed
     Given I try to restart the master service on all master nodes
     Then the step should fail
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-11581
+  @admin
+  @destructive
+  Scenario: Apply an encrypted file in OpenShift config file
+    Given the user has all owned resources cleaned
+    And I use the first master host
+    When I run commands on the host:
+      | echo -n "password" >/etc/origin/master/bindassword.txt                                                                                                 |
+      | cat /etc/origin/master/bindassword.txt \| oadm ca encrypt --genkey=/etc/origin/master/bindPassword.key --out=/etc/origin/master/bindPassword.encrypted |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "testldap"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "cn=read-only-admin,dc=example,dc=com"
+          bindPassword:
+            file: /etc/origin/master/bindPassword.encrypted
+            keyFile: /etc/origin/master/bindPassword.key
+          ca: ""
+          kind: LDAPPasswordIdentityProvider
+          insecure: true
+          url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
+    """
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server          | <%= env.api_endpoint_url %> |
+      | username        | newton                      |
+      | password        | password                    |
+      | skip_tls_verify | true                        |
+    Then the step should succeed
+    Given I use the first master host
+    When I run commands on the host:
+      | oc get users |
+    And the output should contain:
+      | NAME       | newton                                 |
+      | FULL NAME  | Isaac Newton                           |
+      | IDENTITIES | testldap:uid=newton,dc=example,dc=com  |
