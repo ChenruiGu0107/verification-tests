@@ -40,6 +40,12 @@ click_edit:
     selector:
       xpath: //a[text()='Edit']
     op: click
+click_continue_button:
+  element:
+    selector:
+      text: Continue
+    op: click
+    type: button
 click_save_button:
   elements:
   - selector:

@@ -111,19 +111,32 @@ create_from_file:
     type: filefield
     op: set <file_path>
 process_and_save_template:
-  elements:
-  - selector:
+  action:
+    if_param: process_template
+    ref: process_template_on_create_fromfile_page
+  action:
+    if_param: save_template
+    ref: save_template_on_create_fromfile_page
+  action: click_continue_button
+process_and_update_template:
+  action: update_template_on_create_fromfile_page
+process_template_on_create_fromfile_page:
+  element:
+    selector:
       xpath: //label[strong[text()="Process the template"]]/input
     type: checkbox
     op: set <process_template>
-  - selector:
+save_template_on_create_fromfile_page:
+  element:
+    selector:
       xpath: //label[strong[text()="Save template"]]/input
     type: checkbox
     op: set <save_template>
-  - selector:
-      text: Continue
-      class: btn-primary
-    type: button
+update_template_on_create_fromfile_page:
+  element:
+    selector:
+      tag_name: button
+      text: Replace
     op: click
 check_error_message_on_create_fromfile:
   element:

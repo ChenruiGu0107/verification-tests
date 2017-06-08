@@ -60,8 +60,8 @@ click_create_button:
     type: button
     op: click
 click_cancel:
-  elements:
-  - selector:
+  element:
+    selector:
       text: Cancel
     op: click
 click_on_configuration_tab:
@@ -138,6 +138,12 @@ click_remove_button:
     selector:
       xpath: //button[contains(text(),"Remove") and not(@disabled)]
     op: click
+click_continue_button:
+  element:
+    selector:
+      text: Continue
+    op: click
+    type: button
 click_save_button:
   elements:
   - selector:

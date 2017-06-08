@@ -618,8 +618,6 @@ Feature: create app on web console related
     When I perform the :create_from_template_file web console action with:
       | project_name     | <%= project.name %>                                                       |
       | file_path        | <%= File.join(localhost.workdir, "application-template-stibuild.json") %> |
-      | process_template | false                                                                     |
-      | save_template    | true                                                                      |
     And I wait for the steps to pass:
     """
     When I run the :click_create_button web console action
@@ -916,3 +914,78 @@ Feature: create app on web console related
     Then the step should fail
     When I run the :check_error_info_for_required_field web console action
     Then the step should succeed
+
+  # @author etrott@redhat.com
+  # @case_id OCP-11962
+  Scenario: Replace current resource through Import YAML/JSON
+    Given the master version >= "3.3"
+    Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-dockerbuild.json"
+    Then the step should succeed
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                                          |
+      | file_path        | <%= File.join(localhost.workdir, "application-template-dockerbuild.json") %> |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    When I perform the :process_and_save_template web console action with:
+      | process_template | false |
+      | save_template    | true  |
+    Then the step should succeed
+    """
+    When I perform the :check_resource_succesfully_created_message web console action with:
+      | resource | Template               |
+      | name     | ruby-helloworld-sample |
+    When I run the :get client command with:
+      | resource | templates           |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    Then the output should contain:
+      | ruby-helloworld-sample |
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                                          |
+      | file_path        | <%= File.join(localhost.workdir, "application-template-dockerbuild.json") %> |
+    Then the step should succeed
+    When I perform the :patch_ace_editor_content web console action with:
+      | content_type | JSON |
+      | patch        | {"op":"replace","path":"/metadata/annotations/description","value":"This AAAAAA example shows how to create a simple ruby application in openshift origin v3"} |
+    Then the step should succeed
+    When I run the :click_cancel web console action
+    Then the step should succeed
+    When I perform the :check_resource_succesfully_updated_message_missing web console action with:
+      | resource | Template               |
+      | name     | ruby-helloworld-sample |
+    When I run the :get client command with:
+      | resource | templates           |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    Then the output should not contain:
+      | AAAAAA |
+    When I perform the :create_from_template_file web console action with:
+      | project_name     | <%= project.name %>                                                          |
+      | file_path        | <%= File.join(localhost.workdir, "application-template-dockerbuild.json") %> |
+    Then the step should succeed
+    When I perform the :patch_ace_editor_content web console action with:
+      | content_type | JSON |
+      | patch        | {"op":"replace","path":"/metadata/annotations/description","value":"This AAAAAA example shows how to create a simple ruby application in openshift origin v3"} |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :click_create_button web console action
+    Then the step should succeed
+    When I perform the :process_and_update_template web console action with:
+      | process_template | false |
+      | update_template  | true  |
+    Then the step should succeed
+    """
+    When I perform the :check_resource_succesfully_updated_message web console action with:
+      | resource | Template               |
+      | name     | ruby-helloworld-sample |
+    When I run the :get client command with:
+      | resource | templates           |
+      | n        | <%= project.name %> |
+    Then the step should succeed
+    Then the output should contain:
+      | AAAAAA |
