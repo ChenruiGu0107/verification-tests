@@ -402,3 +402,26 @@ Feature: buildconfig.feature
     Then the step should succeed
     And the output should contain:
       | Failed to fetch specified runtime artifacts |
+
+  # @author dyan@redhat.com
+  # @case_id OCP-14476
+  # @bug_id 1377795
+  Scenario: Redact proxy users and passwords in build logs
+    Given I have a project
+    And I have a proxy configured in the project
+    When I run the :new_build client command with:
+      | app_repo | openshift/nodejs:4~https://github.com/openshift/nodejs-ex |
+      | e        | http_proxy=http://user:passwd@<%= cb.proxy_ip %>:3128     |
+      | e        | https_proxy=http://user:passwd@<%= cb.proxy_ip %>:3128    |
+      | e        | HTTP_PROXY=http://user:passwd@<%= cb.proxy_ip %>:3128     |
+      | e        | HTTPS_PROXY=http://user:passwd@<%= cb.proxy_ip %>:3128    |
+    Then the step should succeed
+    Given the "nodejs-ex-1" build completes
+    When I run the :logs client command with:
+      | resource_name | build/nodejs-ex-1 |
+    Then the step should succeed
+    And the output should contain "Using HTTP proxy http://redacted@<%= cb.proxy_ip %>:3128"
+    And the output should not contain:
+      | user   |
+      | passwd |
+
