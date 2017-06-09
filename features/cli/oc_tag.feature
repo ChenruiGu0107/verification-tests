@@ -29,6 +29,7 @@ Feature: oc tag related scenarios
       | source_type  | <source_type>              |
       | source       | <source>                   |
       | dest         | <deststream>:tag           |
+      | alias        | true                       |
     Then the step should succeed
 
     # Same reason as above. Need wait, instead of one-time check
@@ -53,7 +54,6 @@ Feature: oc tag related scenarios
     Examples: Tag into imagestream that does not exist
       | case_id | source_type | source          | deststream | kind             |
       | 492275  | isimage     | <%= cb.src %>   | newstream  | ImageStreamImage |
-      | 492278  | istag       | mystream:latest | newstream  | ImageStreamTag   |
 
     Examples: Tag into imagestream that exists
       | case_id | source_type | source          | deststream | kind             |

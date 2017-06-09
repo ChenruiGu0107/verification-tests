@@ -556,20 +556,6 @@ Feature: deployment related steps
     Then the step should succeed
     Given 10 pods become ready with labels:
       | app=hello-openshift |
-    When I run the :describe client command with:
-      | resource | deployment      |
-      | name     | hello-openshift |
-    Then the output should match:
-      | Available\\s+True\\s+MinimumReplicasAvailable |
-    When I run the :get client command with:
-      | resource | deployment |
-      | o        | yaml       |
-    Then the output by order should match:
-      | message: Deployment has minimum availability |
-      | reason: MinimumReplicasAvailable             |
-      | status: "True"                               |
-      | type: Available                              | 
-    Then the step should succeed
     When I run the :patch client command with:
       | resource      | deployment                                                                                                           |
       | resource_name | hello-openshift                                                                                                      |

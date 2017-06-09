@@ -27,7 +27,7 @@ Feature: Node management
   Scenario: Anonymous user can fetch metrics/stats after grant permission to it
     Given I use the first master host
     When I run commands on the host:
-      | curl -X GET -k https://<%= node.name %>:10250/stats/ |
+      | curl -X GET -k https://<%= host.hostname %>:10250/stats/ |
     And the output should contain "Forbidden"
     Given config of all nodes is merged with the following hash:
     """
@@ -42,25 +42,25 @@ Feature: Node management
     Given cluster role "system:node-reader" is added to the "system:unauthenticated" group
     And 62 seconds have passed
     When I run commands on the host:
-      | curl -X GET -k https://<%= node.name %>:10250/stats/ |
+      | curl -X GET -k https://<%= host.hostname %>:10250/stats/ |
     And the output should not contain "Forbidden"
     Given I have a project
     When I run commands on the host:
-      | curl -X GET -k https://<%= node.name %>:10250/stats/ -H "Authorization: Bearer <%= user.get_bearer_token.token %> " |
+      | curl -X GET -k https://<%= host.hostname %>:10250/stats/ -H "Authorization: Bearer <%= user.get_bearer_token.token %> " |
     And the output should contain "Forbidden"
     Given cluster role "system:node-reader" is added to the "first" user
     And 62 seconds have passed
     When I run commands on the host:
-      | curl -X GET -k https://<%= node.name %>:10250/stats/ -H "Authorization: Bearer <%= user.get_bearer_token.token %> " |
+      | curl -X GET -k https://<%= host.hostname %>:10250/stats/ -H "Authorization: Bearer <%= user.get_bearer_token.token %> " |
     And the output should not contain "Forbidden"
     When I find a bearer token of the deployer service account
     When I run commands on the host:
-      | curl -X GET -k https://<%= node.name %>:10250/stats/ -H "Authorization: Bearer <%= service_account.get_bearer_token.token %> " |
+      | curl -X GET -k https://<%= host.hostname %>:10250/stats/ -H "Authorization: Bearer <%= service_account.get_bearer_token.token %> " |
     And the output should contain "Forbidden"
     Given cluster role "system:node-reader" is added to the "system:serviceaccount:<%= project.name %>:deployer" service account
     And 62 seconds have passed
     When I run commands on the host:
-      | curl -X GET -k https://<%= node.name %>:10250/stats/ -H "Authorization: Bearer <%= service_account.get_bearer_token.token %> " |
+      | curl -X GET -k https://<%= host.hostname %>:10250/stats/ -H "Authorization: Bearer <%= service_account.get_bearer_token.token %> " |
     And the output should not contain "Forbidden"
 
   # @author chezhang@redhat.com

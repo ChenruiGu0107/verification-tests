@@ -1954,7 +1954,8 @@ Feature: deployment related features
   # @author yinzhou@redhat.com
   # @case_id OCP-14336
   @admin
-  Scenario: Should show deployment conditions correctly
+  Scenario: Show deployment conditions correctly 
+    Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-ignores-deployer.yaml |
