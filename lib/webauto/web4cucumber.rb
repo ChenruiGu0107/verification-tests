@@ -64,7 +64,7 @@ require "base64"
         ENV['no_proxy'] = '127.0.0.1'
       end
       client = Selenium::WebDriver::Remote::Http::Default.new
-      client.timeout = 180
+      client.open_timeout = 180
 
       headless
 
