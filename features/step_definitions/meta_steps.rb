@@ -82,3 +82,23 @@ Given /^I run the steps (\d+) times:$/ do |num, steps_string|
     logger.dedup_flush
   end
 end
+
+# repeat steps with the values from a clipboard
+# Example in scenario 'Loop over the clipboard'
+Given /^I repeat the following steps for each #{SYM} in cb\.([\w]+):$/ do |varname, cbsym, steps_str|
+  eval_regex = /\#\{(.+?)\}/
+  eval_found = steps_str =~ eval_regex
+  begin
+    logger.dedup_start
+    cb[cbsym].each { |x|
+      cb[varname] = x
+      if eval_found
+        steps steps_str.gsub(eval_regex) { |s| "<%= #{$1} %>"}
+      else
+        steps steps_str
+      end
+    }
+  ensure
+    logger.dedup_flush
+  end
+end
