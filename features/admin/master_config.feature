@@ -1161,3 +1161,52 @@ Feature: test master config related steps
       | NAME       | newton                                 |
       | FULL NAME  | Isaac Newton                           |
       | IDENTITIES | testldap:uid=newton,dc=example,dc=com  |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-12323
+  @admin
+  @destructive
+  Scenario: Could only specify one env and file in the OpenShift config
+    Given the user has all owned resources cleaned
+    And I use the first master host
+    And the "/etc/sysconfig/atomic-openshift-master" file is restored on host after scenario
+    And master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        name: "testldap"
+        provider:
+          apiVersion: v1
+          attributes:
+            email: null
+            id:
+            - dn
+            name:
+            - cn
+            preferredUsername:
+            - uid
+          bindDN: "cn=read-only-admin,dc=example,dc=com"
+          bindPassword:
+            env: BIND_PASSWORD_ENV_VAR_NAME
+            env: BIND_PASSWORD_ENV_VAR_NAME1
+          ca: ""
+          kind: LDAPPasswordIdentityProvider
+          insecure: true
+          url: "ldap://ldap.forumsys.com/dc=example,dc=com?uid"
+    """
+    When I run commands on the host:
+      | echo "BIND_PASSWORD_ENV_VAR_NAME=password" >> /etc/sysconfig/atomic-openshift-master   |
+      | echo "BIND_PASSWORD_ENV_VAR_NAME1=password1" >> /etc/sysconfig/atomic-openshift-master |
+    Then the step should succeed
+    Given the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | newton                      |
+      | password | password                    |
+      | skip_tls_verify | true                 |
+    Then the step should fail
