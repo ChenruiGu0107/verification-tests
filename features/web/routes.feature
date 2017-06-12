@@ -266,6 +266,8 @@ Feature: Routes related features on web console
     Then the step should succeed
 
     # check route function
+    Given I use the "service-unsecure" service
+    Given I wait for a web server to become available via the "edgerouteredirect" route
     When I access the "http://<%= route("edgerouteredirect", service("service-unsecure")).dns(by: user) %>/" url in the web browser
     Then the step should succeed
     Given the expression should be true> browser.url.start_with? "https"
@@ -301,6 +303,8 @@ Feature: Routes related features on web console
     Then the step should succeed
 
     # check route function
+    Given I use the "service-unsecure" service
+    Given I wait for a web server to become available via the "edgerouteallow" route
     When I access the "http://<%= route("edgerouteallow", service("service-unsecure")).dns(by: user) %>/" url in the web browser
     Then the step should succeed
     When I perform the :check_response_string web console action with:
