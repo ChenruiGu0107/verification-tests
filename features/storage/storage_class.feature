@@ -916,3 +916,61 @@ Feature: storageClass related feature
     And the "pvc-<%= project.name %>" PVC becomes :bound
     And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
     And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-12874
+  @admin
+  Scenario: Check storageclass info when pvc using default storageclass
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %>  |
+      | ["provisioner"]                                                                 | kubernetes.io/aws-ebs   |
+      | ["parameters"]["type"]                                                          | gp2                     |
+      | ["parameters"]["zone"]                                                          | us-east-1d              |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                    |
+    Then the step should succeed
+ 
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
+      | ["metadata"]["name"] | pvc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-12875
+  @admin
+  Scenario: Check storageclass is none when pv and pvc does not use storageclass
+    Given I have a project
+    And I have a 1 GB volume and save volume id in the :vid clipboard
+    
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pv-rwo.yaml" where:
+      | ["metadata"]["name"]                         | pv-<%= project.name %> |
+      | ["spec"]["awsElasticBlockStore"]["volumeID"] | <%= cb.vid %>          |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pvc-retain.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+    And the expression should be true> pvc.storage_class(user:user) == nil
+    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == nil
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-14160
+  @admin
+  Scenario: Check storageclass info pv and pvc requested when pvc is using alpha annotation
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+      | ["metadata"]["name"]                                                            | sc-<%= project.name %>  |
+      | ["provisioner"]                                                                 | kubernetes.io/aws-ebs   |
+      | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                    |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                    | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
