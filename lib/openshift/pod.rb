@@ -36,6 +36,8 @@ module CucuShift
       props[:node_hostname] = spec["host"]
       props[:node_name] = spec["nodeName"]
       props[:securityContext] = spec["securityContext"]
+      props[:service_account] = spec["serviceAccount"]
+      props[:service_account_name] = spec["serviceAccountName"]
       props[:containers] = spec["containers"]
 
       s = pod_hash["status"]
@@ -178,6 +180,16 @@ module CucuShift
     # @note call without parameters only when props are loaded
     def node_ip(user: nil, cached: true, quiet: false)
       return get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)["hostIP"]
+    end
+
+    # @note call without parameters only when props are loaded
+    def service_account(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :service_account, user: user, cached: cached, quiet: quiet)
+    end
+
+    # @note call without parameters only when props are loaded
+    def service_account_name(user: nil, cached: true, quiet: false)
+      return get_cached_prop(prop: :service_account_name, user: user, cached: cached, quiet: quiet)
     end
 
     def env_var(name, container: nil, user: nil)

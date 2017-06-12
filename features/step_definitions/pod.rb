@@ -67,7 +67,7 @@ Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
   end
 end
 
-Given /^status becomes :([^\s]*?) of( exactly)? ([0-9]+) pods labeled:$/ do |status, exact_count, count, labels|
+Given /^status becomes :([^\s]*?) of( exactly)? ([0-9]+) pods? labeled:$/ do |status, exact_count, count, labels|
   timeout = 15 * 60
   labels = labels.raw.flatten
 

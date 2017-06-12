@@ -12,7 +12,7 @@ module CucuShift
       end
     end
 
-    # return @Hash information of container mmeatching the @name variable
+    # return @Hash information of container status matching the @name variable
     def status(user: nil, cached: true, quiet: false)
       user ||= default_user
       container_statuses = @pod.get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)['containerStatuses']
