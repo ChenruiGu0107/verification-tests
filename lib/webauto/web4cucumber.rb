@@ -70,7 +70,8 @@ require "base64"
 
       if @browser_type == :firefox
         logger.info "Launching Firefox"
-        @browser = Watir::Browser.new :firefox, :profile => firefox_profile, :http_client=>client, desired_capabilities: {marionette: false}
+        caps = Selenium::WebDriver::Remote::Capabilities.firefox(marionette: false)
+        @browser = Watir::Browser.new :firefox, :profile => firefox_profile, :http_client=>client, desired_capabilities: caps
       elsif @browser_type == :chrome
         logger.info "Launching Chrome"
         @browser = Watir::Browser.new :chrome, desired_capabilities: chrome_profile, switches: chrome_switches
