@@ -21,6 +21,8 @@ Given /^I save volume id from PV named "([^"]*)" in the#{OPT_SYM} clipboard$/ do
     cb[cbname] = @result[:parsed]['spec']['glusterfs']['path'].gsub('vol_', '')
   when @result[:parsed]['spec']['azureDisk']
     cb[cbname] = @result[:parsed]['spec']['azureDisk']['diskURI']
+  when @result[:parsed]['spec']['vsphereVolume']
+    cb[cbname] = @result[:parsed]['spec']['vsphereVolume']['volumePath']
   else
     raise "Unknown persistent volume type."
   end
