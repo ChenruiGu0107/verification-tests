@@ -1,8 +1,26 @@
-FROM openshift/jenkins-slave-base-centos7
-
+###############################################################################
+#                             USAGE INSTRUCTIONS                              #
+###############################################################################
 # adding private data in layers. It is important to squash resulting image
 # to avoid data leak through the untagged layers that still can be accessed.
-# e.g. use `oc ex dockerbuild` or https://github.com/goldmann/docker-squash
+# This can be accomplished by using one of several tools. First,
+# https://github.com/goldmann/docker-squash, and also the imagebuilder tool:
+# https://github.com/openshift/imagebuilder This tool squashes layers by
+# default (but leaving base-image layers in place). As it takes a directory as
+# the build argument, and following the install procedures, sample usage would
+# look like:
+# $HOME/go/bin/imagebuilder .
+# where the '.' folder contains a Dockerfile.
+#
+# To use this particular Dockerfile, copy this to the top-level cucushift dir,
+# change the name to remove the .centos extension, and run imagebuilder.
+#
+# At this point, the image can be tagged and pushed to an internal repository
+# $ sudo docker tag myimage <registry>/project/name:tag
+# $ sudo docker push <registry>/project/name
+###############################################################################
+
+FROM openshift/jenkins-slave-base-centos7
 # ADD Gemfile $HOME/cucushift/Gemfile
 # ADD tools $HOME/cucushift/tools
 ADD . $HOME/cucushift
