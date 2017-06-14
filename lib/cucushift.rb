@@ -11,6 +11,7 @@ module CucuShift
   autoload :Dynect, 'launchers/dyn/dynect'
   autoload :Amz_EC2, 'launchers/amz'
   autoload :GCE, 'launchers/gce'
+  autoload :Azure, 'launchers/azure'
   autoload :OpenStack, "launchers/openstack"
   autoload :EnvironmentLauncher, "launchers/environment_launcher"
   autoload :PolarShift, "polarshift/autoload"
