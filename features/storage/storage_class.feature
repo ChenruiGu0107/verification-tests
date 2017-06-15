@@ -741,14 +741,22 @@ Feature: storageClass related feature
       | name     | sc4-<%= cb.sc_name %> |
     Then the step should succeed
     And the output by order should match:
-      | sc1-<%= cb.sc_name %> |
-      | IsDefaultClass:\sNo   |
-      | sc2-<%= cb.sc_name %> |
-      | IsDefaultClass:\sYes  |
-      | sc3-<%= cb.sc_name %> |
-      | IsDefaultClass:\sNo   |
-      | sc4-<%= cb.sc_name %> |
-      | IsDefaultClass:\sYes  |
+      | sc1-<%= cb.sc_name %>                                  |
+      | IsDefaultClass:\sNo                                    |
+      | storageclass.beta.kubernetes.io/is-default-class=false |
+      | storageclass.kubernetes.io/is-default-class=false      |
+      | sc2-<%= cb.sc_name %>                                  |
+      | IsDefaultClass:\sYes                                   |
+      | storageclass.beta.kubernetes.io/is-default-class=true  |
+      | storageclass.kubernetes.io/is-default-class=true       |
+      | sc3-<%= cb.sc_name %>                                  |
+      | IsDefaultClass:\sYes                                   |
+      | storageclass.beta.kubernetes.io/is-default-class=false |
+      | storageclass.kubernetes.io/is-default-class=true       |
+      | sc4-<%= cb.sc_name %>                                  |
+      | IsDefaultClass:\sYes                                   |
+      | storageclass.beta.kubernetes.io/is-default-class=true  |
+      | storageclass.kubernetes.io/is-default-class=false      |
 
   # @author lxia@redhat.com
   # @case_id OCP-13666
