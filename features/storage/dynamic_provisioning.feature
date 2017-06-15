@@ -79,7 +79,7 @@ Feature: Dynamic provisioning
     When I execute on the pod:
       | touch | /mnt/<cloud_provider>/testfile_2 |
     Then the step should succeed
-    
+
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc3-<%= project.name %> |
       | ["metadata"]["name"]                                         | mypod3                           |
@@ -141,7 +141,7 @@ Feature: Dynamic provisioning
       | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
       | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
-      | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |   
+      | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |
     Then the step should succeed
     And the "dpvc-#{cb.i}" PVC becomes :bound within 120 seconds
     And I save volume id from PV named "#{ pvc.volume_name }" in the :disk clipboard
@@ -245,7 +245,7 @@ Feature: Dynamic provisioning
       | ROX |
       | RWX |
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml |
       | n | <%= project.name %>                                                                                       |
     Then the step should succeed
     Given the pod named "azpvcpo" becomes ready
@@ -350,7 +350,7 @@ Feature: Dynamic provisioning
       | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
       | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
-      | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |   
+      | ["spec"]["resources"]["requests"]["storage"]                           | #{cb.i}Gi                 |
     Then the step should succeed
     And the "dpvc-#{cb.i}" PVC becomes :bound within 120 seconds
     Given admin ensures "#{ pvc.volume_name }" pv is deleted
@@ -368,12 +368,8 @@ Feature: Dynamic provisioning
       dynamicProvisioningEnabled: False
     """
     And the master service is restarted on all master nodes
-    And admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
-      | ["metadata"]["name"] | storageclass-<%= project.name %> |
-      | ["provisioner"]      | kubernetes.io/<provisioner>      |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %>  |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | dynamic-pvc-<%= project.name %> |
     Then the step should succeed
     When 30 seconds have passed
     Then the "dynamic-pvc-<%= project.name %>" PVC status is :pending
@@ -388,7 +384,7 @@ Feature: Dynamic provisioning
   # @author chaoyang@redhat.com
   # case_id OCP-13943
   @smoke
-  Scenario: Dynamic provision smoke test 
+  Scenario: Dynamic provision smoke test
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
