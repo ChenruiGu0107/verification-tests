@@ -304,12 +304,11 @@ end
 
 Given /^node#{OPT_QUOTED} config is merged with the following hash:$/ do |node_name, yaml_string|
   ensure_destructive_tagged
-  _node = node(node_name)
 
-  service_config = _node.service.config
+  service_config = node(node_name).service.config
   if service_config.exists?
     config_hash = service_config.as_hash()
-    CucuShift::Collections.deep_merge!(config_hash, yaml_hash)
+    CucuShift::Collections.deep_merge!(config_hash, YAML.load(yaml_string))
     config = config_hash.to_yaml
     logger.info config
     service_config.backup()
