@@ -99,9 +99,9 @@ Feature: storage security check
       | cinder               | volumeID    | cinder |
 
   # @author wehe@redhat.com
-  # @case_id OCP-13915  
+  # @case_id OCP-13915
   @admin
-  Scenario: azure disk volume security testing 
+  Scenario: azure disk volume security testing
     Given I have a project
     And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
     Given I switch to cluster admin pseudo user
@@ -324,21 +324,22 @@ Feature: storage security check
       | id |
     Then the outputs should contain:
       | uid=1000130000 |
-      | groups=123456 |
+    When I execute on the pod:
+      | id | -G |
+    Then the step should succeed
+    And the output should contain "123456"
     When I execute on the pod:
       | ls | -lZd | /mnt/git |
     Then the outputs should contain:
       | system_u:object_r:svirt_sandbox_file_t:s0 |
     When I execute on the pod:
-      | touch |
-      | /mnt/git/gitrepoVolume/file1 |
+      | touch | /mnt/git/gitrepoVolume/file1 |
     Then the step should succeed
     When I execute on the pod:
       | ls | -lZ | /mnt/git/gitrepoVolume/file1 |
     Then the outputs should contain:
       | 1000130000 123456 |
       | system_u:object_r:svirt_sandbox_file_t:s0 |
-      | file1 |
 
   # @author wehe@redhat.com
   # @author chaoyang@redhat.com
