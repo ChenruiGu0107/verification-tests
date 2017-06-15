@@ -41,4 +41,5 @@ File.delete(gemfile_lock_last)
 
 command = "bundle install --gemfile=#{main_gemfile}"
 puts '$ ' + command
-exit system(command)
+ret = system(command)
+exit ret.nil? ? 2 : ret
