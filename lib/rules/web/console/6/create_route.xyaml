@@ -106,11 +106,13 @@ select_target_port:
       xpath: //span[contains(.,'<target_port>')]
     op: click
 show_options_for_secure_route:
-  elements:
-  - selector:
-      xpath: //label[contains(.,'Secure route')]
-    op: click
+  element:
+    selector:
+      xpath: //label[contains(.,'Secure route')]/input
+    type: checkbox
+    op: set true
 set_tls_termination:
+  action: show_options_for_secure_route
   elements:
   - selector:
       xpath: //div[@input-id='tlsTermination']
