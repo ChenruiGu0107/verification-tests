@@ -768,7 +768,7 @@ Feature: NFS Persistent Volume
       | /mnt/hello |
     Then the step should fail
     And the output should contain:
-      | Permission denied |
+      | ermission denied |
 
   # @author jhou@redhat.com
   # @case_id OCP-13467
