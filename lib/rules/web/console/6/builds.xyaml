@@ -745,4 +745,4 @@ check_one_build_status:
   elements:
   - selector:
       xpath:  //a[contains(., "#<number>")]/ancestor::tr/td[contains(., "<status>")]
-    timeout: 180
+    timeout: 270
