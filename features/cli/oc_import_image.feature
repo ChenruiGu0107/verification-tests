@@ -385,3 +385,36 @@ Feature: oc import-image related feature
       | resource        | bc      |
       | o               | yaml    |
     Then the expression should be true> @result[:parsed]['spec']['triggers'][3]['imageChange']['lastTriggeredImageID'].include? '<%= project.name %>/ruby-22-centos7'
+
+  # @author geliu@redhat.com
+  # @case_id OCP-14269
+  Scenario: Set owner refs in new RCs owned by DCs
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                       |
+      | source      | openshift/deployment-example |
+      | dest        | deployment-example:latest    |
+    Then the output should match:
+      | [Tt]ag deployment-example:latest           |
+    When I run the :new_app client command with:
+      | image_stream | deployment-example:latest   |
+    Then the output should match:
+      | .*[Ss]uccess.*|
+    When I run the :get client command with:
+      | resource        | imagestreams |
+    Then the output should match:
+      | .*deployment-example.* |
+    When I run the :get client command with:
+      | resource_name   | deployment-example |
+      | resource        | dc                 |
+      | o               | template           |
+      | template        | {{.metadata.uid}}  |
+    And evaluation of `@result[:response]` is stored in the :dc_uid clipboard
+    When I run the :get client command with:
+      | resource_name   | deployment-example-1          |
+      | resource        | rc                            |
+      | o               | template                      |
+      | template        | {{.metadata.ownerReferences}} |
+    Then the output should match:
+      | .*<%= cb.dc_uid %>.* |
+
