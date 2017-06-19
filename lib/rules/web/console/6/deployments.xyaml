@@ -80,6 +80,7 @@ edit_replicas_on_deployment_page:
   - selector:
       xpath: //a[@title="Edit"]
     op: click
+    timeout: 40
   - selector:
       xpath: //replicas//input
     type: input
