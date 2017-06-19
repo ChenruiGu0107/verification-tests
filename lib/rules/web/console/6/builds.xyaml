@@ -58,7 +58,7 @@ check_one_buildconfig_page_with_build_op:
     type: button
     op: click
   - selector:
-      xpath: //span[contains(., 'has started')]
+      xpath: //span[contains(., 'successfully queued')]
 check_one_build_inside_bc_page:
   # <bc_and_build_name> contains two "/",e.g. bc/build/
   action: goto_one_build_page
