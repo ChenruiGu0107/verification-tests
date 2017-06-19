@@ -16,7 +16,7 @@ Feature: Check deployments function
       | dc_name      | <%= cb.dc_name %>   |
     Then the step should succeed
     Given I wait until the status of deployment "hooks" becomes :complete
-    
+
     # manually trigger deploy after deployments is "Deployed"
     When I perform the :manually_deploy web console action with:
       | project_name | <%= project.name %> |
@@ -617,14 +617,17 @@ Feature: Check deployments function
       | dc_name            | myrun               |
     Then the step should succeed
     When I perform the :check_pause_message web console action with:
-      | dc_name | myrun |
+      | resource_name | myrun      |
+      | resource_type | deployment |
     Then the step should succeed
     When I perform the :check_pause_message_on_dc_page web console action with:
       | project_name       | <%= project.name %> |
       | dc_name            | myrun               |
     Then the step should succeed
     When I perform the :check_pause_message_on_overview_page web console action with:
-      | project_name       | <%= project.name %> |
+      | project_name  | <%= project.name %> |
+      | resource_name | myrun               |
+      | resource_type | deployment          |
     Then the step should succeed
     When I run the :set_env client command with:
       | resource | dc/myrun  |

@@ -42,8 +42,8 @@ check_view_log_link_info_on_overview:
       xpath: //a[contains(text(),'View Log') and contains(@href, "project/<project_name>/browse/builds/<bc_name>/<bc_build_id>?tab=logs")]
 check_pause_message_on_overview_page:
   action: goto_overview_page
-  action: check_general_pause_message_on_overview_page
-  action: check_resume_option_exist_on_overview_page
+  action: expand_resource_entry
+  action: check_pause_message
 check_general_pause_message_on_overview_page:
   element:
     selector:
