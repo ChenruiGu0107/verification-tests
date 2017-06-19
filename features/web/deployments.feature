@@ -1079,6 +1079,7 @@ Feature: Check deployments function
     Then the step should succeed
     When I run the :click_save_button web console action
     Then the step should succeed
+    And I wait until number of replicas match "0" for replicaSet "<%= cb.rs_name %>"
     When I run the :click_on_events_tab web console action
     Then the step should succeed
     # https://bugzilla.redhat.com/show_bug.cgi?id=1423461
@@ -1090,7 +1091,7 @@ Feature: Check deployments function
       | resource | rs   |
       | o        | json |
     Then the step succeeded
-    Given evaluation of `@result[:parsed]['items'][1]['metadata']['name']` is stored in the :rs_name_new clipboard
+    Given evaluation of `@result[:parsed]['items'].find{ |rs| rs['metadata']['name'] != cb.rs_name }['metadata']['name']` is stored in the :rs_name_new clipboard
     When I perform the :check_event_message web console action with:
       | reason  | Scaling replica set                              |
       | message | Scaled up replica set <%= cb.rs_name_new %> to 4 |
