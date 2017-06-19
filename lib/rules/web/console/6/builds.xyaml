@@ -393,9 +393,9 @@ check_outdated_bc_warn_message:
   - selector:
       xpath: //span[contains(.,'object has been modified')]
 check_deleted_bc_warn_message:
-  elements:
-  - selector:
-      xpath: //span[@ng-if='alert.message' and contains(.,'This build configuration has been deleted')]
+  element:
+    selector:
+      xpath: //toast-notifications//span[contains(.,'This build configuration has been deleted')]
 check_build_has_started_message:
   elements:
   - selector:
