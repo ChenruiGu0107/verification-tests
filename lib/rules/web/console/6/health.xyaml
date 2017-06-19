@@ -30,12 +30,12 @@ check_readiness_probe:
   element:
     selector:
       xpath: |-
-        //div[text()='Container: <container_name>']/following-sibling::div[contains(normalize-space(), '<readiness_probe>')]
+        //div[contains(normalize-space(),'Container: <container_name>')]/following-sibling::div[contains(normalize-space(), '<readiness_probe>')]
 check_liveness_probe:
   element:
     selector:
       xpath: |-
-        //div[text()='Container: <container_name>']/following-sibling::div[contains(normalize-space(), '<liveness_probe>')]
+        //div[contains(normalize-space(),'Container: <container_name>')]/following-sibling::div[contains(normalize-space(), '<liveness_probe>')]
 input_http_probe_path:
   element:
     selector:
