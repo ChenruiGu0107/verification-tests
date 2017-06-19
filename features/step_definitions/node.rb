@@ -381,7 +381,7 @@ end
 
 Given /^I try to restart the node service on node#{OPT_QUOTED}$/ do |node_name|
   ensure_destructive_tagged
-  @results = node(node_name).service.restart_all
+  @result = node(node_name).service.restart_all
 end
 
 Given /^I have (?:(at least ))?(\d+) nodes?$/ do |quantifier, nodes|
