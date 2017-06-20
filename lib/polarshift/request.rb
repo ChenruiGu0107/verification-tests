@@ -121,6 +121,58 @@ module CucuShift
         raise %Q{could not obtain run "#{run_id}" from project "#{project_id} within timeout of "#{timeout}" seconds}
       end
 
+      def create_run(project_id:,
+                     run_id: nil,
+                     run_title: nil,
+                     case_query: nil,
+                     template_id: nil,
+                     custom_fields: nil)
+        create_opts = {}
+        b = binding
+        [
+          :project_id,
+          :run_id,
+          :run_title,
+          :case_query,
+          :template_id,
+          :custom_fields
+        ].each { |key|
+          if b.local_variable_get(key)
+            create_opts[key] = b.local_variable_get(key)
+          end
+        }
+
+
+        Http.request(
+          method: :post,
+          url: "#{base_url}project/#{project_id}/run",
+          payload: create_opts,
+          raise_on_error: false,
+          **common_opts
+        )
+      end
+
+      def create_run_smart(timeout: 360, **opts)
+        res = create_run(**opts)
+        if res[:exitstatus] == 202
+          op_url = JSON.load(res[:response])["operation_result_url"]
+          logger.info "to check operation status manually, you can: " \
+            "curl '#{op_url}' -u user:thepassword"
+          pr = wait_op(url: op_url, timeout: timeout)
+        else
+          raise %Q{got status "#{res[:exitstatus]}" creating a new test run:\n#{res[:response]}}
+        end
+
+        unless pr.dig("properties", "run_id")
+          raise "faux create test run response: #{pr}"
+        end
+
+        return {
+          run_id: pr["properties"]["run_id"],
+          import_filter: pr["properties"]["import_filter"]
+        }
+      end
+
       # @param case_ids [Array<String>] test case IDs
       def get_cases(project_id, case_ids)
         Http.request(
@@ -223,7 +275,7 @@ module CucuShift
           res = check_op(url: url, id: id)
           case res["status"]
           when "done"
-            return
+            return res
           when "queued", "running"
             next
           when "failed"
