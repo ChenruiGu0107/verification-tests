@@ -61,6 +61,8 @@ Feature: resouces related scenarios
     Then the step should succeed
 
     Given I wait until the status of deployment "mydc" becomes :running
+    And a pod becomes ready with labels:
+      | label=mydc |
     And I run the :get client command with:
       | resource      | dc                 |
       | resource_name | mydc               |
