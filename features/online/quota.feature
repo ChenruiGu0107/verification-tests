@@ -25,3 +25,54 @@ Feature: ONLY ONLINE Quota related scripts in this file
       | tc517567 | pod-limit-request.yaml    | pod-limit-request    | 1171m | 600Mi | 70m   | 360Mi |
       | tc517576 | pod-limit-memory.yaml     | pod-limit-memory     | 585m  | 300Mi | 35m   | 180Mi |
       | tc517577 | pod-no-limit-request.yaml | pod-no-limit-request | 1     | 512Mi | 60m   | 307Mi |
+
+  # @author zhaliu@redhat.com
+  # @case_id OCP-12684
+  Scenario: LimitRange should restrict the amount of the storage PVC requests
+    Given I have a project
+    When I run the :get client command with:
+      | resource | limitrange |
+      | o        | json       |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]["items"][0]["spec"]["limits"][2]["max"]["storage"] == "1Gi"
+    And the expression should be true> @result[:parsed]["items"][0]["spec"]["limits"][2]["min"]["storage"] == "1Gi"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-less.yaml |
+    Then the step should fail
+    And the output should match:
+      | persistentvolumeclaims.*is forbidden:   |
+      | minimum .* PersistentVolumeClaim is 1Gi |
+      | but request is 600Mi                    |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml |
+    Then the step should succeed 
+    And the "claim-equal-limit" PVC becomes :bound within 300 seconds
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-over.yaml |
+    Then the step should fail
+    And the output should match: 
+      | persistentvolumeclaims.*is forbidden:   |
+      | maximum .* PersistentVolumeClaim is 1Gi |
+      | but request is 5Gi                      |
+
+  # @author zhaliu@redhat.com
+  # @case_id OCP-12686
+  Scenario: ResourceQuota should restrict amount of PVCs created in a project
+    Given I have a project
+    When I run the :get client command with:
+      | resource      | quota         |
+      | resource_name | object-counts |
+      | o             | json          |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]["spec"]["hard"]["persistentvolumeclaims"] == "1"
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml |
+    Then the step should succeed 
+    And the "claim-equal-limit" PVC becomes :bound within 300 seconds
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml" replacing paths:
+      | ["metadata"]["name"] | claim-equal-limit1 |
+    Then the step should fail
+    And the output should match:
+      | persistentvolumeclaims.*is forbidden: |
+      | exceeded quota                        |
+      | persistentvolumeclaims=1              |
