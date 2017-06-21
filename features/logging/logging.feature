@@ -53,6 +53,7 @@ Feature: logging related scenarios
   @destructive
   Scenario: Scale up kibana and elasticsearch pods
     Given I have a project
+    Given the master version < "3.5"
     And I store default router subdomain in the :subdomain clipboard
     And I store master major version in the :master_version clipboard
     When I run the :new_secret client command with:
