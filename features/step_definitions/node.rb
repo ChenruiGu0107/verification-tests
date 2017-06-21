@@ -408,3 +408,54 @@ Given /^I rsync files from node named #{QUOTED} to pod named #{QUOTED} using par
   step %Q/the step should succeed/
 end
 
+Given /^the taints of the nodes in the#{OPT_SYM} clipboard are restored after scenario$/ do |nodecb|
+  ensure_destructive_tagged
+
+  nodecb ||= :nodes
+  _admin = admin
+  _nodes = cb[nodecb].dup
+  _original_taints = _nodes.map { |n| [n,n.taints] }.to_h
+
+  teardown_add {
+    CucuShift::Resource.bulk_update(user: admin, resources: _nodes)
+    _current_taints = _nodes.map { |n| [n,n.taints] }.to_h
+    _diff_taints = _nodes.map do |node|
+      [node, _current_taints[node] - _original_taints[node]]
+    end.reject {|node, diff_taints| diff_taints.empty?}
+
+    _taint_updates = _diff_taints.map do |node, diff|
+      [
+        node,
+        diff.map do |taint|
+          if original = _original_taints[node].find{|t| t.conflicts?(taint)}
+            original.cmdline_string
+          else
+            taint.delete_str
+          end
+        end
+      ]
+    end
+
+    _taint_groups = _taint_updates.group_by {|node, updates| updates}.map(&:last)
+    _taint_groups.each do |group|
+      @result = _admin.cli_exec(
+        :oadm_taint_nodes,
+        node_name: group.map(&:first).map(&:name),
+        overwrite: true,
+        key_val: group[0][1]
+      )
+      raise("failed to revert tainted nodes, see logs") unless @result[:success]
+    end
+
+    # verify if the restoration process was succesfull
+    CucuShift::Resource.bulk_update(user: admin, resources: _nodes)
+    _current_taints = _nodes.map { |n| [n,n.taints] }.to_h
+    _diff_taints = _nodes.map do |node|
+      [node, _current_taints[node] - _original_taints[node]]
+    end.reject {|node, diff_taints| diff_taints.empty?}
+    unless _diff_taints.empty?
+      raise "nodes didn't have taints properly restored: " \
+        "#{_diff_taints.map(&:first).map(&:name).join(", ")}"
+    end
+  }
+end

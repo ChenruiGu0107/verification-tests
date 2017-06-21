@@ -1177,6 +1177,14 @@
     :host_network: --host-network=<value>
     :host_ports: --host-ports=<value>
     :n: -n <value>
+:oadm_taint_nodes:
+  :cmd: oadm taint nodes
+  :options:
+    :all: --all=<value>
+    :node_name: <value>
+    :key_val: <value>
+    :output: --output <value>
+    :overwrite: --overwrite=<value>
 :oadm_top_images:
   :cmd: oadm top images
 :openshift_version:
