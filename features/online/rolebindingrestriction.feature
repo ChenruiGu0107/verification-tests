@@ -116,3 +116,33 @@ Feature: rolebindingrestriction.feature
       | role         | basic-user          |
       | output_word  | ServiceAccount      |
     Then the step should succeed
+
+  # @author zhaliu@redhat.com
+  # @case_id OCP-13798
+  Scenario: After the project is deleted the rolebindingrestriction will be deleted too
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project_name clipboard
+    When I run the :get client command with:
+      | resource | rolebindingrestriction |
+    Then the step should succeed
+    And the output should contain:
+      | match-project-admin-user        |
+      | match-own-service-accounts      |
+      | match-own-service-account-group |
+    When I run the :delete client command with:
+      | object_type       | project                |
+      | object_name_or_id | <%= cb.project_name %> |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :new_project client command with:
+      | project_name | <%= cb.project_name %> |
+    Then the step should succeed
+    """
+    When I run the :get client command with:
+      | resource | rolebindingrestriction |
+    Then the step should succeed
+    And the output should contain:
+      | match-project-admin-user        |
+      | match-own-service-accounts      |
+      | match-own-service-account-group |
