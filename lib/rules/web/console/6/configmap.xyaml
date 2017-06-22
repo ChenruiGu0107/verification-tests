@@ -98,8 +98,8 @@ click_to_goto_edit_configmap_page:
   action: click_to_goto_one_configmap_page
   action: click_to_goto_edit_page
 edit_configmap_value:
-  element:
-    selector: |
+  scripts:
+  - command: |
         var id = null
         var p = new RegExp("<config_map_key>");
         var el = document.getElementsByTagName("input");
@@ -111,16 +111,10 @@ edit_configmap_value:
         }
         if (id == null) return null;
         id = id.replace("key", "value");
-        var elist = document.querySelectorAll('div[id*="value"]');
-        for (var j=0; j<elist.length; j++) {
-          if (elist[j].id == id ){
-            return elist[j].querySelector('textarea')
-            break;
-           }
-         }
-    type: js
-    visible: false
-    op: set <new_config_map_value>
+        editor = ace.edit(id);
+        editor.setValue(`<new_config_map_value>`);
+        return true;
+    expect_result: true
 pick_key_from_list:
   elements:
   - selector:

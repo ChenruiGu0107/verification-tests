@@ -515,7 +515,15 @@ require "base64"
           end
 
           if element.respond_to? op.to_sym
-            element.send(op.to_sym, val)
+            if element.instance_of?(Watir::FileField) || element.instance_of?(Watir::TextArea)
+              # workaround for textarea and file_field elements
+              # https://github.com/watir/watir/issues/497#issuecomment-275826513
+              Watir.relaxed_locate = false
+              element.send(op.to_sym, val)
+              Watir.relaxed_locate = true
+            else
+              element.send(op.to_sym, val)
+            end
           else
             raise "element type #{element.class} does not support #{op}"
           end

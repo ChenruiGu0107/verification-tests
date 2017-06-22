@@ -3,10 +3,7 @@ Feature: Delete the resources via web console
   # @author wsun@redhat.com
   # @case_id OCP-10742
   Scenario: Delete app resources on web console as admin user
-    When I create a project via web with:
-      | display_name | :null               |
-      | description  ||
-    Then the step should succeed
+    Given I have a project
     Given I wait for the :create_app_from_image web console action to succeed with:
       | project_name | <%= project.name %>                        |
       | image_name   | nodejs                                     |
