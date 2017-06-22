@@ -108,6 +108,48 @@ module CucuShift
         end
       end
 
+      command :"create-run" do |c|
+        c.syntax = "#{$0} create-run [options]"
+        c.description = "Create a new test run\ne.g. " \
+          'tools/polarshift.rb create-run -f ../polarshift/req.json'
+        c.option('-f', "--file FILE", "YAML file with create parameters.")
+        c.option('--no-wait', "Skip waiting on message bus for operation to complete.")
+        c.action do |args, options|
+          setup_global_opts(options)
+
+          unless options.file
+            raise "Please specify file to read test run create options from"
+          end
+
+          unless File.exist? options.file
+            raise "specified input file does not exist: #{options.file}"
+          end
+
+          params = YAML.load(File.read(options.file))
+          Collections.hash_symkeys! params
+
+          ## prepare user/password to the bus early to catch message
+          if options.no_wait.nil?
+            bus_client = msgbus.new_client
+          end
+
+          pr = polarshift.create_run_smart(project_id: project, **params)
+
+          puts "test run id: #{HighLine.color(pr[:run_id], :bright_blue)}"
+          filter = pr[:import_filter]
+          if options.no_wait.nil?
+            puts "waiting for a bus message with selector: #{filter}"
+            message = nil
+            bus_client.subscribe(msgbus.default_queue, selector: filter) do |m|
+              message = m
+              bus_client.close
+            end
+            bus_client.join
+            puts STOMPBus.msg_to_str(message)
+          end
+        end
+      end
+
       run!
     end
 
