@@ -100,7 +100,7 @@ Feature: change the policy of user/service account
       | viewservices |
 
     ##admin try to add one user to the project as vs role
-    When I run the :oadm_add_role_to_user client command with:
+    When I run the :oadm_add_role_to_user admin command with:
       | role name       |   viewservices    |
       | user name       |   <%= user.name %>    |
       | role namespace  |   <%= project.name %> |
