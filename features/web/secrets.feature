@@ -222,7 +222,7 @@ Feature: web secrets related
     Then the step should succeed
     When I run the :click_create_secret_button web console action
     Then the step should succeed
-    
+
     When I run the :extract client command with:
       | resource | secret/gitsecret |
       | confirm  | true             |
@@ -331,8 +331,9 @@ Feature: web secrets related
       | auth_type       | Configuration File  |
       | new_secret_name | dockerhub           |
     Then the step should succeed
-    When I perform the :set_docker_configuration_file_textarea web console action with:
-      | text_content | abcd |
+    # docker configuration file
+    When I perform the :set_ace_editor_content web console action with:
+      | content | abcd |
     Then the step should succeed
     When I run the :check_error_prompt_when_set_secret_configuration_file web console action
     Then the step should succeed
@@ -508,7 +509,7 @@ Feature: web secrets related
     Then the step should succeed
     """
     When I run the :click_save_button web console action
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :get client command with:
       | resource      | deploymentConfig |
       | resource_name | mydc             |
