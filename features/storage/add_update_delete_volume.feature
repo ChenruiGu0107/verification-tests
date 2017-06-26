@@ -481,7 +481,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc2-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany            |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                      |
     Then the step should succeed
     And the "pvc1-<%= project.name %>" PVC becomes :bound

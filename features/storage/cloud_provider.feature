@@ -4,7 +4,7 @@ Feature: kubelet restart and node restart
   @destructive
   Scenario Outline: kubelet restart should not affect attached/mounted volumes
     Given admin creates a project with a random schedulable node selector
-    And evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
+    And evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
@@ -56,7 +56,7 @@ Feature: kubelet restart and node restart
   @destructive
   Scenario Outline: node restart should not affect attached/mounted volumes
     Given admin creates a project with a random schedulable node selector
-    And evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
+    And evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
@@ -113,7 +113,7 @@ Feature: kubelet restart and node restart
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
 
-    Given evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
+    Given evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
@@ -169,7 +169,7 @@ Feature: kubelet restart and node restart
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
 
-    And evaluation of `%w{ReadWriteOnce ReadWriteMany ReadOnlyMany}` is stored in the :accessmodes clipboard
+    And evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
