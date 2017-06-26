@@ -24,8 +24,8 @@ Feature: Persistent Volume Claim binding policies
       | name     | pv-<%= project.name %> |
     Then the step should succeed
     And the output should match:
-      | Message:\s+Recycler failed |
-      | Events:                    |
+      | Message:\s+Recycle failed |
+      | Events:                   |
     """
 
   # @author jhou@redhat.com
@@ -198,8 +198,8 @@ Feature: Persistent Volume Claim binding policies
     Given 20 PVCs become :bound within 50 seconds with labels:
       | usedFor=tc522215 |
     Then I run the :delete client command with:
-      | object_type  | pvc  |
-      | all          | all  |
+      | object_type | pvc |
+      | all         | all |
     Given 20 PVs become :available within 500 seconds with labels:
       | usedFor=tc522215 |
     """
@@ -241,8 +241,8 @@ Feature: Persistent Volume Claim binding policies
       | mountpoint | -d | /mnt |
     Then the step should succeed
     When I execute on the pod:
-      | bash |
-      | -c   |
+      | bash                  |
+      | -c                    |
       | date >> /mnt/testfile |
     Then the step should succeed
     Given I ensure "mypod-<%= project.name %>" pod is deleted
@@ -257,8 +257,8 @@ Feature: Persistent Volume Claim binding policies
     And I have a NFS service in the project
     And I register clean-up steps:
       | I run the :delete admin command with: |
-      |   ! object_type ! pv               !  |
-      |   ! l           ! usedFor=tc522127 !  |
+      | ! object_type ! pv               !    |
+      | ! l           ! usedFor=tc522127 !    |
       | the step should succeed               |
 
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-template.json"
@@ -382,10 +382,10 @@ Feature: Persistent Volume Claim binding policies
 
     # Create dynamic pvc
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                              |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>           |
+      | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                   |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                             |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>          |
     Then the step should succeed
     And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
     When I run the :get admin command with:
