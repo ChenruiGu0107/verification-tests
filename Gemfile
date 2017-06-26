@@ -22,7 +22,7 @@ gem 'azure_mgmt_network'
 ## Logging
 gem 'term-ansicolor'
 ## Webauto
-gem 'watir'
+gem 'watir', '>= 6.4.0.rc1'
 gem 'headless'
 ## Docs
 # beware https://github.com/pry/pry/issues/1465
