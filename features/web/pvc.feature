@@ -447,26 +447,26 @@ Feature: Add pvc to pod from web related
     When I perform the :create_pvc_with_storage_class web console action with:
       | project_name     | <%= project.name %> |
       | pvc_name         | pvc-1               |
-      | pvc_access_mode  | ReadOnlyMany        |
+      | pvc_access_mode  | ReadWriteOnce       |
       | storage_size     | 0.001               |
       | storage_unit     | TiB                 |
     Then the step should succeed
 
     When I perform the :check_pvcs_detail_on_storage_page web console action with:
-      | project_name    | <%= project.name %>  |
-      | pvc_name        | pvc-1                |
-      | pvc_status      | Bound                |
-      | pvc_access_mode | ROX (Read-Only-Many) |
-      | storage_size    | 2 GiB                |
+      | project_name    | <%= project.name %>   |
+      | pvc_name        | pvc-1                 |
+      | pvc_status      | Bound                 |
+      | pvc_access_mode | RWO (Read-Write-Once) |
+      | storage_size    | 2 GiB                 |
     Then the step should succeed
     Given admin ensures "<%= pvc("pvc-1").volume_name(user: user) %>" pv is deleted after scenario
 
     When I perform the :check_pvc_info_with_status web console action with:
-      | project_name    | <%= project.name %>  |
-      | pvc_name        | pvc-1                |
-      | pvc_status      | Bound                |
-      | pvc_access_mode | ROX (Read-Only-Many) |
-      | storage_size    | 1099511627776 mB     |
+      | project_name    | <%= project.name %>   |
+      | pvc_name        | pvc-1                 |
+      | pvc_status      | Bound                 |
+      | pvc_access_mode | RWO (Read-Write-Once) |
+      | storage_size    | 1099511627776 mB      |
     Then the step should succeed
 
     # Create RWX type pvc
@@ -475,7 +475,7 @@ Feature: Add pvc to pod from web related
     When I perform the :create_pvc_with_storage_class web console action with:
       | project_name    | <%= project.name %> |
       | pvc_name        | 0123456789          |
-      | pvc_access_mode | ReadWriteMany       |
+      | pvc_access_mode | ReadWriteOnce       |
       | storage_size    | 2048                |
       | storage_unit    | MiB                 |
     Then the step should succeed
@@ -484,7 +484,7 @@ Feature: Add pvc to pod from web related
       | project_name    | <%= project.name %>   |
       | pvc_name        | 0123456789            |
       | pvc_status      | Bound                 |
-      | pvc_access_mode | RWX (Read-Write-Many) |
+      | pvc_access_mode | RWO (Read-Write-Once) |
       | storage_size    | 2 GiB                 |
     Then the step should succeed
     """
@@ -494,7 +494,7 @@ Feature: Add pvc to pod from web related
       | project_name    | <%= project.name %>   |
       | pvc_name        | 0123456789            |
       | pvc_status      | Bound                 |
-      | pvc_access_mode | RWX (Read-Write-Many) |
+      | pvc_access_mode | RWO (Read-Write-Once) |
       | storage_size    | 2 GiB                 |
     Then the step should succeed
 
