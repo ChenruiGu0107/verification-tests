@@ -3125,3 +3125,133 @@ Feature: Testing haproxy router
     Then the output should contain:
       | Hello-OpenShift |
       | Empty reply from server |
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-14747
+  @admin
+  @destructive
+  Scenario: Haproxy can set the ssl cipher
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name    | route-edge |
+      | service | service-unsecure |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    
+    # The default cipher is 'intermediate' and using the specify cipher 'DHE-RSA-AES256-GCM-SHA384' can be accessed.
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -k |
+      | --cipher |
+      | DHE-RSA-AES256-GCM-SHA384 |
+      | -vv |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the output should contain "SSL connection using TLSv1.2 / DHE-RSA-AES256-GCM-SHA384"
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    # Update router to make it using 'modern'
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_CIPHERS=modern  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod2 clipboard
+    
+    Given I switch to the first user
+    And I use the "<%= cb.project %>" project
+    #access the route using the same cipher will failed. since it do not exist in 'modern' list
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -k |
+      | --cipher |
+      | DHE-RSA-AES256-GCM-SHA384 |
+    Then the step should fail
+    And the output should contain "sslv3 alert handshake failure"
+
+    # Update router to make it using 'old'
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_CIPHERS=old  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod2 %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod3 clipboard
+
+    Given I switch to the first user
+    And I use the "<%= cb.project %>" project
+    #access the route using the same cipher will succeed. since the cipher belong to 'old' list
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -k |
+      | --cipher |
+      | DHE-RSA-AES256-GCM-SHA384 |
+      | -vv |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the output should contain "SSL connection using TLSv1.2 / DHE-RSA-AES256-GCM-SHA384"
+    
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    # Update router to make it using specified 'ECDHE-RSA-AES256-GCM-SHA384'
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_CIPHERS=ECDHE-RSA-AES256-GCM-SHA384 |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod3 %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I use the "<%= cb.project %>" project
+    #access the route using above cipher will failed. 
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -k |
+      | --cipher |
+      | DHE-RSA-AES256-GCM-SHA384 |
+    Then the step should fail
+    And the output should contain "sslv3 alert handshake failure"
+
+    #access the route and check it is using the correct cipher
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | -sS |
+      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
+      | -k |
+      | -vv |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"    
+    And the output should contain "SSL connection using TLSv1.2 / ECDHE-RSA-AES256-GCM-SHA384"
+
