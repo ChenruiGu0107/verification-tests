@@ -478,3 +478,277 @@ Feature: Egress-ingress related networking scenarios
       | www.google.com |
     Then the step should fail
     And the output should contain "Couldn't resolve host"
+
+  # @author weliang@redhat.com
+  # @case_id OCP-13499
+  @admin
+  Scenario: Change the order of allow and deny rules in egress network policy
+    Given the env is using multitenant network
+    Given I have a project  
+    Given I have a pod-for-ping in the project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+
+    # Create egress policy with allow and deny order
+    And evaluation of `CucuShift::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
+    And I replace lines in "dns-egresspolicy1.json":
+      | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
+    And I run the :create admin command with:
+      | f | dns-egresspolicy1.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+
+    # Check ping from pod
+    When I execute on the pod:
+      | ping | -c1 | -W2 | yahoo.com |
+    Then the step should succeed
+    When I execute on the pod:
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+    Then the step should succeed
+    
+    # Check egress policy can be deleted
+    When I run the :delete admin command with:
+      | object_type       | egressnetworkpolicy |
+      | object_name_or_id | policy-test             |
+      | n                 |  <%= cb.proj1 %>    |
+    Then the step should succeed
+ 
+    # Create new egress policy with deny and allow order
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy2.json"
+    And I replace lines in "dns-egresspolicy2.json":
+      | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
+    And I run the :create admin command with:
+      | f | dns-egresspolicy2.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+ 
+    # Check ping from pod
+    When I execute on the pod:
+      | ping | -c1 | -W2 | yahoo.com |
+    Then the step should fail
+    When I execute on the pod:
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+    Then the step should fail
+    
+  # @author weliang@redhat.com
+  # @case_id OCP-13501
+  @admin
+  Scenario: Apply same egress network policy in different projects
+    Given the env is using multitenant network
+    Given I have a project  
+    Given I have a pod-for-ping in the project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+ 
+    # Create egress policy in project-1
+    And evaluation of `CucuShift::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
+    And I replace lines in "dns-egresspolicy1.json":
+      | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
+    And I run the :create admin command with:
+      | f | dns-egresspolicy1.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+ 
+    # Check ping from pod
+    When I execute on the pod:
+      | ping | -c1 | -W2 | yahoo.com |
+    Then the step should succeed
+    When I execute on the pod:
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+    Then the step should succeed
+    
+    Given I create a new project
+    Given I have a pod-for-ping in the project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+ 
+    # Create same egress policy in project-2
+    And evaluation of `CucuShift::Common::Net.dns_lookup("yahoo.com")` is stored in the :github_ip clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
+    And I replace lines in "dns-egresspolicy1.json":
+      | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
+    And I run the :create admin command with:
+      | f | dns-egresspolicy1.json |
+      | n | <%= cb.proj2 %> |
+    Then the step should succeed
+ 
+    # Check ping from pod
+    When I execute on the pod:
+      | ping | -c1 | -W2 | yahoo.com |
+    Then the step should succeed
+    When I execute on the pod:
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+    Then the step should succeed
+
+    # Check egress policy can be deleted in project1
+    When I run the :delete admin command with:
+      | object_type       | egressnetworkpolicy |
+      | object_name_or_id | policy-test             |
+      | n                 |  <%= cb.proj1 %>    |
+    Then the step should succeed
+
+    # Check ping from pod after egress policy deleted
+    When I execute on the pod:
+      | ping | -c1 | -W2 | yahoo.com |
+    Then the step should succeed
+    When I execute on the pod:
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+    Then the step should succeed   
+
+  # @author weliang@redhat.com
+  # @case_id OCP-13502
+  @admin
+  Scenario: Apply different egress network policy in different projects
+    Given the env is using multitenant network
+    Given I have a project 
+    Given I have a pod-for-ping in the project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+  
+    # Create egress policy in project-1
+    And evaluation of `CucuShift::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
+    And I replace lines in "dns-egresspolicy1.json":
+      | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
+    And I run the :create admin command with:
+      | f | dns-egresspolicy1.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+   
+    # Check ping from pod
+    When I execute on the pod:
+      | ping | -c1 | -W2 | yahoo.com |
+    Then the step should succeed
+    When I execute on the pod:
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+    Then the step should succeed
+    
+    Given I create a new project
+    Given I have a pod-for-ping in the project
+    And evaluation of `project.name` is stored in the :proj2 clipboard
+ 
+    # Create different egress policy in project-2
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy2.json"
+    And I replace lines in "dns-egresspolicy2.json":
+      | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
+    And I run the :create admin command with:
+      | f | dns-egresspolicy2.json |
+      | n | <%= cb.proj2 %> |
+    Then the step should succeed
+ 
+    # Check ping from pod
+    When I execute on the pod:
+      | ping | -c1 | -W2 | yahoo.com |
+    Then the step should fail
+    When I execute on the pod:
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+    Then the step should fail
+
+    # Check egress policy can be deleted in project1
+    When I run the :delete admin command with:
+      | object_type       | egressnetworkpolicy |
+      | object_name_or_id | policy-test             |
+      | n                 |  <%= cb.proj1 %>    |
+    Then the step should succeed
+ 
+    # Check ping from pod after egress policy deleted
+    When I execute on the pod:
+      | ping | -c1 | -W2 | yahoo.com |
+    Then the step should fail
+    When I execute on the pod:
+      | ping | -c1 | -W2 | <%= cb.yahoo_ip %> | 
+    Then the step should fail   
+
+  # @author weliang@redhat.com
+  # @case_id OCP-13507
+  @admin
+  Scenario: The rules of egress network policy are added in openflow
+    Given the env is using multitenant network
+    Given I have a project 
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+ 
+    # Create egress policy in project-1
+    And evaluation of `CucuShift::Common::Net.dns_lookup("yahoo.com")` is stored in the :yahoo_ip clipboard
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
+    And I replace lines in "dns-egresspolicy1.json":
+      | 98.138.0.0/16 | <%= cb.yahoo_ip %>/32 |
+    And I run the :create admin command with:
+      | f | dns-egresspolicy1.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+ 
+    # Check egress rule added in openflow
+    Given I select a random node's host
+    When I run commands on the host:
+       | (ovs-ofctl dump-flows br0 -O openflow13 \| grep <%= cb.yahoo_ip %> \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13|grep <%= cb.yahoo_ip %> )  |
+    And the output should contain 1 times:
+      | actions=drop |
+
+    # Check egress policy can be deleted
+    When I run the :delete admin command with:
+      | object_type       | egressnetworkpolicy |
+      | object_name_or_id | policy-test             |
+      | n                 |  <%= cb.proj1 %>    |
+    Then the step should succeed
+
+    # Check egress rule deleted in openflow
+    Given I select a random node's host
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13 \| grep <%= cb.yahoo_ip %> \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13|grep <%= cb.yahoo_ip %> )  |
+    And the output should not contain:
+      | actions=drop |
+
+
+  # @author weliang@redhat.com
+  # @case_id OCP-13508
+  @admin
+  Scenario: Validate cidrSelector and dnsName fields in egress network policy
+    Given the env is using multitenant network
+    Given I have a project  
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+ 
+    # Create egress policy 
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-invalid-policy1.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should fail
+    Then the outputs should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-invalid-policy2.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should fail
+    Then the outputs should contain "Invalid value"
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-invalid-policy3.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should fail
+    Then the outputs should contain "Invalid value"
+
+  # @author weliang@redhat.com
+  # @case_id OCP-13509
+  @admin
+  Scenario: Egress network policy use dnsname with multiple ipv4 addresses
+    Given the env is using multitenant network
+    Given I have a project  
+    Given I have a pod-for-ping in the project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    And evaluation of `CucuShift::Common::Net.dns_lookup("yahoo.com", multi: true)` is stored in the :yahoo clipboard
+    Then the expression should be true> cb.yahoo.size >= 3
+
+    # Create egress policy 
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy2.json |
+      | n | <%= cb.proj1 %> |
+    Then the step should succeed
+ 
+    # Check ping from pod
+    When I execute on the pod:
+      | ping | -c1 | -W2 | <%= cb.yahoo[0] %> |
+    Then the step should fail
+    When I execute on the pod:
+      | ping | -c1 | -W2 | <%= cb.yahoo[1] %> |
+    Then the step should fail
+    When I execute on the pod:
+     | ping | -c1 | -W2 | <%= cb.yahoo[2] %> |
+    Then the step should fail 
+
+
+
