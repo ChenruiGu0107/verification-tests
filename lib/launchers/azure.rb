@@ -150,7 +150,7 @@ module CucuShift
       storage_opts = azure_config[:storage_options].merge storage_opts
       network_opts = azure_config[:network_options].merge network_opts
       hardware_opts = azure_config[:hardware_options].merge hardware_opts
-      os_opts = azure_config[:os_options].merge os_opts
+      os_opts = (azure_config[:os_options] || {}).merge os_opts
 
       names = [ names ].flatten.map {|n| normalize_instance_name(n)}
 
@@ -428,13 +428,11 @@ if __FILE__ == $0
   azure = CucuShift::Azure.new
   vms = azure.create_instances(["test-terminate"])
 
-  # require 'pry'
-  # binding.pry
+  # require 'pry'; binding.pry
 
   storage_account = CucuShift::Azure.instance_storage_account vms[0][0]
   resource_group = vms[0][0].resource_group
   azure.delete_instance "test-terminate"
-
 
   puts "Do you want to delete storage account: #{storage_account} (y/N)?"
   do_delete = gets.chomp
