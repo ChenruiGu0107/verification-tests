@@ -1,12 +1,8 @@
 ## add our lib dir to load path
 $LOAD_PATH << File.expand_path("#{__FILE__}/../../../lib")
 
-ruby_ver = RUBY_VERSION.split('.')
-if ruby_ver[0].to_i < 2 ||
-    ruby_ver[0] == '2' && ruby_ver[1].to_i < 2 # ||
-    # ruby_ver[0] == '2' && ruby_ver[1] == '2' && ruby_ver[2].to_i < 3
-
-  raise "Ruby version earlier than 2.2 not supported"
+if Gem::Version.new("2.3") > Gem::Version.new(RUBY_VERSION)
+  raise "Ruby version earlier than 2.3 not supported"
 end
 if Cucumber::VERSION.split('.')[0].to_i < 2
   raise "Cucumber version < 2 not supported"
