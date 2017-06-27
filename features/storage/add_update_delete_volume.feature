@@ -18,8 +18,6 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | app=mydb |
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteMany           |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
     # add pvc to dc
@@ -31,7 +29,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name       | v1                      |
       | claim-name | pvc-<%= project.name %> |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     # check after add pvc to dc
@@ -58,7 +56,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | action   | --remove |
       | name     | v1       |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     # check after remove pvc from dc
@@ -94,7 +92,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type | pod      |
       | l           | app=mydb |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -115,7 +113,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type | pod      |
       | l           | app=mydb |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -150,7 +148,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | claim-name | pvc-<%= project.name %> |
       | overwrite  |                         |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -180,7 +178,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | mount-path | /opt1    |
       | name       | v1       |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     # check after add emptyDir to dc
@@ -205,7 +203,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | action   | --remove |
       | name     | v1       |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     # check after remove emptyDir from dc
@@ -239,7 +237,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type | pod      |
       | l           | app=mydb |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -260,7 +258,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type | pod      |
       | l           | app=mydb |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -295,7 +293,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | path       | /usr     |
       | name       | v1       |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     # check after add hostPath to dc
@@ -325,7 +323,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | action   | --remove |
       | name     | v1       |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     # check after remove hostPath from dc
@@ -364,7 +362,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type | pod      |
       | l           | app=mydb |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -388,7 +386,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | object_type | pod      |
       | l           | app=mydb |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -444,7 +442,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | nfsc-<%= project.name %> |
       | mounted at /opt111       |
 
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
@@ -496,7 +494,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name       | volume1                  |
       | claim-name | pvc1-<%= project.name %> |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I run the :volume client command with:
@@ -507,7 +505,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name       | volume2                  |
       | claim-name | pvc2-<%= project.name %> |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
 
@@ -588,7 +586,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | pvcsc              |
       | mounted at /opt111 |
 
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     #Verify the PVC mode, size, name are correctly created, the PVC has bound the PV
@@ -681,7 +679,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | mount-path | /opt1    |
       | name       | v1       |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -693,7 +691,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | action   | --remove |
       | name     | v1       |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I get project dc named "mydb" as YAML
@@ -709,7 +707,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | type          | emptyDir |
       | mount-path    | /opt1    |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -724,7 +722,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | mount-path    | /opt2    |
       | overwrite     |          |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I execute on the pod:
@@ -736,7 +734,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | name     | v1       |
       | confirm  |          |
     Then the step should succeed
-    And I wait for the pod to die regardless of current status
+    And I wait for the resource "pod" named "<%= pod.name %>" to disappear
     And a pod becomes ready with labels:
       | app=mydb |
     When I get project dc named "mydb" as YAML
