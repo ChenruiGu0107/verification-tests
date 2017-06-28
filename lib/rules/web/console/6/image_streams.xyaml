@@ -23,17 +23,18 @@ check_is_tag_basic_page:
 check_is_tag_details_tab:
   elements:
   - selector:
-      xpath: //dt[text()="Digest"]/ancestor::registry-image-body//dd/tt[contains(text(),'<digest>')]
+      xpath: //dt[contains(.,'Digest')]/ancestor::registry-image-body//dd/tt[contains(text(),'<digest>')]
   - selector:
-      xpath: //dt[text()="Docker Version"]/ancestor::registry-image-meta//dd[contains(text(),'<docker_version>')]
+      xpath: //dt[contains(.,'Docker Version')]/ancestor::registry-image-meta//dd[contains(text(),'<docker_version>')]
+  action: click_show_annotations
   scripts:
   - command: |
-        var el = document.querySelectorAll('dd[ng-repeat="(name, value) in image.metadata.annotations"]')
+        var el = document.querySelectorAll('tr[ng-repeat="(annotationKey, annotationValue) in annotations"]')
         var value = []
         for (var i=0; i<el.length; i++) {
-          value.push(el[i].textContent)
+          value.push(el[i].children[0].textContent + ": " + el[i].children[1].getElementsByTagName('span')[0].textContent)
         }
-        return value.toString() == <annotations>
+        return (value.toString() == <annotations>)
     expect_result: true
   - command: |
         var el = document.querySelectorAll('dd[ng-repeat="(name, value) in labels"] tt')
@@ -51,7 +52,7 @@ check_is_tag_config_tab:
       xpath: //li//uib-tab-heading[text()='Configuration']
     op: click
   - selector:
-      xpath: //dt[contains(text(),'Command:')]/../dd/code[contains(text(),'<config_cmd>')]
+      xpath: //dt[contains(.,'Command')]/../dd/code[contains(text(),'<config_cmd>')]
   - selector:
       xpath: //dd[@ng-if="config.User" and contains(text(),'<run_as>')]
   - selector:
@@ -90,7 +91,7 @@ check_one_image_stream:
   action: click_hide_annotations
   element:
     selector:
-      xpath: //table/tbody//td/a[text()='latest']
+      xpath: //td/a[contains(@class,'registry-image-tag') and text()='latest']
     type: a
 check_deleted_image_stream:
   action: goto_one_image_stream_page
