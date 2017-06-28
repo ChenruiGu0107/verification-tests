@@ -87,17 +87,17 @@ Feature: Testing route
       | -lc |
       | ls /var/lib/*/router/certs |
     Then the step should succeed
-    And the output should contain:
-      | <%= cb.proj_name %>_<%= cb.edge_route %>.pem |
-      | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
+    And the output should match:
+      | <%= cb.proj_name %>[_:]<%= cb.edge_route %>.pem |
+      | <%= cb.proj_name %>[_:]<%= cb.reencrypt_route %>.pem |
     """
     When I execute on the pod:
       | bash |
       | -lc |
       | ls /var/lib/*/router/cacerts |
     Then the step should succeed
-    And the output should contain:
-      | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
+    And the output should match:
+      | <%= cb.proj_name %>[_:]<%= cb.reencrypt_route %>.pem |
 
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
@@ -114,10 +114,10 @@ Feature: Testing route
       | -lc |
       | ls /var/lib/*/router/certs |
     Then the step should succeed
-    And the output should not contain:
-      | <%= cb.proj_name %>_<%= cb.edge_route %>.pem |
-    And the output should contain:
-      | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
+    And the output should not match:
+      | <%= cb.proj_name %>[_:]<%= cb.edge_route %>.pem |
+    And the output should match:
+      | <%= cb.proj_name %>[_:]<%= cb.reencrypt_route %>.pem |
 
     Given I switch to the first user
     And I use the "<%= cb.proj_name %>" project
@@ -134,8 +134,8 @@ Feature: Testing route
       | -lc |
       | ls /var/lib/*/router/certs /var/lib/*/router/cacerts |
     Then the step should succeed
-    And the output should not contain:
-      | <%= cb.proj_name %>_<%= cb.reencrypt_route %>.pem |
+    And the output should not match:
+      | <%= cb.proj_name %>[_:]<%= cb.reencrypt_route %>.pem |
 
   # @author yadu@redhat.com
   # @case_id OCP-10660
