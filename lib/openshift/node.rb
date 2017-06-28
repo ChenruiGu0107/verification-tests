@@ -1,4 +1,5 @@
 require 'openshift/cluster_resource'
+require 'openshift/node_taint'
 
 module CucuShift
   # @note this class represents OpenShift environment Node API pbject and this
@@ -39,6 +40,11 @@ module CucuShift
         return h if hname == self.name
       end
       raise("no host mapping for #{self.name}")
+    end
+
+    def taints(user: nil, cached: true, quiet: true)
+      param = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return param["taints"]&.map {|t| NodeTaint.new(self, t)} || []
     end
 
     def service

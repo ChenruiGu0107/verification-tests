@@ -50,6 +50,19 @@ module CucuShift
                                 update_from_api_object(resource_hash)
     end
 
+    # update multiple API resources in as little calls as possible
+    # @param user [User] the user to use for the API calls
+    # @param resources [Array<ClusterResource>]
+    # @return [Array<ClusterResource>] if any resources have not been found
+    def self.bulk_update(user:, resources:, quiet: true)
+      resources.group_by(&:class).map(&:last).map do |group|
+        group[0].class.list(user: user, get_opts: {_quiet: quiet}) do |resource, resource_hash|
+          group.delete(resource)&.update_from_api_object(resource_hash)
+        end
+        group
+      end.reduce([], :+)
+    end
+
     # @param labels [String, Array<String,String>] labels to filter on, read
     #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
     # @param count [Integer] minimum number of resources to wait for
@@ -98,7 +111,7 @@ module CucuShift
     # @param user [CucuShift::User] the user we list resources as
     # @param result [ResultHash] can be used to get full result hash from op
     # @param get_opts [Hash, Array] other options to pass down to oc get
-    # @return [Array<Resouece>]
+    # @return [Array<Resource>]
     # @note raises error on issues
     def self.get_matching(user:, result: {}, get_opts: [])
       # construct options
@@ -150,6 +163,11 @@ module CucuShift
 
     def hash
       self.class.name.hash ^ name.hash ^ env.hash
+    end
+
+    ################# make pry inspection nicer ##################
+    def inspect
+      "#<#{self.class} #{env.key}/#{name}"
     end
   end
 end

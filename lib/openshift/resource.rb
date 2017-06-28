@@ -83,6 +83,16 @@ module CucuShift
     end
     alias reload get
 
+    # update multiple API resources in as little calls as possible
+    # @param user [User] the user to use for the API calls
+    # @param resources [Array<Resource>]
+    # @return [Array<Resource>] if any resources have not been found
+    def self.bulk_update(user:, resources:, quiet: true)
+      groups = resources.group_by(&:class).map(&:last)
+      return groups.map { |group|
+        group[0].class.bulk_update(user: user, resources: group, quiet: quiet)
+      }.reduce([], :+)
+    end
 
     # @param res [Hash] if caller wants to see result from the get call;
     #   note that it might not be updated if property returned from cache

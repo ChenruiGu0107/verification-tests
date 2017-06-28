@@ -73,6 +73,25 @@ module CucuShift
                                 update_from_api_object(resource_hash)
     end
 
+    # update multiple API resources in as little calls as possible
+    # @param user [User] the user to use for the API calls
+    # @param resources [Array<ProjectResource>]
+    # @return [Array<ProjectResource>] if any resources have not been found
+    def self.bulk_update(user:, resources:, quiet: true)
+      resources.group_by(&:class).map(&:last).map do |group_by_class|
+        group_by_class.group_by(&:project).map(&:last).map do |group|
+          group[0].class.list(
+            user: user,
+            project: group[0].project,
+            get_opts: [_quiet: quiet]
+          ) do |resource, resource_hash|
+            group.delete(resource)&.update_from_api_object(resource_hash)
+          end
+          group
+        end.reduce([], :+)
+      end.reduce([], :+)
+    end
+
     def delete(by:, grace_period: nil)
       del_opts = {}
       del_opts[:grace_period] = grace_period unless grace_period.nil?
@@ -142,8 +161,7 @@ module CucuShift
     # @yield block that selects resource items by returning true; block receives
     #   |resource, resource_hash| as parameters where resource is a reloaded
     #   [Resource] sub-type, e.g. [Pod], [Build], etc.
-    # @return [Array<ProjectResource>] with :matching key being array of matched
-    #   resources
+    # @return [Array<ProjectResource>]
     def self.get_matching(user:, project:, result: {}, get_opts: [])
       # construct options
       opts = [ [:resource, self::RESOURCE],
