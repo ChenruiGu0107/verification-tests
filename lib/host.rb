@@ -158,6 +158,15 @@ module CucuShift
       raise "#{__method__} method not implemented"
     end
 
+    def exec_checked(*commands, **opts)
+      res = exec(*commands, **opts)
+      if res[:success]
+        return res
+      else
+        raise "command exited with #{res[:exitstatus]}:\n#{res[:response]}"
+      end
+    end
+
     # @param commands [Array<String>] the commands to be executed
     # @param opts [Hash] host executor options, e.g. :chdir, :single,
     #   :background, etc.
