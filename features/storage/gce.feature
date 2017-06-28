@@ -168,3 +168,71 @@ Feature: GCE specific scenarios
     Then the step should fail
     And the output should contain:
       | error querying GCE PD volume |
+
+  # @author lxia@redhat.com
+  # @case_id OCP-13672
+  @admin
+  Scenario: PV with annotation storage-class bind PVC with annotation storage-class
+    Given I have a project
+    And I have a 1 GB volume and save volume id in the :vid clipboard
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-with-annotations.json" where:
+      | ["metadata"]["name"]                                                   | pv-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>    |
+      | ["spec"]["gcePersistentDisk"]["pdName"]                                | <%= cb.vid %>          |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+  # @author lxia@redhat.com
+  # @case_id OCP-13673
+  @admin
+  Scenario: PV with attribute storageClassName bind PVC with attribute storageClassName
+    Given I have a project
+    And I have a 1 GB volume and save volume id in the :vid clipboard
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-with-storageClassName.json" where:
+      | ["metadata"]["name"]                    | pv-<%= project.name %> |
+      | ["spec"]["gcePersistentDisk"]["pdName"] | <%= cb.vid %>          |
+      | ["spec"]["storageClassName"]            | <%= project.name %>    |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+  # @author lxia@redhat.com
+  # @case_id OCP-13674
+  @admin
+  Scenario: PV with annotation storage-class bind PVC with attribute storageClassName
+    Given I have a project
+    And I have a 1 GB volume and save volume id in the :vid clipboard
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-with-annotations.json" where:
+      | ["metadata"]["name"]                                                   | pv-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>    |
+      | ["spec"]["gcePersistentDisk"]["pdName"]                                | <%= cb.vid %>          |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]         | pvc-<%= project.name %> |
+      | ["spec"]["storageClassName"] | <%= project.name %>     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+  # @author lxia@redhat.com
+  # @case_id OCP-13675
+  @admin
+  Scenario: PV with attribute storageClassName bind PVC with annotation storage-class
+    Given I have a project
+    And I have a 1 GB volume and save volume id in the :vid clipboard
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/pv-with-storageClassName.json" where:
+      | ["metadata"]["name"]                    | pv-<%= project.name %> |
+      | ["spec"]["gcePersistentDisk"]["pdName"] | <%= cb.vid %>          |
+      | ["spec"]["storageClassName"]            | <%= project.name %>    |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
