@@ -103,7 +103,7 @@ Feature: All in one volume
       | resource | pod                    |
       | name     | allinone-opposite-path |
     Then the output should match:
-      | create container with error.*mount path must be absolute |
+      | mount path must be absolute |
     """
 
   # @author chezhang@redhat.com
