@@ -25,6 +25,24 @@ module CucuShift
       @token_json = opts[:token_json] if opts[:token_json]
     end
 
+    # if we care about a specific project, we could in the future use:
+    #   https://cloud.google.com/compute/docs/reference/beta/zones/list
+    # but it should be a instance method and require a network call
+    def self.regions
+      {
+        "asia-east1": [?a, ?b, ?c].map {|z| "asia-east1-#{z}"},
+        "asia-northeast1": [?a, ?b, ?c].map {|z| "asia-northeast1-#{z}"},
+        "asia-southeast1": [?a, ?b].map {|z| "asia-southeast1-#{z}"},
+        "australia-southeast1": [?a, ?b, ?c].map {|z| "australia-southeast1-#{z}"},
+        "europe-west1": [?b, ?c, ?d].map {|z| "europe-west1-#{z}"},
+        "europe-west2": [?a, ?b, ?c].map {|z| "europe-west2-#{z}"},
+        "us-central1": [?a, ?b, ?c, ?f].map {|z| "us-central1-#{z}"},
+        "us-east1": [?b, ?c, ?d].map {|z| "us-east1-#{z}"},
+        "us-east4": [?a, ?b, ?c].map {|z| "us-east4-#{z}"},
+        "us-west1": [?a, ?b, ?c].map {|z| "us-west1-#{z}"}
+      }
+    end
+
     def compute
       return @compute if @compute
 
