@@ -208,7 +208,7 @@ Feature: pods related scenarios
       | resource_name | hello-openshift                        |
       | p             | {"spec":{"activeDeadlineSeconds":0}}   |
     Then the step should fail
-    And the output should contain "must be greater than 0"
+    And the output should contain "Invalid value: 0"
     When I run the :patch client command with:
       | resource      | pod                                    |
       | resource_name | hello-openshift                        |
@@ -220,7 +220,7 @@ Feature: pods related scenarios
       | resource_name | hello-openshift                        |
       | p             | {"spec":{"activeDeadlineSeconds":-5}}  |
     Then the step should fail
-    And the output should contain "must be greater than 0"
+    And the output should contain "Invalid value: -5"
 
   # @author chuyu@redhat.com
   # @case_id OCP-11006
