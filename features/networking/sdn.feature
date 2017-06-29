@@ -198,21 +198,8 @@ Feature: SDN related networking scenarios
     Given I select a random node's host
     And the node iptables config is verified
     And the node service is restarted on the host after scenario
-    When I run commands on the host:
-      | iptables -S -t nat \| grep <%= cb.clusternetwork %> \| cut -d ' ' -f 2- |
-    Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :nat_rule clipboard
-    When I run commands on the host:
-      | iptables -S \| grep tun0 \| cut -d ' ' -f 2- |
-    Then the step should succeed
-    And evaluation of `@result[:response]` is stored in the :tun0_rule clipboard
-    When I run commands on the host:
-      | iptables -D INPUT -p udp -m multiport --dport 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
-      | iptables -D <%= cb.tun0_rule %> |
-      | iptables -D FORWARD -s <%= cb.clusternetwork %> -j ACCEPT |
-      | iptables -D FORWARD -d <%= cb.clusternetwork %> -j ACCEPT |
-      | iptables -t nat -D <%= cb.nat_rule %> |
-    Then the step should succeed
+
+    Given the node standard iptables rules are removed
     And I wait up to 35 seconds for the steps to pass:
     """
     When I run commands on the host:
@@ -220,17 +207,8 @@ Feature: SDN related networking scenarios
     Then the output should contain "Syncing openshift iptables rules"
     And the output should contain "syncIPTableRules took"
     """
-    When I run commands on the host:
-      | iptables -S -t filter |
-    Then the output should contain:
-      | INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
-      | <%= cb.tun0_rule %> |
-      | FORWARD -s <%= cb.clusternetwork %> -j ACCEPT |
-      | FORWARD -d <%= cb.clusternetwork %> -j ACCEPT |
-    When I run commands on the host:
-      | iptables -S -t nat |
-    Then the output should contain:
-      | <%= cb.nat_rule %> |
+    Given 5 seconds have passed
+    Given the node iptables config is verified
 
   # @author bmeng@redhat.com
   # @case_id OCP-11592
@@ -249,7 +227,11 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     Given the node service is restarted on the host
     When I run commands on the host:
-      | iptables -D INPUT -p udp -m multiport --dport 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
+      | iptables -S \| grep "4789.*incoming" \| cut -d ' ' -f 2- |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :vxlan_rule clipboard
+    When I run commands on the host:
+      | iptables -D <%= cb.vxlan_rule %> |
     Then the step should succeed
     And I wait up to 15 seconds for the steps to pass:
     """
@@ -258,10 +240,11 @@ Feature: SDN related networking scenarios
     Then the output should contain "Syncing openshift iptables rules"
     And the output should contain "syncIPTableRules took"
     """
+    Given 5 seconds have passed
     When I run commands on the host:
       | iptables -S -t filter |
     Then the output should contain:
-      | INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT |
+      | <%= cb.vxlan_rule %> |
 
   # @author bmeng@redhat.com
   # @case_id OCP-11795
