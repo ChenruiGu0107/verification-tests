@@ -179,8 +179,8 @@ Feature: Dynamic provisioning
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce                   |
-      | ["spec"]["accessModes"][1]                   | ReadWriteOnce                   |
-      | ["spec"]["accessModes"][2]                   | ReadWriteOnce                   |
+      | ["spec"]["accessModes"][1]                   | ReadWriteMany                   |
+      | ["spec"]["accessModes"][2]                   | ReadOnlyMany                    |
       | ["spec"]["resources"]["requests"]["storage"] | 1                               |
     Then the step should succeed
     And the "dynamic-pvc-<%= project.name %>" PVC becomes :bound
@@ -230,8 +230,8 @@ Feature: Dynamic provisioning
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce          |
-      | ["spec"]["accessModes"][1]                                             | ReadWriteOnce          |
-      | ["spec"]["accessModes"][2]                                             | ReadWriteOnce          |
+      | ["spec"]["accessModes"][1]                                             | ReadWriteMany          |
+      | ["spec"]["accessModes"][2]                                             | ReadOnlyMany           |
     Then the step should succeed
     And the "azpvc" PVC becomes :bound within 120 seconds
     When I run the :get admin command with:
