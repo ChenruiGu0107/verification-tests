@@ -136,6 +136,7 @@ module CucuShift
     #   disk entry will be intelligently merged
     # @return [Array] of [Instance, CucuShift::Host] pairs
     def create_instance( names,
+                         fqdn_names: azure_config[:fqdn_names],
                          user_data: azure_config[:user_data],
                          os_opts: {},
                          hardware_opts: {},
@@ -167,14 +168,15 @@ module CucuShift
           #   during `wait!`
         end
       end
+      vmnames = fqdn_names ? names.map {|n| fqdn_of(n, location)} : names
 
       ## create the instances
-      requests = names.map do |name|
-        logger.debug "triggering instance create for #{name}"
+      requests = names.zip(vmnames).map do |name, vmname|
+        logger.debug "triggering instance create for #{vmname}"
 
         params = ComputeModels::VirtualMachine.new
         params.type = machine_type
-        params.os_profile = os_profile(name, os_opts)
+        params.os_profile = os_profile(vmname, os_opts)
         params.hardware_profile = hw_profile(hardware_opts)
         params.storage_profile = storage_profile(location, resource_group, name, storage_opts)
         params.network_profile = network_profile(location, resource_group, name, network_opts)
@@ -182,12 +184,12 @@ module CucuShift
 
         compute_client.virtual_machines.create_or_update_async(
           resource_group,
-          name,
+          vmname,
           params
         )
       end
       return requests.map.with_index do |create_op, index|
-        logger.info "waiting for instance '#{names[index]}'.."
+        logger.info "waiting for instance '#{vmnames[index]}'.."
         result = create_op.value!
 
         instance = result.body
@@ -196,13 +198,19 @@ module CucuShift
           cloud_instance: instance,
           cloud_instance_name: instance.name
         })
+        # this can be a hostname or IP depending on instance config
         ip = instance_external_ips(instance).first
         if ip
           logger.info "started #{instance.name}: #{ip}}"
         else
           raise "instance '#{instance.name}' with no public IP allocated"
         end
-        [instance, Host.from_hostname(ip, host_opts)]
+        host = Host.from_hostname(ip, host_opts)
+        if fqdn_names && host.hostname != instance.name
+          logger.warn "Azure generated '#{host.hostname}' " \
+            "but we expected '#{instance.name}'"
+        end
+        [instance, host]
       end
     end
 
@@ -213,6 +221,14 @@ module CucuShift
         logger.info "deleted instance '#{vmname}'"
       else
         logger.info "instance '#{resource_group}/#{vmname}' not found"
+      end
+    end
+
+    private def fqdn_of(name, location)
+      if name.include? "."
+        return name
+      else
+        return "#{name}.#{location}.cloudapp.azure.com"
       end
     end
 
@@ -426,18 +442,18 @@ end
 if __FILE__ == $0
   extend CucuShift::Common::Helper
   azure = CucuShift::Azure.new
-  vms = azure.create_instances(["test-terminate"])
+  vms = azure.create_instances(["test-terminate"], fqdn_names: true)
 
   # require 'pry'; binding.pry
 
   storage_account = CucuShift::Azure.instance_storage_account vms[0][0]
   resource_group = vms[0][0].resource_group
-  azure.delete_instance "test-terminate"
+  azure.delete_instance vms[0][0].name
 
   puts "Do you want to delete storage account: #{storage_account} (y/N)?"
   do_delete = gets.chomp
   if do_delete == ?y
-    logger.info "deleting storage account #{storage_account}?"
+    logger.info "deleting storage account #{storage_account}.."
     azure.storage_client.storage_accounts.
       delete(resource_group, storage_account)
   end
