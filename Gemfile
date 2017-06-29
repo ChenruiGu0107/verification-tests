@@ -13,6 +13,7 @@ gem 'cucumber', '>=2.3.0'
 gem 'aws-sdk', '~> 2'
 gem 'google-api-client', '~>0.9.2'
 
+gem 'azure-storage'
 gem 'azure_mgmt_storage'
 gem 'azure_mgmt_compute'
 gem 'azure_mgmt_resources'

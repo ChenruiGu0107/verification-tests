@@ -80,6 +80,28 @@ module CucuShift
       return @storage_clients[subs_id]
     end
 
+    def storage_account_keys(resource_group, storage_account_name, subs_id = default_subscription_id)
+      storage_client(subs_id).storage_accounts.
+        list_keys(resource_group, storage_account_name).keys
+    end
+
+    def object_storage_client(resource_group, storage_account_name, subs_id = default_subscription_id)
+      key = [resource_group, storage_account_name, subs_id]
+      return @object_storage_clients[key] if @object_storage_clients&.dig(key)
+
+      require 'azure/storage'
+      @object_storage_clients ||= {}
+      return @object_storage_clients[key] = ::Azure::Storage::Client.create(
+        storage_account_name: storage_account_name,
+        storage_access_key: storage_account_keys(*key).sample.value
+      )
+    end
+
+    def blob_client(resource_group, storage_account_name, subs_id = default_subscription_id)
+      key = [resource_group, storage_account_name, subs_id]
+      return object_storage_client(*key).blob_client
+    end
+
     # @return [String, StorageAccount] where the String is the name of the
     #   new account
     # @note MS recommends using separate acconut for each VM:
@@ -148,27 +170,28 @@ module CucuShift
                          host_opts: azure_config[:host_connect_opts]
                        )
 
-      storage_opts = azure_config[:storage_options].merge storage_opts
-      network_opts = azure_config[:network_options].merge network_opts
-      hardware_opts = azure_config[:hardware_options].merge hardware_opts
-      os_opts = (azure_config[:os_options] || {}).merge os_opts
-
       names = [ names ].flatten.map {|n| normalize_instance_name(n)}
+      vmnames = fqdn_names ? names.map {|n| fqdn_of(n, location)} : names
 
       ## best effort delete any existing instances with same name
-      del = names.map do |name|
+      del = vmnames.map do |name|
         compute_client.virtual_machines.delete_async(resource_group, name)
       end
       del.each_with_index do |op, index|
         op.wait!
         if op&.value&.body&.status == "Succeeded"
-          logger.warn "deleting stale instance '#{names[index]}'"
+          logger.warn "deleting stale instance '#{vmnames[index]}'"
         else
           # when instance not found, body is nil, other errors should raise
           #   during `wait!`
         end
       end
-      vmnames = fqdn_names ? names.map {|n| fqdn_of(n, location)} : names
+
+      # instance create settings
+      storage_opts = azure_config[:storage_options].merge storage_opts
+      network_opts = azure_config[:network_options].merge network_opts
+      hardware_opts = azure_config[:hardware_options].merge hardware_opts
+      os_opts = (azure_config[:os_options] || {}).merge os_opts
 
       ## create the instances
       requests = names.zip(vmnames).map do |name, vmname|
@@ -288,6 +311,9 @@ module CucuShift
         unless type = ComputeModels::DiskCreateOptionTypes::FromImage
           raise "only fromImage is presently supported"
         end
+        container = "cucushift"
+        blob_name = "#{vmname}.vhd"
+
         store_profile.os_disk = ComputeModels::OSDisk.new.tap do |os_disk|
           if opts[:os_disk][:params][:image]
             unless opts[:os_disk][:params][:os_type]
@@ -303,9 +329,20 @@ module CucuShift
           os_disk.caching = ComputeModels::CachingTypes::ReadWrite
           os_disk.create_option = type
           os_disk.vhd = ComputeModels::VirtualHardDisk.new.tap do |vhd|
-            vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/cucushift/#{vmname}.vhd"
+            vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/#{container}/#{blob_name}"
           end
         end
+
+        ## try to delete conflicting VHD
+        begin
+          blob_client(resource_group, storage_account_name).
+            delete_blob(container, blob_name)
+        rescue => e
+          unless ::Azure::Core::Http::HTTPError === e && e.status_code == 404
+            logger.warn("Error removing stale VHD:\n#{exception_to_string(e)}")
+          end
+        end
+        return store_profile
       end
     end
 
