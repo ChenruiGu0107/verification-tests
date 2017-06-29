@@ -3,7 +3,7 @@
 check_resource_succesfully_updated_message:
   element: &check_resource_succesfully_updated_message
     selector:
-      text: <resource> <name> was successfully updated.
+      xpath: //*[contains(text(),'<resource> <name>') and contains(text(), 'successfully updated.')]
 check_resource_succesfully_updated_message_missing:
   element:
     <<: *check_resource_succesfully_updated_message
@@ -12,6 +12,10 @@ check_resource_succesfully_created_message:
   element:
     selector:
       text: <resource> <name> was successfully created.
+check_resource_updated_message:
+  element:
+    selector:
+      text: <resource_name> was updated.
 check_redirection_to_resource_page:
   element:
     selector:

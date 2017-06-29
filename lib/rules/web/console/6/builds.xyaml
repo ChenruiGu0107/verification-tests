@@ -188,6 +188,29 @@ check_env_var_missing:
             }
             return true;
       expect_result: true
+check_configmap_or_secret_env_var:
+  element:
+    selector:
+      xpath: //div[contains(@class,'key-value-editor-input')]/input
+  scripts:
+  - command: |
+        var key = "<env_var_key>",
+            resource = "<resource_name>",
+            resource_key = "<resource_key>",
+            rows = document.querySelectorAll('div[class~=key-value-editor-entry]');
+        for (var i =0; i< rows.length; i++) {
+          let cells = rows[i].querySelectorAll('div[class~=key-value-editor-input]');
+          if (cells.length == 2) {
+            if (cells[0].getElementsByTagName("input")[0].value == key) {
+              let dd_menu_values = cells[1].querySelectorAll('div[class~=ui-select-match] span[class~=ui-select-match-text] span');
+              if (dd_menu_values[0].innerText.includes(resource) && dd_menu_values[1].innerText.includes(resource_key)) {
+                return true;
+              }
+            }
+          }
+        }
+        return false;
+    expect_result: true
 check_empty_buildconfig_environment:
   action: goto_buildconfig_environment_tab
   elements:
@@ -310,11 +333,36 @@ change_bc_source_repo_url:
 add_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
   action: add_env_vars
+add_env_var_using_configmap_or_secret:
+  action: click_add_env_var_using_configmap_or_secret
+  action: add_env_var_key
+  action: select_env_var_resource
+  action: select_env_var_key
+click_add_env_var_using_configmap_or_secret:
+  element:
+    selector:
+      xpath: //a[normalize-space(text())='Add Environment Variable Using a Config Map or Secret']
+    op: click
+select_env_var_resource:
+  elements:
+  - selector:
+      xpath: (//div[@placeholder='Select a resource'])[last()]
+    op: click
+  - selector:
+      xpath: //ul//div[span/span[normalize-space(text())='<resource_name>']]
+    op: click
+select_env_var_key:
+  elements:
+  - selector:
+      xpath: (//div[@placeholder='Select key'])[last()]
+    op: click
+  - selector:
+      xpath: //ul//div[span/span[normalize-space(text())='<resource_key>']]
+    op: click
 add_env_vars:
   action: add_new_env_var
   action: add_env_var_key
   action: add_env_var_value
-  action: save_env_vars
 choose_image_source_from:
   elements:
   - selector:
@@ -383,7 +431,6 @@ add_env_var_value:
     selector:
       xpath: //div[@ng-repeat="entry in entries"][count(//div[@ng-repeat="entry in entries"])]/div[2]//input
     op: send_keys <env_var_value>
-save_env_vars: {}
 check_invalid_url_warn_message:
   elements:
   - selector:

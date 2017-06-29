@@ -331,16 +331,27 @@ check_dc_loaded_completely:
       text: Template
 goto_one_deployment_page:
   url: /console/project/<project_name>/browse/deployments/<dc_name>/<dc_name>-<dc_number>
+goto_one_deployment_environment_tab:
+  action: goto_one_deployment_page
+  action: click_on_environment_tab
 goto_one_k8s_deployment_page:
   url: /console/project/<project_name>/browse/deployment/<k8s_deployment_name>
 goto_one_k8s_deployment_configuration_tab:
   action: goto_one_k8s_deployment_page
   action: click_on_configuration_tab
+goto_one_k8s_deployment_environment_tab:
+  action: goto_one_k8s_deployment_page
+  action: click_on_environment_tab
 goto_one_k8s_replicaset_page:
   url: /console/project/<project_name>/browse/rs/<k8s_replicaset_name>
-goto_one_deployment_environment_tab:
-  action: goto_one_deployment_page
-  action: goto_environment_tab
+goto_one_k8s_replicaset_environment_tab:
+  action: goto_one_k8s_replicaset_page
+  action: click_on_environment_tab
+goto_one_rc_page:
+  url: /console/project/<project_name>/browse/rc/<rc_name>
+goto_one_rc_environment_tab:
+  action: goto_one_rc_page
+  action: click_on_environment_tab
 check_dc_strategy:
   action: goto_one_dc_page
   action: check_dc_strategy_on_dc_page

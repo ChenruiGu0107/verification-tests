@@ -518,3 +518,143 @@ Feature: web secrets related
     And the output should not contain:
       | dockerhub1 |
       | dockerhub2 |
+
+  # @author etrott@redhat.com
+  # @case_id OCP-11424
+  Scenario: Add/Edit env vars from secret
+    Given the master version >= "3.6"
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-1.yaml   |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536589/replica-set.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/rc/idle-rc-1.yaml                    |
+    Then the step should succeed
+    Given a "secret.yaml" file is created with the following lines:
+    """
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: mysecret
+    data:
+      data-1: dmFsdWUtMQ0K
+      data-2: dmFsdWUtMg0KDQo=
+    """
+    When I run the :create client command with:
+      | f | secret.yaml |
+    Then the step should succeed
+
+    When I perform the :goto_one_dc_environment_tab web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | database            |
+    Then the step should succeed
+    When I perform the :add_env_var_using_configmap_or_secret web console action with:
+      | env_var_key   | my_secret      |
+      | resource_name | dbsecret       |
+      | resource_key  | mysql-password |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I perform the :check_resource_succesfully_updated_message web console action with:
+      | resource | deployment config |
+      | name     | database          |
+    Then the step should succeed
+
+    When I perform the :goto_one_rc_environment_tab web console action with:
+      | project_name | <%= project.name %> |
+      | rc_name      | hello-idle          |
+    Then the step should succeed
+    When I perform the :add_env_var_using_configmap_or_secret web console action with:
+      | env_var_key   | my_secret      |
+      | resource_name | dbsecret       |
+      | resource_key  | mysql-password |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I perform the :check_resource_updated_message web console action with:
+      | resource_name | hello-idle |
+    Then the step should succeed
+
+    When I perform the :goto_one_k8s_deployment_environment_tab web console action with:
+      | project_name        | <%= project.name %> |
+      | k8s_deployment_name | hello-openshift     |
+    Then the step should succeed
+    When I perform the :add_env_var_using_configmap_or_secret web console action with:
+      | env_var_key   | my_secret      |
+      | resource_name | dbsecret       |
+      | resource_key  | mysql-password |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I perform the :check_resource_updated_message web console action with:
+      | resource_name | hello-openshift |
+    Then the step should succeed
+
+    When I perform the :goto_one_k8s_replicaset_environment_tab web console action with:
+      | project_name        | <%= project.name %> |
+      | k8s_replicaset_name | frontend            |
+    Then the step should succeed
+    When I perform the :add_env_var_using_configmap_or_secret web console action with:
+      | env_var_key   | my_secret      |
+      | resource_name | dbsecret       |
+      | resource_key  | mysql-password |
+    Then the step should succeed
+    When I run the :click_save_button web console action
+    Then the step should succeed
+    When I perform the :check_resource_updated_message web console action with:
+      | resource_name | frontend |
+    Then the step should succeed
+
+    # Check env vars
+    When I perform the :goto_one_dc_environment_tab web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | database            |
+    Then the step should succeed
+    When I perform the :check_configmap_or_secret_env_var web console action with:
+      | env_var_key   | my_secret      |
+      | resource_name | dbsecret       |
+      | resource_key  | mysql-password |
+    Then the step should succeed
+
+    When I perform the :goto_one_deployment_environment_tab web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | database            |
+      | dc_number    | 2                   |
+    Then the step should succeed
+    When I perform the :check_environment_variable web console action with:
+      | env_var_key   | my_secret                                        |
+      | env_var_value | Set to the key mysql-password in secret dbsecret |
+    Then the step should succeed
+
+    When I perform the :goto_one_rc_environment_tab web console action with:
+      | project_name | <%= project.name %> |
+      | rc_name      | hello-idle          |
+    Then the step should succeed
+    When I perform the :check_configmap_or_secret_env_var web console action with:
+      | env_var_key   | my_secret      |
+      | resource_name | dbsecret       |
+      | resource_key  | mysql-password |
+    Then the step should succeed
+
+    When I perform the :goto_one_k8s_deployment_environment_tab web console action with:
+      | project_name        | <%= project.name %> |
+      | k8s_deployment_name | hello-openshift     |
+    Then the step should succeed
+    When I perform the :check_configmap_or_secret_env_var web console action with:
+      | env_var_key   | my_secret      |
+      | resource_name | dbsecret       |
+      | resource_key  | mysql-password |
+    Then the step should succeed
+
+    When I perform the :goto_one_k8s_replicaset_environment_tab web console action with:
+      | project_name        | <%= project.name %> |
+      | k8s_replicaset_name | frontend            |
+    Then the step should succeed
+    When I perform the :check_configmap_or_secret_env_var web console action with:
+      | env_var_key   | my_secret      |
+      | resource_name | dbsecret       |
+      | resource_key  | mysql-password |
+    Then the step should succeed
