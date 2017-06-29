@@ -444,9 +444,9 @@ check_deleted_bc_warn_message:
     selector:
       xpath: //toast-notifications//span[contains(.,'This build configuration has been deleted')]
 check_build_has_started_message:
-  elements:
-  - selector:
-      xpath: //span[@ng-if='alert.message' and contains(.,'has started')]
+  element:
+    selector:
+      xpath: //toast-notifications//span[contains(.,'successfully queued')]
 check_bc_builder_image_stream:
   action: goto_buildconfig_configuration_tab
   elements:
