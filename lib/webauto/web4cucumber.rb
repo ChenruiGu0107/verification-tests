@@ -560,7 +560,13 @@ require "base64"
         res = []
       elsif res.kind_of? Watir::ElementCollection
         # sometimes non-existing element is returned, workaround that
-        res = res.to_a.select { |e| e.exists? }
+        begin
+          res = res.to_a.select { |e| e.exists? }
+        rescue Selenium::WebDriver::Error::StaleElementReferenceError
+          logger.info("Looks like we caught stale element, let's try again")
+          # https://github.com/watir/watir/issues/571
+          res = []
+        end
       else
         # some element types/methods return a single element
         res = res.exists? ? [res] : []
