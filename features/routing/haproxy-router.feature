@@ -21,8 +21,8 @@ Feature: Testing haproxy router
     And a pod becomes ready with labels:
       | deploymentconfig=router |
     And I execute on the pod:
-      | /usr/bin/curl |  127.0.0.1:1936/healthz |
-    Then the output should contain "Service ready"
+      | /usr/bin/curl | -sS | -w | %{http_code} |  127.0.0.1:1936/healthz |
+    Then the output should contain "200"
 
   # @author bmeng@redhat.com
   # @case_id OCP-9633
@@ -680,8 +680,8 @@ Feature: Testing haproxy router
     And a pod becomes ready with labels:
       | deploymentconfig=tc-516834 |
     When I execute on the pod:
-      | /usr/bin/curl |  127.0.0.1:<%= cb.stats_port %>/healthz |
-    Then the output should contain "Service ready"
+      | /usr/bin/curl | -sS | -w | %{http_code} | 127.0.0.1:<%= cb.stats_port %>/healthz |
+    Then the output should contain "200"
 
   # @author bmeng@redhat.com
   # @case_id OCP-11559
@@ -800,8 +800,8 @@ Feature: Testing haproxy router
     And a pod becomes ready with labels:
       | deploymentconfig=tc-516836 |
     When I execute on the pod:
-      | /usr/bin/curl |  127.0.0.1:1936/healthz |
-    Then the output should contain "Service ready"
+      | /usr/bin/curl | -sS | -w | %{http_code} | 127.0.0.1:1936/healthz |
+    Then the output should contain "200"
 
   # @author zzhao@redhat.com
   # @case_id OCP-12554
