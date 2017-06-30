@@ -247,3 +247,89 @@ Feature: Group sync related scenarios
     And the output should not contain:
       | tc515433group2   |
 
+  # @author chuyu@redhat.com
+  # @case_id OCP-10794
+  @admin
+  Scenario: Failed sync group should prompt tolerate errors when tolarate errors flag is true
+    Given I have a project
+    Given I have LDAP service in my project
+    Given I switch to cluster admin pseudo user
+    Given admin ensures "group1" group is deleted after scenario
+    Given admin ensures "group2" group is deleted after scenario
+    Given admin ensures "group3" group is deleted after scenario
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/sync-config-tolerating.yaml"
+    Then the step should succeed
+    And I replace lines in "sync-config-tolerating.yaml":
+      | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
+    When I run the :oadm_groups_sync admin command with:
+      | sync_config | sync-config-tolerating.yaml |
+      | confirm     |                             |
+    Then the step should succeed
+    And the output should contain:
+      | non-existent entry            |
+      | search outside of the base dn |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-11244
+  @admin
+  Scenario: Sync ldap group to openshift group with paging from ldap server
+    Given I have a project
+    Given I have LDAP service in my project
+    Given I switch to cluster admin pseudo user
+    Given admin ensures "group1" group is deleted after scenario
+    Given admin ensures "group2" group is deleted after scenario
+    Given admin ensures "group3" group is deleted after scenario
+    Given admin ensures "extended-group1" group is deleted after scenario
+    Given admin ensures "extended-group2" group is deleted after scenario
+    Given admin ensures "extended-group3" group is deleted after scenario
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/rfc2307_paging.yaml"
+    Then the step should succeed
+    And I replace lines in "rfc2307_paging.yaml":
+      | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
+    When I run the :oadm_groups_sync admin command with:
+      | sync_config | rfc2307_paging.yaml |
+      | confirm     |                     |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | groups |
+    Then the step should succeed
+    And the output should contain:
+      | group1 |
+      | group2 |
+      | group3 |
+    When I run the :delete admin command with:
+      | object_type       | group  |
+      | object_name_or_id | group1 |
+      | object_name_or_id | group2 |
+      | object_name_or_id | group3 |
+    Then the step should succeed
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/ad_paging.yaml"
+    Then the step should succeed
+    And I replace lines in "ad_paging.yaml":
+      | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
+    When I run the :oadm_groups_sync admin command with:
+      | sync_config | ad_paging.yaml |
+      | confirm     |                |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | groups |
+    Then the step should succeed
+    And the output should contain:
+      | group1 |
+      | group2 |
+      | group3 |
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/groups/ead_paging.yaml"
+    Then the step should succeed
+    And I replace lines in "ead_paging.yaml":
+      | LDAP_SERVICE_IP:389 | 127.0.0.1:<%= cb.ldap_port %> |
+    When I run the :oadm_groups_sync admin command with:
+      | sync_config | ead_paging.yaml |
+      | confirm     |                 |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | groups |
+    Then the step should succeed
+    And the output should contain:
+      | extended-group1 |
+      | extended-group2 |
+      | extended-group3 |
