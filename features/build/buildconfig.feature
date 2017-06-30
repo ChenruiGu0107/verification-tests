@@ -72,11 +72,11 @@ Feature: buildconfig.feature
     When I run the :start_build client command with:
       | buildconfig | invalid |
     Then the step should fail
-    And the output should contain "buildconfigs "invalid" not found"
+    And the output should contain "not found"
     When I run the :start_build client command with:
       | from_build| invalid |
     Then the step should fail
-    And the output should contain "builds "invalid" not found"
+    And the output should contain "not found"
 
   # @author xiazhao@redhat.com
   # @case_id OCP-12442
