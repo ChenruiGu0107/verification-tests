@@ -1100,7 +1100,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given the "php-sample-build-1" build finishes
     Given I get project builds
-    Then the output should contain "Failed"
+    Then the output should contain "Error"
     When I run the :start_build client command with:
       | buildconfig | php-sample-build |
     Then the step should succeed
@@ -1111,7 +1111,7 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     Given the "php-sample-build-2" build finishes
     Given I get project builds
-    Then the output should contain "Failed"
+    Then the output should contain "Error"
     When I run the :start_build client command with:
       | buildconfig | php-sample-build |
     Then the step should succeed
@@ -1141,10 +1141,6 @@ Feature: build 'apps' with CLI
       | object_type | pod |
       | object_name_or_id | php-sample-build-4-build |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | builds |
-      | resource_name | php-sample-build-4 |
-    Then the output should contain "Failed"
 
   # @author cryan@redhat.com
   # @case_id OCP-9892
