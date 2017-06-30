@@ -147,7 +147,7 @@ Feature: buildconfig.feature
       | resource_name | source-build |
       | p | {"spec": {"completionDeadlineSeconds": "abc"}} |
     Then the step should fail
-    And the output should contain "char"
+    And the output should contain "unrecognized type"
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/sourcebuildconfig.json"
     Then the step should succeed
     Given I replace lines in "sourcebuildconfig.json":
