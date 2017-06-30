@@ -192,3 +192,21 @@ Given /^admin adds( and overwrites)? following annotations to the "(.+?)" netnam
     end
   } 
 end
+
+Given /^the DefaultDeny policy is applied to the "(.+?)" namespace$/ do | project_name |
+  ensure_admin_tagged
+  _admin = admin
+  _project = project(project_name).name
+
+  if env.version_lt("3.6", user: user)
+    @result = _admin.cli_exec(:annotate, resource: "namespace", resourcename: _project , keyval: 'net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}}')
+    unless @result[:success]
+      raise "Failed to apply the default deny annotation to specified namespace."
+    end
+  else
+    @result = _admin.cli_exec(:create, n: _project , f: 'https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/defaultdeny-v1-semantic.yaml')
+    unless @result[:success]
+      raise "Failed to apply the default deny policy to specified namespace."
+    end
+  end
+end
