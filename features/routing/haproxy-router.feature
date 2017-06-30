@@ -51,19 +51,19 @@ Feature: Testing haproxy router
     When I execute on the "<%= cb.router_pod %>" pod:
       | cat |
       | os_http_be.map |
-    Then the output should contain "<%= cb.pj_name %>_route"
+    Then the output should match "<%= cb.pj_name %>[_:]route"
     When I execute on the "<%= cb.router_pod %>" pod:
       | cat |
       | os_edge_http_be.map |
-    Then the output should contain "<%= cb.pj_name %>_secured-edge-route"
+    Then the output should match "<%= cb.pj_name %>[_:]secured-edge-route"
     When I execute on the "<%= cb.router_pod %>" pod:
       | cat |
       | os_reencrypt.map |
-    Then the output should contain "<%= cb.pj_name %>_route-reencrypt"
+    Then the output should match "<%= cb.pj_name %>[_:]route-reencrypt"
     When I execute on the "<%= cb.router_pod %>" pod:
       | cat |
       | os_tcp_be.map |
-    Then the output should contain "<%= cb.pj_name %>_route-passthrough"
+    Then the output should match "<%= cb.pj_name %>[_:]route-passthrough"
 
   # @author bmeng@redhat.com
   # @case_id OCP-12557
@@ -117,19 +117,19 @@ Feature: Testing haproxy router
     When I execute on the "<%= cb.router_pod %>" pod:
       | bash |
       | -lc |
-      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>_route-edge.pem |
+      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>?route-edge.pem |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :edge_cert clipboard
     When I execute on the "<%= cb.router_pod %>" pod:
       | bash |
       | -lc |
-      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>_route-reen.pem |
+      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>?route-reen.pem |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :reen_cert clipboard
     When I execute on the "<%= cb.router_pod %>" pod:
       | bash |
       | -lc |
-      | ls --full-time /var/lib/*/router/cacerts/<%= cb.project %>_route-reen.pem |
+      | ls --full-time /var/lib/*/router/cacerts/<%= cb.project %>?route-reen.pem |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :reen_cacert clipboard
 
@@ -150,20 +150,20 @@ Feature: Testing haproxy router
     When I execute on the "<%= cb.router_pod %>" pod:
       | bash |
       | -lc |
-      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>_route-reen.pem |
+      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>?route-reen.pem |
     Then the step should succeed
     And the expression should be true> cb.reen_cert != @result[:response]
     """
     When I execute on the "<%= cb.router_pod %>" pod:
       | bash |
       | -lc |
-      | ls --full-time /var/lib/*/router/cacerts/<%= cb.project %>_route-reen.pem |
+      | ls --full-time /var/lib/*/router/cacerts/<%= cb.project %>?route-reen.pem |
     Then the step should succeed
     And the expression should be true> cb.reen_cacert != @result[:response]
     When I execute on the "<%= cb.router_pod %>" pod:
       | bash |
       | -lc |
-      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>_route-edge.pem |
+      | ls --full-time /var/lib/*/router/certs/<%= cb.project %>?route-edge.pem |
     Then the step should succeed
     And the expression should be true> cb.edge_cert == @result[:response]
 
