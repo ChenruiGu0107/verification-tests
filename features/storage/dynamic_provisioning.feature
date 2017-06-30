@@ -17,48 +17,20 @@ Feature: Dynamic provisioning
     And I use the "<%= cb.proj_name %>" project
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc1-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce                    |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                              |
+      | ["metadata"]["name"] | dynamic-pvc1-<%= project.name %> |
     Then the step should succeed
     And the "dynamic-pvc1-<%= project.name %>" PVC becomes :bound
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc2-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce                    |
-      | ["spec"]["resources"]["requests"]["storage"] | 2Gi                              |
-    Then the step should succeed
-    And the "dynamic-pvc2-<%= project.name %>" PVC becomes :bound
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc3-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce                    |
-      | ["spec"]["resources"]["requests"]["storage"] | 3Gi                              |
-    Then the step should succeed
-    And the "dynamic-pvc3-<%= project.name %>" PVC becomes :bound
 
     When I run the :get admin command with:
       | resource | pv |
     Then the output should contain:
       | dynamic-pvc1-<%= project.name %> |
-      | dynamic-pvc2-<%= project.name %> |
-      | dynamic-pvc3-<%= project.name %> |
 
     When I get project pvc named "dynamic-pvc1-<%= project.name %>" as JSON
     Then the step should succeed
     And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name1 clipboard
 
-    When I get project pvc named "dynamic-pvc2-<%= project.name %>" as JSON
-    Then the step should succeed
-    And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name2 clipboard
-
-    When I get project pvc named "dynamic-pvc3-<%= project.name %>" as JSON
-    Then the step should succeed
-    And evaluation of `@result[:parsed]['spec']['volumeName']` is stored in the :pv_name3 clipboard
-
     And I save volume id from PV named "<%= cb.pv_name1 %>" in the :volumeID1 clipboard
-    And I save volume id from PV named "<%= cb.pv_name2 %>" in the :volumeID2 clipboard
-    And I save volume id from PV named "<%= cb.pv_name3 %>" in the :volumeID3 clipboard
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc1-<%= project.name %> |
@@ -68,26 +40,6 @@ Feature: Dynamic provisioning
     And the pod named "mypod1" becomes ready
     When I execute on the pod:
       | touch | /mnt/<cloud_provider>/testfile_1 |
-    Then the step should succeed
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc2-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod2                           |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
-    Then the step should succeed
-    And the pod named "mypod2" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/<cloud_provider>/testfile_2 |
-    Then the step should succeed
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
-      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | dynamic-pvc3-<%= project.name %> |
-      | ["metadata"]["name"]                                         | mypod3                           |
-      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/<cloud_provider>            |
-    Then the step should succeed
-    And the pod named "mypod3" becomes ready
-    When I execute on the pod:
-      | touch | /mnt/<cloud_provider>/testfile_3 |
     Then the step should succeed
 
     When I run the :delete client command with:
@@ -102,8 +54,6 @@ Feature: Dynamic provisioning
 
     Given I switch to cluster admin pseudo user
     Then I wait for the resource "pv" named "<%= cb.pv_name1 %>" to disappear within 1200 seconds
-    And I wait for the resource "pv" named "<%= cb.pv_name2 %>" to disappear within 1200 seconds
-    And I wait for the resource "pv" named "<%= cb.pv_name3 %>" to disappear within 1200 seconds
 
     Given I use the "<%= cb.nodes[0].name %>" node
     When I run commands on the host:
@@ -111,14 +61,8 @@ Feature: Dynamic provisioning
     Then the step should succeed
     And the output should not contain:
       | <%= cb.pv_name1 %> |
-      | <%= cb.pv_name2 %> |
-      | <%= cb.pv_name3 %> |
       | <%= cb.volumeID1 %> |
-      | <%= cb.volumeID2 %> |
-      | <%= cb.volumeID3 %> |
     And I verify that the IAAS volume with id "<%= cb.volumeID1 %>" was deleted
-    And I verify that the IAAS volume with id "<%= cb.volumeID2 %>" was deleted
-    And I verify that the IAAS volume with id "<%= cb.volumeID3 %>" was deleted
 
     Examples:
       | cloud_provider |
@@ -135,7 +79,7 @@ Feature: Dynamic provisioning
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
     Given evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
-    And I run the steps 3 times:
+    And I run the steps 1 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
@@ -285,49 +229,21 @@ Feature: Dynamic provisioning
   Scenario Outline: dynamic pvc shows lost after pv is deleted
     Given I have a project
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc1-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce                    |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                              |
+      | ["metadata"]["name"] | dynamic-pvc1-<%= project.name %> |
     Then the step should succeed
     And the "dynamic-pvc1-<%= project.name %>" PVC becomes :bound
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc2-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce                    |
-      | ["spec"]["resources"]["requests"]["storage"] | 2Gi                              |
-    Then the step should succeed
-    And the "dynamic-pvc2-<%= project.name %>" PVC becomes :bound
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                         | dynamic-pvc3-<%= project.name %> |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce                    |
-      | ["spec"]["resources"]["requests"]["storage"] | 3Gi                              |
-    Then the step should succeed
-    And the "dynamic-pvc3-<%= project.name %>" PVC becomes :bound
 
     When I run the :get admin command with:
       | resource | pv |
     Then the output should contain:
       | dynamic-pvc1-<%= project.name %> |
-      | dynamic-pvc2-<%= project.name %> |
-      | dynamic-pvc3-<%= project.name %> |
 
     When I get project pvc named "dynamic-pvc1-<%= project.name %>" as JSON
     Then the step should succeed
 
-    When I get project pvc named "dynamic-pvc2-<%= project.name %>" as JSON
-    Then the step should succeed
-
-    When I get project pvc named "dynamic-pvc3-<%= project.name %>" as JSON
-    Then the step should succeed
-
     Given admin ensures "<%= pvc("dynamic-pvc1-#{project.name}").volume_name(user: admin) %>" pv is deleted
-    And admin ensures "<%= pvc("dynamic-pvc2-#{project.name}").volume_name(user: admin) %>" pv is deleted
-    And admin ensures "<%= pvc("dynamic-pvc3-#{project.name}").volume_name(user: admin) %>" pv is deleted
 
     Then the "dynamic-pvc1-<%= project.name %>" PVC becomes :lost within 300 seconds
-    And the "dynamic-pvc2-<%= project.name %>" PVC becomes :lost within 300 seconds
-    And the "dynamic-pvc3-<%= project.name %>" PVC becomes :lost within 300 seconds
 
     Examples:
       | cloud_provider |
@@ -344,7 +260,7 @@ Feature: Dynamic provisioning
       | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
     Given evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
-    And I run the steps 3 times:
+    And I run the steps 1 times:
     """
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
