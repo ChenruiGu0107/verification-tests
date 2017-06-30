@@ -22,3 +22,12 @@ Given /^(I|admin) save the hostname of route #{QUOTED} in project #{QUOTED} to t
   raise "There is no route named '#{route_name}' in project '#{proj_name}'" if cb[cb_name].nil?
 end
 
+# add required cluster role (based on master version) to router service account for ingress object
+Given /^required cluster roles are added to router service account for ingress$/ do
+  step 'cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account'
+  if env.version_lt("3.6", user: user)
+    step 'cluster role "system:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account'
+  else
+    step 'cluster role "system:openshift:controller:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account'
+  end
+end

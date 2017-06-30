@@ -11,8 +11,7 @@ Feature: Testing ingress object
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     Given default router deployment config is restored after scenario
-    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
-    And cluster role "system:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account
+    Given required cluster roles are added to router service account for ingress
     When I run the :env client command with:
       | resource | dc/router |
       | e        | ROUTER_ENABLE_INGRESS=true |
@@ -68,8 +67,7 @@ Feature: Testing ingress object
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     Given default router deployment config is restored after scenario
-    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
-    And cluster role "system:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account
+    Given required cluster roles are added to router service account for ingress
     When I run the :env client command with:
       | resource | dc/router |
       | e        | ROUTER_ENABLE_INGRESS=true |
@@ -126,8 +124,7 @@ Feature: Testing ingress object
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     Given default router deployment config is restored after scenario
-    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
-    And cluster role "system:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account
+    Given required cluster roles are added to router service account for ingress
     When I run the :env client command with:
       | resource | dc/router |
       | e        | ROUTER_ENABLE_INGRESS=true |
@@ -189,8 +186,7 @@ Feature: Testing ingress object
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     Given default router deployment config is restored after scenario
-    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
-    And cluster role "system:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account
+    Given required cluster roles are added to router service account for ingress
     When I run the :env client command with:
       | resource | dc/router |
       | e        | ROUTER_ENABLE_INGRESS=true |
@@ -261,7 +257,7 @@ Feature: Testing ingress object
     """
 
   # @author hongli@redhat.com
-  # @case_id OCP-12846 OCP-12848
+  # @case_id OCP-12846
   @admin
   @destructive
   Scenario: adding or updating host value of ingress resource is not permitted by default
@@ -271,8 +267,7 @@ Feature: Testing ingress object
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     Given default router deployment config is restored after scenario
-    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
-    And cluster role "system:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account
+    Given required cluster roles are added to router service account for ingress
     When I run the :env client command with:
       | resource | dc/router |
       | e        | ROUTER_ENABLE_INGRESS=true |
@@ -310,7 +305,7 @@ Feature: Testing ingress object
     And the output should contain "cannot change hostname"
 
   # @author hongli@redhat.com
-  # @case_id OCP-12847 OCP-12849
+  # @case_id OCP-12847
   @admin
   @destructive
   Scenario: adding or updating host value of ingress resource is permitted when disabling the admission control
@@ -335,8 +330,7 @@ Feature: Testing ingress object
       | deploymentconfig=router |
     Then evaluation of `pod.name` is stored in the :router_pod clipboard
     Given default router deployment config is restored after scenario
-    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
-    And cluster role "system:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account
+    Given required cluster roles are added to router service account for ingress
     When I run the :env client command with:
       | resource | dc/router |
       | e        | ROUTER_ENABLE_INGRESS=true |
