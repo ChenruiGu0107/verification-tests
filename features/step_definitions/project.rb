@@ -46,6 +46,21 @@ When /^I create a new project(?: via (.*?))?$/ do |via|
   end
 end
 
+# create a new project w/o leading digit to get around this java bug.
+# Use this step to create a project for logging and metrics tests
+# https://stackoverflow.com/questions/33827789/self-signed-certificate-dnsname-components-must-begin-with-a-letter
+# https://bugs.openjdk.java.net/browse/JDK-8054380
+Given /^I create a project with non-leading digit name$/ do
+  @result = CucuShift::Project.create(by: user, name: rand_str(5, :dns952))
+  if @result[:success]
+    @projects << @result[:project]
+    @result = @result[:project].wait_to_be_created(user)
+    unless @result[:success]
+      logger.warn("Project #{@projects.last.name} not visible on server after create")
+    end
+  end
+end
+
 # create x number of projects
 Given /^I create (\d+) new projects?$/ do |num|
   (1..Integer(num)).each {
