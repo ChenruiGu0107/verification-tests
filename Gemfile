@@ -36,8 +36,10 @@ gem 'byebug'
 gem 'jira-ruby'
 gem 'configparser'
 
-# replacemen for nokogiri as it's easier to install w/o system lib dependencies
-gem 'oga'
+gem 'nokogiri' # needed here to make tools/hack_bundle.rb work correctly
+# oga is a replacemen for nokogiri without system deps; we wrongly thought
+#  that we can live without nokogiry but couldn't because of other gem deps
+gem 'oga' # replacemen for nokogiri when we thought we can workaround it
 # gem 'gherkin', '>=4.0.0'
 # gem 'lolsoap'
 # gem 'mongo'
