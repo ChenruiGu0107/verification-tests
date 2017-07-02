@@ -248,6 +248,7 @@ services:
     #   client_secret: client_secret_string
     # subscription_id: "12313212-1231231-12321-123213-12312313"
     # resource_group: my-resource-group
+    fqdn_names: true
     location: westus
     network_options: {}
     # os_options:

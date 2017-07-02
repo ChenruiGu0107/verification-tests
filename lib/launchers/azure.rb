@@ -80,6 +80,28 @@ module CucuShift
       return @storage_clients[subs_id]
     end
 
+    def storage_account_keys(resource_group, storage_account_name, subs_id = default_subscription_id)
+      storage_client(subs_id).storage_accounts.
+        list_keys(resource_group, storage_account_name).keys
+    end
+
+    def object_storage_client(resource_group, storage_account_name, subs_id = default_subscription_id)
+      key = [resource_group, storage_account_name, subs_id]
+      return @object_storage_clients[key] if @object_storage_clients&.dig(key)
+
+      require 'azure/storage'
+      @object_storage_clients ||= {}
+      return @object_storage_clients[key] = ::Azure::Storage::Client.create(
+        storage_account_name: storage_account_name,
+        storage_access_key: storage_account_keys(*key).sample.value
+      )
+    end
+
+    def blob_client(resource_group, storage_account_name, subs_id = default_subscription_id)
+      key = [resource_group, storage_account_name, subs_id]
+      return object_storage_client(*key).blob_client
+    end
+
     # @return [String, StorageAccount] where the String is the name of the
     #   new account
     # @note MS recommends using separate acconut for each VM:
@@ -136,6 +158,7 @@ module CucuShift
     #   disk entry will be intelligently merged
     # @return [Array] of [Instance, CucuShift::Host] pairs
     def create_instance( names,
+                         fqdn_names: azure_config[:fqdn_names],
                          user_data: azure_config[:user_data],
                          os_opts: {},
                          hardware_opts: {},
@@ -147,34 +170,36 @@ module CucuShift
                          host_opts: azure_config[:host_connect_opts]
                        )
 
-      storage_opts = azure_config[:storage_options].merge storage_opts
-      network_opts = azure_config[:network_options].merge network_opts
-      hardware_opts = azure_config[:hardware_options].merge hardware_opts
-      os_opts = (azure_config[:os_options] || {}).merge os_opts
-
       names = [ names ].flatten.map {|n| normalize_instance_name(n)}
+      vmnames = fqdn_names ? names.map {|n| fqdn_of(n, location)} : names
 
       ## best effort delete any existing instances with same name
-      del = names.map do |name|
+      del = vmnames.map do |name|
         compute_client.virtual_machines.delete_async(resource_group, name)
       end
       del.each_with_index do |op, index|
         op.wait!
         if op&.value&.body&.status == "Succeeded"
-          logger.warn "deleting stale instance '#{names[index]}'"
+          logger.warn "deleting stale instance '#{vmnames[index]}'"
         else
           # when instance not found, body is nil, other errors should raise
           #   during `wait!`
         end
       end
 
+      # instance create settings
+      storage_opts = azure_config[:storage_options].merge storage_opts
+      network_opts = azure_config[:network_options].merge network_opts
+      hardware_opts = azure_config[:hardware_options].merge hardware_opts
+      os_opts = (azure_config[:os_options] || {}).merge os_opts
+
       ## create the instances
-      requests = names.map do |name|
-        logger.debug "triggering instance create for #{name}"
+      requests = names.zip(vmnames).map do |name, vmname|
+        logger.debug "triggering instance create for #{vmname}"
 
         params = ComputeModels::VirtualMachine.new
         params.type = machine_type
-        params.os_profile = os_profile(name, os_opts)
+        params.os_profile = os_profile(vmname, os_opts)
         params.hardware_profile = hw_profile(hardware_opts)
         params.storage_profile = storage_profile(location, resource_group, name, storage_opts)
         params.network_profile = network_profile(location, resource_group, name, network_opts)
@@ -182,12 +207,12 @@ module CucuShift
 
         compute_client.virtual_machines.create_or_update_async(
           resource_group,
-          name,
+          vmname,
           params
         )
       end
       return requests.map.with_index do |create_op, index|
-        logger.info "waiting for instance '#{names[index]}'.."
+        logger.info "waiting for instance '#{vmnames[index]}'.."
         result = create_op.value!
 
         instance = result.body
@@ -196,13 +221,19 @@ module CucuShift
           cloud_instance: instance,
           cloud_instance_name: instance.name
         })
+        # this can be a hostname or IP depending on instance config
         ip = instance_external_ips(instance).first
         if ip
           logger.info "started #{instance.name}: #{ip}}"
         else
           raise "instance '#{instance.name}' with no public IP allocated"
         end
-        [instance, Host.from_hostname(ip, host_opts)]
+        host = Host.from_hostname(ip, host_opts)
+        if fqdn_names && host.hostname != instance.name
+          logger.warn "Azure generated '#{host.hostname}' " \
+            "but we expected '#{instance.name}'"
+        end
+        [instance, host]
       end
     end
 
@@ -213,6 +244,14 @@ module CucuShift
         logger.info "deleted instance '#{vmname}'"
       else
         logger.info "instance '#{resource_group}/#{vmname}' not found"
+      end
+    end
+
+    private def fqdn_of(name, location)
+      if name.include? "."
+        return name
+      else
+        return "#{name}.#{location}.cloudapp.azure.com"
       end
     end
 
@@ -272,6 +311,9 @@ module CucuShift
         unless type = ComputeModels::DiskCreateOptionTypes::FromImage
           raise "only fromImage is presently supported"
         end
+        container = "cucushift"
+        blob_name = "#{vmname}.vhd"
+
         store_profile.os_disk = ComputeModels::OSDisk.new.tap do |os_disk|
           if opts[:os_disk][:params][:image]
             unless opts[:os_disk][:params][:os_type]
@@ -287,9 +329,20 @@ module CucuShift
           os_disk.caching = ComputeModels::CachingTypes::ReadWrite
           os_disk.create_option = type
           os_disk.vhd = ComputeModels::VirtualHardDisk.new.tap do |vhd|
-            vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/cucushift/#{vmname}.vhd"
+            vhd.uri = "https://#{storage_account_name}.blob.core.windows.net/#{container}/#{blob_name}"
           end
         end
+
+        ## try to delete conflicting VHD
+        begin
+          blob_client(resource_group, storage_account_name).
+            delete_blob(container, blob_name)
+        rescue => e
+          unless ::Azure::Core::Http::HTTPError === e && e.status_code == 404
+            logger.warn("Error removing stale VHD:\n#{exception_to_string(e)}")
+          end
+        end
+        return store_profile
       end
     end
 
@@ -426,18 +479,18 @@ end
 if __FILE__ == $0
   extend CucuShift::Common::Helper
   azure = CucuShift::Azure.new
-  vms = azure.create_instances(["test-terminate"])
+  vms = azure.create_instances(["test-terminate"], fqdn_names: true)
 
   # require 'pry'; binding.pry
 
   storage_account = CucuShift::Azure.instance_storage_account vms[0][0]
   resource_group = vms[0][0].resource_group
-  azure.delete_instance "test-terminate"
+  azure.delete_instance vms[0][0].name
 
   puts "Do you want to delete storage account: #{storage_account} (y/N)?"
   do_delete = gets.chomp
   if do_delete == ?y
-    logger.info "deleting storage account #{storage_account}?"
+    logger.info "deleting storage account #{storage_account}.."
     azure.storage_client.storage_accounts.
       delete(resource_group, storage_account)
   end
