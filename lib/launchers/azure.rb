@@ -167,7 +167,7 @@ module CucuShift
                          location: azure_config[:location],
                          machine_type: 'Microsoft.Compute/virtualMachines',
                          resource_group: azure_config[:resource_group],
-                         host_opts: azure_config[:host_connect_opts]
+                         host_opts: {}
                        )
 
       names = [ names ].flatten.map {|n| normalize_instance_name(n)}
@@ -188,6 +188,7 @@ module CucuShift
       end
 
       # instance create settings
+      host_opts = azure_config[:host_connect_opts].merge host_opts
       storage_opts = azure_config[:storage_options].merge storage_opts
       network_opts = azure_config[:network_options].merge network_opts
       hardware_opts = azure_config[:hardware_options].merge hardware_opts
