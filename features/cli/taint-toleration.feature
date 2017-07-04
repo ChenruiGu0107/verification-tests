@@ -78,3 +78,352 @@ Feature: taint toleration related scenarios
     Then the output should match:
       | No resources found. |
 
+  # @author chezhang@redhat.com
+  # @case_id OCP-13537
+  @admin
+  @destructive
+  Scenario: pods will be evicted from the node immediately if there's un-ignored taint
+    Given I have a project
+    Given I store the schedulable nodes in the :nodes clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod-pull-by-tag.yaml |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/toleration-noexecute.yaml |
+    Then the step should succeed
+    Given the pod named "pod-pull-by-tag" becomes ready
+    Given the pod named "toleration-1" becomes ready
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+      | key_val   | dedicated=special-user:NoExecute                |
+    Then the step should succeed
+    And I wait up to 180 seconds for the steps to pass:
+    """
+    the project should be empty
+    """
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13539
+  @admin
+  @destructive
+  Scenario: pods that do tolerate the taint will never be evicted
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/toleration-noexecute.yaml |
+    Then the step should succeed
+    Given the pod named "toleration-1" becomes ready
+    Given evaluation of `pod("toleration-1").node_name(user: user)` is stored in the :pod_node1 clipboard
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.pod_node1 %>   |
+      | key_val   | key1=value1:NoExecute |
+    Then the step should succeed
+    Given 300 seconds have passed
+    Given the pod named "toleration-1" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.pod_node1
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13541
+  @admin
+  @destructive
+  Scenario: pods will not schedule to node if there's un-ignored NoExecute taint
+    Given I have a project
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+      | key_val   | key2=value2:NoExecute                           |
+    Then the step should succeed
+    When I run the :describe admin command with:
+      | resource | node                    |
+      | name     | <%= cb.nodes[0].name %> |
+    Then the step should succeed
+    And the output should match:
+      | Taints:\\s+key2=value2:NoExecute |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/toleration-noexecute.yaml |
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource      | po           |
+      | name          | toleration-1 |
+    Then the output should match:
+      | Status:\\s+Pending                         |
+      | FailedScheduling\\s+No nodes are available |
+    """
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+      | key_val   | key1=value1:NoExecute                           |
+      | key_val   | key2-                                           |
+    Then the step should succeed
+    When I run the :describe admin command with:
+      | resource | node                    |
+      | name     | <%= cb.nodes[0].name %> |
+    Then the step should succeed
+    And the output should match:
+      | Taints:\\s+key1=value1:NoExecute |
+    Given the pod named "toleration-1" becomes ready
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12811
+  @admin
+  @destructive
+  Scenario: Start kubelet with taint
+    Given I have a project
+    Given I select a random node's host
+    When I run the :delete admin command with:
+      | object_type       | node             |
+      | object_name_or_id | <%= node.name %> |
+    Then the step should succeed 
+    Given I register clean-up steps:
+    """
+    When I run the :delete admin command with:
+      | object_type       | node             |
+      | object_name_or_id | <%= node.name %> |
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should succeed
+    """
+    Given node config is merged with the following hash:
+    """
+    kubeletArguments:
+      register-with-taints:
+      - "node.alpha.kubernetes.io/ismaster=:NoSchedule"
+    """
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should succeed
+    When I run the :describe admin command with:
+      | resource | node             |
+      | name     | <%= node.name %> |
+    Then the step should succeed
+    And the output should match:
+      | Taints:\\s+node.alpha.kubernetes.io/ismaster:NoSchedule |
+    Given node config is merged with the following hash:
+    """
+    kubeletArguments:
+      register-with-taints:
+      - "node.alpha.kubernetes.io/ismaster=no:invalid"
+    """
+    Then the step should succeed
+    And I try to restart the node service on node
+    Then the step should fail
+    Given I use the "<%= node.name %>" node
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "Invalid value.*node.alpha.kubernetes.io/ismaster=no:invalid.*" |
+    Then the step should succeed
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13647
+  @admin
+  @destructive
+  Scenario: Taint Toleration dedicated nodes
+    Given I have a project
+    Given I store the schedulable nodes in the :nodes clipboard
+    And label "vip=vip1" is added to the "<%= cb.nodes[0].name %>" node
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[0].name %>           |
+      | key_val   | dedicated=special-user:NoSchedule |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-dedicated-nodes.yaml |
+    Then the step should succeed
+    Given the pod named "dedicated-nodes" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13533
+  @admin
+  @destructive
+  Scenario: Taint Toleration pod with 2 tolerations can be scheduled to matched tainted node
+    Given I have a project
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+      | key_val   | dedicated=special-user:NoSchedule               |
+      | key_val   | color=red:NoSchedule                            |
+      | key_val   | size=large:NoSchedule                           |
+    Then the step should succeed
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
+      | key_val   | size-                   |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration.yaml |
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource      | po             |
+      | name          | pod-toleration |
+    Then the output should match:
+      | Status:\\s+Pending                         |
+      | FailedScheduling\\s+No nodes are available |
+    """
+    Given I ensure "pod-toleration" pod is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-2tolerations.yaml |
+    Then the step should succeed
+    Given the pod named "pod-2tolerations" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13531
+  @admin
+  @destructive
+  Scenario: Taint Toleration pod with toleration can be scheduled to taint node
+    Given I have a project
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+      | key_val   | dedicated=special-user:NoSchedule               |
+      | key_val   | size=large:NoSchedule                           |
+    Then the step should succeed
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
+      | key_val   | size-                   |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-no-toleration.yaml |
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource      | po         |
+      | name          | hello-pod1 |
+    Then the output should match:
+      | Status:\\s+Pending                         |
+      | FailedScheduling\\s+No nodes are available |
+    """
+    Given I ensure "hello-pod1" pod is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration1.yaml |
+    Then the step should succeed
+    Given the pod named "pod-toleration" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13771
+  @admin
+  @destructive
+  Scenario: Taint Toleration pod with wildcard toleration can be scheduled to taint node
+    Given I have a project
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
+      | key_val   | dedicated=special-user:NoSchedule               |
+      | key_val   | size=large:NoSchedule                           |
+    Then the step should succeed
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[0].name %> |
+      | key_val   | size-                   |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-no-toleration1.yaml |
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource      | po         |
+      | name          | hello-pod1 |
+    Then the output should match:
+      | Status:\\s+Pending                         |
+      | FailedScheduling\\s+No nodes are available |
+    """
+    Given I ensure "hello-pod1" pod is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-wildcard-toleration.yaml |
+    Then the step should succeed
+    Given the pod named "wildcard-toleration" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13536
+  @admin
+  @destructive
+  Scenario: Taint Toleration pods with toleration should be scheduled to corresponding node (NoSchedule and PreferNoSchedule)
+    Given I have a project
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given environment has at least 2 schedulable nodes
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[0].name %>           |
+      | key_val   | dedicated=special-user:NoSchedule |
+    Then the step should succeed
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[1].name %>    |
+      | key_val   | color=red:PreferNoSchedule |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-dedicated.yaml |
+    Then the step should succeed
+    Given the pod named "pod-toleration-dedicated" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-red-prefer.yaml |
+    Then the step should succeed
+    Given the pod named "pod-toleration-red-prefer" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.nodes[1].name
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13534
+  @admin
+  @destructive
+  Scenario: Taint Toleration pods with toleration should be scheduled to corresponding node (NoSchedule)
+    Given I have a project
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given environment has at least 2 schedulable nodes
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[0].name %>           |
+      | key_val   | dedicated=special-user:NoSchedule |
+    Then the step should succeed
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[1].name %> |
+      | key_val   | color=red:NoSchedule    |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-dedicated.yaml |
+    Then the step should succeed
+    Given the pod named "pod-toleration-dedicated" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-red.yaml |
+    Then the step should succeed
+    Given the pod named "pod-toleration-red" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.nodes[1].name
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13535
+  @admin
+  @destructive
+  Scenario: Taint Toleration pods with toleration should be scheduled to corresponding node (PreferNoSchedule)
+    Given I have a project
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given environment has at least 2 schedulable nodes
+    Given the taints of the nodes in the clipboard are restored after scenario
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[0].name %>                 |
+      | key_val   | dedicated=special-user:PreferNoSchedule |
+    Then the step should succeed
+    When I run the :oadm_taint_nodes admin command with:
+      | node_name | <%= cb.nodes[1].name %>    |
+      | key_val   | color=red:PreferNoSchedule |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-dedicated-prefer.yaml |
+    Then the step should succeed
+    Given the pod named "pod-toleration-dedicated-prefer" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.nodes[0].name
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/tolerations/pod-with-toleration-red-prefer.yaml |
+    Then the step should succeed
+    Given the pod named "pod-toleration-red-prefer" becomes ready
+    Then the expression should be true> pod.node_name(user: user) == cb.nodes[1].name
