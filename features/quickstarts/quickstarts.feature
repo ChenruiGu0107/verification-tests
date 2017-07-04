@@ -18,7 +18,6 @@ Feature: quickstarts.feature
     Examples: OS Type
       | template                  | buildcfg                 | output  | podno |
       | django-psql-example       | django-psql-example      | Django  | 2     | # @case_id OCP-12609
-      | dancer-example            | dancer-example           | Dancer  | 1     |
       | dancer-mysql-example      | dancer-mysql-example     | Dancer  | 2     | # @case_id OCP-12606
       | cakephp-mysql-example     | cakephp-mysql-example    | CakePHP | 2     | # @case_id OCP-12541
       | nodejs-mongodb-example    | nodejs-mongodb-example   | Node.js | 2     |
@@ -115,6 +114,24 @@ Feature: quickstarts.feature
     Then the output should contain "Welcome to chat - beego sample app: Web IM"
 
   # @author wzheng@redhat.com
+  # @case_id OCP-12819
+  Scenario: Dancer-ex quickstart dancer-example template test
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/dancer-ex/master/openshift/templates/dancer.json |
+    Then the step should succeed
+    And the "dancer-example-1" build was created
+    And the "dancer-example-1" build completed
+    Then I wait for the "dancer-example" service to become ready
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -s | <%= service.url %> |
+    Then the step should succeed
+    """
+    Then the output should contain "Welcome to your Dancer application on OpenShift" 
+
+  # @author wzheng@redhat.com
   # @case_id OCP-12818
   Scenario: Cakephp-ex quickstart with cakephp.json - php-70-rhel7
     Given I have a project
@@ -172,8 +189,8 @@ Feature: quickstarts.feature
       | python:3.5 | python:3.4 | postgresql:9.5 | postgresql:9.4 | django-postgresql.json | django-psql-example      | django-ex |
       | ruby:2.3   | ruby:2.0   |                |                | rails-postgresql.json  | rails-postgresql-example | rails-ex  |
       | ruby:2.3   | ruby:2.2   |                |                | rails-postgresql.json  | rails-postgresql-example | rails-ex  |
-      | perl:5.20  | perl:5.16  |                |                | dancer.json            | dancer-example           | dancer-ex |
-      | perl:5.20  | perl:5.16  |                |                | dancer-mysql.json      | dancer-mysql-example     | dancer-ex |
+      | perl:5.24  | perl:5.16  |                |                | dancer.json            | dancer-example           | dancer-ex |
+      | perl:5.24  | perl:5.16  |                |                | dancer-mysql.json      | dancer-mysql-example     | dancer-ex |
 
   # @author dyan@redhat.com
   # @case_id OCP-12602 OCP-12603
