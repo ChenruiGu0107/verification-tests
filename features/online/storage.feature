@@ -11,7 +11,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
     When I run the :get client command with:
       | resource | pod |
     Then the output should match:
-      | volumetest\\s+0/1\\s+RunContainerError.+ |
+      | volumetest\\s+0/1.+[eE]rror.+ |
     """
     When I run the :describe client command with:
       | resource | pod        |
