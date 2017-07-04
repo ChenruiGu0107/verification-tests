@@ -42,10 +42,7 @@ Feature: Network policy plugin scenarios
     And the output should contain "Hello"
 
     # the network is managed by network policy
-    When I run the :annotate admin command with:
-      | resource     | namespace/<%= cb.proj1 %> |
-      | overwrite    | true |
-      | keyval       | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
 
     Given I use the "<%= cb.proj1 %>" project
@@ -113,10 +110,7 @@ Feature: Network policy plugin scenarios
     And the output should not contain "reg0=0x"
 
     # apply network policy to project which does not have the annotation
-    When I run the :annotate admin command with:
-      | resource     | namespace/<%= cb.proj2 %> |
-      | overwrite    | true |
-      | keyval       | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-local.yaml |
@@ -156,15 +150,9 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod(3).name` is stored in the :p2pod2 clipboard
 
     # and annotation to both project 1 2, apply network policy to the project1
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj1 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj2 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-local.yaml |
@@ -297,15 +285,9 @@ Feature: Network policy plugin scenarios
       | key_val  | team=blue |
     Then the step should succeed
 
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj1 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj2 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-project.yaml |
@@ -432,15 +414,9 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod(3).name` is stored in the :p2pod2 clipboard
 
     # and annotation to both project 1 2, apply network policy to the project1
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj1 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj2 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj2 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-all.yaml |
@@ -576,10 +552,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
 
     # add annotation and apply network policy to the project1
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj1 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-from-label.yaml |
@@ -711,10 +684,7 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod(3).name` is stored in the :p2pod1 clipboard
 
     # add annotation and apply network policy to the project1
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj1 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-to-label.yaml |
@@ -832,10 +802,7 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod(4).name` is stored in the :p2pod2 clipboard
 
     # add annotation and apply network policy to the project1
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj1 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-from-red-to-blue.yaml |
@@ -904,10 +871,7 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod(3).name` is stored in the :p3pod1 clipboard
 
     # add annotation to project 1 and apply the network policies to project 1
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj1 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-local.yaml |
@@ -988,10 +952,7 @@ Feature: Network policy plugin scenarios
     Then the step should succeed
 
     # add annotation to project 1 and apply the network policies to project 1
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj1 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-from-label.yaml |
@@ -1063,10 +1024,7 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod.name` is stored in the :p2pod1 clipboard
 
     # add annotation to project 1 and apply the network policy for pod to project 1
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj1 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/allow-port.yaml |
@@ -1183,10 +1141,7 @@ Feature: Network policy plugin scenarios
     And evaluation of `pod.ip` is stored in the :p2pod1ip clipboard
 
     # add defaultdeny annotation to the project1
-    When I run the :annotate admin command with:
-      | resource  | namespace/<%= cb.proj1 %>                                                     |
-      | overwrite | true                                                                          |
-      | keyval    | net.beta.kubernetes.io/network-policy={"ingress":{"isolation":"DefaultDeny"}} |
+    Given the DefaultDeny policy is applied to the "<%= cb.proj1 %>" namespace
     Then the step should succeed
 
     # try to access the pod in both project on different nodes
