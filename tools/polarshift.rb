@@ -135,7 +135,9 @@ module CucuShift
 
           pr = polarshift.create_run_smart(project_id: project, **params)
 
-          puts "test run id: #{HighLine.color(pr[:run_id], :bright_blue)}"
+          quoted_run_id = "'" + pr[:run_id] + "'"
+
+          puts "test run id: #{HighLine.color(quoted_run_id, :bright_blue)}"
           filter = pr[:import_filter]
           if options.no_wait.nil?
             puts "waiting for a bus message with selector: #{filter}"
