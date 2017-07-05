@@ -149,6 +149,24 @@ Feature: quickstarts.feature
     """
     Then the output should contain "Welcome to your CakePHP application on OpenShift"
 
+  # @author wzheng@redhat.com
+  # @case_id OCP-12823
+  Scenario: Nodejs-ex quickstart test with nodejs.json - nodejs-6-rhel7	
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/nodejs-ex/master/openshift/templates/nodejs.json |
+    Then the step should succeed
+    And the "nodejs-example-1" build was created
+    And the "nodejs-example-1" build completed
+    Then I wait for the "nodejs-example" service to become ready
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl | -s | <%= service.url %> |
+    Then the step should succeed
+    """
+    Then the output should contain "Welcome to your Node.js application on OpenShift"
+
   # @author dyan@redhat.com
   # @case_id OCP-10611
   Scenario: Use the template parameters for the entire config
