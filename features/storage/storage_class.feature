@@ -541,8 +541,8 @@ Feature: storageClass related feature
     When I run the :describe client command with:
       | resource | pvc/pvc1-<%= project.name %> |
     And the output should contain:
-      | ProvisioningFailed                               |
-      | StorageClass "sc1-<%= project.name %>" not found |
+      | ProvisioningFailed                  |
+      | "sc1-<%= project.name %>" not found |
     """
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %> |
@@ -561,8 +561,8 @@ Feature: storageClass related feature
     When I run the :describe client command with:
       | resource | pvc/pvc2-<%= project.name %> |
     And the output should contain:
-      | ProvisioningFailed                                         |
-      | StorageClass "sc-notexisted-<%= project.name %>" not found |
+      | ProvisioningFailed                            |
+      | "sc-notexisted-<%= project.name %>" not found |
     """
 
   # @author lxia@redhat.com
