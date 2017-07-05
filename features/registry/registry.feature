@@ -708,3 +708,53 @@ Feature: Testing registry
       | singlelayer |
     And the output should not contain:
       | hello-openshift |
+
+  # @author yinzhou@redhat.com
+  # @case_id OCP-12008
+  @admin
+  @destructive
+  Scenario: When mirror fails should not affect the pullthrough operation
+    Given default docker-registry deployment config is restored after scenario
+    Given I switch to cluster admin pseudo user
+    Given SCC "privileged" is added to the "registry" service account
+    And I run the :volume admin command with:
+      | resource    | dc/docker-registry |
+      | add         | true               |
+      | name        | registry-storage   |
+      | mount-path  | /registry          |
+      | type        | hostPath           |
+      | path        | /home/test         |
+      | overwrite   |                    |
+      | namespace   | default            |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | deploymentconfig=docker-registry |
+    Given I switch to the first user
+    And I have a project
+    When I run the :tag client command with:
+      | source_type | docker                  |
+      | source      | openshift/origin:latest |
+      | dest        | mystream:latest         |
+    Then the step should succeed
+    When I find a bearer token of the builder service account
+    And default registry service ip is stored in the :registry_ip clipboard
+    And I select a random node's host
+    And I register clean-up steps:
+    """
+    And I run commands on the host:
+      | docker rmi <%= cb.registry_ip %>/<%= project.name %>/mystream:latest |
+    Then the step should succeed
+    """
+    And the "~/.docker/config.json" file is restored on host after scenario
+    Then I wait up to 60 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
+    Then the step should succeed
+    """
+    When I run commands on the host:
+      | docker pull <%= cb.registry_ip %>/<%= project.name%>/mystream:latest |
+    Then the step should succeed
+    And evaluation of `image_stream_tag("mystream:latest").image_layers(user:user)` is stored in the :layers clipboard
+    And all the image layers in the :layers clipboard do not exist in the registry
+    
