@@ -1,30 +1,34 @@
 Feature: ONLY ONLINE Quota related scripts in this file
 
-  # @author bingli@redhat.com
-  # @case_id OCP-9820 OCP-9822 OCP-9823
-  Scenario Outline: Request/limit would be overridden based on container's memory limit when master provides override ratio
+  # @author zhaliu@redhat.com
+  Scenario Outline: Request/limit would be overridden based on container's memory limit when master provides override ratio 
     Given I have a project
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/<path>/<filename> |
-    Then the step should succeed
     When I run the :get client command with:
-      | resource      | pod       |
-      | resource_name | <podname> |
-      | o             | json      |
-    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources']['limits']['cpu'] == "<expr1>"
-    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources']['limits']['memory'] == "<expr2>"
-    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources']['requests']['cpu'] == "<expr3>"
-    Then the expression should be true> @result[:parsed]['spec']['containers'][0]['resources']['requests']['memory'] == "<expr4>"
+      | resource | limitrange |
+      | o        | json       |
+    Then the step should succeed
+    And evaluation of `@result[:parsed]['items'][0]['spec']['limits'][1]['default']['cpu'].split(/\D/)[0]` is stored in the :limit_cpu clipboard
+    And evaluation of `@result[:parsed]['items'][0]['spec']['limits'][1]['default']['memory'].split(/\D/)[0]` is stored in the :limit_memory clipboard
+    And evaluation of `@result[:parsed]['items'][0]['spec']['limits'][1]['default']['memory'].split(/\d+/)[1]` is stored in the :memoryunit clipboard
+    And evaluation of `@result[:parsed]['items'][0]['spec']['limits'][1]['defaultRequest']['cpu'].split(/\D/)[0]` is stored in the :request_cpu clipboard
+    And evaluation of `@result[:parsed]['items'][0]['spec']['limits'][1]['defaultRequest']['memory'].split(/\D/)[0]` is stored in the :request_memory clipboard
 
-    # request/limit of containers should be overridden based on memory limit when master provide override ratio:
-    # cpuRequestToLimitPercent, limitCPUToMemoryPercent, memoryRequestToLimitPercent.
-    # When case fails because of unexpected value of expr1-4, master configuration should be checked firstly.
-    # If the the output of expr1-4 is indeed based on the override ratio, then it's a bug.
+    When I run oc create over "<paths>" replacing paths:
+      | ["spec"]["containers"][0]["resources"] | <memory> |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource | pod  |
+      | o        | json |
+    Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['limits']['cpu'].match /<limits_cpu>/
+    Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['limits']['memory'].match /<limits_memory>/
+    Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['requests']['cpu'].match /<requests_cpu>/
+    Then the expression should be true> @result[:parsed]['items'][0]['spec']['containers'][0]['resources']['requests']['memory'].match /<requests_memory>/
     Examples:
-      | path     | filename                  | podname              | expr1 | expr2 | expr3 | expr4 |
-      | tc517567 | pod-limit-request.yaml    | pod-limit-request    | 1171m | 600Mi | 70m   | 360Mi |
-      | tc517576 | pod-limit-memory.yaml     | pod-limit-memory     | 585m  | 300Mi | 35m   | 180Mi |
-      | tc517577 | pod-no-limit-request.yaml | pod-no-limit-request | 1     | 512Mi | 60m   | 307Mi |
+      | paths | memory | limits_cpu | limits_memory | requests_cpu | requests_memory |
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/tc517576/pod-limit-memory.yaml | {"limits":{"memory":"<%= cb.limit_memory.to_i*2 %><%= cb.memoryunit %>"}} | <%= cb.limit_cpu.to_i*2 %>\|<%= cb.limit_cpu.to_i*2/1000 %> | <%= cb.limit_memory.to_i*2 %>\|<%= cb.limit_memory.to_i*2+1 %>\|<%= cb.limit_memory.to_i*2/1024 %> | <%= cb.requests_cpu.to_i*2 %>\|<%= cb.requests_cpu.to_i*2/1000 %> | <%= cb.request_memory.to_i*2 %>\|<%= cb.request_memory.to_i*2+1 %>\|<%= cb.request_memory.to_i*2/1024 %> | # @case_id OCP-9822
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/tc517577/pod-no-limit-request.yaml | {} | <%= cb.limit_cpu %> | <%= cb.limit_memory %> | <%= cb.request_cpu %> | <%= cb.request_memory %> | # @case_id OCP-9823
+      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/tc517567/pod-limit-request.yaml | {"limits":{"memory":"<%= cb.limit_memory %><%= cb.memoryunit %>"}} | <%= cb.limit_cpu %> | <%= cb.limit_memory %> | <%= cb.requests_cpu %> | <%= cb.requests_memory %> | # @case_id OCP-9820
 
   # @author zhaliu@redhat.com
   # @case_id OCP-12684
