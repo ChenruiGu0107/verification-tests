@@ -220,7 +220,7 @@ end
 # the step will do 'docker ps | grep deployment-example' to filter out a target
 Given /^the system container id for the#{OPT_QUOTED} pod is stored in the#{OPT_SYM} clipboard$/ do | pod_name, cb_name |
   cb_name ||= :system_pod_container_id
-  system_pod_container_id_regexp=/^(.*)\s+.*(ose|origin)-pod:.+\s+"\/pod"/
+  system_pod_container_id_regexp=/^(.*)\s+.*(ose|origin)-pod:.+\s/
   pod_name = pod(pod_name).name
   res = host.exec("docker ps | grep #{pod_name}")
   system_pod_container_id = nil
