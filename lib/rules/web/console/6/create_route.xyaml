@@ -70,7 +70,7 @@ create_route_with_four_services:
 choose_service_to_add_route:
   elements:
   - selector:
-      xpath: //div[@ng-model='model.service']
+      xpath: //label[contains(text(),'Service')]/following-sibling::div[contains(@class,'dropdown')]
     op: click
   - selector:
       xpath: //div[text()='<service_name>']
