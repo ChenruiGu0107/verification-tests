@@ -582,8 +582,8 @@ module CucuShift
       cluster_resource(StorageClass, name, env)
     end
 
-    def security_context_constraint(name = nil, env = nil)
-      cluster_resource(SecurityContextConstraint, name, env)
+    def security_context_constraints(name = nil, env = nil)
+      cluster_resource(SecurityContextConstraints, name, env)
     end
 
     # add pods to list avoiding duplicates

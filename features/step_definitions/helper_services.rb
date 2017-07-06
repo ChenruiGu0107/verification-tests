@@ -41,11 +41,9 @@ Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ 
     raise "project #{project_name} does not exist"
   end
   _deployment = deployment("nfs-provisioner", _project)
-  if _deployment.exists?(user: user, quiet: true)
-    logger.info "nfs-provisioner already exists, will delete and re-create"
-    @result = admin.cli_exec(:delete, n: _project.name, object_type: "deployment", object_name_or_id: _deployment.name)
-    raise "could not delete nfs-provisioner deployment" unless @result[:success]
-  end
+  _scc= security_context_constraints("nfs-provisioner")
+  _deployment.ensure_deleted(user: admin)
+  _scc.ensure_deleted(user: admin)
   # Create sc, scc, clusterrole and etc    
   step 'I create the serviceaccount "nfs-provisioner"'
   step %Q{the following scc policy is created: https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/openshift-scc.yaml}

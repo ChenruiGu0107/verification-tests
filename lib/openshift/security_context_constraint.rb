@@ -2,7 +2,7 @@ require 'openshift/cluster_resource'
 
 module CucuShift
   # @note represents an OpenShift environment Persistent Volume
-  class SecurityContextConstraint < ClusterResource
+  class SecurityContextConstraints < ClusterResource
     RESOURCE = 'securitycontextconstraints'
 
     def update_from_api_object(hash)
