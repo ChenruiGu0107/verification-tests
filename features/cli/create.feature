@@ -607,8 +607,11 @@ Feature: creating 'apps' with CLI
   # @case_id OCP-11707
   Scenario: update multiple existing resources with file
     Given I have a project
+    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    Given I replace lines in "application-template-stibuild.json":
+      | "name": "ruby-22-centos7:latest" | "name": "ruby:latest", "namespace": "openshift" |
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | application-template-stibuild.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build completes
     Given 1 pods become ready with labels:
