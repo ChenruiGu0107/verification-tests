@@ -2672,7 +2672,7 @@ Feature: build 'apps' with CLI
     When I run the :logs client command with:
       | resource_name | build/<repo>-1 |
     Then the step should succeed
-    And the output should contain "Using HTTP proxy http://<%= cb.proxy_ip %>:3128"
+    And the output should contain "Using HTTP proxy"
     Examples:
       | image                 | repo             |
       | openshift/nodejs:0.10 | nodejs-ex        | # @case_id OCP-10236
@@ -2688,6 +2688,9 @@ Feature: build 'apps' with CLI
       | openshift/python:3.4  | django-ex        | # @case_id OCP-10246
       | openshift/python:3.3  | django-ex        | # @case_id OCP-10245
       | openshift/python:2.7  | django-ex        | # @case_id OCP-10244
+      | openshift/php:5.5     | cakephp-ex       | # @case_id OCP-14971
+      | openshift/php:5.6     | cakephp-ex       | # @case_id OCP-14972
+      | openshift/php:7.0     | cakephp-ex       | # @case_id OCP-14974
 
   # @author cryan@redhat.com
   # @case_id OCP-11634
