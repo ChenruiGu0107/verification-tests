@@ -145,7 +145,7 @@ Feature: remote registry related scenarios
       | o             | json |
     Then the step should fail
     And I select a random node's host
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    Given default registry route is stored in the :integrated_reg_ip clipboard
     When I run commands on the host:
       | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
@@ -210,7 +210,7 @@ Feature: remote registry related scenarios
   Scenario: User should be denied pushing when it does not have 'admin' role
     Given I have a project
     And I select a random node's host
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    Given default registry route is stored in the :integrated_reg_ip clipboard
     When I give project view role to the second user
     Given I switch to the second user
     When I run commands on the host:
@@ -276,7 +276,7 @@ Feature: remote registry related scenarios
   Scenario: Tracking tags with imageStream spec.tag
     Given I have a project
     And I select a random node's host
-    Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    Given default registry route is stored in the :integrated_reg_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/busybox.json |
     Then the step should succeed
