@@ -1045,11 +1045,13 @@ Feature: Testing haproxy router
       | images | <%= product_docker_repo %>openshift3/ose-haproxy-router:<%= cb.master_version %> |
       | stats_port | 22 |
       | service_account | router |
-    Then I wait up to 50 seconds for the steps to pass:
+    Then the step should succeed
+    Then I wait up to 300 seconds for the steps to pass:
     """
-    When I get project events
+    When I run the :get client command with:
+      | resource      | po          |
     And the output should match:
-      | Readiness probe failed: .*:22/healthz: malformed HTTP response "SSH |
+      | tc-483533.*CrashLoopBackOff |
     """
 
   # @author bmeng@redhat.com
