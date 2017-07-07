@@ -82,6 +82,7 @@ Feature: ResourceQuata for storage
       | ["spec"]["resources"]["requests"]["storage"]                           | 4Mi                                 |
     Then the step should succeed
     And the "pvc-#{ cb.i }" PVC becomes :bound
+    And admin ensures "#{ pvc.volume_name }" pv is deleted after scenario
     """
 
     # Try to exceed the 10Mi storage
@@ -102,6 +103,7 @@ Feature: ResourceQuata for storage
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Mi                                 |
     Then the step should succeed
+    Given admin ensures "<%= pvc('pvcnew').volume_name(user: admin) %>" pv is deleted after scenario
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvcnew2                             |
@@ -130,3 +132,5 @@ Feature: ResourceQuata for storage
       | ["spec"]["resources"]["requests"]["storage"]                           | 11Mi                                 |
     Then the step should succeed
     And the "pvc1-<%= project.name %>" PVC becomes :bound
+    Given I ensure "pvc1-<%= project.name %>" pvc is deleted
+    And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
