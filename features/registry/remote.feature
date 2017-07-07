@@ -16,6 +16,7 @@ Feature: remote registry related scenarios
       | dest        | mystream:latest         |
     Then the step should succeed
     And evaluation of `service("docker-registry", project("default")).url(user: :admin)` is stored in the :integrated_reg_ip clipboard
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
@@ -85,6 +86,7 @@ Feature: remote registry related scenarios
 
     Given I find a bearer token of the deployer service account
     And I select a random node's host
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
@@ -105,6 +107,7 @@ Feature: remote registry related scenarios
     Given I have a project
     And I select a random node's host
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And the "~/.docker/config.json" file is restored on host after scenario
     # TODO: this PR should allow 'deployer' the permission to push https://github.com/openshift/origin/pull/9066
     When I run commands on the host:
       | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
@@ -145,7 +148,9 @@ Feature: remote registry related scenarios
       | o             | json |
     Then the step should fail
     And I select a random node's host
+
     Given default registry route is stored in the :integrated_reg_ip clipboard
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
@@ -174,6 +179,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
     And I select a random node's host
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
@@ -213,6 +219,7 @@ Feature: remote registry related scenarios
     Given default registry route is stored in the :integrated_reg_ip clipboard
     When I give project view role to the second user
     Given I switch to the second user
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
@@ -242,6 +249,7 @@ Feature: remote registry related scenarios
     Given I have a project
     And I select a random node's host
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
@@ -277,6 +285,7 @@ Feature: remote registry related scenarios
     Given I have a project
     And I select a random node's host
     Given default registry route is stored in the :integrated_reg_ip clipboard
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/busybox.json |
     Then the step should succeed
@@ -307,6 +316,7 @@ Feature: remote registry related scenarios
     Given I have a project
     And I select a random node's host
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/image-limit-range.yaml |
       | n | <%= project.name %> |
@@ -365,6 +375,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
     And I select a random node's host
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
     Then the step should succeed
@@ -426,6 +437,7 @@ Feature: remote registry related scenarios
     Then the "ruby-ex-1" build completes
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And I select a random node's host
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker logout <%= cb.integrated_reg_ip %> |
       | docker pull <%= cb.integrated_reg_ip %>/<%= project.name %>/ruby-ex:latest |
@@ -469,6 +481,7 @@ Feature: remote registry related scenarios
     Then the "ruby-ex-1" build completes
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And I select a random node's host
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker logout <%= cb.integrated_reg_ip %> |
       | docker pull <%= cb.integrated_reg_ip %>/<%= project.name %>/ruby-ex:latest |

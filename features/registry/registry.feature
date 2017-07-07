@@ -163,6 +163,7 @@ Feature: Testing registry
     When I find a bearer token of the deployer service account
     And default registry service ip is stored in the :registry_ip clipboard
     And I select a random node's host
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
     Then the step should succeed
@@ -250,6 +251,7 @@ Feature: Testing registry
     When I find a bearer token of the deployer service account
     And default registry service ip is stored in the :registry_ip clipboard
     And I select a random node's host
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker rmi docker.io/busybox:latest |
     When I run commands on the host:
@@ -352,6 +354,7 @@ Feature: Testing registry
     When I find a bearer token of the builder service account
     And default registry service ip is stored in the :registry_ip clipboard
     And I select a random node's host
+    And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.registry_ip %> |
     Then the step should succeed
