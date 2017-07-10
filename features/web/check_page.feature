@@ -309,11 +309,11 @@ Feature: check page info related
       | annotations    | <%= anno=[];image_stream_tag.annotations(user: user).each{\|key,value\| anno.push(key+": "+value)};anno %>                          |
       | labels         | <%= label=[];image_stream_tag.labels(user: user).each{\|key,value\| label.push(key + "=" + value) if(key != "build-date")};label %> |
     Then the step should succeed
-    # check istag page  "Config" tab 
+    # check istag page  "Config" tab
     When I perform the :check_is_tag_config_tab web console action with:
       | config_cmd | <%= image_stream_tag.config_cmd(user: user).join(" ") %>  |
       | run_as     | <%= image_stream_tag.config_user(user: user) %>           |
-      | workdir    | <%= image_stream_tag.workingdir(user: user) %>            |  
+      | workdir    | <%= image_stream_tag.workingdir(user: user) %>            |
       | ports      | <%= image_stream_tag.exposed_ports(user: user).keys[0] %> |
       | config_env | <%= image_stream_tag.config_env(user: user) %>            |
     Then the step should succeed
@@ -336,7 +336,7 @@ Feature: check page info related
     When I perform the :goto_one_image_stream_page web console action with:
       | project_name | <%= project.name %> |
       | image_name   | php56               |
-    Then the step should succeed 
+    Then the step should succeed
     When I perform the :check_is_tag_basic_page web console action with:
       | image_name | php56     |
       | istag      | latest    |
@@ -354,7 +354,7 @@ Feature: check page info related
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-11012
-  Scenario: Improve Project list/selection page - check and search project 
+  Scenario: Improve Project list/selection page - check and search project
     Given the master version >= "3.4"
     When I run the :new_project client command with:
       | project_name | 9-xiaocwan                  |
@@ -398,10 +398,10 @@ Feature: check page info related
       | z-xiaocwan                     |
     And the output should contain:
       | 09-xiaocwan                    |
-      | a display name                 | 
+      | a display name                 |
     """
 
-    ## After first search, check clear search box, 
+    ## After first search, check clear search box,
     ## after this check, following steps will use it directly because page will not refresh
     When I run the :clear_input_box web console action
     Then the step should succeed
@@ -439,7 +439,7 @@ Feature: check page info related
       | zzz-project                    |
       | zzz description for a-xiaoc    |
     """
-    
+
     When I run the :clear_input_box web console action
     And  I perform the :search_project web console action with:
       | input_str    | my-             |
@@ -451,7 +451,7 @@ Feature: check page info related
     And the output should contain:
       | c, d, e , display  |
     """
-    
+
     When I run the :clear_input_box web console action
     And I perform the :search_project web console action with:
       | input_str    | d, e            |
@@ -463,7 +463,7 @@ Feature: check page info related
     And the output should contain:
       | c, d, e , display              |
     """
-    
+
     When I run the :clear_input_box web console action
     And I perform the :search_project web console action with:
       | input_str    | t,y             |
@@ -478,7 +478,7 @@ Feature: check page info related
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-10541
-  Scenario: Improve Project list/selection page - show creater and edit membership 
+  Scenario: Improve Project list/selection page - show creater and edit membership
     Given the master version >= "3.4"
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
@@ -499,7 +499,7 @@ Feature: check page info related
       | project_name | <%= project.name %> |
       | creator      | <%= user(0, switch: false).name %>        |
     Then the step should succeed
-    When I perform the :click_project_membership web console action with:
+    When I perform the :goto_membership_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I run the :edit_membership web console action
@@ -510,7 +510,7 @@ Feature: check page info related
       | project_name | <%= project.name %> |
       | creator      | <%= user(0, switch: false).name %>        |
     Then the step should succeed
-     When I perform the :click_project_membership web console action with:
+     When I perform the :goto_membership_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
     When I run the :check_permission_error_on_membership web console action
