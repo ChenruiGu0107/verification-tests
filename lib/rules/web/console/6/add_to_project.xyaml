@@ -31,17 +31,19 @@ check_all_content_is_hidden:
     selector:
       xpath: //div[normalize-space(text())='All content is hidden by the current filter.' and a[text()='Clear Filter']]
 click_add_to_project:
-  elements:
-  - selector:
+  element:
+    selector:
       xpath: //a[normalize-space()='Add to Project']
     op: click
-  # check if the page is loaded
-  - selector:
-      text: Languages
+click_browse_catalog:
+  element:
+    selector:
+      xpath: //a[normalize-space()='Browse Catalog']
+    op: click
     timeout: 60
-  - selector:
-      text: Technologies
-    timeout: 60
+click_add_to_project_from_catalog:
+  action: click_add_to_project
+  action: click_browse_catalog
 select_category_in_catalog:
   elements:
   - selector:

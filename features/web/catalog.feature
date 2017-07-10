@@ -23,7 +23,7 @@ Feature: scenarios related to catalog page
     When I perform the :goto_overview_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    When I run the :click_add_to_project web console action
+    When I run the :click_add_to_project_from_catalog web console action
     Then the step should succeed
     When I perform the :select_category_in_catalog web console action with:
       | category | Ruby |
