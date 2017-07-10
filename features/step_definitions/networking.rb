@@ -77,11 +77,7 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
   subnet = @result[:response]
   cb.clusternetwork = subnet
 
-  iptables_verify = proc {
-    @result = _host.exec_admin("systemctl status iptables")
-    unless @result[:success] && @result[:response] =~ /Active:\s+?active/
-      raise "The iptables deamon verification failed. The deamon is not active!"
-    end
+  if env.version_lt("3.6", user: user)
     filter_matches = [
       'INPUT -i tun0 -m comment --comment "traffic from(.*)" -j ACCEPT',
       'INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT',
@@ -89,6 +85,32 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
       "FORWARD -s #{subnet} -j ACCEPT",
       "FORWARD -d #{subnet} -j ACCEPT"
     ]
+    nat_matches = [
+      'PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      'POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING',
+      "POSTROUTING -s #{subnet} -j MASQUERADE"
+    ]
+  else
+    filter_matches = [
+      'OPENSHIFT-FIREWALL-ALLOW -i tun0 -m comment --comment "from SDN to localhost" -j ACCEPT',
+      'OPENSHIFT-FIREWALL-ALLOW -p udp -m udp --dport 4789 -m comment --comment "VXLAN incoming" -j ACCEPT',
+      'OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      "OPENSHIFT-FIREWALL-FORWARD -d #{subnet} -m comment --comment \"forward traffic from SDN\" -j ACCEPT",
+      "OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"forward traffic to SDN\" -j ACCEPT"
+    ]
+    nat_matches = [
+      'PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      'POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING',
+      "OPENSHIFT-MASQUERADE -s #{subnet} -m comment --comment \"masquerade pod-to-service and pod-to-external traffic\" -j MASQUERADE"
+    ]
+  end
+
+  iptables_verify = proc {
+    @result = _host.exec_admin("systemctl status iptables")
+    unless @result[:success] && @result[:response] =~ /Active:\s+?active/
+      raise "The iptables deamon verification failed. The deamon is not active!"
+    end
+
     @result = _host.exec_admin("iptables-save -t filter")
     filter_matches.each { |match|
       unless @result[:success] && @result[:response] =~ /#{match}/
@@ -96,11 +118,6 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
       end
     }
 
-    nat_matches = [
-      'PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
-      'POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING',
-      "POSTROUTING -s #{subnet}(.*)-j MASQUERADE"
-    ]
     @result = _host.exec_admin("iptables-save -t nat")
     nat_matches.each { |match|
       unless @result[:success] && @result[:response] =~ /#{match}/
@@ -114,13 +131,7 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
     unless @result[:success] && @result[:response] =~ /Active:\s+?active/
       raise "The firewalld deamon verification failed. The deamon is not active!"
     end
-    filter_matches = [
-      'INPUT -i tun0 -m comment --comment "traffic from(.*)" -j ACCEPT',
-      'INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT',
-      'OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
-      "FORWARD -s #{subnet} -j ACCEPT",
-      "FORWARD -d #{subnet} -j ACCEPT"
-    ]
+
     @result = _host.exec_admin("iptables-save -t filter")
     filter_matches.each { |match|
       unless @result[:success] && @result[:response] =~ /#{match}/
@@ -128,11 +139,6 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
       end
     }
 
-    nat_matches = [
-      'PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
-      'POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING',
-      "POSTROUTING -s #{subnet}(.*)-j MASQUERADE"
-    ]
     @result = _host.exec_admin("iptables-save -t nat")
     nat_matches.each { |match|
       unless @result[:success] && @result[:response] =~ /#{match}/
@@ -153,6 +159,43 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
   end
 end
 
+Given /^the#{OPT_QUOTED} node standard iptables rules are removed$/ do |node_name|
+  ensure_admin_tagged
+  _node = node(node_name)
+  _host = _node.host
+  _admin = admin
+
+  @result = _admin.cli_exec(:get, resource: "clusternetwork", resource_name: "default", template: "{{.network}}")
+  unless @result[:success]
+    raise "Can not get clusternetwork resource!"
+  end
+
+  subnet = @result[:response]
+
+  if env.version_lt("3.6", user: user)
+    @result = _host.exec('iptables -D INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT')
+    raise "failed to delete iptables rule #1" unless @result[:success]
+    @result = _host.exec('iptables -D INPUT -i tun0 -m comment --comment "traffic from SDN" -j ACCEPT')
+    raise "failed to delete iptables rule #2" unless @result[:success]
+    @result = _host.exec("iptables -D FORWARD -d #{subnet} -j ACCEPT")
+    raise "failed to delete iptables rule #3" unless @result[:success]
+    @result = _host.exec("iptables -D FORWARD -s #{subnet} -j ACCEPT")
+    raise "failed to delete iptables rule #4" unless @result[:success]
+    @result = _host.exec("iptables -t nat -D POSTROUTING -s #{subnet} -j MASQUERADE")
+    raise "failed to delete iptables rule #5" unless @result[:success]
+  else
+    @resule = host.exec('iptables -D OPENSHIFT-FIREWALL-ALLOW -p udp -m udp --dport 4789 -m comment --comment "VXLAN incoming" -j ACCEPT')
+    raise "failed to delete iptables rule #1" unless @result[:success]
+    @resule = host.exec('iptables -D OPENSHIFT-FIREWALL-ALLOW -i tun0 -m comment --comment "from SDN to localhost" -j ACCEPT')
+    raise "failed to delete iptables rule #2" unless @result[:success]
+    @resule = host.exec("iptables -D OPENSHIFT-FIREWALL-FORWARD -d #{subnet} -m comment --comment \"forward traffic from SDN\" -j ACCEPT")
+    raise "failed to delete iptables rule #3" unless @result[:success]
+    @resule = host.exec("iptables -D OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"forward traffic to SDN\" -j ACCEPT")
+    raise "failed to delete iptables rule #4" unless @result[:success]
+    @resule = host.exec("iptables -t nat -D OPENSHIFT-MASQUERADE -s #{subnet} -m comment --comment \"masquerade pod-to-service and pod-to-external traffic\" -j MASQUERADE")
+    raise "failed to delete iptables rule #5" unless @result[:success]
+  end
+end
 
 Given /^admin adds( and overwrites)? following annotations to the "(.+?)" netnamespace:$/ do |overwrite, netnamespace, table|
   ensure_admin_tagged
