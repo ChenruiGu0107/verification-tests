@@ -454,32 +454,9 @@ Feature: SDN related networking scenarios
     Given I have a project
     And I have a pod-for-ping in the project
     Then I use the "<%= pod.node_name(user: user) %>" node
-    And evaluation of `pod.container(user: user, name: 'hello-pod').id` is stored in the :container_id clipboard
-    When I run commands on the host:
-      | docker inspect <%= cb.container_id %> \|grep Pid |
-    Then the step should succeed
-    And evaluation of `/"Pid":\s+(\d+)/.match(@result[:response])[1]` is stored in the :user_container_pid clipboard
-    When I run commands on the host:
-      | nsenter -n -t <%= cb.user_container_pid %> -- ethtool -S eth0 \| sed -n -e 's/.*peer_ifindex: //p' |
-    Then the step should succeed
-    And evaluation of `@result[:response].strip` is stored in the :ifindex clipboard
-    When I run commands on the host:
-      | ip addr show if<%= cb.ifindex %> \| head -1 \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
-    Then the output should contain "veth"
-    And evaluation of `@result[:response].strip` is stored in the :veth_index clipboard
-    When I run commands on the host:
-      | (ovs-ofctl -O openflow13 show br0 \|\| docker exec openvswitch ovs-ofctl -O openflow13 show br0) |
-    Then the output should contain "<%= cb.veth_index %>"
-
     When I run commands on the host:
       | systemctl restart openvswitch |
     Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:
-    """
-    When I run commands on the host:
-      | (ovs-ofctl -O openflow13 show br0 \|\| docker exec openvswitch ovs-ofctl -O openflow13 show br0) |
-    Then the output should contain "<%= cb.veth_index %>"
-    """
     #check the pod can access external network
     And I wait up to 300 seconds for the steps to pass:
     """
