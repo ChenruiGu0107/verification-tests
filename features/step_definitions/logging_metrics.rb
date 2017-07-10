@@ -67,7 +67,6 @@ Given /^I login to kibana logging web console$/ do
     })
 end
 
-
 # ##  curl
 # -H "Authorization: Bearer $USER_TOKEN"
 # -H "Hawkular-tenant: $PROJECT"
@@ -78,6 +77,8 @@ end
 # 1. | project_name | name of project |
 # 2. | type  | type of metrics you want to query {gauges|metrics|counters} |
 # 3. | payload | for POST only, local path or url |
+# 4. | metrics_id | for single POST payload that does not have 'id' specified and user want an id other than the default of 'datastore'
+# NOTE: for GET operation, the data retrieved are stored in cb.metrics_data which is an array
 # NOTE: if we agree to use a fixed name for the first part of the metrics URL, then we don't need admin access privilege to run this step.
 When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table |
   if !env.opts[:admin_cli]
@@ -106,7 +107,6 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
   metrics_url = cb.metrics + opts[:path]
 
   if op_type == 'POST'
-    datastore_url = metrics_url + '/datastore'
     file_name = opts[:payload]
     if %w(http https).include? URI.parse(opts[:payload]).scheme
       # user given a http source as a parameter
@@ -114,13 +114,34 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
       file_name = @result[:file_name]
     end
     https_opts[:payload] = File.read(expand_path(file_name))
-    url = datastore_url + "/raw"
+
+    # the payload JSON does not have 'id' specified, so we need to look for
+    # metrics_id to be specified in the table or if not there, then we
+    # default the id to 'datastore'
+    unless YAML.load(https_opts[:payload]).first.keys.include? 'id'
+      metrics_id = opts[:metrics_id].nil?  ? "datastore" : opts[:metrics_id]
+      metrics_url = metrics_url + "/" + metrics_id
+    end
+    url = metrics_url + "/raw"
   else
-    url = metrics_url
+    url = opts[:metrics_id] ? metrics_url + "/" + opts[:metrics_id] : metrics_url
   end
+  cb.metrics_data = []
 
   @result = CucuShift::Http.request(url: url, **https_opts, method: op_type)
   @result[:parsed] = YAML.load(@result[:response])
+  if @result[:success] and op_type == 'GET' and opts[:metrics_id].nil?
+    @result[:parsed].each do | res |
+      logger.info("Getting data from metrids #{res['id']}...")
+      query_url = url + "/" + res['id']
+      # get the id to construct the metric_url to do the QUERY operation
+      result = CucuShift::Http.request(url: query_url, **https_opts, method: op_type)
+      result[:parsed] = YAML.load(result[:response])
+      cb.metrics_data << result
+    end
+  else
+    cb.metrics_data << @result
+  end
 end
 
 # unless project name is given we assume all logging pods are installed under the current project
