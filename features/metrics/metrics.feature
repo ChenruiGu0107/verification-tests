@@ -10,8 +10,8 @@ Feature: metrics related scenarios
     Given I perform the GET metrics rest request with:
       | project_name | <%= project.name %> |
       | path         | /metrics/gauges     |
-    Then the expression should be true> @result[:parsed][0]['minTimestamp'] == 1460111065369
-    And the expression should be true> @result[:parsed][0]['maxTimestamp'] == 1460413065369
+    Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1460111065369
+    Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1460413065369
 
   # @author pruan@redhat.com
   # @case_id OCP-11979
@@ -532,4 +532,4 @@ Feature: metrics related scenarios
       | pod_name     | <%=pod.name%>     |
       | type         | rx                |
     Then the step should succeed
-    
+
