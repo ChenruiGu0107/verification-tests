@@ -23,7 +23,7 @@ check_pvcs_detail_on_storage_page:
   action: check_pvc_entry
 check_pvc_entry:
   action:
-    if_params: pvc_status
+    if_param: pvc_status
     ref: check_pvc_entry_status
   elements:
   - selector:
@@ -59,7 +59,9 @@ create_pvc_from_storage_page:
     - set_storage_size
     - set_storage_unit
   action: click_create_button
-  action: check_pvc_entry
+  element:
+    selector:
+      xpath: //td[@data-title='Name']/a[text()='<pvc_name>']
 check_pvc_info:
   action: check_one_pvc_detail
   action: check_pvc_set_info

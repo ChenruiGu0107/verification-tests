@@ -343,12 +343,21 @@ Feature: Add pvc to pod from web related
       | pvc_access_mode | ReadOnlyMany        |
       | storage_size    | 0.01                |
       | storage_unit    | TiB                 |
-    Then the step should succeed
+    Then the step should fail
     When I perform the :check_prompt_info_for_pvc web console action with:
       | prompt_info | "wehe-100" already exists |
     Then the step should succeed
 
     When I run the :cancel_pvc_creation web console action
+    Then the step should succeed
+
+    # Delete pvc from web console
+    When I perform the :delete_resources_pvc web console action with:
+      | project_name    | <%= project.name %> |
+      | pvc_name        | wehe-100            |
+    Then the step should succeed
+    When I perform the :check_prompt_info_for_pvc web console action with:
+      | prompt_info | marked for deletion |
     Then the step should succeed
 
     # Create RWX type pvc
@@ -357,14 +366,14 @@ Feature: Add pvc to pod from web related
       | pvc_name        | 0123456789          |
       | pvc_access_mode | ReadWriteMany       |
       | storage_size    | 1024                |
-      | storage_unit    | GiB                 |
+      | storage_unit    | MiB                 |
     Then the step should succeed
 
     When I perform the :check_pvc_info web console action with:
       | project_name    | <%= project.name %>   |
       | pvc_name        | 0123456789            |
       | pvc_access_mode | RWX (Read-Write-Many) |
-      | storage_size    | 1 TiB                 |
+      | storage_size    | 1 GiB                 |
     Then the step should succeed
 
     # Delete pvc from web console

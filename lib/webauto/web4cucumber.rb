@@ -318,6 +318,8 @@ require "base64"
             res_unless[:response] << $/ << "skipping action #{action_body[:ref]}"
             return res_unless
           end
+          # to merge results successfully
+          res_unless[:success] = true
         end
 
         res_param = {}
