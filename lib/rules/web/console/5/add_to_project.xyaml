@@ -30,7 +30,7 @@ check_all_content_is_hidden:
   element:
     selector:
       xpath: //div[normalize-space(text())='All content is hidden by the current filter.' and a[text()='Clear Filter']]
-click_add_to_project: &click_add_to_project
+click_add_to_project:
   elements:
   - selector:
       xpath: //a[normalize-space()='Add to Project']
@@ -42,7 +42,8 @@ click_add_to_project: &click_add_to_project
   - selector:
       text: Technologies
     timeout: 60
-click_add_to_project_from_catalog: *click_add_to_project
+click_add_to_project_from_catalog:
+  action: click_add_to_project
 select_category_in_catalog:
   elements:
   - selector:
