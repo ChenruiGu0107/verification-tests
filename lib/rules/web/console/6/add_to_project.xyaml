@@ -36,10 +36,12 @@ click_add_to_project:
       xpath: //a[normalize-space()='Add to Project']
     op: click
 click_browse_catalog:
-  element:
-    selector:
+  elements:
+  - selector:
       xpath: //a[normalize-space()='Browse Catalog']
     op: click
+  - selector:
+      text: Languages
     timeout: 60
 click_add_to_project_from_catalog:
   action: click_add_to_project

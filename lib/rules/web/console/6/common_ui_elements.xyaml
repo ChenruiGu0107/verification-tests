@@ -164,3 +164,17 @@ click_ok:
     selector:
       text: OK
     op: click
+close_all_toast_notifications:
+  scripts:
+  - command: |
+        document.querySelectorAll('toast-notifications div.toast-pf').forEach(
+          function(toast) {
+            toast.querySelector('button').click();
+          }
+        );
+        return true;
+    expect_result: true
+  element:
+    selector:
+      xpath: //toast-notifications//div[contains(@class,'toast-pf')]
+    missing: true

@@ -31,6 +31,7 @@ edit_membership:
       xpath: //a[span[contains(text(),"Edit Membership")]]
     op: click
 done_membership_editing:
+  action: close_all_toast_notifications
   element:
     selector:
       xpath: //a[span[contains(text(),"Done Editing")]]
