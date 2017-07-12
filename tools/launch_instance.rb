@@ -170,16 +170,19 @@ module CucuShift
       }
     end
 
-    # path and basepath can be URLs
+    # path and basepath can be URLs but even if not, they should be URL encoded
     def readfile(path, basepath=nil)
       case path
       when %r{\Ahttps?://}
         return Http.get(url: path, raise_on_error: true)[:response]
       when %r{\A/}
-        return File.read path
+        return File.read(URI::decode(path))
       else
         if ! basepath
-          return File.read expand_private_path(path, public_safe: true)
+          return File.read expand_private_path(
+            URI::decode(path),
+            public_safe: true
+          )
         else
           with_base = File.join(basepath, path)
           return (readfile(with_base) rescue readfile(path))
