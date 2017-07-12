@@ -535,6 +535,8 @@ require "base64"
         res[:success] = false
         res[:response] << "\n" << "operation #{op} failed:\n"
         res[:response] << self.class.exception_to_string(err)
+        # log error if operation on element failed
+        logger.error err
       ensure
         return res
       end

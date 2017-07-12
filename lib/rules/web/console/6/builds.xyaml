@@ -125,12 +125,13 @@ start_build_base_on_buildconfig:
   action: check_one_buildconfig_page
   action: click_start_build_button
 click_start_build_button:
-   element:
-      selector:
-        text: Start Build
-        class: btn-default
-      type: button
-      op: click
+  action: close_all_toast_notifications
+  element:
+    selector:
+      text: Start Build
+      class: btn-default
+    type: button
+    op: click
 click_to_goto_edit_bc_page:
   action: goto_one_buildconfig_page
   action: click_to_goto_edit_page
