@@ -294,6 +294,8 @@ add_bc_source_and_destination_paths:
   action: add_image_source_path
   action: add_image_source_dest_path
   action: click_save_button
+  action: check_bc_succesfully_updated_message
+check_bc_succesfully_updated_message:
   params:
     resource: Build Config
     name: <bc_name>
@@ -637,6 +639,53 @@ edit_bc_source_context_dir:
 edit_build_image_to_image_stream_image:
   action: choose_build_image_source_to_image_stream_image
   action: add_image_stream_image_on_bc_edit_page
+edit_image_configuration_on_bc_edit_page:
+  action:
+    if_param: image_type
+    ref: edit_image_type_on_bc_edit_page
+  action:
+    if_param: image_namespace
+    ref: edit_image_namespace_on_bc_edit_page
+  action:
+    if_param: image_stream
+    ref: edit_image_stream_on_bc_edit_page
+  action:
+    if_param: image_tag
+    ref: edit_image_tag_on_bc_edit_page
+edit_image_type_on_bc_edit_page:
+  elements:
+  - selector:
+      xpath: //label[contains(.,'<image_op>')]/following::div
+    op: click
+  - selector:
+      xpath: //div[label[contains(.,'<image_op>')]]//ul//div[contains(.,'<image_type>')]
+    op: click
+edit_image_namespace_on_bc_edit_page:
+  params:
+    param_label: Namespace
+    param_value: <image_namespace>
+  action: edit_image_parameter_on_bc_edit_page
+edit_image_stream_on_bc_edit_page:
+  params:
+    param_label: Image Stream
+    param_value: <image_stream>
+  action: edit_image_parameter_on_bc_edit_page
+edit_image_tag_on_bc_edit_page:
+  params:
+    param_label: Tag
+    param_value: <image_tag>
+  action: edit_image_parameter_on_bc_edit_page
+edit_image_parameter_on_bc_edit_page:
+  elements:
+  - selector:
+      xpath: //div[label[contains(.,'<image_op>')]]/following-sibling::div//label[text()='<param_label>']/following-sibling::div
+    op: click
+  - selector:
+      xpath: //div[label[contains(.,'<image_op>')]]/following-sibling::div//input[@placeholder='<param_label>']
+    op: send_keys <param_value>
+  - selector:
+      xpath: //div[label[contains(.,'<image_op>')]]/following-sibling::div//ul//div[contains(.,'<param_value>')]
+    op: click
 change_bc_output_image_to_image_stream_tag:
   action: check_buildconfig_edit_page_loaded_completely
   action: choose_bc_output_image_option_to_image_stream
@@ -740,3 +789,41 @@ check_one_build_status:
   - selector:
       xpath:  //a[contains(., "#<number>")]/ancestor::tr/td[contains(., "<status>")]
     timeout: 180
+check_saved_tag_type_on_bc_edit_page:
+  elements:
+  - selector: &expand_tag_dd_menu_on_bc_edit_page
+      xpath: //div[label[contains(.,'<image_op>')]]/following-sibling::div//label[text()='Tag']/following-sibling::div
+    op: click
+  - selector: &check_tag_type_on_bc_edit_page
+      xpath: //div[label[contains(.,'<image_op>')]]/following-sibling::div//li[div[contains(text(),'<tag_type>')] and div//div[text()='<tag>']]
+check_saved_tag_type_missing_on_bc_edit_page:
+  elements:
+  - selector: *expand_tag_dd_menu_on_bc_edit_page
+  - selector: *check_tag_type_on_bc_edit_page
+    missing: true
+check_image_configuration_on_bc_edit_page:
+  action: check_image_type_on_bc_edit_page
+  action:
+    if_param:
+      image_type: Image Stream Tag
+    ref: check_image_stream_tag_on_bc_edit_page
+  # action:
+  #   if_param:
+  #     image_type: Image Stream Image
+  #     ref: check_image_stream_image_on_bc_edit_page
+  # action:
+  #   if_param:
+  #     image_type: Docker Image
+  #     ref: check_docker_image_on_bc_edit_page
+check_image_type_on_bc_edit_page:
+  element:
+    selector:
+      xpath: //label[contains(text(), '<image_op>')]/following-sibling::div//span[contains(text(),'<image_type>')]
+check_image_stream_tag_on_bc_edit_page:
+  elements:
+  - selector:
+      xpath: //div[label[contains(text(), '<image_op>')]]/following-sibling::div//span[contains(text(),'<image_namespace>')]
+  - selector:
+      xpath: //div[label[contains(text(), '<image_op>')]]/following-sibling::div//span[contains(text(),'<image_stream>')]
+  - selector:
+      xpath: //div[label[contains(text(), '<image_op>')]]/following-sibling::div//span[contains(text(),'<tag>')]
