@@ -255,3 +255,8 @@ check_storage_learn_more_link:
   elements:
   - selector:
       xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.5/architecture/additional_concepts/storage.html") and contains(.,'Learn More')]
+check_download_cli_doc_link_in_cli_page_online:
+  action: goto_cli_page
+  elements:
+  - selector:
+      xpath: //a[contains(@href,"https://mirror.openshift.com/pub/openshift-v3/clients/<download_url>") and contains(.,"<platform>")]
