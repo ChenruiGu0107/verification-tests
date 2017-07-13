@@ -29,7 +29,7 @@ module CucuShift
       props[:spec]        = d_hash["spec"]
       props[:status]      = d_hash["status"] # may change, use with care
 
-      return self # mainly to help ::from_api_object
+      super(d_hash)
     end
 
     def replica_count(user:, cached: false, quiet: false)

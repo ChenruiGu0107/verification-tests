@@ -274,7 +274,7 @@ Feature: oc import-image related feature
       | oc import app.json -f    |
     When I git clone the repo "https://github.com/openshift-qe/docker-compose-nodejs-examples.git"
     Then the step should succeed
-    
+
     ## Negative test with docker-compse.yml
     # unexisted file
     When I run the :import client command with:
@@ -311,13 +311,13 @@ Feature: oc import-image related feature
       | .*[Ss]uccess.*|
     When I run the :get client command with:
       | resource        | imagestreams |
-    Then the output should match: 
+    Then the output should match:
       | .*deployment-example.* |
     When I run the :get client command with:
       | resource_name   | deployment-example |
       | resource        | dc                 |
       | o               | yaml               |
-    Then the output should match: 
+    Then the output should match:
       |[Ll]astTriggeredImage.*deployment-example@sha256.*|
     When I run the :delete client command with:
       | all_no_dash ||
@@ -418,3 +418,64 @@ Feature: oc import-image related feature
     Then the output should match:
       | .*<%= cb.dc_uid %>.* |
 
+
+  # @author geliu@redhat.com
+  # @case_id OCP-14380
+  Scenario: Set owner refs in adopted/released RCs owned by DCs
+    Given I have a project
+
+    When I run the :tag client command with:
+      | source_type | docker                       |
+      | source      | openshift/deployment-example |
+      | dest        | deployment-example:latest    |
+    Then the output should match:
+      | [Tt]ag deployment-example:latest           |
+
+    When I run the :new_app client command with:
+      | image_stream | deployment-example:latest   |
+    Then the step should succeed
+    Then the "deployment-example" image stream was created
+
+    When I run the :get client command with:
+      | resource_name   | deployment-example-1          |
+      | resource        | rc                            |
+      | o               | template                      |
+      | template        | {{.metadata.ownerReferences}} |
+    Then the output should match:
+      | \bdeployment-example\b |
+
+    When I run the :patch client command with:
+      | resource      | rc                                                                                              |
+      | resource_name | deployment-example-1                                                                            |
+      | p             | {"metadata": {"labels":{"openshift.io/deployment-config.name": "deployment-example-detached"}}} |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource_name   | deployment-example-1          |
+      | resource        | rc                            |
+      | o               | template                      |
+      | template        | {{.metadata.ownerReferences}} |
+    Then the output should contain:
+      | no value |
+
+    Given number of replicas of "deployment-example" deployment config becomes:
+      | desired | 1 |
+      | current | 0 |
+
+    When I run the :patch client command with:
+      | resource      | rc                                                                                     |
+      | resource_name | deployment-example-1                                                                   |
+      | p             | {"metadata": {"labels":{"openshift.io/deployment-config.name": "deployment-example"}}} |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource_name   | deployment-example-1          |
+      | resource        | rc                            |
+      | o               | template                      |
+      | template        | {{.metadata.ownerReferences}} |
+    Then the output should match:
+      | \bdeployment-example\b |
+
+    Given number of replicas of "deployment-example" deployment config becomes:
+      | desired | 1 |
+      | current | 1 |

@@ -1,10 +1,18 @@
-require 'openshift/project_resource'
+# frozen_string_literal: true
+
+require 'openshift/pod_replicator'
 
 module CucuShift
+
   # represents an OpenShift DeploymentConfig (dc for short) used for scaling pods
-  class DeploymentConfig < ProjectResource
-    RESOURCE = "deploymentconfigs"
-    STATUSES = [:waiting, :running, :succeeded, :failed, :complete]
+  class DeploymentConfig < PodReplicator
+
+    RESOURCE = 'deploymentconfigs'
+    STATUSES = %i[waiting running succeeded failed complete].freeze
+    REPLICA_COUNTERS = {
+      desired: %w[spec replicas].freeze,
+      current: %w[status replicas].freeze,
+    }.freeze
 
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that can change at any time like status and spec
@@ -16,7 +24,7 @@ module CucuShift
       props[:labels] = m["labels"]
       props[:created] = m["creationTimestamp"] # already [Time]
 
-      return self # mainly to help ::from_api_object
+      super(dc_hash)
     end
 
     # @param from_status [Symbol] the status we currently see

@@ -110,6 +110,27 @@ module CucuShift
       return props[prop]
     end
 
+    private def raw_resource(user:, cached: false, quiet: false, res: nil)
+      get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet, res: res)
+    end
+
+    def update_from_api_object(hash)
+      case
+      when hash["kind"] != shortclass
+        raise "hash not from a #{shortclass}: #{hash["kind"]}"
+      when name != hash["metadata"]["name"]
+        raise "hash from a different #{shortclass}: #{name} vs #{hash["metadata"]["name"]}"
+      when self.respond_to?(:project) &&
+           hash["metadata"]&.has_key?("namespace") &&
+           project.name != hash["metadata"]["namespace"]
+        raise "hash from a #{shortclass} of a different namespace '#{project}"
+      end
+
+      props[:raw] = Collections.deep_freeze(hash)
+
+      return self # mainly to help ::from_api_object
+    end
+
     # subclasses need to implement #delete method
     def delete_graceful(by:)
       res = delete(by: by)

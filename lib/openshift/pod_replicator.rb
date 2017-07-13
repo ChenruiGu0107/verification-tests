@@ -11,14 +11,8 @@ module CucuShift
     #   counter_name: %w[path to dig].freeze,
     # }.freeze
 
-    def replica_counters(user:, cached: true, quiet: false)
-      shared_options = { user: user, cached: cached, quiet: quiet }.freeze
-
-      resource = {
-        'spec'   => get_cached_prop(**shared_options, prop: :spec),
-        'status' => get_cached_prop(**shared_options, prop: :status),
-      }.freeze
-
+    def replica_counters(user:, cached: true, quiet: false, res: nil)
+      resource = raw_resource(user: user, quiet: quiet, res: res, cached: cached)
       self.class::REPLICA_COUNTERS.map do |counter, path|
         [counter, resource.dig(*path).to_i]
       end.to_h.freeze
@@ -34,18 +28,20 @@ module CucuShift
       }
 
       result[:success] = wait_for(seconds, stats: stats) do
-        counters = replica_counters(user: user, quiet: true, cached: false)
+        counters = replica_counters(user: user, quiet: true,
+                                    cached: false, res: result)
         counters.slice(*expected.keys) == expected
       end
 
-      result[:response] = <<-MESSAGE.gsub(/[[:space:]]+/, ' ').strip
-        After #{stats[:iterations]} iterations
-        and #{stats[:full_seconds]} seconds:
-        #{replica_counters(user: user, quiet: true).inspect}
-      MESSAGE
+      logger.info "After #{stats[:iterations]} iterations\n" \
+        "and #{stats[:full_seconds]} seconds:\n" \
+        "#{replica_counters(user: user, quiet: true).inspect}"
 
-      logger.info result[:response]
-      result
+      unless result[:success]
+        logger.warn "#{shortclass}: timeout waiting for replica counters " \
+          "to match; last state:\n\$ #{result[:command]}\n#{result[:response]}"
+      end
+      return result
     end
 
     def revision(user:, cached: true, quiet: false)

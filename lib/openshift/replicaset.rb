@@ -29,7 +29,7 @@ module CucuShift
       props[:spec]        = s
       props[:status]      = rs_hash["status"] # may change, use with care
 
-      return self # mainly to help ::from_api_object
+      super(rs_hash)
     end
 
     # Not a dynamic property, so don't cache
