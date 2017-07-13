@@ -98,10 +98,16 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
       "OPENSHIFT-FIREWALL-FORWARD -d #{subnet} -m comment --comment \"forward traffic from SDN\" -j ACCEPT",
       "OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"forward traffic to SDN\" -j ACCEPT"
     ]
+    # different MASQUERADE rules for networkpolicy plugin and multitenant/subnet plugin, for example:
+    #   with networkpolicy plugin it should be:
+    #   "OPENSHIFT-MASQUERADE -s #{subnet} ! -d #{subnet} -m comment --comment "masquerade pod-to-external traffic" -j MASQUERADE"
+    #   with multitenant or subnet plugin it should be:
+    #   "OPENSHIFT-MASQUERADE -s #{subnet} -m comment --comment "masquerade pod-to-service and pod-to-external traffic" -j MASQUERADE"
+    #   so use fuzzy matching in nat_matches.
     nat_matches = [
       'PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
       'POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING',
-      "OPENSHIFT-MASQUERADE -s #{subnet} -m comment --comment \"masquerade pod-to-service and pod-to-external traffic\" -j MASQUERADE"
+      "OPENSHIFT-MASQUERADE -s #{subnet} .*--comment \"masquerade .*pod-to-external traffic\" -j MASQUERADE"
     ]
   end
 
@@ -182,18 +188,24 @@ Given /^the#{OPT_QUOTED} node standard iptables rules are removed$/ do |node_nam
     @result = _host.exec("iptables -D FORWARD -s #{subnet} -j ACCEPT")
     raise "failed to delete iptables rule #4" unless @result[:success]
     @result = _host.exec("iptables -t nat -D POSTROUTING -s #{subnet} -j MASQUERADE")
-    raise "failed to delete iptables rule #5" unless @result[:success]
+    raise "failed to delete iptables nat rule" unless @result[:success]
   else
-    @resule = host.exec('iptables -D OPENSHIFT-FIREWALL-ALLOW -p udp -m udp --dport 4789 -m comment --comment "VXLAN incoming" -j ACCEPT')
+    @resule = _host.exec('iptables -D OPENSHIFT-FIREWALL-ALLOW -p udp -m udp --dport 4789 -m comment --comment "VXLAN incoming" -j ACCEPT')
     raise "failed to delete iptables rule #1" unless @result[:success]
-    @resule = host.exec('iptables -D OPENSHIFT-FIREWALL-ALLOW -i tun0 -m comment --comment "from SDN to localhost" -j ACCEPT')
+    @resule = _host.exec('iptables -D OPENSHIFT-FIREWALL-ALLOW -i tun0 -m comment --comment "from SDN to localhost" -j ACCEPT')
     raise "failed to delete iptables rule #2" unless @result[:success]
-    @resule = host.exec("iptables -D OPENSHIFT-FIREWALL-FORWARD -d #{subnet} -m comment --comment \"forward traffic from SDN\" -j ACCEPT")
+    @resule = _host.exec("iptables -D OPENSHIFT-FIREWALL-FORWARD -d #{subnet} -m comment --comment \"forward traffic from SDN\" -j ACCEPT")
     raise "failed to delete iptables rule #3" unless @result[:success]
-    @resule = host.exec("iptables -D OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"forward traffic to SDN\" -j ACCEPT")
+    @resule = _host.exec("iptables -D OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"forward traffic to SDN\" -j ACCEPT")
     raise "failed to delete iptables rule #4" unless @result[:success]
-    @resule = host.exec("iptables -t nat -D OPENSHIFT-MASQUERADE -s #{subnet} -m comment --comment \"masquerade pod-to-service and pod-to-external traffic\" -j MASQUERADE")
-    raise "failed to delete iptables rule #5" unless @result[:success]
+
+    # compatible with different network plugin
+    @result = _host.exec("iptables -S -t nat \| grep '#{subnet}' \| cut -d ' ' -f 2-")
+    raise "failed to grep rule from the iptables nat table!" unless @result[:success]
+    nat_rule = @result[:response]
+
+    @resule = _host.exec("iptables -t nat -D #{nat_rule}")
+    raise "failed to delete iptables nat rule" unless @result[:success]
   end
 end
 
