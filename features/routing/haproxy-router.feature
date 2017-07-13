@@ -3257,3 +3257,202 @@ Feature: Testing haproxy router
     And the output should contain "Hello-OpenShift"    
     And the output should contain "SSL connection using TLSv1.2 / ECDHE-RSA-AES256-GCM-SHA384"
 
+
+  # @author yadu@redhat.com
+  # @case_id OCP-15008
+  @admin
+  @destructive
+  Scenario: Could not get certificate info for unsecure routes after enable ROUTER_STRICT_SNI
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router               |
+      | e        | ROUTER_STRICT_SNI=true  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I wait up to 15 seconds for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
+    
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    When I execute on the pod:
+      | curl |
+      | -kv  |
+      | https://<%= route.dns(by: user) %> |
+    Then the step should fail
+    And the output should contain "(35)"
+    And the output should not contain "CN="
+
+  # @author yadu@redhat.com
+  # @case_id OCP-14768
+  @admin
+  @destructive
+  Scenario: Could get certificate info for edge routes after enable ROUTER_STRICT_SNI
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router               |
+      | e        | ROUTER_STRICT_SNI=true  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
+
+    When I run the :create_route_edge client command with:
+      | name     | edge-route1      |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
+      | service  | service-unsecure |
+      | cert     | route_edge-www.edge.com.crt |
+      | key      | route_edge-www.edge.com.key |
+      | cacert   | ca.pem |      
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name    | edge-route2      |
+      | service | service-unsecure |
+    Then the step should succeed
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+    And I wait up to 15 seconds for the steps to pass:
+    """ 
+    When I execute on the pod:
+      | curl |
+      |  --resolve |
+      | <%= route("edge-route1", service("edge-route1")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("edge-route1", service("edge-route1")).dns(by: user) %>/ |
+      | -kv |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift  |
+      | CN=*.example.com |
+    """
+    And I wait up to 15 seconds for the steps to pass:
+    """ 
+    When I execute on the pod:
+      | curl |
+      | https://<%= route("edge-route2", service("edge-route2")).dns(by: user) %>/ |
+      | -kv |
+    Then the step should fail
+    # return curl: (35) ssl_handshake error since could not use default certs when enable ROUTER_STRICT_SNI
+    And the output should contain "(35)"
+    """
+
+  # @author yadu@redhat.com
+  # @case_id OCP-14984
+  @admin
+  @destructive
+  Scenario: Could get certificate info for reencrypt routes after enable ROUTER_STRICT_SNI
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router               |
+      | e        | ROUTER_STRICT_SNI=true  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+    Then the step should succeed
+
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt.ca"
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen-route1 |
+      | hostname   | <%= rand_str(5, :dns) %>.reen.com |
+      | service    | service-secure |
+      | cert       | route_reencrypt-reen.example.com.crt |
+      | key        | route_reencrypt-reen.example.com.key |
+      | cacert     | route_reencrypt.ca |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen-route2 |
+      | service    | service-secure |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
+    Then the step should succeed
+    Given the pod named "hello-pod" becomes ready
+
+    And I wait up to 15 seconds for the steps to pass:
+    """ 
+    When I execute on the pod:
+      | curl |
+      |  --resolve |
+      | <%= route("reen-route1", service("reen-route1")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("reen-route1", service("reen-route1")).dns(by: user) %>/ |
+      | -kv |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift  |
+      | CN=*.example.com |
+    """
+    And I wait up to 15 seconds for the steps to pass:
+    """ 
+    When I execute on the pod:
+      | curl |
+      | https://<%= route("reen-route2", service("reen-route2")).dns(by: user) %>/ |
+      | -kv |
+    Then the step should fail
+    # return curl: (35) ssl_handshake error since could not use default certs when enable ROUTER_STRICT_SNI
+    And the output should contain "(35)"
+    """    
