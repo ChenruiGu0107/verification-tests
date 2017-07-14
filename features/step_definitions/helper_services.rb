@@ -516,10 +516,13 @@ Given /^I have a registry with htpasswd authentication enabled in my project$/ d
   cb.reg_svc_name = "registry"
   cb.reg_user = "testuser"
   cb.reg_pass = "testpassword"
-  step %Q/I run the :set_probe client command with:/, table(%{
-    | resource  | dc/registry               |
-    | readiness |                           |
-    | get_url   | http://:5000/ |
+  step %Q/I run the :patch client command with:/, table(%{
+      | resource      | dc                                                                                                                                                                                                                                 |
+      | resource_name | registry                                                                                                                                                                                                                           |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"name":"registry","readinessProbe":{"httpGet":{"httpHeaders":[{"name":"Authorization","value":"Basic dGVzdHVzZXI6dGVzdHBhc3N3b3Jk"}],"path":"/v2/","port":5000,"scheme":"HTTP"}}}]}}}} |
   })
   step %Q/the step should succeed/
+  step %Q/a pod becomes ready with labels:/, table(%{
+       | deploymentconfig=registry |
+  })
 end

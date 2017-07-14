@@ -564,7 +564,7 @@ Feature: Testing registry
   # @case_id: OCP-12059
   @destructive
   @admin
-  Scenario: Pull image with secrets from private remote registry in the OpenShift registry      
+  Scenario: Pull image with secrets from private remote registry in the OpenShift registry
     Given I have a project
     And I select a random node's host
     And I have a registry with htpasswd authentication enabled in my project
