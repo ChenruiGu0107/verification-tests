@@ -2,14 +2,13 @@ require 'google/apis/compute_v1'
 require 'googleauth'
 # require 'signet/oauth_2/client'
 
-require 'collections'
-require 'common'
-
 lib_path = File.expand_path(File.dirname(File.dirname(__FILE__)))
 unless $LOAD_PATH.any? {|p| File.expand_path(p) == lib_path}
   $LOAD_PATH.unshift(lib_path)
 end
 
+require 'collections'
+require 'common'
 
 module CucuShift
   class GCE
