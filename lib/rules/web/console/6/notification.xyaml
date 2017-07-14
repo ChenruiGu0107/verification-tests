@@ -32,6 +32,21 @@ save_notification_config:
   - selector:
       xpath: //button[contains(text(),"Save") and not(@disabled)]
     op: click
-    timeout: 30
   - selector:
       xpath: //span[contains(text(),"Successfully saved notification preferences.")]
+check_notification_extra_value_warning:
+  action: goto_notification_page
+  elements:
+  - selector:
+      xpath: //div/span[contains(text(),"Notification preferences contain an unknown type")]
+  - selector:
+      xpath: //div/span[contains(text(),"Other values may be discarded or overwritten if these preferences are saved")]
+check_notification_save_conflict_error:
+  elements:
+  - selector:
+      xpath: //button[contains(text(),"Save") and not(@disabled)]
+    op: click
+  - selector:
+      xpath: //div/span[contains(text(),"Failed to save notification preferences")]
+  - selector:
+      xpath: //div/span[contains(text(),"the object has been modified")]
