@@ -314,3 +314,30 @@ Feature: Service related networking scenarios
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift |
+
+  # @author yadu@redhat.com
+  # @case_id OCP-15032
+  @admin
+  Scenario: The openflow list will be cleaned after delete the services
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    Given I use the "service-unsecure" service
+    And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
+    Given I select a random node's host
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    Then the step should succeed
+    And the output should contain:
+      | <%= cb.service_ip %> |
+    When I run the :delete client command with:
+      | object_type       | svc              |
+      | object_name_or_id | service-unsecure |
+    Then the step should succeed
+    Given I select a random node's host
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    Then the step should succeed
+    And the output should not contain:
+      | <%= cb.service_ip %> |
