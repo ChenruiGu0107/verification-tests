@@ -63,8 +63,8 @@ Feature: check event feature on web console
 
     # check one build event tab
     When I perform the :click_on_events_tab_on_build_page web console action with:
-      | project_name     | <%= project.name %>           |
-      | bc_and_build_name| nodejs-sample/nodejs-sample-1 |
+      | project_name      | <%= project.name %>           |
+      | bc_and_build_name | nodejs-sample/nodejs-sample-1 |
     Then the step should succeed
 
     When I perform the :check_event_message web console action with:
@@ -93,8 +93,9 @@ Feature: check event feature on web console
     When I perform the :check_event_message_missing web console action with:
       | message | Started container |
     Then the step should succeed
+    # Successfully pulled
     When I perform the :check_event_message web console action with:
-      | message | Successfully pulled |
+      | message | ulled |
     Then the step should succeed
     When I run the :clear_keyword_filters web console action
     Then the step should succeed
@@ -117,7 +118,7 @@ Feature: check event feature on web console
     Then the step should succeed
     When I perform the :check_messages_order web console action with:
       | first_reason  | Created |
-      | second_reason | Pulling |
+      | second_reason | Started |
     Then the step should succeed
 
     # sort by message
@@ -125,8 +126,8 @@ Feature: check event feature on web console
       | sort_field | Message |
     Then the step should succeed
     When I perform the :check_messages_order web console action with:
-      | first_message  | Successfully assigned |
-      | second_message | Successfully pulled   |
+      | first_message  | Created container |
+      | second_message | Started container |
     Then the step should succeed
 
     # check events page
@@ -244,13 +245,13 @@ Feature: check event feature on web console
       | sort_field | Message |
     Then the step should succeed
     When I perform the :check_messages_order web console action with:
-      | first_message  | Successfully assigned |
-      | second_message | Successfully pulled   |
+      | first_message  | Started container     |
+      | second_message | Successfully assigned |
     Then the step should succeed
 
     # sort by count
     When I perform the :sort_by web console action with:
-      | sort_field | Message |
+      | sort_field | Count |
     Then the step should succeed
     When I perform the :check_messages_order web console action with:
       | first_message  | Created container |
