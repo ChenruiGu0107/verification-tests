@@ -173,3 +173,42 @@ Feature: Event related scenarios
     Then the output should match:
       | Unhealthy\tReadiness probe failed:.*exec failed.*\/bin\/hello: no such file or directory |
     """
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-10622
+  @admin
+  @destructive
+  Scenario: Node events should be logged
+    Given I have a project
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given I register clean-up steps:
+    """
+    I run the :oadm_manage_node admin command with:
+      | node_name   | <%= cb.nodes[0].name %> |
+      | schedulable | true                    |
+    the step should succeed
+    """
+    When I run the :oadm_manage_node admin command with:
+      | node_name   | <%= cb.nodes[0].name %> |
+      | schedulable | false                   |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe admin command with:
+      | resource | node                    |
+      | name     | <%= cb.nodes[0].name %> |
+    Then the output should match:
+      | Normal\\s+NodeNotSchedulable\\s+Node <%= cb.nodes[0].name %> status is now: NodeNotSchedulable |
+    """
+    When I run the :oadm_manage_node admin command with:
+      | node_name   | <%= cb.nodes[0].name %> |
+      | schedulable | true                    |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :describe admin command with:
+      | resource | node                    |
+      | name     | <%= cb.nodes[0].name %> |
+    Then the output should match:
+      | Normal\\s+NodeSchedulable\\s+Node <%= cb.nodes[0].name %> status is now: NodeSchedulable |
+    """
