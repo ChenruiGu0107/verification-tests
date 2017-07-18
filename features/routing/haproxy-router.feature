@@ -1953,7 +1953,7 @@ Feature: Testing haproxy router
   # @case_id OCP-12683
   @admin
   @destructive
-  Scenario: The health check interval of backend can be set by env variable or annotations
+  Scenario: The health check interval of backend can be set by env variable
     # set router env (from default 5000ms to 1234ms)  
     Given I switch to cluster admin pseudo user
     And I use the "default" project
@@ -2000,47 +2000,75 @@ Feature: Testing haproxy router
 
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    Given 10 seconds have passed
-    When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | -A               |
-      | 32               |
-      | service-unsecure |
-      | haproxy.config   |
-    Then the output should match:
-      | server.*<%=cb.pod_ip %>:8080 check inter 1234ms cookie .* |
-    When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | -A               |
-      | 32               |
-      | edge-route       |
-      | haproxy.config   |
-    Then the output should match:
-      | server.*<%=cb.pod_ip %>:8080 check inter 1234ms cookie .* |
-    When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | -A               |
-      | 32               |
-      | pass-route       |
-      | haproxy.config   |
-    Then the output should match:
-      | server.*<%=cb.pod_ip %>:8443 check inter 1234ms weight 100 |
-    When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | -A               |
-      | 32               |
-      | reen-route       |
-      | haproxy.config   |
-    Then the output should match:
-      | server.*<%=cb.pod_ip %>:8443 ssl check inter 1234ms verify required ca-file .* |
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain 4 times:
+      | check inter 1234ms |
+    """
 
-    # annotate all types of route
+  # @author hongli@redhat.com
+  # @case_id OCP-15044
+  @admin
+  Scenario: The backend health check interval of unsecure route can be set by annotation
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+
     Given I switch to the first user
+    And I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+
+    # create unsecure route
+    When I expose the "service-unsecure" service
+    Then the step should succeed
     When I run the :annotate client command with:
       | resource     | route                                                   |
       | resourcename | service-unsecure                                        |
       | overwrite    | true                                                    |
       | keyval       | router.openshift.io/haproxy.health.check.interval=200ms |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain:
+      | check inter 200ms |
+    """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-15049
+  @admin
+  Scenario: The backend health check interval of edge route can be set by annotation
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+
+    Given I switch to the first user
+    And I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+
+    When I run the :create_route_edge client command with:
+      | name    | edge-route       |
+      | service | service-unsecure |
     Then the step should succeed
     When I run the :annotate client command with:
       | resource     | route                                                   |
@@ -2048,11 +2076,81 @@ Feature: Testing haproxy router
       | overwrite    | true                                                    |
       | keyval       | router.openshift.io/haproxy.health.check.interval=300ms |
     Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain:
+      | check inter 300ms |
+    """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-15050
+  @admin
+  Scenario: The backend health check interval of passthrough route can be set by annotation
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+
+    Given I switch to the first user
+    And I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+
+    When I run the :create_route_passthrough client command with:
+      | name    | pass-route     |
+      | service | service-secure |
+    Then the step should succeed
     When I run the :annotate client command with:
       | resource     | route                                                   |
       | resourcename | pass-route                                              |
       | overwrite    | true                                                    |
       | keyval       | router.openshift.io/haproxy.health.check.interval=400ms |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain:
+      | check inter 400ms |
+    """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-15051
+  @admin
+  Scenario: The backend health check interval of reencrypt route can be set by annotation
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+
+    Given I switch to the first user
+    And I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen-route              |
+      | service    | service-secure          |
+      | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
     When I run the :annotate client command with:
       | resource     | route                                                   |
@@ -2064,39 +2162,13 @@ Feature: Testing haproxy router
     # check the backend of route after annotation
     Given I switch to cluster admin pseudo user
     And I use the "default" project
-    Given 10 seconds have passed
-    When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | -A               |
-      | 32               |
-      | service-unsecure |
-      | haproxy.config   |
-    Then the output should match:
-      | server.*<%=cb.pod_ip %>:8080 check inter 200ms cookie .* |
-    When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | -A               |
-      | 32               |
-      | edge-route       |
-      | haproxy.config   |
-    Then the output should match:
-      | server.*<%=cb.pod_ip %>:8080 check inter 300ms cookie .* |
-    When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | -A               |
-      | 32               |
-      | pass-route       |
-      | haproxy.config   |
-    Then the output should match:
-      | server.*<%=cb.pod_ip %>:8443 check inter 400ms weight 100 |
-    When I execute on the "<%= cb.router_pod %>" pod:
-      | grep             |
-      | -A               |
-      | 32               |
-      | reen-route       |
-      | haproxy.config   |
-    Then the output should match:
-      | server.*<%=cb.pod_ip %>:8443 ssl check inter 500ms verify required ca-file .* |
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | grep | <%=cb.pod_ip %> | /var/lib/haproxy/conf/haproxy.config |
+    Then the output should contain:
+      | check inter 500ms |
+    """
 
   # @author zzhao@redhat.com
   # @case_id OCP-10883
