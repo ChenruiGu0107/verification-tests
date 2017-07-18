@@ -158,3 +158,14 @@ set_no_storage_class:
   - selector:
       xpath: //span[contains(text(),'No Storage Class')]
     op: click
+check_storage_limit_min_size_on_paid:
+  action: goto_create_pvc_page
+  elements:
+  - selector:
+      xpath: >-
+         //fieldset[@class="form-inline compute-resource"]//small[contains(text(),"Min: 1 GiB")]
+check_storage_limit_min_size_on_free:
+  action: goto_create_pvc_page
+  elements:
+  - selector:
+      xpath: //div[contains(text(),"1 GiB")]//small[contains(text(),"(cannot be changed)")]

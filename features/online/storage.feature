@@ -242,12 +242,12 @@ Feature: ONLY ONLINE Storage related scripts in this file
     Then the step should fail
     And the output should match:
       | Error.*storageclasses.* at the cluster scope |
-  
+
     When I run the :get client command with:
       | resource | storageclass |
       | o        | yaml         |
     Then the step should succeed
-  
+
     When I run the :describe client command with:
       | resource | storageclass           |
       | name     | <%= cb.storageclass %> |
@@ -261,7 +261,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
     Then the step should fail
     And the output should match:
       | Error.*storageclasses.* at the cluster scope |
- 
+
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml |
     Then the step should fail
@@ -271,4 +271,20 @@ Feature: ONLY ONLINE Storage related scripts in this file
     When I run the :get client command with:
       | resource      | storageclass           |
       | resource_name | <%= cb.storageclass %> |
+    Then the step should succeed
+
+  # @author yasun@redhat.com
+  # @case_id OCP-14565
+  Scenario: check the storage size description on web console on paid tier
+    Given I have a project
+    When I perform the :check_storage_limit_min_size_on_paid web console action with:
+      | project_name     | <%= project.name %> |
+    Then the step should succeed
+
+  # @author yasun@redhat.com
+  # @case_id OCP-15010
+  Scenario: check the storage size description on web console on free tier
+    Given I have a project
+    When I perform the :check_storage_limit_min_size_on_free web console action with:
+      | project_name     | <%= project.name %> |
     Then the step should succeed
