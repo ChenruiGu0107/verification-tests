@@ -189,7 +189,7 @@ Feature: deployment related features
       | output                  | json    |
     #Show the container config only
     Then the output should match:
-      | "value": "Plqe5Wev" |
+      | "[vV]alue": "Plqe5Wev" |
     When I run the :rollback client command with:
       | deployment_name         | hooks-1 |
       | output                  | yaml    |
@@ -197,10 +197,10 @@ Feature: deployment related features
       | change_triggers         |         |
       | change_scaling_settings |         |
     Then the output should match:
-      | replicas:\\s+1        |
-      | type:\\s+Recreate     |
-      | value:\\s+Plqe5Wev    |
-      | type:\\s+ConfigChange |
+      | [rR]eplicas:\\s+1        |
+      | [tT]ype:\\s+Recreate     |
+      | [vV]alue:\\s+Plqe5Wev    |
+      | [tT]ype:\\s+ConfigChange |
 
   # @author xxing@redhat.com
   # @case_id OCP-12624 OCP-12018 OCP-12116
@@ -1947,8 +1947,9 @@ Feature: deployment related features
     Given the "ruby-sample-build-1" build was created
     And the "ruby-sample-build-1" build completed
     When I get project dc named "frontend" as JSON
-    Then the output should not contain:
-      | lastTriggeredImage     |
+    Then the output should contain:
+      | "availableReplicas": 0 |
+      | "latestVersion": 0     |
 
 
   # @author yinzhou@redhat.com

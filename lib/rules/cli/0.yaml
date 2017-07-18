@@ -1120,6 +1120,7 @@
 :oadm_registry:
   :cmd: oadm registry
   :options:
+    :images: --images=<value>
     :mount_host: --mount-host=<value>
     :ports: --ports=<value>
     :serviceaccount: --service-account=<value>

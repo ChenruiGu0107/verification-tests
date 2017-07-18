@@ -394,6 +394,7 @@ Feature: Testing registry
        | namespace     | default         |
        | o             | yaml            |
     And I save the output to file>dc.yaml
+    Given evaluation of `@result[:parsed]["spec"]["template"]["spec"]["containers"][0]["image"]` is stored in the :imgid clipboard
     Then admin ensures "docker-registry" dc is deleted from the "default" project
     And I register clean-up steps:
     """
@@ -410,8 +411,9 @@ Feature: Testing registry
     And the master service is restarted on all master nodes
     """
     When I run the :oadm_registry admin command with:
-      | ports     | 5001    |
-      | namespace | default |
+      | ports     | 5001            |
+      | namespace | default         |
+      | images    | <%= cb.imgid %> |
     And a pod becomes ready with labels:
       | deploymentconfig=docker-registry |
     And the master service is restarted on all master nodes
@@ -473,6 +475,7 @@ Feature: Testing registry
        | namespace     | default         |
        | o             | yaml            |
     And I save the output to file>dc.yaml
+    Given evaluation of `@result[:parsed]["spec"]["template"]["spec"]["containers"][0]["image"]` is stored in the :imgid clipboard
     Then admin ensures "docker-registry" dc is deleted from the "default" project
     And I register clean-up steps:
     """
@@ -490,9 +493,10 @@ Feature: Testing registry
     """
     Given SCC "privileged" is added to the "registry" service account
     When I run the :oadm_registry admin command with:
-      | mount_host     | /tmp |
-      | serviceaccount | registry   |
-      | namespace      | default    |
+      | mount_host     | /tmp            |
+      | serviceaccount | registry        |
+      | namespace      | default         |
+      | images         | <%= cb.imgid %> |
     And a pod becomes ready with labels:
       | deploymentconfig=docker-registry |
     And the master service is restarted on all master nodes
@@ -602,15 +606,26 @@ Feature: Testing registry
   @admin
   @destructive
   Scenario: Create the integrated registry as a daemonset by oadm command
+    Given default registry is verified using a pod in a project after scenario
     Given I switch to cluster admin pseudo user
-    When default registry is verified using a pod in a project after scenario
-    Then the master service is restarted on all master nodes after scenario
+    And default docker-registry replica count is restored after scenario
+    When I run the :get admin command with:
+       | resource      | dc              |
+       | resource_name | docker-registry |
+       | namespace     | default         |
+       | o             | yaml            |
+    And I save the output to file>dc.yaml
+    Given evaluation of `@result[:parsed]["spec"]["template"]["spec"]["containers"][0]["image"]` is stored in the :imgid clipboard
+    #When default registry is verified using a pod in a project after scenario
+    #Then the master service is restarted on all master nodes after scenario
     And default docker-registry dc is deleted
     And default docker-registry service is deleted
     And admin ensures "docker-registry" daemonset is deleted from the "default" project after scenario
+    Then the master service is restarted on all master nodes after scenario
     When I run the :oadm_registry admin command with:
-      | namespace | default |
-      | daemonset | true    |
+      | namespace | default         |
+      | daemonset | true            |
+      | images    | <%= cb.imgid %> |
     And <%= daemon_set("docker-registry").desired_number_scheduled(user: admin) %> pods become ready with labels:
       | docker-registry=default |
     Then the step should succeed

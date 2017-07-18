@@ -182,7 +182,7 @@ Feature: oc tag related scenarios
       | resource_name | mystream |
       | template      | "{{.spec}};{{range .status.tags}} tag: {{.tag}} {{end}}" |
     Then the step should succeed
-    And the output should contain "map[];"
+    And the output should contain "map[lookupPolicy:map[local:false]];"
 
     When I run the :tag client command with:
       | source | mystream:nonexist |

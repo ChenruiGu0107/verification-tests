@@ -248,7 +248,7 @@ Given /^I secure the default docker(?: (daemon set))? registry$/ do |deployment_
   _host.exec_admin("rm -f registry.crt registry.key")
   step %Q/the step should succeed/
 
-  _host.exec_admin("oadm ca create-server-cert --signer-cert=#{signer_path}/ca.crt --signer-key=#{signer_path}/ca.key --signer-serial=#{signer_path}/ca.serial.txt --hostnames=#{cb.default_reg_svc_ip},docker-registry.default.svc.cluster.local --cert=registry.crt --key=registry.key")
+  _host.exec_admin("oadm ca create-server-cert --signer-cert=#{signer_path}/ca.crt --signer-key=#{signer_path}/ca.key --signer-serial=#{signer_path}/ca.serial.txt --hostnames=#{cb.default_reg_svc_ip},docker-registry.default.svc.cluster.local,docker-registry.default.svc --cert=registry.crt --key=registry.key")
   step %Q/the step should succeed/
 
   registry_secret_name = "registry-secret-#{rand_str(5, :dns)}"
