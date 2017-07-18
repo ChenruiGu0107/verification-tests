@@ -113,3 +113,131 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
       | wildfly:9.0                             |
       | wildfly:10.0                            |
       | wildfly:10.1                            |
+
+  # @author zhaliu@redhat.com
+  # @case_id OCP-10091
+  Scenario: imageStream is auto provisioned if it does not exist during 'docker push'--Online
+    Given I have a project
+    When I have a skopeo pod in the project
+    Then the step should succeed  
+    And a pod becomes ready with labels:
+      | name=skopeo |
+    When I execute on the pod:  
+      | skopeo                                                                                                    |
+      | --insecure-policy                                                                                         |
+      | copy                                                                                                      |
+      | --dcreds                                                                                                  |
+      | <%= user.name %>:<%= user.get_bearer_token.token %>                                                       |
+      | docker://docker.io/busybox                                                                                |
+      | docker://<%= env.master_hosts.first.hostname.gsub("api","registry") %>/<%= project.name %>/busybox:latest |
+    Then the step should succeed  
+    When I run the :get client command with:
+      | resource | imagestreamtag |
+    Then the step should succeed  
+    And the output should contain:
+      | busybox:latest |
+
+  # @author zhaliu@redhat.com
+  Scenario Outline: ImageStream annotation and tag function
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/<file> |
+    Then the step should succeed  
+    When I have a skopeo pod in the project
+    Then the step should succeed  
+    And a pod becomes ready with labels:
+      | name=skopeo |
+    When I execute on the pod:  
+      | skopeo                                                                                           |
+      | --insecure-policy                                                                                |
+      | copy                                                                                             |
+      | --dcreds                                                                                         |
+      | <%= user.name %>:<%= user.get_bearer_token.token %>                                              |
+      | docker://docker.io/busybox                                                                       |
+      | docker://<%= env.master_hosts.first.hostname.gsub("api","registry") %>/<%= project.name %>/<tag> |
+    Then the step should succeed  
+    When I run the :get client command with:
+      | resource | imagestreamtag |
+      | template | <isttemplate>  |
+    Then the step should succeed  
+    And the output should match:
+      | <istoutput> |
+    When I run the :get client command with:
+      | resource      | imagestream  |
+      | resource_name | <isname>     |
+      | template      | <istemplate> |
+    Then the step should succeed
+    And the output should match:
+      | <isoutput> |
+    Examples:
+      | file             | tag         | isttemplate                                        | istoutput                                                  | isname  | istemplate                                                                               | isoutput                                         |
+      | annotations.json | testa:prod  | {{range .items}} {{.metadata.annotations}} {{end}} | map\[color:blue\]                                          | testa   | "{{range .spec.tags}} {{.annotations}} {{end}}; {{range .status.tags}} {{.tag}} {{end}}" | map\[color:blue\].*prod\|prod.*map\[color:blue\] | # @case_id OCP-10090
+      | busybox.json     | busybox:2.0 | "{{range .items}} {{.metadata.name}} {{end}}"      | busybox:latest.*busybox:2\.0\|busybox:2\.0.*busybox:latest | busybox | "{{range .status.tags}} {{.tag}} {{end}}"                                                | latest.*2\.0\|2\.0.*latest                       | # @case_id OCP-10093
+
+  # @author zhaliu@redhat.com
+  # @case_id OCP-10092
+  Scenario: User should be denied pushing when it does not have 'admin' role--online paid tier
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project_name clipboard
+    Given I switch to second user
+    Given I have a project
+    When I have a skopeo pod in the project
+    Then the step should succeed  
+    And a pod becomes ready with labels:
+      | name=skopeo |
+    When I execute on the pod:  
+      | skopeo                                                                                                       |
+      | --insecure-policy                                                                                            |
+      | copy                                                                                                         |
+      | --dcreds                                                                                                     |
+      | <%= user.name %>:<%= user.get_bearer_token.token %>                                                          |
+      | docker://docker.io/busybox                                                                                   |
+      | docker://<%= env.master_hosts.first.hostname.gsub("api","registry") %>/<%= cb.project_name %>/busybox:latest |
+    Then the step should fail  
+    And the output should contain:
+      | not authorized to read from destination repository |
+    Given I switch to first user
+    When I run the :policy_add_role_to_user client command with:
+      | role      | edit                               |
+      | user_name | <%= user(1, switch: false).name %> |
+    Then the step should succeed
+    Given I switch to second user
+    And I use the "<%=cb.project_name %>" project
+    When I execute on the pod:  
+      | skopeo                                                                                                       |
+      | --insecure-policy                                                                                            |
+      | copy                                                                                                         |
+      | --dcreds                                                                                                     |
+      | <%= user.name %>:<%= user.get_bearer_token.token %>                                                          |
+      | docker://docker.io/busybox                                                                                   |
+      | docker://<%= env.master_hosts.first.hostname.gsub("api","registry") %>/<%= cb.project_name %>/busybox:latest |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | imagestreamtag         |
+      | n        | <%= cb.project_name %> |
+    Then the step should succeed  
+    And the output should contain:
+      | busybox:latest |
+
+  # @author zhaliu@redhat.com
+  # @case_id OCP-15022
+  Scenario: User should be denied pushing when it does not have 'admin' role--online free tier
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project_name clipboard
+    Given I switch to second user
+    Given I have a project
+    When I have a skopeo pod in the project
+    Then the step should succeed  
+    And a pod becomes ready with labels:
+      | name=skopeo |
+    When I execute on the pod:  
+      | skopeo                                                                                                       |
+      | --insecure-policy                                                                                            |
+      | copy                                                                                                         |
+      | --dcreds                                                                                                     |
+      | <%= user.name %>:<%= user.get_bearer_token.token %>                                                          |
+      | docker://docker.io/busybox                                                                                   |
+      | docker://<%= env.master_hosts.first.hostname.gsub("api","registry") %>/<%= cb.project_name %>/busybox:latest |
+    Then the step should fail  
+    And the output should contain:
+      | not authorized to read from destination repository |

@@ -293,6 +293,21 @@ Given /^I have a pod-for-ping in the(?: "([^ ]+?)")? project$/ do |project_name|
 
 end
 
+# skopeo is a pod that has skopeo clients tools
+Given /^I have a skopeo pod in the(?: "([^ ]+?)")? project$/ do |project_name|
+  project(project_name, switch: true)
+  unless project.exists?(user: user)
+    raise "project #{project_name} does not exist"
+  end
+
+  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/imagestream/skopeo.json")
+  raise "could not create a skopeo" unless @result[:success]
+
+  @result = pod("skopeo").wait_till_ready(user, 300)
+  raise "skopeo pod did not become ready in time" unless @result[:success]
+
+end
+
 # Download the ca.pem to pod-for ping
 Given /^CA trust is added to the pod-for-ping$/ do
   @result = cb.ping_pod.exec(
