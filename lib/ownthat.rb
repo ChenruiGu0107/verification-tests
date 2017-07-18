@@ -15,6 +15,16 @@ module CucuShift
       @url = url || conf[:services, :ownthat_allocator, :url]
       @owner = owner
       @http_opts = conf[:services, :ownthat_allocator, :http_opts] || {}
+      @http_opts = @http_opts.merge http_opts
+
+      # make sure ca_paths are absolute
+      if @http_opts[:ssl_ca_file]
+        @http_opts[:ssl_ca_file] = expand_path(@http_opts[:ssl_ca_file])
+      end
+      if @http_opts[:ssl_ca_path]
+        @http_opts[:ssl_ca_path] = expand_path(@http_opts[:ssl_ca_path])
+      end
+
       @http_opts = deep_freeze(deep_merge(@http_opts, http_opts))
 
       raise "need url" unless @url
