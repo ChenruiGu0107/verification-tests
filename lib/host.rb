@@ -78,6 +78,13 @@ module CucuShift
         res = accessible?
         res[:success]
       }
+      unless res[:success]
+        logger.warn res[:response]
+        raise res[:error] rescue raise(
+          CucuShift::TimeoutError,
+          "#{self} did not become available within #{timeout} seconds"
+        )
+      end
       return res
     end
 
@@ -338,14 +345,12 @@ module CucuShift
       before_reboot = time
       reboot
       sleep 30 # let machine enough time to actually reboot
-      if wait_to_become_accessible(timeout)[:success]
-        if before_reboot < time - uptime
-          return nil
-        else
-          raise "#{self} does not appear to have actually rebooted"
-        end
+      wait_to_become_accessible(timeout)
+      if before_reboot < time - uptime
+        return nil
       else
-        raise "#{self} did not become available within #{timeout} seconds"
+        raise CucuShift::TimeoutError,
+          "#{self} does not appear to have actually rebooted"
       end
     end
   end
