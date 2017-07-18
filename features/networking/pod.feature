@@ -92,3 +92,27 @@ Feature: Pod related networking scenarios
       | resource_name | udp4789-pod |
     Then the step should succeed
     And the output should contain "Connection test to vxlan port"
+
+  # @author yadu@redhat.com
+  # @case_id OCP-14986
+  @admin
+  Scenario: The openflow list will be cleaned after delete the pods
+    Given I have a project
+    Given I have a pod-for-ping in the project
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    Given I select a random node's host
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    Then the step should succeed
+    And the output should contain:
+      | <%=cb.pod_ip %> |
+    When I run the :delete client command with:
+      | object_type       | pod       |
+      | object_name_or_id | hello-pod |
+    Then the step should succeed
+    Given I select a random node's host
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    Then the step should succeed
+    And the output should not contain:
+      | <%=cb.pod_ip %> |
