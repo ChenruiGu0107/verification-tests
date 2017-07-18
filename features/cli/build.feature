@@ -2099,43 +2099,40 @@ Feature: build 'apps' with CLI
     Then the step should succeed
 
   # @author cryan@redhat.com
-  # @case_id OCP-11272
-  Scenario: Cancel multiple new/pending/running builds
+  Scenario Outline: Cancel multiple new/pending/running builds
     Given I have a project
     When I run the :new_build client command with:
       | image    | openshift/ruby:latest                            |
       | app_repo | http://github.com/openshift/ruby-hello-world.git |
     Then the step should succeed
-    Given I run the steps 9 times:
+    Given I run the steps 5 times:
     """
     When I run the :start_build client command with:
       | buildconfig | ruby-hello-world |
     Then the step should succeed
     """
     Given I get project builds
-    Then the output should contain 10 times:
+    Then the output should contain 6 times:
       | ruby-hello-world- |
     When I run the :cancel_build client command with:
       | build_name | ruby-hello-world-1 |
       | build_name | ruby-hello-world-2 |
-      | build_name | ruby-hello-world-3 |
-      | build_name | ruby-hello-world-4 |
     Then the step should succeed
     Given I get project builds
-    Then the output should match 4 times:
+    Then the output should match 2 times:
       | Git.*Cancelled |
-    #This prevents a timing issue with the 5th build not being cancelled/started:
-    Given the "ruby-hello-world-5" build becomes :pending
+    #This prevents a timing issue with the 4th build not being cancelled/started:
+    Given the "ruby-hello-world-4" build becomes :pending
     When I run the :cancel_build client command with:
       | bc_name | bc/ruby-hello-world |
       | state   | new                 |
     Then the step should succeed
     Given I get project builds
-    Then the output should match 9 times:
+    Then the output should match 4 times:
       | Git.*Cancelled |
     And the output should not contain "New"
-    #This prevents a timing issue with the 5th build as above:
-    Given the "ruby-hello-world-5" build completes
+    #This prevents a timing issue with the 4th build as above:
+    Given the "ruby-hello-world-4" build completes
     When I run the :patch client command with:
       | resource      | buildconfig                              |
       | resource_name | ruby-hello-world                         |
@@ -2147,14 +2144,14 @@ Feature: build 'apps' with CLI
       | buildconfig | ruby-hello-world |
     Then the step should succeed
     """
-    Given the "ruby-hello-world-13" build becomes :pending
+    Given the "ruby-hello-world-9" build becomes :pending
     When I run the :cancel_build client command with:
-      | build_name | ruby-hello-world-11 |
-      | build_name | ruby-hello-world-12 |
-      | build_name | ruby-hello-world-13 |
+      | build_name | ruby-hello-world-7 |
+      | build_name | ruby-hello-world-8 |
+      | build_name | ruby-hello-world-9 |
     Then the step should succeed
     Given I get project builds
-    Then the output should match 12 times:
+    Then the output should match <num1> times:
       | Git.*Cancelled |
     And the output should not contain "New"
     Given I run the steps 3 times:
@@ -2168,7 +2165,7 @@ Feature: build 'apps' with CLI
       | state   | pending             |
     Then the step should succeed
     Given I get project builds
-    Then the output should match 15 times:
+    Then the output should match <num2> times:
       | Git.*Cancelled |
     And the output should not contain "New"
     Given I run the steps 3 times:
@@ -2178,14 +2175,14 @@ Feature: build 'apps' with CLI
     Then the step should succeed
     """
     Given I get project builds
-    Given the "ruby-hello-world-19" build becomes :running
+    Given the "ruby-hello-world-13" build becomes :running
     When I run the :cancel_build client command with:
-      | build_name | ruby-hello-world-17 |
-      | build_name | ruby-hello-world-18 |
-      | build_name | ruby-hello-world-19 |
+      | build_name | ruby-hello-world-13 |
+      | build_name | ruby-hello-world-14 |
+      | build_name | ruby-hello-world-15 |
     Then the step should succeed
     Given I get project builds
-    Then the output should match 18 times:
+    Then the output should match <num3> times:
       | Git.*Cancelled |
     Given I run the steps 3 times:
     """
@@ -2193,13 +2190,13 @@ Feature: build 'apps' with CLI
       | buildconfig | ruby-hello-world |
     Then the step should succeed
     """
-    Given the "ruby-hello-world-22" build becomes :running
+    Given the "ruby-hello-world-16" build becomes :running
     When I run the :cancel_build client command with:
       | bc_name | bc/ruby-hello-world |
       | state   | running             |
     Then the step should succeed
     Given I get project builds
-    Then the output should match 21 times:
+    Then the output should match <num4> times:
       | Git.*Cancelled |
     Given I run the steps 3 times:
     """
@@ -2211,8 +2208,13 @@ Feature: build 'apps' with CLI
       | bc_name | bc/ruby-hello-world |
     Then the step should succeed
     Given I get project builds
-    Then the output should match 24 times:
+    Then the output should match <num5> times:
       | Git.*Cancelled |
+
+    Examples:
+      | num1 | num2 | num3 | num4 | num5 |
+      | 7    | 10   | 13   | 16   | 19   | # @case_id OCP-11272
+      | 5    | 5    | 5    | 5    | 5    | # @case_id OCP-15019
 
   # @author cryan@redhat.com
   # @case_id OCP-9626
