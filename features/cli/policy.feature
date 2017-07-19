@@ -630,16 +630,12 @@ Feature: change the policy of user/service account
       | resource      | storageclass           |
       | resource_name | sc-<%= project.name %> |
       | o             | yaml                   |
-    Then the step should fail
-    And the output should match:
-      | Error.*storageclasses.* at the cluster scope |
+    Then the step should succeed
 
     When I run the :get client command with:
-      | resource | storageclass |
-      | o        | yaml         |
-    Then the step should fail
-    And the output should match:
-      | Error.*storageclasses.* at the cluster scope |
+      | resource      | storageclass           |
+      | o             | yaml                   |
+    Then the step should succeed
 
     When I run the :describe client command with:
       | resource | storageclass           |
