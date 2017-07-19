@@ -656,7 +656,7 @@ module CucuShift
         if res[:success]
           @spec = res[:parsed]["server"]
         else
-          logger.error res[:response]
+          client.logger.error res[:response]
           raise "could not get instance"
         end
 
