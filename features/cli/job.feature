@@ -346,7 +346,7 @@ Feature: job.feature
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/job_with_lessthan_runtime_activeDeadlineSeconds.yaml |
     Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 120 seconds for the steps to pass:
     """
     When I run the :get client command with:
       | resource      | job  |
