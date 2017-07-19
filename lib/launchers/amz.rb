@@ -322,14 +322,11 @@ module CucuShift
       host = CucuShift.const_get(config[:hosts_type]).new(hostname, host_opts)
       if wait
         logger.info("Waiting for #{hostname} to become accessible..")
-        res = host.wait_to_become_accessible(600)
-
-        unless res[:success]
+        begin
+          host.wait_to_become_accessible(600)
+        rescue
           terminate_instance(instance)
-          logger.error res[:response]
-          # raise error with a cause (ever heard of that ruby dude?)
-          raise res[:error] rescue
-                raise ScriptError, "SSH availability timed out for #{hostname}"
+          raise
         end
         logger.info "Instance (#{hostname}) is accessible"
       else

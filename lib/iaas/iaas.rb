@@ -37,7 +37,7 @@ module CucuShift
         iaas_conf_params[params[0].strip] = params[1].strip
       end
 
-      return CucuShift::OpenStack.new(
+      return CucuShift::OpenStack.instance(
         :url => iaas_conf_params['auth-url'] + "tokens",
         :user => iaas_conf_params["username"],
         :password => iaas_conf_params["password"],

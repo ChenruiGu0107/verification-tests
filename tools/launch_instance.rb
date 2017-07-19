@@ -293,7 +293,7 @@ module CucuShift
         azure = CucuShift::Azure.new
         res = azure.create_instances(host_names, **launch_opts)
       when "openstack"
-        ostack = CucuShift::OpenStack.new(service_name: service_name)
+        ostack = CucuShift::OpenStack.instance(service_name: service_name)
         create_opts = {}
         res = ostack.launch_instances(
           names: host_names,
