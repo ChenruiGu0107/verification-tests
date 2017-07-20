@@ -1495,3 +1495,280 @@ Feature: Testing route
     Then the step should succeed
     And the output should contain "Hello-OpenShift-1 https-8443"
     """
+
+  # @author yadu@redhat.com
+  # @case_id OCP-14678
+  Scenario: Only the host in whitelist could access the route - unsecure route
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    # Add IP whitelist for route
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | http://ipecho.net/plain |
+    And evaluation of `@result[:response]` is stored in the :ipecho clipboard
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | service-unsecure |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=<%= cb.ipecho %> <%= cb.router_ip[0] %> |
+      | overwrite    | true   |
+    Then the step should succeed
+    # Access the route
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+
+    # Add another IP whitelist for route
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | service-unsecure |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=8.8.8.8 |
+      | overwrite    | true   |
+    Then the step should succeed
+    # Access the route
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    Then the step should fail
+    And the output should contain "Empty reply from server"
+
+  # @author yadu@redhat.com
+  # @case_id OCP-14679
+  Scenario: Only the host in whitelist could access the route - edge routes
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name    | edge-route       |
+      | service | service-unsecure |
+    Then the step should succeed
+    
+    # Add IP whitelist for route
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | http://ipecho.net/plain |
+    And evaluation of `@result[:response]` is stored in the :ipecho clipboard
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | edge-route |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=<%= cb.ipecho %>/24 <%= cb.router_ip[0] %>/24 |
+      | overwrite    | true   |
+    Then the step should succeed
+    # Access the route
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | -k   |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+
+    # Add another IP whitelist for route
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | edge-route |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=8.8.8.8 |
+      | overwrite    | true   |
+    Then the step should succeed
+    # Access the route
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | -k   |
+      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+    Then the step should fail
+    And the output should contain "Empty reply from server"
+
+  # @author yadu@redhat.com
+  # @case_id OCP-14685
+  Scenario: Only the host in whitelist could access the route - passthrough routes
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    When I run the :create_route_passthrough client command with:
+      | name    | pass-route       |
+      | service | service-secure |
+    Then the step should succeed
+
+    # Add IP whitelist for route
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | http://ipecho.net/plain |
+    And evaluation of `@result[:response]` is stored in the :ipecho clipboard
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | pass-route |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=<%= cb.ipecho %>/24 <%= cb.router_ip[0] %>/24 |
+      | overwrite    | true   |
+    Then the step should succeed
+    # Access the route
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | -k   |
+      | https://<%= route("pass-route", service("pass-route")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+
+    # Add another IP whitelist for route
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | pass-route |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=8.8.8.8 |
+      | overwrite    | true   |
+    Then the step should succeed
+    # Access the route
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | -k   |
+      | https://<%= route("pass-route", service("pass-route")).dns(by: user) %>/ |
+    Then the step should fail
+    And the output should contain "(35)"
+
+
+  # @author yadu@redhat.com
+  # @case_id OCP-14684
+  Scenario: Only the host in whitelist could access the route - reencrypt routes
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen-route |
+      | service    | service-secure |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+    
+    # Add IP whitelist for route
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | http://ipecho.net/plain |
+    And evaluation of `@result[:response]` is stored in the :ipecho clipboard
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | reen-route |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=<%= cb.ipecho %> <%= cb.router_ip[0] %> |
+      | overwrite    | true   |
+    Then the step should succeed
+    # Access the route
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | -k   |
+      | https://<%= route("reen-route", service("reen-route")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+
+    # Add another IP whitelist for route
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | reen-route |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=8.8.8.8 |
+      | overwrite    | true   |
+    Then the step should succeed
+    # Access the route
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | -k   |
+      | https://<%= route("reen-route", service("reen-route")).dns(by: user) %>/ |
+    Then the step should fail
+    And the output should contain "Empty reply from server"
+
+  # @author yadu@redhat.com
+  # @case_id OCP-14680
+  Scenario: Add invalid value in annotation whitelist to routes
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    Given the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    # Add 0.0.0.0/32 in whitelist
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | service-unsecure |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=0.0.0.0/32 |
+      | overwrite    | true   |
+    Then the step should succeed
+    # All host could not access the route		
+    Given I have a pod-for-ping in the project
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    Then the step should fail
+    And the output should contain "Empty reply from server"
+    # Add 0.0.0.0/0 in whitelist
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | service-unsecure |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=0.0.0.0/0 |
+      | overwrite    | true   |
+    Then the step should succeed
+    # All host could access the route               
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    # Add invalid value in whitelist
+    When I run the :annotate client command with:
+      | resource     | route |
+      | resourcename | service-unsecure |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=10.1.a.0/b |
+      | overwrite    | true   |
+    Then the step should succeed
+    # The invalid value could not take effect in whitelist                
+    When I execute on the pod:
+      | curl |
+      | -sS  |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
