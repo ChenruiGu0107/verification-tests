@@ -97,8 +97,8 @@ Feature: functions about resource limits on pod
       | project_name   | <%= project.name %>              |
       | pod_name       | <%= pod.name %>                  |
       | container_name | dctest-2                         |
-      | cpu_range      | 110 millicores to 130 millicores |
-      | memory_range   | 100 MiB to 120 MiB               |
+      | cpu_range      | 110 millicores to 130 millicores | 
+      | memory_range   | 256 MiB to 256 MiB               |
     Then the step should succeed
 
     # create standalone rc with multi containers
@@ -158,14 +158,14 @@ Feature: functions about resource limits on pod
       | pod_name       | <%= pod.name %>                  |
       | container_name | hello-openshift                  |
       | cpu_range      | 110 millicores to 130 millicores |
-      | memory_range   | 100 MiB to 120 MiB               |
+      | memory_range   | 256 MiB to 256 MiB               |
     Then the step should succeed
     When I perform the :check_limits_on_pod_page web console action with:
       | project_name   | <%= project.name %>              |
       | pod_name       | <%= pod.name %>                  |
       | container_name | hello-openshift-fedora           |
       | cpu_range      | 110 millicores to 130 millicores |
-      | memory_range   | 97 MiB to 120 MiB                |
+      | memory_range   | 97 MiB to 256 MiB                |
     Then the step should succeed
 
   # @author xxing@redhat.com
