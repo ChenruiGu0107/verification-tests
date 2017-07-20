@@ -116,3 +116,25 @@ Feature: Pod related networking scenarios
     Then the step should succeed
     And the output should not contain:
       | <%=cb.pod_ip %> |
+
+  # @author hongli@redhat.com
+  # @case_id OCP-15027
+  Scenario: The pod MAC should be generated based on it's IP address
+    Given I have a project
+    And I have a pod-for-ping in the project
+    And evaluation of `pod.ip` is stored in the :pod_ip clipboard
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | IP_ADDR=<%= cb.pod_ip %>; printf ':%02x' ${IP_ADDR//./ } |
+    Then the step should succeed
+    And evaluation of `@result[:response]` is stored in the :pod_mac clipboard
+    When I execute on the pod:
+      | bash |
+      | -c   |
+      | ip address show eth0 |
+    Then the step should succeed
+    And the output should contain:
+      | link/ether 0a:58<%= cb.pod_mac %> |
+      | inet <%= cb.pod_ip %> |
+
