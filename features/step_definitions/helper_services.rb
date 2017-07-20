@@ -87,6 +87,51 @@ Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ 
   end
 end
 
+#This is a step to create efs-provisioner service in the project
+Given /^I have a efs-provisioner(?: with fsid "(.+)")?(?: of region "(.+)")? in the(?: "([^ ]+?)")? project$/ do |fsid, region, project_name|
+  ensure_admin_tagged
+  _project = project(project_name)
+  unless project.exists?(user: user)
+    raise "project #{project_name} does not exist"
+  end
+  _deployment = deployment("efs-provisioner", _project)
+  _deployment.ensure_deleted(user: admin)
+  #Create configmap,secret,sa,deployment
+  step %Q{I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/efsconfigm.yaml"}
+  cm = YAML.load(@result[:response])
+  path = @result[:abs_path]
+  cm["data"]["file.system.id"] = fsid if fsid
+  cm["data"]["aws.region"] = region if region
+  fsid ||= cm["data"]["file.system.id"]
+  region ||= cm["data"]["aws.region"]
+  File.write(path, cm.to_yaml)
+  @result = user.cli_exec(:create, f: path)
+  raise "Could not create efs-provisioner configmap" unless @result[:success]
+  #Obtain the aws id and key, simpler way, optional now
+  #host = env.master_hosts.first
+  #awsid = host.exec_admin("cat /etc/sysconfig/atomic-openshift-node | grep AWS_ACCESS_KEY_ID | awk -F '=' '{print $2}'")
+  #raise "Fail to get aws access id" unless awsid[:success]
+  #awskey = host.exec_admin("cat /etc/sysconfig/atomic-openshift-node | grep AWS_SECRET_ACCESS_KEY | awk -F '=' '{print $2}'")
+  #raise "Fail to get aws access key" unless awskey[:success]
+  #@result = user.cli_exec(:create_secret, createservice_type: "generic", name: "aws-credentials", from_literal: ["aws-access-key-id=#{awsid[:response].to_s.strip}","aws-secret-access-key=#{awskey[:response].to_s.strip}"], namespace: project.name)
+  #raise "Fail to create secret of efs-provisioner" unless @result[:success]
+  step 'I create the serviceaccount "efs-provisioner"'
+  step %Q/SCC "hostmount-anyuid" is added to the "system:serviceaccount:<%= project.name %>:efs-provisioner" service account/
+  @result = admin.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/auth/openshift-clusterrole.yaml")
+  raise "could not create efs-provisioner ClusterRole" unless @result[:success]
+  step %Q/admin ensures "efs-provisioner-runner" clusterrole is deleted after scenario/
+  step %Q/cluster role "efs-provisioner-runner" is added to the "system:serviceaccount:<%= project.name %>:efs-provisioner" service account/
+  step %Q{I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/deployment.yaml" replacing paths:}, table(%{
+    | ["spec"]["template"]["spec"]["serviceAccount"]              | efs-provisioner                     |
+    | ["spec"]["template"]["spec"]["containers"][0]["image"]      | openshift3/efs-provisioner          |
+    | ["spec"]["template"]["spec"]["volumes"][0]["nfs"]["server"] | #{fsid}.efs.#{region}.amazonaws.com |
+    | ["spec"]["template"]["spec"]["volumes"][0]["nfs"]["path"]   | /                                   |
+    })
+  step %Q/a pod becomes ready with labels:/, table(%{
+    | app=efs-provisioner |
+    })
+end
+
 #The following helper step will create a squid proxy, and
 #save the service ip of the proxy pod for later use in the scenario.
 Given /^I have a proxy configured in the project$/ do

@@ -182,6 +182,9 @@
     :help: --help
 :create_secret:
   :cmd: oc create secret <createservice_type>
+  :options:
+    :name: <value>
+    :from_literal: --from-literal=<value>
 :create_service:
   :cmd: oc create service <createservice_type>
   :options:
