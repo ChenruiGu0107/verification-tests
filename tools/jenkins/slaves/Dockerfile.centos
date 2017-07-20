@@ -26,7 +26,7 @@ FROM openshift/jenkins-slave-base-centos7
 ADD . $HOME/cucushift
 RUN [ -d $HOME/cucushift/private/config/ca ] && \
     ( cd $HOME/cucushift/private/config/ca && \
-    cp *.crt *.pem /etc/pki/ca-trust/source/anchors/ && \
+    cp *.pem /etc/pki/ca-trust/source/anchors/ && \
     update-ca-trust extract || \
     exit 1 ) || :
 
