@@ -496,3 +496,153 @@ Feature: Node management
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "could not load config file.*got first char" |
     Then the step should succeed
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12218
+  @admin
+  @destructive
+  Scenario: Set invalid value for kubelet soft eviction parameters - memory
+    Given I select a random node's host
+    And node config is merged with the following hash:
+    """
+    kubeletArguments:
+      eviction-soft:
+      - "memory.available<-300Mi"
+      eviction-soft-grace-period:
+      - "memory.available=-30s"
+    """
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should fail
+    And the output should contain "control process exited with error"
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "memory.available must be positive" |
+    Then the step should succeed
+    Given node config is merged with the following hash:
+    """
+    kubeletArguments:
+      eviction-soft:
+      - "memory.available<xf300Mi"
+      eviction-soft-grace-period:
+      - "memory.available=x30sx"
+      eviction-max-pod-grace-period:
+      - "xf10fs"
+    """
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should fail
+    And the output should contain "control process exited with error"
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "eviction-max-pod-grace-period: Invalid value: \"xf10fs\"" |
+    Then the step should succeed
+    Given node config is merged with the following hash:
+    """
+    kubeletArguments:
+      eviction-soft:
+      - "memory.available<10000000000000Mi"
+      eviction-soft-grace-period:
+      - "memory.available=3000000000000s"
+      eviction-max-pod-grace-period:
+      - "3000000000000"
+    """
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should fail
+    And the output should contain "control process exited with error"
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "eviction-max-pod-grace-period: Invalid value: \"3000000000000\"" |
+    Then the step should succeed
+    Given node config is merged with the following hash:
+    """
+    kubeletArguments:
+      eviction-soft:
+      - "memory.available<0.00000000001Mi"
+      eviction-soft-grace-period:
+      - "memory.available=0.00000000001s"
+      eviction-max-pod-grace-period:
+      - "0.00000000001"
+    """
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should fail
+    And the output should contain "control process exited with error"
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "eviction-max-pod-grace-period: Invalid value: \"0.00000000001\"" |
+    Then the step should succeed
+    Given node config is merged with the following hash:
+    """
+    kubeletArguments:
+      eviction-soft:
+      - "memory.available<0Mi"
+      eviction-soft-grace-period:
+      - "memory.available=0s"
+      eviction-max-pod-grace-period:
+      - "0"
+    """
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should fail
+    And the output should contain "control process exited with error"
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "memory.available must be positive" |
+    Then the step should succeed
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-13737
+  @admin
+  @destructive
+  Scenario: Misconfiguration for QoS level cgroup
+    Given I select a random node's host
+    And node config is merged with the following hash:
+    """
+    kubeletArguments:
+      cgroups-per-qos:
+      - 'true'
+      cgroup-driver:
+      - 'system'
+    """
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should fail
+    And the output should contain "control process exited with error"
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "misconfiguration: kubelet cgroup driver: \"system\" is different from docker cgroup driver: \"systemd\"" |
+    Then the step should succeed
+    Given node config is merged with the following hash:
+    """
+    kubeletArguments:
+      cgroups-per-qos:
+      - 'true'
+      cgroup-driver:
+      - 'cgroupfs'
+    """
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should fail
+    And the output should contain "control process exited with error"
+    When I run commands on the host:
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "misconfiguration: kubelet cgroup driver: \"cgroupfs\" is different from docker cgroup driver: \"systemd\"" |
+    Then the step should succeed
+    Given node config is merged with the following hash:
+    """
+    kubeletArguments:
+      cgroups-per-qos:
+      - 'true'
+      cgroup-driver:
+      - 'systemd'
+    """
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should succeed
+
+    Given node config is merged with the following hash:
+    """
+    kubeletArguments:
+      cgroups-per-qos:
+      - 'true'
+      cgroup-driver:
+      - ''
+    """
+    Then the step should succeed
+    When I try to restart the node service on node
+    Then the step should succeed

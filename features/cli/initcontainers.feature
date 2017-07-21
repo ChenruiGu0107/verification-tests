@@ -290,3 +290,78 @@ Feature: InitContainers
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-onfailure-succ.yaml |
     Then the step should succeed
     Given the pod named "init-onfailure-succ" becomes ready
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12883
+  Scenario: Init container should failed after exceed activeDeadlineSeconds
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-deadline.yaml |
+    Then the step should succeed
+    And I wait up to 120 seconds for the steps to pass:
+    """
+    When I run the :get client command with:
+      | resource      | po            |
+      | resource_name | init-deadline |
+    Then the output should match:
+      | init-deadline\\s+0/1\\s+DeadlineExceeded |
+    """
+    When I run the :describe client command with:
+      | resource | pod           |
+      | name     | init-deadline |
+    And the output should match:
+      | Status:\\s+Failed                                                         |
+      | Reason:\\s+DeadlineExceeded                                               |
+      | Message:\\s+Pod was active on the node longer than the specified deadline |
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12913
+  Scenario: Init containers with volume work fine
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-volume.yaml |
+    Then the step should succeed
+    And the pod named "init-volume" status becomes :running
+    When I run the :exec client command with:
+      | pod              | init-volume            |
+      | exec_command     | cat                    |
+      | exec_command_arg | /init-test/volume-test |
+    Then the output should contain:
+      | This is OCP test wmeng |
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12916
+  @admin
+  Scenario: quota apply to pod with init containers
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/quota.yaml |
+      | n | <%= project.name %> |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-quota1.yaml |
+    Then the step should succeed
+    Given the pod named "init-quota1" status becomes :running
+    When I run the :describe client command with:
+      | resource | quota             |
+      | name     | compute-resources |
+    Then the output should match:
+      | limits.cpu\\s+500m\\s+2         |
+      | limits.memory\\s+400Mi\\s+2Gi   |
+      | pods\\s+1\\s+4                  |
+      | requests.cpu\\s+400m\\s+1       |
+      | requests.memory\\s+300Mi\\s+1Gi |
+    Given I ensure "init-quota1" pod is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-quota2.yaml |
+    Then the step should succeed
+    Given the pod named "init-quota2" status becomes :running
+    When I run the :describe client command with:
+      | resource | quota             |
+      | name     | compute-resources |
+    Then the output should match:
+      | limits.cpu\\s+300m\\s+2         |
+      | limits.memory\\s+240Mi\\s+2Gi   |
+      | pods\\s+1\\s+4                  |
+      | requests.cpu\\s+200m\\s+1       |
+      | requests.memory\\s+200Mi\\s+1Gi |
