@@ -1510,3 +1510,42 @@ Feature: Network policy plugin scenarios
       | curl | --connect-timeout | 5 | <%= cb.p1svc1ip %>:27017 |
     Then the step should fail
     And the output should not contain "Hello"
+
+  #author hongli@redhat.com
+  #case_id OCP-14981
+  Scenario: Project admins can create and delete networkpolicies in their own project
+    Given the master version >= "3.6"
+
+    # create project and networkpolicy
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/defaultdeny-v1-semantic.yaml |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource | networkpolicy |
+    Then the step should succeed
+    And the output should contain "default-deny"
+
+    # delete the networkpolicy
+    When I run the :delete client command with:
+      | object_type       | networkpolicy |
+      | object_name_or_id | default-deny  |
+    Then the step should succeed
+    And I ensure "default-deny" networkpolicies is deleted
+
+  #author hongli@redhat.com
+  #case_id OCP-15024
+  Scenario: Project admin cannot create networkpolicy in other's project
+    Given the master version >= "3.6"
+
+    # first user create project
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+
+    # second user try to create networkpolicy in first user's project
+    Given I switch to the second user
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/networkpolicy/defaultdeny-v1-semantic.yaml |
+      | namespace | <%= cb.proj1 %> |
+    Then the step should fail
+    And the output should contain "cannot create networkpolicies.extensions in project"
