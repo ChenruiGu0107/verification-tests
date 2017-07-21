@@ -425,7 +425,7 @@ Feature: deployment related steps
 
   # @author chezhang@redhat.com
   # @case_id OCP-11865
-  Scenario: Add perma-failed - Make a change outside pod template for failing deployment	
+  Scenario: Add perma-failed - Make a change outside pod template for failing deployment
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-perme-failed-1.yaml |
@@ -516,7 +516,7 @@ Feature: deployment related steps
 
   # @author chezhang@redhat.com
   # @case_id OCP-12009
-  Scenario: Add perma-failed - Negative value test of progressDeadlineSeconds in failing deployment	
+  Scenario: Add perma-failed - Negative value test of progressDeadlineSeconds in failing deployment
     Given I have a project
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment-perme-failed-2.yaml"
     When I run the :create client command with:
@@ -546,9 +546,9 @@ Feature: deployment related steps
     And the step should fail
     And the output should match:
       | cannot be handled as a Deployment.*fractional integer |
-  
+
   # @author: geliu@redhat.com
-  # @case_id: OCP-11599
+  # @case_id OCP-11599
   Scenario: Cleanup policy - Cleanup all previous RSs older than the latest N replica sets in pause
     Given I have a project
     When I run the :create client command with:
@@ -566,7 +566,7 @@ Feature: deployment related steps
       | o        | yaml       |
     Then the output should match:
       | .*[Ii]mage.*docker.io/aosqe/hello-openshift.* |
-    Given 10 pods become ready with labels:  
+    Given 10 pods become ready with labels:
       | app=hello-openshift |
     Then the step should succeed
     When I run the :patch client command with:
@@ -579,7 +579,7 @@ Feature: deployment related steps
       | o        | yaml       |
     Then the output should match:
       | .*[Ii]mage.*openshift/deployment-example.* |
-    Given 10 pods become ready with labels:  
+    Given 10 pods become ready with labels:
       | app=hello-openshift |
     Then the step should succeed
     When I run the :rollout_history client command with:
@@ -592,8 +592,8 @@ Feature: deployment related steps
     When I run the :rollout_pause client command with:
       | resource | deployment      |
       | name     | hello-openshift |
-    Then the step should succeed     
-    Given 10 pods become ready with labels:  
+    Then the step should succeed
+    Given 10 pods become ready with labels:
       | app=hello-openshift |
     Then the step should succeed
     When I run the :get client command with:
@@ -611,7 +611,7 @@ Feature: deployment related steps
       | o        | yaml       |
     Then the output should match:
       | .*revisionHistoryLimit.*:.*1.*|
-    Given 10 pods become ready with labels:   
+    Given 10 pods become ready with labels:
       | app=hello-openshift |
     Then the step should succeed
     When I run the :rollout_history client command with:
@@ -662,8 +662,8 @@ Feature: deployment related steps
       | .*[iI]mage.*openshift/deployment-example.* |
 
   # @author: geliu@redhat.com
-  # @case_id: OCP-12073
-  Scenario: Proportionally scale - Rollout deployment succed in unpause and pause
+  # @case_id OCP-12073
+  Scenario: Proportionally scale - Rollout deployment succeed in unpause and pause
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-1.yaml |
@@ -713,7 +713,7 @@ Feature: deployment related steps
       | resource | pods |
     Then the output should not match:
       | .*hello-openshift.*ContainerCreating.* |
-    """ 
+    """
     When I run the :get client command with:
       | resource | rs   |
     Then the output should match:
@@ -801,3 +801,156 @@ Feature: deployment related steps
     Then the step should succeed
     And the output should match:
       | .*nonexist2.* |
+
+
+  # @author: geliu@redhat.com
+  # @case_id OCP-12161
+  Scenario: Proportionally scale - Scale down deployment succeed in unpause and pause
+    Given I have a project
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/hello-deployment-2.yaml |
+    Then the step should succeed
+
+    Given 60 pods become ready with labels:
+      | app=hello-openshift |
+
+    And current replica set name of "hello-openshift" deployment stored into :rs1 clipboard
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 60 |
+
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 60 |
+
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 50              |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 50 |
+
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 50 |
+
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                                           |
+      | resource_name | hello-openshift                                                                                                      |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"docker.io/aosqe/hello-openshift","name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+
+    Given replica set "<%= cb.rs1 %>" becomes non-current for the "hello-openshift" deployment
+
+    And current replica set name of "hello-openshift" deployment stored into :rs2 clipboard
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 50 |
+
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 0 |
+
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 50 |
+
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 40              |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 40 |
+
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 0 |
+
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 40 |
+
+    When I run the :patch client command with:
+      | resource      | deployment                                                                                              |
+      | resource_name | hello-openshift                                                                                         |
+      | p             | {"spec":{"template":{"spec":{"containers":[{"image":"openshift/nonexist","name":"hello-openshift"}]}}}} |
+    Then the step should succeed
+
+    Given replica set "<%= cb.rs2 %>" becomes non-current for the "hello-openshift" deployment
+
+    And current replica set name of "hello-openshift" deployment stored into :rs3 clipboard
+
+    When I run the :get client command with:
+      | resource | deployment |
+      | o        | yaml       |
+    Then the output should match:
+      | .*image.*openshift/nonexist.* |
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 43 |
+
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 0 |
+
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 38 |
+
+    Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
+      | current | 5 |
+
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 30              |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 33 |
+
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 0 |
+
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 28 |
+
+    Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
+      | current | 5 |
+
+    When I run the :rollout_pause client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+
+    When I run the :scale client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+      | replicas | 10              |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 13 |
+
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 0 |
+
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 11 |
+
+    Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
+      | current | 2 |
+
+    When I run the :rollout_resume client command with:
+      | resource | deployment      |
+      | name     | hello-openshift |
+    Then the step should succeed
+
+    Given number of replicas of "hello-openshift" deployment becomes:
+      | current | 13 |
+
+    Given number of replicas of "<%= cb.rs1 %>" replica set becomes:
+      | current | 0 |
+
+    Given number of replicas of "<%= cb.rs2 %>" replica set becomes:
+      | current | 8 |
+
+    Given number of replicas of "<%= cb.rs3 %>" replica set becomes:
+      | current | 5 |

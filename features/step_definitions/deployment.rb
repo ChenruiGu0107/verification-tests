@@ -52,3 +52,16 @@ Given /^number of replicas of the current replica set for the#{OPT_QUOTED} deplo
 
   raise 'expected replica set replica counters not reached within timeout' unless matched[:success]
 end
+
+Given /^current replica set name of#{OPT_QUOTED} deployment stored into#{OPT_SYM} clipboard$/ do |name, cb_name|
+  cb[cb_name] = deployment(name).current_replica_set(user: user, cached: false).name
+end
+
+Given /^replica set #{QUOTED} becomes non-current for the #{QUOTED} deployment$/ do |rs_name, name|
+  seconds = 180
+  deplmnt = deployment(name)
+  success = wait_for(seconds) do
+    rs_name != deplmnt.current_replica_set(user: user, cached: false).name
+  end
+  raise 'expected replica set name change not reached within timeout' unless success
+end
