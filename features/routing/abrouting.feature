@@ -536,39 +536,31 @@ Feature: Testing abrouting
     Given I wait for the "service-unsecure" service to become ready
     Given I wait for the "service-unsecure-2" service to become ready
     Given I wait for the "service-unsecure-3" service to become ready
-    When I run the :create_route_edge client command with:
-      | name    | route-edge       |
-      | service | service-unsecure |
+    When I expose the "service-unsecure" service
     Then the step should succeed
     When I run the :annotate client command with:
       | resource     | route                                          |
-      | resourcename | route-edge                                     |
+      | resourcename | service-unsecure                                     |
       | overwrite    | true                                           |
       | keyval       | haproxy.router.openshift.io/balance=roundrobin |
     Then the step should succeed
     When I run the :set_backends client command with:
-      | routename | route-edge           |
+      | routename | service-unsecure           |
       | service   | service-unsecure=2   |
       | service   | service-unsecure-2=3 |
       | service   | service-unsecure-3=5 |
     Then the step should succeed
+    Then the step should succeed
     When I run the :set_backends client command with:
-      | routename | route-edge  |
+      | routename | service-unsecure  |
     Then the step should succeed
     Then the output should contain:
       | 20% |
       | 30% |
       | 50% |
-    Given I have a pod-for-ping in the project
     Given I run the steps 60 times:
     """
-    When I execute on the pod:
-      | curl |
-      | --resolve |
-      | <%= route("route-edge", service("route-edge")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
-      | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
-      | -ksS |
-    Then the step should succeed
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
     And the output should contain "Hello-OpenShift"
     And the "access.log" file is appended with the following lines:
       | #{@result[:response].strip} |
