@@ -2,7 +2,7 @@ Feature: Testing timeout route
 
   # @author yadu@redhat.com
   # @case_id OCP-11982
-  Scenario: Set timeout for unsecure route
+  Scenario: Set timeout server for unsecure route
     Given I have a project
     When I run the :create client command with:
       | f  |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/httpbin-pod.json |
@@ -30,7 +30,7 @@ Feature: Testing timeout route
 
   # @author yadu@redhat.com
   # @case_id OCP-11347
-  Scenario: Set timeout for edge route
+  Scenario: Set timeout server for edge route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
@@ -72,7 +72,7 @@ Feature: Testing timeout route
 
   # @author yadu@redhat.com
   # @case_id OCP-11635
-  Scenario: Set timeout for passthough route
+  Scenario: Set timeout server for passthough route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
@@ -116,7 +116,7 @@ Feature: Testing timeout route
 
   # @author yadu@redhat.com
   # @case_id OCP-11826
-  Scenario: Set timeout for reencrypt route
+  Scenario: Set timeout server for reencrypt route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
@@ -167,7 +167,7 @@ Feature: Testing timeout route
   # @author yadu@redhat.com
   # @case_id OCP-10943
   @admin
-  Scenario: Set invalid timeout for route
+  Scenario: Set invalid timeout server for route
     Given I have a project
     When I run the :create client command with:
       | f  | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/routetimeout/unsecure/service_unsecure.json |
