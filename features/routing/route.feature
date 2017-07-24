@@ -1329,3 +1329,169 @@ Feature: Testing route
       | -k                                                                                |
     Then the step should succeed   
     And the output should contain "503 Service Unavailable"
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15028
+  Scenario: The router can do a case-insensitive match of a hostname for unsecure route
+    Given the master version >= "3.6"
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+
+    #Create the unsecure service
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+
+    #Create the unsecure route
+    When I run the :expose client command with:
+      | resource      | service                                   |
+      | resource_name | service-unsecure                          |
+      | hostname      | unsecure-for-test.example.com             |  
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    #access the route using capitals words
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | UNSECURE-FOR-TEST.EXAMPLE.COM:80:<%= cb.router_ip[0] %> |
+      | http://UNSECURE-FOR-TEST.EXAMPLE.COM/ |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift-1 http-8080"
+    """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15071
+  Scenario: The router can do a case-insensitive match of a hostname for edge route
+    Given the master version >= "3.6"
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+
+    #Create the unsecure service
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    #Create the edge route
+    When I run the :create_route_edge client command with:
+      | name           | route-edge                                |
+      | hostname       | edge-for-test.example.com                 |
+      | service        | service-unsecure                          |
+    Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | EDGE-for-test.example.com:443:<%= cb.router_ip[0] %> |
+      | https://EDGE-for-test.example.com/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift-1 http-8080"
+    """
+    # for no-sni
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -s   |
+      | -H   |
+      | Host:EDGE-for-test.example.com |
+      | https://<%= cb.router_ip[0] %> |
+      | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift-1 http-8080"
+    """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15072
+  Scenario: The router can do a case-insensitive match of a hostname for passthrough route
+    Given the master version >= "3.6"
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+
+    #Create the secure service
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+    #Create passthrough route
+    When I run the :create_route_passthrough client command with:
+      | name           | route-pass                                |
+      | hostname       | pass-for-test.example.com                 |
+      | service        | service-secure                            |
+    Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | pass-FOR-TEST.example.com:443:<%= cb.router_ip[0] %> |
+      | https://pass-FOR-TEST.example.com/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift-1 https-8443"
+    """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15073
+  Scenario: The router can do a case-insensitive match of a hostname for reencrypt route
+    Given the master version >= "3.6"
+    Given I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+
+    #Create the secure service
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    Given I have a pod-for-ping in the project
+
+    #Create reencrypt route
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name           | route-reen                                |
+      | hostname       | reen-for-test.example.com                 |
+      | service        | service-secure                            |
+      | destcacert     | route_reencrypt_dest.ca                   |
+    Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | reen-for-test.EXAMPLE.com:443:<%= cb.router_ip[0] %> |
+      | https://reen-for-test.EXAMPLE.com/ |
+      | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift-1 https-8443"
+    """
+    #for no-sni
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -s   |
+      | -H   |
+      | Host:reen-for-test.EXAMPLE.com |
+      | https://<%= cb.router_ip[0] %> |
+      | -k |
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift-1 https-8443"
+    """
