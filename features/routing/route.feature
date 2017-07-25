@@ -1698,3 +1698,111 @@ Feature: Testing route
     # The whitelist will not take effect
     When I wait for a web server to become available via the route
     Then the output should contain "x-forwarded-for"
+
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15113
+  Scenario: Harden haproxy to prevent the PROXY header from being passed for unsecure route
+    Given the master version >= "3.6"
+    And I have a project
+    Given I have a header test service in the project
+    And I have a pod-for-ping in the project
+    Given I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -H   |
+      | proxy:10.10.10.10 |
+      | http://<%= route.dns(by: user) %> |
+    Then the step should succeed
+    And the output should contain "host: <%= route.dns(by: user) %>"
+    And the output should not contain "proxy: 10.10.10.10"
+    """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15114
+  Scenario: Harden haproxy to prevent the PROXY header from being passed for edge route
+    Given the master version >= "3.6"
+    And I have a project
+    And I store default router IPs in the :router_ip clipboard
+    Given I have a header test service in the project
+    #Create the edge route
+    When I run the :create_route_edge client command with:
+      | name           | route-edge                                |
+      | service        | <%= cb.header_test_svc.name %>            |
+    Then the step should succeed 
+    Given I have a pod-for-ping in the project
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -H   |
+      | proxy:10.10.10.10 |
+      | https://<%= route("route-edge", service("header-test-insecure")).dns(by: user) %> |
+      | -k |
+    Then the step should succeed
+    And the output should contain "host: <%= route("route-edge", service("header-test-insecure")).dns(by: user) %>"
+    And the output should not contain "proxy: 10.10.10.10"
+    """
+    #for no-sni
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -H   |
+      | proxy:10.10.10.10 |
+      | -H   |
+      | Host:<%= route("route-edge", service("header-test-insecure")).dns(by: user) %>  |
+      | https://<%= cb.router_ip[0] %> |
+      | -k |
+    Then the step should succeed
+    And the output should contain "host: <%= route("route-edge", service("header-test-insecure")).dns(by: user) %>"
+    And the output should not contain "proxy: 10.10.10.10"
+    """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15115
+  Scenario: Harden haproxy to prevent the PROXY header from being passed for reencrypt route
+    Given the master version >= "3.6"
+    And I have a project
+    And I store default router IPs in the :router_ip clipboard
+    Given I have a header test service in the project
+    #Create the secure service
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/secure-service.json |
+    Then the step should succeed
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/head-test.pem"
+    #Create the reencrypt route
+    When I run the :create_route_reencrypt client command with:
+      | name           | route-reen                                |
+      | service        | header-test-secure                        |
+      | destcacert     | head-test.pem                             |
+    Then the step should succeed    
+    Given I have a pod-for-ping in the project
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -H   |
+      | proxy:10.10.10.10 |
+      | https://<%= route("route-reen", service("header-test-secure")).dns(by: user) %> |
+      | -k |
+    Then the step should succeed
+    And the output should contain "host: <%= route("route-reen", service("header-test-secure")).dns(by: user) %>"
+    And the output should not contain "proxy: 10.10.10.10"
+    """
+    #for no-sni
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | -H   |
+      | proxy:10.10.10.10 |
+      | -H   |
+      | Host:<%= route("route-reen", service("header-test-secure")).dns(by: user) %>  |
+      | https://<%= cb.router_ip[0] %> |
+      | -k |
+    Then the step should succeed
+    And the output should contain "host: <%= route("route-reen", service("header-test-secure")).dns(by: user) %>"
+    And the output should not contain "proxy: 10.10.10.10"
+    """
