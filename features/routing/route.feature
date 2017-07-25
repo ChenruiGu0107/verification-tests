@@ -211,7 +211,7 @@ Feature: Testing route
     And the output should contain:
       | invalid value for InsecureEdgeTerminationPolicy option, acceptable values are None, Allow, Redirect, or empty |
 
- 
+
   # @author zzhao@redhat.com
   # @case_id OCP-12652
   @smoke
@@ -229,7 +229,7 @@ Feature: Testing route
       | resource_name | route  |
     Then the output should contain "HostAlreadyClaimed"
 
-    
+
   # @author bmeng@redhat.com
   # @case_id OCP-12472
   @smoke
@@ -245,8 +245,8 @@ Feature: Testing route
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.crt"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/route_edge-www.edge.com.key"
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem" 
- 
+    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/ca.pem"
+
     Given I have a pod-for-ping in the project
     And CA trust is added to the pod-for-ping
     When I run the :create_route_edge client command with:
@@ -266,7 +266,7 @@ Feature: Testing route
       | https://<%= route("route-edge", service("route-edge")).dns(by: user) %>/ |
       | --cacert |
       | /tmp/ca.pem |
-      | -c | 
+      | -c |
       | /tmp/cookie.txt|
     Then the output should contain "Hello-OpenShift"
     """
@@ -289,7 +289,7 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
     Then the step should succeed
-    
+
     Given I have a pod-for-ping in the project
     And CA trust is added to the pod-for-ping
     When I run the :create_route_passthrough client command with:
@@ -417,7 +417,7 @@ Feature: Testing route
     """
     When I open web server via the "http://<%= route("slash-test", service("service-unsecure")).dns(by: user) %>/" url
     Then the output should contain "Hello-OpenShift"
-    
+
 
   # @author zzhao@redhat.com
   # @case_id OCP-12562
@@ -453,7 +453,7 @@ Feature: Testing route
       | -k |
     Then the output should contain "Application is not available"
     When I execute on the pod:
-      | cat | 
+      | cat |
       | /tmp/cookie.txt |
     Then the step should succeed
     And the output should not contain "OPENSHIFT"
@@ -523,7 +523,7 @@ Feature: Testing route
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
     And the step should succeed
-   
+
     Given I have a pod-for-ping in the project
     When I run the :create_route_reencrypt client command with:
       | name | no-cert |
@@ -595,7 +595,7 @@ Feature: Testing route
     And the output should contain:
       | Redirect |
     # Acess the route
-    Given I have a pod-for-ping in the project 
+    Given I have a pod-for-ping in the project
     When I execute on the pod:
       | curl |
       | -v |
@@ -632,7 +632,7 @@ Feature: Testing route
     Then the output should contain "Hello-OpenShift"
     """
     And I execute on the pod:
-      | cat | 
+      | cat |
       | /tmp/cookie |
     Then the step should succeed
     And the output should not contain "OPENSHIFT"
@@ -690,7 +690,7 @@ Feature: Testing route
     Then the step should succeed
     And the output should contain:
       | Hello-OpenShift |
-      | HTTP/1.1 200    | 
+      | HTTP/1.1 200    |
     And the output should not contain:
       | HTTP/1.1 302 Found |
     And I execute on the pod:
@@ -891,7 +891,7 @@ Feature: Testing route
     When I run the :idle client command with:
       | svc_name | service-unsecure |
     Then the step should succeed
-    
+
     #Create unsecure and edge route
     When I expose the "service-unsecure" service
     When I run the :create_route_edge client command with:
@@ -923,13 +923,13 @@ Feature: Testing route
     When I run the :idle client command with:
       | svc_name | service-secure |
     Then the step should succeed
-  
+
     #Create passthrough route
     When I run the :create_route_passthrough client command with:
       | name    | route-pass     |
       | service | service-secure |
     Then the step should succeed
-    
+
     #Create reencrypt route
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.crt"
     And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt-reen.example.com.key"
@@ -999,7 +999,7 @@ Feature: Testing route
       | resource | route |
     Then the step should succeed
     And the output should contain "InvalidHost"
-    
+
     When I delete the project
     Then the step should succeed
 
@@ -1015,7 +1015,7 @@ Feature: Testing route
     And all pods in the project are ready
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
-    Then the step should succeed     
+    Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
     And I wait for a web server to become available via the "service-unsecure" route
@@ -1031,7 +1031,7 @@ Feature: Testing route
     Then the step should succeed
     When I expose the "service-unsecure" service
     Then the step should succeed
-    When I run the :get client command with: 
+    When I run the :get client command with:
       | resource      | route |
     Then the output should contain:
       | <%= cb.subdomain %> |
@@ -1074,7 +1074,7 @@ Feature: Testing route
       | Hello-OpenShift |
       | HTTP/1.1 302 Found |
       | Location: https:// |
-    """ 
+    """
     When I run the :patch client command with:
       | resource      | route              |
       | resource_name | myroute            |
@@ -1122,7 +1122,7 @@ Feature: Testing route
       | Hello-OpenShift |
       | HTTP/1.1 302 Found |
       | Location: https:// |
-    """    
+    """
     When I run the :patch client command with:
       | resource      | route           |
       | resource_name | reen            |
@@ -1193,8 +1193,8 @@ Feature: Testing route
       | service  | service-unsecure  |
       | insecure_policy | Redirect   |
     Then the step should succeed
-   
-    Given I have a pod-for-ping in the project 
+
+    Given I have a pod-for-ping in the project
     When I execute on the pod:
       | curl |
       | -v |
@@ -1260,7 +1260,7 @@ Feature: Testing route
       | f  |   https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json |
     Then the step should succeed
     Given I have a pod-for-ping in the project
-  
+
     #Get the client ip by access the website http://ipecho.net/plain
     When I execute on the pod:
       | bash | -c | curl -s http://ipecho.net/plain |
@@ -1320,14 +1320,14 @@ Feature: Testing route
       | name | route-reencrypt |
       | service | service-secure |
     Then the step should succeed
-    Given 10 seconds have passed 
+    Given 10 seconds have passed
     #since the haproxy is using 'service.project.svc' to verify the hostname. but the pod caddy is using '*.example.com'. so it cannot match and will return 503 error.
     When I execute on the pod:
       | curl                                                                              |
       | -I                                                                                |
       | https://<%= route("route-reencrypt", service("service-secure")).dns(by: user) %>/ |
       | -k                                                                                |
-    Then the step should succeed   
+    Then the step should succeed
     And the output should contain "503 Service Unavailable"
 
   # @author zzhao@redhat.com
@@ -1350,7 +1350,7 @@ Feature: Testing route
     When I run the :expose client command with:
       | resource      | service                                   |
       | resource_name | service-unsecure                          |
-      | hostname      | unsecure-for-test.example.com             |  
+      | hostname      | unsecure-for-test.example.com             |
     Then the step should succeed
     Given I have a pod-for-ping in the project
     #access the route using capitals words
@@ -1500,52 +1500,40 @@ Feature: Testing route
   # @case_id OCP-14678
   Scenario: Only the host in whitelist could access the route - unsecure route
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
-    Then the step should succeed
-    Given the pod named "caddy-docker" becomes ready
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
-    Then the step should succeed
-    When I expose the "service-unsecure" service
-    Then the step should succeed
+    And I have a header test service in the project
+
+    # get our IP
+    Given I wait for a web server to become available via the route
+    Then evaluation of `@result[:response].match(/^\s+x\-forwarded\-for: (.+)$/)[1]` is stored in the :myip clipboard
 
     # Add IP whitelist for route
-    Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | http://ipecho.net/plain |
-    And evaluation of `@result[:response]` is stored in the :ipecho clipboard
     When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | service-unsecure |
-      | keyval       | haproxy.router.openshift.io/ip_whitelist=<%= cb.ipecho %> <%= cb.router_ip[0] %> |
-      | overwrite    | true   |
+      | resource     | route                                                   |
+      | resourcename | <%= cb.header_test_svc.name %>                          |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=<%= cb.myip %> |
+      | overwrite    | true                                                    |
     Then the step should succeed
+
     # Access the route
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    When I open web server via the route
     Then the step should succeed
-    And the output should contain "Hello-OpenShift"
+    And the output should contain "x-forwarded-for"
 
     # Add another IP whitelist for route
     When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | service-unsecure |
+      | resource     | route                                            |
+      | resourcename | <%= cb.header_test_svc.name %>                   |
       | keyval       | haproxy.router.openshift.io/ip_whitelist=8.8.8.8 |
-      | overwrite    | true   |
+      | overwrite    | true                                             |
     Then the step should succeed
-    # Access the route
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+
+    # Access the route again waiting for the whitelist to apply
+    Then I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the route
     Then the step should fail
-    And the output should contain "Empty reply from server"
+    And expression should be true> @result[:size].to_i == 0
+    """
 
   # @author yadu@redhat.com
   # @case_id OCP-14679
@@ -1563,7 +1551,7 @@ Feature: Testing route
       | name    | edge-route       |
       | service | service-unsecure |
     Then the step should succeed
-    
+
     # Add IP whitelist for route
     Given I have a pod-for-ping in the project
     When I execute on the pod:
@@ -1676,7 +1664,7 @@ Feature: Testing route
       | service    | service-secure |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
-    
+
     # Add IP whitelist for route
     Given I have a pod-for-ping in the project
     When I execute on the pod:
@@ -1736,7 +1724,7 @@ Feature: Testing route
       | keyval       | haproxy.router.openshift.io/ip_whitelist=0.0.0.0/32 |
       | overwrite    | true   |
     Then the step should succeed
-    # All host could not access the route		
+    # All host could not access the route
     Given I have a pod-for-ping in the project
     When I execute on the pod:
       | curl |
@@ -1751,7 +1739,7 @@ Feature: Testing route
       | keyval       | haproxy.router.openshift.io/ip_whitelist=0.0.0.0/0 |
       | overwrite    | true   |
     Then the step should succeed
-    # All host could access the route               
+    # All host could access the route
     When I execute on the pod:
       | curl |
       | -sS  |
@@ -1765,7 +1753,7 @@ Feature: Testing route
       | keyval       | haproxy.router.openshift.io/ip_whitelist=10.1.a.0/b |
       | overwrite    | true   |
     Then the step should succeed
-    # The invalid value could not take effect in whitelist                
+    # The invalid value could not take effect in whitelist
     When I execute on the pod:
       | curl |
       | -sS  |

@@ -44,7 +44,7 @@ Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ 
   _scc= security_context_constraints("nfs-provisioner")
   _deployment.ensure_deleted(user: admin)
   _scc.ensure_deleted(user: admin)
-  # Create sc, scc, clusterrole and etc    
+  # Create sc, scc, clusterrole and etc
   step 'I create the serviceaccount "nfs-provisioner"'
   step %Q{the following scc policy is created: https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/openshift-scc.yaml}
   step %Q/SCC "nfs-provisioner" is added to the "system:serviceaccount:<%= project.name %>:nfs-provisioner" service account/
@@ -65,7 +65,7 @@ Given /^I have a nfs-provisioner (pod|service) in the(?: "([^ ]+?)")? project$/ 
     res = host.exec_admin(*setup_commands)
     raise "Set up hostpath for nfs-provisioner failed" unless @result[:success]
   end
-  if _service 
+  if _service
     @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/nfs/deploy/kubernetes/auth/deployment-sa.yaml")
     raise "could not create nfs-provisioner deployment" unless @result[:success]
     step %Q/a pod becomes ready with labels:/, table(%{
@@ -335,7 +335,38 @@ Given /^I have a pod-for-ping in the(?: "([^ ]+?)")? project$/ do |project_name|
   cb.ping_pod = pod("hello-pod")
   @result = pod("hello-pod").wait_till_ready(user, 300)
   raise "pod-for-ping did not become ready in time" unless @result[:success]
+end
 
+# headertest is a service that returns all HTTP request headers used by client
+Given /^I have a header test service in the#{OPT_QUOTED} project$/ do |project_name|
+  project(project_name)
+  unless project.exists?(user: user)
+    raise "project #{project_name} does not exist"
+  end
+
+  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/dc.json")
+  raise "could not create header test dc" unless @result[:success]
+  cb.header_test_dc = dc("header-test")
+
+  @result = user.cli_exec(:create, f: "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/insecure-service.json")
+  raise "could not create header test svc" unless @result[:success]
+  cb.header_test_svc = service("header-test-insecure")
+
+  @result = user.cli_exec(:expose,
+                          name: "header-test-insecure",
+                          resource: "service",
+                          resource_name: "header-test-insecure"
+                         )
+  raise "could not expose header test svc" unless @result[:success]
+  cb.header_test_route = route("header-test-insecure",
+                               service("header-test-insecure"))
+
+  @result = CucuShift::Pod.wait_for_labeled(
+    "deploymentconfig=header-test",
+    count: 1, user: user, project: project, seconds: 300)
+  raise "timeout waiting for header test pod to start" unless @result[:success]
+  cache_pods(*@result[:matching])
+  cb.header_test_pod = pod
 end
 
 # skopeo is a pod that has skopeo clients tools
