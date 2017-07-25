@@ -1172,6 +1172,46 @@ Feature: Testing haproxy router
     Then the step should fail
     And the output should not contain "Hello-OpenShift"
 
+  # @author hongli@redhat.com
+  # @case_id OCP-13846
+  @admin
+  @destructive
+  Scenario: the router configuration should be loaded in 10 minutes after the namespace label added
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+    And evaluation of `pod.name` is stored in the :router_pod clipboard
+    And cluster role "cluster-reader" is added to the "system:serviceaccount:default:router" service account
+    And default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | NAMESPACE_LABELS=team=red |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    And a pod becomes ready with labels:
+      | deploymentconfig=router |
+
+    Given I switch to the first user
+    And I have a project
+    And evaluation of `project.name` is stored in the :project_red clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And the pod named "caddy-docker" becomes ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    When I run the :label admin command with:
+      | resource | namespaces            |
+      | name     | <%= cb.project_red %> |
+      | key_val  | team=red              |
+    Then the step should succeed
+    When I wait up to 605 seconds for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
 
   # @author yadu@redhat.com
   # @case_id OCP-10779
