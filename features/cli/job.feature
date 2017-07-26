@@ -63,7 +63,7 @@ Feature: job.feature
       | name     | pi     |
     Then the output should match:
       | Name:\\s+pi                               |
-      | Image\(s\):\\s+openshift/perl-516-centos7 |
+      | Image.*\\s+openshift/perl-516-centos7     |
       | Selector:\\s+app=pi                       |
       | Parallelism:\\s+5                         |
       | Completions:\\s+<unset>                   |

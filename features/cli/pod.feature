@@ -419,7 +419,7 @@ Feature: pods related scenarios
       | resource | po        |
       | name     | hello-pod |
     Then the output should match:
-      | Warning.*Error syncing pod.*shm_rmid_forced: invalid argument |
+      | Status:\\s+Pending |
     """
 
   # @author sijhu@redhat.com
@@ -450,4 +450,3 @@ Feature: pods related scenarios
       | name     | hello-pod |
     Then the output should match:
       | Status:\\s+Pending |
-      | open /proc/sys/net/ipv4/tcp_syncookies: no such file or directory |

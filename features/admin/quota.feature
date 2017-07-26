@@ -426,7 +426,6 @@ Feature: Quota related scenarios
       | name     | quota-besteffort |
     Then the output should match:
       | Scopes:\\s+BestEffort |
-      | .*have best effort    |
       | pods\\s+0\\s+2        |
     # For BestEffort pod
     When I run the :create client command with:
@@ -477,7 +476,6 @@ Feature: Quota related scenarios
       | name     | quota-notbesteffort |
     Then the output should match:
       | Scopes:\\s+NotBestEffort    |
-      | .*not have best effort      |
       | limits.cpu\\s+0\\s+4        |
       | limits.memory\\s+0\\s+2Gi   |
       | pods\\s+0\\s+2              |
