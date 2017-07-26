@@ -17,12 +17,12 @@ Feature: oc_delete.feature
       | l | name=graceful |
       | grace_period | 20 |
     Then the step should succeed
-    Given 15 seconds have passed
+    Given 10 seconds have passed
     When I get project pods
     Then the step should succeed
     And the output should contain "Terminating"
     #The full 20 seconds have passed after this step
-    Given 5 seconds have passed
+    Given 25 seconds have passed
     When I get project pods
     Then the step should succeed
     And the output should not contain "Terminating"
@@ -95,7 +95,7 @@ Feature: oc_delete.feature
     When I get project pods
     Then the step should succeed
     And the output should contain "Terminating"
-    Given 11 seconds have passed
+    Given 25 seconds have passed
     When I get project pods
     Then the step should succeed
     And the output should not contain "Terminating"
@@ -120,7 +120,7 @@ Feature: oc_delete.feature
     When I get project pods
     Then the step should succeed
     And the output should contain "Terminating"
-    Given 15 seconds have passed
+    Given 25 seconds have passed
     When I get project pods
     Then the step should succeed
     And the output should not contain "Terminating"
