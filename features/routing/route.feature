@@ -1501,23 +1501,7 @@ Feature: Testing route
   Scenario: Only the host in whitelist could access the route - unsecure route
     Given I have a project
     And I have a header test service in the project
-
-    # get our IP
-    Given I wait for a web server to become available via the route
-    Then evaluation of `@result[:response].match(/^\s+x\-forwarded\-for: (.+)$/)[1]` is stored in the :myip clipboard
-
-    # Add IP whitelist for route
-    When I run the :annotate client command with:
-      | resource     | route                                                   |
-      | resourcename | <%= cb.header_test_svc.name %>                          |
-      | keyval       | haproxy.router.openshift.io/ip_whitelist=<%= cb.myip %> |
-      | overwrite    | true                                                    |
-    Then the step should succeed
-
-    # Access the route
-    When I open web server via the route
-    Then the step should succeed
-    And the output should contain "x-forwarded-for"
+    And evaluation of `"haproxy.router.openshift.io/ip_whitelist=#{cb.req_headers["x-forwarded-for"]}"` is stored in the :my_whitelist clipboard
 
     # Add another IP whitelist for route
     When I run the :annotate client command with:
@@ -1532,69 +1516,64 @@ Feature: Testing route
     """
     When I open web server via the route
     Then the step should fail
-    And expression should be true> @result[:size].to_i == 0
+    And expression should be true> @result[:exitstatus] == -1
     """
+
+    # Add IP whitelist for route
+    When I run the :annotate client command with:
+      | resource     | route                          |
+      | resourcename | <%= cb.header_test_svc.name %> |
+      | keyval       | <%= cb.my_whitelist %>         |
+      | overwrite    | true                           |
+    Then the step should succeed
+
+    # Access the route
+    When I wait for a web server to become available via the route
+    Then the output should contain "x-forwarded-for"
 
   # @author yadu@redhat.com
   # @case_id OCP-14679
   Scenario: Only the host in whitelist could access the route - edge routes
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
-    Then the step should succeed
-    Given the pod named "caddy-docker" becomes ready
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
-    Then the step should succeed
+    And I have a header test service in the project
+    And evaluation of `"haproxy.router.openshift.io/ip_whitelist=#{cb.req_headers["x-forwarded-for"]}"` is stored in the :my_whitelist clipboard
     When I run the :create_route_edge client command with:
-      | name    | edge-route       |
-      | service | service-unsecure |
+      | name    | edge-route           |
+      | service | header-test-insecure |
     Then the step should succeed
-
-    # Add IP whitelist for route
-    Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | http://ipecho.net/plain |
-    And evaluation of `@result[:response]` is stored in the :ipecho clipboard
-    When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | edge-route |
-      | keyval       | haproxy.router.openshift.io/ip_whitelist=<%= cb.ipecho %>/24 <%= cb.router_ip[0] %>/24 |
-      | overwrite    | true   |
-    Then the step should succeed
-    # Access the route
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | -k   |
-      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
-    Then the step should succeed
-    And the output should contain "Hello-OpenShift"
 
     # Add another IP whitelist for route
     When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | edge-route |
+      | resource     | route                                            |
+      | resourcename | edge-route                                       |
       | keyval       | haproxy.router.openshift.io/ip_whitelist=8.8.8.8 |
-      | overwrite    | true   |
+      | overwrite    | true                                             |
     Then the step should succeed
-    # Access the route
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | -k   |
-      | https://<%= route("edge-route", service("edge-route")).dns(by: user) %>/ |
+    Then I wait up to 20 seconds for the steps to pass:
+    """
+    When I open secure web server via the "edge-route" route
     Then the step should fail
-    And the output should contain "Empty reply from server"
+    And expression should be true> @result[:exitstatus] == -1
+    """
+
+    # Add IP whitelist for route
+    When I run the :annotate client command with:
+      | resource     | route                   |
+      | resourcename | edge-route              |
+      | keyval       | <%= cb.my_whitelist %>  |
+      | overwrite    | true                    |
+    Then the step should succeed
+    When I wait for a secure web server to become available via the "edge-route" route
+    Then the step should succeed
+    And the output should contain "x-forwarded-for"
+		
 
   # @author yadu@redhat.com
   # @case_id OCP-14685
   Scenario: Only the host in whitelist could access the route - passthrough routes
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I have a header test service in the project
+    And evaluation of `"haproxy.router.openshift.io/ip_whitelist=#{cb.req_headers["x-forwarded-for"]}"` is stored in the :my_whitelist clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -1607,156 +1586,111 @@ Feature: Testing route
       | service | service-secure |
     Then the step should succeed
 
-    # Add IP whitelist for route
-    Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | http://ipecho.net/plain |
-    And evaluation of `@result[:response]` is stored in the :ipecho clipboard
-    When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | pass-route |
-      | keyval       | haproxy.router.openshift.io/ip_whitelist=<%= cb.ipecho %>/24 <%= cb.router_ip[0] %>/24 |
-      | overwrite    | true   |
-    Then the step should succeed
-    # Access the route
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | -k   |
-      | https://<%= route("pass-route", service("pass-route")).dns(by: user) %>/ |
-    Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-
     # Add another IP whitelist for route
     When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | pass-route |
+      | resource     | route                                            |
+      | resourcename | pass-route                                       |
       | keyval       | haproxy.router.openshift.io/ip_whitelist=8.8.8.8 |
-      | overwrite    | true   |
+      | overwrite    | true                                             |
     Then the step should succeed
-    # Access the route
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | -k   |
-      | https://<%= route("pass-route", service("pass-route")).dns(by: user) %>/ |
+    Then I wait up to 20 seconds for the steps to pass:
+    """
+    When I open secure web server via the "pass-route" route
     Then the step should fail
-    And the output should contain "(35)"
+    And expression should be true> @result[:exitstatus] == -1
+    """
+
+    # Add IP whitelist for route
+    When I run the :annotate client command with:
+      | resource     | route                   |
+      | resourcename | pass-route              |
+      | keyval       | <%= cb.my_whitelist %>  |
+      | overwrite    | true                    |
+    Then the step should succeed
+    When I wait for a secure web server to become available via the "pass-route" route
+    And the output should contain "Hello-OpenShift"
 
 
   # @author yadu@redhat.com
   # @case_id OCP-14684
   Scenario: Only the host in whitelist could access the route - reencrypt routes
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
+    And I have a header test service in the project
+    And evaluation of `"haproxy.router.openshift.io/ip_whitelist=#{cb.req_headers["x-forwarded-for"]}"` is stored in the :my_whitelist clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/secure-service.json |
     Then the step should succeed
-    Given the pod named "caddy-docker" becomes ready
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
-    Then the step should succeed
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/head-test.pem"
     When I run the :create_route_reencrypt client command with:
       | name       | reen-route |
-      | service    | service-secure |
-      | destcacert | route_reencrypt_dest.ca |
+      | service    | header-test-secure |
+      | destcacert | head-test.pem |
     Then the step should succeed
-
-    # Add IP whitelist for route
-    Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | http://ipecho.net/plain |
-    And evaluation of `@result[:response]` is stored in the :ipecho clipboard
-    When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | reen-route |
-      | keyval       | haproxy.router.openshift.io/ip_whitelist=<%= cb.ipecho %> <%= cb.router_ip[0] %> |
-      | overwrite    | true   |
-    Then the step should succeed
-    # Access the route
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | -k   |
-      | https://<%= route("reen-route", service("reen-route")).dns(by: user) %>/ |
-    Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-
     # Add another IP whitelist for route
     When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | reen-route |
+      | resource     | route                                            |
+      | resourcename | reen-route                                       |
       | keyval       | haproxy.router.openshift.io/ip_whitelist=8.8.8.8 |
-      | overwrite    | true   |
+      | overwrite    | true                                             |
     Then the step should succeed
-    # Access the route
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | -k   |
-      | https://<%= route("reen-route", service("reen-route")).dns(by: user) %>/ |
+    Then I wait up to 20 seconds for the steps to pass:
+    """
+    When I open secure web server via the "reen-route" route
     Then the step should fail
-    And the output should contain "Empty reply from server"
+    And expression should be true> @result[:exitstatus] == -1
+    """
+
+    # Add IP whitelist for route
+    When I run the :annotate client command with:
+      | resource     | route                   |
+      | resourcename | reen-route              |
+      | keyval       | <%= cb.my_whitelist %>  |
+      | overwrite    | true                    |
+    Then the step should succeed
+    When I wait for a secure web server to become available via the "reen-route" route
+    And the output should contain "x-forwarded-for"
+
 
   # @author yadu@redhat.com
   # @case_id OCP-14680
   Scenario: Add invalid value in annotation whitelist to routes
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
-    Then the step should succeed
-    Given the pod named "caddy-docker" becomes ready
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
-    Then the step should succeed
-    When I expose the "service-unsecure" service
-    Then the step should succeed
+    And I have a header test service in the project
+    And evaluation of `"haproxy.router.openshift.io/ip_whitelist=#{cb.req_headers["x-forwarded-for"]}"` is stored in the :my_whitelist clipboard
+
     # Add 0.0.0.0/32 in whitelist
     When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | service-unsecure |
+      | resource     | route                                               |
+      | resourcename | <%= cb.header_test_svc.name %>                      |
       | keyval       | haproxy.router.openshift.io/ip_whitelist=0.0.0.0/32 |
-      | overwrite    | true   |
+      | overwrite    | true                                                |
     Then the step should succeed
     # All host could not access the route
-    Given I have a pod-for-ping in the project
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    Then I wait up to 20 seconds for the steps to pass:
+    """
+    When I open web server via the route
     Then the step should fail
-    And the output should contain "Empty reply from server"
+    And expression should be true> @result[:exitstatus] == -1
+    """
+
     # Add 0.0.0.0/0 in whitelist
     When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | service-unsecure |
-      | keyval       | haproxy.router.openshift.io/ip_whitelist=0.0.0.0/0 |
-      | overwrite    | true   |
+      | resource     | route                                               |
+      | resourcename | <%= cb.header_test_svc.name %>                      |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=0.0.0.0/0  |
+      | overwrite    | true                                                |
     Then the step should succeed
     # All host could access the route
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
-    Then the step should succeed
-    And the output should contain "Hello-OpenShift"
-    # Add invalid value in whitelist
+    When I wait for a web server to become available via the route
+    Then the output should contain "x-forwarded-for"
+
+    # Add invalid IP in whitelist
     When I run the :annotate client command with:
-      | resource     | route |
-      | resourcename | service-unsecure |
-      | keyval       | haproxy.router.openshift.io/ip_whitelist=10.1.a.0/b |
-      | overwrite    | true   |
+      | resource     | route                                               |
+      | resourcename | <%= cb.header_test_svc.name %>                      |
+      | keyval       | haproxy.router.openshift.io/ip_whitelist=0.0.0.a/b  |
+      | overwrite    | true                                                | 
     Then the step should succeed
-    # The invalid value could not take effect in whitelist
-    When I execute on the pod:
-      | curl |
-      | -sS  |
-      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
-    Then the step should succeed
-    And the output should contain "Hello-OpenShift"
+    # The whitelist will not take effect
+    When I wait for a web server to become available via the route
+    Then the output should contain "x-forwarded-for"

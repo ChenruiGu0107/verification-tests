@@ -367,6 +367,9 @@ Given /^I have a header test service in the#{OPT_QUOTED} project$/ do |project_n
   raise "timeout waiting for header test pod to start" unless @result[:success]
   cache_pods(*@result[:matching])
   cb.header_test_pod = pod
+
+  step 'I wait for a web server to become available via the route'
+  cb.req_headers = @result[:response].scan(/^\s+(.+?): (.+)$/).to_h
 end
 
 # skopeo is a pod that has skopeo clients tools
