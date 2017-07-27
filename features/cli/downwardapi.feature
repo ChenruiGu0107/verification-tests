@@ -299,7 +299,7 @@ Feature: Downward API
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-magic-keys-pod.yaml |
     Then the step should succeed
-    And the pod named "dapi-resources-env-magic-keys-pod" status becomes :succeeded
+    And the pod named "dapi-resources-env-magic-keys-pod" status becomes :succeeded within 300 seconds
     When I run the :logs client command with:
       | resource_name | dapi-resources-env-magic-keys-pod |
     Then the step should succeed
@@ -313,7 +313,7 @@ Feature: Downward API
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-magic-keys-pod-without-requests.yaml |
     Then the step should succeed
-    And the pod named "dapi-resources-env-magic-keys-pod-without-requests" status becomes :succeeded
+    And the pod named "dapi-resources-env-magic-keys-pod-without-requests" status becomes :succeeded within 300 seconds
     When I run the :logs client command with:
       | resource_name | dapi-resources-env-magic-keys-pod-without-requests |
     Then the step should succeed
@@ -327,7 +327,7 @@ Feature: Downward API
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-magic-keys-pod-without-limits.yaml |
     Then the step should succeed
-    And the pod named "dapi-resources-env-magic-keys-pod-without-limits" status becomes :succeeded
+    And the pod named "dapi-resources-env-magic-keys-pod-without-limits" status becomes :succeeded within 300 seconds
     Given evaluation of `pod("dapi-resources-env-magic-keys-pod-without-limits").node_name(user: user)` is stored in the :node clipboard
     When I run the :get admin command with:
       | resource      | node           |
