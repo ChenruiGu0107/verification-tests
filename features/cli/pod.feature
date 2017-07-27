@@ -102,7 +102,7 @@ Feature: pods related scenarios
       | object_name_or_id | grace10 |
     Then the step should succeed
     Given the pod named "grace10" becomes terminating
-    Then I wait for the resource "pod" named "grace10" to disappear within 12 seconds
+    Then I wait for the resource "pod" named "grace10" to disappear within 30 seconds
 
   # @author pruan@redhat.com
   # @case_id OCP-10711
