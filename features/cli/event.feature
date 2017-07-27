@@ -74,7 +74,6 @@ Feature: Event related scenarios
       | hello-openshift-invalid.*Normal\\s+Scheduled   |
       | hello-openshift-invalid.*Warning\\s+FailedSync |
       | hello-openshift-invalid.*Normal\\s+BackOff     |
-    And the output should match 3 times:
       | hello-openshift-invalid.*Warning\\s+Failed     |
     """
     When  I run the :describe client command with:
@@ -84,7 +83,6 @@ Feature: Event related scenarios
       | Normal\\s+Scheduled   |
       | Warning\\s+FailedSync |
       | Normal\\s+BackOff     |
-    And the output should match 3 times:
       | Warning\\s+Failed     |
 
   # @author yanpzhan@redhat.com

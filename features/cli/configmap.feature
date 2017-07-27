@@ -156,7 +156,7 @@ Feature: configMap
       | name      | example-redis-config |
     Then the output should match:
       | Name.*example-redis-config |
-      | redis-config.*bytes        |
+      | redis-config               |
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/configmap/pod-configmap-redis.yaml |
     Then the step should succeed
