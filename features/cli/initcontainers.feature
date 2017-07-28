@@ -375,3 +375,55 @@ Feature: InitContainers
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/pod-init-containers-alpha.yaml |
     Then the step should succeed
     Given the pod named "init-alpha" status becomes :running
+
+  # @author chezhang@redhat.com
+  # @case_id OCP-12909
+  Scenario: Init containers can be accessed by oc commands
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-loop.yaml |
+    Then the step should succeed
+    And I wait up to 60 seconds for the steps to pass:
+    """
+    When I run the :logs client command with:
+      | resource_name | pod/init-loop |
+      | c             | init          |
+    Then the step should succeed
+    And the output should contain:
+      | hello init container |
+    """
+    When I run the :rsh client command with:
+      | c       | init             |
+      | pod     | init-loop        |
+      | command | cat              |
+      | command | /etc/resolv.conf |
+    Then the step should succeed
+    And the output should contain:
+      | options ndots |
+    When I run the :rsync client command with:
+      | source      | init-loop:/etc/resolv.conf |
+      | destination | <%= localhost.workdir %>   |
+      | c           | init                       |
+    Then the step should succeed
+    And the output should contain:
+      | resolv.conf |
+    When I run the :debug client command with:
+      | resource     | pod/init-loop |
+      | c            | init          |
+      | oc_opts_end  |               |
+      | exec_command | /bin/env      |
+    Then the step should succeed
+    And the output should contain:
+      |  Debugging with pod/init-loop-debug |
+      |  PATH                               |
+      |  HOSTNAME                           |
+      |  KUBERNETES                         |
+      |  HOME                               |
+      |  Removing debug pod                 |
+    When I run the :attach client command with:
+      | pod      | init-loop |
+      | c        | init      |
+      | _timeout | 15        |
+    Then the step should have timed out
+    And the output should contain:
+      | hello init container |
