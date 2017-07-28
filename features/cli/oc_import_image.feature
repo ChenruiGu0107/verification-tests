@@ -258,42 +258,41 @@ Feature: oc import-image related feature
   # @case_id OCP-10856
   Scenario: Negative test for Import app from docker-compose
     Given I have a project
-
-    When I run the :import client command with:
-      | command | docker-compose |
-      | h ||
-    Then the output should match:
-      | [Io]mport.*[Dd]ocker [Cc]ompose file |
-      | oc import docker-compose -f          |
-    ## app.json still has bug 1356460 so cannot fully be tested now, will add case or scenario in future
     When I run the :import client command with:
       | command | app.json |
       | h ||
     Then the output should match:
       | [Ii]mport app.json file  |
       | oc import app.json -f    |
-    When I git clone the repo "https://github.com/openshift-qe/docker-compose-nodejs-examples.git"
+      | [Ee]xamples              |
+      | [Oo]ptions               |
     Then the step should succeed
 
-    ## Negative test with docker-compse.yml
+    ## Negative test with app.json
+    When I run the :import client command with:
+      | command | app.json       |
+    Then the step should fail
+    And the output should contain:
+      | app.json                 |
+      | file or directory        |
+
     # unexisted file
     When I run the :import client command with:
-      | command | docker-compose     |
-      | f       | docker-compose-nodejs-examples/05-nginx-express-redis-nodemon/unexisted.yml |
+      | command | app.json       |
+      | f       | unexist        |
     Then the step should fail
     And the output should match:
-      | [Ff]ailed .* file     |
-    # file is not in correct path
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/docker-compose-nodejs-examples/master/05-nginx-express-redis-nodemon/docker-compose.yml"
+      | [Nn]o such file or directory |
+
+    # file is not in correct format
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/docker-compose-nodejs-examples/master/05-nginx-express-redis-nodemon/app/app.js"
     When I run the :import client command with:
-      | command | docker-compose     |
-      | f       | docker-compose.yml |
+      | command | app.json   |
+      | f       |     app.js |
     Then the step should fail
     And the output should match:
-      | [Ee]rror  |
-      | git clone |
-      |  /nginx   |
-      |  /app     |
+      | [Ee]rror             |
+      | [Ii]nvalid character |
 
   # @author geliu@redhat.com
   # @case_id OCP-12765
