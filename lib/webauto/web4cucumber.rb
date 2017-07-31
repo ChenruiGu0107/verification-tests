@@ -350,8 +350,7 @@ require "base64"
         if action_body[:context]
           res_context[:success], context_elements  = wait_for_elements(
             {
-              :type => :iframe,
-              :selector => action_body[:context],
+              :selector => selector_param_setter(action_body[:context], user_opts),
               :context => user_opts[:_context]
             })
           unless res_context[:success]
