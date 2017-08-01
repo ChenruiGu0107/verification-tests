@@ -41,7 +41,7 @@ Given /^the network plugin is switched on the#{OPT_QUOTED} node$/ do |node_name|
     raise "failed to switch plugin in node config" unless @result[:success]
   else
     logger.info "Switch plguin from subnet to multitenant"
-    @result = _host.exec("sed -i 's/subnet/multitenant/g' /etc/origin/node/node-config.yaml")
+    @result = _host.exec("sed -i 's/openshift-ovs.*/openshift-ovs-multitenant/g' /etc/origin/node/node-config.yaml")
     raise "failed to switch plugin in node config" unless @result[:success]
   end
 end
