@@ -2133,3 +2133,301 @@ Feature: deployment related features
       | desired  | 10 |
       | current  | 10 |
       | ready    |  0 |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15167
+  Scenario: Pod referencing image streams directly
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | app:v1                          |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15167/example-pod.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should contain "ErrImagePull"
+    """
+    Given I ensure "example-pod" pod is deleted
+    When I run the :set_image_lookup client command with:
+      | image_stream | app |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15167/example-pod.yaml |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | app=example-pod |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15174
+  Scenario: Requesting dereference on an entire object for Pod
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | app:v1                          |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15167/example-pod.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should contain "ErrImagePull"
+    """
+    Given I ensure "example-pod" pod is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15167/example-pod-annotation.yaml |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | app=example-pod |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15168
+  Scenario: Job referencing image streams directly
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | app:v1                          |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15168/example-job.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should contain "ErrImagePull"
+    """
+    Given I ensure "example-job" job is deleted
+    When I run the :set_image_lookup client command with:
+      | image_stream | app |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15168/example-job.yaml |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | app=example-job |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15179
+  Scenario: Requesting dereference on an entire object for Job
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | app:v1                          |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15168/example-job.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should contain "ErrImagePull"
+    """
+    Given I ensure "example-job" job is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15168/example-job-annotation.yaml |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | app=example-job |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15169
+  Scenario: Replicasets referencing image streams directly
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | app:v1                          |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15169/example-rs.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should contain "ErrImagePull"
+    """
+    Given I ensure "example-rs" replicaset is deleted
+    When I run the :set_image_lookup client command with:
+      | image_stream | app |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15169/example-rs.yaml |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | app=example-rs |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15180
+  Scenario: Requesting dereference on an entire object for Replicaset
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | app:v1                          |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15169/example-rs.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should contain "ErrImagePull"
+    """
+    Given I ensure "example-rs" replicaset is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15169/example-rs-annotation.yaml |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | app=example-rs |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15170
+  Scenario: ReplicationController referencing image streams directly
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | app:v1                          |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15170/example-rc.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should contain "ErrImagePull"
+    """
+    Given I ensure "example-rc" replicationcontroller is deleted
+    When I run the :set_image_lookup client command with:
+      | image_stream | app |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15170/example-rc.yaml |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | name=example-rc |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15181
+  Scenario:  Requesting dereference on an entire object for ReplicationController
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | app:v1                          |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15170/example-rc.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should contain "ErrImagePull"
+    """
+    Given I ensure "example-rc" replicationcontroller is deleted
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15170/example-rc-annotation.yaml |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | name=example-rc |
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15153
+  Scenario: Imagestream updates triggering on Kubernetes Deployment
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/OCP-15153/deployment-example.yaml |
+    Then the step should succeed
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | example:latest                  |
+    Then the step should succeed
+    When I run the :set_triggers client command with:
+      | resource   | deploy/deployment-example |
+      | from_image | example:latest            |
+      | containers | web                       |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | app=deployment-example |
+    And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:c505b916f7e5143a356ff961f2c21aee40fbd2cd906c1e3feeb8d5e978da284b"
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v2 |
+      | dest        | example:latest                  |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | app=deployment-example |
+    And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:1318f08b141aa6a4cdca8c09fe8754b6c9f7802f8fc24e4e39ebf93e9d58472b"
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15155
+  Scenario: Kubernetes Deployment referencing image streams directly
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | app:v1                          |
+    Then the step should succeed
+    When I run the :set_image_lookup client command with:
+      | image_stream | app |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name      | app                |
+      | generator | deployment/v1beta1 |
+      | image     | app:v1             |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | run=app |
+    And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:c505b916f7e5143a356ff961f2c21aee40fbd2cd906c1e3feeb8d5e978da284b"
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v2 |
+      | dest        | app:v2                          |
+    Then the step should succeed
+    When I run the :set_image client command with:
+      | source    | docker     |
+      | type_name | deploy/app |
+      | keyval    | app=app:v2 |
+    Then the step should succeed
+    Given status becomes :running of 1 pods labeled:
+      | run=app |
+    And the expression should be true>  pod.props[:containers][0]['image'] == "openshift/deployment-example@sha256:1318f08b141aa6a4cdca8c09fe8754b6c9f7802f8fc24e4e39ebf93e9d58472b"
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15156
+  Scenario: Requesting dereference on an entire object for Kubernetes Deployment
+    Given I have a project
+    When I run the :tag client command with:
+      | source_type | docker                          |
+      | source      | openshift/deployment-example:v1 |
+      | dest        | app:v1                          |
+    Then the step should succeed
+    When I run the :run client command with:
+      | name      | app                |
+      | generator | deployment/v1beta1 |
+      | image     | app:v1             |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I get project pods
+    Then the output should contain "ErrImagePull"
+    """
+    When I run the :set_image_lookup client command with:
+      | deployment | deployment/app |
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | deployment                                     |
+      | resource_name | app                                            |
+      | o             | jsonpath={.spec.template.metadata.annotations} |
+    Then the step should succeed
+    And the output should match "alpha.image.policy.openshift.io/resolve-names"
+    Given status becomes :running of 1 pods labeled:
+      | run=app |

@@ -800,6 +800,11 @@
     :output: --output=<value>
     :record: --record=<value>
     :selector: --selector=<value>
+:set_image_lookup:
+  :cmd: oc set image-lookup
+  :options:
+    :image_stream: <value>
+    :deployment: <value>
 :set_probe:
   :cmd: oc set probe <global_options> <options>
   :options:
