@@ -57,8 +57,11 @@ Given /^I store in the#{OPT_SYM} clipboard the pods labeled:$/ do |cbn, labels|
                                        user: user)
 end
 
-Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)$/ do |name, status|
+Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)(?: within #{NUMBER} seconds)?$/ do |name, status, timeout|
   status_timeout = 15 * 60
+  unless timeout.empty?
+    status_timeout = Integer(timeout)
+  end
   @result = pod(name).wait_till_status(status.to_sym, user, status_timeout)
 
   unless @result[:success]
@@ -235,3 +238,4 @@ Given /^the system container id for the#{OPT_QUOTED} pod is stored in the#{OPT_S
   raise "Can't find containter id for system pod" if system_pod_container_id.nil?
   cb[cb_name] = system_pod_container_id[1].strip
 end
+
