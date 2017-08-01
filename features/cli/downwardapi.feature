@@ -146,7 +146,7 @@ Feature: Downward API
       | cat | /etc/info/cpu_limit | /etc/info/cpu_request | /etc/info/memory_request | /etc/info/memory_limit |
     Then the step should succeed
     And the output should contain "5001128134217728"
-    # Test file without limits, use node capacity as limits by default
+    # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-metadata-volume-pod-without-requests" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-metadata-volume-pod-without-limits.yaml |
@@ -164,8 +164,8 @@ Feature: Downward API
       | resource_name | <%= cb.node %> |
       | o             | yaml           |
     Then the step should succeed
-    And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :nodecpulimit clipboard
-    And evaluation of `@result[:parsed]["status"]["capacity"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["cpu"]` is stored in the :nodecpulimit clipboard
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
     When I execute on the pod:
       | cat | /etc/info/cpu_limit |
     Then the step should succeed
@@ -199,7 +199,7 @@ Feature: Downward API
       | cat | /etc/resources/cpu_limit | /etc/resources/cpu_request | /etc/resources/memory_request | /etc/resources/memory_limit |
     Then the step should succeed
     And the output should contain "5001128134217728"
-    # Test file without limits, use node capacity as limits by default
+    # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-volume-magic-keys-pod-without-requests" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-volume-magic-keys-pod-without-limits.yaml |
@@ -217,8 +217,8 @@ Feature: Downward API
       | resource_name | <%= cb.node %> |
       | o             | yaml           |
     Then the step should succeed
-    And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :nodecpulimit clipboard
-    And evaluation of `@result[:parsed]["status"]["capacity"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["cpu"]` is stored in the :nodecpulimit clipboard
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
     When I execute on the pod:
       | cat | /etc/resources/cpu_limit |
     Then the output should equal "<%= cb.nodecpulimit %>"
@@ -258,7 +258,7 @@ Feature: Downward API
       | MY_CPU_LIMIT=1        |
       | MY_MEM_REQUEST=64     |
       | MY_CPU_REQUEST=1      |
-    # Test file without limits, use node capacity as limits by default
+    # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-env-containername-pod-without-requests" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-containername-pod-without-limits.yaml | 
@@ -270,8 +270,8 @@ Feature: Downward API
       | resource_name | <%= cb.node %> |
       | o             | yaml           |
     Then the step should succeed
-    And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :nodecpulimit clipboard
-    And evaluation of `@result[:parsed]["status"]["capacity"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["cpu"]` is stored in the :nodecpulimit clipboard
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
     When I run the :logs client command with:
       | resource_name | dapi-resources-env-containername-pod-without-limits |
     Then the step should succeed
@@ -322,7 +322,7 @@ Feature: Downward API
       | MY_CPU_LIMIT=2        |
       | MY_MEM_REQUEST=64     |
       | MY_CPU_REQUEST=2      |
-    # Test file without limits, use node capacity as limits by default
+    # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-env-magic-keys-pod-without-requests" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-env-magic-keys-pod-without-limits.yaml |
@@ -334,8 +334,8 @@ Feature: Downward API
       | resource_name | <%= cb.node %> |
       | o             | yaml           |
     Then the step should succeed
-    And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :nodecpulimit clipboard
-    And evaluation of `@result[:parsed]["status"]["capacity"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["cpu"]` is stored in the :nodecpulimit clipboard
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
     When I run the :logs client command with:
       | resource_name | dapi-resources-env-magic-keys-pod-without-limits |
     Then the step should succeed
@@ -386,7 +386,7 @@ Feature: Downward API
       | MY_CPU_LIMIT=1        |
       | MY_MEM_REQUEST=64     |
       | MY_CPU_REQUEST=1      |
-    # Test file without limits, use node capacity as limits by default
+    # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-metadata-env-pod-without-requests" pod is deleted
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/downwardapi/dapi-resources-metadata-env-pod-without-limits.yaml |
@@ -398,8 +398,8 @@ Feature: Downward API
       | resource_name | <%= cb.node %> |
       | o             | yaml           |
     Then the step should succeed
-    And evaluation of `@result[:parsed]["status"]["capacity"]["cpu"]` is stored in the :nodecpulimit clipboard
-    And evaluation of `@result[:parsed]["status"]["capacity"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["cpu"]` is stored in the :nodecpulimit clipboard
+    And evaluation of `@result[:parsed]["status"]["allocatable"]["memory"].gsub(/Ki/,'')` is stored in the :nodememorylimit clipboard
     When I run the :logs client command with:
       | resource_name | dapi-resources-metadata-env-pod-without-limits |
     Then the step should succeed
