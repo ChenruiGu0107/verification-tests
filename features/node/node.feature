@@ -107,7 +107,7 @@ Feature: Node management
       | resource | po        |
       | name     | hello-pod |
     Then the output should match:
-      | Warning.*Error syncing pod.*oci runtime error |
+      | Warning.*Error syncing pod |
     """
 
   # @author chezhang@redhat.com

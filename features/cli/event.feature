@@ -33,9 +33,12 @@ Feature: Event related scenarios
       | image     | nginx   |
       | replicas  | 1       |
     Then the step should succeed
+    Given I wait for the steps to pass:
+    """
     When I get project events
     Then the output should match:
       | forbidden.*quota.*must specify cpu,memory |
+    """
     When  I run the :describe client command with:
       | resource  | dc      |
       | name      | nginx   |

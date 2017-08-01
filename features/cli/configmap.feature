@@ -456,19 +456,11 @@ Feature: configMap
     Then the step should succeed
     And I wait up to 120 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource | pod    |
-    Then the output should match:
-      | config-env-example       |
-      | configmaps "env-config" not found        |
-    """ 
-    And I wait up to 120 seconds for the steps to pass:
-    """
     When I run the :describe client command with:
-      | resource | pod      |
+      | resource | pod                |
       | name     | config-env-example |
     Then the output should match:
-      | Error syncing pod  |
+      | Error syncing pod      |
       | "env-config" not found |
     """
     When I run the :create client command with:
@@ -480,10 +472,10 @@ Feature: configMap
     Then the step should succeed
     And I wait for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource | pod    |
+    When I run the :describe client command with:
+      | resource | pod                |
+      | name     | invalid-config-env |
     Then the output should contain:
-      | invalid-config-env |
       | [may not contain '%'] |
     """
 
@@ -497,7 +489,7 @@ Feature: configMap
     When I run the :describe client command with:
       | resource | configmap  |
       | name     | env-config |
-    Then the output by order should contain:
+    Then the output should contain:
       | REPLACE_ME:        | 
       | a value            |
       | duplicate_key:     |
@@ -522,4 +514,3 @@ Feature: configMap
       | number_of_members=1    |
       | second_cmap_key=test   | 
       | test=jfjjf/*j!         |
-

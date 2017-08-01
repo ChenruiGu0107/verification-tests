@@ -198,7 +198,8 @@ Feature: oc_set_env.feature
     Then the output should match:
       | special-config.*2    |
     When I run the :new_app client command with:
-      | app_repo | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mysql-ephemeral-template.json  |
+      | app_repo | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mysql-ephemeral-template.json |
+      | param    | MYSQL_VERSION=5.6                                                                                             |
     Then the step should succeed
     And the pod named "mysql-1-deploy" becomes ready
     When I run the :set_env client command with:
@@ -244,6 +245,7 @@ Feature: oc_set_env.feature
       | test-secret.*Opaque.*2 |
     When I run the :new_app client command with:
       | app_repo | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mysql-ephemeral-template.json  |
+      | param    | MYSQL_VERSION=5.6 |
     Then the step should succeed
     And the pod named "mysql-1-deploy" becomes ready
     When I run the :set_env client command with:
@@ -289,6 +291,7 @@ Feature: oc_set_env.feature
       | test-secret.*Opaque.*2 |
     When I run the :new_app client command with:
       | app_repo | https://raw.githubusercontent.com/openshift/origin/master/examples/db-templates/mysql-ephemeral-template.json |
+      | param    | MYSQL_VERSION=5.6 |
     Then the step should succeed
     And the pod named "mysql-1-deploy" becomes ready
     When I run the :set_env client command with:

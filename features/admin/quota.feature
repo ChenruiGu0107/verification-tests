@@ -637,7 +637,8 @@ Feature: Quota related scenarios
       | requests.cpu\\s+200m\\s+1       |
       | requests.memory\\s+256Mi\\s+1Gi |
     # activeDeadlineSeconds=60s, after 60s, used quota returns to the original state
-    Given 60 seconds have passed
+    Given I wait for the steps to pass:
+    """
     When I run the :describe client command with:
       | resource | quota             |
       | name     | quota-terminating |
@@ -647,6 +648,7 @@ Feature: Quota related scenarios
       | pods\\s+0\\s+4              |
       | requests.cpu\\s+0\\s+1      |
       | requests.memory\\s+0\\s+1Gi |
+    """
     Given I ensure "pod-terminating" pod is deleted
     When I run the :describe client command with:
       | resource | quota             |
@@ -821,11 +823,12 @@ Feature: Quota related scenarios
       | n        | <%= project.name %> |
     Then the step should succeed
     And the output should contain:
-      | "database-1-" is forbidden: exceeded quota: myquota, requested: cpu=4,memory=4Gi, used: cpu=400m |
-      | "database-1-" is forbidden: exceeded quota: myquota, requested: cpu=4,memory=4Gi, used: cpu=0    |
+      | pods "database-1-hook-mid" is forbidden: exceeded quota |
+      | pods "database-1-hook-pre" is forbidden: exceeded quota |
+      | pods "database-1-" is forbidden: exceeded quota         |
     And the output should not contain 3 times:
-      | "database-1-" is forbidden: exceeded quota: myquota, requested: cpu=4,memory=4Gi, used: cpu=400m |
-      | "database-1-" is forbidden: exceeded quota: myquota, requested: cpu=4,memory=4Gi, used: cpu=0    |
+      | pods "database-1-hook-mid" is forbidden: exceeded quota |
+      | pods "database-1-hook-pre" is forbidden: exceeded quota |
 
   # @author qwang@redhat.com
   # @case_id OCP-11247
