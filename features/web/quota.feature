@@ -195,7 +195,9 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I perform the :check_quota_warning_for_scaling_on_overview_page web console action with:
-      | project_name | <%= project.name%> |
+      | resource_type | replication controller |
+      | resource_name | myrc                   |
+      | project_name  | <%= project.name%>     |
     Then the step should succeed
 
   # @author yanpzhan@redhat.com
@@ -236,7 +238,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
     And I perform the :check_quota_warning_info_when_submit_create web console action with:
       | prompt_info | You are at your quota |
-    Then the step should fail 
+    Then the step should fail
 
     When I run the :run client command with:
       | name      | mypod                  |

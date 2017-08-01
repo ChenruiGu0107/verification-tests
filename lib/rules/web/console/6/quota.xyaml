@@ -14,6 +14,7 @@ check_quota_warning_on_overview_page:
       xpath: //span[contains(text(),'Quota limit has been reached')]
 check_quota_warning_for_scaling_on_overview_page:
   action: goto_overview_page
+  action: expand_resource_entry
   action: check_quota_warning_info_for_scaling
 check_quota_warning_info_for_scaling:
   elements:
