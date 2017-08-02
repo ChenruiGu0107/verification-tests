@@ -67,17 +67,25 @@ Feature: Testing registry
   @destructive
   Scenario: Prune images by command oadm_prune_images
     Given cluster role "system:image-pruner" is added to the "first" user
+    And default registry service ip is stored in the :registry_ip clipboard
     Given I have a project
-    And I run the :new_build client command with:
-      | app_repo | openshift/ruby:2.3~https://github.com/openshift/ruby-ex |
+    When I run the :policy_add_role_to_user client command with:
+      | role            | registry-admin   |
+      | user name       | system:anonymous |
     Then the step should succeed
-    And the "ruby-ex-1" build was created
-    Then the "ruby-ex-1" build completed
-    And the "ruby-ex:latest" image stream tag was created
-    And evaluation of `image_stream_tag("ruby-ex:latest").image_layers(user:user)` is stored in the :layers clipboard
-    And evaluation of `image_stream_tag("ruby-ex:latest").digest(user:user)` is stored in the :digest clipboard
+    And I select a random node's host
+    And the "~/.docker/config.json" file is restored on host after scenario
+    And I run commands on the host:
+      | docker logout <%= cb.registry_ip %> |
+      | docker pull docker.io/aosqe/singlelayer:latest |
+      | docker tag docker.io/aosqe/singlelayer:latest  <%= cb.registry_ip %>/<%= project.name %>/mystream:latest|
+      | docker push <%= cb.registry_ip %>/<%= project.name %>/mystream:latest|
+    Then the step should succeed
+    And the "mystream:latest" image stream tag was created
+    And evaluation of `image_stream_tag("mystream:latest").image_layers(user:user)` is stored in the :layers clipboard
+    And evaluation of `image_stream_tag("mystream:latest").digest(user:user)` is stored in the :digest clipboard
     And default registry route is stored in the :registry_ip clipboard
-    And I ensures "ruby-ex" imagestream is deleted
+    And I ensures "mystream" imagestream is deleted
     Given I delete the project
     And I run the :oadm_prune_images client command with:
       | keep_younger_than | 0                     |
