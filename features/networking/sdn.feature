@@ -3,8 +3,9 @@ Feature: SDN related networking scenarios
   # @case_id OCP-9844
   @admin
   @destructive
-  Scenario: set MTU on vovsbr and vlinuxbr
-    Given I select a random node's host
+  Scenario: Configuring the Pod mtu in node config
+    Given I store the schedulable nodes in the :nodes clipboard
+    Given I use the "<%= cb.nodes[0].name %>" node
     And the node network is verified
     And system verification steps are used:
     """
@@ -13,15 +14,6 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     And evaluation of `@result[:response].chomp` is stored in the :mtu clipboard
     Given the expression should be true> cb.mtu != "3450"
-    When I run commands on the host:
-      | ip link show lbr0 |
-    Then the expression should be true> @result[:response].include?(cb.mtu)
-    When I run commands on the host:
-      | ip link show vovsbr |
-    Then the expression should be true> @result[:response].include?(cb.mtu)
-    When I run commands on the host:
-      | ip link show vlinuxbr |
-    Then the expression should be true> @result[:response].include?(cb.mtu)
     When I run commands on the host:
       | ip link show tun0 |
     Then the expression should be true> @result[:response].include?(cb.mtu)
@@ -43,11 +35,14 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | systemctl restart atomic-openshift-node |
     Then the step should succeed
-    When I run commands on the host:
-      | ip link show vovsbr |
-    Then the output should contain "mtu 3450"
-    When I run commands on the host:
-      | ip link show vlinuxbr |
+    # check mtu for tun0 and new create pod
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json" replacing paths:
+      | ["nodeName"] | <%= cb.nodes[0].name %> |
+    Then the step should succeed
+    And the pod named "hello-pod" becomes ready
+    When I execute on the pod:
+      | bash | -c | ip addr |
     Then the output should contain "mtu 3450"
     When I run commands on the host:
       | ip link show tun0 |
