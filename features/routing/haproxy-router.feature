@@ -3568,3 +3568,139 @@ Feature: Testing haproxy router
     # return curl: (35) ssl_handshake error since could not use default certs when enable ROUTER_STRICT_SNI
     And the output should contain "(35)"
     """    
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15023
+  @admin
+  @destructive
+  Scenario: The backend list should be random when enable shuffle for unsecure route
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 3 |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I expose the "test-service" service
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | bash | -c | grep test-rc haproxy.config |
+    Then the output should contain:
+      | 8080 |
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    """
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_BACKEND_PROCESS_ENDPOINTS=shuffle  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod2 clipboard
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod2 %>" pod:
+      | bash | -c | grep test-rc haproxy.config |
+    Then the output should contain:
+      | 8080 |
+    And the expression should be true> cb.first_access != @result[:response]
+    """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15161
+  @admin
+  @destructive
+  Scenario: The backend list should be random when enable shuffle for edge route
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 3 |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create_route_edge client command with:
+      | name | route-edge |
+      | service | test-service |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | bash | -c | grep test-rc haproxy.config |
+    Then the output should contain:
+      | 8080 |
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    """
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_BACKEND_PROCESS_ENDPOINTS=shuffle  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod2 clipboard
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod2 %>" pod:
+      | bash | -c | grep test-rc haproxy.config |
+    Then the output should contain:
+      | 8080 |
+    And the expression should be true> cb.first_access != @result[:response]
+    """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15162
+  @admin
+  @destructive
+  Scenario: The backend list should be random when enable shuffle for passthrough route
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 3 |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create_route_passthrough client command with:
+      | name | route-pass |
+      | service | test-service |
+    Then the step should succeed
+
+    Given I switch to cluster admin pseudo user
+    And I use the "default" project
+    Given a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod clipboard
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod %>" pod:
+      | bash | -c | grep test-rc haproxy.config |
+    Then the output should contain:
+      | 8080 |
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+    """
+    Given default router deployment config is restored after scenario
+    When I run the :env client command with:
+      | resource | dc/router |
+      | e        | ROUTER_BACKEND_PROCESS_ENDPOINTS=shuffle  |
+    Then the step should succeed
+    And I wait for the pod named "<%= cb.router_pod %>" to die
+    When a pod becomes ready with labels:
+      | deploymentconfig=router |
+    Then evaluation of `pod.name` is stored in the :router_pod2 clipboard
+    And I wait up to 10 seconds for the steps to pass:
+    """
+    When I execute on the "<%=cb.router_pod2 %>" pod:
+      | bash | -c | grep test-rc haproxy.config |
+    Then the output should contain:
+      | 8080 |
+    And the expression should be true> cb.first_access != @result[:response]
+    """
