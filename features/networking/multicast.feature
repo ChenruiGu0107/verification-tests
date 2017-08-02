@@ -4,7 +4,7 @@ Feature: testing multicast scenarios
   # @case_id OCP-12926
   @admin
   Scenario: pods should be able to subscribe send and receive multicast traffic
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
 
     # create some multicast testing pods
     Given I have a project
@@ -86,7 +86,7 @@ Feature: testing multicast scenarios
   # @case_id OCP-12928
   @admin
   Scenario: pods should be able to join multiple multicast groups at same time
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
 
     # create some multicast testing pods in the project
     Given I have a project
@@ -181,7 +181,7 @@ Feature: testing multicast scenarios
   # @case_id OCP-12929
   @admin
   Scenario: pods should not be able to receive multicast traffic from other pods in different tenant
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
 
     # create some multicast testing pods in one project
     Given I have a project
@@ -255,15 +255,14 @@ Feature: testing multicast scenarios
       | cat | /tmp/p2.log |
     Then the step should succeed
     And the output should not contain:
-      | joined (S,G) = (*, 232.43.211.234), pinging |
-      | multicast, xmt/rcv/%loss = 5/5/0%"          |
+      | multicast, xmt/rcv/%loss = 5/5/0%" |
 
   # @author hongli@redhat.com
   # @case_id OCP-12931
   @admin
   @destructive
   Scenario: pods in default project should not be able to receive multicast traffic from other tenants
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
 
     # create multicast testing pod in one project
     Given I have a project
@@ -343,7 +342,7 @@ Feature: testing multicast scenarios
   @admin
   @destructive
   Scenario: pods in default project should be able to receive multicast traffic from other default project pods
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
 
     # enable multicast and create testing pods
     Given I switch to cluster admin pseudo user
@@ -422,7 +421,7 @@ Feature: testing multicast scenarios
   # @case_id OCP-12977
   @admin
   Scenario: multicast is disabled by default if not annotate the netnamespace
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
 
     # create multicast testing pods in the project and without multicast enable
     Given I have a project
