@@ -23,6 +23,7 @@ require 'openshift/cluster_role_binding'
 require 'openshift/storage_class'
 require 'openshift/security_context_constraint'
 require 'openshift/host_subnet'
+require 'openshift/network_policy'
 require 'openshift/cluster_resource_quota'
 require 'openshift/stateful_set'
 require 'openshift/net_namespace'
@@ -54,6 +55,7 @@ module CucuShift
       @builds = []
       @pods = []
       @hostsubnets = []
+      @networkpolicies = []
       @clusterresourcequotas = []
       @storageclasses = []
       @pvs = []
@@ -574,6 +576,10 @@ module CucuShift
       cluster_resource(HostSubnet, name, env)
     end
 
+    def network_policy(name = nil, env = nil)
+      cluster_resource(NetworkPolicy, name, env)
+    end
+
     def cluster_resource_quota(name = nil, env = nil)
       cluster_resource(ClusterResourceQuota, name, env)
     end
@@ -629,6 +635,7 @@ module CucuShift
         cluster_role: "clusterroles",
         cluster_role_binding: "clusterrolebindings",
         host_subnet: "hostsubnets",
+        network_policy: "networkpolicies",
         cluster_resource_quota: "clusterresourcequotas",
         stateful_set: "statefulsets",
         storage_class: "storageclasses",
