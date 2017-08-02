@@ -99,8 +99,8 @@ Feature: Pod related networking scenarios
   Scenario: The openflow list will be cleaned after delete the pods
     Given I have a project
     Given I have a pod-for-ping in the project
+    Then I use the "<%= pod.node_name(user: user) %>" node
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
-    Given I select a random node's host
     When I run commands on the host:
       | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
     Then the step should succeed
