@@ -263,7 +263,7 @@ Feature: job.feature
     When I process and create:
       | f | job-restartpolicy.yaml |
     Then the step should succeed
-    When I wait for the steps to pass:
+    When I wait up to 300 seconds for the steps to pass:
     """
     When I get project pods
     Then the output should match:
@@ -287,7 +287,7 @@ Feature: job.feature
     When I process and create:
       | f | job-restartpolicy.yaml   |
     Then the step should succeed
-    When I wait for the steps to pass:
+    When I wait up to 300 seconds for the steps to pass:
     """
     When I get project pods
     Then the output should match:
