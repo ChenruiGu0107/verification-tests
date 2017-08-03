@@ -646,3 +646,16 @@ Feature: Node management
     Then the step should succeed
     When I try to restart the node service on node
     Then the step should succeed
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15189
+  @admin
+  Scenario: Check the ARP cache on the node
+    Given I select a random node's host
+    When I run commands on the host:
+      | sysctl -a \| grep net.ipv4.neigh.default.gc_thresh |
+    Then the step should succeed
+    And the output should contain:
+      | net.ipv4.neigh.default.gc_thresh1 = 8192  |
+      | net.ipv4.neigh.default.gc_thresh2 = 32768 |
+      | net.ipv4.neigh.default.gc_thresh3 = 65536 |
