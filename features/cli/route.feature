@@ -167,3 +167,21 @@ Feature: route related features via cli
     When I open web server via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift-2 http-8080"
     """
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-15172
+  Scenario: Changing from no-cert to edge encryption
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/appuio/example-php-sti-helloworld.git |
+      | name     | example                                                  |
+    Then the step should succeed
+    When I run the :expose client command with:
+      | resource      | svc     |
+      | resource_name | example |
+    Then the step should succeed
+    When I run the :patch client command with:
+      | resource      | route                                   |
+      | resource_name | example                                 |
+      | p             | {"spec":{"tls":{"termination":"edge"}}} |
+    Then the step should succeed
