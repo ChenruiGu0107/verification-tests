@@ -428,6 +428,36 @@ Feature: taint toleration related scenarios
     Given the pod named "pod-toleration-red-prefer" becomes ready
     Then the expression should be true> pod.node_name(user: user) == cb.nodes[1].name
 
+  # @author wmeng@redhat.com
+  # @case_id OCP-13660
+  Scenario: Taint Toleration - value must be empty when 'operator' is 'Exists'
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/taint-toleration/pod-with-toleration-fail.yaml |
+    Then the step should fail
+    And the output should contain:
+      | The Pod "pod-toleration-fail" is invalid        |
+      | value must be empty when `operator` is 'Exists' |
+    When I run the :get client command with:
+      | resource      | pod                 |
+      | resource_name | pod-toleration-fail |
+    Then the step should fail
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-13772
+  Scenario: Taint Toleration - key must be provided when 'operator' is 'Equal'
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/taint-toleration/pod-with-toleration-fail-no-key.yaml |
+    Then the step should fail
+    And the output should contain:
+      | The Pod "pod-toleration-fail-no-key" is invalid |
+      | operator must be Exists when `key` is empty     |
+    When I run the :get client command with:
+      | resource      | pod                        |
+      | resource_name | pod-toleration-fail-no-key |
+    Then the step should fail
+
   # @author chezhang@redhat.com
   # @case_id OCP-13538
   @admin
