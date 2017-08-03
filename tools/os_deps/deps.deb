@@ -11,7 +11,7 @@ libtool
 bison
 sqlite
 firefox
-Xvfb
-python-dev 
+xvfb
+python-dev
 libssl-dev
 ansible
