@@ -349,3 +349,10 @@ Given /^I store the default registry scheme to the#{OPT_SYM} clipboard$/ do |cb_
   cb[cb_name] = @result[:parsed].dig('spec', 'template', 'spec', 'containers')[0].dig('livenessProbe','httpGet','scheme').downcase
 end
 
+# Generate registry route for online and dedicated environments
+Given /^I attempt the registry route based on API url and store it in the#{OPT_SYM} clipboard$/ do |cb_name|
+  api_hostname = env.api_hostname 
+  raise "The API route got from env is incorrect" unless api_hostname =~ /api\..+/
+  cb_name ||= :registry_route
+  cb[cb_name] = api_hostname.gsub("api","registry")
+end

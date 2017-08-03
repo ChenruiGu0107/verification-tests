@@ -118,18 +118,19 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
   # @case_id OCP-10091
   Scenario: imageStream is auto provisioned if it does not exist during 'docker push'--Online
     Given I have a project
+    And I attempt the registry route based on API url and store it in the :registry_route clipboard  
     When I have a skopeo pod in the project
     Then the step should succeed  
     And a pod becomes ready with labels:
       | name=skopeo |
     When I execute on the pod:  
-      | skopeo                                                                                                    |
-      | --insecure-policy                                                                                         |
-      | copy                                                                                                      |
-      | --dcreds                                                                                                  |
-      | <%= user.name %>:<%= user.get_bearer_token.token %>                                                       |
-      | docker://docker.io/busybox                                                                                |
-      | docker://<%= env.master_hosts.first.hostname.gsub("api","registry") %>/<%= project.name %>/busybox:latest |
+      | skopeo                                                               |
+      | --insecure-policy                                                    |
+      | copy                                                                 |
+      | --dcreds                                                             |
+      | <%= user.name %>:<%= user.get_bearer_token.token %>                  |
+      | docker://docker.io/busybox                                           |
+      | docker://<%= cb.registry_route %>/<%= project.name %>/busybox:latest |
     Then the step should succeed  
     When I run the :get client command with:
       | resource | imagestreamtag |
@@ -140,6 +141,7 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
   # @author zhaliu@redhat.com
   Scenario Outline: ImageStream annotation and tag function
     Given I have a project
+    And I attempt the registry route based on API url and store it in the :registry_route clipboard  
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/<file> |
     Then the step should succeed  
@@ -148,13 +150,13 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
     And a pod becomes ready with labels:
       | name=skopeo |
     When I execute on the pod:  
-      | skopeo                                                                                           |
-      | --insecure-policy                                                                                |
-      | copy                                                                                             |
-      | --dcreds                                                                                         |
-      | <%= user.name %>:<%= user.get_bearer_token.token %>                                              |
-      | docker://docker.io/busybox                                                                       |
-      | docker://<%= env.master_hosts.first.hostname.gsub("api","registry") %>/<%= project.name %>/<tag> |
+      | skopeo                                                               |
+      | --insecure-policy                                                    |
+      | copy                                                                 |
+      | --dcreds                                                             |
+      | <%= user.name %>:<%= user.get_bearer_token.token %>                  |
+      | docker://docker.io/busybox                                           |
+      | docker://<%= cb.registry_route %>/<%= project.name %>/<tag>          |
     Then the step should succeed  
     When I run the :get client command with:
       | resource | imagestreamtag |
@@ -178,7 +180,9 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
   # @case_id OCP-10092
   Scenario: User should be denied pushing when it does not have 'admin' role--online paid tier
     Given I have a project
+    And I attempt the registry route based on API url and store it in the :registry_route clipboard  
     And evaluation of `project.name` is stored in the :project_name clipboard
+
     Given I switch to second user
     Given I have a project
     When I have a skopeo pod in the project
@@ -186,13 +190,13 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
     And a pod becomes ready with labels:
       | name=skopeo |
     When I execute on the pod:  
-      | skopeo                                                                                                       |
-      | --insecure-policy                                                                                            |
-      | copy                                                                                                         |
-      | --dcreds                                                                                                     |
-      | <%= user.name %>:<%= user.get_bearer_token.token %>                                                          |
-      | docker://docker.io/busybox                                                                                   |
-      | docker://<%= env.master_hosts.first.hostname.gsub("api","registry") %>/<%= cb.project_name %>/busybox:latest |
+      | skopeo                                                                  |
+      | --insecure-policy                                                       |
+      | copy                                                                    |
+      | --dcreds                                                                |
+      | <%= user.name %>:<%= user.get_bearer_token.token %>                     |
+      | docker://docker.io/busybox                                              |
+      | docker://<%= cb.registry_route %>/<%= cb.project_name %>/busybox:latest |
     Then the step should fail  
     And the output should contain:
       | not authorized to read from destination repository |
@@ -204,13 +208,13 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
     Given I switch to second user
     And I use the "<%=cb.project_name %>" project
     When I execute on the pod:  
-      | skopeo                                                                                                       |
-      | --insecure-policy                                                                                            |
-      | copy                                                                                                         |
-      | --dcreds                                                                                                     |
-      | <%= user.name %>:<%= user.get_bearer_token.token %>                                                          |
-      | docker://docker.io/busybox                                                                                   |
-      | docker://<%= env.master_hosts.first.hostname.gsub("api","registry") %>/<%= cb.project_name %>/busybox:latest |
+      | skopeo                                                                  |
+      | --insecure-policy                                                       |
+      | copy                                                                    |
+      | --dcreds                                                                |
+      | <%= user.name %>:<%= user.get_bearer_token.token %>                     |
+      | docker://docker.io/busybox                                              |
+      | docker://<%= cb.registry_route %>/<%= cb.project_name %>/busybox:latest |
     Then the step should succeed
     When I run the :get client command with:
       | resource | imagestreamtag         |
@@ -223,7 +227,9 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
   # @case_id OCP-15022
   Scenario: User should be denied pushing when it does not have 'admin' role--online free tier
     Given I have a project
+    And I attempt the registry route based on API url and store it in the :registry_route clipboard  
     And evaluation of `project.name` is stored in the :project_name clipboard
+
     Given I switch to second user
     Given I have a project
     When I have a skopeo pod in the project
@@ -231,13 +237,13 @@ Feature: ONLY ONLINE Imagestreams related scripts in this file
     And a pod becomes ready with labels:
       | name=skopeo |
     When I execute on the pod:  
-      | skopeo                                                                                                       |
-      | --insecure-policy                                                                                            |
-      | copy                                                                                                         |
-      | --dcreds                                                                                                     |
-      | <%= user.name %>:<%= user.get_bearer_token.token %>                                                          |
-      | docker://docker.io/busybox                                                                                   |
-      | docker://<%= env.master_hosts.first.hostname.gsub("api","registry") %>/<%= cb.project_name %>/busybox:latest |
+      | skopeo                                                                  |
+      | --insecure-policy                                                       |
+      | copy                                                                    |
+      | --dcreds                                                                |
+      | <%= user.name %>:<%= user.get_bearer_token.token %>                     |
+      | docker://docker.io/busybox                                              |
+      | docker://<%= cb.registry_route %>/<%= cb.project_name %>/busybox:latest |
     Then the step should fail  
     And the output should contain:
       | not authorized to read from destination repository |
