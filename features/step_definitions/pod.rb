@@ -58,7 +58,7 @@ Given /^I store in the#{OPT_SYM} clipboard the pods labeled:$/ do |cbn, labels|
 end
 
 Given /^the pod(?: named "(.+)")? status becomes :([^\s]*?)(?: within #{NUMBER} seconds)?$/ do |name, status, timeout|
-  timeout ||= 15 * 60
+  timeout = timeout ? Integer(timeout) : 15 * 60
   @result = pod(name).wait_till_status(status.to_sym, user, timeout)
 
   unless @result[:success]
