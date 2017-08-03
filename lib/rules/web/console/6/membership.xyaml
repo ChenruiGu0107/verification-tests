@@ -31,7 +31,10 @@ edit_membership:
       xpath: //a[span[contains(text(),"Edit Membership")]]
     op: click
 done_membership_editing:
-  action: close_all_toast_notifications
+  action:
+    if_param:
+      close_toasts: 'true'
+    ref: close_all_toast_notifications
   element:
     selector:
       xpath: //a[span[contains(text(),"Done Editing")]]
@@ -97,6 +100,8 @@ click_add_button_on_membership:
       xpath: //div[contains(@class,"active")]//button[normalize-space(text())="Add" and not(@disabled="disabled")]
     op: click
 add_role_on_membership:
+  params:
+    close_toasts: 'true'
   action: click_to_goto_membership_tab
   action: edit_membership
   action: select_role_on_membership

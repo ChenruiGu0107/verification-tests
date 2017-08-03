@@ -315,8 +315,9 @@ Feature: memberships related features via web
     When I perform the :add_role_on_membership web console action with:
       | project_name | <%= project.name %> |
       | tab_name     | Users               |
-      | name         | bob           |
-      | role         | view          |
+      | name         | bob                 |
+      | role         | view                |
+      | close_toasts | false               |
     Then the step should succeed
     When I perform the :check_error_message_on_membership web console action with:
       | name | bob  |
