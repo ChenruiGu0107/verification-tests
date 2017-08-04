@@ -104,20 +104,40 @@ param_condition:
 ----
 
 ==== `context:`
-You will need to use this rule only if you want to work with elements which is
-located in an iframe:
+This rule is used to reduce complexity of xpaths where you need to check
+multiple elements inside one or to work with elements, which are inside an iframe.
+Specify an element selector with `context` rule to work inside it.
+`ref` action and all nested actions will run against specified `context` element.
 
 [source,yaml]
 ----
-single_param_name_condition:
+iframe_context_action:
   action:
     context:
       tag_name: iframe
     ref: do_smth_in_iframe
+do_smth_in_iframe:
+  element:
+    selector:
+      xpath: //div
 ----
 
-Specify an iframe selector in the `context` rule to work inside it.
-`ref` action and all nested action will run inside specified `context`.
+All xpaths which run against element context node should be relative:
+
+[source,yaml]
+----
+element_context_action:
+  action:
+    context:
+      xpath: //container
+    ref: do_smth_in_container
+do_smth_in_container:
+  elements:
+  - selector:
+      xpath: ./h2[text()='State']
+  - selector:
+      xpath: ./h2[text()='Ready']
+----
 
 ==== `ref:`
 As you already could noticed this rule is used to reference another action which

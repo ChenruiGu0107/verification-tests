@@ -358,7 +358,7 @@ require "base64"
                                      "wasn't found.Skipping action #{action_body[:ref]}"
             return res_context
           end
-          user_opts[:_context] = context_elements.first.first.last
+          user_opts[:_context] = context_elements.first.first.last.to_subtype
         end
 
         case action_body[:ref]
