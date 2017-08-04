@@ -72,7 +72,7 @@ Feature: InitContainers
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/init-containers-sleep.yaml |
     Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait for the steps to pass:
     """
     When I run the :logs client command with:
       | resource_name | pod/hello-pod |
@@ -180,7 +180,7 @@ Feature: InitContainers
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/init-containers-privilege.yaml |
     Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait for the steps to pass:
     """
     When I run the :exec client command with:
       | c            | wait      |
@@ -383,7 +383,7 @@ Feature: InitContainers
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/Promote_InitContainers/pod-init-containers-loop.yaml |
     Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait for the steps to pass:
     """
     When I run the :logs client command with:
       | resource_name | pod/init-loop |
