@@ -14,7 +14,7 @@ check_specific_project:
 check_help_info_when_user_have_no_permission:
   elements:
   - selector:
-      xpath: //code[contains(.,'<openshift_command>')]
+      xpath: //code[contains(.,'oadm new-project <projectname> --admin=<user_name>')]
 check_policy_command:
   elements:
   - selector:
