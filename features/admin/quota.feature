@@ -1585,3 +1585,161 @@ Feature: Quota related scenarios
     Then the step should fail
     And the output should contain:
       | persistentvolumeclaims "pvc-2" is forbidden: exceeded quota: quota-pvc-storage, requested: requests.storage=5Gi, used: requests.storage=5Gi, limited: requests.storage=8Gi |
+
+
+  # @author qwang@redhat.com
+  # @case_id OCP-12827
+  @admin
+  Scenario: Precious resources should be restrained if they are covered in quota and not configured on the master
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-precious-resource.yaml |
+      | n | <%= project.name %>                                                                                   |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json |
+      | n | <%= project.name %>                                                                             |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota                   |
+      | name     | quota-precious-resource |
+    Then the output should match:
+      | requests.storage\\s+2Gi\\s+50Gi                                 |
+      | persistentvolumeclaims\\s+1\\s+10                               |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    And I replace lines in "pvc-storage-class.json":
+      | pvc-storage-class | pvc-storage-class-1 |
+    When I run the :create client command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should fail
+    And the output should contain:
+      | exceeded quota: quota-precious-resource, requested: gold.storageclass.storage.k8s.io/requests.storage=2Gi, used: gold.storageclass.storage.k8s.io/requests.storage=2Gi, limited: gold.storageclass.storage.k8s.io/requests.storage=3Gi |
+    When I run the :describe client command with:
+      | resource | quota                   |
+      | name     | quota-precious-resource |
+    Then the output should match:
+      | requests.storage\\s+2Gi\\s+50Gi                                 |
+      | persistentvolumeclaims\\s+1\\s+10                               |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
+     
+
+  # @author qwang@redhat.com
+  # @case_id OCP-12826
+  Scenario: Precious resources should be consumed without constraint in the absence of a covering quota if they are not configured on the master
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json |
+      | n | <%= project.name %>                                                                             |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    And I replace lines in "pvc-storage-class.json":
+      | pvc-storage-class | pvc-storage-class-1 |
+      | "storage": "2Gi"  | "storage": "20Gi"   |
+    When I run the :create client command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    When I replace lines in "pvc-storage-class.json":
+      | pvc-storage-class | pvc-storage-class-2 |
+      | "storage": "20Gi" | "storage": "30Gi"   |
+    And I run the :create client command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+
+
+  # @author qwang@redhat.com
+  # @case_id OCP-12821
+  @admin
+  @destructive
+  Scenario: Precious resources should be restrained if they are covered in quota and configured on the master
+    # Modify master-config to set default resource limits
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        ResourceQuota:
+          configuration:
+            apiVersion: resourcequota.admission.k8s.io/v1alpha1
+            kind: Configuration
+            limitedResources:
+            - resource: persistentvolumeclaims
+              matchContains:
+              - .storageclass.storage.k8s.io/requests.storage
+    """
+    And the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/quota-precious-resource.yaml |
+      | n | <%= project.name %>                                                                                   |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json |
+      | n | <%= project.name %>                                                                             |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota                   |
+      | name     | quota-precious-resource |
+    Then the output should match:
+      | persistentvolumeclaims\\s+1\\s+10                               |
+      | requests.storage\\s+2Gi\\s+50Gi                                 |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    And I replace lines in "pvc-storage-class.json":
+      | pvc-storage-class | pvc-storage-class-2 |
+    When I run the :create client command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should fail
+    And the output should contain:
+      | exceeded quota: quota-precious-resource, requested: gold.storageclass.storage.k8s.io/requests.storage=2Gi, used: gold.storageclass.storage.k8s.io/requests.storage=2Gi, limited: gold.storageclass.storage.k8s.io/requests.storage=3Gi |
+    When I run the :describe client command with:
+      | resource | quota                   |
+      | name     | quota-precious-resource |
+    Then the output should match:
+      | persistentvolumeclaims\\s+1\\s+10                               |
+      | requests.storage\\s+2Gi\\s+50Gi                                 |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+3Gi |
+
+
+  # @author qwang@redhat.com
+  # @case_id OCP-12820
+  @admin
+  @destructive
+  Scenario: Precious resources should be denied in the absence of a covering quota if they are configured on the master
+    # Modify master-config to set default resource limits
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        ResourceQuota:
+          configuration:
+            apiVersion: resourcequota.admission.k8s.io/v1alpha1
+            kind: Configuration
+            limitedResources:
+            - resource: persistentvolumeclaims
+              matchContains:
+              - .storageclass.storage.k8s.io/requests.storage
+    """
+    And the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/qwang1/mytestfile/master/pvc-storage-class.json |
+      | n | <%= project.name %>                                                               |
+    Then the step should fail
+    And the output should contain:
+      | insufficient quota to consume: gold.storageclass.storage.k8s.io/requests.storage |
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    And I replace lines in "pvc-storage-class.json":
+      | pvc-storage-class | pvc-storage-class-1 |
+      | gold              | silver              |
+    When I run the :create client command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should fail
+    And the output should contain:
+      | insufficient quota to consume: silver.storageclass.storage.k8s.io/requests.storage |
