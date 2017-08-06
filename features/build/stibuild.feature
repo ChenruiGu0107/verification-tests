@@ -195,3 +195,17 @@ Feature: stibuild.feature
     Then the output should match:
       | ruby-hello-world-2.*Git@refs/pull/60/head:master.*FetchSourceFailed |
       | ruby-hello-world-3.*Git@refs/pull/100000/head.*FetchSourceFailed    |
+
+  # @author wzheng@redhat.com
+  # @case_id OCP-9550
+  Scenario: Provide the built image reference as part of the build status
+    Given I have a project
+    When I run the :new_app client command with:
+      | app_repo | https://github.com/openshift/ruby-ex |
+      | image_stream | ruby |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | build     |
+      | name     | ruby-ex-1 |
+    Then the output should contain:
+      | From Image:[^\\n]*@sha256 |
