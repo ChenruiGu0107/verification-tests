@@ -44,7 +44,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
     When I run the :get client command with:
       | resource | pod |
     Then the output should match:
-      | volumetest\\s+0/1\\s+RunContainerError.+ |
+      | volumetest\\s+0/1.+[eE]rror.+ |
     """
     When I run the :describe client command with:
       | resource | pod        |
@@ -145,9 +145,9 @@ Feature: ONLY ONLINE Storage related scripts in this file
     Examples: create pvc with annotation in aws
       |  pvc-name               | status  | output                                                                     |
       | pvc-annotation-default  | bound   | StorageClass:\\t+ebs                                                       |
-      | pvc-annotation-notexist | pending | StorageClass "yasun-test-class-not-exist" not found                        |
+      | pvc-annotation-notexist | pending | "yasun-test-class-not-exist" not found                                     |
       | pvc-annotation-blank    | pending | no persistent volumes available for this claim and no storage class is set |
-      | pvc-annotation-alpha    | bound   | StorageClass:\\t+randomName                                                |
+      | pvc-annotation-alpha    | bound   | StorageClass:\\t+ebs                                                       |
       | pvc-annotation-ebs      | bound   | StorageClass:\\t+ebs                                                       |
 
   # @author yasun@redhat.com
