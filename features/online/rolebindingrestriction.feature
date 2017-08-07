@@ -78,6 +78,7 @@ Feature: rolebindingrestriction.feature
       | tab_name     | <tab_name>          |
       | name         | <name>              |
       | role         | <role>              |
+      | save_changes | false               |
     Then the step should succeed
     When I perform the :check_restrict_rolebinding_message_on_membership web console action with:
       | project_name    | <%= project.name %> |
@@ -109,6 +110,7 @@ Feature: rolebindingrestriction.feature
       | namespace     | openshift           |
       | name          | default             |
       | role          | basic-user          |
+      | save_changes  | false               |
     Then the step should succeed
     When I perform the :check_restrict_rolebinding_message_on_membership web console action with:
       | project_name | <%= project.name %> |

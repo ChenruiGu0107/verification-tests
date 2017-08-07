@@ -31,10 +31,7 @@ edit_membership:
       xpath: //a[span[contains(text(),"Edit Membership")]]
     op: click
 done_membership_editing:
-  action:
-    if_param:
-      close_toasts: 'true'
-    ref: close_all_toast_notifications
+  action: close_all_toast_notifications
   element:
     selector:
       xpath: //a[span[contains(text(),"Done Editing")]]
@@ -101,38 +98,61 @@ click_add_button_on_membership:
     op: click
 add_role_on_membership:
   params:
-    close_toasts: 'true'
+    save_changes: 'true'
   action: click_to_goto_membership_tab
   action: edit_membership
   action: select_role_on_membership
   action: add_name_on_membership
   action: click_add_button_on_membership
-  action: done_membership_editing
+  action:
+    if_param:
+      save_changes: 'true'
+    ref: done_membership_editing
 add_sa_role_on_membership_with_namespace:
+  params:
+    save_changes: 'true'
   action: click_to_goto_membership_tab
   action: edit_membership
   action: type_service_account_name_on_membership
   action: select_role_on_membership
   action: click_add_button_on_membership
-  action: done_membership_editing
+  action:
+    if_param:
+      save_changes: 'true'
+    ref: done_membership_editing
 add_role_on_membership_with_typed_namespace:
+  params:
+    save_changes: 'true'
   action: click_to_goto_membership_tab
   action: edit_membership
   action: type_project_on_membership
   action: type_service_account_name_on_membership
   action: select_role_on_membership
   action: click_add_button_on_membership
-  action: done_membership_editing
+  action:
+    if_param:
+      save_changes: 'true'
+    ref: done_membership_editing
 delete_role_on_membership:
+  params:
+    save_changes: 'true'
   action: click_to_goto_membership_tab
   action: edit_membership
   action: click_on_delete_role_on_membership
-  action: done_membership_editing
+  action:
+    if_param:
+      save_changes: 'true'
+    ref: done_membership_editing
 delete_role_on_membership_with_namespace:
+  params:
+    save_changes: 'true'
   action: click_to_goto_membership_tab
   action: edit_membership
   action: click_on_delete_role_on_membership_with_namespace
-  action: done_membership_editing
+  action:
+    if_param:
+      save_changes: 'true'
+    ref: done_membership_editing
 check_tab_count_on_membership:
   action: goto_membership_page
   element:
@@ -156,3 +176,8 @@ check_permission_error_on_membership:
   element:
     selector:
       text: You do not have permission to view roles in this project.
+check_restrict_rolebinding_message_on_membership:
+  element:
+    selector:
+       xpath: >-
+         //div//span[contains(text(),'rolebindings "<role>" is forbidden: rolebindings to <output_word> "<name>" are not allowed in project "<project_name>"')]
