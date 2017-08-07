@@ -148,21 +148,25 @@ Feature: Testing route
     And all pods in the project are ready
     When I run the :get client command with:
       | resource | endpoints |
-    And the output should contain:
+    Then the output should contain:
       | test-service |
       | :8080        |
-    When I get project replicationcontroller as JSON
+    Given I get project replicationcontroller as JSON
     And evaluation of `@result[:parsed]['items'][0]['metadata']['name']` is stored in the :rc_name clipboard
-    Then I run the :scale client command with:
+    When I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | <%= cb.rc_name %>      |
       | replicas | 0                      |
+    Then the step should succeed
+    Given I wait up to 20 seconds for the steps to pass:
+    """
     When I run the :get client command with:
       | resource | endpoints |
-    And the output should contain:
+    Then the output should contain:
       | test-service |
       | none         |
-    Then I run the :scale client command with:
+    """
+    When I run the :scale client command with:
       | resource | replicationcontrollers |
       | name     | <%= cb.rc_name %>      |
       | replicas | 1                      |
@@ -170,7 +174,7 @@ Feature: Testing route
     And all pods in the project are ready
     When I run the :get client command with:
       | resource | endpoints |
-    And the output should contain:
+    Then the output should contain:
       | test-service |
       | :8080        |
 
