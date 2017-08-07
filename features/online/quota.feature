@@ -150,3 +150,140 @@ Feature: ONLY ONLINE Quota related scripts in this file
     Then the step should succeed
     And the output should contain:
       | resourcequota "quota" deleted |
+
+  # @author bingli@redhat.com
+  # @case_id OCP-12982
+  Scenario: Normal pods with restartPolicy=Always can't occupy the run-once clusterResourceQuota
+    Given I have a project
+    When I run the :get client command with:
+      | resource | appliedclusterresourcequota                   |
+      | template | "{{range .items}} {{.metadata.name}} {{end}}" |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split.select{|a| a.include? '-compute'}[0]` is stored in the :memory_crq clipboard
+    And evaluation of `@result[:stdout].split.select{|a| a.include? '-timebound'}[0]` is stored in the :memory_terminate_crq clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+    Given the pod named "hello-openshift" status becomes :running
+    Then I run the :get client command with:
+      | resource      | appliedclusterresourcequota |
+      | resource_name | <%= cb.memory_crq %>        |
+      | template      | {{.status.total.used}}      |
+    Then the step should succeed
+    And the output should contain:
+      | limits.memory:512Mi |
+    Then I run the :get client command with:
+      | resource      | appliedclusterresourcequota    |
+      | resource_name | <%= cb.memory_terminate_crq %> |
+      | template      | {{.status.total.used}}         |
+    Then the step should succeed
+    And the output should contain:
+      | limits.memory:0 |
+
+  # @author bingli@redhat.com
+  # @case_id OCP-12698
+  Scenario: User's ClusterResourceQuota should identify all this user's projects
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project1 clipboard
+    When I run the :get client command with:
+      | resource | appliedclusterresourcequota                   |
+      | template | "{{range .items}} {{.metadata.name}} {{end}}" |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split.select{|a| a.include? '-compute'}[0]` is stored in the :memory_crq clipboard
+    And evaluation of `@result[:stdout].split.select{|a| a.include? '-timebound'}[0]` is stored in the :memory_terminate_crq clipboard
+    And evaluation of `@result[:stdout].split.select{|a| a.include? '-noncompute'}[0]` is stored in the :storage_crq clipboard
+    When I run the :new_app client command with:
+      | template | dancer-mysql-persistent |
+    Then the step should succeed
+    And the pod named "dancer-mysql-persistent-1-build" status becomes :running
+    And the pod named "database-1-deploy" status becomes :running
+    Given I create a new project
+    When I run the :new_app client command with:
+      | template | mysql-persistent |
+    And the pod named "mysql-1-deploy" status becomes :running
+    When I run the :get client command with:
+      | resource      | appliedclusterresourcequota    |
+      | resource_name | <%= cb.memory_terminate_crq %> |
+      | template      | {{.status.total.used}}         |
+    Then the step should succeed
+    And the output should contain:
+      | limits.memory:1536Mi |
+    Given the "mysql" PVC becomes :bound
+    And a pod becomes ready with labels:
+      | deployment=mysql-1 |
+    Given I use the "<%= cb.project1 %>" project
+    And the "database" PVC becomes :bound
+    And a pod becomes ready with labels:
+      | deployment=database-1 |
+    And a pod becomes ready with labels:
+      | deployment=dancer-mysql-persistent-1 |
+    When I run the :get client command with:
+      | resource      | appliedclusterresourcequota |
+      | resource_name | <%= cb.memory_crq %>        |
+      | template      | {{.status.total.used}}      |
+    Then the step should succeed
+    And the output should contain:
+      | limits.memory:1536Mi |
+    When I run the :get client command with:
+      | resource      | appliedclusterresourcequota |
+      | resource_name | <%= cb.storage_crq %>       |
+      | template      | {{.status.total.used}}      |
+    Then the step should succeed
+    And the output should contain:
+      | requests.storage:2Gi |
+
+  # @author bingli@redhat.com
+  # @case_id OCP-10293
+  Scenario: User can share another user's resourcequota after granted the privilege
+    Given I have a project
+    And evaluation of `project.name` is stored in the :project1 clipboard
+    When I run the :get client command with:
+      | resource | appliedclusterresourcequota                   |
+      | template | "{{range .items}} {{.metadata.name}} {{end}}" |
+    Then the step should succeed
+    And evaluation of `@result[:stdout].split.select{|a| a.include? '-compute'}[0]` is stored in the :memory_crq clipboard
+    And evaluation of `@result[:stdout].split.select{|a| a.include? '-timebound'}[0]` is stored in the :memory_terminate_crq clipboard
+    And evaluation of `@result[:stdout].split.select{|a| a.include? '-noncompute'}[0]` is stored in the :storage_crq clipboard
+    When I run the :policy_add_role_to_user client command with:
+      | role       | edit                               |
+      | user_name  | <%= user(1, switch: false).name %> |
+      | n          | <%= cb.project1 %>                 |
+    Then the step should succeed
+    Given I switch to second user
+    And I use the "<%=cb.project1 %>" project
+    Then I run the :new_app client command with:
+      | template | mongodb-persistent |
+    Then the step should succeed
+    Given I switch to first user
+    Given the pod named "mongodb-1-deploy" status becomes :running
+    Then I run the :new_app client command with:
+      | template | mysql-persistent |
+    Then the step should succeed
+    And the pod named "mysql-1-deploy" status becomes :running
+    When I run the :get client command with:
+      | resource      | appliedclusterresourcequota    |
+      | resource_name | <%= cb.memory_terminate_crq %> |
+      | template      | {{.status.total.used}}         |
+    Then the step should succeed
+    And the output should contain:
+      | limits.memory:1Gi |
+    Given a pod becomes ready with labels:
+      | deployment=mysql-1 |
+    And a pod becomes ready with labels:
+      | deployment=mongodb-1 |
+    Given the "mongodb" PVC becomes :bound
+    And the "mysql" PVC becomes :bound
+    When I run the :get client command with:
+      | resource      | appliedclusterresourcequota |
+      | resource_name | <%= cb.memory_crq %>        |
+      | template      | {{.status.total.used}}      |
+    Then the step should succeed
+    And the output should contain:
+      | limits.memory:1Gi |
+    When I run the :get client command with:
+      | resource      | appliedclusterresourcequota |
+      | resource_name | <%= cb.storage_crq %>       |
+      | template      | {{.status.total.used}}      |
+    Then the step should succeed
+    And the output should contain:
+      | requests.storage:2Gi |
