@@ -239,9 +239,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
       | resource      | storageclass           |
       | resource_name | <%= cb.storageclass %> |
       | o             | yaml                   |
-    Then the step should fail
-    And the output should match:
-      | Error.*storageclasses.* at the cluster scope |
+    Then the expression should be true> @result[:success] == env.version_ge("3.6", user: user)
 
     When I run the :get client command with:
       | resource | storageclass |
