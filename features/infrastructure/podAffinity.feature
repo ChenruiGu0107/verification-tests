@@ -13,7 +13,7 @@ Feature: podAffinity
       | pod-affinity-invalid-operator |
 
   # @author wjiang@redhat.com
-  # @case_id OCP_14691
+  # @case_id OCP-14691
   Scenario: pod affinity - value may not be specified when operator is Exists or DoesNotExist
     Given I have a project
     When I run the :create client command with:
