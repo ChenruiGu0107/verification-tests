@@ -247,24 +247,3 @@ When /^I get project ([-a-zA-Z_]+)(?: named "([^"]*)")? as (YAML|JSON)$/ do |res
   @result = user.cli_exec(:get, resource: resource, resource_name: resource_name, n: project.name, o: format.downcase)
   step "the output is parsed as #{format}"
 end
-
-When /^I perform creating maximum number projects with:$/ do |table|
-  master_plan = table.raw.flatten
-
-  cb_name =:project_max_number
-  cb[cb_name] = Integer(1)
-  if master_plan.include? 'good'
-    cb[cb_name] = Integer(10)
-  elsif master_plan.include? 'better'
-    cb[cb_name] = Integer(20)
-  elsif master_plan.include? 'best'
-    cb[cb_name] = Integer(50)
-  end
-
-  begin
-    (1..cb[cb_name]).each { |i|
-      step 'I create a new project'
-    }
-  end
-  @result[cb_name] = cb[cb_name].to_s
-end

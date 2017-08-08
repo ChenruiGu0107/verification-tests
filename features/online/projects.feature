@@ -94,15 +94,11 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
   # @author yasun@redhat.com
   # @case_id OCP-13073
   Scenario: a new paid-user can not create muti-projects exceed the selected plan limitation
-    When I run the :get client command with:
-      | resource | user/~           |
-      | o        | yaml             |
-    Then the step should succeed
-    And evaluation of `@result[:parsed]['metadata']['labels']["openshift.io/plan"]` is stored in the :master_plan clipboard
-    When I perform creating maximum number projects with:
-      | master_plan | <%= cb.master_plan %> |
-    Then the step should succeed
-    And evaluation of `@result[:project_max_number]` is stored in the :project_max_number clipboard
-    Then I create a new project
-    And the output should match:
-      | cannot create more than <%= cb.project_max_number %> project\(s\) |
+    Given I run the steps <%= user.plan.max_projects %> times:
+    """
+      I create a new project
+      the step should succeed
+    """
+    When I create a new project
+    Then the output should match:
+      | cannot create more than <%= user.plan.max_projects %> project |

@@ -1,6 +1,7 @@
 require 'yaml'
 
 require 'common'
+require 'subscription_plan'
 require_relative 'token'
 require_relative 'project'
 
@@ -48,6 +49,10 @@ module CucuShift
       else
         raise "could not obtain username with token #{cached_tokens[0]}: #{res[:response]}"
       end
+    end
+
+    def plan
+      @plan ||= SubscriptionPlan.new(self)
     end
 
     def get_self
