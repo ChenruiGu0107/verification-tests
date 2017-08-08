@@ -72,7 +72,7 @@ Given /^I repeat the steps up to #{NUMBER} seconds:$/ do |seconds, steps_string|
 end
 
 # repeat steps x times in a multi-line string
-Given /^I run the steps (\d+) times:$/ do |num, steps_string|
+Given /^I run the steps #{NUMBER} times:$/ do |num, steps_string|
   eval_regex = /\#\{(.+?)\}/
   eval_found = steps_string =~ eval_regex
   begin
