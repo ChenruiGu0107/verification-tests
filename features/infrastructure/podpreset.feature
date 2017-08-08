@@ -3,7 +3,7 @@ Feature: podpreset
   # @author wmeng@redhat.com
   # @case_id OCP-14175
   Scenario: Pod spec can be modified by PodPreset
-  # Given the master version >= "3.6"
+  # Given the master version >= "3.6"  blocked by https://bugzilla.redhat.com/show_bug.cgi?id=1471717
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/podpreset-simple.yaml |
@@ -23,7 +23,7 @@ Feature: podpreset
   # @author wmeng@redhat.com
   # @case_id OCP-14178
   Scenario: Pod spec with ConfigMap can be modified by Pod Preset
-  # Given the master version >= "3.6"
+  # Given the master version >= "3.6" blocked by https://bugzilla.redhat.com/show_bug.cgi?id=1471717
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/configmap.yaml |
@@ -47,4 +47,3 @@ Feature: podpreset
       | expansion:\\s+whoami                            |
       | /cache from cache-volume                        |
       | /etc/app/config.json from secret-volume         |
-
