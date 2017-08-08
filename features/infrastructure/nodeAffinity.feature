@@ -2,6 +2,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14581
   Scenario: node affinity preferred invalid weight values
+    Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-fraction.yaml |
@@ -25,6 +26,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14580
   Scenario: node affinity invalid value - value must be single value
+    Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-value-lt.yaml |
@@ -36,6 +38,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14579
   Scenario: node affinity invalid value - value required
+    Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-value-empty.yaml |
@@ -47,6 +50,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14578
   Scenario: node affinity invalid value - key name must be non-empty
+    Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-key-empty.yaml |
@@ -59,6 +63,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14538
   Scenario: node affinity values forbidden when operator is DoesNotExist
+    Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-doesnotexist.yaml |
@@ -70,6 +75,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14536
   Scenario: node affinity values forbidden when operator is Exists
+    Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-exists.yaml |
@@ -81,6 +87,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14533
   Scenario: node affinity invalid operator Equals
+    Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-operator-equals.yaml |
