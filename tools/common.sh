@@ -42,6 +42,9 @@ function os_type()
         cat /etc/os-release | grep -i -q "Red Hat .* 7" && { echo "rhel7"; return 0; }
         cat /etc/os-release | grep -i -q "Red Hat .* 6" && { echo "rhel6"; return 0; }
         cat /etc/os-release | grep -i -q 'mint' && { echo "mint"; return 0; }
+    elif [ -f /usr/bin/sw_vers ]; then
+        sw_vers | grep 'ProductName:' | awk '{ print substr($0, index($0,$2)) }'
+        return 0;
     fi
     echo 'ERROR: Unsupported OS type'
     return 1
@@ -65,6 +68,9 @@ function os_pkg_method()
 function need_sudo()
 {
     if [ `id -u` == "0" ]; then
+        echo ''
+    elif [ "$(os_type)" == "Mac OS X" ]; then
+        # for Mac, brew prohibits user to run it as sudo
         echo ''
     else
         echo 'sudo'
