@@ -2,8 +2,27 @@ Feature: podpreset
 
   # @author wmeng@redhat.com
   # @case_id OCP-14175
+  @admin
+  @destructive
   Scenario: Pod spec can be modified by PodPreset
   # Given the master version >= "3.6"  blocked by https://bugzilla.redhat.com/show_bug.cgi?id=1471717
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        PodPreset:
+          configuration:
+            kind: DefaultAdmissionConfig
+            apiVersion: v1
+            disable: false
+
+    kubernetesMasterConfig:
+      apiServerArguments:
+        runtime-config:
+        - apis/settings.k8s.io/v1alpha1=true
+    """
+    And the step should succeed
+    And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/podpreset-simple.yaml |
@@ -22,8 +41,25 @@ Feature: podpreset
 
   # @author wmeng@redhat.com
   # @case_id OCP-14178
+  @admin
+  @destructive
   Scenario: Pod spec with ConfigMap can be modified by Pod Preset
   # Given the master version >= "3.6" blocked by https://bugzilla.redhat.com/show_bug.cgi?id=1471717
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        PodPreset:
+          configuration:
+            kind: DefaultAdmissionConfig
+            apiVersion: v1
+            disable: false
+
+    kubernetesMasterConfig:
+      apiServerArguments:
+        runtime-config:
+        - apis/settings.k8s.io/v1alpha1=true
+    """
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/configmap.yaml |
