@@ -9,7 +9,11 @@ Feature: podAffinity
     Then the step should fail
     Then the output should match:
       | [Ii]nvalid value.*Equals.*not a valid selector operator |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | pod-affinity-invalid-operator |
 
   # @author wjiang@redhat.com
   # @case_id OCP-14691
@@ -21,13 +25,21 @@ Feature: podAffinity
     Then the step should fail
     Then the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' | 
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | pod-affinity-exists-value |
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/podAffinity/pod-pod-affinity-doesnotexist-value.yaml |
     Then the step should fail
     Then the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | pod-affinity-doesnetexist-value |
 
   # @author wjiang@redhat.com
   # @case_id OCP-14607
@@ -39,4 +51,8 @@ Feature: podAffinity
     Then the step should fail
     Then the output should match:
       | [Rr]equired value.*can only be empty for PreferredDuringScheduling pod anti affinity |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | pod-affinity-invalid-topologykey-empty |

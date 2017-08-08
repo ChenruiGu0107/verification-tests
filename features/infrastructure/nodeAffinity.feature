@@ -9,19 +9,31 @@ Feature: nodeAffinity
     Then the step should fail
     Then the output should match:
       | fractional integer |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | node-affinity-preferred-weight-faction |
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-0.yaml |
     Then the step should fail
     Then the output should match:
       | [Ii]nvalid value.*0.*must be in the range 1-100 |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | node-affinity-preferred-weight-0 |
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-101.yaml |
     Then the step should fail
     Then the output should match:
       | [Ii]nvalid value.*101.*must be in the range 1-100 |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | node-affinity-preferred-weight-101 |
 
   # @author wjiang@redhat.com
   # @case_id OCP-14580
@@ -33,7 +45,11 @@ Feature: nodeAffinity
     Then the step should fail
     Then the output should match:
       | [Rr]equired value.*must be specified single value when `operator` is 'Lt' or 'Gt' |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | node-affinity-invalid-value-lt |
 
   # @author wjiang@redhat.com
   # @case_id OCP-14579
@@ -45,7 +61,11 @@ Feature: nodeAffinity
     Then the step should fail
     Then the output should match:
       | [Rr]equired value.*must be specified when `operator` is 'In' or 'NotIn' |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | node-affinity-invalid-value-empty |
 
   # @author wjiang@redhat.com
   # @case_id OCP-14578
@@ -58,7 +78,11 @@ Feature: nodeAffinity
     Then the output should match:
       | [Ii]nvalid value.*name part must be non-empty |
       | [Ii]nvalid value.*name part must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | node-affinity-invalid-key-empty |
 
   # @author wjiang@redhat.com
   # @case_id OCP-14538
@@ -70,7 +94,11 @@ Feature: nodeAffinity
     Then the step should fail
     Then the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | node-affinity-invalid-doesnotexist |
 
   # @author wjiang@redhat.com
   # @case_id OCP-14536
@@ -82,7 +110,11 @@ Feature: nodeAffinity
     Then the step should fail
     Then the output should match:
       | [Ff]orbidden.*may not be specified when `operator` is 'Exists' or 'DoesNotExist' |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | node-affinity-invalid-exists |
 
   # @author wjiang@redhat.com
   # @case_id OCP-14533
@@ -94,4 +126,8 @@ Feature: nodeAffinity
     Then the step should fail
     Then the output should match:
       | [Ii]nvalid value.*"Equals": not a valid selector operator |
-    And the project should be empty
+    When I run the :get client command with:
+      | resource | pods |
+    Then the step should succeed
+    And the output should not contain:
+      | node-affinity-invalid-operator-equals |
