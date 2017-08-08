@@ -13,3 +13,23 @@ Feature: some clean up steps testing
     I fail the scenario
     """
     Then I do nothing
+
+  Scenario: conditional clean-up
+    Given I register skippable clean-up steps based on the :test1 clipboard:
+    """
+    I log the message> You shouldn't see this
+    the expression should be true> false
+    """
+    And evaluation of `true` is stored in the :test1 clipboard
+    And I register clean-up steps:
+    """
+    the output should contain "Message 3"
+    """
+    And I register skippable clean-up steps based on the :test2 clipboard:
+    """
+    I log the message> Message 1
+    the output should contain "Message 1"
+    I log the message> Message 2
+    the output should contain "Message 2"
+    I log the message> Message 3
+    """

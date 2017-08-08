@@ -719,6 +719,7 @@ module CucuShift
     # @param step_spec [#lines, #raw] steps string lines should be obtained
     #   by calling #lines method over spec or calling #raw.flatten; that is
     #   usually a multiline string or Cucumber::MultilineArgument::DataTable
+    # @return [Array<Proc>] each step in a separate proc in *reverse* order
     def to_step_procs(steps_spec)
       if steps_spec.respond_to? :lines
         # multi-line string

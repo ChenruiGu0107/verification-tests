@@ -10,6 +10,13 @@ Then /^I register clean\-up steps:$/ do |table|
   teardown_add *to_step_procs(table)
 end
 
+# clean-up steps executed when clipboard is `nil` or `false`
+Given /^I register skippable clean\-up steps based on the #{SYM} clipboard:$/ do |cb_name, table|
+  _procs = to_step_procs(table)
+  teardown_add {_procs.reverse_each(&:call) unless cb[cb_name]}
+  # teardown_add *to_step_procs(table).map{|p| proc {p.call unless cb[cb_name]}}
+end
+
 # put usually at beginning of scenario to execute env consistency checks
 # and then those checks will be execute as last clean-up to check env is back up
 # @note one issue here is that transformation will take place when defining
