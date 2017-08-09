@@ -5,7 +5,7 @@ Feature: podpreset
   @admin
   @destructive
   Scenario: Pod spec can be modified by PodPreset
-  # Given the master version >= "3.6"  blocked by https://bugzilla.redhat.com/show_bug.cgi?id=1471717
+    Given the master version >= "3.6"
     Given master config is merged with the following hash:
     """
     admissionConfig:
@@ -21,11 +21,12 @@ Feature: podpreset
         runtime-config:
         - apis/settings.k8s.io/v1alpha1=true
     """
-    And the step should succeed
+    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
-    When I run the :create client command with:
+    When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/podpreset-simple.yaml |
+      | n | <%= project.name %>                                                                                               |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/hello-pod.yaml |
@@ -44,7 +45,7 @@ Feature: podpreset
   @admin
   @destructive
   Scenario: Pod spec with ConfigMap can be modified by Pod Preset
-  # Given the master version >= "3.6" blocked by https://bugzilla.redhat.com/show_bug.cgi?id=1471717
+    Given the master version >= "3.6"
     Given master config is merged with the following hash:
     """
     admissionConfig:
@@ -60,12 +61,15 @@ Feature: podpreset
         runtime-config:
         - apis/settings.k8s.io/v1alpha1=true
     """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/configmap.yaml |
     Then the step should succeed
-    When I run the :create client command with:
+    When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/podpreset-configmap.yaml |
+      | n | <%= project.name %>                                                                                                  |
     Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/hello-pod.yaml |
