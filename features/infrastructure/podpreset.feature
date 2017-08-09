@@ -5,7 +5,7 @@ Feature: podpreset
   @admin
   @destructive
   Scenario: Pod spec can be modified by PodPreset
-    Given the master version >= "3.6"
+  # Given the master version >= "3.6"
     Given master config is merged with the following hash:
     """
     admissionConfig:
@@ -23,7 +23,7 @@ Feature: podpreset
     """
     Then the step should succeed
     And the master service is restarted on all master nodes
-    Given I have a project
+    And I have a project
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/podpreset-simple.yaml |
       | n | <%= project.name %>                                                                                               |
@@ -45,7 +45,7 @@ Feature: podpreset
   @admin
   @destructive
   Scenario: Pod spec with ConfigMap can be modified by Pod Preset
-    Given the master version >= "3.6"
+  # Given the master version >= "3.6"
     Given master config is merged with the following hash:
     """
     admissionConfig:
@@ -63,7 +63,7 @@ Feature: podpreset
     """
     Then the step should succeed
     And the master service is restarted on all master nodes
-    Given I have a project
+    And I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/configmap.yaml |
     Then the step should succeed
