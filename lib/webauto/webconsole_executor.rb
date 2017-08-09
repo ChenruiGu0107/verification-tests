@@ -39,7 +39,7 @@ module CucuShift
       )
 
       unless @rules
-        e.replace_rules(RULES_DIR + get_master_version(user) + "/")
+        e.replace_rules("#{RULES_DIR}#{get_master_version(user)}/")
         @rules = Collections.deep_freeze(e.rules)
         unless e.is_new?
           res = logout(user)

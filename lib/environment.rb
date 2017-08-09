@@ -175,12 +175,17 @@ module CucuShift
         raise "version '#{ver}' does not match /^[\d.]+$/"
       end
       ver = ver.split(".").reject(&:empty?).map(&:to_i)
-      [ver[0], ver[1]]
+      [ver[0], ver[1]].map(&:to_i)
     end
 
     # returns the major and minor version using REST
     # @return raw version, major and minor number
     def get_version(user:)
+      if opts[:version]
+        @major_version, @minor_version = parse_version(opts[:version])
+        return opts[:version], @major_version, @minor_version
+      end
+
       obtained = user.rest_request(:version)
       if obtained[:request_opts][:url].include?("/version/openshift") &&
           !obtained[:success]
@@ -195,7 +200,7 @@ module CucuShift
       else
         raise "error getting version: #{obtained[:error].inspect}"
       end
-      return obtained[:props][:openshift].sub(/^v/,""), @major_version.to_s, @minor_version.to_s
+      return obtained[:props][:openshift].sub(/^v/,""), @major_version, @minor_version
     end
 
     # some rules and logic to compare given version to current environment
@@ -204,18 +209,9 @@ module CucuShift
     # @note for compatibility reasons we only compare only major and minor
     def version_cmp(version, user:)
       # figure out local environment version
-      if @major_version && @minor_version
-        # all is fine already
-      elsif opts[:version]
-        # enforced environment version
-        @major_version, @minor_version = parse_version(opts[:version])
-      else
-        # try to obtain version
+      unless @major_version && @minor_version
         raw_version, @major_version, @minor_version = get_version(user: user)
       end
-
-      @major_version = Integer(@major_version)
-      @minor_version = Integer(@minor_version)
 
       major, minor = parse_version(version)
 
