@@ -26,9 +26,9 @@ Feature: taint toleration related scenarios
       | Unsupported value: "Bigger"                   |
       | supported values: Equal, Exists               |
     When I run the :get client command with:
-      | resource | pods |
-    Then the output should match:
-      | No resources found. |
+      | resource      | pod                      |
+      | resource_name | toleration-fail-operator |
+    Then the step should fail
 
   # @author wmeng@redhat.com
   # @case_id OCP-13774
@@ -42,9 +42,9 @@ Feature: taint toleration related scenarios
       | Invalid value: "PreferNoSchedule"                          |
       | effect must be 'NoExecute' when `tolerationSeconds` is set |
     When I run the :get client command with:
-      | resource | pods |
-    Then the output should match:
-      | No resources found. |
+      | resource      | pod                           |
+      | resource_name | toleration-fail-second-prefer |
+    Then the step should fail
 
   # @author wmeng@redhat.com
   # @case_id OCP-13775
@@ -58,9 +58,9 @@ Feature: taint toleration related scenarios
       | Invalid value: "NoSchedule"                                |
       | effect must be 'NoExecute' when `tolerationSeconds` is set |
     When I run the :get client command with:
-      | resource | pods |
-    Then the output should match:
-      | No resources found. |
+      | resource      | pod                       |
+      | resource_name | toleration-fail-second-no |
+    Then the step should fail
 
   # @author wmeng@redhat.com
   # @case_id OCP-13776
@@ -74,9 +74,9 @@ Feature: taint toleration related scenarios
       | Unsupported value: "Run"                                  |
       | supported values: NoSchedule, PreferNoSchedule, NoExecute |
     When I run the :get client command with:
-      | resource | pods |
-    Then the output should match:
-      | No resources found. |
+      | resource      | pod                    |
+      | resource_name | toleration-fail-effect |
+    Then the step should fail
 
   # @author chezhang@redhat.com
   # @case_id OCP-13537
