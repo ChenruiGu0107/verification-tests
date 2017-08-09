@@ -90,3 +90,15 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
     And the output should match:
       | name: <%= project.name %>/.+/<%= user.name %>                     |
       | current-context: <%= project.name %>/.+/<%= user.name %>          |
+
+  # @author yasun@redhat.com
+  # @case_id OCP-13073
+  Scenario: a new paid-user can not create muti-projects exceed the selected plan limitation
+    Given I run the steps <%= user.plan.max_projects %> times:
+    """
+      I create a new project
+      the step should succeed
+    """
+    When I create a new project
+    Then the output should match:
+      | cannot create more than <%= user.plan.max_projects %> project |

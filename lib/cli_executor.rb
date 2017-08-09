@@ -60,7 +60,7 @@ module CucuShift
     end
 
     def self.token_from_cli(user)
-      res = user.cli_exec(:config_view, output: "yaml")
+      res = user.cli_exec(:config_view, output: "yaml", minify: true)
       unless res[:success]
         user.env.master_hosts[0].logger.error res[:response]
         raise "cannot read user configuration by: #{res[:instruction]}"
@@ -204,6 +204,7 @@ module CucuShift
     private def user_opts(user)
       user_config = "#{user.env.opts[:key]}_#{user.name}.kubeconfig"
       user_config = host.absolute_path user_config # inside workdir
+      host.delete user_config
 
       # TODO: we may consider obtaining server CA chain and configuring it in
       #   instead of setting insecure SSL
