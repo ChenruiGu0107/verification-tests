@@ -23,6 +23,14 @@ check_pod_environment:
   action: goto_one_pod_environment_tab
   action: check_environment_tab
 check_pod_in_pods_table:
-  element:
+  params: &check_pod_in_pods_table_params
+    ready: ''
+    restarts: ''
+  element: &check_pod_in_pods_table
     selector:
-      xpath: //pods-table//tbody/tr[td[@data-title="Name" and a[text()="<pod_name>" and @href="project/<project_name>/browse/pods/<pod_name>"]] and td[@data-title="Status" and div/span[text()="<status>"]] and td[@data-title="Ready" and text()="<ready>"] and td[@data-title="Restarts" and text()="<restarts>"]]
+      xpath: //pods-table//tbody/tr[td[@data-title="Name" and a[text()="<pod_name>" and @href="project/<project_name>/browse/pods/<pod_name>"]] and td[@data-title="Status" and div/span[text()="<status>"]] and td[@data-title="Ready" and contains(text(),"<ready>")] and td[@data-title="Restarts" and contains(text(),"<restarts>")]]
+check_pod_in_pods_table_missing:
+  params: *check_pod_in_pods_table_params
+  element:
+    <<: *check_pod_in_pods_table
+    missing: true

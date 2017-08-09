@@ -187,6 +187,7 @@ Feature: filter on create page
     When I perform the :goto_builds_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
+
     When I perform the :filter_resources web console action with:
       | label_key     | label1 |
       | label_value   | test1  |
@@ -203,7 +204,8 @@ Feature: filter on create page
     When I perform the :goto_deployments_page web console action with:
       | project_name | <%= project.name%> |
     Then the step should succeed
-
+    Given I wait until the status of deployment "nodejs-sample" becomes :complete
+    Given I wait until the status of deployment "python-sample" becomes :complete
     When I perform the :filter_resources web console action with:
       | label_key     | label1 |
       | label_value   | test1  |
@@ -244,11 +246,16 @@ Feature: filter on create page
       | filter_action | in ... |
     Then the step should succeed
 
-    When I get the html of the web page
-    Then the output should contain:
-      | nodejs-sample-1-build |
-    And the output should not contain:
-      | python-sample-1-build |
+    When I perform the :check_pod_in_pods_table web console action with:
+      | project_name | <%= project.name %>   |
+      | pod_name     | nodejs-sample-1-build |
+      | status       | Completed             |
+    Then the step should succeed
+    When I perform the :check_pod_in_pods_table_missing web console action with:
+      | project_name | <%= project.name %>   |
+      | pod_name     | python-sample-1-build |
+      | status       | Completed             |
+    Then the step should succeed
 
     #Filter on Browse->Routes page
     When I perform the :goto_routes_page web console action with:
