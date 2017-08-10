@@ -100,3 +100,27 @@ check_resource_deleted_message:
   element:
     selector:
       xpath: //div[contains(.,"'<resource_name>' was marked for deletion.")]
+check_delete_deployment_warning_in_delete_action:
+  action: click_actions_button
+  action: click_delete
+  elements:
+  - selector:
+      xpath: //h1[contains(.,'Are you sure you want to delete the deployment')]
+  - selector:
+      xpath: //span[contains(.,'This will delete the deployment, all rollout history, and any running pod')]
+check_delete_bc_warning_in_delete_action:
+  action: click_actions_button
+  action: click_delete
+  elements:
+  - selector:
+      xpath: //h1[contains(.,'Are you sure you want to delete the build config')]
+  - selector:
+      xpath: //span[contains(.,'This will delete the build config and all build history')]
+check_delete_statefulsets_warning_in_delete_action:
+  action: click_actions_button
+  action: click_delete
+  elements:
+  - selector:
+      xpath: //h1[contains(.,'Are you sure you want to delete the stateful set')]
+  - selector:
+      xpath: //span[contains(.,'This will delete the stateful set and any running pods')]
