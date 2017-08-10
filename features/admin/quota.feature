@@ -1669,7 +1669,7 @@ Feature: Quota related scenarios
               matchContains:
               - .storageclass.storage.k8s.io/requests.storage
     """
-    And the step should succeed
+    Then the step should succeed
     And the master service is restarted on all master nodes
     Given I have a project
     When I run the :create admin command with:
