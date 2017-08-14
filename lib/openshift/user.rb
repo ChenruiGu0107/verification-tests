@@ -154,7 +154,6 @@ module CucuShift
 
     def clean_projects
       logger.info "cleaning-up user #{name} projects"
-
       ## make sure we don't delete special projects due to wrong permissions
       #  also make sure we don't hit policy cache incoherence
       only_safe_projects = wait_for(30, interval: 5) {

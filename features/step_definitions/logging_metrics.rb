@@ -1,9 +1,11 @@
 # helper step for logging and metrics scenarios
+require 'configparser'
+require 'oga'
 
 # since the logging and metrics module can be deployed and used in any namespace, this step is used to determine
 # under what namespace the logging/metrics module is deployed under by getting all of the projects as admin and
 And /^I save the (logging|metrics) project name to the#{OPT_SYM} clipboard$/ do |svc_type, clipboard_name|
-  ensure_admin_tagged
+  ensure_destructive_tagged
 
   if clipboard_name.nil?
     cb_name = svc_type
@@ -26,7 +28,7 @@ And /^I save the (logging|metrics) project name to the#{OPT_SYM} clipboard$/ do 
 end
 
 Given /^there should be (\d+) (logging|metrics) services? installed/ do |count, svc_type|
-  ensure_admin_tagged
+  ensure_destructive_tagged
 
   if svc_type == 'logging'
     expected_rc_name = "logging-kibana-1"
@@ -143,37 +145,67 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
     cb.metrics_data << @result
   end
 end
-
 # unless project name is given we assume all logging pods are installed under the current project
 Given /^all logging pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
   proj_name = project.name if proj_name.nil?
   org_proj_name = project.name
   org_user = user
   if proj_name == 'logging'
-    ensure_admin_tagged
+    ensure_destructive_tagged
     step %Q/I switch to cluster admin pseudo user/
     project(proj_name)
   end
   begin
     step %Q/all existing pods are ready with labels:/, table(%{
-      | component=curator     |
-      | logging-infra=curator |
-      | provider=openshift    |
+      | component=curator,logging-infra=curator |
       })
     step %Q/all existing pods are ready with labels:/, table(%{
-      | component=es                |
-      | logging-infra=elasticsearch |
-      | provider=openshift          |
+      | component=es,logging-infra=elasticsearch |
       })
     step %Q/all existing pods are ready with labels:/, table(%{
-      | component=fluentd     |
-      | logging-infra=fluentd |
-      | provider=openshift    |
+      | component=fluentd,logging-infra=fluentd |
       })
     step %Q/all existing pods are ready with labels:/, table(%{
-      | component=kibana     |
-      | logging-infra=kibana |
-      | provider=openshift   |
+      | component=kibana, logging-infra=kibana |
+      })
+  ensure
+    @user = org_user
+    project(org_proj_name)
+  end
+end
+
+## for OCP <= 3.4, the labels and number of pods are different so going to
+#  use a different step name to differentiate
+Given /^all deployer logging pods are running in the#{OPT_QUOTED} project$/ do | proj_name |
+  proj_name = project.name if proj_name.nil?
+  org_proj_name = project.name
+  org_user = user
+  if proj_name == 'logging'
+    ensure_destructive_tagged
+    step %Q/I switch to cluster admin pseudo user/
+    project(proj_name)
+  end
+  begin
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | component=curator |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | component=curator-ops |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | component=es |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | component=es-ops |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | component=fluentd |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | component=kibana |
+      })
+     step %Q/all existing pods are ready with labels:/, table(%{
+      | component=kibana-ops |
       })
   ensure
     @user = org_user
@@ -190,23 +222,19 @@ Given /^all metrics pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
   org_proj_name = project.name
   org_user = user
 
-  ensure_admin_tagged
+  ensure_destructive_tagged
   step %Q/I switch to cluster admin pseudo user/
   project(target_proj)
   begin
     step %Q/all existing pods are ready with labels:/, table(%{
-      | metrics-infra=hawkular-cassandra |
-      | type=hawkular-cassandra          |
+      | metrics-infra=hawkular-cassandra, type=hawkular-cassandra |
+      })
+    step %Q/all existing pods are ready with labels:/, table(%{
+      | metrics-infra=hawkular-metrics, name=hawkular-metrics |
       })
 
     step %Q/all existing pods are ready with labels:/, table(%{
-      | metrics-infra=hawkular-metrics |
-      | name=hawkular-metrics          |
-      })
-
-    step %Q/all existing pods are ready with labels:/, table(%{
-      | metrics-infra=heapster |
-      | name=heapster          |
+      | metrics-infra=heapster, name=heapster |
       })
   ensure
     @user = org_user
@@ -218,7 +246,7 @@ end
 # logging ==> current_project_name , metrics ==> 'openshift-infra'
 # step will raise exception if metrics name is not 'openshift-infra'
 Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OPT_QUOTED} project with ansible using:$/ do |svc_type, op, proj, table|
-  ensure_admin_tagged
+  ensure_destructive_tagged
 
   if op == 'installed'
     step %Q/there should be 0 #{svc_type} service installed/
@@ -251,7 +279,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     key_name = "cucushift_custom.key"
     cert_name = "cucushift_custom.crt"
     if svc_type == 'metrics'
-      hostnames = "hawkular-metrics.#{cb.subdomain}"
+      hostname = "hawkular-metrics.#{cb.subdomain}"
     else
       hostname = "kibana.#{cb.subdomain}"
     end
@@ -334,6 +362,196 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     @user = org_user
   end
 end
+
+# download the deployer config file and translate the ERB and store the result
+# into the clipboard index :deployer_config
+Given /^I parse the INI file #{QUOTED}$/ do |deployer_config_file|
+  # use ruby instead of step to bypass user restriction
+  step %Q/I download a file from "<%= "#{deployer_config_file}" %>"/
+  step %Q/the step should succeed/
+  config = ConfigParser.new(@result[:file_name])
+  cb.deployer_config = config
+end
+
+Given /^logging service is installed in the#{OPT_QUOTED} project using deployer:$/ do |proj, table|
+  ensure_destructive_tagged
+  deployer_opts = opts_array_to_hash(table.raw)
+  raise "Must provide deployer configuration file!" unless deployer_opts.keys.include? 'deployer_config'.to_sym
+  logger.info("Performing logging installation using deployer")
+  # step %Q/the first user is cluster-admin/
+  step %Q/I switch to cluster admin pseudo user/
+  step %Q/I use the "<%= project.name %>" project/
+
+  cb.master_url = env.master_hosts.first.hostname
+  cb.subdomain = env.router_default_subdomain(user: user, project: project)
+  step %Q/I store master major version in the :master_version clipboard/
+
+  unless cb.deployer_config
+    step %Q/I download a file from "<%= "#{deployer_opts[:deployer_config]}" %>"/
+    cb.deployer_config = YAML.load(ERB.new(File.read(@result[:abs_path])).result binding)
+  end
+  step %Q/I register clean-up steps:/, table(%{
+    | I remove logging service installed in the project using deployer |
+    })
+  # create the configmap
+  step %Q|I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/logging_deployer_configmap.yaml|
+  step %Q/the step should succeed/
+  # must create a label or else installation will fail
+  registry_nodes = CucuShift::Node.get_labeled(["registry"], user: user)
+  registry_nodes.each do |node|
+    step %Q/label "logging-infra-fluentd=true" is added to the "#{node.name}" node/
+    step %Q/the step should succeed/
+  end
+
+  # create new secret
+  step %Q/I run the :new_secret client command with:/, table(%{
+    | secret_name     | logging-deployer  |
+    | credential_file | nothing=/dev/null |
+  })
+  step %Q/the step should succeed/
+
+  # create necessary accounts
+  step %Q/I run the :new_app client command with:/, table(%{
+    | app_repo | logging-deployer-account-template |
+    })
+  #step %Q/the step should succeed/
+  step %Q/cluster role "oauth-editor" is added to the "system:serviceaccount:<%= project.name %>:logging-deployer" service account/
+  step %Q/SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd" service account/
+  step %Q/cluster role "cluster-reader" is added to the "system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd" service account/
+  if cb.master_version >= "3.4"
+    step %Q/cluster role "rolebinding-reader" is added to the "system:serviceaccounts:<%= project.name %>:aggregated-logging-elasticsearch" service account/
+  end
+
+  step %Q/I run the :new_app client command with:/, table(%{
+      | app_repo | logging-deployer-template |
+                                                         })
+  step %Q/the step should succeed/
+  # we need to wait for the deployer to be completed first
+  step %Q/status becomes :succeeded of 1 pod labeled:/, table(%{
+    | app=logging-deployer-template |
+    | logging-infra=deployer        |
+    | provider=openshift            |
+    })
+  step %Q/I wait for the container named "deployer" of the "#{pod.name}" pod to terminate with reason :completed/
+  # verify logging is installed
+  step %Q/all deployer logging pods are running in the project/
+end
+
+# following instructions here:
+# we must use the project 'openshift-infra'
+Given /^metrics service is installed in the project using deployer:$/ do |table|
+  ensure_destructive_tagged
+
+  target_proj = 'openshift-infra'
+
+  deployer_opts = opts_array_to_hash(table.raw)
+  raise "Must provide deployer configuration file!" unless deployer_opts.keys.include? 'deployer_config'.to_sym
+  logger.info("Performing metrics installation by deployer")
+  # step %Q/the first user is cluster-admin/
+  step %Q/I switch to cluster admin pseudo user/
+  project(target_proj)
+
+  step %Q/I store master major version in the :master_version clipboard/
+  cb.subdomain = env.router_default_subdomain(user: user, project: project)
+
+  # sanity check, fail early if we can't get the master version
+  raise "Unable to get master version" if cb.master_version.nil?
+  raise "Unable to get subdomain" if cb.subdomain.nil?
+
+  unless cb.deployer_config
+    step %Q/I download a file from "<%= "#{deployer_opts[:deployer_config]}" %>"/
+    cb.deployer_config = YAML.load(ERB.new(File.read(@result[:abs_path])).result binding)
+  end
+  metrics_deployer_params = [
+    "HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.#{cb.subdomain}",
+    "IMAGE_PREFIX=#{product_docker_repo}openshift3/",
+    "IMAGE_VERSION=#{cb.master_version}",
+    "MASTER_URL=#{env.api_endpoint_url}",
+  ]
+  # check to see what the user specified any parameters to be different from default values
+  # We are treating all UPCASE params as metrics deployer specific parameter
+  user_defined_params = []
+  deployer_opts.each do |k, v|
+    if k.upcase == k
+      user_defined_params << k
+      metrics_deployer_params << "#{k}=#{v}"
+    end
+  end
+  # XXX: for automation testing, we are overriding the following default config unless user specified them in the top level step call
+  cb.deployer_config['metrics'].keys.each do | k |
+    # make sure we are only adding user defined
+    if k.upcase == k
+      unless user_defined_params.include? k
+        metrics_deployer_params << "#{k}=#{cb.deployer_config['metrics'][k]}"
+      end
+    end
+
+  end
+  #   the param is set by user
+  #step %Q|I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_deployer_configmap.yaml |
+  step %Q/I register clean-up steps:/, table(%{
+    | I remove metrics service installed in the project using deployer |
+    })
+  # create new secret
+  step %Q/I run the :new_secret client command with:/, table(%{
+    | secret_name     | metrics-deployer  |
+    | credential_file | nothing=/dev/null |
+    | n               | #{target_proj}    |
+  })
+  step %Q/the step should succeed/
+
+  # create necessary accounts
+  step %Q/I run the :create client command with:/, table(%{
+    | f | <%= cb.deployer_config['metrics']['serviceaccount_metrics_deployer'] %> |
+    | n | <%= project.name %>                                                     |
+    })
+  step %Q/the step should succeed/
+  step %Q/cluster role "edit" is added to the "system:serviceaccount:<%= project.name %>:metrics-deployer" service account/
+  step %Q/the step should succeed/
+  step %Q/cluster role "view" is added to the "system:serviceaccount:<%= project.name %>:hawkular" service account/
+  step %Q/the step should succeed/
+  step %Q/cluster role "cluster-reader" is added to the "heapster" service account/
+  step %Q/the step should succeed/
+  @result = user.cli_exec(:new_app, template: "metrics-deployer-template",
+    n: project.name, param: metrics_deployer_params)
+
+  step %Q/the step should succeed/
+  # we need to wait for the deployer to be completed first
+  step %Q/status becomes :running of 1 pod labeled:/, table(%{
+    | app=metrics-deployer-template |
+    | logging-infra=deployer        |
+    | provider=openshift            |
+    })
+  step %Q/I wait for the container named "deployer" of the "#{pod.name}" pod to terminate with reason :completed/
+  # verify metrics is installed
+  step %Q/all metrics pods are running in the project/
+end
+
+Given /^I remove logging service installed in the#{OPT_QUOTED} project using deployer$/ do |proj|
+  ensure_destructive_tagged
+  if env.version_ge("3.2", user: user)
+    step %Q/I run the :new_app admin command with:/, table(%{
+      | app_repo | logging-deployer-template |
+      | param    | MODE=uninstall            |
+                                                            })
+    # due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1467984 we need to
+    # do manual cleanup on some of the resources that are not deleted by
+    # project removal
+    @result = admin.cli_exec(:delete, {object_type: 'clusterrole', object_name_or_id: 'oauth-editor daemonset-admin rolebinding-reader'})
+    @result = admin.cli_exec(:delete, {object_type: 'oauthclients', object_name_or_id: 'kibana-proxy', n: 'default'})
+  end
+end
+
+# the requirement has always been metrics is installed under the project
+# openshift-infra
+Given /^I remove metrics service installed in the#{OPT_QUOTED} project using deployer$/ do |proj_name|
+  ensure_destructive_tagged
+  proj_name = 'openshift-infra' if proj_name.nil?
+  @result = admin.cli_exec(:delete, object_name_or_id: 'all,secrets,sa,templates', l: 'metrics-infra', 'n': 'openshift-infra')
+  @result = admin.cli_exec(:delete, {object_type: 'sa', object_name_or_id: 'metrics-deployer', 'n': 'openshift-infra'})
+  @result = admin.cli_exec(:delete, {object_type: 'secrets', object_name_or_id: 'metrics-deployer', 'n': 'openshift-infra'})
+end
+
 
 # check openshift-ansible is installed in a node, if not, then do rpm or yum
 # installation
@@ -424,8 +642,7 @@ Given /^I have a pod with openshift-ansible playbook installed$/ do
   step %Q/the step should succeed/
 end
 
-require 'configparser'
-require 'oga'
+
 
 Given /^I save installation inventory from master to the#{OPT_SYM} clipboard$/ do | cb_name |
   ensure_admin_tagged
@@ -451,6 +668,7 @@ end
 #  4. :rpm_name
 Given /^I save the rpm names? matching #{RE} from puddle to the#{OPT_SYM} clipboard$/ do | package_pattern, cb_name |
   ensure_admin_tagged
+
   cb_name ||= :rpm_names
   step %Q/I save installation inventory from master to the clipboard/
   rpm_repos_key = cb[:installation_inventory].keys.include?('openshift_playbook_rpm_repos') ? 'openshift_playbook_rpm_repos' : 'openshift_additional_repos'
@@ -465,4 +683,3 @@ Given /^I save the rpm names? matching #{RE} from puddle to the#{OPT_SYM} clipbo
   raise "No matching rpm found for #{package_pattern}" if rpm_names.count == 0
   cb[cb_name] = rpm_names
 end
-

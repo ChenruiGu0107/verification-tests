@@ -6,6 +6,7 @@ module CucuShift
   class Pod < ProjectResource
     RESOURCE = "pods"
     # https://github.com/kubernetes/kubernetes/blob/master/pkg/api/types.go
+    # added :completed which seems to be an Openshift term
     STATUSES = [:pending, :running, :succeeded, :failed, :unknown]
     # statuses that indicate pod running or completed successfully
     SUCCESS_STATUSES = [:running, :succeeded, :missing]
@@ -61,7 +62,6 @@ module CucuShift
       else
         res = get(user: user, quiet: quiet)
       end
-
       if res[:success]
         res[:success] =
           res[:parsed]["status"] &&
@@ -74,10 +74,8 @@ module CucuShift
       return res
     end
 
-    # @return [CucuShift::ResultHash] with :success true if we've eventually got
-    #   the pod in terminating state; the result hash is from last executed
-    #   get call
     def wait_till_terminating(user, seconds)
+
       stats = {}
       res = {
         instruction: "wait till pod #{name} reach terminating state",
@@ -113,6 +111,7 @@ module CucuShift
               quiet: quiet, cached: cached)[:success] &&
         get_cached_prop(prop: :deleted, user: user, cached: true, quiet: true)
     end
+
 
     # @note call without parameters only when props are loaded
     # @return [Integer] fs_group UID

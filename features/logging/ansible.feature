@@ -9,17 +9,11 @@ Feature: ansible install related feature
     And logging service is installed in the project with ansible using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11061/inventory |
     Given a pod becomes ready with labels:
-      | component=curator-ops            |
-      | logging-infra=curator            |
-      | provider=openshift               |
+      | component=curator-ops,logging-infra=curator,provider=openshift |
     Given a pod becomes ready with labels:
-      | component=es-ops            |
-      | logging-infra=elasticsearch |
-      | provider=openshift          |
+      | component=es-ops, logging-infra=elasticsearch,provider=openshift |
     Given a pod becomes ready with labels:
-      | component=kibana-ops |
-      | logging-infra=kibana |
-      | provider=openshift   |
+      | component=kibana-ops,logging-infra=kibana,provider=openshift   |
 
   # @author pruan@redhat.com
   # @case_id OCP-12377

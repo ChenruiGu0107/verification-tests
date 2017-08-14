@@ -12,7 +12,6 @@ Given /^a pod becomes ready with labels:$/ do |table|
   end
 
   cache_pods(*@result[:matching])
-
   @result = pod.wait_till_ready(user, ready_timeout)
 
   unless @result[:success]
@@ -40,6 +39,7 @@ Given /^the pod(?: named "(.+)")? becomes terminating$/ do |name|
   end
 end
 
+
 Given /^the pod(?: named "(.+)")? is present$/ do |name|
   present_timeout = 5 * 60
   @result = pod(name).wait_to_appear(user, present_timeout)
@@ -48,6 +48,15 @@ Given /^the pod(?: named "(.+)")? is present$/ do |name|
     logger.error(@result[:response])
     raise "#{pod.name} pod was never present"
   end
+end
+
+Given /^a pod is present with labels:$/ do |table|
+  labels = table.raw.flatten
+  pod_timeout = 5 * 60
+
+  pods = project.pods(by:user)
+
+  @result = CucuShift::Pod.wait_for_labeled(*labels, user: user, project: project, seconds: pod_timeout)
 end
 
 Given /^I store in the#{OPT_SYM} clipboard the pods labeled:$/ do |cbn, labels|
@@ -170,9 +179,7 @@ Given /^all existing pods are ready with labels:$/ do |table|
                                              get_opts: {l: selector_to_label_arr(*labels)})
 
   current_pods.each do |pod|
-    @result =
-      pod.wait_till_status(CucuShift::Pod::SUCCESS_STATUSES, user,
-                           timeout - monotonic_seconds + start_time)
+    @result = pod.wait_till_ready(user, timeout - monotonic_seconds + start_time)
     unless @result[:success]
       raise "pod #{pod.name} did not become ready within allowed time"
     end

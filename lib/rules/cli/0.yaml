@@ -379,6 +379,7 @@
     :name: <value>
     :o: -o <value>
     :overwrite: --overwrite=<value>
+    :l: -l <value>
 :login:
   :cmd: oc login
   :options:

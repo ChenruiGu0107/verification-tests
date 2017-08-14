@@ -106,7 +106,18 @@ module CucuShift
 
       return res
     end
-
+    # @param labels [String, Array<String,String>] labels to filter on, read
+    #   [CucuShift::Common::BaseHelper#selector_to_label_arr] carefully
+    # @return [Array<ProjectResource>] with :matching key being array of matched
+    #   resources
+    def self.get_labeled(*labels, user:, result: {}, quiet: false)
+      get_opts = {l: selector_to_label_arr(*labels)}
+      get_opts[:_quiet] = true if quiet
+      get_matching(user: user, result: result,
+                   get_opts: get_opts) do |r, r_hash|
+        !block_given? || yield(r, r_hash)
+      end
+    end
     # list resources by a user
     # @param user [CucuShift::User] the user we list resources as
     # @param result [ResultHash] can be used to get full result hash from op

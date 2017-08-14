@@ -9,11 +9,20 @@ Feature: test logging and metrics related steps
 
   @admin
   @destructive
-  Scenario: test install that allow user_write
-    Given the master version >= "3.5"
+  Scenario: test install logging <= 3.4
+    Given the master version <= "3.4"
     Given I create a project with non-leading digit name
-    And metrics service is installed in the "openshift-infra" project with ansible using:
-      | inventory| https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/inventory |
+    Given logging service is installed in the project using deployer:
+      | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_deployer.yaml |
+
+  @admin
+  @destructive
+  Scenario: test install metrics <= 3.4
+    Given the master version <= "3.4"
+    Given I create a project with non-leading digit name
+    Given metrics service is installed in the project using deployer:
+      | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_deployer.yaml |
+
 
   Scenario: test bulk insertions
     Given I have a project
@@ -40,15 +49,3 @@ Feature: test logging and metrics related steps
     Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1234567890123
     Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1321098211412
 
-    # test single data file format
-    Given I perform the POST metrics rest request with:
-      | project_name | <%= project.name %>                                                                               |
-      | path         | /metrics/gauges                                                                                   |
-      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
-      | metrics_id   | deadbeef                                                                                          |
-    Given I perform the GET metrics rest request with:
-      | project_name | <%= project.name %> |
-      | path         | /metrics/gauges     |
-      | metrics_id   | deadbeef            |
-    Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1460111065369
-    Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1460413065369

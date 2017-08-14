@@ -1,5 +1,6 @@
 module CucuShift
   class Container
+    include Common::Helper
     attr_reader :default_user
 
     def initialize(name:, pod:, default_user:)
@@ -66,14 +67,55 @@ module CucuShift
       return res['ready']  # return @status['ready']
     end
 
-    ### TODO: these two methods need to be dynamic, will need to address them later
-    # def restart_count
-    #   return @api_struct['restartCount']
-    # end
+    # returns @Boolean representation of the container termination state
+    def completed?(user: nil, cached: false, quiet: false)
+      container_state = status(user: user, cached: cached, quiet: quiet)['state']
+      current_state =  container_state.keys.first
+      terminated_reason = container_state['terminated']['reason'] if current_state == 'terminated'
+      expected_status = 'Completed'
+      res = {
+        instruction: "get containter state",
+        response: "matched state: '#{terminated_reason}' while expecting '#{expected_status}'",
+        matched_state: terminated_reason,
+        exitstatus: 0
+      }
+      res[:success] = terminated_reason == expected_status
+      return res
+    end
 
-    # def state
-    #   return @api_struct['state']
-    # end
+    def wait_till_completed(seconds, quiet: false, cached: false)
+      res = nil
+      iterations = 0
+      start_time = monotonic_seconds
+
+      success = wait_for(seconds) {
+        res = completed?(quiet: true)
+        logger.info res[:instruction] if iterations == 0
+        iterations = iterations + 1
+
+        res[:success]
+      }
+
+      duration = monotonic_seconds - start_time
+      logger.info "After #{iterations} iterations and #{duration.to_i} " <<
+        "seconds:\n#{res[:response]}"
+
+      res[:success] = success
+      return res
+    end
+
+    # containterStatuses related methods, need to keyed off by container name
+    def restart_count(user: nil, cached: false, quiet: false)
+      user ||= default_user
+      res = status(user: user, cached: cached, quiet: quiet)
+      return res['restartCount']
+    end
+
+    def state(user: nil, cached: false, quiet: false)
+      user ||= default_user
+      res = status(user: user, cached: cached, quiet: quiet)
+      return res['state']
+    end
 
     ## spec related information for the container
     def image_pull_policy(user: nil, cached: true, quiet: false)
