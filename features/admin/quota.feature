@@ -1743,3 +1743,219 @@ Feature: Quota related scenarios
     Then the step should fail
     And the output should contain:
       | insufficient quota to consume: silver.storageclass.storage.k8s.io/requests.storage |
+
+   
+  # @author qwang@redhat.com
+  # @case_id OCP-11427
+  @admin
+  Scenario: Only PVC matches a suffix name of storage class can consume its corresponding specified quota
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name | storage-quota                                                                                                     |
+      | n    | <%= project.name %>                                                                                               |
+      | hard | slow.storageclass.storage.k8s.io/requests.storage=20Gi,slow.storageclass.storage.k8s.io/persistentvolumeclaims=15 |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    And I replace lines in "pvc-storage-class.json":
+      | gold | slow |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | storage-quota |
+    Then the step should succeed
+    And the output should match:
+      | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+1\\s+15 |
+      | slow.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+20Gi   |
+    When I replace lines in "pvc-storage-class.json":
+      | pvc-storage-class                                 | pvc-storage-class-iamnotslow                            |
+      | "volume.beta.kubernetes.io/storage-class": "slow" | "volume.beta.kubernetes.io/storage-class": "iamnotslow" |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | storage-quota |
+    Then the step should succeed
+    And the output should match:
+      | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+1\\s+15 |
+      | slow.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+20Gi   |
+    When I run the :delete client command with:
+      | object_type       | PersistentVolumeClaim |
+      | object_name_or_id | pvc-storage-class     |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | storage-quota |
+    Then the step should succeed
+    And the output should match:
+      | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+0\\s+15 |
+      | slow.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi     |
+    When I run the :delete client command with:
+      | object_type       | PersistentVolumeClaim            |
+      | object_name_or_id | pvc-storage-class-iamnotslow     |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | storage-quota |
+    Then the step should succeed
+    And the output should match:
+      | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+0\\s+15 |
+      | slow.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi     |
+
+
+  # @author qwang@redhat.com
+  # @case_id OCP-11056
+  @admin
+  Scenario: Multi-quota ability to scope PVC quotas by Storage Class
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name | my-quota            |
+      | n    | <%= project.name %> |
+      | hard | slow.storageclass.storage.k8s.io/requests.storage=20Gi,slow.storageclass.storage.k8s.io/persistentvolumeclaims=15,persistentvolumeclaims=2,requests.storage=5Gi |
+    Then the step should succeed
+    When I run the :create_quota admin command with:
+      | name | my-quota-1          |
+      | n    | <%= project.name %> |
+      | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi | 
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    And I replace lines in "pvc-storage-class.json":
+      | pvc-storage-class                                 | pvc-storage-class-slow                            |
+      | "volume.beta.kubernetes.io/storage-class": "gold" | "volume.beta.kubernetes.io/storage-class": "slow" |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota    |
+    Then the step should succeed
+    And the output should match:
+      | persistentvolumeclaims\\s+1\\s+2                                   |
+      | requests.storage\\s+2Gi\\s+5Gi                                     |
+      | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+1\\s+15 |
+      | slow.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+20Gi   |
+      | persistentvolumeclaims\\s+1\\s+10                                  |
+      | requests.storage\\s+2Gi\\s+50Gi                                    |
+      | bronze.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi   |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi     |
+    When I replace lines in "pvc-storage-class.json":
+      | pvc-storage-class-slow                            | pvc-storage-class-bronze                            |
+      | "volume.beta.kubernetes.io/storage-class": "slow" | "volume.beta.kubernetes.io/storage-class": "bronze" |
+      | "storage": "2Gi"                                  |  "storage": "3Gi"                                   |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota    |
+    Then the step should succeed
+    And the output should match:
+      | persistentvolumeclaims\\s+2\\s+2                                   |
+      | requests.storage\\s+5Gi\\s+5Gi                                     |
+      | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+1\\s+15 |
+      | slow.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+20Gi   |
+      | persistentvolumeclaims\\s+2\\s+10                                  |
+      | requests.storage\\s+5Gi\\s+50Gi                                    |
+      | bronze.storageclass.storage.k8s.io/requests.storage\\s+3Gi\\s+20Gi |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi     |
+    When I replace lines in "pvc-storage-class.json":
+      | pvc-storage-class-bronze                            | pvc-storage-class-gold                            |
+      | "volume.beta.kubernetes.io/storage-class": "bronze" | "volume.beta.kubernetes.io/storage-class": "gold" |
+      | "storage": "3Gi"                                    |  "storage": "4Gi"                                 |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should fail
+    And the output should contain:
+      | persistentvolumeclaims "pvc-storage-class-gold" is forbidden: exceeded quota: my-quota, requested: persistentvolumeclaims=1,requests.storage=4Gi, used: persistentvolumeclaims=2,requests.storage=5Gi, limited: persistentvolumeclaims=2,requests.storage=5Gi |
+    When I run the :describe client command with:
+      | resource | quota    |
+    Then the step should succeed
+    And the output should match:
+      | persistentvolumeclaims\\s+2\\s+2                                   |
+      | requests.storage\\s+5Gi\\s+5Gi                                     |
+      | slow.storageclass.storage.k8s.io/persistentvolumeclaims\\s+1\\s+15 |
+      | slow.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+20Gi   |
+      | persistentvolumeclaims\\s+2\\s+10                                  |
+      | requests.storage\\s+5Gi\\s+50Gi                                    |
+      | bronze.storageclass.storage.k8s.io/requests.storage\\s+3Gi\\s+20Gi |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi     |
+
+
+  # @author qwang@redhat.com
+  # @case_id OCP-11685
+  @admin
+  Scenario: Quota ability to scope PVC quotas by Storage Class
+    Given I have a project
+    When I run the :create_quota admin command with:
+      | name | storage-quota       |
+      | n    | <%= project.name %> |
+      | hard | persistentvolumeclaims=10,requests.storage=50Gi,gold.storageclass.storage.k8s.io/requests.storage=10Gi,bronze.storageclass.storage.k8s.io/requests.storage=20Gi |
+    Then the step should succeed 
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json |
+      | n | <%= project.name %>                                                                             |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | storage-quota |
+    Then the step should succeed
+    And the output should match:
+      | requests.storage\\s+2Gi\\s+50Gi                                  |
+      | persistentvolumeclaims\\s+1\\s+10                                |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+10Gi |
+      | bronze.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi |
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/quota/pvc-storage-class.json"
+    And I replace lines in "pvc-storage-class.json":
+      | pvc-storage-class | pvc-storage-class-bronze |
+      | gold              | bronze                   |
+      | 2Gi               | 3Gi                      |
+    Then the step should succeed
+    When I run the :create admin command with:
+      | f | pvc-storage-class.json |
+      | n | <%= project.name %>    |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | storage-quota |
+    Then the step should succeed
+    And the output should match:
+      | requests.storage\\s+5Gi\\s+50Gi                                    |
+      | persistentvolumeclaims\\s+2\\s+10                                  |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+2Gi\\s+10Gi   |
+      | bronze.storageclass.storage.k8s.io/requests.storage\\s+3Gi\\s+20Gi |
+    When I run the :delete client command with:
+      | object_type       | PersistentVolumeClaim |
+      | object_name_or_id | pvc-storage-class     |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | storage-quota |
+    Then the step should succeed
+    And the output should match:
+      | requests.storage\\s+3Gi\\s+50Gi                                    |
+      | persistentvolumeclaims\\s+1\\s+10                                  |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi     |
+      | bronze.storageclass.storage.k8s.io/requests.storage\\s+3Gi\\s+20Gi |
+    When I run the :delete client command with:
+      | object_type       | PersistentVolumeClaim    |
+      | object_name_or_id | pvc-storage-class-bronze |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | quota         |
+      | name     | storage-quota |
+    Then the step should succeed
+    And the output should match:
+      | requests.storage\\s+0\\s+50Gi                                    |
+      | persistentvolumeclaims\\s+0\\s+10                                |
+      | gold.storageclass.storage.k8s.io/requests.storage\\s+0\\s+10Gi   |
+      | bronze.storageclass.storage.k8s.io/requests.storage\\s+0\\s+20Gi |
