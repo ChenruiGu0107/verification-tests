@@ -991,3 +991,38 @@ Feature: creating 'apps' with CLI
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc472859/hello-pod.json |
     Then the step should succeed
 
+
+  # @author xipang@redhat.com
+  # @case_id OCP-11049
+  Scenario: Show better output for syntax error
+    Given I have a project
+    Given a "template.json" file is created with the following lines:
+    """
+    {broken:}
+    """
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11049/invalid.json |
+    Then the step should fail
+    And the output should match:
+      | error:.*json:.*line.*[0-9]+:.*invalid character.* |
+    When I run the :create client command with:
+      | f | template.json |
+    Then the step should fail
+    And the output should match:
+      | error:.*json:.*line.*[0-9]+:.*invalid character.* |
+    When I run the :process client command with:
+      | f | template.json |
+    Then the step should fail
+    And the output should match:
+      | error:.*json:.*line.*[0-9]+:.*invalid character.* |
+    When I run the :replace client command with:
+      | f | template.json |
+    Then the step should fail
+    And the output should match:
+      | error:.*json:.*line.*[0-9]+:.*invalid character.* |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/OCP-11049/invalid.yaml |
+    Then the step should fail
+    #And the output should match:
+    #  | error:.*yaml:.*line.*[0-9]+:.*invalid character.* |
+
