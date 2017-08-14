@@ -369,12 +369,52 @@ Feature: InitContainers
   # @author azagayno@redhat.com
   # @case_id OCP-14326
   Scenario: Init containers are supported in annotation field alpha in OCP3.6
-    Given the master version >= "3.6"
+  # Given the master version == "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/pod-init-containers-alpha.yaml |
     Then the step should succeed
-    Given the pod named "init-alpha" status becomes :running
+    Given the pod named "init-alpha" becomes ready
+    Then I run the :describe client command with:
+      | resource | pod        |
+      | name     | init-alpha |
+    And the output should match:
+      | Init Containers |
+      | success         |
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-12882
+  Scenario: Init containers are supported in annotation field beta in OCP3.6
+  # Given the master version == "3.6"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/pod-init-containers-beta.yaml |
+    Then the step should succeed
+    Given the pod named "init-beta" becomes ready
+    Then I run the :describe client command with:
+      | resource | pod       |
+      | name     | init-beta |
+    And the output should match:
+      | Init Containers |
+      | success         |
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-12918
+  Scenario: QoS Tier for pod with init containers
+  # Given the master version >= "3.6"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/pod-init-containers-qos.yaml |
+    Then the step should succeed
+    Given the pod named "init-qos-burstable" becomes ready
+    Then I run the :describe client command with:
+      | resource | pod                |
+      | name     | init-qos-burstable |
+    And the output should not match:
+      | BestEffort |
+      | Guaranteed |
+    And the output should match:
+      | Burstable  |
 
   # @author chezhang@redhat.com
   # @case_id OCP-12909
@@ -427,3 +467,4 @@ Feature: InitContainers
     Then the step should have timed out
     And the output should contain:
       | hello init container |
+
