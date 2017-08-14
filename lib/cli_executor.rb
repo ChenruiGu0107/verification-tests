@@ -66,8 +66,9 @@ module CucuShift
         raise "cannot read user configuration by: #{res[:instruction]}"
       end
       conf = YAML.load(res[:response])
-      uhash = conf["users"].find{|u| u["name"].start_with?(user.name + "/")}
-      return uhash["user"]["token"]
+      # Characters like '+' can be ignored by oc. Picking the first user.
+      # uhash = conf["users"].find{|u| u["name"].start_with?(user.name + "/")}
+      return conf["users"][0]["user"]["token"]
     end
 
     def self.client_cert_from_cli(user)
