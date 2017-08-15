@@ -888,6 +888,7 @@
   :options:
     :buildconfig: <value>
     :build_arg: --build-arg=<value>
+    :env: --env=<value>
     :follow: --follow=<value>
     :from_build: --from-build=<value>
     :from_file: --from-file=<value>
