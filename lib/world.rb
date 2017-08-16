@@ -6,7 +6,7 @@ require 'openshift/project'
 require 'openshift/group'
 require 'openshift/job'
 require 'openshift/image_stream'
-require 'openshift/imagestreamtag'
+require 'openshift/image_stream_tag'
 require 'openshift/service'
 require 'openshift/service_account'
 require 'openshift/route'
@@ -28,6 +28,7 @@ require 'openshift/cluster_resource_quota'
 require 'openshift/stateful_set'
 require 'openshift/net_namespace'
 require 'openshift/daemon_set'
+require 'openshift/identity'
 
 module CucuShift
   # @note this is our default cucumber World extension implementation
@@ -558,6 +559,10 @@ module CucuShift
       else
         return var.last
       end
+    end
+
+    def identity(name = nil, env = nil)
+      cluster_resource(Identity, name, env)
     end
 
     def netns(name=nil, env=nil)

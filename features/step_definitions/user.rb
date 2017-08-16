@@ -30,3 +30,22 @@ Given /^the(?: ([a-z]+))? user has all owned resources cleaned$/ do |who|
   num = who ? word_to_num(who) : nil
   user(num).clean_up_on_load
 end
+
+Given /^(I|admin) ensures identity #{QUOTED} is deleted$/ do |by, name|
+  _user = by == "admin" ? admin : user
+  _resource = identity(name)
+  _seconds = 60
+  @result = _resource.ensure_deleted(user: _user, wait: _seconds)
+end
+
+Given /^I restore user's context after scenario$/ do
+  @result = user.cli_exec(:config, subcommand: "current-context")
+  raise "could not get current-context" unless @result[:success]
+
+  _current_context = @result[:response]
+  _user = user
+
+  teardown_add {
+    _user.cli_exec(:config_set_context, name: _current_context)
+  }
+end
