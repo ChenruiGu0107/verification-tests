@@ -56,3 +56,55 @@ Feature: podAffinity
     Then the step should succeed
     And the output should not contain:
       | pod-affinity-invalid-topologykey-empty |
+
+  # @author wmeng@redhat.com
+  # case_id OCP-14603
+  Scenario: pod will not be scheduled if pod affinity not match
+    Given I have a project
+    When I run the :get client command with:
+      | resource | pods        |
+      | l        | security=s1 |
+    Then the step should succeed
+    And the output should contain:
+      | No resources found. |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-pod-affinity-s1.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod             |
+      | name     | pod-affinity-s1 |
+    Then the step should succeed
+    And the output should match:
+      | PodScheduled\\s+False |
+      | FailedScheduling      |
+      | MatchInterPodAffinity |
+
+  # @author wmeng@redhat.com
+  # case_id OCP-14688
+  Scenario: pod will be scheduled on the node which meets pod affinity - In
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-s1.yaml |
+    Then the step should succeed
+    Given the pod named "security-s1" status becomes :running within 60 seconds
+    And evaluation of `pod("security-s1").node_name` is stored in the :node clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-pod-affinity-s1.yaml |
+    Then the step should succeed
+    Given the pod named "pod-affinity-s1" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.node
+
+  # author wmeng@redhat.com
+  # case_id OCP-14690
+  Scenario: pod will be scheduled on the node which meets pod affinity - Exists
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-s1.yaml |
+    Then the step should succeed
+    Given the pod named "security-s1" status becomes :running within 60 seconds
+    And evaluation of `pod("security-s1").node_name` is stored in the :node clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-pod-affinity-exists.yaml |
+    Then the step should succeed
+    Given the pod named "pod-affinity-exists" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.node
