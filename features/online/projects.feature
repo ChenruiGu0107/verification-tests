@@ -96,8 +96,8 @@ Feature: ONLY ONLINE Projects related feature's scripts in this file
   Scenario: a new paid-user can not create muti-projects exceed the selected plan limitation
     Given I run the steps <%= user.plan.max_projects %> times:
     """
-      I create a new project
-      the step should succeed
+      Given I create a new project
+      Then the step should succeed
     """
     When I create a new project
     Then the output should match:
