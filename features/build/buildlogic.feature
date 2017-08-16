@@ -339,6 +339,10 @@ Feature: buildlogic.feature
       | .*io.openshift.s2i.scripts-url.*                     |
       | .*io.openshift.tags.*                                |
       | .*io.s2i.scripts-url.*                               |
+      | .*OPENSHIFT_BUILD_NAME.*                             |
+      | .*OPENSHIFT_BUILD_NAMESPACE.*                        |
+      | .*OPENSHIFT_BUILD_SOURCE.*                           |
+      | .*OPENSHIFT_BUILD_COMMIT.*                           |
 
   # @author yantan@redhat.com
   # @case_id OCP-12031
@@ -571,6 +575,10 @@ Feature: buildlogic.feature
       | .*io.openshift.s2i.scripts-url.*                     |
       | .*io.openshift.tags.*                                |
       | .*io.s2i.scripts-url.*                               |
+      | .*OPENSHIFT_BUILD_NAME.*                             |
+      | .*OPENSHIFT_BUILD_NAMESPACE.*                        |
+      | .*OPENSHIFT_BUILD_SOURCE.*                           |
+      | .*OPENSHIFT_BUILD_COMMIT.*                           |
 
   # @author shiywang@redhat.com
   Scenario Outline: Tune perl image to autoconfigure based on available memory
