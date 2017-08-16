@@ -161,18 +161,18 @@ Feature: Configuration of environment variables check
   Scenario Outline: Users can override the the env tuned by ruby base image
     Given I have a project
     When I run the :new_app client command with:
-      | app_repo | <imagestream>~https://github.com/openshift/rails-ex |
+      | app_repo | <imagestream>~https://github.com/openshift/ruby-ex |
     Then the step should succeed
-    Given the "rails-ex-1" build completes
+    Given the "ruby-ex-1" build completes
     Given a pod becomes ready with labels:
-      | app=rails-ex |
+      | app=ruby-ex |
     When I run the :env client command with:
-      | resource | dc/rails-ex         |
+      | resource | dc/ruby-ex          |
       | e        | PUMA_MIN_THREADS=1  |
       | e        | PUMA_MAX_THREADS=14 |
       | e        | PUMA_WORKERS=5      |
     Given a pod becomes ready with labels:
-      | deployment=rails-ex-2 |
+      | deployment=ruby-ex-2 |
     Given I wait up to 30 seconds for the steps to pass:
     """
     When I run the :logs client command with:
