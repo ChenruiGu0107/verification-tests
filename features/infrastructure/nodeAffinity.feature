@@ -2,7 +2,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14581
   Scenario: node affinity preferred invalid weight values
-    Given the master version >= "3.6"
+    # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-preferred-weight-fraction.yaml |
@@ -38,7 +38,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14580
   Scenario: node affinity invalid value - value must be single value
-    Given the master version >= "3.6"
+    # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-value-lt.yaml |
@@ -54,7 +54,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14579
   Scenario: node affinity invalid value - value required
-    Given the master version >= "3.6"
+    # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-value-empty.yaml |
@@ -70,7 +70,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14578
   Scenario: node affinity invalid value - key name must be non-empty
-    Given the master version >= "3.6"
+    # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-key-empty.yaml |
@@ -87,7 +87,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14538
   Scenario: node affinity values forbidden when operator is DoesNotExist
-    Given the master version >= "3.6"
+    # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-doesnotexist.yaml |
@@ -103,7 +103,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14536
   Scenario: node affinity values forbidden when operator is Exists
-    Given the master version >= "3.6"
+    # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-exists.yaml |
@@ -119,7 +119,7 @@ Feature: nodeAffinity
   # @author wjiang@redhat.com
   # @case_id OCP-14533
   Scenario: node affinity invalid operator Equals
-    Given the master version >= "3.6"
+    # Given the master version >= "3.6"
     Given I have a project
     When I run the :create client command with:
       | f | https://github.com/openshift-qe/v3-testfiles/raw/master/pods/nodeAffinity/pod-node-affinity-invalid-operator-equals.yaml |
@@ -131,3 +131,93 @@ Feature: nodeAffinity
     Then the step should succeed
     And the output should not contain:
       | node-affinity-invalid-operator-equals |
+
+  # author wmeng@redhat.com
+  # @case_id OCP-14478
+  Scenario: pod will not be scheduled if node affinity not match
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-us.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod                       |
+      | name     | node-affinity-required-us |
+    Then the step should succeed
+    And the output should match:
+      | PodScheduled\\s+False |
+      | FailedScheduling      |
+      | MatchNodeSelector     |
+
+  # author wmeng@redhat.com
+  # @case_id OCP-14480
+  Scenario: pod will not be scheduled if node anti-affinity not match
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required.yaml |
+    Then the step should succeed
+    When I run the :describe client command with:
+      | resource | pod                         |
+      | name     | node-anti-affinity-required |
+    Then the step should succeed
+    And the output should match:
+      | PodScheduled\\s+False |
+      | FailedScheduling      |
+      | MatchNodeSelector     |
+
+  # author wmeng@redhat.com
+  # @case_id OCP-14479
+  @admin
+  @destructive
+  Scenario: pod will be scheduled to the node which matches node affinity
+    Given I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "zone=us" is added to the "<%= cb.nodes[0].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-us.yaml |
+    Then the step should succeed
+    Given the pod named "node-affinity-required-us" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
+
+  # author wmeng@redhat.com
+  # @case_id OCP-14484
+  @admin
+  @destructive
+  Scenario: pod will be scheduled to the node which matches node anti-affinity
+    Given I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And I use the "<%= cb.nodes[0].name %>" node
+    And the node labels are restored after scenario
+    When I run the :label admin command with:
+      | resource  | node                          |
+      | name      | <%= cb.nodes[0].name %>       |
+      | key_val   | beta.kubernetes.io/arch=intel |
+      | overwrite | true                          |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required.yaml |
+    Then the step should succeed
+    Given the pod named "node-anti-affinity-required" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
+
+  # author wmeng@redhat.com
+  # @case_id OCP-14488
+  @admin
+  @destructive
+  Scenario: pod will still run on the node if labels on the node change and affinity rules no longer met - IgnoredDuringExecution
+    Given I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "zone=us" is added to the "<%= cb.nodes[0].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-us.yaml |
+    Then the step should succeed
+    Given the pod named "node-affinity-required-us" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
+    When I run the :label admin command with:
+      | resource  | node                    |
+      | name      | <%= cb.nodes[0].name %> |
+      | key_val   | zone=china              |
+      | overwrite | true                    |
+    Then the step should succeed
+    Given 30 seconds have passed
+    Given the pod named "node-affinity-required-us" status becomes :running within 1 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
