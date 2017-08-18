@@ -485,15 +485,10 @@ Feature: check page info related
       | role       | admin                                       |
       | user_name  | <%= user(1, switch: false).name %>          |
     Then the step should succeed
-    When I run the :policy_add_role_to_user client command with:
-      | role       | view                                        |
-      | user_name  | <%= user(2, switch: false).name %>          |
-    Then the step should succeed
     When I perform the :check_project_creator web console action with:
       | project_name | <%= project.name %> |
       | creator      | <%= user.name %>    |
     Then the step should succeed
-
     Given I switch to the second user
     When I perform the :check_project_creator web console action with:
       | project_name | <%= project.name %> |
@@ -505,10 +500,18 @@ Feature: check page info related
     When I run the :edit_membership web console action
     Then the step should succeed
 
-    Given I switch to the third user
+    Given I switch to the first user
+    When I run the :policy_remove_role_from_user client command with:
+      | role      | admin                               |
+      | user_name | <%= user(1, switch: false).name %>  |
+    When I run the :policy_add_role_to_user client command with:
+      | role      | view                                |
+      | user_name | <%= user(1, switch: false).name %>  |
+    Then the step should succeed
+    Given I switch to the second user
     When I perform the :check_project_creator web console action with:
-      | project_name | <%= project.name %> |
-      | creator      | <%= user(0, switch: false).name %>        |
+      | project_name | <%= project.name %>                |
+      | creator      | <%= user(0, switch: false).name %> |
     Then the step should succeed
      When I perform the :goto_membership_page web console action with:
       | project_name | <%= project.name %> |
