@@ -35,6 +35,7 @@ click_add_to_project:
     selector:
       xpath: //a[normalize-space()='Add to Project']
     op: click
+  action: click_browse_catalog
 click_browse_catalog:
   elements:
   - selector:
