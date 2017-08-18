@@ -97,7 +97,7 @@ click_edit_weights_as_integers:
 check_error_info_for_duplicated_service:
   elements:
   - selector:
-      xpath: //span[contains(text(), 'Service service-unsecure-3 cannot be added twice')]
+      xpath: //span[contains(text(), 'Service  cannot be added twice.')]
 check_error_info_of_first_service:
   elements:
   - selector:
