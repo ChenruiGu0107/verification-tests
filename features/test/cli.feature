@@ -111,3 +111,16 @@ Feature: Testing CLI Scenarios
     Given 3 seconds have passed
     And I terminate last background process
     Then the output should contain "foobarbaby"
+
+  @unix
+  Scenario: passing env variable to client commands
+    When I run the :cucushift_test_do_not_use client command with:
+      | command  | bash                           |
+      | opt      | -c                             |
+      | opt      | echo $http_proxy               |
+      | opt      | --                             |
+      | _env     | http_proxy=http://myproxy:8888 |
+    Then the step should succeed
+    And the output should contain:
+      | http://myproxy:8888 |
+
