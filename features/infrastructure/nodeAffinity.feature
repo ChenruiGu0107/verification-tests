@@ -132,7 +132,7 @@ Feature: nodeAffinity
     And the output should not contain:
       | node-affinity-invalid-operator-equals |
 
-  # author wmeng@redhat.com
+  # @author wmeng@redhat.com
   # @case_id OCP-14478
   Scenario: pod will not be scheduled if node affinity not match
     Given I have a project
@@ -148,7 +148,7 @@ Feature: nodeAffinity
       | FailedScheduling      |
       | MatchNodeSelector     |
 
-  # author wmeng@redhat.com
+  # @author wmeng@redhat.com
   # @case_id OCP-14480
   Scenario: pod will not be scheduled if node anti-affinity not match
     Given I have a project
@@ -164,7 +164,7 @@ Feature: nodeAffinity
       | FailedScheduling      |
       | MatchNodeSelector     |
 
-  # author wmeng@redhat.com
+  # @author wmeng@redhat.com
   # @case_id OCP-14479
   @admin
   @destructive
@@ -178,7 +178,7 @@ Feature: nodeAffinity
     Given the pod named "node-affinity-required-us" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
 
-  # author wmeng@redhat.com
+  # @author wmeng@redhat.com
   # @case_id OCP-14484
   @admin
   @destructive
@@ -199,7 +199,7 @@ Feature: nodeAffinity
     Given the pod named "node-anti-affinity-required" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
 
-  # author wmeng@redhat.com
+  # @author wmeng@redhat.com
   # @case_id OCP-14488
   @admin
   @destructive
@@ -221,3 +221,12 @@ Feature: nodeAffinity
     Given 30 seconds have passed
     Given the pod named "node-affinity-required-us" status becomes :running within 1 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-14509
+  Scenario: if no preferred nodes are available non-preferred nodes will be chosen
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-preferred-case14509.yaml |
+    Then the step should succeed
+    Given the pod named "node-affinity-preferred-case14509" status becomes :running within 60 seconds
