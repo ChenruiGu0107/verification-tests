@@ -59,8 +59,40 @@ module CucuShift
       end
     end
 
-    def self.token_from_cli(user)
-      res = user.cli_exec(:config_view, output: "yaml", minify: true)
+    # login or setup kube config according to parameters
+    private def config_setup(user:, executor:, opts: {})
+      if user.cached_tokens.size == 0
+        ## login with username and password and generate a bearer token
+        res = executor.run(:login, username: user.name, password: user.password, server: user.env.api_endpoint_url, _timeout: LOGIN_TIMEOUT, **opts)
+      else
+        ## login with existing token
+        res = executor.run(:login, token: user.cached_tokens.first.token, server: user.env.api_endpoint_url, _timeout: LOGIN_TIMEOUT, **opts)
+      end
+      if res[:success]
+        if user.cached_tokens.size == 0
+          ## lets cache token if obtained by username/password
+          user.add_str_token(self.class.token_from_cli(executor: executor, opts: opts))
+        end
+      else
+        # logger.error res[:response]
+        logger.warn "cannot login with command: #{res[:instruction]}"
+        Token.new_oauth_bearer_token(user)
+        if user.cached_tokens.size > 0
+          return config_setup(user: user, executor: executor, opts: opts)
+        else
+          raise "after alternative login, user still has no cached tokens"
+        end
+      end
+    end
+
+    # @return [String] the user auth token
+    def self.token_from_cli(user: nil, executor: nil, opts: {})
+      view_opts = { output: "yaml", minify: true, _timeout: LOGIN_TIMEOUT }
+      if user
+        res = user.cli_exec(:config_view, **view_opts)
+      else
+        res = executor.run(:config_view, **view_opts, **opts)
+      end
       unless res[:success]
         user.env.master_hosts[0].logger.error res[:response]
         raise "cannot read user configuration by: #{res[:instruction]}"
@@ -113,27 +145,10 @@ module CucuShift
       version = version_for_user(user, host)
       executor = RulesCommandExecutor.new(host: host, user: user.name, rules: File.expand_path(RULES_DIR + "/" + rules_version(version) + ".yaml"))
 
-      # make sure cli execution environment is setup for the user
-      if user.cached_tokens.size == 0
-        ## login with username and password and generate a bearer token
-        executor.run(:logout, {}) # ignore outcome
-        res = executor.run(:login, username: user.name, password: user.password, ca: "/etc/openshift/master/ca.crt", server: user.env.api_endpoint_url, _timeout: LOGIN_TIMEOUT)
-      else
-        ## login with existing token
-        res = executor.run(:login, token: user.cached_tokens.first.token, ca: "/etc/openshift/master/ca.crt", server: user.env.api_endpoint_url)
-      end
-      unless res[:success]
-        logger.error res[:response]
-        raise "cannot login with command: #{res[:instruction]}"
-      end
+      config_setup(user: user, executor: executor, opts: {ca: "/etc/openshift/master/ca.crt"})
 
       # this executor is ready to be used, set it early to allow caching token
       @executors[user.name] = executor
-
-      if user.cached_tokens.size == 0
-        ## lets cache token obtained by username/password
-        user.add_str_token(self.class.token_from_cli(user))
-      end
 
       return executor
     end
@@ -209,26 +224,10 @@ module CucuShift
 
       # TODO: we may consider obtaining server CA chain and configuring it in
       #   instead of setting insecure SSL
-      if user.cached_tokens.size == 0
-        ## login with username and password and generate a bearer token
-        res = executor.run(:login, username: user.name, password: user.password, skip_tls_verify: "true", server: user.env.api_endpoint_url, config: user_config, _timeout: LOGIN_TIMEOUT)
-      else
-        ## login with existing token
-        res = executor.run(:login, token: user.cached_tokens.first.token, skip_tls_verify: "true", server: user.env.api_endpoint_url, config: user_config)
-      end
-      unless res[:success]
-        logger.error res[:response]
-        raise "cannot login with command: #{res[:instruction]}"
-      end
+      config_setup(user: user, executor: executor, opts: {config: user_config, skip_tls_verify: "true"})
 
       # success, set opts early to allow caching token
       logged_users[user.name] = {config: user_config}
-
-      if user.cached_tokens.size == 0
-        ## lets cache token if obtained by username/password
-        user.add_str_token(self.class.token_from_cli(user))
-      end
-
       return logged_users[user.name]
     end
 

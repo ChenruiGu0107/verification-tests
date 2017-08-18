@@ -1,4 +1,5 @@
 require 'cgi'
+require 'oga'
 require 'uri'
 
 require 'http'
@@ -62,11 +63,18 @@ module CucuShift
     # @param [CucuShift::User] user the user we want token for
     # @return [CucuShift::Token]
     def self.new_oauth_bearer_token(user)
+      # try challenging client auth
       res = oauth_bearer_token_challenge(
         server_url: user.env.api_endpoint_url,
         user: user.name,
         password: user.password
       )
+
+      if res[:exitstatus] == 401 && res[:headers]["link"]
+        # looks like we are directed at using web auth of some sort
+        login_url = res[:headers]["link"][0][/(?<=<).*(?=>)/]
+        res = web_bearer_token_obtain(user: user, login_url: login_url)
+      end
 
       unless res[:success]
         msg = "Error getting bearer token, see log"
@@ -84,6 +92,47 @@ module CucuShift
       return t
     end
 
+    # try to obtain token via web login with the supplied user's name and
+    #   password
+    # @param [String] login_url the address where we are directed to log in
+    # @param [String] user the user to get a token for
+    # @return [CucuShift::ResultHash] (:token key should be set on success)
+    def self.web_bearer_token_obtain(user:, login_url:)
+      obtain_time = Time.now
+
+      res = CucuShift::Http.http_request(method: :get, url: login_url)
+      return res unless res[:success]
+
+      cookies = res[:cookies]
+      login_page = Oga.parse_html(res[:response])
+      login_action = login_page.css("form#kc-form-login").attribute("action").first&.value
+
+      unless login_action
+        res[:success] = false
+        raise "could not find login form" rescue res[:error] = $!
+        return res
+      end
+
+      res = CucuShift::Http.http_request(method: :post, url: login_action, cookies: cookies, payload: {username: user.name, password: user.password})
+
+      if res[:exitstatus] == 302
+        redir302 = res[:headers]["location"].first
+        res = CucuShift::Http.http_request(method: :get, url: redir302, cookies: cookies)
+      end
+
+      return res unless res[:success]
+
+      token_page = Oga.parse_html(res[:response])
+      res[:token] = token_page.css('code').first&.text
+      res[:valid_until] = obtain_time + 24 * 60 * 60
+
+      unless res[:token]
+        res[:success] = false
+        raise "cannot find token on page" rescue res[:error] = $!
+      end
+
+      return res
+    end
 
     # @param [String] server_url e.g. "https://master.cluster.local:8443"
     # @param [String] user the username to get a token for
