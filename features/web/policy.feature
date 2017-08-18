@@ -173,8 +173,9 @@ Feature:policy related features on web console
       | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/secrets/secret.yaml |
     Then the step should succeed
     When I run the :create client command with:
-      | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pvc-rox.json |
+      | f    | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml |
     Then the step should succeed
+
     # when build is running, check bc and build page, check buttons and links
     Given the "ruby-sample-build-1" build becomes :running
     Given I switch to the second user
@@ -344,9 +345,5 @@ Feature:policy related features on web console
     When I perform the :goto_overview_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    When I get the visible text on web html page
-    Then the output should contain "o grouped service"
-    And the output should not contain "Group Service"
-    """
+    When I run the :check_no_grouped_services web console action
+    Then the step should succeed

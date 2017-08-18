@@ -5,6 +5,10 @@ check_service_list_page:
   - selector:
       text: <service_name>
     type: a 
+check_no_grouped_services:
+  elements:
+  - selector:
+      xpath: //h2[contains(., "No grouped services.")]
 check_one_service_page:
   action: goto_one_service_page
   elements:
