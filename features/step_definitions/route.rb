@@ -31,3 +31,29 @@ Given /^required cluster roles are added to router service account for ingress$/
     step 'cluster role "system:openshift:controller:service-serving-cert-controller" is added to the "system:serviceaccount:default:router" service account'
   end
 end
+
+# add env to dc/router and wait for new router pod ready
+Given /^admin ensures new router pod becomes ready after following env added:$/ do |table|
+  ensure_admin_tagged
+  ensure_destructive_tagged
+  begin
+    org_user = @user
+    step %Q/I switch to cluster admin pseudo user/
+    step %Q/I use the "default" project/
+    step %Q/default router deployment config is restored after scenario/
+    step %Q/a pod becomes ready with labels:/, table(%{
+      | deploymentconfig=router |
+    })
+    step %Q/evaluation of `pod.name` is stored in the :router_pod clipboard/
+    step %/I run the :env client command with:/, table([
+      ["resource", "dc/router" ],
+      *table.raw.map {|e| ["e", e[0]] }
+    ])
+    step %Q/the step should succeed/
+    step %Q/I wait for the pod named "<%= cb.router_pod %>" to die/
+    step %Q/a pod becomes ready with labels:/, table(%{
+      | deploymentconfig=router |
+    })
+    @user = org_user
+  end
+end
