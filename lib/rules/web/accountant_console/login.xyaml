@@ -1,0 +1,17 @@
+login:
+  url: /
+  elements:
+  - selector:
+      id: username
+    type: input
+    op: send_keys <username>
+  - selector:
+      id: password
+    type: input
+    op: send_keys <password>
+  - selector:
+      id: kc-login
+    type: input
+    op: click
+  action: verify_logged_in
+verify_logged_in: {}

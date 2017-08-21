@@ -72,6 +72,20 @@ Given /^I open (registry|accountant) console in a browser$/ do |console|
       browser.run_action(:login_token,
                           token: user.get_bearer_token.token)
     end
+  when "accountant"
+    step "evaluation of `env.web_console_url[/(?<=\\.).*(?=\.openshift)/]` is stored in the :acc_console_url clipboard"
+    step "I have a browser with:", table(%{
+      | rules    | lib/rules/web/accountant_console/                       |
+      | base_url | https://account.<%= cb.acc_console_url %>.openshift.com |
+    })
+    if user.password?
+      browser.run_action(:login,
+                          username: user.name,
+                          password: user.password)
+    else
+      browser.run_action(:login_token,
+                          token: user.get_bearer_token.token)
+    end
   else
     raise "Unknown console type"
   end
