@@ -174,3 +174,22 @@ check_storage_limit_min_size_on_free:
   elements:
   - selector:
       xpath: //div[contains(text(),"1 GiB")]//small[contains(text(),"(cannot be changed)")]
+check_exceed_quota_warning_on_add_storage_page:
+  action: goto_one_dc_page
+  action: click_actions_button
+  action: click_add_storage_link
+  action: check_warning_when_exceed_storage_quota
+check_create_storage_link_on_add_storage_page:
+  action: goto_one_dc_page
+  action: click_actions_button
+  action: click_add_storage_link
+  action: check_create_storage_link
+check_warning_when_exceed_storage_quota:
+  element:
+    selector:
+      xpath: //span[@ng-if='outOfClaims'][contains(.,'cannot create new storage')]  
+check_create_storage_link:
+  element:
+    selector:
+      xpath: //span/a[text()='create storage' and @href='project/<project_name>/create-pvc']
+

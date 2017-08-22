@@ -22,3 +22,10 @@ check_quota_warning_info_for_scaling:
       xpath: //div[contains(.,'limit reached')]
   - selector:
       xpath: //div[contains(text(),'Scaling may be affected')]/a[contains(text(),'Check events')]
+check_quota_warning_on_storage_page:
+ action: goto_storage_page
+ elements:
+ - selector:
+      xpath: //span[contains(text(),'Storage quota limit has been reached')]
+
+
