@@ -19,15 +19,6 @@ Feature: oc convert related scenarios
     And the output should contain:
       | kind: Job            |
       | apiVersion: batch/v1 |
-    # specify output version
-    When I run the :convert client command with:
-      | file           | job.yaml          |
-      | output_version | batch/v2alpha1    |
-      | loglevel       | 2                 |
-    Then the step should succeed
-    And the output should contain:
-      | kind: Job                  |
-      | apiVersion: batch/v2alpha1 |
     # convert to JSON format
     When I run the :convert client command with:
       | file  | schedule-job.yaml |
@@ -59,8 +50,7 @@ Feature: oc convert related scenarios
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/job/schedule-job.yaml" into the "mult/dir2" dir
     When I run the :convert client command with:
       | file           | mult/          |
-      | output_version | batch/v2alpha1 |
       | recursive      | true           |
     Then the step should succeed
     And the output should match 2 times:
-      | apiVersion: batch/v2alpha1 |
+      | apiVersion: batch |
