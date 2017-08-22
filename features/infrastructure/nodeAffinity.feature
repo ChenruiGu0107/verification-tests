@@ -137,11 +137,11 @@ Feature: nodeAffinity
   Scenario: pod will not be scheduled if node affinity not match
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-us.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-case14478.yaml |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | pod                       |
-      | name     | node-affinity-required-us |
+      | resource | pod                              |
+      | name     | node-affinity-required-case14478 |
     Then the step should succeed
     And the output should match:
       | PodScheduled\\s+False |
@@ -153,11 +153,11 @@ Feature: nodeAffinity
   Scenario: pod will not be scheduled if node anti-affinity not match
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required-case14480.yaml |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | pod                         |
-      | name     | node-anti-affinity-required |
+      | resource | pod                                   |
+      | name     | node-anti-affinity-required-case14480 |
     Then the step should succeed
     And the output should match:
       | PodScheduled\\s+False |
@@ -167,59 +167,50 @@ Feature: nodeAffinity
   # @author wmeng@redhat.com
   # @case_id OCP-14479
   @admin
-  @destructive
   Scenario: pod will be scheduled to the node which matches node affinity
     Given I have a project
     And I store the schedulable nodes in the :nodes clipboard
-    And label "zone=us" is added to the "<%= cb.nodes[0].name %>" node
+    And label "key14479=value14479" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-us.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-case14479.yaml |
     Then the step should succeed
-    Given the pod named "node-affinity-required-us" status becomes :running within 60 seconds
+    Given the pod named "node-affinity-required-case14479" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
 
   # @author wmeng@redhat.com
   # @case_id OCP-14484
   @admin
-  @destructive
   Scenario: pod will be scheduled to the node which matches node anti-affinity
+    Given environment has at least 2 schedulable nodes
     Given I have a project
     And I store the schedulable nodes in the :nodes clipboard
-    And I use the "<%= cb.nodes[0].name %>" node
-    And the node labels are restored after scenario
-    When I run the :label admin command with:
-      | resource  | node                          |
-      | name      | <%= cb.nodes[0].name %>       |
-      | key_val   | beta.kubernetes.io/arch=intel |
-      | overwrite | true                          |
-    Then the step should succeed
+    And label "key14484=value14484" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required-case14484.yaml |
     Then the step should succeed
-    Given the pod named "node-anti-affinity-required" status becomes :running within 60 seconds
-    Then the expression should be true> pod.node_name == cb.nodes[0].name
+    Given the pod named "node-anti-affinity-required-case14484" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name != cb.nodes[0].name
 
   # @author wmeng@redhat.com
   # @case_id OCP-14488
   @admin
-  @destructive
   Scenario: pod will still run on the node if labels on the node change and affinity rules no longer met - IgnoredDuringExecution
     Given I have a project
     And I store the schedulable nodes in the :nodes clipboard
-    And label "zone=us" is added to the "<%= cb.nodes[0].name %>" node
+    And label "key14488=value14488" is added to the "<%= cb.nodes[0].name %>" node
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-us.yaml |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-case14488.yaml |
     Then the step should succeed
-    Given the pod named "node-affinity-required-us" status becomes :running within 60 seconds
+    Given the pod named "node-affinity-required-case14488" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
     When I run the :label admin command with:
       | resource  | node                    |
       | name      | <%= cb.nodes[0].name %> |
-      | key_val   | zone=china              |
+      | key_val   | key14488=valuenot14488  |
       | overwrite | true                    |
     Then the step should succeed
     Given 30 seconds have passed
-    Given the pod named "node-affinity-required-us" status becomes :running within 1 seconds
+    Given the pod named "node-affinity-required-case14488" status becomes :running within 1 seconds
     Then the expression should be true> pod.node_name == cb.nodes[0].name
 
   # @author wmeng@redhat.com
