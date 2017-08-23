@@ -1349,8 +1349,8 @@ Feature: build 'apps' with CLI
     Given a pod becomes ready with labels:
       | name=frontend |
     When I execute on the pod:
-      | ls | -al | xiuwangtest |
-    Then the output should contain "tmp"
+      | ls | -al | xiuwangtest/tmp |
+    Then the step should succeed
     Given I replace resource "buildconfig" named "final-app" saving edit to "edit_bldcfg.json":
       | destinationDir: xiuwangtest/ | destinationDir: test/ |
     When I run the :start_build client command with:
@@ -1568,9 +1568,8 @@ Feature: build 'apps' with CLI
     Given 2 pods become ready with labels:
       | deployment=frontend-1 |
     When I execute on the pod:
-      | ls | -al | xiuwangtest |
+      | ls | -al | xiuwangtest/tmp |
     Then the step should succeed
-    And the output should contain "tmp"
 
   # @author xiuwang@redhat.com
   # @case_id OCP-11558
