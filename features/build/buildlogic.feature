@@ -769,3 +769,61 @@ Feature: buildlogic.feature
       | PostCommit:\s+(\d+m)?\d+s  |
       | PushImage:\s+(\d+m)?\d+s   |
 
+ 
+  # @author xiuwang@redhat.com
+  # @case_id OCP-13684
+  Scenario: Prune old builds automaticly
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | ruby                                          | 
+      | code         | https://github.com/openshift/ruby-hello-world | 
+    Then the step should succeed
+    When I run the :get client command with:
+      | resource      | buildconfig      |
+      | resource_name | ruby-hello-world |
+      | o             | yaml             |
+    Then the step should succeed
+    And the expression should be true> @result[:parsed]["spec"]["failedBuildsHistoryLimit"] == 5
+    And the expression should be true> @result[:parsed]["spec"]["successfulBuildsHistoryLimit"] == 5
+    Given the "ruby-hello-world-1" build completed
+    Given I run the steps 5 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    Given the "ruby-hello-world-6" build completed
+    Given I get project builds
+    Then the output should match 5 times:
+      | Complete |
+    Then the output should not contain:
+      |ruby-hello-world-1|
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    When I run the :cancel_build client command with:
+      | build_name | ruby-hello-world-7 |
+      | build_name | ruby-hello-world-8 |
+      | build_name | ruby-hello-world-9 |
+    Then the step should succeed
+    Given I run the :patch client command with:
+      | resource      | bc                                                                                |
+      | resource_name | ruby-hello-world                                                                  |
+      | p             | {"spec":{"source":{"git":{"uri":"https://xxxgithub.com/openshift/ruby-ex.git"}}}} |
+    Given I run the steps 3 times:
+    """
+    When I run the :start_build client command with:
+      | buildconfig | ruby-hello-world |
+    Then the step should succeed
+    """
+    Given the "ruby-hello-world-12" build fails
+    Given I get project builds
+    Then the output should match 2 times:
+      | Git.*Cancelled |
+    Then the output should match 3 times:
+      | Git.*Failed |
+    Then the output should not contain:
+      |ruby-hello-world-7|
