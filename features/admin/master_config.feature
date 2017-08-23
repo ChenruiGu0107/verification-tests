@@ -1292,3 +1292,107 @@ Feature: test master config related steps
       | message: Kubelet stopped posting node status |
       | reason: NodeStatusUnknown                    |
       | status: Unknown                              |
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-11383
+  @admin
+  @destructive
+  Scenario: Allow set Annotation with BuildDefaults and BuildOverrides admission plugin
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            env: []
+            kind: BuildDefaultsConfig
+            annotations:
+              key1: value1
+              key2: value2
+            resources:
+              limits: {}
+              requests: {}
+        BuildOverrides:
+          configuration:
+            apiVersion: v1
+            kind: BuildOverridesConfig
+    """
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :new_build client command with:
+      | image_stream | openshift/ruby:latest                |
+      | app_repo     | https://github.com/openshift/ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    When the "ruby-ex-1" build becomes :running
+    Then the expression should be true> pod("ruby-ex-1-build").annotation("key1", user: user) == "value1"
+    And  the expression should be true> pod("ruby-ex-1-build").annotation("key2", user: user) == "value2"
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            env: []
+            kind: BuildDefaultsConfig
+            annotations:
+              key1: value1
+              key2: value2
+            resources:
+              limits: {}
+              requests: {}
+        BuildOverrides:
+          configuration:
+            apiVersion: v1
+            kind: BuildOverridesConfig
+            annotations:
+              key1: value3
+              key2: value4
+    """
+    And the master service is restarted on all master nodes
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-2" build was created
+    When the "ruby-ex-2" build becomes :running
+    Then the expression should be true> pod("ruby-ex-2-build").annotation("key1", user: user) == "value3"
+    And  the expression should be true> pod("ruby-ex-2-build").annotation("key2", user: user) == "value4"
+
+  # @author xiuwang@redhat.com
+  # @case_id OCP-14102
+  @admin
+  @destructive
+  Scenario: Set env vars via build defaults	
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            env:
+            - name: FOO
+              value: bar
+    """
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :new_build client command with:
+      | image_stream | openshift/ruby:latest                |
+      | app_repo     | https://github.com/openshift/ruby-ex |
+    Then the step should succeed
+    And the "ruby-ex-1" build was created
+    When the "ruby-ex-1" build becomes :running
+    When evaluation of `YAML.load pod("ruby-ex-1-build").env_var("BUILD", user: user)` is stored in the :build clipboard
+    Then the expression should be true> cb.build.dig("spec", "strategy", "sourceStrategy", "env", 0, "name") == "FOO"
+    Then the expression should be true> cb.build.dig("spec", "strategy", "sourceStrategy", "env", 0, "value") == "bar"
+    When I run the :start_build client command with:
+      | buildconfig | ruby-ex  |
+      | env         | FOO=test |
+    Then the step should succeed
+    And the "ruby-ex-2" build was created
+    When the "ruby-ex-2" build becomes :running
+    When evaluation of `YAML.load pod("ruby-ex-2-build").env_var("BUILD", user: user)` is stored in the :build clipboard
+    Then the expression should be true> cb.build.dig("spec", "strategy", "sourceStrategy", "env", 0, "name") == "FOO"
+    Then the expression should be true> cb.build.dig("spec", "strategy", "sourceStrategy", "env", 0, "value") == "test"
