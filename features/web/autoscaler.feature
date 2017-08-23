@@ -126,3 +126,62 @@ Feature: AutoScaler relative cases
       | label_value  | value1update        |
     Then the step should succeed
     And the output should contain "element not found"
+
+# @author yanpzhan@redhat.com
+# @case_id OCP-11287
+Scenario: Create,Edit and Delete HPA from replication controller page
+    Given I have a project
+    # Create a standalone rc
+    When I run the :run client command with:
+      | name       | myrun-rc              |
+      | image      | aosqe/hello-openshift |
+      | generator  | run-controller/v1     |
+      | limits     | memory=256Mi          |
+    Then the step should succeed
+
+    When I perform the :add_autoscaler_on_standalone_rc_page web console action with:
+      | project_name | <%= project.name %> |
+      | rc_name      | myrun-rc            |
+      | min_pods     | 1                   |
+      | max_pods     | 2                   |
+      | cpu_req_per  | 50                  |
+    Then the step should succeed
+
+    When I perform the :check_autoscaler_info web console action with:
+      | min_pods            | 1            |
+      | max_pods            | 2            |
+      | cpu_request_target  | 50           |
+    Then the step should succeed
+
+    When I perform the :update_min_max_cpu_request_for_autoscaler_from_standalone_rc_page web console action with:
+      | project_name | <%= project.name %> |
+      | rc_name      | myrun-rc            |
+      | min_pods     | 1                   |
+      | max_pods     | 4                   |
+      | cpu_req_per  | 50                  |
+    Then the step should succeed
+
+    When I perform the :check_autoscaler_info web console action with:
+      | min_pods            | 1            |
+      | max_pods            | 4            |
+      | cpu_request_target  | 50           |
+    Then the step should succeed
+
+    When I run the :delete_autoscaler web console action
+    Then the step should succeed
+    Given I wait for the steps to pass:
+    """
+    When I perform the :check_autoscaler_info_missing web console action with:
+      | min_pods           | 1             |
+      | max_pods           | 4             |
+      | cpu_request_target | 50            |
+    Then the step should succeed
+    """
+    
+    When I perform the :check_autoscaler_info_missing_on_overview_page web console action with:
+      | project_name  | <%= project.name %>    |
+      | resource_type | replication controller |
+      | resource_name | myrun-rc               |
+      | min_pods      | 1                      |
+      | max_pods      | 4                      |
+    Then the step should succeed
