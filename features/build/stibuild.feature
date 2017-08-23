@@ -209,3 +209,44 @@ Feature: stibuild.feature
       | name     | ruby-ex-1 |
     Then the output should contain:
       | From Image:[^\\n]*@sha256 |
+
+  # @author wewang@redhat.com
+  # @case_id OCP-14967
+  @admin
+  @destructive
+  Scenario: Configure env LOGLEVEL in the BuildDefaults plug-in when build
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        BuildDefaults:
+          configuration:
+            apiVersion: v1
+            kind: BuildDefaultsConfig
+            env:
+            - name: BUILD_LOGLEVEL
+              value: "8"
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-sti.json |
+    Then the step should succeed
+    And the "ruby22-sample-build-1" build was created
+    And the "ruby22-sample-build-1" build completed
+    When I run the :logs client command with:
+      | resource_name    | bc/ruby22-sample-build |
+    Then the step should succeed
+    And the output should match:
+      | "name":"BUILD_LOGLEVEL" |
+      | "value":"8"             |
+    And a pod becomes ready with labels:
+      | name=frontend |
+    When I execute on the pod:
+      | bash                       |
+      | -c                         |
+      | env \| grep BUILD_LOGLEVEL |
+    Then the step should succeed
+    And the output should contain:
+      | BUILD_LOGLEVEL=8 |
