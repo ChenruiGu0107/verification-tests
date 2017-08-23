@@ -422,8 +422,8 @@ require "base64"
       # # context was provided within element rule
       # if rule[:context]
       #   rule[:context] = selector_param_setter(rule[:context], user_opts)
-      #   success, context_elements = wait_for_elements({:type => :iframe, :selector => rule[:context], :_context => rule[:_context]})
-      #   rule[:_context] = context_elements.first.first.last
+      #   success, context_elements = wait_for_elements({:selector => rule[:context], :_context => rule[:_context]})
+      #   rule[:_context] = context_elements.first.first.last.to_subclass
       #   context_res = {
       #     instruction: "handle context #{rule[:context]}",
       #     success: success,
@@ -492,9 +492,15 @@ require "base64"
 
       begin
         case op
-        when "click", "hover"
-          raise "cannot #{op} with a value" unless val.empty?
-          element.send(op.to_sym)
+      when "click", "hover"
+          if val.empty?
+            element.send(op.to_sym)
+          else
+            # click an element with several modifier keys pressed
+            # op: "click - :control\n- :shift"
+            keys = Psych.load val
+            element.send(op.to_sym, *keys)
+          end
         when "clear"
           raise "cannot #{op} with a value" unless val.empty?
           element.to_subtype.clear

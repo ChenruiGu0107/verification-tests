@@ -1,0 +1,69 @@
+goto_images_page:
+  url: /registry#/images
+goto_one_image_page:
+  url: /registry#/images/<project_name>/<image_name>
+click_to_goto_images_pages_in_new_tab_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: click_to_goto_images_pages_in_new_tab
+click_to_goto_images_pages_in_new_tab:
+  element:
+    selector:
+      xpath: //a[i[@title='Images']]
+    op: "click - :control\n- :shift"
+click_to_goto_images_page_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: click_to_goto_images_page
+click_to_goto_images_page:
+  element:
+    selector:
+      xpath: //a[i[@title='Images']]
+    op: click
+click_to_goto_one_image_page_in_iframe:
+  action: click_to_goto_images_page_in_iframe
+  action:
+    context:
+      tag_name: iframe
+    ref: click_to_goto_one_image_page
+click_to_goto_one_image_page:
+  element:
+    selector:
+      xpath: //tbody[.//th[contains(text(),'<project_name>/<image_name>')]]
+    op: click
+check_no_images_on_images_page:
+  element:
+    selector:
+      text: No image streams are present.
+check_image_info_in_iframe_on_one_image_page:
+  action:
+    context:
+      tag_name: iframe
+    ref: check_image_info_on_one_image_page
+check_image_info_on_one_image_page:
+  params:
+    access_policy: ''
+    pull_repository: ''
+    image_count: ''
+  elements:
+  - selector:
+      xpath: //dt[span[text()='Access Policy']]/following-sibling::dd[contains(.,'<access_policy>')]
+  - selector:
+      xpath: //dt[span[text()='Pull repository']]/following-sibling::dd[contains(.,'<pull_repository>')]
+  - selector:
+      xpath: //dt[span[text()='Image count']]/following-sibling::dd[contains(.,'<image_count>')]
+check_image_tag_in_iframe_on_one_image_page:
+  action:
+    context:
+      tag_name: iframe
+    ref: check_image_tag_on_one_image_page
+check_image_tag_on_one_image_page:
+  # TODO extend this action with more image tag checks
+  elements:
+  - selector:
+      xpath: //td[./following-sibling::td[contains(.,'<tag_label>')]]
+    op: click
+  - selector:
+      xpath: //dt[span[text()='Tags']]/following-sibling::dd[span[text()='<project_name>/<image_name>:<tag_label>']]

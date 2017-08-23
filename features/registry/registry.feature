@@ -84,7 +84,7 @@ Feature: Testing registry
     And the "mystream:latest" image stream tag was created
     And evaluation of `image_stream_tag("mystream:latest").image_layers(user:user)` is stored in the :layers clipboard
     And evaluation of `image_stream_tag("mystream:latest").digest(user:user)` is stored in the :digest clipboard
-    And default registry route is stored in the :registry_ip clipboard
+    And default docker-registry route is stored in the :registry_ip clipboard
     And I ensures "mystream" imagestream is deleted
     Given I delete the project
     And I run the :oadm_prune_images client command with:
@@ -543,7 +543,7 @@ Feature: Testing registry
     And the "busybox:latest" image stream tag was created
     And evaluation of `image_stream_tag("busybox:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do exist in the registry
-    
+
   # @author mcurlej@redhat.com
   # @case_id OCP-10788
   Scenario: Can import private image from docker hub and another openshift embed docker registry
@@ -693,7 +693,7 @@ Feature: Testing registry
   # @case_id: OCP-10922
   @destructive
   @admin
-  Scenario: Admin can understand/manage image use and prune oversized image	
+  Scenario: Admin can understand/manage image use and prune oversized image
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-admin   |
@@ -701,7 +701,7 @@ Feature: Testing registry
     Then the step should succeed
     And I select a random node's host
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    And default registry route is stored in the :registry_ip clipboard
+    And default docker-registry route is stored in the :registry_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker logout <%= cb.integrated_reg_ip %>                                          |
@@ -780,4 +780,4 @@ Feature: Testing registry
     Then the step should succeed
     And evaluation of `image_stream_tag("mystream:latest").image_layers(user:user)` is stored in the :layers clipboard
     And all the image layers in the :layers clipboard do not exist in the registry
-    
+

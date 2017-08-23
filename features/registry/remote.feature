@@ -149,7 +149,7 @@ Feature: remote registry related scenarios
     Then the step should fail
     And I select a random node's host
 
-    Given default registry route is stored in the :integrated_reg_ip clipboard
+    Given default docker-registry route is stored in the :integrated_reg_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= user.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
@@ -216,7 +216,7 @@ Feature: remote registry related scenarios
   Scenario: User should be denied pushing when it does not have 'admin' role
     Given I have a project
     And I select a random node's host
-    Given default registry route is stored in the :integrated_reg_ip clipboard
+    Given default docker-registry route is stored in the :integrated_reg_ip clipboard
     When I give project view role to the second user
     Given I switch to the second user
     And the "~/.docker/config.json" file is restored on host after scenario
@@ -284,7 +284,7 @@ Feature: remote registry related scenarios
   Scenario: Tracking tags with imageStream spec.tag
     Given I have a project
     And I select a random node's host
-    Given default registry route is stored in the :integrated_reg_ip clipboard
+    Given default docker-registry route is stored in the :integrated_reg_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image-streams/busybox.json |
@@ -468,7 +468,7 @@ Feature: remote registry related scenarios
   # @case_id OCP-11314
   @destructive
   @admin
-  Scenario: Support unauthenticated with registry-viewer role docker pull 
+  Scenario: Support unauthenticated with registry-viewer role docker pull
     Given I have a project
     When I run the :policy_add_role_to_user client command with:
       | role            | registry-viewer   |
@@ -564,7 +564,7 @@ Feature: remote registry related scenarios
 
   # @author geliu@redhat.com
   # @case_id OCP-12959
-  @admin 
+  @admin
   Scenario: Strip manifest stored in etcd
     Given I have a project
     When I run the :import_image client command with:
@@ -587,7 +587,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
     Then the output should not match:
       | .*dockerImageManifest:.* |
-    Given I use the first master host 
+    Given I use the first master host
     Given I store the default registry scheme to the :registry_scheme clipboard
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And I run commands on the host:

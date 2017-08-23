@@ -332,11 +332,11 @@ Given /^default registry service ip is stored in the#{OPT_SYM} clipboard$/ do |c
   project(org_proj_name)
 end
 
-Given /^default registry route is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
+Given /^default (docker-registry|registry-console) route is stored in the#{OPT_SYM} clipboard$/ do |route_name, cb_name|
   # save the orignial project name
   org_proj_name = project.name
   cb_name ||= :registry_route
-  cb[cb_name] = route("docker-registry", service("docker-registry",project('default'))).dns(by: :admin)
+  cb[cb_name] = route(route_name, service(route_name,project('default'))).dns(by: :admin)
   project(org_proj_name)
 end
 
@@ -351,7 +351,7 @@ end
 
 # Generate registry route for online and dedicated environments
 Given /^I attempt the registry route based on API url and store it in the#{OPT_SYM} clipboard$/ do |cb_name|
-  api_hostname = env.api_hostname 
+  api_hostname = env.api_hostname
   raise "The API route got from env is incorrect" unless api_hostname =~ /api\..+/
   cb_name ||= :registry_route
   cb[cb_name] = api_hostname.gsub("api","registry")

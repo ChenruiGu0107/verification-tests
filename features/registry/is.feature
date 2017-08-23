@@ -33,7 +33,7 @@ Feature: Testing imagestream
     And evaluation of `project.name` is stored in the :original_proj clipboard
     And I select a random node's host
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    And default registry route is stored in the :registry_hostname clipboard
+    And default docker-registry route is stored in the :registry_hostname clipboard
     And I run commands on the host:
       | docker logout  <%= cb.integrated_reg_ip %>                                                                                                     |
       | docker pull docker.io/busybox:latest;docker tag  docker.io/busybox:latest  <%= cb.integrated_reg_ip %>/<%= cb.original_proj %>/mystream:latest |
@@ -94,7 +94,7 @@ Feature: Testing imagestream
   @admin
   Scenario: Shouldn't prune the image with week and strong reference which the strong reference is imagestreamtag
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    Given default registry route is stored in the :registry_hostname clipboard
+    Given default docker-registry route is stored in the :registry_hostname clipboard
     Given I have a project
     When I run the :new_build client command with:
       | app_repo | centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git |
@@ -158,7 +158,7 @@ Feature: Testing imagestream
   @admin
   Scenario: Should prune the extenal image correctly
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
-    And default registry route is stored in the :registry_hostname clipboard
+    And default docker-registry route is stored in the :registry_hostname clipboard
     Given I have a project
     When I run the :tag client command with:
       | source_type  | docker            |

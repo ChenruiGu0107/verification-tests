@@ -1,0 +1,12 @@
+click_create_button:
+  element:
+    selector:
+      text: Create
+      tag_name: button
+    op: click
+click_cancel_button:
+  element:
+    selector:
+      text: Cancel
+      tag_name: button
+    op: click

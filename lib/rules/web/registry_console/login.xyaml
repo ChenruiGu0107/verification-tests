@@ -1,0 +1,51 @@
+---
+login:
+  url: /
+  action: login_on_login_page
+login_on_login_page:
+  elements:
+    - selector:
+        id: inputUsername
+      op: send_keys <username>
+      type: input
+    - selector:
+        id: inputPassword
+      op: send_keys <password>
+      type: input
+  scripts:
+  - command: return document.getElementsByName("csrf").length > 0
+    expect_result: true
+  cookies:
+  - name: csrf
+    expect_result: true
+  elements:
+    - selector:
+        text: Log In
+      op: click
+      type: button
+  action: verify_logged_in
+login_token:
+  url: /registry#access_token=<token>&expires_in=86400&token_type=Bearer
+  action: verify_logged_in
+verify_logged_in:
+  element:
+    selector:
+      text: Red Hat Container Registry
+      id: index-brand
+  scripts:
+  - command: return window.localStorage['login-data'];
+    expect_result: true
+click_login_again_in_new_tab:
+  elements:
+  - selector:
+      text: Login Again
+    type: a
+    op: "click - :control\n- :shift"
+  with_window:
+    selector:
+      url: !ruby/regexp '/login/'
+    action: check_redirection_to_login_page
+check_redirection_to_login_page:
+  element:
+    selector:
+      xpath: //strong[text()='Welcome to the OpenShift Container Platform.']

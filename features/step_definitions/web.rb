@@ -56,6 +56,27 @@ Given /^I have a browser with:$/ do |table|
   teardown_add { @result = browser.finalize }
 end
 
+Given /^I open (registry|accountant) console in a browser$/ do |console|
+  case console
+  when "registry"
+    step "default registry-console route is stored in the :reg_console_url clipboard"
+    step "I have a browser with:", table(%{
+      | rules    | lib/rules/web/registry_console/   |
+      | base_url | https://<%= cb.reg_console_url %> |
+    })
+    if user.password?
+      browser.run_action(:login,
+                          username: user.name,
+                          password: user.password)
+    else
+      browser.run_action(:login_token,
+                          token: user.get_bearer_token.token)
+    end
+  else
+    raise "Unknown console type"
+  end
+end
+
 # @precondition a `browser` object
 # get element html or attribute value
 # Provide element selector in the step table using key/value pairs, e.g.
