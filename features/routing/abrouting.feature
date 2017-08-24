@@ -937,3 +937,62 @@ Feature: Testing abrouting
       | haproxy.config   |
     Then the output should contain "leastconn"
     """
+
+  # @author yadu@redhat.com
+  # @case_id OCP-15259
+  Scenario: Could not set more than 3 additional backends for route
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | service-unsecure     |
+      | service   | service-unsecure=5   |
+      | service   | service-unsecure-1=1 |
+      | service   | service-unsecure-2=2 |
+      | service   | service-unsecure-3=3 |
+      | service   | service-unsecure-4=4 |
+    Then the step should fail
+    And the output should contain:
+      | cannot specify more than 3 additional backends |
+      
+  # @author yadu@redhat.com
+  # @case_id OCP-15382
+  Scenario: Set max backends weight for ab routing
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/abrouting/unseucre/service_unsecure-2.json |
+    Then the step should succeed
+    Given I wait for the "service-unsecure" service to become ready
+    Given I wait for the "service-unsecure-2" service to become ready
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    When I run the :set_backends client command with:
+      | routename | service-unsecure      |
+      | service   | service-unsecure=256  |
+      | service   | service-unsecure-2=0  |
+    Then the step should succeed      
+    Given I run the steps 10 times:
+    """
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/" url
+    And the output should contain "Hello-OpenShift-1"
+    And the output should not contain "Hello-OpenShift-2"
+    """
+    When I run the :set_backends client command with:
+      | routename | service-unsecure      |
+      | service   | service-unsecure=257  |
+      | service   | service-unsecure-2=0  |
+    Then the step should fail
+    And the output should contain "weight must be an integer between 0 and 256"
