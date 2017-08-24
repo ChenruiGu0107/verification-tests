@@ -631,7 +631,13 @@ require "base64"
       when Hash
         selector_res = {}
         selector.each do |selector_type, query|
-          selector_res[selector_type] = replace_angle_brackets(query, params)
+          case query
+          when String
+            selector_res[selector_type] = replace_angle_brackets(query, params)
+          when Regexp
+            # use RE for selector of type `text:`
+            selector_res[selector_type] = Regexp.new replace_angle_brackets(query.to_s, params)
+          end
         end
       else
         raise "don't know how to handle selector of type #{selector.class}"
