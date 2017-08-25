@@ -117,7 +117,17 @@ module CucuShift
 
       if res[:exitstatus] == 302
         redir302 = res[:headers]["location"].first
-        res = CucuShift::Http.http_request(method: :get, url: redir302, cookies: cookies)
+        # for some user GET returns 500 without accept header; dunno why
+        headers = {
+          #user_agent: "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:55.0) Gecko/20100101 Firefox/55.0",
+          user_agent: "Ruby RestClient #{RestClient.version}",
+          # simple */* doesn't work, also dunno why
+          accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          # accept_language: "bg,en-US;q=0.7,en;q=0.3",
+          # referer: login_action
+        }
+
+        res = CucuShift::Http.http_request(method: :get, url: redir302, cookies: cookies, headers: headers)
       end
 
       return res unless res[:success]
