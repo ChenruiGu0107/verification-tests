@@ -217,3 +217,133 @@ check_service_group_entry:
 check_petset_on_overview_page:
   action: goto_overview_page
   action: check_pod_scaled_numbers_under_specified_resource
+check_application_block_info_on_overview:
+  params:
+    dc_name: <resource_name>
+    service_name: <resource_name>
+    build_name: <resource_name>
+    route_name: <resource_name>
+  action: expand_resource_entry
+  action:
+    context: &tile_context
+      xpath: //span[text()='<resource_name>']/ancestor::div[contains(@class,'list-pf-item')]
+    ref:
+    - check_container_info_on_overview
+    - check_networking_info_on_overview
+    - check_build_info_on_overview
+check_app_heading_on_overview:
+  elements:
+  - selector:
+     xpath: //div[contains(@class,'app-heading')]//h2[div[text()='Application'] and span[text()='<app_name>']]
+check_container_info_on_overview:
+  elements:
+  - selector:
+      xpath: .//span[text()='Image:']
+  - selector:
+      xpath: .//span[text()='Build:']
+  - selector:
+      xpath: .//span[text()='Source:']
+  - selector:
+      xpath: .//span[text()='Ports:']
+check_networking_info_on_overview:
+  action:
+    if_element:
+      selector:
+        xpath: .//div[text()='Networking']
+    ref: 
+    - check_internal_traffic
+    - check_external_traffic
+check_internal_traffic:
+  elements:
+  - selector:
+      xpath: .//span[text()='Internal Traffic']
+  - selector:
+      xpath: .//a[contains(@href,'project/<project_name>/browse/services/<service_name>') and text()='<service_name>']
+  - selector:
+      xpath: .//span[normalize-space()='<service_port_mapping>'] 
+check_external_traffic:
+  elements:
+  - selector:
+      xpath: .//span[text()='External Traffic']
+  - selector:
+      xpath: .//a[text()='<route_url>']
+  - selector:
+      xpath: .//span[contains(@ng-if,'route') and contains(.,'<route_port_info>')]
+  - selector:
+      xpath: .//a[@href='project/<project_name>/browse/routes/<route_name>' and text()='<route_name>']
+check_build_info_on_overview:
+  action:
+    if_element:
+      selector:
+        xpath: .//div[text()='Builds']
+    ref: check_build_info
+check_build_info:
+  elements:
+  - selector:
+      xpath: .//span[text()="#<build_num>"]
+  - selector:
+      xpath: .//span[contains(text(),"<build_status>")]
+  - selector:
+      xpath: .//h3/a[contains(@href,"project/<project_name>/browse/builds/<build_name>") and text()="<build_name>"]
+operate_in_kebab_drop_down_list_on_overview:
+  action:
+    context: *tile_context
+    ref:
+    - click_kebab_drop_down_list_on_overview
+    - check_edit_link_in_kebab_on_overview
+    - check_viewlogs_link_in_kebab_on_overview
+    - manually_build_in_kebab_on_overview
+    - click_kebab_drop_down_list_on_overview
+    - manually_deploy_in_kebab_on_overview
+click_kebab_drop_down_list_on_overview:
+  elements:
+  - selector:
+      xpath: .//a[@class="actions-dropdown-kebab dropdown-toggle"]
+    op: click
+manually_deploy_in_kebab_on_overview:
+  action:
+    if_element:
+      selector:
+        xpath: .//ul//a[text()='Deploy']
+    ref:  click_deploy_on_overview_page
+click_deploy_on_overview_page:
+  elements:
+  - selector:
+      xpath: .//ul//a[text()='Deploy']
+    op: click
+  - selector:
+      xpath: //span[contains(text(),'has started')]
+manually_build_in_kebab_on_overview:
+  action:
+    if_element:
+      selector:
+        xpath: .//ul//a[contains(text(),'Build')]
+    ref: click_build_on_overview_page
+click_build_on_overview_page:
+  elements:
+  - selector:
+      xpath: .//ul//a[text()='Start Build']
+    op: click
+  - selector:
+      xpath: //span[contains(text(),'successfully queued')]
+check_edit_link_in_kebab_on_overview:
+  action:
+    if_element: 
+      selector:
+         xpath: .//ul//a[text()='Edit']
+    ref: check_edit_dc_link
+check_edit_dc_link:
+  element:
+    selector: 
+      xpath: .//ul//a[@href="project/<project_name>/edit/dc/<resource_name>"]
+check_viewlogs_link_in_kebab_on_overview:
+  action:
+    if_element:  
+      selector:
+        xpath: .//ul//a[text()='View Logs']
+    ref: check_view_log_link
+check_view_log_link:
+  element:
+    selector: 
+      xpath: .//ul//a[@href="project/<project_name>/browse/<viewlog_type>/<log_name>?tab=logs"]
+

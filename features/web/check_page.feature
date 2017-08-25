@@ -518,3 +518,39 @@ Feature: check page info related
     Then the step should succeed
     When I run the :check_permission_error_on_membership web console action
     Then the step should succeed
+
+
+  # @author hasha@redhat.com
+  # @case_id OCP-13641
+  Scenario: Check app resources on overview page
+    Given the master version >= "3.6"
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby:latest                    |
+      | app_repo     | https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | app=ruby-ex |
+    When I expose the "ruby-ex" service
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_app_heading_on_overview web console action with:
+      | app_name | ruby-ex |
+    Then the step should succeed
+    When I perform the :check_application_block_info_on_overview web console action with:
+      | resource_name        | ruby-ex                                      |
+      | resource_type        | deployment                                   |
+      | project_name         | <%= project.name %>                          |
+      | build_num            | 1                                            |
+      | build_status         | complete                                     |
+      | route_url            | http://<%= route("ruby-ex").dns(by: user) %> |
+      | route_port_info      | 8080-tcp                                     |
+      | service_port_mapping | 8080/TCP (8080-tcp) 8080                     |
+    Then the step should succeed
+    When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_name | ruby-ex             |
+      | viewlog_type  | rc                  |
+      | log_name      | ruby-ex-1           |
+    Then the step should succeed
