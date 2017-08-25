@@ -221,3 +221,39 @@ Feature: nodeAffinity
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-preferred-case14509.yaml |
     Then the step should succeed
     Given the pod named "node-affinity-preferred-case14509" status becomes :running within 60 seconds
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-14576
+  @admin
+  Scenario: pod can be scheduled onto a node only if all matchExpressions can be satisfied
+    Given I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "key14576=value14576" is added to the "<%= cb.nodes[0].name %>" node
+    And label "company14576=redhat" is added to the "<%= cb.nodes[0].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-multiple-match-expressions-case14576.yaml |
+    Then the step should succeed
+    Given the pod named "multiple-match-expressions-case14576" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-14577
+  @admin
+  Scenario: pod  will not be scheduled if not all matchExpressions can be satisfied
+    Given I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "key14577=value14577" is added to the "<%= cb.nodes[0].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-multiple-match-expressions-case14577.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pod                                  |
+      | name     | multiple-match-expressions-case14577 |
+    Then the step should succeed
+    And the output should match:
+      | PodScheduled\\s+False |
+      | FailedScheduling      |
+      | MatchNodeSelector     |
+    """
