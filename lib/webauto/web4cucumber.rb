@@ -571,7 +571,8 @@ require "base64"
         # sometimes non-existing element is returned, workaround that
         begin
           res = res.to_a.select { |e| e.exists? }
-        rescue Selenium::WebDriver::Error::StaleElementReferenceError
+        rescue Selenium::WebDriver::Error::StaleElementReferenceError,
+               Watir::Exception::UnknownObjectException
           logger.info("Looks like we caught stale element, let's try again")
           # https://github.com/watir/watir/issues/571
           res = []
