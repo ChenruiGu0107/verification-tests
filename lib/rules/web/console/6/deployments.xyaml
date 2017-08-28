@@ -47,7 +47,7 @@ cancel_deployment_on_one_deployment_page:
   action: click_cancel
   element:
     selector:
-      xpath: //dd[contains(normalize-space(),'Cancelled')]
+      xpath: //span[contains(@class,"toast-notification-message") and contains(normalize-space(),'Cancelled')]
 edit_replicas_on_dc_page:
   action: goto_one_dc_page
   action: click_on_configuration_tab
