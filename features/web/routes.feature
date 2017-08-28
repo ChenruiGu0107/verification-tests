@@ -270,10 +270,10 @@ Feature: Routes related features on web console
     Given I wait for a web server to become available via the "edgerouteredirect" route
     When I access the "http://<%= route("edgerouteredirect", service("service-unsecure")).dns(by: user) %>/" url in the web browser
     Then the step should succeed
-    Given the expression should be true> browser.url.start_with? "https"
     When I perform the :check_response_string web console action with:
       | response_string | Hello-OpenShift |
     Then the step should succeed
+    And the expression should be true> browser.url.start_with? "https"
 
   # @author yapei@redhat.com
   # @case_id OCP-11936
