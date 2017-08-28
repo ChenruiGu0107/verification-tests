@@ -49,3 +49,21 @@ Feature: test logging and metrics related steps
     Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1234567890123
     Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1321098211412
 
+  @admin
+  @destructive
+  Scenario: Test unified logging installation
+    Given I create a project with non-leading digit name
+    Given logging service is installed in the system
+
+  @admin
+  @destructive
+  Scenario: Test unified metrics installation
+    Given I create a project with non-leading digit name
+    Given metrics service is installed in the system
+
+  @admin
+  @destructive
+  Scenario: Test unified metrics installation with user param
+    Given I create a project with non-leading digit name
+    Given metrics service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12305/inventory |

@@ -88,8 +88,10 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
     cb['metrics'] = env.metrics_console_url
   else
     unless cb[:metrics]
-      step %Q/I store default router subdomain in the :metrics clipboard/
-      cb[:metrics] = 'https://hawkular-metrics.' + cb[:metrics] + '/hawkular'
+      unless cb.subdomain
+        cb.subdomain = env.router_default_subdomain(user: user, project: project)
+      end
+      cb[:metrics] = 'https://hawkular-metrics.' + cb[:subdomain] + '/hawkular'
     end
     # if cb.metrics does not have the proper form, we need to set it.
     cb[:metrics] = 'https://hawkular-metrics.' + cb.metrics + '/hawkular' unless cb.metrics.start_with? "https://"
@@ -131,8 +133,9 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
   cb.metrics_data = []
 
   @result = CucuShift::Http.request(url: url, **https_opts, method: op_type)
-  @result[:parsed] = YAML.load(@result[:response])
-  if @result[:success] and op_type == 'GET' and opts[:metrics_id].nil?
+
+  @result[:parsed] = YAML.load(@result[:response]) if @result[:success]
+  if (@result[:parsed].is_a? Array) and (op_type == 'GET') and opts[:metrics_id].nil?
     @result[:parsed].each do | res |
       logger.info("Getting data from metrids #{res['id']}...")
       query_url = url + "/" + res['id']
@@ -254,7 +257,10 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
 
   # check tht logging/metric is not installed in the target cluster already.
   ansible_opts = opts_array_to_hash(table.raw)
+
   target_proj = proj.nil? ? project.name : proj
+  # we are enforcing that metrics to be installed into 'openshift-infra'
+  target_proj = 'openshift-infra' if svc_type == 'metrics'
   if svc_type == 'metrics' and target_proj != 'openshift-infra'
     raise ("Metrics must be installed into the 'openshift-infra")
   end
@@ -381,10 +387,9 @@ Given /^logging service is installed in the#{OPT_QUOTED} project using deployer:
   # step %Q/the first user is cluster-admin/
   step %Q/I switch to cluster admin pseudo user/
   step %Q/I use the "<%= project.name %>" project/
-
+  step %Q/I store master major version in the :master_version clipboard/
   cb.master_url = env.master_hosts.first.hostname
   cb.subdomain = env.router_default_subdomain(user: user, project: project)
-  step %Q/I store master major version in the :master_version clipboard/
 
   unless cb.deployer_config
     step %Q/I download a file from "<%= "#{deployer_opts[:deployer_config]}" %>"/
@@ -418,6 +423,7 @@ Given /^logging service is installed in the#{OPT_QUOTED} project using deployer:
   step %Q/cluster role "oauth-editor" is added to the "system:serviceaccount:<%= project.name %>:logging-deployer" service account/
   step %Q/SCC "privileged" is added to the "system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd" service account/
   step %Q/cluster role "cluster-reader" is added to the "system:serviceaccount:<%= project.name %>:aggregated-logging-fluentd" service account/
+  raise "Unable to get master version" if cb.master_version.nil?
   if cb.master_version >= "3.4"
     step %Q/cluster role "rolebinding-reader" is added to the "system:serviceaccounts:<%= project.name %>:aggregated-logging-elasticsearch" service account/
   end
@@ -441,13 +447,12 @@ end
 # we must use the project 'openshift-infra'
 Given /^metrics service is installed in the project using deployer:$/ do |table|
   ensure_destructive_tagged
-
+  org_proj_name = project.name
+  org_user = user
   target_proj = 'openshift-infra'
-
   deployer_opts = opts_array_to_hash(table.raw)
   raise "Must provide deployer configuration file!" unless deployer_opts.keys.include? 'deployer_config'.to_sym
   logger.info("Performing metrics installation by deployer")
-  # step %Q/the first user is cluster-admin/
   step %Q/I switch to cluster admin pseudo user/
   project(target_proj)
 
@@ -455,7 +460,6 @@ Given /^metrics service is installed in the project using deployer:$/ do |table|
   cb.subdomain = env.router_default_subdomain(user: user, project: project)
 
   # sanity check, fail early if we can't get the master version
-  raise "Unable to get master version" if cb.master_version.nil?
   raise "Unable to get subdomain" if cb.subdomain.nil?
 
   unless cb.deployer_config
@@ -488,7 +492,6 @@ Given /^metrics service is installed in the project using deployer:$/ do |table|
 
   end
   #   the param is set by user
-  #step %Q|I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/metrics_deployer_configmap.yaml |
   step %Q/I register clean-up steps:/, table(%{
     | I remove metrics service installed in the project using deployer |
     })
@@ -525,6 +528,9 @@ Given /^metrics service is installed in the project using deployer:$/ do |table|
   step %Q/I wait for the container named "deployer" of the "#{pod.name}" pod to terminate with reason :completed/
   # verify metrics is installed
   step %Q/all metrics pods are running in the project/
+  # we need to switch back to normal user and the original project
+  @user = org_user
+  project(org_proj_name)
 end
 
 Given /^I remove logging service installed in the#{OPT_QUOTED} project using deployer$/ do |proj|
@@ -537,7 +543,9 @@ Given /^I remove logging service installed in the#{OPT_QUOTED} project using dep
     # due to bug https://bugzilla.redhat.com/show_bug.cgi?id=1467984 we need to
     # do manual cleanup on some of the resources that are not deleted by
     # project removal
-    @result = admin.cli_exec(:delete, {object_type: 'clusterrole', object_name_or_id: 'oauth-editor daemonset-admin rolebinding-reader'})
+    @result = admin.cli_exec(:delete, {object_type: 'clusterrole', object_name_or_id: 'oauth-editor', n: 'default'})
+    @result = admin.cli_exec(:delete, {object_type: 'clusterrole', object_name_or_id: 'daemonset-admin ', n: 'default'})
+    @result = admin.cli_exec(:delete, {object_type: 'clusterrole', object_name_or_id: 'rolebinding-reader', n: 'default'})
     @result = admin.cli_exec(:delete, {object_type: 'oauthclients', object_name_or_id: 'kibana-proxy', n: 'default'})
   end
 end
@@ -683,3 +691,44 @@ Given /^I save the rpm names? matching #{RE} from puddle to the#{OPT_SYM} clipbo
   raise "No matching rpm found for #{package_pattern}" if rpm_names.count == 0
   cb[cb_name] = rpm_names
 end
+
+
+### mother of all logging/metrics steps: Call this regardless of master version
+### assume we already have called the following step to create a project name
+### I create a project with non-leading digit name
+# use this step if we just want to use default values
+Given /^(logging|metrics) service is installed in the system$/ do | svc |
+  if env.version_ge("3.5", user: user)
+    param_name = 'inventory'
+    param_value = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_inventory"
+  else
+    param_name = 'deployer_config'
+    param_value = "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/default_deployer.yaml"
+  end
+  step %Q/#{svc} service is installed in the system using:/, table(%{
+    | #{param_name} | #{param_value} |
+    })
+
+end
+
+Given /^(logging|metrics) service is installed in the system using:$/ do | svc, table |
+  ensure_destructive_tagged
+
+  params = opts_array_to_hash(table.raw) unless table.nil?
+  if env.version_ge("3.5", user: user)
+    # use ansible
+    inventory = params[:inventory]
+    logger.info("Installing #{svc} using ansible")
+    step %Q/#{svc} service is installed in the project with ansible using:/, table(%{
+      | inventory | #{inventory} |
+      })
+  else
+    # use deployer
+    deployer_config = params[:deployer_config]
+    logger.info("Installing #{svc} using deployer")
+    step %Q/#{svc} service is installed in the project using deployer:/, table(%{
+      | deployer_config | #{deployer_config}|
+      })
+  end
+end
+
