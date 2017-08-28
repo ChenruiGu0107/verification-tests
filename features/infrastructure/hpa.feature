@@ -22,22 +22,16 @@ Feature: HPA relate features
     Then the step should succeed
     Given I wait up to 300 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource | hpa  |
-      | o        | yaml |
-    Then the step should succeed
-    And the output should contain:
-      | name: hello-hpa                    |
-      | maxReplicas: 10                    |
-      | minReplicas: 2                     |
-      | targetCPUUtilizationPercentage: 50 |
-      | currentCPUUtilizationPercentage: 0 |
-      | currentReplicas: 2                 |
+    Then expression should be true> hpa('hello-hpa').min_replicas(cached: false, user: user) == 2
+    And expression should be true> hpa.max_replicas == 10
+    And expression should be true> hpa.current_cpu_utilization_percentage == 0
+    And expression should be true> hpa.target_cpu_utilization_percentage == 50
+    And expression should be true> hpa.current_replicas == 2
     """
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/hpa/hello-pod.yaml |
     Then the step should succeed
-    Given the pod named "hello-pod" status becomes :running within 60 second
+    Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I run the :exec background client command with:
       | pod              | hello-pod                                         |
       | oc_opts_end      |                                                   |
@@ -47,27 +41,14 @@ Feature: HPA relate features
     Then the step should succeed
     Given I wait up to 600 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | hpa       |
-      | resource_name | hello-hpa |
-      | o             | json      |
-    And evaluation of `@result[:parsed]['spec']['targetCPUUtilizationPercentage']` is stored in the :target_cpu clipboard
-    And evaluation of `@result[:parsed]['status']['currentCPUUtilizationPercentage']` is stored in the :current_cpu clipboard
-    And evaluation of `@result[:parsed]['status']['currentReplicas']` is stored in the :current_replicas clipboard
-    Then the expression should be true> cb.target_cpu > cb.current_cpu
-    Then the expression should be true> cb.current_replicas > 2
+    Then expression should be true> hpa('hello-hpa').current_replicas(cached: false, user: user) > 2
+    And expression should be true> hpa.current_cpu_utilization_percentage > hpa.target_cpu_utilization_percentage
     """
     Given I ensure "hello-pod" pod is deleted
     Given I wait up to 600 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | hpa       |
-      | resource_name | hello-hpa |
-      | o             | json      |
-    And evaluation of `@result[:parsed]['status']['currentCPUUtilizationPercentage']` is stored in the :current_cpu clipboard
-    And evaluation of `@result[:parsed]['status']['currentReplicas']` is stored in the :current_replicas clipboard
-    Then the expression should be true> cb.current_cpu == 0
-    Then the expression should be true> cb.current_replicas == 2
+    Then expression should be true> hpa('hello-hpa').current_cpu_utilization_percentage(cached: false, user: user) == 0
+    And expression should be true> hpa.current_replicas == 2
     """
 
   # @author chezhang@redhat.com
@@ -92,22 +73,16 @@ Feature: HPA relate features
     Then the step should succeed
     Given I wait up to 300 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource | hpa  |
-      | o        | yaml |
-    Then the step should succeed
-    And the output should contain:
-      | name: hello-hpa                    |
-      | maxReplicas: 10                    |
-      | minReplicas: 2                     |
-      | targetCPUUtilizationPercentage: 50 |
-      | currentCPUUtilizationPercentage: 0 |
-      | currentReplicas: 2                 |
+    Then expression should be true> hpa('hello-hpa').min_replicas(cached: false, user: user) == 2
+    And expression should be true> hpa.max_replicas == 10
+    And expression should be true> hpa.current_cpu_utilization_percentage == 0
+    And expression should be true> hpa.target_cpu_utilization_percentage == 50
+    And expression should be true> hpa.current_replicas == 2
     """
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/hpa/hello-pod.yaml |
     Then the step should succeed
-    Given the pod named "hello-pod" status becomes :running within 60 second
+    Given the pod named "hello-pod" status becomes :running within 60 seconds
     When I run the :exec background client command with:
       | pod              | hello-pod                                         |
       | oc_opts_end      |                                                   |
@@ -117,25 +92,12 @@ Feature: HPA relate features
     Then the step should succeed
     Given I wait up to 600 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | hpa       |
-      | resource_name | hello-hpa |
-      | o             | json      |
-    And evaluation of `@result[:parsed]['spec']['targetCPUUtilizationPercentage']` is stored in the :target_cpu clipboard
-    And evaluation of `@result[:parsed]['status']['currentCPUUtilizationPercentage']` is stored in the :current_cpu clipboard
-    And evaluation of `@result[:parsed]['status']['currentReplicas']` is stored in the :current_replicas clipboard
-    Then the expression should be true> cb.target_cpu > cb.current_cpu
-    Then the expression should be true> cb.current_replicas > 2
+    Then expression should be true> hpa('hello-hpa').current_replicas(cached: false, user: user) > 2
+    And expression should be true> hpa.current_cpu_utilization_percentage > hpa.target_cpu_utilization_percentage
     """
     Given I ensure "hello-pod" pod is deleted
     Given I wait up to 600 seconds for the steps to pass:
     """
-    When I run the :get client command with:
-      | resource      | hpa       |
-      | resource_name | hello-hpa |
-      | o             | json      |
-    And evaluation of `@result[:parsed]['status']['currentCPUUtilizationPercentage']` is stored in the :current_cpu clipboard
-    And evaluation of `@result[:parsed]['status']['currentReplicas']` is stored in the :current_replicas clipboard
-    Then the expression should be true> cb.current_cpu == 0
-    Then the expression should be true> cb.current_replicas == 2
+    Then expression should be true> hpa('hello-hpa').current_cpu_utilization_percentage(cached: false, user: user) == 0
+    And expression should be true> hpa.current_replicas == 2
     """
