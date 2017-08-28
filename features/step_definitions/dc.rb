@@ -3,13 +3,6 @@
 require 'active_support/core_ext/hash/slice.rb'
 require 'active_support/core_ext/hash/transform_values.rb'
 
-#### deployConfig related steps
-# Given /^I wait until deployment (?: "(.+)")? matches version "(.+)"$/ do |resource_name, version|
-#   ready_timeout = 5 * 60
-#   resource_name = resource_name + "-#{version}"
-#   rc(resource_name).wait_till_ready(user, ready_timeout)
-# end
-
 Given /^I wait until the status of deployment "(.+)" becomes :(.+)$/ do |resource_name, status|
   ready_timeout = 10 * 60
   @result = dc(resource_name).wait_till_status(status.to_sym, user, ready_timeout)
@@ -18,6 +11,24 @@ Given /^I wait until the status of deployment "(.+)" becomes :(.+)$/ do |resourc
     raise "dc #{resource_name} never became #{status}"
   end
 end
+
+Given /^(I|admin) stores? in the#{OPT_SYM} clipboard the replication controller of deployment config #{QUOTED}(?: from the #{QUOTED} project)?$/ do |who, cb_name, dc_name, project_name|
+  cb_name ||= 'rc'
+  who = who == "admin" ? admin : user
+  _rc = dc(dc_name, project(project_name, switch: false)).rc(user: who, cached: false)
+  cache_resource _rc
+  cb[cb_name] = _rc
+end
+
+# Given /^(I|admin) waits? version #{NUMBER} of deployment config#{OPT_QUOTED}(?: from the #{QUOTED} project)? to become ready$/ do |who, version, dc_name, project_name|
+#   ready_timeout = 5 * 60
+#   who = who == "admin" ? admin : user
+#   _rc = rc("#{dc_name}-#{version}", project(project_name))
+#   @result = _rc.wait_till_ready(who, ready_timeout)
+#   unless @result[:success]
+#     raise "rc '#{_rc.name}' did not become ready within the timeout"
+#   end
+# end
 
 # restore the selected dc in teardown by getting current deployment and do:
 #   'oc rollback <dc_name> --to-version=<saved_good_version>'

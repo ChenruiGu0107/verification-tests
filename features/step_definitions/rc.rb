@@ -2,9 +2,10 @@
 
 # to reliably wait for all the replicas to be come ready, we do
 # 'oc get rc <rc_name>' and wait until the spec['replicas'] == status['replicas']
-Given /^I wait until replicationController "(.+)" is ready$/ do |rc_name|
+Given /^(I|admin) waits? until replicationController#{OPT_QUOTED} is ready$/ do |who, rc_name|
   ready_timeout = 15 * 60
-  @result = rc(rc_name).wait_till_ready(user, ready_timeout)
+  who = who == "admin" ? admin : user
+  @result = rc(rc_name).wait_till_ready(who, ready_timeout)
 
   raise "replication controller #{rc.name} never became ready" unless @result[:success]
 end

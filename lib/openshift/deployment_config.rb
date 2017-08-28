@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'openshift/pod_replicator'
+require 'openshift/replication_controller'
 
 module CucuShift
 
@@ -75,6 +76,7 @@ module CucuShift
       return res
     end
 
+    # @return [Integer] desired number of replicas
     def replicas(user:, cached: false, quiet: false)
       spec = get_cached_prop(prop: :spec, user: user,
                              cached: cached, quiet: quiet)
@@ -96,7 +98,27 @@ module CucuShift
       end
     end
 
-    # avilablity check only exists in 3.3, and oc describe doesn't have that
+    def latest_version(user:, cached: false, quiet: false)
+      status = get_cached_prop(prop: :status, user: user,
+                             cached: cached, quiet: quiet)
+
+      return status["latestVersion"]
+    end
+
+    # @return [CucuShift::ReplicationController[
+    def replication_controller(user: nil, cached: true)
+      version = latest_version(user: user, cached: cached, quiet: true)
+
+      if @rc&.name&.end_with?("-#{version}")
+        return @rc
+      else
+        rc_name = name + version
+        return @rc = ReplicationController.new(name: rc_name, project: project)
+      end
+    end
+    alias rc replication_controller
+
+    # availablity check only exists in 3.3, and oc describe doesn't have that
     # information prior, so we can't use the same logic to check for that info
     def unavailable_replicas(user:, cached: false, quiet: false)
       status = get_cached_prop(prop: :status, user: user,

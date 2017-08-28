@@ -61,8 +61,6 @@ module CucuShift
       @storageclasses = []
       @pvs = []
       @pvcs = []
-      @rcs = []
-      @dcs = []
       @deployments = []
       @image_streams = []
       @image_stream_tags = []
@@ -327,27 +325,7 @@ module CucuShift
     #   otherwise creates a [ReplicationController] object
     # @note you need the project already created
     def rc(name = nil, project = nil)
-      project ||= self.project(generate: false)
-
-      if name
-        r = @rcs.find {|r| r.name == name && r.project == project}
-        if r && @rcs.last == r
-          return r
-        elsif r
-          @rcs << @rcs.delete(r)
-          return r
-        else
-          # create new CucuShift::ReplicationControler object with specified name
-          @rcs << ReplicationController.new(name: name, project: project)
-          return @rcs.last
-        end
-      elsif @rcs.empty?
-        # we do not create a random build like with projects because that
-        #   would rarely make sense
-        raise "what rc are you talking about?"
-      else
-        return @rcs.last
-      end
+      project_resource(ReplicationController, name, project)
     end
 
     # @return rs (ReplicaSets) by name from scenario cache;
@@ -486,6 +464,11 @@ module CucuShift
       project_resource(Job, name, project)
     end
 
+    private def resource_cache(clazz)
+      var = "@#{clazz::RESOURCE}"
+      return instance_variable_get(var) || instance_variable_set(var, [])
+    end
+
     # @param clazz [Class] class of project resource
     # @param name [String, Integer] string name or integer index in cache
     # @return [ProjectResource] by name from scenario cache or creates a new
@@ -495,33 +478,31 @@ module CucuShift
     def project_resource(clazz, name = nil, project = nil)
       project ||= self.project
 
-      varname = "@#{clazz::RESOURCE}"
       clazzname = clazz.shortclass
-      var = instance_variable_get(varname) ||
-              instance_variable_set(varname, [])
+      cache = resource_cache(clazz)
 
       if Integer === name
         # using integer index does not trigger reorder of list
-        return var[name] || raise("no #{clazzname} with index #{name}")
+        return cache[name] || raise("no #{clazzname} with index #{name}")
       elsif name
         # using a string name, moves found resource to top of the list
-        r = var.find {|r| r.name == name && r.project == project}
-        if r && var.last == r
+        r = cache.find {|r| r.name == name && r.project == project}
+        if r && cache.last == r
           return r
         elsif r
-          var << var.delete(r)
+          cache << cache.delete(r)
           return r
         else
           # create new CucuShift::ProjectResource object with specified name
-          var << clazz.new(name: name, project: project)
-          return var.last
+          cache << clazz.new(name: name, project: project)
+          return cache.last
         end
-      elsif var.empty?
+      elsif cache.empty?
         # do not create random project resource like with projects because that
         #   would rarely make sense
         raise "what #{clazzname} are you talking about?"
       else
-        return var.last
+        return cache.last
       end
     end
 
@@ -597,10 +578,14 @@ module CucuShift
       cluster_resource(SecurityContextConstraints, name, env)
     end
 
-    # add pods to list avoiding duplicates
-    def cache_pods(*new_pods)
-      new_pods.each {|p| @pods.delete(p); @pods << p}
+    def cache_resources(*resources)
+      resources.each do |res|
+        cache = resource_cache(res.class)
+        cache.delete(res)
+        cache << res
+      end
     end
+    alias cache_pods cache_resources
 
     # @return node by name
     def node(name = nil)
