@@ -7,6 +7,7 @@ require 'openshift/group'
 require 'openshift/job'
 require 'openshift/image_stream'
 require 'openshift/image_stream_tag'
+require 'openshift/horizontal_pod_autoscaler'
 require 'openshift/service'
 require 'openshift/service_account'
 require 'openshift/route'
@@ -320,6 +321,10 @@ module CucuShift
       end
     end
 
+    def hpa(name = nil, project = nil)
+      project_resource(HorizontalPodAutoscaler, name, project)
+    end
+
     # @return rc (ReplicationController) by name from scenario cache;
     #   with no params given, returns last requested rc;
     #   otherwise creates a [ReplicationController] object
@@ -618,6 +623,7 @@ module CucuShift
       shorthands = {
         is: "imagestreams",
         dc: "deploymentconfigs",
+        hpa: "horizontalpodautoscalers",
         rc: "replicationcontrollers",
         pv: "persistentvolumes",
         svc: "service",
