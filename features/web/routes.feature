@@ -478,19 +478,9 @@ Feature: Routes related features on web console
       | ["spec"]["selector"]["name"] | caddy-docker-2 |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json" replacing paths:
-      | ["metadata"]["name"]           | caddy-docker-3 |
-      | ["metadata"]["labels"]["name"] | caddy-docker-3 |
-    Then the step should succeed
-
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json" replacing paths:
       | ["metadata"]["name"]     | service-unsecure-3 |
       | ["spec"]["selector"]["name"] | caddy-docker-3 |
-    Then the step should succeed
-
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json" replacing paths:
-      | ["metadata"]["name"]           | caddy-docker-4 |
-      | ["metadata"]["labels"]["name"] | caddy-docker-4 |
     Then the step should succeed
 
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json" replacing paths:
