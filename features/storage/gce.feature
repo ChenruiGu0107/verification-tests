@@ -1,5 +1,26 @@
 Feature: GCE specific scenarios
   # @author lxia@redhat.com
+  # @case_id OCP-15429
+  @admin
+  Scenario: Dynamic provision with storageclass which has zone set to empty string
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+      | ["metadata"]["name"]   | sc-<%= project.name %> |
+      | ["parameters"]["zone"] |                        |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]         | pvc                    |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc" PVC becomes :pending
+    When I run the :describe client command with:
+      | resource | pvc/pvc |
+    Then the step should succeed
+    And the output should contain:
+      | ProvisioningFailed   |
+      | it's an empty string |
+
+  # @author lxia@redhat.com
   # @case_id OCP-10219
   @admin
   Scenario: Should be able to create pv with volume in different zone than master on GCE
