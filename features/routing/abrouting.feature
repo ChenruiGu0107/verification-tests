@@ -955,8 +955,8 @@ Feature: Testing abrouting
       | service   | service-unsecure-3=3 |
       | service   | service-unsecure-4=4 |
     Then the step should fail
-    And the output should contain:
-      | cannot specify more than 3 additional backends |
+    And the output should match:
+      | cannot specify more than 3 .*backends |
       
   # @author yadu@redhat.com
   # @case_id OCP-15382
