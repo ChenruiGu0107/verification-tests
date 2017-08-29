@@ -7,6 +7,7 @@ create_app_from_image:
   # build_new_image_on_image_change, launch_build_when_bc_created, bc_env_key, bc_env_value,
   # autodeploy_on_image_update, autodeploy_on_dc_changes, dc_env_key, dc_env_value, replicas,
   # cpu_request, memory_request, cpu_limit, memory_limit
+  # min_pods, max_pods, cpu_req_per
   # *** Default params:
   params:
     namespace: openshift
@@ -59,6 +60,9 @@ create_app_from_image:
     - dc_env_key
     - dc_env_value
     ref: create_app_from_image_add_dc_env_vars
+  action:
+    if_param: max_pods
+    ref: create_app_from_image_set_hpa
   action:
     if_param: replicas
     ref: create_app_from_image_set_number_of_replicas
@@ -118,7 +122,6 @@ create_app_from_image_check_default_resource_limit:
   action: create_app_from_image_check_memory_limit_range
   action: create_app_from_image_check_memory_default_request
   action: create_app_from_image_check_memory_default_limit
-
 create_app_from_image_check_label:
   action: create_app_from_image_base_action
   action: create_app_from_image_try_sample_repo
@@ -126,6 +129,15 @@ create_app_from_image_check_label:
   action: create_app_from_image_add_bc_env_vars
   action: create_app_from_image_add_dc_env_vars
   action: add_label_name_and_value
+create_app_from_image_set_hpa:
+  action: set_autoscaler_strategy_as_automatic
+  action:
+    if_param: min_pods 
+    ref: set_min_pod_on_autoscaler_page
+  action: set_max_pod_on_autoscaler_page
+  action:
+    if_param: cpu_req_per 
+    ref: set_cpu_request_percentage
 
 # all sub single action
 create_app_from_image_navigate:
@@ -238,6 +250,17 @@ add_new_label_form:
 add_new_label:
   action: add_new_label_form
   action: add_label_name_and_value
+set_autoscaler_strategy_as_automatic:
+  action: click_autoscaler_strategy
+  elements:
+  - selector:
+      xpath: //option[contains(text(),'Automatic')]
+    op: click
+click_autoscaler_strategy:
+  elements: 
+  - selector:
+      xpath: //label[contains(., 'Strategy')]/following-sibling::div[1]
+    op: click
 create_app_from_image_check_cpu_limit_range:
   element:
     selector:
