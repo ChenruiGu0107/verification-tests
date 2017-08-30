@@ -67,11 +67,21 @@ require "base64"
       client.open_timeout = 180
 
       headless
+      # Selenium::WebDriver.logger.level = :debug
 
-      if @browser_type == :firefox
-        logger.info "Launching Firefox"
-        caps = Selenium::WebDriver::Remote::Capabilities.firefox(marionette: false)
-        @browser = Watir::Browser.new :firefox, :profile => firefox_profile, :http_client=>client, desired_capabilities: caps
+
+      if @browser_type == :firefox_marionette
+        logger.info "Launching Firefox Marionette/Geckodriver"
+        caps = Selenium::WebDriver::Remote::Capabilities.firefox accept_insecure_certs: true
+        options = Selenium::WebDriver::Firefox::Options.new profile: firefox_profile #, binary: "/home/user/local/firefox-52-esr/firefox"
+        @browser = Watir::Browser.new :firefox, :http_client=>client, desired_capabilities: caps, options: options
+      elsif @browser_type == :firefox
+        # legacy driver usage https://github.com/watir/watir/issues/634
+        # we should switch to marionette once FF ESR becomes version  54+
+        logger.info "Launching Firefox Legacy"
+        caps = Selenium::WebDriver::Remote::Capabilities.firefox marionette: false, profile: firefox_profile #, firefox_binary: "/home/user/local/firefox-52-esr/firefox"
+        driver = Selenium::WebDriver.for :firefox, desired_capabilities: caps, http_client: client
+        @browser = Watir::Browser.new driver
       elsif @browser_type == :chrome
         logger.info "Launching Chrome"
         @browser = Watir::Browser.new :chrome, desired_capabilities: chrome_profile, switches: chrome_switches
