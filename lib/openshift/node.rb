@@ -11,6 +11,8 @@ module CucuShift
     RESOURCE = "nodes"
 
     def update_from_api_object(node_hash)
+      super
+
       h = node_hash["metadata"]
       props[:uid] = h["uid"]
       props[:labels] = h["labels"]
@@ -54,6 +56,87 @@ module CucuShift
     def schedulable?(user: nil, cached: true, quiet: false)
       spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
       return !spec['unschedulable']
+    end
+    # @return [Integer} capacity cpu in 'm'
+    def capacity_cpu(user: nil, cached: true, quiet: false)
+      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      cpu = obj.dig("status", "capacity", "cpu")
+      return unless cpu
+      parsed = cpu.match(/\A(\d+)([a-zA-Z]*)\z/)
+      number = Integer(parsed[1])
+      unit = parsed[2]
+      case unit
+      when ""
+        return number * 1000
+      when "m"
+        return number
+      else
+        raise "unknown cpu unit '#{unit}'"
+      end
+    end
+
+    def capacity_pods(user: nil, cached: true, quiet: false)
+      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      return obj.dig("status", "capacity", "pods")&.to_i
+    end
+
+    # @return [Integer] memory in bytes
+    def capacity_memory(user: nil, cached: true, quiet: false)
+      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      mem = obj.dig("status", "capacity", "memory")
+      return unless mem
+      parsed = mem.match(/\A(\d+)([a-zA-Z]*)\z/)
+      number = Integer(parsed[1])
+      unit = parsed[2]
+      case unit
+      when ""
+        return number
+      when "Ki"
+        return number * 1024
+      else
+        raise "unknown memory unit '#{unit}'"
+      end
+    end
+
+    # @return [Integer} capacity cpu in 'm'
+    def allocatable_cpu(user: nil, cached: true, quiet: false)
+      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      cpu = obj.dig("status", "allocatable", "cpu")
+      return unless cpu
+      parsed = cpu.match(/\A(\d+)([a-zA-Z]*)\z/)
+      number = Integer(parsed[1])
+      unit = parsed[2]
+      case unit
+      when ""
+        return number * 1000
+      when "m"
+        return number
+      else
+        raise "unknown cpu unit '#{unit}'"
+      end
+    end
+
+    def allocatable_pods(user: nil, cached: true, quiet: false)
+      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      return obj.dig("status", "allocatable", "pods")&.to_i
+    end
+
+    # @return [Integer] memory in bytes
+    def allocatable_memory(user: nil, cached: true, quiet: false)
+      obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
+      mem = obj.dig("status", "allocatable", "memory")
+      return unless mem
+      parsed = mem.match(/\A(\d+)([a-zA-Z]*)\z/)
+      number = Integer(parsed[1])
+      unit = parsed[2]
+      case unit
+      when ""
+        return number
+      when "Ki"
+        return number * 1024
+      else
+        raise "unknown memory unit '#{unit}'"
+      end
     end
   end
 end
