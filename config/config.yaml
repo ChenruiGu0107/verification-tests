@@ -164,6 +164,7 @@ environments:
     cli: SharedLocalCliExecutor
     admin_cli: MasterKubeconfigLocalAdminCliExecutor
     api_port: 8443
+    # version: 3.6.1.44.16
   preview: *preview
   qe:
     hosts: api.qe.openshift.com:etcd:master:node

@@ -1,6 +1,43 @@
 ---
 login:
   url: /console
+  action: login_sequence
+  action: verify_logged_in
+
+login_sequence:
+  # wait to get page loaded first to avoid excessive wait on `if_element`
+  action: login_page_loaded
+  action:
+    ref: login_console
+    if_element:
+      selector:
+        text: !ruby/regexp '/Login - OpenShift.*/'
+      visible: false
+      timeout: 1
+  action:
+    ref: login_rhsso
+    if_element:
+      selector:
+        text: Log in using your Red Hat account
+      timeout: 1
+
+login_rhsso:
+  elements:
+    - selector:
+        id: username
+      op: send_keys <username>
+      type: input
+    - selector:
+        id: password
+      op: send_keys <password>
+      type: input
+  elements:
+    - selector:
+        value: Log in
+      op: click
+      type: input
+
+login_console:
   elements:
     - selector:
         id: inputUsername
@@ -19,9 +56,8 @@ login:
   elements:
     - selector:
         text: Log In
-      op: click
       type: button
-  action: verify_logged_in
+      op: click
 
 login_token:
   #url: /console
@@ -40,6 +76,15 @@ login_token:
     type: button
     optional: true
   action: verify_logged_in
+
+login_page_loaded:
+  elements:
+  - selector:
+      id: !ruby/regexp '/(input)?username/i'
+    timeout: 30
+  - selector:
+      id: !ruby/regexp '/(input)?password/i'
+    timeout: 30
 
 verify_logged_in:
   elements:
