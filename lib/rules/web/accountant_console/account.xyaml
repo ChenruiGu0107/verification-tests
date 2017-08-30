@@ -1,0 +1,71 @@
+check_account_page:
+  elements:
+  - selector:
+      tag_name: title
+      text: My Account - OpenShift Online
+    visible: false
+  - selector:
+      xpath: //a[@href='/']/img[@alt='OpenShift Online']
+  - selector:
+      xpath: //a[@class='dropdown-toggle']
+    op: click
+  - selector:
+      xpath: //a[@href='<console_url>/console' and text()='OpenShift Web Console']
+  - selector:
+      text: Logout
+  - selector:
+      xpath: //h1[text()='My Account']/following-sibling::a[text()='Go to OpenShift console' and @href='<console_url>/console']
+  action:
+    context:
+      xpath: //div[h2[contains(text(),'Current Plan')]]
+    ref: check_current_plan_part
+  action:
+    context:
+      xpath: //div[h2[contains(text(),'Primary Contact')]]
+    ref: check_primary_contact_part
+  action:
+    context:
+      xpath: //div[h2[contains(text(),'Billing Contact')]]
+    ref: check_billing_contact_part
+  action:
+    context:
+      xpath: //div[h2[contains(text(),'Payment Method')]]
+    ref: check_payment_method_part
+check_current_plan_part:
+  elements:
+  - selector:
+      xpath: //a[@href='/app/subscription' and text()='Change']
+  - selector:
+      xpath: //p[contains(.,'The Pro Plan includes:')]
+  - selector:
+      xpath: //li[contains(.,'10 projects')]
+  - selector:
+      xpath: //li[contains(.,'2GiB memory for your applications')]
+  - selector:
+      xpath: //li[contains(.,'2GiB terminating memory for builds, deployments, and jobs')]
+  - selector:
+      xpath: //li[contains(.,'Always on, unlimited usage')]
+  - selector:
+      xpath: //li[contains(.,'Option to invite collaborators to projects')]
+  - selector:
+      xpath: //li[contains(.,'Supports custom domains')]
+  - selector:
+      xpath: //li[contains(.,'Ability to schedule jobs')]
+check_primary_contact_part:
+  elements:
+  - selector:
+      xpath: //a[@href='/app/contact/primary' and text()='Edit']
+  - selector:
+      text: <email>
+check_billing_contact_part:
+  elements:
+  - selector:
+      xpath: //a[@href='/app/contact/billing' and text()='Edit']
+  - selector:
+      text: <email>
+check_payment_method_part:
+  elements:
+  - selector:
+      xpath: //a[@href='/app/payment' and text()='Edit']
+  - selector:
+      xpath: //p[contains(normalize-space(.),'The current credit card on file has a number ending with 1111 and expires 01/2018. The type of card is Visa.')]

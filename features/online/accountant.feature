@@ -25,3 +25,12 @@ Feature: ONLY Accountant console related feature's scripts in this file
     """
     Given the expression should be true> browser.url.end_with? "/app/register/plan"
     """
+
+  # @author etrott@redhat.com
+  # @case_id OCP-12751
+  Scenario: Check 'My Account' page - UI
+    Given I open accountant console in a browser
+    When I perform the :check_account_page web action with:
+      | console_url | <%= env.web_console_url %> |
+      | email       | <%= user.name %>           |
+    Then the step should succeed
