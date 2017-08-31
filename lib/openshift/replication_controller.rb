@@ -8,6 +8,7 @@ module CucuShift
     # cache some usualy immutable properties for later fast use; do not cache
     #   things that can change at any time like status and spec
     def update_from_api_object(rc_hash)
+      super
       m = rc_hash["metadata"]
       s = rc_hash["spec"]
       props[:uid] = m["uid"]
@@ -16,6 +17,7 @@ module CucuShift
       props[:created] = m["creationTimestamp"] # already [Time]
       props[:spec] = s
       props[:status] = rc_hash["status"] # may change, use with care
+      props[:selector] = s["selector"]
 
       return self # mainly to help ::from_api_object
     end
@@ -48,6 +50,52 @@ module CucuShift
     #   return res
     # end
 
+    def selector(user: nil, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec["selector"]
+    end
+
+    def expected_replicas(user: nil, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec["replicas"]
+    end
+
+    def current_replicas(user: nil, cached: true, quiet: false)
+      status = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
+      return status["replicas"]
+    end
+
+    ### if we look at the output below, a rc is ready only when the READY column
+    # matches the DESIRED column
+    # [root@openshift-141 ~]# oc get rc  -n openshift-infra
+    # NAME                   DESIRED   CURRENT   READY     AGE
+    # hawkular-cassandra-1   1         1         1         4m
+    # hawkular-metrics       1         1         0         4m
+    # heapster               1         1         0         4m
+
+    # pry(main)> heapster['status']
+    # => {"fullyLabeledReplicas"=>1, "observedGeneration"=>1, "readyReplicas"=>1, "replicas"=>1}
+    # NOTE, the readyReplicas key is not there if the READY column is 0
+    # return: Integer (number of replicas that are in the ready state)
+    def ready_replicas(user:, cached: true, quiet: false)
+      replicas = 0
+      res = raw_resource(user: user, cached: cached, quiet: quiet)
+      if env.version_ge("3.4", user: user)
+        # use the readyReplicas count
+        replicas = res["status"]['readyReplicas'].to_i
+      else
+        labels = selector(user: user)
+        # use cached if applies
+        if cached && props[:ready_replicas]
+          replicas = props[:ready_replicas]
+        else
+          pods = Pod.get_matching(user: user, project: project, get_opts: {l: selector_to_label_arr(*labels)}) { |p, p_hash| p.ready?(user: user, cached: true) }
+          replicas = props[:ready_replicas] = pods.size
+        end
+      end
+      return replicas
+    end
+
     # @return [CucuShift::ResultHash] with :success depending on
     #   status['replicas'] == spec['replicas']
     # @note we also need to check that the spec.replicas is > 0
@@ -76,8 +124,9 @@ module CucuShift
         deployment_phase = res[:parsed].dig('metadata', 'annotations', "openshift.io/deployment.phase")
       end
       res[:success] = expected_replicas.to_i > 0 &&
-                      current_replicas == expected_replicas &&
-                      (deployment_phase == 'Complete' || deployment_phase.nil?)
+                     current_replicas == ready_replicas(user: user) &&
+                     (deployment_phase == 'Complete' || deployment_phase.nil?)
+
       return res
     end
 
