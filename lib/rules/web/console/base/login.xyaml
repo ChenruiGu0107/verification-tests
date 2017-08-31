@@ -87,12 +87,14 @@ login_page_loaded:
     timeout: 30
 
 verify_logged_in:
-  elements:
-  - selector:
-      text: OpenShift Web Console
-    visible: false
+  element:
+    type: js
+    selector: |-
+      var token = window.localStorage['LocalStorageUserStore.token'];
+      return token ? document.documentElement : null;
   scripts:
-    - command: return window.localStorage['LocalStorageUserStore.token']
-      expect_result: true
-    - command: return window.localStorage['LocalStorageUserStore.user']
-      expect_result: true
+  # token value may not be set quick enough so loop-checking as element above
+  #- command: return window.localStorage['LocalStorageUserStore.token'];
+  #  expect_result: true
+  - command: return window.localStorage['LocalStorageUserStore.user']
+    expect_result: true
