@@ -196,3 +196,78 @@ Feature: Azure disk specific scenarios
       | ["spec"]["volumeName"] | pv-<%= project.name %>  |
     Then the step should succeed
     And the "azpvc" PVC becomes bound to the "pv-<%= project.name %>" PV
+
+  # @author wehe@redhat.com
+  # @case_id OCP-13981 
+  @admin
+  @destructive
+  Scenario: Azure disk should be detached and attached again for scale down and up 
+    Given I have a project
+    And environment has at least 2 schedulable nodes 
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
+      | ["metadata"]["name"]      | sc-<%= project.name %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc-sc.yaml" replacing paths:
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "azpvc" PVC becomes :bound within 120 seconds
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/dc.yaml |
+    Then the step should succeed
+    Given a pod becomes ready with labels: 
+      | run=hello-openshift |
+    And evaluation of `pod.node_name` is stored in the :pod_node clipboard
+    When I run the :scale client command with:
+      | resource | deploymentconfig |
+      | name     | hello-openshift  |
+      | replicas | 0                |
+    Then the step should succeed
+    Given all existing pods die with labels:
+      | run=hello-openshift |
+    When I run the :oadm_manage_node admin command with:
+      | node_name   | <%= pod.node_name %> |
+      | schedulable | false                |
+    Then the step should succeed
+    Given I register clean-up steps:
+    """
+    I run the :oadm_manage_node admin command with:
+      | node_name   | <%= cb.pod_node %> |
+      | schedulable | true               |
+    the step should succeed
+    """
+    When I run the :scale client command with:
+      | resource | deploymentconfig |
+      | name     | hello-openshift  |
+      | replicas | 1                |
+    Then the step should succeed
+    Given a pod becomes ready with labels: 
+      | run=hello-openshift |
+    And the expression should be true> pod.node_name != cb.pod_node 
+
+  # @author wehe@redhat.com
+  # @case_id OCP-13942 
+  @admin
+  Scenario: Azure disk should work after a bad disk is requested
+    Given I have a project
+    And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
+    And I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azcaro-pod.yaml" replacing paths:
+      | ["metadata"]["name"]                            | baddiskpod                                             |
+      | ["spec"]["volumes"][0]["azureDisk"]["diskName"] | noneexist.vhd                                          |
+      | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid.split("vhds").first+"vhds/noneexist.vhd" %> |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azcaro-pod.yaml" replacing paths:
+      | ["spec"]["volumes"][0]["azureDisk"]["diskName"] | <%= cb.vid.split("/").last %> |
+      | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
+    Then the step should succeed
+    Given the pod named "azcaro" becomes ready
+    When I executes on the pod:
+      | touch | /mnt/azure/ad-<%= project.name %> |
+    Then the step should succeed
+    When I executes on the pod:
+      | ls | /mnt/azure/ad-<%= project.name %> | 
+    Then the step should succeed
+    When I executes on the pod:
+      | rm | /mnt/azure/ad-<%= project.name %> |
+    Then the step should succeed
