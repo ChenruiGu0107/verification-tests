@@ -11,7 +11,9 @@ login_sequence:
     ref: login_console
     if_element:
       selector:
-        text: !ruby/regexp '/Login - OpenShift.*/'
+        # title RE not working w/ ff legacy
+        # text: !ruby/regexp '/Login - OpenShift.*/'
+        xpath: '//title[starts-with(.,"Login - OpenShift")]'
       visible: false
       timeout: 1
   action:
