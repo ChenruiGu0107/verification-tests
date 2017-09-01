@@ -137,7 +137,7 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
   @result[:parsed] = YAML.load(@result[:response]) if @result[:success]
   if (@result[:parsed].is_a? Array) and (op_type == 'GET') and opts[:metrics_id].nil?
     @result[:parsed].each do | res |
-      logger.info("Getting data from metrids #{res['id']}...")
+      logger.info("Getting data from metrics id #{res['id']}...")
       query_url = url + "/" + res['id']
       # get the id to construct the metric_url to do the QUERY operation
       result = CucuShift::Http.request(url: query_url, **https_opts, method: op_type)
@@ -224,21 +224,13 @@ Given /^all metrics pods are running in the#{OPT_QUOTED} project$/ do | proj_nam
 
   org_proj_name = project.name
   org_user = user
-
   ensure_destructive_tagged
   step %Q/I switch to cluster admin pseudo user/
   project(target_proj)
   begin
-    step %Q/all existing pods are ready with labels:/, table(%{
-      | metrics-infra=hawkular-cassandra, type=hawkular-cassandra |
-      })
-    step %Q/all existing pods are ready with labels:/, table(%{
-      | metrics-infra=hawkular-metrics, name=hawkular-metrics |
-      })
-
-    step %Q/all existing pods are ready with labels:/, table(%{
-      | metrics-infra=heapster, name=heapster |
-      })
+    step %Q/I wait until replicationController "hawkular-cassandra-1" is ready/
+    step %Q/I wait until replicationController "hawkular-metrics" is ready/
+    step %Q/I wait until replicationController "heapster" is ready/
   ensure
     @user = org_user
     project(org_proj_name)
@@ -304,6 +296,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     new_path = "tmp/uninstall_inventory"
   end
   cb.target_proj = target_proj
+  org_user = user
   # we may not have the minor version of the image loaded. so just use the
   # major version label
   cb.master_version = cb.master_version[0..2]
@@ -317,7 +310,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   FileUtils.copy(pem_file_path, "tmp/")
   @result = admin.cli_exec(:oadm_config_view, flatten: true, minify: true)
   File.write(File.expand_path("tmp/admin.kubeconfig"), @result[:response])
-  org_user = user
   begin
     step %Q/I switch to cluster admin pseudo user/
     step %Q/I have a pod with openshift-ansible playbook installed/
