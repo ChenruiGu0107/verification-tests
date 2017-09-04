@@ -440,11 +440,12 @@ Feature: resouces related scenarios
 
     Given a pod becomes ready with labels:
       | deployment=hello-1        |
+    And I wait for the resource "pod" named "hello-1-deploy" to disappear
     When I run the :get client command with:
       | resource        | pod                        |
       | L               | app,deployment,no-this,APP |
     Then the step should succeed
-    And the output should match "<%= "hello-1-.+tryit\\s+hello-1\\s+<none>\\s+<none>" %>"
+    And the output should match "hello-1.*tryit.*hello-1"
 
     # Create a "Completed" pod using command which returns 0 and "Never" restartPolicy
     When I run the :run client command with:
