@@ -58,7 +58,7 @@ Feature: podAffinity
       | pod-affinity-invalid-topologykey-empty |
 
   # @author wmeng@redhat.com
-  # case_id OCP-14603
+  # @case_id OCP-14603
   Scenario: pod will not be scheduled if pod affinity not match
     Given I have a project
     When I run the :get client command with:
@@ -80,7 +80,7 @@ Feature: podAffinity
       | MatchInterPodAffinity |
 
   # @author wmeng@redhat.com
-  # case_id OCP-14688
+  # @case_id OCP-14688
   Scenario: pod will be scheduled on the node which meets pod affinity - In
     Given I have a project
     When I run the :create client command with:
@@ -94,8 +94,8 @@ Feature: podAffinity
     Given the pod named "pod-affinity-s1" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.node
 
-  # author wmeng@redhat.com
-  # case_id OCP-14690
+  # @author wmeng@redhat.com
+  # @case_id OCP-14690
   Scenario: pod will be scheduled on the node which meets pod affinity - Exists
     Given I have a project
     When I run the :create client command with:
@@ -107,4 +107,34 @@ Feature: podAffinity
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-pod-affinity-exists.yaml |
     Then the step should succeed
     Given the pod named "pod-affinity-exists" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.node
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-14697
+  Scenario: pod will be scheduled on the node which meets pod affinity specified namespace
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj_name clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-s1.yaml |
+    Then the step should succeed
+    Given the pod named "security-s1" status becomes :running within 60 seconds
+    And evaluation of `pod("security-s1").node_name` is stored in the :node clipboard
+    And I create a new project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-pod-affinity-s1.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pod             |
+      | name     | pod-affinity-s1 |
+    Then the step should succeed
+    And the output should match:
+      | PodScheduled\\s+False |
+      | FailedScheduling      |
+      | MatchInterPodAffinity |
+    """
+    When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-pod-affinity-proj-case14697.yaml
+    Then the step should succeed
+    Given the pod named "pod-affinity-proj-case14697" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.node
