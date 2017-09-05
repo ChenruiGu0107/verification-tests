@@ -1,6 +1,8 @@
 --- # check stateful set page
 goto_stateful_sets_page:
   url: /console/project/<project_name>/browse/stateful-sets/
+goto_one_stateful_sets_page:
+  url: /console/project/<project_name>/browse/stateful-sets/<stateful_sets_name>
 goto_stateful_sets_environment_tab:
   url: /console/project/<project_name>/browse/stateful-sets/<stateful_sets_name>/?tab=environment
 click_to_goto_one_stateful_set_page:

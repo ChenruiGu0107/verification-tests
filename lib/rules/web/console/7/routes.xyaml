@@ -26,10 +26,10 @@ check_route_to:
   action: goto_routes_page
   elements:
   - selector:
-      xpath: //tr//td[@data-title='Routes To']//a[contains(text(), '<route_name>')]
+      xpath: //tr//td[@data-title='Service']//a[contains(text(), '<service_name>')]
     op: click
   - selector:
-      xpath: //h1[contains(.,'<route_name>')]
+      xpath: //h1[contains(.,'<service_name>')]
 check_routes_page:
   action: check_route_name_on_routes_page
   action: check_route_to

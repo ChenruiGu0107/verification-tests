@@ -31,6 +31,7 @@ Feature: Routes related features on web console
     When I perform the :check_routes_page web console action with:
       | project_name | <%= project.name %> |
       | route_name   | nodejs-sample       |
+      | service_name | nodejs-sample       |
     Then the step should succeed
 
     When I perform the :check_a_route_detail_page web console action with:
@@ -48,10 +49,7 @@ Feature: Routes related features on web console
   # @author yanpzhan@redhat.com
   # @case_id OCP-12321
   Scenario: Create unsecured route on web console
-    When I create a new project via web
-    Then the step should succeed
-
-    Given I use the "<%= project.name %>" project
+    Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_nothing.json |
     Then the step should succeed
@@ -72,8 +70,9 @@ Feature: Routes related features on web console
     Then the step should succeed
 
     When I perform the :check_routes_page web console action with:
-      | project_name | <%= project.name %> |
-      | route_name   | service-unsecure    |
+      | project_name | <%= project.name %>    |
+      | route_name   | service-unsecure-route |
+      | service_name | service-unsecure       |
     Then the step should succeed
 
   # @author yapei@redhat.com

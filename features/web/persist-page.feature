@@ -222,22 +222,6 @@ Feature: persist page state
     And I wait for the steps to pass:
     """
     When I perform the :choose_resource_type web console action with:
-      | resource_type | Policy |
-    Then the step should succeed
-    Given the expression should be true> browser.url.include? "/other?kind=Policy&group="
-    """
-
-    And I wait for the steps to pass:
-    """
-    When I perform the :choose_resource_type web console action with:
-      | resource_type | Policy Binding |
-    Then the step should succeed
-    Given the expression should be true> browser.url.include? "/other?kind=PolicyBinding&group="
-    """
-
-    And I wait for the steps to pass:
-    """
-    When I perform the :choose_resource_type web console action with:
       | resource_type | Service Account |
     Then the step should succeed
     Given the expression should be true> browser.url.end_with? "/other?kind=ServiceAccount&group="

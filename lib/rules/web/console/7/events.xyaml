@@ -79,10 +79,10 @@ filter_by_keyword:
 sort_by:
   elements:
   - selector:
-      xpath: //span[text()="Sort by"]/following-sibling::div//button[contains(@class,"dropdown")]
+      xpath: //span[text()="Sort by"]/following-sibling::pf-sort//button[contains(@class,"dropdown")]
     op: click
   - selector:
-      xpath: //span[text()="Sort by"]/following-sibling::div//ul/li/a[text()="<sort_field>"]
+      xpath: //span[text()="Sort by"]/following-sibling::pf-sort//ul/li/a[text()="<sort_field>"]
     op: click
 check_messages_order:
   # You could use any combination of parameters from this rule to check order
@@ -125,5 +125,5 @@ check_messages_order:
 change_sort_direction:
   element:
     selector:
-      xpath: //span[text()="Sort by"]/following-sibling::div//button[@ng-click="changeDirection()"]
+      xpath: //span[text()="Sort by"]/following-sibling::pf-sort//button[contains(@ng-click,"changeDirection()")]
     op: click
