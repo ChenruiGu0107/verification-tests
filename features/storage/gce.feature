@@ -1,5 +1,48 @@
 Feature: GCE specific scenarios
   # @author lxia@redhat.com
+  # @case_id OCP-12834
+  @admin
+  Scenario: Dynamic provision with storageclass which has parameter zone set with multiple values should fail
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+      | ["metadata"]["name"]   | sc-<%= project.name %>      |
+      | ["parameters"]["zone"] | us-central1-a,us-central1-b |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]         | pvc                    |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc" PVC becomes :pending
+    When I run the :describe client command with:
+      | resource | pvc/pvc |
+    Then the step should succeed
+    And the output should contain:
+      | ProvisioningFailed                                 |
+      | does not manage zone "us-central1-a,us-central1-b" |
+
+  # @author lxia@redhat.com
+  # @case_id OCP-12833
+  @admin
+  Scenario: Dynamic provision with storageclass which has both parameter zone and parameter zones set should fail
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/storageClass.yaml" where:
+      | ["metadata"]["name"]    | sc-<%= project.name %>      |
+      | ["parameters"]["zone"]  | us-central1-a               |
+      | ["parameters"]["zones"] | us-central1-a,us-central1-b |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]         | pvc                    |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc" PVC becomes :pending
+    When I run the :describe client command with:
+      | resource | pvc/pvc |
+    Then the step should succeed
+    And the output should contain:
+      | ProvisioningFailed                                                       |
+      | zone and zones StorageClass parameters must not be used at the same time |
+
+  # @author lxia@redhat.com
   # @case_id OCP-15435
   @admin
   Scenario: Dynamic provision with storageclass which contains invalid parameter should fail
