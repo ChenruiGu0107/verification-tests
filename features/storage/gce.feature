@@ -1,5 +1,29 @@
 Feature: GCE specific scenarios
   # @author lxia@redhat.com
+  # @case_id OCP-11063
+  @admin
+  Scenario: Dynamic provision with storageclass which has comma separated list of zones
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-zones.yaml" where:
+      | ["metadata"]["name"]    | sc-<%= project.name %>      |
+      | ["provisioner"]         | kubernetes.io/gce-pd        |
+      | ["parameters"]["zones"] | us-central1-a,us-central1-b |
+    Then the step should succeed
+    And I run the steps 10 times:
+    """
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]         | pvc-#{cb.i}            |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-#{cb.i}" PVC becomes :bound
+    When I run the :get admin command with:
+      | resource | pv/<%= pvc.volume_name(user: user) %> |
+      | o        | json                                  |
+    Then the output should match:
+      | us-central1-[ab] |
+    """
+
+  # @author lxia@redhat.com
   # @case_id OCP-12834
   @admin
   Scenario: Dynamic provision with storageclass which has parameter zone set with multiple values should fail
