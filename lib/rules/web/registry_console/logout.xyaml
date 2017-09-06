@@ -6,7 +6,7 @@ logout:
       tag_name: a
     op: click
   - selector:
-      text: Log out
+      text: Log Out
     type: a
     op: click
   - selector:

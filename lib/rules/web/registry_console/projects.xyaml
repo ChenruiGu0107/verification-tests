@@ -1,2 +1,5 @@
+goto_projects_page_in_new_tab:
+  action: open_new_tab
+  action: goto_projects_page
 goto_projects_page:
   url: /registry#/projects

@@ -2,9 +2,8 @@ Feature: ONLY Accountant console related feature's scripts in this file
 
   # @author etrott@redhat.com
   # @case_id OCP-10546
+  # @note this scenario requires a user that has NOT already subscribed
   Scenario: Check 'Select Plan' page during registration
-    Given the expression should be true> user.instance_variable_set(:@name, "@redhat.com")
-    Given the expression should be true> user.instance_variable_set(:@password, "password")
     Given I open accountant console in a browser
     When I run the :check_pro_plan_info web action
     Then the step should succeed
@@ -17,7 +16,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
 
     When I run the :logout web action
     Then the step should succeed
-    When I perform the :login web action with:
+    When I perform the :login_acc_console web action with:
       | username | <%= user.name %>     |
       | password | <%= user.password %> |
     Then the step should succeed
@@ -28,6 +27,7 @@ Feature: ONLY Accountant console related feature's scripts in this file
 
   # @author etrott@redhat.com
   # @case_id OCP-12751
+  # @note this scenario requires a user that HAS already subscribed
   Scenario: Check 'My Account' page - UI
     Given I open accountant console in a browser
     When I perform the :check_account_page web action with:
