@@ -5,7 +5,7 @@ new_project:
   action: click_create_button
   element:
     selector:
-      xpath: //div/p[contains(text(),'Choose from web frameworks')]
+      xpath: //p[contains(.,'Choose from web frameworks') or contains(.,'created')]
     timeout: 60
 new_project_navigate:
   # url unconditionally directs browser at URL (relative or absolute)
