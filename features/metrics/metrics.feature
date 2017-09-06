@@ -209,7 +209,7 @@ Feature: metrics related scenarios
 
 
   # @author chunchen@redhat.com
-  # @case_id OCP-12205,521419
+  # @case_id OCP-14162
   # @author xiazhao@redhat.com
   # @case_id OCP-11574
   # @author penli@redhat.com
