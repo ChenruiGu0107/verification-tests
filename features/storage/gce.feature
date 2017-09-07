@@ -1,5 +1,27 @@
 Feature: GCE specific scenarios
   # @author lxia@redhat.com
+  # @case_id OCP-15528
+  @admin
+  Scenario: Dynamic provision with storageclass which has zones set to empty string
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-zones.yaml" where:
+      | ["metadata"]["name"]    | sc-<%= project.name %> |
+      | ["provisioner"]         | kubernetes.io/gce-pd   |
+      | ["parameters"]["zones"] |                        |
+    Then the step should succeed
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+      | ["metadata"]["name"]         | pvc                    |
+      | ["spec"]["storageClassName"] | sc-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc" PVC becomes :pending
+    When I run the :describe client command with:
+      | resource | pvc/pvc |
+    Then the step should succeed
+    And the output should contain:
+      | ProvisioningFailed             |
+      | must not contain an empty zone |
+
+  # @author lxia@redhat.com
   # @case_id OCP-11063
   @admin
   Scenario: Dynamic provision with storageclass which has comma separated list of zones
