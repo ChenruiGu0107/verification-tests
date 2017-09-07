@@ -426,21 +426,13 @@ Feature: create app on web console related
     Then the step should succeed
     # check resources are created
     When I run the :get client command with:
-      | resource | dc |
-    Then the step should succeed
-    And the output should contain:
-      | php-apache |
-    When I run the :get client command with:
-      | resource | hpa |
+      | resource | dc,hpa,deployment,job |
     Then the step should succeed
     And the output should contain:
       | php-apache      |
       | test-autoscaler |
-    When I run the :get client command with:
-      | resource | job |
-    Then the step should succeed
-    And the output should contain:
-      | simplev1 |
+      | hello-openshift |
+      | simplev1        |
 
   # @author yapei@redhat.com
   # @case_id OCP-11468
