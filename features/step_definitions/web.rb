@@ -57,23 +57,47 @@ Given /^I have a browser with:$/ do |table|
 end
 
 Given /^I open (registry|accountant) console in a browser$/ do |console|
+  base_rules = CucuShift::WebConsoleExecutor::RULES_DIR + "/base/"
+  snippets_dir = CucuShift::WebConsoleExecutor::SNIPPETS_DIR
   case console
   when "registry"
     step "default registry-console route is stored in the :reg_console_url clipboard"
     step "I have a browser with:", table(%{
-      | rules    | lib/rules/web/registry_console/   |
-      | base_url | https://<%= cb.reg_console_url %> |
+      | rules        | #{base_rules}                     |
+      | rules        | lib/rules/web/registry_console/   |
+      | base_url     | https://<%= cb.reg_console_url %> |
+      | snippets_dir | #{snippets_dir}                   |
+    })
+    @result = browser.run_action(:goto_registry_console)
+    step 'I perform login to registry console in the browser'
+  when "accountant"
+    step "evaluation of `env.web_console_url[/(?<=\\.).*(?=\.openshift)/]` is stored in the :acc_console_url clipboard"
+    step "I have a browser with:", table(%{
+      | rules        | #{base_rules}                                           |
+      | rules        | lib/rules/web/accountant_console/                       |
+      | base_url     | https://account.<%= cb.acc_console_url %>.openshift.com |
+      | snippets_dir | #{snippets_dir}                                         |
     })
     if user.password?
-      browser.run_action(:login,
+      @result = browser.run_action(:login_acc_console,
                           username: user.name,
                           password: user.password)
     else
-      browser.run_action(:login_token,
-                          token: user.get_bearer_token.token)
+      raise "cannot login to accountant console via token"
     end
   else
     raise "Unknown console type"
+  end
+end
+
+When /^I perform login to registry console in the browser$/ do
+  @result = if user.password?
+    browser.run_action(:login_reg_console,
+                       username: user.name,
+                       password: user.password)
+  else
+    browser.run_action(:login_token_reg_console,
+                       token: user.get_bearer_token.token)
   end
 end
 

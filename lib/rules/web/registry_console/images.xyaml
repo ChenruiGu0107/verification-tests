@@ -2,28 +2,28 @@ goto_images_page:
   url: /registry#/images
 goto_one_image_page:
   url: /registry#/images/<project_name>/<image_name>
-click_to_goto_images_pages_in_new_tab_in_iframe:
+click_images_link_in_new_tab_in_iframe:
   action:
     context:
       tag_name: iframe
-    ref: click_to_goto_images_pages_in_new_tab
-click_to_goto_images_pages_in_new_tab:
+    ref: click_images_link_in_new_tab
+click_images_link_in_new_tab:
   element:
     selector:
       xpath: //a[i[@title='Images']]
     op: "click - :control\n- :shift"
-click_to_goto_images_page_in_iframe:
+click_images_link_in_iframe:
   action:
     context:
       tag_name: iframe
-    ref: click_to_goto_images_page
-click_to_goto_images_page:
+    ref: click_images_link
+click_images_link:
   element:
     selector:
       xpath: //a[i[@title='Images']]
     op: click
 click_to_goto_one_image_page_in_iframe:
-  action: click_to_goto_images_page_in_iframe
+  action: click_images_link_in_iframe
   action:
     context:
       tag_name: iframe
@@ -33,6 +33,11 @@ click_to_goto_one_image_page:
     selector:
       xpath: //tbody[.//th[contains(text(),'<project_name>/<image_name>')]]
     op: click
+check_no_images_on_images_page_in_iframe:
+  action:
+    context:
+      tag_name: iframe
+    ref: check_no_images_on_images_page
 check_no_images_on_images_page:
   element:
     selector:

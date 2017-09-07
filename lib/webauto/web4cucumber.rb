@@ -68,8 +68,6 @@ require "base64"
 
       headless
       # Selenium::WebDriver.logger.level = :debug
-
-
       if @browser_type == :firefox_marionette
         logger.info "Launching Firefox Marionette/Geckodriver"
         caps = Selenium::WebDriver::Remote::Capabilities.firefox accept_insecure_certs: true

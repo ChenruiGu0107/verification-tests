@@ -5,32 +5,43 @@ Feature: Testing registry
   @admin
   Scenario: Login and logout of standalone registry console
     Given I have a project
+    And I open registry console in a browser
 
-    Given default registry-console route is stored in the :reg_console_url clipboard
-    Given I have a browser with:
-      | rules    | lib/rules/web/registry_console/   |
-      | base_url | https://<%= cb.reg_console_url %> |
-    When I perform the :login web action with:
-      | username | <%= user.name %>     |
-      | password | <%= user.password %> |
+    When I run the :click_images_link_in_iframe web action
+    Then the step should succeed
+    When I run the :check_no_images_on_images_page_in_iframe web action
+    Then the step should succeed
+
+    When I run the :goto_registry_console web action
+    Then the step should succeed
+    When I run the :click_images_link_in_iframe web action
+    Then the step should succeed
+    When I run the :check_no_images_on_images_page_in_iframe web action
     Then the step should succeed
 
     When I run the :logout web action
     Then the step should succeed
-    When I run the :click_login_again_in_new_tab web action
+    When I run the :click_login_again web action
     Then the step should succeed
-    When I run the :goto_projects_page web action
+    When I perform login to registry console in the browser
     Then the step should succeed
-    Given the expression should be true> browser.url.include? "login"
+    When I run the :click_images_link_in_iframe web action
+    Then the step should succeed
+    When I run the :check_no_images_on_images_page_in_iframe web action
+    Then the step should succeed
 
-    When I perform the :login_on_login_page web action with:
-      | username | <%= user.name %>     |
-      | password | <%= user.password %> |
+    When I run the :logout web action
     Then the step should succeed
-    When I run the :click_to_goto_images_pages_in_new_tab_in_iframe web action
+    When I run the :goto_registry_console web action
     Then the step should succeed
-    When I run the :check_no_images_on_images_page web action
+
+    When I perform login to registry console in the browser
     Then the step should succeed
+    When I run the :click_images_link_in_iframe web action
+    Then the step should succeed
+    When I run the :check_no_images_on_images_page_in_iframe web action
+    Then the step should succeed
+
 
   # @author etrott@redhat.com
   # @case_id OCP-9901

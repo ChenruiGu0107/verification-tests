@@ -1,33 +1,13 @@
 ---
-login:
+goto_registry_console:
   url: /
-  action: login_on_login_page
-login_on_login_page:
-  elements:
-    - selector:
-        id: inputUsername
-      op: send_keys <username>
-      type: input
-    - selector:
-        id: inputPassword
-      op: send_keys <password>
-      type: input
-  scripts:
-  - command: return document.getElementsByName("csrf").length > 0
-    expect_result: true
-  cookies:
-  - name: csrf
-    expect_result: true
-  elements:
-    - selector:
-        text: Log In
-      op: click
-      type: button
-  action: verify_logged_in
-login_token:
+login_reg_console:
+  action: login_sequence
+  action: verify_logged_in_reg_console
+login_token_reg_console:
   url: /registry#access_token=<token>&expires_in=86400&token_type=Bearer
-  action: verify_logged_in
-verify_logged_in:
+  action: verify_logged_in_reg_console
+verify_logged_in_reg_console:
   element:
     selector:
       text: Red Hat Container Registry
@@ -35,6 +15,12 @@ verify_logged_in:
   scripts:
   - command: return window.localStorage['login-data'];
     expect_result: true
+click_login_again:
+  element:
+    selector:
+      text: Login Again
+    type: a
+    op: click
 click_login_again_in_new_tab:
   elements:
   - selector:

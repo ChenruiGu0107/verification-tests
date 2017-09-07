@@ -1,0 +1,3 @@
+login_acc_console:
+  url: /
+  action: login_sequence
