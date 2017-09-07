@@ -72,6 +72,13 @@ require "base64"
         logger.info "Launching Firefox Marionette/Geckodriver"
         caps = Selenium::WebDriver::Remote::Capabilities.firefox accept_insecure_certs: true
         options = Selenium::WebDriver::Firefox::Options.new profile: firefox_profile #, binary: "/home/user/local/firefox-52-esr/firefox"
+        # set any additional moz:firefoxOptions in the following way
+        # options.add_option :log, {"level"=> "trace"}
+
+        # This is actually a shortcut for trace logging
+        # this also needs debug webdriver logging enabled above to work
+        # options.log_level = 'trace'
+
         @browser = Watir::Browser.new :firefox, :http_client=>client, desired_capabilities: caps, options: options
       elsif @browser_type == :firefox
         # legacy driver usage https://github.com/watir/watir/issues/634

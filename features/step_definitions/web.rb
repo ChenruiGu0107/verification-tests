@@ -44,14 +44,14 @@ end
 Given /^I have a browser with:$/ do |table|
   init_params = opts_array_to_hash(table.raw)
   if init_params[:rules].kind_of? Array
-    rules = init_params[:rules].map { |r| expand_path(r) }
+    init_params[:rules].map! { |r| expand_path(r) }
   else
-    rules = [expand_path(init_params[:rules])]
+    init_params[:rules] = [expand_path(init_params[:rules])]
   end
-  browser = Web4Cucumber.new(
-    rules: rules,
-    base_url: init_params[:base_url]
-  )
+  if conf[:browser]
+    init_params[:browser_type] ||= conf[:browser].to_sym
+  end
+  browser = Web4Cucumber.new(**init_params)
   cache_browser(browser)
   teardown_add { @result = browser.finalize }
 end
