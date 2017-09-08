@@ -253,6 +253,9 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   target_proj = proj.nil? ? project.name : proj
   # we are enforcing that metrics to be installed into 'openshift-infra'
   target_proj = 'openshift-infra' if svc_type == 'metrics'
+  cb.metrics_route_prefix = "metrics"
+  cb.logging_route_prefix = "logs"
+
   if svc_type == 'metrics' and target_proj != 'openshift-infra'
     raise ("Metrics must be installed into the 'openshift-infra")
   end
@@ -273,20 +276,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   # prep the inventory file.
   cb.master_url = env.master_hosts.first.hostname
   cb.api_port = '8443' if cb.api_port.nil?
-  if ansible_opts[:copy_custom_cert]
-    key_name = "cucushift_custom.key"
-    cert_name = "cucushift_custom.crt"
-    if svc_type == 'metrics'
-      hostname = "hawkular-metrics.#{cb.subdomain}"
-    else
-      hostname = "kibana.#{cb.subdomain}"
-    end
-    # base_path corresponds to the inventory, for example https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory
-    base_path = "/tmp/#{File.basename(host.workdir)}/"
-    cb.key_path = "#{base_path}/#{key_name}"
-    cb.cert_path = "#{base_path}/#{cert_name}"
-    cb.ca_crt_path = "#{base_path}/ca.crt"
-  end
 
   step %Q/I download a file from "<%= "#{ansible_opts[:inventory]}" %>" into the "tmp" dir/
 
@@ -310,6 +299,22 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   FileUtils.copy(pem_file_path, "tmp/")
   @result = admin.cli_exec(:oadm_config_view, flatten: true, minify: true)
   File.write(File.expand_path("tmp/admin.kubeconfig"), @result[:response])
+
+  if ansible_opts[:copy_custom_cert]
+    key_name = "cucushift_custom.key"
+    cert_name = "cucushift_custom.crt"
+    if svc_type == 'metrics'
+      hostname = "#{cb.metrics_route_prefix}.#{cb.subdomain}"
+    else
+      hostname = "#{cb.logging_route_prefix}.#{cb.subdomain}"
+    end
+    # base_path corresponds to the inventory, for example https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory
+    base_path = "/tmp/#{File.basename(host.workdir)}/"
+    cb.key_path = "#{base_path}/#{key_name}"
+    cb.cert_path = "#{base_path}/#{cert_name}"
+    cb.ca_crt_path = "#{base_path}/ca.crt"
+  end
+
   begin
     step %Q/I switch to cluster admin pseudo user/
     step %Q/I have a pod with openshift-ansible playbook installed/
