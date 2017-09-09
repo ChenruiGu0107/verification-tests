@@ -223,6 +223,50 @@ Feature: nodeAffinity
     Given the pod named "node-affinity-preferred-case14509" status becomes :running within 60 seconds
 
   # @author wmeng@redhat.com
+  # @case_id OCP-14556
+  @admin
+  Scenario: pod will not be scheduled if node affinity or node selector is not satisfied - node affinity
+    Given I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "case14556=case14556" is added to the "<%= cb.nodes[0].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-case14556.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pod                              |
+      | name     | node-affinity-selector-case14556 |
+    Then the step should succeed
+    And the output should match:
+      | PodScheduled\\s+False |
+      | FailedScheduling      |
+      | MatchNodeSelector     |
+    """
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-14557
+  @admin
+  Scenario: pod will not be scheduled if node affinity or node selector is not satisfied - node selector
+    Given I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "zone14557=case14557" is added to the "<%= cb.nodes[0].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-case14557.yaml |
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource | pod                              |
+      | name     | node-affinity-selector-case14557 |
+    Then the step should succeed
+    And the output should match:
+      | PodScheduled\\s+False |
+      | FailedScheduling      |
+      | MatchNodeSelector     |
+    """
+
+  # @author wmeng@redhat.com
   # @case_id OCP-14576
   @admin
   Scenario: pod can be scheduled onto a node only if all matchExpressions can be satisfied
@@ -257,3 +301,87 @@ Feature: nodeAffinity
       | FailedScheduling      |
       | MatchNodeSelector     |
     """
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-14566
+  @admin
+  Scenario: If you specify both nodeSelector and nodeAffinity, both must be satisfied for the pod to be scheduled onto a candidate node
+    Given I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "case14566=case14566" is added to the "<%= cb.nodes[0].name %>" node
+    And label "zone14566=case14566" is added to the "<%= cb.nodes[0].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-case14566.yaml |
+    Then the step should succeed
+    Given the pod named "node-affinity-selector-case14566" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-14568
+  @admin
+  Scenario: If you specify multiple nodeSelectorTerms associated with nodeAffinity types, then the pod can be scheduled onto a node if one of the nodeSelectorTerms is satisfied
+    Given I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "case14568c=case14568" is added to the "<%= cb.nodes[0].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/pod-node-affinity-selector-terms-case14568.yaml |
+    Then the step should succeed
+    Given the pod named "node-affinity-selector-terms-case14568" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-14520
+  @admin
+  Scenario: pod will be scheduled to the node which matches node affinity - Exists
+    Given I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "case14520=anyvalue" is added to the "<%= cb.nodes[0].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-required-exists-case14520.yaml |
+    Then the step should succeed
+    Given the pod named "node-affinity-required-exists-case14520" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
+
+  # @author wmeng@redhat.com
+  # case_id OCP-14521
+  @admin
+  Scenario: pod will be scheduled to the node which matches node anti-affinity - DoesNotExist
+    Given environment has at least 2 schedulable nodes
+    And I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "case14521=anyvalue" is added to the "<%= cb.nodes[0].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-anti-affinity-required-exists-case14521.yaml |
+    Then the step should succeed
+    Given the pod named "node-anti-affinity-required-exists-case14521" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name != cb.nodes[0].name
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-14522
+  @admin
+  Scenario: pod will be scheduled to the node which matches node affinity - Gt
+    Given environment has at least 2 schedulable nodes
+    And I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "key14522=4" is added to the "<%= cb.nodes[0].name %>" node
+    And label "key14522=6" is added to the "<%= cb.nodes[1].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-gt4-required-case14522.yaml |
+    Then the step should succeed
+    Given the pod named "node-affinity-gt4-required-case14522" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[1].name
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-14525
+  @admin
+  Scenario: pod will be scheduled to the node which matches node affinity - Lt
+    Given environment has at least 2 schedulable nodes
+    And I have a project
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "key14525=6" is added to the "<%= cb.nodes[0].name %>" node
+    And label "key14525=4" is added to the "<%= cb.nodes[1].name %>" node
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/node-affinity-lt6-required-case14525.yaml |
+    Then the step should succeed
+    Given the pod named "node-affinity-lt6-required-case14525" status becomes :running within 60 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[1].name
