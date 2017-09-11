@@ -415,7 +415,7 @@ module CucuShift
         inventory = Host.localhost.absolutize basename(task[:inventory])
         puts "Ansible inventory #{File.basename inventory}:\n#{inventory_str}"
         File.write(inventory, inventory_str)
-	run_ansible_playbook(localize(task[:playbook]), inventory, extra_vars: (task[:extra_vars].to_s || nil),
+        run_ansible_playbook(localize(task[:playbook]), inventory, extra_vars: (task[:extra_vars].to_s || nil),
                              retries: (task[:retries] || 1), env: task[:env])
       when "launch_host_groups"
         existing_hosts = erb_binding.local_variable_get(:hosts)
