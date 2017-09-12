@@ -125,21 +125,26 @@ set_image_name:
     op: send_keys <image_deploy_from>
 set_name_with_1_char:
   action: change_deploy_image_name_to_another
+  action: click_somewhere_out_of_focus
   action: check_error_for_less_than_2_chars
   action: check_create_button_disabled
 set_name_with_invalid_chars:
   action: change_deploy_image_name_to_another
+  action: click_somewhere_out_of_focus
   action: check_error_for_invalid_chars
   action: check_create_button_disabled
 set_name_to_blank:
   action: change_deploy_image_name_to_another
+  action: click_somewhere_out_of_focus
   action: check_error_for_empty_name
   action: check_create_button_disabled
 set_name_to_dash_started_string:
   action: change_deploy_image_name_to_another
+  action: click_somewhere_out_of_focus
   action: check_error_for_dash_started_or_end_with_dash
   action: check_create_button_disabled
 set_name_to_string_end_with_dash:
   action: change_deploy_image_name_to_another
+  action: click_somewhere_out_of_focus
   action: check_error_for_dash_started_or_end_with_dash
   action: check_create_button_disabled

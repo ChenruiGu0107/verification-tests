@@ -551,12 +551,8 @@ Feature: create app on web console related
     When I run the :click_create_button web console action
     Then the step should succeed
     # check created resource
-    When I run the :get client command with:
-      | resource | all |
-    Then the step should succeed
-    And the output should contain:
-      | dc/jboss-webserver30-tomcat  |
-      | svc/jboss-webserver30-tomcat |
+    And I wait for the "jboss-webserver30-tomcat" service to appear
+    And I wait for the "jboss-webserver30-tomcat" dc to appear
     When I perform the :deploy_from_image_stream_tag_with_normal_image_stream web console action with:
       | project_name      | <%= project.name %> |
       | namespace         | openshift           |
@@ -589,13 +585,10 @@ Feature: create app on web console related
       | new_deploy_image_name | python-dfi          |
       | image_name            | python-dfi          |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource | all |
-    Then the step should succeed
-    And the output should contain:
-      | dc/python-dfi   |
-      | svc/python-dfi  |
-      | po/python-dfi   |
+    And I wait for the "python-dfi" service to appear
+    And I wait for the "python-dfi" dc to appear
+    And a pod is present with labels:
+      | deployment=python-dfi |
 
   # @author etrott@redhat.com
   # @case_id OCP-11621

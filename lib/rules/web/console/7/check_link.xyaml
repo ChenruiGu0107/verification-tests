@@ -1,5 +1,4 @@
 expand_help_menu:
-  url: /console
   element:
     selector:
       id: help-dropdown

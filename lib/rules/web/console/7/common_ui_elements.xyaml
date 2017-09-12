@@ -104,6 +104,8 @@ click_on_terminal_tab:
     selector:
       xpath: //uib-tab-heading[contains(.,'Terminal')]
     op: click
+click_somewhere_out_of_focus:
+  action: expand_help_menu
 click_delete:
   elements:
   - selector:
