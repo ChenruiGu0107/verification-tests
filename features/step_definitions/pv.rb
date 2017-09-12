@@ -38,10 +38,39 @@ Given /^I have a(?: (\d+) GB)? volume and save volume id in the#{OPT_SYM} clipbo
   end
 
   cb.dynamic_pvc_name = rand_str(8, :dns)
-  step %Q{I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:}, table(%{
-    | ["metadata"]["name"]                         | <%= project.name %>-<%= cb.dynamic_pvc_name %> |
-    | ["spec"]["resources"]["requests"]["storage"] | #{size}Gi                                      |
-    })
+  if env.version_ge("3.7", user: user)
+    step %Q/the value with path "['kubernetesMasterConfig']['apiServerArguments']['cloud-provider'][0]" in master config is stored into the :cloud_provider clipboard/
+    case cb.cloud_provider
+    when "aws"
+      cb.provisioner = "aws-ebs"
+    when "azure"
+      cb.provisioner = "azure-disk"
+    when "gce"
+      cb.provisioner = "gce-pd"
+    when "openstack"
+      cb.provisioner = "cinder"
+    when "vsphere"
+      cb.provisioner = "vsphere-volume"
+    else
+      raise "Invalid cloud provider type in master config."
+    end
+    cb.storage_class_name = cb.dynamic_pvc_name
+    step %Q{admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:}, table(%{
+      | ["metadata"]["name"] | <%= project.name %>-<%= cb.storage_class_name %> |
+      | ["provisioner"]      | kubernetes.io/<%= cb.provisioner %>              |
+      })
+    step %Q/the step should succeed/
+    step %Q{I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:}, table(%{
+      | ["metadata"]["name"]                                                   | <%= project.name %>-<%= cb.dynamic_pvc_name %>   |
+      | ["spec"]["resources"]["requests"]["storage"]                           | #{size}Gi                                        |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | <%= project.name %>-<%= cb.storage_class_name %> |
+      })
+  else
+    step %Q{I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:}, table(%{
+      | ["metadata"]["name"]                         | <%= project.name %>-<%= cb.dynamic_pvc_name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | #{size}Gi                                      |
+      })
+  end
   step %Q/the step should succeed/
   step %Q/the "<%= project.name %>-<%= cb.dynamic_pvc_name %>" PVC becomes :bound within #{timeout} seconds/
   step %Q/admin ensures "<%= pvc.volume_name(user: admin) %>" pv is deleted after scenario/
