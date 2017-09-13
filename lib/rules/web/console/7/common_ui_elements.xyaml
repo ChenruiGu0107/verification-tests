@@ -84,6 +84,7 @@ click_on_environment_tab:
     selector:
       xpath: //uib-tab-heading[contains(.,'Environment')]
     op: click
+    timeout: 20
 click_on_events_tab:
   element:
     selector:

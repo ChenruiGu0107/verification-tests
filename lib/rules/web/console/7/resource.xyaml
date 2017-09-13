@@ -15,7 +15,8 @@ check_resource_succesfully_created_message:
 check_resource_updated_message:
   element:
     selector:
-      text: <resource_name> was updated.
+      xpath: //*[contains(text(),'<resource_name>') and contains(text(), 'successfully updated.')]
+    timeout: 10
 check_redirection_to_resource_page:
   element:
     selector:
