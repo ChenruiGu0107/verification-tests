@@ -339,16 +339,28 @@ module CucuShift
       return template
     end
 
-    def run_ansible_playbook(playbook, inventory, env: nil, retries: 1)
+    def run_ansible_playbook(playbook, inventory, extra_vars: nil, env: nil, retries: 1)
       env ||= {}
       env = env.reduce({}) { |r,e| r[e[0].to_s] = e[1].to_s; r }
       env["ANSIBLE_FORCE_COLOR"] = "true"
       env["ANSIBLE_CALLBACK_WHITELIST"] = 'profile_tasks'
+
+      case extra_vars
+      when nil
+        extra_vars = []
+      when Array, Hash
+        extra_vars = ["-e", extra_vars.to_json]
+      when String
+        extra_vars = ["-e", extra_vars]
+      else
+        raise "bad extra_vars value #{extra_vars.inspect}"
+      end
+
       retries.times do |attempt|
         id_str = (attempt == 0 ? ': ' : " (try #{attempt + 1}): ") + playbook
         say "############ ANSIBLE RUN#{id_str} ############################"
         res = Host.localhost.exec(
-          'ansible-playbook', '-v', '-i', inventory,
+          'ansible-playbook', '-v', '-i', inventory, *extra_vars,
           playbook,
           env: env, single: true, stderr: :out, stdout: STDOUT, timeout: 36000
         )
@@ -416,6 +428,7 @@ module CucuShift
         puts "Ansible inventory #{File.basename inventory}:\n#{inventory_str}"
         File.write(inventory, inventory_str)
         run_ansible_playbook(localize(task[:playbook]), inventory,
+                             extra_vars: task[:extra_vars],
                              retries: (task[:retries] || 1), env: task[:env])
       when "launch_host_groups"
         existing_hosts = erb_binding.local_variable_get(:hosts)
