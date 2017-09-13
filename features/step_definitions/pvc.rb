@@ -52,3 +52,34 @@ Given /^the "([^"]*)" PVC becomes bound to the "([^"]*)" PV(?: within (\d+) seco
     raise "PVC bound to #{pvc(pvc_name).volume_name(cached: true)}"
   end
 end
+
+# 1. download file from JSON/YAML URL
+# 2. specify specific key/values on different versions
+# 3. replace any path with given value from table
+# 4. runs `oc create` command over the resulting file
+When /^I create pvc (?:over|with) #{QUOTED} replacing paths:$/ do |file, table|
+  if file.include? '://'
+    step %Q|I download a file from "#{file}"|
+    resource_hash = YAML.load(@result[:response])
+  else
+    resource_hash = YAML.load_file(expand_path(file))
+  end
+
+  # version diff
+  if env.version_ge("3.6", user: user)
+    if !resource_hash["metadata"].to_json.include? "kubernetes.io/storage-class" && !resource_hash["spec"].to_json.include? "storageClassName"
+      resource_hash["spec"]["storageClassName"] = ''
+    end
+  end
+
+  # replace paths from table
+  table.raw.each do |path, value|
+    eval "resource_hash#{path} = YAML.load value"
+    # e.g. resource["spec"]["nfs"]["server"] = 10.10.10.10
+    #      resource["spec"]["containers"][0]["name"] = "xyz"
+  end
+  resource = resource_hash.to_json
+  logger.info resource
+
+  @result = user.cli_exec(:create, {f: "-", _stdin: resource})
+end
