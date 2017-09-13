@@ -16,6 +16,7 @@ module CucuShift
     # e.g. RESOURCE = "pods"
 
     attr_reader :props, :name
+    attr_writer :default_user
 
     def annotation(annotation_name, user:, cached: true, quiet: false)
       options = {
@@ -50,7 +51,7 @@ module CucuShift
     end
     alias exists? visible?
 
-    def get_checked(user:, quiet: false)
+    def get_checked(user: nil, quiet: false)
       res = get(user: user, quiet: quiet)
       unless res[:success]
         logger.error(res[:response])
@@ -59,7 +60,9 @@ module CucuShift
       return res
     end
 
-    def get(user:, quiet: false)
+    def get(user: nil, quiet: false)
+      user = default_user(user)
+
       get_opts = {
         as: user, key: :get,
         resource_name: name,
@@ -83,6 +86,17 @@ module CucuShift
     end
     alias reload get
 
+    def default_user(user=nil)
+      if user
+        default_user = user unless @default_user
+        return user
+      elsif @default_user
+        return @default_user
+      else
+        raise("must specify user for the operation")
+      end
+    end
+
     # update multiple API resources in as little calls as possible
     # @param user [User] the user to use for the API calls
     # @param resources [Array<Resource>]
@@ -96,13 +110,12 @@ module CucuShift
 
     # @param res [Hash] if caller wants to see result from the get call;
     #   note that it might not be updated if property returned from cache
-    def get_cached_prop(prop:, user:, cached: false, quiet: false, res: nil)
+    def get_cached_prop(prop:, user: nil, cached: false, quiet: false, res: nil)
       if res && cached
         raise "result cannot be returned with cached requests"
       end
 
       unless cached && props[prop]
-        raise "provide user to get API object as" unless user
         res ||= {}
         res.merge! get_checked(user: user, quiet: quiet)
       end
@@ -110,7 +123,7 @@ module CucuShift
       return props[prop]
     end
 
-    private def raw_resource(user:, cached: false, quiet: false, res: nil)
+    private def raw_resource(user: nil, cached: false, quiet: false, res: nil)
       get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet, res: res)
     end
 
@@ -204,7 +217,7 @@ module CucuShift
     alias wait_to_disappear disappeared?
 
     # @return [Hash] the raw status of resource as returned by API
-    def status_raw(user:, cached: false, quiet: false)
+    def status_raw(user: nil, cached: false, quiet: false)
       if cached && props[:status]
         return props[:status]
       else
@@ -222,13 +235,13 @@ module CucuShift
       end
     end
 
-    def phase(user:, cached: false, quiet: false)
+    def phase(user: nil, cached: false, quiet: false)
       return status_raw(user: user, cached: cached, quiet: quiet)["phase"].downcase.to_sym
     end
 
     # @param status [Symbol, Array<Symbol>] the expected statuses as a symbol
     # @return [ResultHash]
-    def status?(user:, status:, quiet: false, cached: false)
+    def status?(user: nil, status:, quiet: false, cached: false)
       matched_status = phase(user: user, quiet: quiet, cached: cached)
       status = [ status ].flatten
       res = {

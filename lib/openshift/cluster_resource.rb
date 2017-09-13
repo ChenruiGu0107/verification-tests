@@ -19,6 +19,16 @@ module CucuShift
       @props = props
     end
 
+    def default_user(user=nil)
+      if user
+        super(user)
+      elsif @default_user
+        @default_user
+      else
+        default_user = env.admin
+      end
+    end
+
     # creates a new OpenShift Cluster Resource from spec
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create
     #   Resource as
@@ -41,7 +51,6 @@ module CucuShift
     end
 
     # creates new resource from an OpenShift API Project object
-    # @note requires subclass to define `#update_from_api_object`
     def self.from_api_object(env, resource_hash)
       unless Environment === env
         raise "env parameter must be an Environment but is: #{env.inspect}"
@@ -161,9 +170,9 @@ module CucuShift
       alias list get_matching
     end
 
-    def delete(by:)
-      cli_exec(as: by, key: :delete, object_type: self.class::RESOURCE,
-               object_name_or_id: name)
+    def delete(by: nil)
+      cli_exec(as: default_user(by), object_type: self.class::RESOURCE,
+               object_name_or_id: name, key: :delete)
     end
 
     ############### take care of object comparison ###############

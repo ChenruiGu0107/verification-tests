@@ -5,20 +5,22 @@ module CucuShift
   class HostSubnet < ClusterResource
     RESOURCE = 'hostsubnets'
 
-    def update_from_api_object(hs_hash)
-      m = hs_hash["metadata"]
+    def ip(user: nil, cached: true, quiet: true)
+      raw = raw_resource(user: user, cached: cached, quiet: quiet, res: nil)
 
-      unless hs_hash["kind"] == "HostSubnet"
-        raise "hash not from a HostSubnet: #{hs_hash["kind"]}"
-      end
-      unless name == m["name"]
-        raise "hash from a different HostSubnet: #{name} vs #{m["name"]}"
-      end
+      return raw["hostIP"]
+    end
 
-      props[:uid] = m["uid"]
-      props[:host] = hs_hash["host"]
+    def host(user: nil, cached: true, quiet: true)
+      raw = raw_resource(user: user, cached: cached, quiet: quiet, res: nil)
 
-      return self # mainly to help ::from_api_object
+      return raw["host"]
+    end
+
+    def subnet(user: nil, cached: true, quiet: true)
+      raw = raw_resource(user: user, cached: cached, quiet: quiet, res: nil)
+
+      return raw["subnet"]
     end
   end
 end

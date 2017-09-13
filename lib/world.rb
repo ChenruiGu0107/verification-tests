@@ -469,6 +469,8 @@ module CucuShift
       project_resource(Job, name, project)
     end
 
+    # returns the cache array for the given resource class
+    # @param clazz [Class] the resource class we are interested in
     private def resource_cache(clazz)
       var = "@#{clazz::RESOURCE}"
       return instance_variable_get(var) || instance_variable_set(var, [])

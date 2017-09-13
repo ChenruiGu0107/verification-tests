@@ -450,7 +450,7 @@ Feature: SDN related networking scenarios
   @destructive
   Scenario: Restart master service could fix the invalid ip in hostip
     Given I select a random node's host
-    Given hostsubnet "<%= node.name %>" is restored after scenario
+    Given host subnet "<%= node.name %>" is restored after scenario
     Given I switch to cluster admin pseudo user
     When I run the :get client command with:
       | resource      | hostsubnet       |
@@ -476,7 +476,7 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     And the output should not contain "8.8.8.8"
     And the output should contain:
-      | <%= cb.hostip %> | 
+      | <%= cb.hostip %> |
 
   # @author yadu@redhat.com
   # @case_id OCP-9754
@@ -660,3 +660,48 @@ Feature: SDN related networking scenarios
     Then the step should succeed
     And the output should not contain "ADMIN-RULES"
 
+  # @author hongli@redhat.com
+  # @case_id OCP-14354
+  @admin
+  @destructive
+  Scenario: Deleting a node should not breaks node to node networking for the cluster
+    Given environment has at least 3 nodes
+    And environment has at least 2 schedulable nodes
+    And I store the schedulable nodes in the clipboard
+
+    # Delete the nodes[0]
+    Given I use the "<%= cb.nodes[0].name %>" node
+    And the node service is verified
+    And the node network is verified
+    And the node service is restarted on the host after scenario
+    When I run the :delete admin command with:
+      | object_type       | node                    |
+      | object_name_or_id | <%= cb.nodes[0].name %> |
+    Then the step should succeed
+    When I run the :get admin command with:
+      | resource | hostsubnet |
+    Then the step should succeed
+    And the output should not contain "<%= cb.nodes[0].name %>"
+
+    # Check if nodes are reachable from a pod
+    Given host subnets are stored in the clipboard
+    And evaluation of `IPAddr.new(host_subnet.subnet).succ` is stored in the :nodeA_ip clipboard
+    And evaluation of `IPAddr.new(host_subnet(-1).subnet).succ` is stored in the :nodeB_ip clipboard
+
+    And I have a project
+    And I have a pod-for-ping in the project
+    When I execute on the pod:
+      | bash | -c | ping -c 2 <%= cb.nodeA_ip %> |
+    Then the step should succeed
+    When I execute on the pod:
+      | bash | -c | ping -c 2 <%= cb.nodeB_ip %> |
+    Then the step should succeed
+
+    # Check if connections between nodes are reachable
+    Given I use the "<%= cb.nodes[1].name %>" node
+    When I run commands on the host:
+      | ping -c 2 <%= cb.nodeA_ip %> |
+    Then the step should succeed
+    When I run commands on the host:
+      | ping -c 2 <%= cb.nodeB_ip %> |
+    Then the step should succeed
