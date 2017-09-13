@@ -873,10 +873,11 @@ edit_env_var_key:
     type: js
     op: send_keys <new_env_key>
 check_invalid_env_key_warning_message:
+  action: click_somewhere_out_of_focus
   elements:
   - selector: |
         var warn_messages = document.getElementsByClassName('validation-text').filter(function(el) {
-              return el.offsetWidth > 0 && el.textContent == "<message>";
+              return el.offsetWidth > 0 && el.textContent.indexOf("<message>") != -1;
             }),
             warn_message = (warn_messages.length == 1) ? warn_messages[0] : null,
             tooltip = (warn_messages != null) ? warn_message.nextElementSibling.firstElementChild : null;

@@ -1340,6 +1340,8 @@ Feature: build related feature on web console
       | env_var_key   | DCthree  |
       | env_var_value | dcvalue3 |
     Then the step should succeed
+    Given 1 pods become ready with labels:
+      | deployment=php-1 |
     When I perform the :reorder_environment_variable web console action with:
       | env_variable_name | DCtwo |
       | direction         | up    |
@@ -1356,6 +1358,8 @@ Feature: build related feature on web console
     When I perform the :check_environment_variables_order web console action with:
       | env_vars_order | DCtwo,DCone,DCthree |
     Then the step should succeed
+    Given 1 pods become ready with labels:
+      | deployment=php-2 |
     When I perform the :delete_env_var web console action with:
       | env_var_key | DCone |
     Then the step should succeed

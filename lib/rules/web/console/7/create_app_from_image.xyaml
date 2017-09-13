@@ -267,6 +267,7 @@ create_app_from_image_set_number_of_replicas:
     op: send_keys <replicas>
     type: input
 add_label_name_and_value:
+  action:  add_new_label_form
   elements:
   - selector:
       xpath: (//div[contains(text(),"Each label")]/following-sibling::div//input[@placeholder="Name"])[last()]
