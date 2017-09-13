@@ -89,6 +89,23 @@ check_update_route_with_duplicated_service:
   action: set_the_second_service_to_route
   action: check_error_info_for_duplicated_service
   action: check_save_button_disabled
+check_wildcard_hostname_readonly_when_edit:
+  action: goto_one_route_page
+  action: click_to_goto_edit_page
+  action: check_warning_info_for_hostname
+  action: check_hostname_readonly
+check_warning_info_for_hostname:
+  elements:
+  - selector:
+      xpath: //span[contains(., 'You can use')]
+  - selector:
+      xpath: //var[contains(., '*.example.com')]
+  - selector:
+      xpath: //span[contains(., 'with routers that support wildcard subdomains.')]
+check_hostname_readonly:
+  elements:
+  - selector:
+      xpath: //input[@id='host' and @readonly]
 click_edit_weights_as_integers:
   elements:
   - selector:

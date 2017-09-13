@@ -594,3 +594,44 @@ Feature: Routes related features on web console
       | The host doesn't exist       |
       | doesn't have a matching path |
       | all pods are down            |
+
+  # @author: xipang@redhat.com
+  # @case_id: OCP-11672
+  @admin
+  @destructive
+  Scenario: Edit WildCard routes on web console
+    Given the master version >= "3.5"
+    Given I use the first master host
+    And the "/etc/origin/master/wildcard.js" file is restored on host after scenario
+    And I run commands on the host:
+      | echo -n "window.OPENSHIFT_CONSTANTS.DISABLE_WILDCARD_ROUTES = false;" >/etc/origin/master/wildcard.js |
+    And master config is merged with the following hash:
+    """
+    apiVersion: v1
+    assetConfig:
+      extensionScripts:
+      - wildcard.js
+    """
+    And the master service is restarted on all master nodes
+    Then the step should succeed
+
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_ALLOW_WILDCARD_ROUTES=true |
+    Then the step should succeed
+
+    Given I switch to the first user
+    And I login via web console
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I perform the :create_route_specify_name_and_hostname_from_routes_page web console action with:
+      | project_name | <%= project.name%> |
+      | route_name   | my-route-wildcard  |
+      | hostname     | '*.example.com'    |
+    Then the step should succeed
+    When I perform the :check_wildcard_hostname_readonly_when_edit web console action with:
+      | project_name | <%= project.name%> |
+      | route_name   | my-route-wildcard  |
+    Then the step should succeed
+

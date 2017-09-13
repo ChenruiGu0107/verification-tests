@@ -67,6 +67,12 @@ create_route_with_four_services:
   action: set_the_third_service_to_route
   action: expand_add_another_service
   action: set_the_forth_service_to_route
+create_route_specify_name_and_hostname_from_routes_page:
+  action: goto_routes_page
+  action: click_create_route
+  action: set_route_name
+  action: set_hostname
+  action: click_create_button
 choose_service_to_add_route:
   elements:
   - selector:
