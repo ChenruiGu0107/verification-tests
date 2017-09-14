@@ -1,6 +1,5 @@
 Feature: storageClass related feature
   # @author lxia@redhat.com
-  # @case_id OCP-10470 OCP-10473 OCP-10474
   @admin
   @destructive
   Scenario Outline: pre-bound still works with storage class
@@ -18,19 +17,20 @@ Feature: storageClass related feature
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                        |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
-      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
-      | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
-      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["spec"]["volumeName"]                                                 | pv-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] |                         |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
     Examples:
       | provisioner | storage_type         | volume_name | path_to_file               |
-      | gce-pd      | gcePersistentDisk    | pdName      | gce/pv-default-rwo.json    |
-      | aws-ebs     | awsElasticBlockStore | volumeID    | ebs/pv-rwo.yaml            |
-      | cinder      | cinder               | volumeID    | cinder/pv-rwx-default.json |
+      | gce-pd      | gcePersistentDisk    | pdName      | gce/pv-default-rwo.json    | # @case_id OCP-10470
+      | aws-ebs     | awsElasticBlockStore | volumeID    | ebs/pv-rwo.yaml            | # @case_id OCP-10473
+      | cinder      | cinder               | volumeID    | cinder/pv-rwx-default.json | # @case_id OCP-10474
 
   # @author lxia@redhat.com
   # @case_id OCP-10469
