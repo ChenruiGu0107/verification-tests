@@ -11,8 +11,8 @@ Feature: taint toleration related scenarios
       | resource | pods       |
       | name     | toleration |
     Then the output should match:
-      | Status:\\s+Running                                      |
-      | Tolerations:\\s+dedicated=special-user:Equal:NoSchedule |
+      | Status:\\s+Running                                  |
+      | Tolerations:\\s+dedicated=special-user:.*NoSchedule |
 
   # @author wmeng@redhat.com
   # @case_id OCP-13773
