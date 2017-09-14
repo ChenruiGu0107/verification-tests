@@ -15,7 +15,7 @@ Feature: remote registry related scenarios
       | source      | openshift/origin:latest |
       | dest        | mystream:latest         |
     Then the step should succeed
-    And evaluation of `service("docker-registry", project("default")).url(user: :admin)` is stored in the :integrated_reg_ip clipboard
+    And evaluation of `service("docker-registry", project("default")).url(user: admin)` is stored in the :integrated_reg_ip clipboard
     And the "~/.docker/config.json" file is restored on host after scenario
     When I run commands on the host:
       | docker login -u dnm -p <%= service_account.get_bearer_token.token %> -e dnm@redmail.com <%= cb.integrated_reg_ip %> |
@@ -55,7 +55,7 @@ Feature: remote registry related scenarios
 
     Given I switch to cluster admin pseudo user
     And default docker-registry deployment config is restored after scenario
-    And evaluation of `service("docker-registry", project("default")).url(user: :admin)` is stored in the :integrated_reg_ip clipboard
+    And evaluation of `service("docker-registry", project("default")).url(user: admin)` is stored in the :integrated_reg_ip clipboard
 
     When I run the :set_volume admin command with:
       | resource    | dc/docker-registry |
@@ -603,7 +603,7 @@ Feature: remote registry related scenarios
 
   # @author geliu@redhat.com
   # @case_id OCP-15107
-  @admin 
+  @admin
   Scenario: Strip manifest stored in etcd with schema2 version image
     Given the master version >= "3.6"
     Given I have a project
@@ -628,7 +628,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
     Then the output should not match:
       | .*dockerImageManifest:.* |
-    Given I use the first master host 
+    Given I use the first master host
     Given I store the default registry scheme to the :registry_scheme clipboard
     Given default registry service ip is stored in the :integrated_reg_ip clipboard
     And I run commands on the host:

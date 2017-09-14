@@ -88,6 +88,7 @@ module CucuShift
 
     def default_user(user=nil)
       if user
+        user = env.admin if user == :admin
         default_user = user unless @default_user
         return user
       elsif @default_user

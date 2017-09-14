@@ -77,8 +77,9 @@ module CucuShift
     # => {"fullyLabeledReplicas"=>1, "observedGeneration"=>1, "readyReplicas"=>1, "replicas"=>1}
     # NOTE, the readyReplicas key is not there if the READY column is 0
     # return: Integer (number of replicas that are in the ready state)
-    def ready_replicas(user:, cached: true, quiet: false)
+    def ready_replicas(user: nil, cached: true, quiet: false)
       replicas = 0
+      user = default_user(user)
       res = raw_resource(user: user, cached: cached, quiet: quiet)
       if env.version_ge("3.4", user: user)
         # use the readyReplicas count
