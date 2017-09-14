@@ -186,13 +186,13 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     And the output should contain:
       | - mountPath: /opt1 |
-      | - emptyDir: {}     |
+      | - emptyDir:        |
       | name: v1           |
     When I get project rc named "mydb-2" as YAML
     Then the step should succeed
     And the output should contain:
       | - mountPath: /opt1 |
-      | - emptyDir: {}     |
+      | - emptyDir:        |
       | name: v1           |
     When I execute on the pod:
       | grep | opt1 | /proc/mounts |
@@ -231,7 +231,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     And the output should contain:
       | - mountPath: /opt2 |
-      | - emptyDir: {}     |
+      | - emptyDir:        |
       | name: v2           |
     When I run the :delete client command with:
       | object_type | pod      |
