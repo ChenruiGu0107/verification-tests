@@ -47,7 +47,7 @@ Given /^default (router|docker-registry) deployment config is restored after sce
 
   raise "no matching rcs found" unless _rc
   version = _rc.props[:annotations]["openshift.io/deployment-config.latest-version"]
-  unless _rc.ready?(user: :admin, cached: true)
+  unless _rc.ready?(user: admin, cached: true)
     raise "latest rc version #{version} is bad"
   end
 
