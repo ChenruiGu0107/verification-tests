@@ -36,9 +36,9 @@ Feature: podpreset
       | resource | pod       |
       | name     | hello-pod |
     And the output should match:
-      | podpreset.admission.kubernetes.io/allow-database |
-      | DB_PORT:\\s+6379                                 |
-      | /cache from cache-volume                         |
+      | podpreset.admission.kubernetes.io/.*allow-database |
+      | DB_PORT:\\s+6379                                   |
+      | /cache from cache-volume                           |
 
   # @author wmeng@redhat.com
   # @case_id OCP-14178
@@ -79,11 +79,11 @@ Feature: podpreset
       | resource | pod       |
       | name     | hello-pod |
     And the output should match:
-      | podpreset.admission.kubernetes.io/use-configmap |
-      | Environment Variables from                      |
-      | etcd-env-config\\s+ConfigMap                    |
-      | DB_PORT:\\s+6379                                |
-      | duplicate_key:\\s+FROM_ENV                      |
-      | expansion:\\s+whoami                            |
-      | /cache from cache-volume                        |
-      | /etc/app/config.json from secret-volume         |
+      | podpreset.admission.kubernetes.io/.*use-configmap |
+      | Environment Variables from                        |
+      | etcd-env-config\\s+ConfigMap                      |
+      | DB_PORT:\\s+6379                                  |
+      | duplicate_key:\\s+FROM_ENV                        |
+      | expansion:\\s+whoami                              |
+      | /cache from cache-volume                          |
+      | /etc/app/config.json from secret-volume           |
