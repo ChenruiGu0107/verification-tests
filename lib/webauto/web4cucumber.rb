@@ -32,13 +32,19 @@ require "base64"
 
     # @param logger [Object] should have methods `#info`, `#warn`, `#error` and
     #   `#debug` defined
+    # @param scroll_strategy [Object] scrolling strategy when doin ops over
+    #   elements; currently supported values are nil, 0 and 1 and meaning is:
+    #   * nil - do not change default behavior
+    #   * 0 - directly passed to Selenium capabilities (scroll element to top)
+    #   * 1 - directly passed to Selenium capabilities (scroll to bottom)
     def initialize(
         rules:,
         base_url:,
         snippets_dir: "",
         logger: SimpleLogger.new,
         browser_type: :firefox,
-        browser: nil
+        browser: nil,
+        scroll_strategy: nil
       )
       @browser_type = browser_type
       @rules = Web4Cucumber.load_rules [rules]
@@ -46,19 +52,20 @@ require "base64"
       @base_url = base_url
       @browser = browser
       @logger = logger
+      @scroll_strategy = scroll_strategy
     end
 
-    def is_new?
-      !@browser
+    def started?
+      @browser && @browser.exists?
     end
 
     def browser
-      return @browser if @browser
+      return @browser if @browser && @browser.exists?
       firefox_profile = Selenium::WebDriver::Firefox::Profile.new
-      chrome_profile = Selenium::WebDriver::Remote::Capabilities.chrome()
+      chrome_caps = Selenium::WebDriver::Remote::Capabilities.chrome()
       if ENV.has_key? "http_proxy"
         proxy = ENV["http_proxy"].scan(/[\w\.\d\_\-]+\:\d+/)[0] # to get rid of the heading "http://" that breaks the profile
-        firefox_profile.proxy = chrome_profile.proxy = Selenium::WebDriver::Proxy.new({:http => proxy, :ssl => proxy})
+        firefox_profile.proxy = chrome_caps.proxy = Selenium::WebDriver::Proxy.new({:http => proxy, :ssl => proxy})
         firefox_profile['network.proxy.no_proxies_on'] = "localhost, 127.0.0.1"
         chrome_switches = %w[--proxy-bypass-list=127.0.0.1]
         ENV['no_proxy'] = '127.0.0.1'
@@ -71,6 +78,9 @@ require "base64"
       if @browser_type == :firefox_marionette
         logger.info "Launching Firefox Marionette/Geckodriver"
         caps = Selenium::WebDriver::Remote::Capabilities.firefox accept_insecure_certs: true
+        if Integer === @scroll_strategy
+          caps[:element_scroll_behavior] = @scroll_strategy
+        end
         options = Selenium::WebDriver::Firefox::Options.new profile: firefox_profile #, binary: "/home/user/local/firefox-52-esr/firefox"
         # set any additional moz:firefoxOptions in the following way
         # options.add_option :log, {"level"=> "trace"}
@@ -85,11 +95,17 @@ require "base64"
         # we should switch to marionette once FF ESR becomes version  54+
         logger.info "Launching Firefox Legacy"
         caps = Selenium::WebDriver::Remote::Capabilities.firefox marionette: false, profile: firefox_profile #, firefox_binary: "/home/user/local/firefox-52-esr/firefox"
+        if Integer === @scroll_strategy
+          caps[:element_scroll_behavior] = @scroll_strategy
+        end
         driver = Selenium::WebDriver.for :firefox, desired_capabilities: caps, http_client: client
         @browser = Watir::Browser.new driver
       elsif @browser_type == :chrome
         logger.info "Launching Chrome"
-        @browser = Watir::Browser.new :chrome, desired_capabilities: chrome_profile, switches: chrome_switches
+        if Integer === @scroll_strategy
+          chrome_caps[:element_scroll_behavior] = @scroll_strategy
+        end
+        @browser = Watir::Browser.new :chrome, desired_capabilities: chrome_caps, switches: chrome_switches
       else
         raise "Not implemented yet"
       end
@@ -111,7 +127,7 @@ require "base64"
     end
 
     def finalize
-      @browser.close if @browser
+      @browser.close if @browser && @browser.exists?
       # avoid destroy as it happens at_exit anyway but often reused during run
       # @@headless.destroy if @@headless
     end
@@ -555,6 +571,7 @@ require "base64"
         res[:success] = false
         res[:response] << "\n" << "operation #{op} failed:\n"
         res[:response] << self.class.exception_to_string(err)
+        res[:error] = err
         # log error if operation on element failed
         logger.error err
       ensure

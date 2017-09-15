@@ -30,24 +30,39 @@ module CucuShift
 
       rulez = @rules || RULES_DIR +  "base/"
 
-      e = @executors[user.name] = Web4Cucumber.new(
+      browser_opts = {
         logger: logger,
         base_url: env.web_console_url,
         browser_type: conf[:browser] ? conf[:browser].to_sym : :firefox,
         rules: rulez,
         snippets_dir: SNIPPETS_DIR
-      )
+      }
+
+      e = @executors[user.name] = Web4Cucumber.new(**browser_opts)
 
       unless @rules
-        e.replace_rules([e.rules, "#{RULES_DIR}#{get_master_version(user)}/"])
+        versioned_rules = "#{RULES_DIR}#{get_master_version(user)}/"
+        browser_opts_overrides_file = "#{versioned_rules}browser_opts.yml"
+
+        e.replace_rules([e.rules, versioned_rules])
         @rules = Collections.deep_freeze(e.rules)
-        unless e.is_new?
+
+        if e.started?
           res = logout(user)
+          # it seems we used browser to get cluster version, tag it as new here
+          @version_browser = e
           unless res[:success]
             raise  "logout from web console failed:\n" + res[:response]
           end
         end
-        @version_browser = e
+
+        if File.exist? browser_opts_overrides_file
+          browser_opts_overrides = YAML.load_file browser_opts_overrides_file
+          browser_opts[:rules] = @rules
+          browser_opts.merge! browser_opts_overrides
+          e.finalize
+          e = @executors[user.name] = Web4Cucumber.new(**browser_opts)
+        end
       end
 
       return e
@@ -118,7 +133,7 @@ module CucuShift
       if !opts.delete(:_nologin)
         # login automatically on first use unless `_nologin` option given
         if is_new?(executor(user)) && !login_actions.include?(action)
-          @version_browser = nil
+          reset_new_status_of_version_browser(executor(user))
           res = login(user)
           unless res[:success]
             logger.error "login to web console failed:\n" + res[:response]
@@ -132,7 +147,11 @@ module CucuShift
     end
 
     def is_new?(browser)
-      return browser.is_new? || @version_browser == browser
+      return !browser.started? || @version_browser == browser
+    end
+
+    def reset_new_status_of_version_browser(browser)
+      @version_browser = nil if @version_browser == browser
     end
 
     def clean_up
