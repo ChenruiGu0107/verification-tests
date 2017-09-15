@@ -410,7 +410,7 @@ module CucuShift
             ips.concat task[:ips]
           end
 
-          dns_record = "*.#{dns_component}"
+          dns_record = "*.apps.#{dns_component}"
           logger.info "Creating '#{dns_record}' record for: #{ips.join(?,)}"
           fqdn = dyn.dyn_replace_a_records(dns_record, ips)
           if task[:store_in]
