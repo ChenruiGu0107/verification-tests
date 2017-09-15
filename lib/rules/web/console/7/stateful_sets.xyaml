@@ -51,7 +51,7 @@ check_volume_info:
 check_stateful_set_environment_tab_info:
   element:
     selector:
-      xpath: //h3[text()="Container <container_name> Environment Variables"]/following::p[normalize-space(text())="Environment variables for stateful sets are readonly."]
+      xpath: //h3[text()='Container <container_name>']
 check_stateful_set_updated_successfully_message:
   element: &stateful_set_updated_successfully_message
     selector:

@@ -91,7 +91,7 @@ check_one_image_stream:
   action: click_hide_annotations
   element:
     selector:
-      xpath: //td/a[contains(@class,'registry-image-tag') and text()='latest']
+      xpath: //a[contains(@class,'registry-image-tag') and text()='latest']
     type: a
 check_deleted_image_stream:
   action: goto_one_image_stream_page
