@@ -198,7 +198,7 @@ Feature: SDN related networking scenarios
     And I wait up to 35 seconds for the steps to pass:
     """
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "5s ago" \| grep node_iptables.go |
+      | journalctl -l -u atomic-openshift-node --since "5s ago" \| grep iptables.go |
     Then the output should contain "Syncing openshift iptables rules"
     And the output should contain "syncIPTableRules took"
     """
@@ -231,7 +231,7 @@ Feature: SDN related networking scenarios
     And I wait up to 15 seconds for the steps to pass:
     """
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "5s ago" \| grep node_iptables.go |
+      | journalctl -l -u atomic-openshift-node --since "5s ago" \| grep iptables.go |
     Then the output should contain "Syncing openshift iptables rules"
     And the output should contain "syncIPTableRules took"
     """
