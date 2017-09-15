@@ -266,7 +266,7 @@ check_external_traffic:
   - selector:
       xpath: .//span[text()='External Traffic']
   - selector:
-      xpath: .//a[text()='<route_url>']
+      xpath: .//a[contains(text(),'<route_url>')]
   - selector:
       xpath: .//span[contains(@ng-if,'route') and contains(.,'<route_port_info>')]
   - selector:
