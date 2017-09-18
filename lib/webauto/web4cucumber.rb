@@ -85,6 +85,9 @@ require "base64"
         # set any additional moz:firefoxOptions in the following way
         # options.add_option :log, {"level"=> "trace"}
 
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1321516#c110
+        caps["moz:webdriverClick"] = true
+
         # This is actually a shortcut for trace logging
         # this also needs debug webdriver logging enabled above to work
         # options.log_level = 'trace'
