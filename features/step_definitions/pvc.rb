@@ -57,19 +57,12 @@ end
 # 2. specify specific key/values on different versions
 # 3. replace any path with given value from table
 # 4. runs `oc create` command over the resulting file
-When /^I create pvc (?:over|with) #{QUOTED} replacing paths:$/ do |file, table|
+When /^I create a (manual|dynamic) pvc from #{QUOTED} replacing paths:$/ do |type, file, table|
   if file.include? '://'
     step %Q|I download a file from "#{file}"|
     resource_hash = YAML.load(@result[:response])
   else
     resource_hash = YAML.load_file(expand_path(file))
-  end
-
-  # version diff
-  if env.version_ge("3.6", user: user)
-    if !resource_hash["metadata"].to_json.include? "kubernetes.io/storage-class" && !resource_hash["spec"].to_json.include? "storageClassName"
-      resource_hash["spec"]["storageClassName"] = ''
-    end
   end
 
   # replace paths from table
@@ -78,6 +71,34 @@ When /^I create pvc (?:over|with) #{QUOTED} replacing paths:$/ do |file, table|
     # e.g. resource["spec"]["nfs"]["server"] = 10.10.10.10
     #      resource["spec"]["containers"][0]["name"] = "xyz"
   end
+
+  if type == "manual"
+    if env.version_ge("3.7", user: user)
+      resource_hash["spec"]["storageClassName"] = ''
+    else
+      resource_hash["spec"].delete "storageClassName"
+    end
+  elsif type == "dynamic"
+    storage_class = resource_hash["spec"]["storageClassName"] ||
+      resource_hash.dig("metadata", "annotations",
+                        "volume.alpha.kubernetes.io/storage-class") ||
+      resource_hash.dig("metadata","annotations",
+                        "volume.beta.kubernetes.io/storage-class")
+    resource_hash["spec"].delete "storageClassName"
+    resource_hash.dig("metadata", "annotations")&.
+      delete("volume.alpha.kubernetes.io/storage-class")
+    resource_hash.dig("metadata", "annotations")&.
+      delete("volume.beta.kubernetes.io/storage-class")
+    if env.version_ge("3.7", user: user)
+      resource_hash["spec"]["storageClassName"] = storage_class if storage_class
+    else
+      resource_hash["spec"].delete "storageClassName"
+      resource_hash["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] = storage_class || "whatevervalue"
+    end
+  else
+    raise "impossible"
+  end
+
   resource = resource_hash.to_json
   logger.info resource
 
