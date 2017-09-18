@@ -92,7 +92,7 @@ Feature: AWS specific scenarios
       | container        | hello-openshift-fedora               |
       | oc_opts_end      |                                      |
       | exec_command     | touch                                |
-      | exec_command_arg | /tmp/testfilea                       |
+      | exec_command_arg | /tmp/testfileb                       |
     Then the step should succeed
     When I run the :exec client command with:
       | pod              | doublecontainers-<%= project.name %> |
@@ -100,8 +100,12 @@ Feature: AWS specific scenarios
       | oc_opts_end      |                                      |
       | exec_command     | ls                                   |
       | exec_command_arg | -l                                   |
-      | exec_command_arg | /tmp/testfilea                       |
+      | exec_command_arg | /tmp                                 |
     Then the step should succeed
+    Then the output should contain:
+      | testfilea |
+      | testfileb |
+
     And I ensure "efspvc-<%= project.name %>" pvc is deleted
     And I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
@@ -218,6 +222,13 @@ Feature: AWS specific scenarios
     When I execute on the pod:
       | touch | /tmp/file_pod2 |
     Then the step should succeed
+    When I execute on the pod:
+      | ls | /tmp |
+    Then the step should succeed
+    Then the output should contain:
+      | file_pod1 |
+      | file_pod2 |
+
     And I ensure "efspvc-<%= project.name %>" pvc is deleted
     And I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
