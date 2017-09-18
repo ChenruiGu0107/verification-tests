@@ -19,7 +19,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-12083
   @admin
   Scenario: Set the CIDRselector in EgressNetworkPolicy to invalid value
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     Given I switch to cluster admin pseudo user
     When I run the :create client command with:
@@ -33,7 +33,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-11625
   @admin
   Scenario: Only the cluster-admins can create EgressNetworkPolicy
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
@@ -78,7 +78,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-12087
   @admin
   Scenario: EgressNetworkPolicy can be deleted after the project deleted
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
@@ -101,7 +101,7 @@ Feature: Egress-ingress related networking scenarios
   @admin
   @destructive
   Scenario: Dropping all traffic when multiple egressnetworkpolicy in one project
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     When I run the :create admin command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
@@ -272,7 +272,7 @@ Feature: Egress-ingress related networking scenarios
   @admin
   @destructive
   Scenario: EgressNetworkPolicy will not take effect after delete it
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     Given I have a pod-for-ping in the project
     When I execute on the pod:
@@ -312,7 +312,7 @@ Feature: Egress-ingress related networking scenarios
   @admin
   @destructive
   Scenario: Set EgressNetworkPolicy to limit the pod connection to specific CIDR ranges in different namespaces
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     And I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
@@ -419,7 +419,7 @@ Feature: Egress-ingress related networking scenarios
   @admin
   @destructive
   Scenario: The openflow rules for the project with egressnetworkpolicy will not be corrupted by the restart node.service
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     And evaluation of `project.name` is stored in the :proj1 clipboard
     Given I create a new project
@@ -453,7 +453,7 @@ Feature: Egress-ingress related networking scenarios
   @admin
   @destructive
   Scenario: Egressnetworkpolicy will take effect as 0.0.0.0/0 when set to 0.0.0.0/32 in cidrSelector
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     Given I have a pod-for-ping in the project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json"
@@ -483,7 +483,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-13499
   @admin
   Scenario: Change the order of allow and deny rules in egress network policy
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project  
     Given I have a pod-for-ping in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -534,7 +534,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-13501
   @admin
   Scenario: Apply same egress network policy in different projects
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project  
     Given I have a pod-for-ping in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -598,7 +598,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-13502
   @admin
   Scenario: Apply different egress network policy in different projects
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project 
     Given I have a pod-for-ping in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -661,7 +661,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-13507
   @admin
   Scenario: The rules of egress network policy are added in openflow
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project 
     And evaluation of `project.name` is stored in the :proj1 clipboard
  
@@ -701,7 +701,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-13508
   @admin
   Scenario: Validate cidrSelector and dnsName fields in egress network policy
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project  
     And evaluation of `project.name` is stored in the :proj1 clipboard
  
@@ -726,7 +726,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-13509
   @admin
   Scenario: Egress network policy use dnsname with multiple ipv4 addresses
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project  
     Given I have a pod-for-ping in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -755,7 +755,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-15004
   @admin
   Scenario: Service with a DNS name can not by pass Egressnetworkpolicy with IP corresponding that DNS name
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     Given I have a pod-for-ping in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -807,7 +807,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-15005
   @admin
   Scenario: Service with a DNS name can not by pass Egressnetworkpolicy with that DNS name	
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     Given I have a pod-for-ping in the project
     And evaluation of `project.name` is stored in the :proj1 clipboard
@@ -862,7 +862,7 @@ Feature: Egress-ingress related networking scenarios
   # @case_id OCP-15017
   @admin
   Scenario: Add nodes local IP address to OVS rules for egressnetworkpolicy
-    Given the env is using multitenant network
+    Given the env is using multitenant or networkpolicy network
     Given I have a project
     Given I have a pod-for-ping in the project
     And evaluation of `pod('hello-pod').node_ip(user: user)` is stored in the :hostip clipboard
