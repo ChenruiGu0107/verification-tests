@@ -153,7 +153,7 @@ module CucuShift
 
     # @return [Array] of name, [Time], record_api_path
     def dyn_get_timed_a_records(auth_token=@auth_token, retries=@@dyn_retries)
-      expr = %r%^/REST/ARecord/([^/]*)/((?:[^.]+[.])?(\d{4})-[^.]+[.]\1)/%
+      expr = %r%^/REST/ARecord/([^/]*)/((?:[^.]+[.]){,2}(\d{4})-[^.]+[.]\1)/%
       all = dyn_get_all_zone_records(auth_token, retries)
       now = Time.now
       res = []
