@@ -29,20 +29,20 @@ Feature: change the policy of user/service account
   Scenario: User can view ,add, remove and modify roleBinding via admin role user
     Given I have a project
     When I run the :describe client command with:
-      | resource | policyBindings |
-      | name     | :default       |
+      | resource | rolebinding |
+      | name     | admin       |
     Then the output should match:
-      | Role:\\s+admin              |
+      | Role:\\s+\/admin            |
       | Users:\\s+<%= @user.name %> |
     When I run the :oadm_add_role_to_user client command with:
       | role_name | admin            |
       | user_name | <%= user(1, switch: false).name %> |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | policyBindings |
-      | name     | :default       |
+      | resource | rolebinding |
+      | name     | admin       |
     Then the output should match:
-      | Role:\\s+admin                                                  |
+      | Role:\\s+\/admin                                                  |
       | Users:\\s+<%= @user.name %>, <%= user(1, switch: false).name %> |
     Given I switch to the second user
     And I wait for the steps to pass:
@@ -57,10 +57,10 @@ Feature: change the policy of user/service account
       | user_name | <%= user(1, switch: false).name %> |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | policyBindings |
-      | name     | :default       |
+      | resource | rolebinding |
+      | name     | admin       |
     Then the output should match:
-      | Role:\\s+admin              |
+      | Role:\\s+\/admin            |
       | Users:\\s+<%= @user.name %> |
     Given I switch to the second user
     And I wait for the steps to pass:
@@ -93,9 +93,8 @@ Feature: change the policy of user/service account
     Then the step should succeed
 
     ##no policybinding for this role in project
-    When I run the :describe client command with:
-      | resource | policybindings |
-      | name     | :default       |
+    When I run the :get client command with:
+      | resource | rolebinding |
     Then the output should not contain:
       | viewservices |
 
@@ -290,14 +289,14 @@ Feature: change the policy of user/service account
     And the output should contain:
       | created      |
     When I run the :describe client command with:
-      | namespace    | <%= project.name %>          |
-      | resource     | policy                       |
-      | name         | default                      |
+      | namespace    | <%= project.name %> |
+      | resource     | role                |
+      | name         | viewservices        |
     Then the step should succeed
     And the output should contain:
-      | get                                         |
-      | list                                        |
-      | watch                                       |
+      | get                                |
+      | list                               |
+      | watch                              |
 
     When I delete matching lines from "projectviewservice.json":
       | "get",       |
@@ -308,9 +307,9 @@ Feature: change the policy of user/service account
     And the output should contain:
       | replaced     |
     When I run the :describe client command with:
-      | namespace    | <%= project.name %>          |
-      | resource     | policy                       |
-      | name         | default                      |
+      | namespace    | <%= project.name %> |
+      | resource     | role                |
+      | name         | viewservices        |
     Then the step should succeed
     And the output should not contain:
       | get          |
@@ -323,9 +322,9 @@ Feature: change the policy of user/service account
       | deleted          |
     When I run the :describe client command with:
       | namespace    | <%= project.name %>          |
-      | resource     | policy                       |
-      | name         | default                      |
-    Then the step should succeed
+      | resource     | role                       |
+      | name         | viewservices                      |
+    Then the step should fail
     And the output should not contain:
       | list          |
       | watch         |
@@ -904,9 +903,9 @@ Feature: change the policy of user/service account
       | user_name | <%= user(1, switch: false).name %> |
     Then the step should succeed
     And I run the :describe client command with:
-      |resource | clusterpolicybindings |
+      |resource | clusterrolebinding |
     And the output should match:
-      | Role:\\s+tc467927                            |
+      | Role:\\s+\/tc467927                            |
       | Users:\\s+<%= user(1, switch: false).name %> |
 
   # @author chuyu@redhat.com

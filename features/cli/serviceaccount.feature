@@ -13,13 +13,11 @@ Feature: ServiceAccount and Policy Managerment
     Given I create the serviceaccount "demo"
     And I give project admin role to the demo service account
     When I run the :describe client command with:
-      | resource | policybindings |
-      | name     | :default       |
+      | resource | rolebinding |
+      | name     | admin       |
     Then the output should match:
-      | Role:\\s+admin |
+      | Role:\\s+\/admin |
       | ServiceAccounts:\\s+demo |
-    Then the output should contain:
-      | RoleBinding[system:deployers] |
     Given I find a bearer token of the demo service account
     And I switch to the demo service account
     When I run the :get client command with:

@@ -308,8 +308,8 @@ Feature: projects related features via cli
       | group_name | system:serviceaccounts:<%= user(1, switch: false).name %> |
     Then the step should succeed
     When I run the :describe client command with:
-      | resource | policybinding |
-      | name | :default |
+      | resource | rolebinding |
+      | name     | admin       |
     Then the step should succeed
     And the output should match:
       | Users:\\s+<%= user.name %>, <%= user(1, switch: false).name %> |
@@ -319,8 +319,8 @@ Feature: projects related features via cli
     Then the step should succeed
     And the output should contain "Removing admin from groups"
     When I run the :describe client command with:
-      | resource | policybinding |
-      | name | :default |
+      | resource | rolebinding |
+      | name     | admin       |
     Then the step should succeed
     And the output should match:
       | Users:\\s+<%= user.name %>, <%= user(1, switch: false).name %> |
