@@ -19,8 +19,8 @@ Feature: Storage of Ceph plugin testing
     Then the step should succeed
 
     #Create ceph pvc
-    Given I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/pvc-rwo.json |
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/pvc-rwo.json" replacing paths:
+      | ["metadata"]["name"]                         | rbdc |
     Then the step should succeed
     And the PV becomes :bound
 
@@ -54,7 +54,7 @@ Feature: Storage of Ceph plugin testing
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pv-rwo.json" where:
       | ["metadata"]["name"]           | pv-rbd-server-<%= project.name %>            |
       | ["spec"]["rbd"]["monitors"][0] | <%= pod("rbd-server").ip(user: user) %>:6789 |
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pvc-rwo.json" replacing paths:
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/docker-rbd/master/pvc-rwo.json" replacing paths:
       | ["metadata"]["name"]   | pvc-rbd-<%= project.name %>       |
       | ["spec"]["volumeName"] | pv-rbd-server-<%= project.name %> |
     Then the step should succeed
@@ -177,7 +177,7 @@ Feature: Storage of Ceph plugin testing
     And evaluation of `@result[:parsed]["data"]["key"]` is stored in the :secret_key clipboard
 
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
     Then the step should succeed
@@ -218,7 +218,7 @@ Feature: Storage of Ceph plugin testing
     Given I have a "secret" named "cephrbd-secret" in the "default" namespace
     And I have a project
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
       | ["spec"]["resources"]["requests"]["storage"]                           | 9Gi                     |
@@ -237,7 +237,7 @@ Feature: Storage of Ceph plugin testing
     Given I have a "secret" named "cephrbd-secret" in the "default" namespace
     And I have a project
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | cephrbdprovisioner      |
     Then the step should succeed
@@ -255,7 +255,7 @@ Feature: Storage of Ceph plugin testing
   # @author lizhou@redhat.com
   # @case_id OCP-13621
   @admin
-  Scenario: rbd volumes should be accessible by multiple pods with readonly permission 
+  Scenario: rbd volumes should be accessible by multiple pods with readonly permission
     Given admin creates a project with a random schedulable node selector
     And I have a Ceph pod in the project
 
@@ -279,4 +279,26 @@ Feature: Storage of Ceph plugin testing
     Then the output should match:
       | .*rbdpd1-<%= project.name %>.*ro.* |
       | .*rbdpd2-<%= project.name %>.*ro.* |
-      
+
+  # @author jhou@redhat.com
+  # @case_id OCP-15839
+  @admin
+  Scenario: Supporting features parameter in rbd StorageClass
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And I run the :get admin command with:
+      | resource      | storageclass       |
+      | resource_name | cephrbdprovisioner |
+      | o             | yaml               |
+
+    # The user secret is retrieved from "cephrbd-secret" for pod mounts
+    Given evaluation of `@result[:parsed]["parameters"]["monitor"]` is stored in the :monitor clipboard
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_with_features.yaml" where:
+      | ["metadata"]["name"]       | sc-<%= project.name %>   |
+      | ["parameters"]["features"] | layering, exclusive-lock |
+    Then the step should succeed
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
