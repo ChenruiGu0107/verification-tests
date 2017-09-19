@@ -238,12 +238,13 @@ module CucuShift
     end
 
     def dns_component=(value)
-      if value =~ /^\d{4}-|^fixed-/ &&
-         ( !value.include?(".") || value.end_with?(".") )
+      if value.end_with?(".") || value =~ /(?<=\w\.|^)(?:\d{4}|fixed)-[^.]+$/
         @dns_component = value
         logger.warn "User specified DNS component: #{value}"
       else
-        raise "got '#{value}' but allowed only FQDN ending with dot or a single DNS component without any dots; both matching /^\d{4}-|^fixed-/"
+        raise "got '#{value}' but allowed only FQDN ending with dot or " \
+          "a relative subdomain ending with a fixed or a timed subdomain " \
+          "component; i.e. match /(?<=\\w\\.|^)(?:\\d{4}|fixed)-[^.]+$/"
       end
     end
 
