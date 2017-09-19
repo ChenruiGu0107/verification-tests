@@ -16,7 +16,7 @@ Feature: Persistent Volume Recycling
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
@@ -47,4 +47,3 @@ Feature: Persistent Volume Recycling
     Then the output should not contain:
       | file |
       | folder |
-

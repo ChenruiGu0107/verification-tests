@@ -9,7 +9,7 @@ Feature: GCE specific scenarios
       | ["provisioner"]         | kubernetes.io/gce-pd   |
       | ["parameters"]["zones"] |                        |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -33,7 +33,7 @@ Feature: GCE specific scenarios
     Then the step should succeed
     And I run the steps 10 times:
     """
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc-#{cb.i}            |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -54,7 +54,7 @@ Feature: GCE specific scenarios
       | ["metadata"]["name"]   | sc-<%= project.name %>      |
       | ["parameters"]["zone"] | us-central1-a,us-central1-b |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -76,7 +76,7 @@ Feature: GCE specific scenarios
       | ["parameters"]["zone"]  | us-central1-a               |
       | ["parameters"]["zones"] | us-central1-a,us-central1-b |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -97,7 +97,7 @@ Feature: GCE specific scenarios
       | ["metadata"]["name"]           | sc-<%= project.name %> |
       | ["parameters"]["invalidParam"] | test                   |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -118,7 +118,7 @@ Feature: GCE specific scenarios
       | ["metadata"]["name"]   | sc-<%= project.name %> |
       | ["parameters"]["zone"] |                        |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-with-storageClassName.json" replacing paths:
       | ["metadata"]["name"]         | pvc                    |
       | ["spec"]["storageClassName"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -140,7 +140,7 @@ Feature: GCE specific scenarios
       | ["metadata"]["name"]   | sc-<%= project.name %> |
       | ["parameters"]["zone"] | <%= cb.zone %>         |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1                   |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -163,7 +163,7 @@ Feature: GCE specific scenarios
   @admin
   Scenario: Rapid repeat pod creation and deletion with GCE PD should not fail
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
@@ -214,7 +214,7 @@ Feature: GCE specific scenarios
       | ["spec"]["gcePersistentDisk"]["pdName"]   | <%= cb.gcepd %>           |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                    |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-rw                    |
       | ["spec"]["volumeName"]                       | pv-rw-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteMany             |
@@ -239,7 +239,7 @@ Feature: GCE specific scenarios
       | ["spec"]["gcePersistentDisk"]["pdName"]   | <%= cb.gcepd %>        |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                 |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
       | ["spec"]["accessModes"][0]                   | ReadOnlyMany            |

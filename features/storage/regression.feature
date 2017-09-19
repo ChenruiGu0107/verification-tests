@@ -13,7 +13,7 @@ Feature: Regression testing cases
       | ["spec"]["accessModes"][0]                | ReadOnlyMany                     |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                           |
       | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadOnlyMany             |
@@ -30,7 +30,7 @@ Feature: Regression testing cases
     Given I ensure "nfsc-<%= project.name %>" pvc is deleted
 
     # Test deleting dynamic PVC
-    Given I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    Given I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce                   |
       | ["spec"]["resources"]["requests"]["storage"] | 1                               |
