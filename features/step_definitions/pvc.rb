@@ -73,7 +73,7 @@ When /^I create a (manual|dynamic) pvc from #{QUOTED} replacing paths:$/ do |typ
   end
 
   if type == "manual"
-    if env.version_ge("3.7", user: user)
+    if env.version_ge("3.6", user: user)
       resource_hash["spec"]["storageClassName"] = ''
     else
       resource_hash["spec"].delete "storageClassName"
@@ -81,18 +81,15 @@ When /^I create a (manual|dynamic) pvc from #{QUOTED} replacing paths:$/ do |typ
   elsif type == "dynamic"
     storage_class = resource_hash["spec"]["storageClassName"] ||
       resource_hash.dig("metadata", "annotations",
-                        "volume.alpha.kubernetes.io/storage-class") ||
-      resource_hash.dig("metadata","annotations",
                         "volume.beta.kubernetes.io/storage-class")
     resource_hash["spec"].delete "storageClassName"
     resource_hash.dig("metadata", "annotations")&.
       delete("volume.alpha.kubernetes.io/storage-class")
     resource_hash.dig("metadata", "annotations")&.
       delete("volume.beta.kubernetes.io/storage-class")
-    if env.version_ge("3.7", user: user)
+    if env.version_ge("3.6", user: user)
       resource_hash["spec"]["storageClassName"] = storage_class if storage_class
     else
-      resource_hash["spec"].delete "storageClassName"
       resource_hash["metadata"]["annotations"]["volume.alpha.kubernetes.io/storage-class"] = storage_class || "whatevervalue"
     end
   else
