@@ -1481,3 +1481,101 @@ Feature: test master config related steps
     And the output should match "You must obtain an API token by visiting.*oauth/token/request"
     Given master config is restored from backup
     And the master service is restarted on all master nodes
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-12207
+  @admin
+  @destructive
+  Scenario: User can not login when User exists and references identity which does not reference user
+    Given I switch to the first user
+    And I restore user's context after scenario
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        mappingMethod: generate
+        name: anypassword
+        provider:
+          apiVersion: v1
+          kind: AllowAllPasswordIdentityProvider
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 12207_user                  |
+      | password | password                    |
+    Then the step should succeed
+    When I run the :patch admin command with:
+      | resource      | identity               |
+      | resource_name | anypassword:12207_user |
+      | p             | {"user": null}         |
+    Then the step should succeed
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 12207_user                  |
+      | password | password                    |
+    Then the step should fail
+    And I register clean-up steps:
+      """
+      Given I run the :delete admin command with:
+        | object_type       | user       |
+        | object_name_or_id | 12207_user |
+      Then the step should succeed
+      """
+    Given admin ensures identity "anypassword:12207_user" is deleted
+    Then the step should succeed
+
+  # @author chuyu@redhat.com
+  # @case_id OCP-12146
+  @admin
+  @destructive
+  Scenario: User can not login when identity exists and references to the user which not point back to identity
+    Given I switch to the first user
+    And I restore user's context after scenario
+    Given master config is merged with the following hash:
+    """
+    oauthConfig:
+      assetPublicURL: <%= env.api_endpoint_url %>/console/
+      grantConfig:
+        method: auto
+      identityProviders:
+      - challenge: true
+        login: true
+        mappingMethod: generate
+        name: anypassword
+        provider:
+          apiVersion: v1
+          kind: AllowAllPasswordIdentityProvider
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 12146_user                  |
+      | password | password                    |
+    Then the step should succeed
+    When I run the :patch admin command with:
+      | resource      | user                 |
+      | resource_name | 12146_user           |
+      | p             | {"identities": null} |
+    Then the step should succeed
+    When I run the :login client command with:
+      | server   | <%= env.api_endpoint_url %> |
+      | username | 12146_user                  |
+      | password | password                    |
+    Then the step should fail
+    And I register clean-up steps:
+      """
+      Given I run the :delete admin command with:
+        | object_type       | user       |
+        | object_name_or_id | 12146_user |
+      Then the step should succeed
+      """
+    Given admin ensures identity "anypassword:12146_user" is deleted
+    Then the step should succeed
