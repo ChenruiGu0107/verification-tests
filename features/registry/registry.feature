@@ -581,7 +581,13 @@ Feature: Testing registry
     And I select a random node's host
     And I have a registry with htpasswd authentication enabled in my project
     And I add the insecure registry to docker config on the node
-    And I log into auth registry on the node
+    And a pod becomes ready with labels:
+      | deploymentconfig=registry |
+    Given I wait up to 60 seconds for the steps to pass:
+    """
+    When I log into auth registry on the node
+    Then the step should succeed
+    """
     When I docker push on the node to the registry the following images:
       | docker.io/busybox:latest | busybox:latest |
     Then the step should succeed
