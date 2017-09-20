@@ -8,7 +8,7 @@ Feature: vSphere test scenarios
       | ["metadata"]["name"]         | storageclass-<%= project.name %> |
       | ["parameters"]["diskformat"] | <disk_format>                    |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/vsphere/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/vsphere/pvc.json" replacing paths:
         | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
         | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     Then the step should succeed
@@ -65,7 +65,7 @@ Feature: vSphere test scenarios
       | ["parameters"]["diskformat"] | newformat                        |
     Then the step should succeed
 
-    Given I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/vsphere/pvc.json" replacing paths:
+    Given I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/vsphere/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
     And I wait up to 30 seconds for the steps to pass:

@@ -12,7 +12,7 @@ Feature: CephFS storage plugin testing
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-ceph/master/pv-rwo.json" where:
       | ["metadata"]["name"]              | pv-cephfs-server-<%= project.name %>            |
       | ["spec"]["cephfs"]["monitors"][0] | <%= pod("cephfs-server").ip(user: user) %>:6789 |
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-ceph/master/pvc-rwo.json" replacing paths:
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/docker-ceph/master/pvc-rwo.json" replacing paths:
       | ["metadata"]["name"]   | pvc-cephfs-<%= project.name %>       |
       | ["spec"]["volumeName"] | pv-cephfs-server-<%= project.name %> |
     Then the step should succeed
