@@ -15,7 +15,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["nfs"]["path"]    | /non-exist-path                  |
       | ["spec"]["accessModes"][0] | ReadWriteMany                    |
       | ["metadata"]["name"]       | nfs-<%= project.name %>          |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteMany            |
@@ -56,7 +56,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["accessModes"][0]                | <access_mode>                    |
       | ["spec"]["persistentVolumeReclaimPolicy"] | <reclaim_policy>                 |
       | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | <access_mode>            |
@@ -112,7 +112,7 @@ Feature: NFS Persistent Volume
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
       | ["spec"]["volumeName"] | <%= pv.name %> |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
@@ -150,7 +150,7 @@ Feature: NFS Persistent Volume
     And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto-nfs-default-rwx.json" where:
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
       | ["spec"]["volumeName"] | <%= pv.name %> |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
@@ -187,7 +187,7 @@ Feature: NFS Persistent Volume
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
@@ -199,7 +199,7 @@ Feature: NFS Persistent Volume
     Then the output should not contain:
       | Bound |
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
     Then the step should succeed
@@ -218,7 +218,7 @@ Feature: NFS Persistent Volume
     And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-retain.json" where:
       | ["metadata"]["name"]      | nfs-<%= project.name %>          |
       | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
       | ["spec"]["volumeName"] | <%= pv.name %> |
     And the PV becomes :bound
 
@@ -390,7 +390,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["accessModes"][0] | ReadWriteMany                    |
       | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | pvc-nfs-<%= project.name %> |
       | ["spec"]["volumeName"]     | pv-nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteMany               |
@@ -453,7 +453,7 @@ Feature: NFS Persistent Volume
       | ["metadata"]["name"]                                     | nfs-<%= project.name %>          |
       | ["metadata"]["annotations"]["pv.beta.kubernetes.io/gid"] | <pv-gid>                         |
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
     Then the step should succeed
@@ -508,7 +508,7 @@ Feature: NFS Persistent Volume
       | ["metadata"]["annotations"]["pv.beta.kubernetes.io/gid"] | abc123                           |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
     Then the step should succeed
@@ -534,7 +534,7 @@ Feature: NFS Persistent Volume
   Scenario: External provisioner of NFS dynamic provisioning testing 
     Given I have a project
     And I have a nfs-provisioner pod in the project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
@@ -567,7 +567,7 @@ Feature: NFS Persistent Volume
     When I run oc create over "https://raw.githubusercontent.com/kubernetes-incubator/nfs-provisioner/master/deploy/kube-config/pod-sa.yaml" replacing paths:
       | ["metadata"]["name"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
@@ -595,7 +595,7 @@ Feature: NFS Persistent Volume
   Scenario: NFS provisioner reclaim a provisioned volume
     Given I have a project
     And I have a nfs-provisioner pod in the project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
@@ -612,7 +612,7 @@ Feature: NFS Persistent Volume
   Scenario: NFS provisioner's provision volume should have correct capacity 
     Given I have a project
     And I have a nfs-provisioner pod in the project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
       | ["spec"]["resources"]["requests"]["storage"]                           | 6Gi                                 |
     Then the step should succeed
@@ -626,7 +626,7 @@ Feature: NFS Persistent Volume
   Scenario: NFS dynamic provisioner with deployment testing 
     Given I have a project
     And I have a nfs-provisioner service in the project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
@@ -662,7 +662,7 @@ Feature: NFS Persistent Volume
   Scenario: NFS dynamic provisioner lost and recovering test 
     Given I have a project
     And I have a nfs-provisioner service in the project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
@@ -703,7 +703,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
       | ["metadata"]["name"]                                                   | nfs-<%= project.name %>          |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro,nfsvers=4                     |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteOnce            |
@@ -743,7 +743,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
       | ["metadata"]["name"]                                                   | nfs-<%= project.name %>          |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | rw,nfsvers=4,noexec              |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteOnce            |
@@ -783,7 +783,7 @@ Feature: NFS Persistent Volume
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                        |
       | ["metadata"]["name"]                                                   | nfs-<%= project.name %>              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | nfsvers=4.1,hard,timeo=600,retrans=2 |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteOnce            |
