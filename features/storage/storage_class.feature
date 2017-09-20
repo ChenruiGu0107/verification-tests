@@ -17,12 +17,12 @@ Feature: storageClass related feature
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                        |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["spec"]["volumeName"]                                                 | pv-<%= project.name %>  |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] |                         |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | ''                      |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
@@ -152,7 +152,7 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | <is-default>                |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
       | ["spec"]["resources"]["requests"]["storage"]                           | <size>                  |
@@ -203,7 +203,7 @@ Feature: storageClass related feature
       | ["metadata"]["name"]   | sc-<%= project.name %> |
       | ["parameters"]["zone"] | europe-west1-d         |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -228,7 +228,7 @@ Feature: storageClass related feature
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | <provisioner>          |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
@@ -353,10 +353,10 @@ Feature: storageClass related feature
   Scenario Outline: PVC with storage class will provision pv with io1 type and 100/20000 iops ebs volume
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass-io1.yaml" where:
-      | ["metadata"]["name"]        | sc-<%= project.name %> |
+      | ["metadata"]["name"] | sc-<%= project.name %> |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
       | ["spec"]["resources"]["requests"]["storage"]                           | <size>                  |
@@ -395,7 +395,7 @@ Feature: storageClass related feature
   Scenario: Error messaging for failed provision via StorageClass
     Given I have a project
     # Scenario when StorageClass doesn't exist
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | missing |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | foo     |
     Then the step should succeed
@@ -412,7 +412,7 @@ Feature: storageClass related feature
     Given admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %> |
       | ["parameters"]["resturl"] | http://foo.com/        |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | invalid                |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %> |
     Then the step should succeed
@@ -448,13 +448,13 @@ Feature: storageClass related feature
   Scenario Outline: PVC with storage class will not provision pv with st1/sc1 type ebs volume if request size is wrong
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %> |
-      | ["provisioner"]                                                                 | kubernetes.io/aws-ebs  |
-      | ["parameters"]["type"]                                                          | <type>                 |
-      | ["parameters"]["zone"]                                                          | us-east-1d             |
+      | ["metadata"]["name"]   | sc-<%= project.name %> |
+      | ["provisioner"]        | kubernetes.io/aws-ebs  |
+      | ["parameters"]["type"] | <type>                 |
+      | ["parameters"]["zone"] | us-east-1d             |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
       | ["spec"]["resources"]["requests"]["storage"]                           | <size>                  |
@@ -485,7 +485,7 @@ Feature: storageClass related feature
       | ["parameters"]["iopsPerGB"] | 400000                |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"]                           | 4Gi                      |
@@ -507,7 +507,7 @@ Feature: storageClass related feature
       | ["parameters"]["iopsPerGB"] | 40                    |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc2-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"]                           | 3Gi                      |
@@ -530,7 +530,7 @@ Feature: storageClass related feature
   Scenario: PVC with storage class won't provisioned pv if no storage class or wrong storage class object
     Given I have a project
     # No sc exists
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"]                           | 4Gi                      |
@@ -550,7 +550,7 @@ Feature: storageClass related feature
       | ["parameters"]["type"]                                                          | <type>                 |
       | ["parameters"]["zone"]                                                          | us-east-1d             |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc2-<%= project.name %>          |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                     |
       | ["spec"]["resources"]["requests"]["storage"]                           | 4Gi                               |
@@ -587,15 +587,15 @@ Feature: storageClass related feature
       | ["parameters"]["zone"] | <region2_zone1>             |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc2-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc2-<%= project.name %>  |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc3-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc3-<%= project.name %>  |
     Then the step should succeed
@@ -770,7 +770,7 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                   |
       | ["provisioner"]                                                            | kubernetes.io/gce-pd   |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound

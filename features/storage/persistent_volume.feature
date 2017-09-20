@@ -9,7 +9,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["accessModes"][0]                | ReadWriteOnce          |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | pvc-<%= project.name %> |
       | ["spec"]["volumeName"]     | pv-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteOnce           |
@@ -52,7 +52,7 @@ Feature: Persistent Volume Claim binding policies
     Then the step should succeed
 
     # Create PVC with accessMode3
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["spec"]["accessModes"][0] | <accessMode3> |
     Then the step should succeed
 
@@ -71,7 +71,7 @@ Feature: Persistent Volume Claim binding policies
   # @case_id OCP-11933
   Scenario: deployment hook volume inheritance -- with persistentvolumeclaim Volume
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"] | nfsc |
     Then the step should succeed
     And the "nfsc" PVC becomes :bound
@@ -101,16 +101,16 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]       | pv-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadOnlyMany           |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadOnlyMany             |
       | ["spec"]["resources"]["requests"]["storage"] | 10Gi                     |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | pvc2-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteOnce            |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | pvc3-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteMany            |
     Then the step should succeed
@@ -127,16 +127,16 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]       | pv-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteOnce          |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"] | 10Gi                     |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | pvc2-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadOnlyMany             |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | pvc3-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteMany            |
     Then the step should succeed
@@ -153,16 +153,16 @@ Feature: Persistent Volume Claim binding policies
       | ["metadata"]["name"]       | pv-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteMany          |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteMany            |
       | ["spec"]["resources"]["requests"]["storage"] | 10Gi                     |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | pvc2-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteOnce            |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | pvc3-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadOnlyMany             |
     Then the step should succeed
@@ -217,7 +217,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["accessModes"][0]                | ReadWriteOnce                    |
       | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                          |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
       | ["spec"]["accessModes"][0] | ReadWriteOnce            |
@@ -311,7 +311,7 @@ Feature: Persistent Volume Claim binding policies
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["metadata"]["name"] | pv-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
       | ["metadata"]["name"]   | pvc-<%= project.name %> |
       | ["spec"]["volumeName"] | pv1-<%= project.name %> |
     Then the step should succeed
@@ -332,7 +332,7 @@ Feature: Persistent Volume Claim binding policies
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>      |
       | ["spec"]["claimRef"]["name"]      | pvc1-<%= project.name %> |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwx.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pv-<%= project.name %>" PV status is :available
@@ -348,7 +348,7 @@ Feature: Persistent Volume Claim binding policies
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-retain-rox.json" where:
       | ["metadata"]["name"]              | pv-<%= project.name %>   |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rox.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
@@ -381,7 +381,7 @@ Feature: Persistent Volume Claim binding policies
     Then the step should succeed
 
     # Create dynamic pvc
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
       | ["metadata"]["name"]                                                   | dynamic-pvc-<%= project.name %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                   |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                             |

@@ -11,7 +11,7 @@ Feature: ISCSI volume plugin testing
     And admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
       | ["metadata"]["name"]              | pv-iscsi-<%= project.name %> |
       | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260      |
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
       | ["metadata"]["name"]   | pvc-iscsi-<%= project.name %> |
       | ["spec"]["volumeName"] | pv-iscsi-<%= project.name %>  |
     Then the step should succeed
@@ -92,7 +92,7 @@ Feature: ISCSI volume plugin testing
       | ["metadata"]["name"]                      | iscsi-rw-<%= project.name %> |
       | ["spec"]["iscsi"]["targetPortal"]         | <%= cb.iscsi_ip %>:3260      |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                       |
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pvc-read-write.json" replacing paths:
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pvc-read-write.json" replacing paths:
       | ["metadata"]["name"]   | iscsi-rw-<%= project.name %> |
       | ["spec"]["volumeName"] | iscsi-rw-<%= project.name %> |
     Then the step should succeed
@@ -103,7 +103,7 @@ Feature: ISCSI volume plugin testing
       | ["metadata"]["name"]                      | iscsi-ro-<%= project.name %> |
       | ["spec"]["iscsi"]["targetPortal"]         | <%= cb.iscsi_ip %>:3260      |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                       |
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pvc-read-only.json" replacing paths:
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/iscsi/pvc-read-only.json" replacing paths:
       | ["metadata"]["name"]   | iscsi-ro-<%= project.name %> |
       | ["spec"]["volumeName"] | iscsi-ro-<%= project.name %> |
     Then the step should succeed
@@ -154,7 +154,7 @@ Feature: ISCSI volume plugin testing
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pv-rwo.json" where:
       | ["metadata"]["name"]              | pv-iscsi-<%= project.name %> |
       | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260      |
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
       | ["metadata"]["name"]   | pvc-iscsi-<%= project.name %> |
       | ["spec"]["volumeName"] | pv-iscsi-<%= project.name %>  |
     Then the step should succeed
@@ -174,7 +174,7 @@ Feature: ISCSI volume plugin testing
       | ["spec"]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip %>:3260       |
       | ["spec"]["iscsi"]["lun"]          | 1                             |
     And I switch to the default user
-    And I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
+    And I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pvc-rwo.json" replacing paths:
       | ["metadata"]["name"]   | pvc1-iscsi-<%= project.name %> |
       | ["spec"]["volumeName"] | pv1-iscsi-<%= project.name %>  |
     Then the step should succeed

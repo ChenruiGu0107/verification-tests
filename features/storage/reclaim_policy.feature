@@ -12,7 +12,7 @@ Feature: Persistent Volume reclaim policy tests
       | ["metadata"]["name"]                      | pv-nfs-<%= project.name %>       |
       | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
       | ["spec"]["persistentVolumeReclaimPolicy"] | Recycle                          |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc.json" replacing paths:
       | ["metadata"]["name"]   | pvc-nfs-<%= project.name %> |
       | ["spec"]["volumeName"] | pv-nfs-<%= project.name %>  |
     Then the step should succeed
@@ -42,7 +42,7 @@ Feature: Persistent Volume reclaim policy tests
       | ["spec"]["<storage_type>"]["<volume_name>"] | <%= cb.vid %>          |
       | ["spec"]["persistentVolumeReclaimPolicy"]   | Default                |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
@@ -85,7 +85,7 @@ Feature: Persistent Volume reclaim policy tests
       | ["spec"]["<storage_type>"]["<volume_name>"] | <%= cb.vid %>          |
       | ["spec"]["persistentVolumeReclaimPolicy"]   | Delete                 |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gce/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
@@ -123,7 +123,7 @@ Feature: Persistent Volume reclaim policy tests
       | ["metadata"]["name"] | sc-<%= project.name %> |
       | ["provisioner"]      | kubernetes.io/gce-pd   |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
