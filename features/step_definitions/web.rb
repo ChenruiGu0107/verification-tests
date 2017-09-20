@@ -51,6 +51,7 @@ Given /^I have a browser with:$/ do |table|
   if conf[:browser]
     init_params[:browser_type] ||= conf[:browser].to_sym
   end
+  init_params[:logger] = logger
   browser = Web4Cucumber.new(**init_params)
   cache_browser(browser)
   teardown_add { @result = browser.finalize }
