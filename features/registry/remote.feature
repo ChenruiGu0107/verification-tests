@@ -618,6 +618,7 @@ Feature: remote registry related scenarios
     Then the step should succeed
     And a pod becomes ready with labels:
       | openshift.io/build.name=ruby-ex-1 |
+    Given the "ruby-ex-1" build completed
     Given the "ruby-ex" image stream becomes ready
     And evaluation of `image_stream("ruby-ex").latest_tag_docker_image_reference(user:user).split("@").last` is stored in the :image_id clipboard
     When I run the :get admin command with:
