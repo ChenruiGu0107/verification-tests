@@ -9,7 +9,7 @@ Feature: Testing for pv and pvc pre-bind feature
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs.json" where:
       | ["metadata"]["name"]            | nfspv1-<%= project.name %> |
       | ["spec"]["capacity"]["storage"] | 1Gi                        |
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
@@ -30,7 +30,7 @@ Feature: Testing for pv and pvc pre-bind feature
       | ["spec"]["claimRef"]["name"]      | nfsc-<%= project.name %>  |
     Then the step should succeed
     And the "nfspv-<%= project.name %>" PV status is :available
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteMany            |
     And the "nfsc-<%= project.name %>" PVC becomes :pending
@@ -47,7 +47,7 @@ Feature: Testing for pv and pvc pre-bind feature
       | ["spec"]["claimRef"]["name"]      | nfsc-<%= project.name %>  |
     Then the step should succeed
     And the "nfspv-<%= project.name %>" PV status is :available
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                      |
     And the "nfsc-<%= project.name %>" PVC becomes :pending
@@ -62,11 +62,11 @@ Feature: Testing for pv and pvc pre-bind feature
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs.json" where:
       | ["metadata"]["name"]            | nfspv1-<%= project.name %> |
       | ["spec"]["capacity"]["storage"] | 1Gi                        |
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
       | ["metadata"]["name"]   | nfsc-prebound-<%= project.name %> |
       | ["spec"]["volumeName"] | nfspv1-<%= project.name %>        |
     And the "nfsc-prebound-<%= project.name %>" PVC becomes :pending
@@ -82,7 +82,7 @@ Feature: Testing for pv and pvc pre-bind feature
       | ["spec"]["capacity"]["storage"] | 1Gi                       |
     Then the step should succeed
     And the "nfspv-<%= project.name %>" PV status is :available
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
       | ["metadata"]["name"]       | nfsc-<%= project.name %>   |
       | ["spec"]["volumeName"]     | nfspv1-<%= project.name %> |
       | ["spec"]["accessModes"][0] | ReadWriteMany              |
@@ -100,7 +100,7 @@ Feature: Testing for pv and pvc pre-bind feature
       | ["spec"]["capacity"]["storage"] | 1Gi                       |
     Then the step should succeed
     And the "nfspv-<%= project.name %>" PV status is :available
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %>   |
       | ["spec"]["volumeName"]                       | nfspv1-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                        |
@@ -124,7 +124,7 @@ Feature: Testing for pv and pvc pre-bind feature
       | ["metadata"]["name"]            | nfspv2-<%= project.name %> |
       | ["spec"]["capacity"]["storage"] | 1Gi                        |
     Then the step should succeed
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %>   |
       | ["spec"]["volumeName"] | nfspv1-<%= project.name %> |
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
@@ -140,10 +140,10 @@ Feature: Testing for pv and pvc pre-bind feature
       | ["metadata"]["name"]              | nfspv-<%= project.name %> |
       | ["spec"]["claimRef"]["namespace"] | <%= project.name %>       |
       | ["spec"]["claimRef"]["name"]      | nfsc2-<%= project.name %> |
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc1-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                       |
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc2-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                       |
     And the "nfsc2-<%= project.name %>" PVC becomes bound to the "nfspv-<%= project.name %>" PV
@@ -155,7 +155,7 @@ Feature: Testing for pv and pvc pre-bind feature
   @destructive
   Scenario: PVC is bond to PV successfully when pvc is created first
     Given I have a project
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
     Then admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-recycle-rwo.json" where:
       | ["metadata"]["name"]              | nfspv-<%= project.name %> |
@@ -174,7 +174,7 @@ Feature: Testing for pv and pvc pre-bind feature
       | ["spec"]["claimRef"]["name"]      | <pre-bind-pvc>            |
     Then the step should succeed
     And the "nfspv-<%= project.name %>" PV status is :available
-    Then I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
+    Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
       | ["metadata"]["name"]   | nfsc-<%= project.name %> |
       | ["spec"]["volumeName"] | <pre-bind-pv>            |
     And the "nfsc-<%= project.name %>" PVC becomes :pending
@@ -190,7 +190,7 @@ Feature: Testing for pv and pvc pre-bind feature
   @destructive
   Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PVC pre-bind to PV
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
       | ["metadata"]["name"]   | pvc-prebind-<%= project.name %> |
       | ["spec"]["volumeName"] | pv-<%= project.name %>          |
     Then the step should succeed
@@ -205,7 +205,7 @@ Feature: Testing for pv and pvc pre-bind feature
   @destructive
   Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PV pre-bind to PVC
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/claim-rwo.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
@@ -221,7 +221,7 @@ Feature: Testing for pv and pvc pre-bind feature
   @admin
   Scenario: PV/PVC bind in a reasonable time when PVC is created before PV while PV/PVC pre-bind to each other
     Given I have a project
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/preboundpvc-rwo.yaml" replacing paths:
       | ["metadata"]["name"]   | pvc-prebind-<%= project.name %> |
       | ["spec"]["volumeName"] | pv-prebind-<%= project.name %>  |
     Then the step should succeed

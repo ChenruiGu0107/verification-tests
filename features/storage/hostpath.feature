@@ -34,7 +34,7 @@ Feature: Storage of Hostpath plugin testing
       | ["spec"]["persistentVolumeReclaimPolicy"] | <reclaim_policy>  |
     Then the step should succeed
 
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/claim.yaml" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/hostpath/claim.yaml" replacing paths:
       | ["metadata"]["name"]       | localc-<%= cb.proj_name %> |
       | ["spec"]["volumeName"]     | local-<%= cb.proj_name %>  |
       | ["spec"]["accessModes"][0] | <access_mode>              |
