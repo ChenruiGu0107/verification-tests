@@ -194,7 +194,7 @@ Feature: filter on create page
       | filter_action | in ... |
     Then the step should succeed
 
-    When I get the html of the web page
+    When I get the visible text on web html page
     Then the output should contain:
       | python-sample |
     And the output should not contain:
@@ -212,7 +212,7 @@ Feature: filter on create page
       | filter_action | in ... |
     Then the step should succeed
 
-    When I get the html of the web page
+    When I get the visible text on web html page
     Then the output should contain:
       | python-sample |
     And the output should not contain:
@@ -229,7 +229,7 @@ Feature: filter on create page
       | filter_action | in ... |
     Then the step should succeed
 
-    When I get the html of the web page
+    When I get the visible text on web html page
     Then the output should contain:
       | python-sample |
     And the output should not contain:
@@ -268,7 +268,7 @@ Feature: filter on create page
       | filter_action | in ... |
     Then the step should succeed
 
-    When I get the html of the web page
+    When I get the visible text on web html page
     Then the output should contain:
       | python-sample |
     And the output should not contain:
@@ -285,7 +285,7 @@ Feature: filter on create page
       | filter_action | in ... |
     Then the step should succeed
 
-    When I get the html of the web page
+    When I get the visible text on web html page
     Then the output should contain:
       | python-sample |
     And the output should not contain:
@@ -328,7 +328,7 @@ Feature: filter on create page
     #Clear all filters
     When I run the :clear_all_filters web console action
     Then the step should succeed
-    When I get the html of the web page
+    When I get the visible text on web html page
     Then the output should contain:
       | python-sample  |
       | nodejs-sample  |
@@ -340,7 +340,7 @@ Feature: filter on create page
       | filter_action | not in ... |
     Then the step should succeed
 
-    When I get the html of the web page
+    When I get the visible text on web html page
     Then the output should contain:
       | nodejs-sample |
     And the output should not contain:
@@ -354,7 +354,7 @@ Feature: filter on create page
       | filter_action | exists |
     Then the step should succeed
 
-    When I get the html of the web page
+    When I get the visible text on web html page
     Then the output should contain:
       | python-sample |
     And the output should not contain:
