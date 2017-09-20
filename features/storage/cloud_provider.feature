@@ -7,7 +7,7 @@ Feature: kubelet restart and node restart
     And evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-#{cb.i}       |
       | ["spec"]["accessModes"][0]                   | #{cb.accessmodes[cb.i-1]} |
       | ["spec"]["resources"]["requests"]["storage"] | #{cb.i}Gi                 |
@@ -59,7 +59,7 @@ Feature: kubelet restart and node restart
     And evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | dynamic-pvc-#{cb.i}       |
       | ["spec"]["accessModes"][0]                   | #{cb.accessmodes[cb.i-1]} |
       | ["spec"]["resources"]["requests"]["storage"] | #{cb.i}Gi                 |
@@ -116,7 +116,7 @@ Feature: kubelet restart and node restart
     Given evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | dpvc-#{cb.i}              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>    |
       | ["spec"]["accessModes"][0]                                             | #{cb.accessmodes[cb.i-1]} |
@@ -172,7 +172,7 @@ Feature: kubelet restart and node restart
     And evaluation of `%w{ReadWriteOnce ReadWriteOnce ReadWriteOnce}` is stored in the :accessmodes clipboard
     And I run the steps 3 times:
     """
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-#{ cb.i }                 |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>        |
       | ["spec"]["accessModes"][0]                                             | #{ cb.accessmodes[ cb.i-1 ] } |

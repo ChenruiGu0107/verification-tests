@@ -16,7 +16,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     Then the step should succeed
     And a pod becomes ready with labels:
       | app=mydb |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
@@ -161,7 +161,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     # Preparations
     Given I have a project
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:2.6                                                                       |
+      | image_stream | openshift/mongodb:2.6      |
       | env          | MONGODB_USER=tester        |
       | env          | MONGODB_PASSWORD=xxx       |
       | env          | MONGODB_DATABASE=testdb    |
@@ -275,7 +275,7 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
     And SCC "privileged" is added to the "default" user
     And SCC "privileged" is added to the "system:serviceaccounts" group
     When I run the :new_app client command with:
-      | image_stream | openshift/mongodb:2.6                                                                       |
+      | image_stream | openshift/mongodb:2.6      |
       | env          | MONGODB_USER=tester        |
       | env          | MONGODB_PASSWORD=xxx       |
       | env          | MONGODB_DATABASE=testdb    |
@@ -472,12 +472,12 @@ Feature: Add, update remove volume to rc/dc and --overwrite option
       | app=mydb |
 
     # create 2 pvc
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc1-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                         | pvc2-<%= project.name %> |
       | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
       | ["spec"]["resources"]["requests"]["storage"] | 2Gi                      |
