@@ -73,8 +73,8 @@ end
 # -H "Authorization: Bearer $USER_TOKEN"
 # -H "Hawkular-tenant: $PROJECT"
 # -H "Content-Type: application/json"
-# -X POST/GET https://hawkular-metrics.$SUBDOMAIN/hawkular/metrics/{gauges|metrics|counters}
-### https://hawkular-metrics.0227-ep7.qe.rhcloud.com/hawkular/metrics/metrics
+# -X POST/GET https://metrics.$SUBDOMAIN/hawkular/metrics/{gauges|metrics|counters}
+### https://metrics.0227-ep7.qe.rhcloud.com/hawkular/metrics/metrics
 # acceptable parameters are:
 # 1. | project_name | name of project |
 # 2. | type  | type of metrics you want to query {gauges|metrics|counters} |
@@ -91,10 +91,10 @@ When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table
       unless cb.subdomain
         cb.subdomain = env.router_default_subdomain(user: user, project: project)
       end
-      cb[:metrics] = 'https://hawkular-metrics.' + cb[:subdomain] + '/hawkular'
+      cb[:metrics] = 'https://metrics.' + cb[:subdomain] + '/hawkular'
     end
     # if cb.metrics does not have the proper form, we need to set it.
-    cb[:metrics] = 'https://hawkular-metrics.' + cb.metrics + '/hawkular' unless cb.metrics.start_with? "https://"
+    cb[:metrics] = 'https://metrics.' + cb.metrics + '/hawkular' unless cb.metrics.start_with? "https://"
   end
   opts = opts_array_to_hash(table.raw)
   raise "required parameter 'path' is missing" unless opts[:path]
@@ -464,7 +464,7 @@ Given /^metrics service is installed in the project using deployer:$/ do |table|
     cb.deployer_config = YAML.load(ERB.new(File.read(@result[:abs_path])).result binding)
   end
   metrics_deployer_params = [
-    "HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.#{cb.subdomain}",
+    "HAWKULAR_METRICS_HOSTNAME=metrics.#{cb.subdomain}",
     "IMAGE_PREFIX=#{product_docker_repo}openshift3/",
     "IMAGE_VERSION=#{cb.master_version}",
     "MASTER_URL=#{env.api_endpoint_url}",
