@@ -186,7 +186,7 @@ Feature: creating 'apps' with CLI
       | role_name | cluster-admin  |
       | user_name | <%= user(1).name %>  |
     Then the step should fail
-    And the output should contain "cannot get clusterpolicybindings at the cluster scope"
+    And the output should contain "User "<%= user(1).name %>" cannot"
 
   # @author pruan@redhat.com
   # @case_id OCP-11897
