@@ -191,13 +191,8 @@ Feature: groups and users related features
       | n          | <%= cb.project1 %>                          |
     Then the step should succeed
     When I switch to the first user
-    And I run the :get client command with:
-      | resource | project |
-    Then the step should succeed
-    And the output should contain:
-      | <%= cb.project1 %> |
-    And the output should not contain:
-      | <%= cb.project2 %> |
+    And I wait for the "<%= cb.project1 %>" projects to appear
+    And I wait for the resource "project" named "<%= cb.project2 %>" to disappear
     When I run the :new_app client command with:
       | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
       | n          | <%= cb.project1 %>                          |
@@ -241,8 +236,7 @@ Feature: groups and users related features
       | user_name  | <%= user(1, switch: false).name %>          |
       | n          | <%= cb.project2 %>                          |
     Then the step should fail
-    And the output should match:
-      | cannot get policybindings in project.*<%= cb.project2 %> |
+    And the output should contain "User "<%= user.name %>" cannot"
 
     When I run the :policy_remove_role_from_group admin command with:
       | role       | admin                                       |
