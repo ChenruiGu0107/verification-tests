@@ -103,8 +103,7 @@ Feature: oc_process.feature
       | treated as a single key-value pair |
 
   # @author shiywang@redhat.com
-  # @case_id OCP-11064
-  Scenario: Docker build failure reason display if use incorrect config in buildconfig
+  Scenario Outline: Docker build failure reason display if use incorrect config in buildconfig
     Given I have a project
     When I run the :new_app client command with:
       | app_repo |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/build/ruby22rhel7-template-docker.json |
@@ -146,7 +145,7 @@ Feature: oc_process.feature
     When I run the :get client command with:
       | resource      | build                 |
       | resource_name | ruby22-sample-build-3 |
-    Then the output should contain "PullBuilderImageFailed"
+    Then the output should contain "<error>"
     #change back
     When I run the :patch client command with:
       | resource      | buildconfig                                                                                                            |
@@ -193,6 +192,11 @@ Feature: oc_process.feature
       | resource      | build                 |
       | resource_name | ruby22-sample-build-5 |
     Then the output should contain "PostCommitHookFailed"
+    
+    Examples:
+      | error                  |
+      | PullBuilderImageFailed |  # @case_id OCP-11064
+      | DockerBuildFailed      |  # @case_id OCP-15856
 
   # @author shiywang@redhat.com
   # @case_id OCP-11044
