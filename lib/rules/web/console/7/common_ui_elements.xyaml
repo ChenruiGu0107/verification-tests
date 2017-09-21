@@ -192,3 +192,8 @@ close_all_toast_notifications:
     selector:
       xpath: //toast-notifications//div[contains(@class,'toast-pf')]
     missing: true
+wait_second_level_navigation_to_close:
+  element:
+    selector:
+      css: ".nav-pf-secondary-nav"
+    missing: true
