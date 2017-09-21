@@ -69,3 +69,22 @@ Given(/^I run commands on the StorageClass "([^"]*)" backing host:$/) do | stora
   @result = host.exec_admin(*table.raw.flatten)
 end
 
+Given(/^default storage class is deleted$/) do
+  ensure_admin_tagged
+  ensure_destructive_tagged
+  if env.version_ge("3.3", user: user)
+    _sc = CucuShift::StorageClass.get_matching(user: user) {|sc, sc_hash| sc.default?}.first 
+    if _sc
+      #Delete default storageclass
+      logger.info "Default storage class will delete and be resotored after scenario:\n#{_sc.name}"
+      _sc.ensure_deleted(user: admin)
+      # Restore storeclass after scenario
+      teardown_add {
+        @result = StorageClass.create(by: admin, spec: _sc.raw_resource) 
+        raise "!!Warning unable to restore default storage class #{_sc.name}!!" unless @result[:success]
+      }
+    else
+      logger.info "There is no default storage class need to delete and restore"
+    end
+  end
+end

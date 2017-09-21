@@ -17,10 +17,19 @@ module CucuShift
 
       props[:uid] = m["uid"]
       props[:parameters] = sc_hash["parameters"]
-
+      props[:annotations] = m["annotations"]
       return self # mainly to help ::from_api_object
     end
-
+    
+    def default?(user: nil, cached: true, quiet:false)
+      annotation = get_cached_prop(prop: :annotations, user: user, cached: cached, quiet: quiet)
+      if annotation 
+        default_value = annotation("storageclass.beta.kubernetes.io/is-default-class") ||
+                        annotation("storageclass.kubernetes.io/is-default-class")
+        return "true" == default_value
+      end
+    end 
+    
     def rest_url(user: nil, cached: true, quiet: false)
       param = get_cached_prop(prop: :parameters, user: user, cached: cached, quiet: quiet)
       return param["resturl"]
