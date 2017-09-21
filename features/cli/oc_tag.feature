@@ -293,12 +293,6 @@ Feature: oc tag related scenarios
       | dest         | ssh-git-server:git-20150525       |
       | insecure     | true                              |
     Then the step should succeed
-    Given I use the "<%= env.master_hosts.first.hostname %>" node
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-master --since "1 min ago" \| grep partial=true |
-    Then the step should succeed
-    And the output should contain:
-      | Importing stream <%= project.name %>/ssh-git-server partial=true |
     When I get project is named "ssh-git-server" as YAML
     And the expression should be true> @result[:parsed]['spec']['tags'].size == 1
 
