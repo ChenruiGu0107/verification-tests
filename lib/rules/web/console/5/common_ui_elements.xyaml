@@ -29,6 +29,17 @@ check_filtered_resource_entry_missing:
   element:
     <<: *check_filtered_resource_entry
     missing: true
+check_page_contain_text:
+  element:
+    selector:
+      text: !ruby/regexp /<text>/
+    timeout: 30
+check_page_not_contain_text:
+  element:
+    selector:
+      text: !ruby/regexp /<text>/
+    missing: true
+    timeout: 20
 choose_resource_type:
   elements:
   - selector:

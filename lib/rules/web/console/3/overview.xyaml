@@ -9,6 +9,12 @@ check_project_overview_without_resource:
       class: dropdown-toggle
     type: button
     op: click
+check_alert_info_for_add_health_checks:
+  elements:
+  - selector:
+      xpath: //div[@class="service-group" and .//h2[contains(.,"<app_name>")]]//span[contains(., "<dc_name> has containers without health checks, which ensure your application is running correctly.")]
+  - selector:
+      xpath: //a[contains(.,"Add health checks")]
 check_autoscaler_min_pod_on_overview_page:
   action: goto_overview_page
   element:
@@ -30,15 +36,30 @@ check_build_info_on_overview_page:
 check_deployment_config_link_info_on_overview:
   elements:
   - selector:
-      xpath: //span[contains(.,'Deployment')]/following::a[contains(@href,"project/<project_name>/browse/deployments/<dc_name>")]
+      xpath: //a[@href="project/<project_name>/browse/dc/<dc_name>" and contains(.,"<dc_name>")]
 check_deployments_link_info_on_overview:
   elements:
   - selector:
       xpath: //span[contains(.,'Deployment')]/following::a[contains(@href,"project/<project_name>/browse/deployments/<dc_name>/<deployments>")]
+check_deployments_rc_link_info_on_overview:
+  elements:
+  - selector:
+      xpath: //a[@href="project/<project_name>/browse/rc/<rc_name>"]
 check_view_log_link_info_on_overview:
   elements:
   - selector:
       xpath: //a[contains(text(),'View Log') and contains(@href, "project/<project_name>/browse/builds/<bc_name>/<bc_build_id>?tab=logs")]
+check_pod_container_image:
+  elements:
+  - selector:
+      xpath: //div/span[contains(.,"<image_name>")]
+check_pod_container_ports:
+  elements:
+  - selector:
+      xpath: //div/span[contains(.,"<port>")]
+check_pod_container_info:
+  action: check_pod_container_image
+  action: check_pod_container_ports
 check_pod_info_on_overview:
   scripts:
   - command: return document.querySelector("text[class='c3-chart-arcs-title']").textContent.contains('<pod_display>')
@@ -114,6 +135,32 @@ check_idle_donut_text_on_overview:
                }
                return false
       expect_result: true
+check_no_deployments_or_pods:
+  element:
+    selector:
+      xpath: //h2[contains(.,"No deployments or pods.")]
+check_no_grouped_serivce:
+  element:
+    selector:
+      xpath: //h2[contains(.,"No grouped services.")]
+click_close_alert:
+  element:
+    selector:
+      xpath: //div[@class="service-group"]//alerts//button
+    op: click
+click_confirm_cancel:
+  element:
+    selector:
+      xpath: //button[contains(.,"Yes, cancel")]
+    op: click
+click_cancel_and_confirm:
+  action: click_cancel
+  action: click_confirm_cancel
+click_create_route_on_overview:
+  element:
+    selector:
+      xpath: //a[contains(.,"Create Route")]
+    op: click
 click_wake_up_option_on_overview:
   action: goto_overview_page
   elements:
@@ -128,10 +175,19 @@ dismiss_build_log_on_overview:
     op: click
 goto_overview_page:
   url: /console/project/<project_name>/overview
+check_pod_scaling_disabled:
+  elements:
+  - selector:
+      xpath: //a[@title='Scale up']
+    missing: true
+  - selector:
+      xpath: //a[@title='Scale down']   
+    missing: true
 check_pod_scaled_numbers:
   elements:
   - selector:
       xpath: //*[name()='tspan'][@class='donut-title-big-pf'][text()='<scaled_number>']
+    timeout: 60
 scale_up_once:
   elements:
   - selector:
