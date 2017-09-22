@@ -18,7 +18,7 @@ module CucuShift
     attr_reader :props, :name
     attr_writer :default_user
 
-    def annotation(annotation_name, user:, cached: true, quiet: false)
+    def annotation(annotation_name, user: nil, cached: true, quiet: false)
       options = {
         prop:   :annotations,
         user:   user,
@@ -29,7 +29,7 @@ module CucuShift
       get_cached_prop(options)&.fetch(annotation_name, nil)
     end
 
-    def created_at(user:, cached: true, quiet: false)
+    def created_at(user: nil, cached: true, quiet: false)
       get_cached_prop(prop: :created, user: user, cached: cached, quiet: quiet)
     end
     alias created created_at
@@ -38,7 +38,7 @@ module CucuShift
       raise "need to be implemented by subclass"
     end
 
-    def visible?(user:, result: {}, quiet: false)
+    def visible?(user: nil, result: {}, quiet: false)
       result.clear.merge!(get(user: user, quiet: quiet))
       if result[:success]
         return true
@@ -124,7 +124,7 @@ module CucuShift
       return props[prop]
     end
 
-    private def raw_resource(user: nil, cached: false, quiet: false, res: nil)
+    def raw_resource(user: nil, cached: true, quiet: false, res: nil)
       get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet, res: res)
     end
 
@@ -158,7 +158,7 @@ module CucuShift
       return res
     end
 
-    def ensure_deleted(user: , wait: 60)
+    def ensure_deleted(user: nil, wait: 60)
       res = delete_graceful(by: user)
 
       unless res[:success]
