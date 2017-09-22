@@ -44,3 +44,8 @@ check_resource_details_list_on_service_page:
       xpath: //traffic-table//tr[th[text()="Route"] and th[text()="Service Port"] and th[text()="Target Port"] and th[text()="Hostname"] and th[text()="TLS Termination"]]
   - selector:
       xpath: //pods-table//tr[th[text()="Pod"] and th[text()="Status"] and th[text()="Containers Ready"] and th[text()="Container Restarts"] and th[text()="Age"] and th[text()="Receiving Traffic"]]
+check_pod_without_endpoints_error_on_service_page:
+  elements:
+  - selector:
+      xpath: //td[@data-title='Receiving Traffic']//span[contains(@data-content,'This pod has no endpoints and is not accepting traffic')]
+    timeout: 30

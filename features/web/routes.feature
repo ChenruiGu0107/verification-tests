@@ -327,7 +327,7 @@ Feature: Routes related features on web console
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
 
-   When I perform the :open_create_route_page_from_service_page web console action with:
+    When I perform the :open_create_route_page_from_service_page web console action with:
       | project_name | <%= project.name%> |
       | service_name | service-unsecure   |
     Then the step should succeed
