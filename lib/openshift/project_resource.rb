@@ -92,7 +92,9 @@ module CucuShift
       end.reduce([], :+)
     end
 
-    def delete(by:, grace_period: nil)
+    # @param grace_period [Boolean] useful to add the pod delete parameter
+    def delete(by: nil, grace_period: nil)
+      by = default_user(by)
       del_opts = {}
       del_opts[:grace_period] = grace_period unless grace_period.nil?
       cli_exec(as: by, key: :delete, object_type: self.class::RESOURCE,

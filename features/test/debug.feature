@@ -10,6 +10,12 @@ Feature: Debug and Explore Stuff
   Scenario: I want to pry again
     Given I pry
 
+  @destructive_pry
+  @admin
+  @destructive
+  Scenario: I want to pry again
+    Given I pry
+
   @pry_outline
   Scenario Outline: I want to pry an outline
     When I pry

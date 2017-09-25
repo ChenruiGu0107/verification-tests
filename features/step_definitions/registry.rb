@@ -328,7 +328,7 @@ Given /^default registry service ip is stored in the#{OPT_SYM} clipboard$/ do |c
   # save the orignial project name
   org_proj_name = project.name
   cb_name ||= :registry_ip
-  cb[cb_name] = service("docker-registry", project('default')).url(user: :admin)
+  cb[cb_name] = service("docker-registry", project('default')).url(user: admin)
   project(org_proj_name)
 end
 
@@ -336,7 +336,7 @@ Given /^default (docker-registry|registry-console) route is stored in the#{OPT_S
   # save the orignial project name
   org_proj_name = project.name
   cb_name ||= :registry_route
-  cb[cb_name] = route(route_name, service(route_name,project('default'))).dns(by: :admin)
+  cb[cb_name] = route(route_name, service(route_name,project('default'))).dns(by: admin)
   project(org_proj_name)
 end
 
