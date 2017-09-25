@@ -21,8 +21,10 @@
 ###############################################################################
 
 FROM openshift/jenkins-slave-base-centos7
-# ADD Gemfile $HOME/cucushift/Gemfile
-# ADD tools $HOME/cucushift/tools
+
+LABEL vendor="Red Hat inc."
+LABEL maintainer="AOS QE Team"
+
 ADD . $HOME/cucushift
 RUN [ -d $HOME/cucushift/private/config/ca ] && \
     ( cd $HOME/cucushift/private/config/ca && \
@@ -31,7 +33,7 @@ RUN [ -d $HOME/cucushift/private/config/ca ] && \
     exit 1 ) || :
 
 RUN SCL_BASE_PKGS="centos-release-scl scl-utils-build" && \
-    INSTALL_PKGS="rh-ruby23 rh-ror42-rubygem-nokogiri rh-ruby23-ruby-devel" && \
+    INSTALL_PKGS="rh-ruby23 rh-ror42-rubygem-nokogiri rh-ruby23-ruby-devel rh-git29" && \
     yum install -y --enablerepo=centosplus $SCL_BASE_PKGS && \
     yum install -y --enablerepo=centosplus $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS $SCL_BASE_PKGS && \
@@ -61,4 +63,4 @@ RUN echo -e '#!/bin/bash\nexec "$@"' > /usr/local/bin/sudo && chmod 755 /usr/loc
 USER 1001
 
 # we need ruby and some gems from ror
-ENTRYPOINT ["/usr/bin/scl", "enable", "rh-ror42", "--", "/usr/local/bin/run-jnlp-client"]
+ENTRYPOINT ["/usr/bin/scl", "enable", "rh-git29", "rh-ror42", "--", "/usr/local/bin/run-jnlp-client"]
