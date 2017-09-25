@@ -17,12 +17,11 @@ Feature: storageClass related feature
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                        |
     Then the step should succeed
-    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-storageClass.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
-      | ["spec"]["volumeName"]                                                 | pv-<%= project.name %>  |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce           |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                     |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | ''                      |
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | pv-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce           |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes bound to the "pv-<%= project.name %>" PV
 
@@ -59,19 +58,11 @@ Feature: storageClass related feature
       | Invalid value: "@test@" |
 
   # @author lxia@redhat.com
-  # @case_id OCP-12089 OCP-12269 OCP-12272 OCP-13488
   @admin
   @destructive
   Scenario Outline: PVC modification after creating storage class
     Given I have a project
-    # "oc get storageclass -o yaml"
-    # should not contain string 'kind: StorageClass' when there are no storageclass
-    When I run the :get admin command with:
-      | resource | storageclass |
-      | o        | yaml         |
-    Then the step should succeed
-    And the output should not contain "kind: StorageClass"
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :pending
@@ -98,10 +89,10 @@ Feature: storageClass related feature
 
     Examples:
       | provisioner |
-      | gce-pd      |
-      | aws-ebs     |
-      | cinder      |
-      | azure-disk  |
+      | gce-pd      | # @case_id OCP-12089
+      | aws-ebs     | # @case_id OCP-12269
+      | cinder      | # @case_id OCP-12272
+      | azure-disk  | # @case_id OCP-13488
 
   # @author lxia@redhat.com
   # @case_id OCP-12090 OCP-12096 OCP-12097 OCP-13489
@@ -214,9 +205,9 @@ Feature: storageClass related feature
     When I run the :describe client command with:
       | resource | pvc/pvc-<%= project.name %> |
     Then the output should contain:
-      | ProvisioningFailed |
+      | ProvisioningFailed                                                    |
       | Failed to provision volume with StorageClass "sc-<%= project.name %>" |
-      | does not manage zone "europe-west1-d" |
+      | does not manage zone "europe-west1-d"                                 |
     """
 
   # @author lxia@redhat.com
@@ -249,7 +240,6 @@ Feature: storageClass related feature
       | kubernetes.io/unknown | # @case_id OCP-12348
 
   # @author lxia@redhat.com
-  # @case_id OCP-12223 OCP-12226 OCP-12227 OCP-13490
   @admin
   @destructive
   Scenario Outline: New creation PVC failed when multiple classes are set as default
@@ -271,11 +261,11 @@ Feature: storageClass related feature
     And the output should match:
       | Internal error occurred |
       | ([2-9]\|[1-9][0-9]+) default StorageClasses were found |
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc1-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc1-<%= project.name %>  |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
       | ["metadata"]["name"]                                                   | pvc2-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc2-<%= project.name %>  |
     Then the step should succeed
@@ -284,10 +274,10 @@ Feature: storageClass related feature
 
     Examples:
       | provisioner |
-      | gce-pd      |
-      | aws-ebs     |
-      | cinder      |
-      | azure-disk  |
+      | gce-pd      | # @case_id OCP-12223
+      | aws-ebs     | # @case_id OCP-12226
+      | cinder      | # @case_id OCP-12227
+      | azure-disk  | # @case_id OCP-13490
 
   # @author lxia@redhat.com
   # @case_id OCP-12171 OCP-12176 OCP-12177 OCP-13492
@@ -394,21 +384,7 @@ Feature: storageClass related feature
   @admin
   Scenario: Error messaging for failed provision via StorageClass
     Given I have a project
-    # Scenario when StorageClass doesn't exist
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:
-      | ["metadata"]["name"]                                                   | missing |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | foo     |
-    Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pvc/missing |
-    Then the output should contain:
-      | Pending   |
-      | not found |
-    """
-
-    # Scenario when StorageCLass's rest url can't be reached
+    # Scenario when StorageClass's rest url can't be reached
     Given admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/storageclass_using_key.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %> |
       | ["parameters"]["resturl"] | http://foo.com/        |
@@ -544,26 +520,6 @@ Feature: storageClass related feature
     And the output should contain:
       | ProvisioningFailed                  |
       | "sc1-<%= project.name %>" not found |
-    """
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/dynamic-provisioning/storageclass.yaml" where:
-      | ["metadata"]["name"]                                                            | sc-<%= project.name %> |
-      | ["provisioner"]                                                                 | kubernetes.io/aws-ebs  |
-      | ["parameters"]["type"]                                                          | <type>                 |
-      | ["parameters"]["zone"]                                                          | us-east-1d             |
-    Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
-      | ["metadata"]["name"]                                                   | pvc2-<%= project.name %>          |
-      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                     |
-      | ["spec"]["resources"]["requests"]["storage"]                           | 4Gi                               |
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-notexisted-<%= project.name %> |
-    Then the step should succeed
-    And I wait up to 60 seconds for the steps to pass:
-    """
-    When I run the :describe client command with:
-      | resource | pvc/pvc2-<%= project.name %> |
-    And the output should contain:
-      | ProvisioningFailed                            |
-      | "sc-notexisted-<%= project.name %>" not found |
     """
 
   # @author lxia@redhat.com
@@ -762,16 +718,10 @@ Feature: storageClass related feature
   # @author lxia@redhat.com
   # @case_id OCP-13666
   @admin
-  @destructive
   Scenario: Dynamic provisioning using default storageclass
     Given the master version >= "3.6"
     Given I have a project
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-with-stable-annotations.yaml" where:
-      | ["metadata"]["name"]                                                       | sc-<%= project.name %> |
-      | ["metadata"]["annotations"]["storageclass.kubernetes.io/is-default-class"] | true                   |
-      | ["provisioner"]                                                            | kubernetes.io/gce-pd   |
-    Then the step should succeed
-    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
@@ -779,12 +729,12 @@ Feature: storageClass related feature
       | resource | pvc                     |
       | name     | pvc-<%= project.name %> |
     Then the step should succeed
-    And the output should match "StorageClass:\ssc-<%= project.name %>"
+    And the output should match "StorageClass:\s[a-z]+"
     When I run the :describe admin command with:
       | resource | pv                     |
       | name     | <%= pvc.volume_name %> |
     Then the step should succeed
-    And the output should match "StorageClass:\ssc-<%= project.name %>"
+    And the output should match "StorageClass:\s[a-z]+"
 
   # @author lxia@redhat.com
   # @case_id OCP-13667
@@ -801,16 +751,8 @@ Feature: storageClass related feature
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should match "StorageClass:\ssc-<%= project.name %>"
-    When I run the :describe admin command with:
-      | resource | pv                     |
-      | name     | <%= pvc.volume_name %> |
-    Then the step should succeed
-    And the output should match "StorageClass:\ssc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
 
   # @author lxia@redhat.com
   # @case_id OCP-13668
@@ -827,16 +769,8 @@ Feature: storageClass related feature
       | ["spec"]["storageClassName"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should match "StorageClass:\ssc-<%= project.name %>"
-    When I run the :describe admin command with:
-      | resource | pv                     |
-      | name     | <%= pvc.volume_name %> |
-    Then the step should succeed
-    And the output should match "StorageClass:\ssc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
 
   # @author lxia@redhat.com
   # @case_id OCP-13669
@@ -854,16 +788,8 @@ Feature: storageClass related feature
       | ["spec"]["storageClassName"]                                           | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should match "StorageClass:\ssc-<%= project.name %>"
-    When I run the :describe admin command with:
-      | resource | pv                     |
-      | name     | <%= pvc.volume_name %> |
-    Then the step should succeed
-    And the output should match "StorageClass:\ssc-<%= project.name %>"
+    And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
 
   # @author lxia@redhat.com
   # @case_id OCP-13670
@@ -885,16 +811,8 @@ Feature: storageClass related feature
       | ["spec"]["storageClassName"]                                           | sc2-<%= project.name %> |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound
-    When I run the :describe client command with:
-      | resource | pvc                     |
-      | name     | pvc-<%= project.name %> |
-    Then the step should succeed
-    And the output should match "StorageClass:\ssc1-<%= project.name %>"
-    When I run the :describe admin command with:
-      | resource | pv                     |
-      | name     | <%= pvc.volume_name %> |
-    Then the step should succeed
-    And the output should match "StorageClass:\ssc1-<%= project.name %>"
+    And the expression should be true> pvc.storage_class(user:user) == "sc1-<%= project.name %>"
+    And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc1-<%= project.name %>"
 
   # @author chaoyang@redhat.com
   # @case_id OCP-12872
@@ -957,7 +875,7 @@ Feature: storageClass related feature
       | ["metadata"]["name"]                         | pv-<%= project.name %> |
       | ["spec"]["awsElasticBlockStore"]["volumeID"] | <%= cb.vid %>          |
     Then the step should succeed
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pvc-retain.json" replacing paths:
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pvc-retain.json" replacing paths:
       | ["metadata"]["name"]                         | pvc-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
     Then the step should succeed
