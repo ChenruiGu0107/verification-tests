@@ -11,14 +11,16 @@ Feature: NFS Persistent Volume
 
     # Creating PV and PVC
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
-      | ["spec"]["nfs"]["path"]    | /non-exist-path                  |
-      | ["spec"]["accessModes"][0] | ReadWriteMany                    |
-      | ["metadata"]["name"]       | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
+      | ["spec"]["nfs"]["path"]         | /non-exist-path                  |
+      | ["spec"]["capacity"]["storage"] | 5Gi                              |
+      | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
+      | ["metadata"]["name"]            | nfs-<%= project.name %>          |
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0] | ReadWriteMany            |
+      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                      |
+      | ["spec"]["accessModes"][0]                   | ReadWriteMany            |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -54,12 +56,14 @@ Feature: NFS Persistent Volume
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
       | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0]                | <access_mode>                    |
+      | ["spec"]["capacity"]["storage"]           | 5Gi                              |
       | ["spec"]["persistentVolumeReclaimPolicy"] | <reclaim_policy>                 |
       | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0] | <access_mode>            |
+      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                      |
+      | ["spec"]["accessModes"][0]                   | <access_mode>            |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -185,11 +189,13 @@ Feature: NFS Persistent Volume
     And I have a NFS service in the project
 
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["spec"]["nfs"]["server"] | <%= service("nfs-service").ip %> |
-      | ["metadata"]["name"]      | nfs-<%= project.name %>          |
+      | ["spec"]["nfs"]["server"]                 | <%= service("nfs-service").ip %> |
+      | ["spec"]["capacity"]["storage"]           | 5Gi                              |
+      | ["metadata"]["name"]                      | nfs-<%= project.name %>          |
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
+      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                      |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -200,8 +206,9 @@ Feature: NFS Persistent Volume
       | Bound |
 
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]   | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"] | nfs-<%= project.name %>  |
+      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                      |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes :bound within 900 seconds
     And the PV becomes :bound
@@ -386,22 +393,25 @@ Feature: NFS Persistent Volume
     And I have a NFS service in the project
 
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"]       | pv-nfs-<%= project.name %>       |
-      | ["spec"]["accessModes"][0] | ReadWriteMany                    |
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]            | pv-nfs-<%= project.name %>       |
+      | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
+      | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
+      | ["spec"]["capacity"]["storage"] | 5Gi                              |
     Then the step should succeed
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]       | pvc-nfs-<%= project.name %> |
-      | ["spec"]["volumeName"]     | pv-nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0] | ReadWriteMany               |
+      | ["metadata"]["name"]                         | pvc-nfs-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | pv-nfs-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 5Gi                         |
+      | ["spec"]["accessModes"][0]                   | ReadWriteMany               |
     Then the step should succeed
     And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
     Given admin ensures "pv-nfs-<%= project.name %>" pv is deleted
     And the "pvc-nfs-<%= project.name %>" PVC becomes :lost within 300 seconds
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-template.json" where:
-      | ["metadata"]["name"]       | pv-nfs-<%= project.name %>       |
-      | ["spec"]["accessModes"][0] | ReadWriteMany                    |
-      | ["spec"]["nfs"]["server"]  | <%= service("nfs-service").ip %> |
+      | ["metadata"]["name"]            | pv-nfs-<%= project.name %>       |
+      | ["spec"]["accessModes"][0]      | ReadWriteMany                    |
+      | ["spec"]["nfs"]["server"]       | <%= service("nfs-service").ip %> |
+      | ["spec"]["capacity"]["storage"] | 5Gi                              |
     Then the step should succeed
     And the "pvc-nfs-<%= project.name %>" PVC becomes bound to the "pv-nfs-<%= project.name %>" PV
 
@@ -701,12 +711,14 @@ Feature: NFS Persistent Volume
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-mount-option.yaml" where:
       | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
+      | ["spec"]["capacity"]["storage"]                                        | 1Gi                              |
       | ["metadata"]["name"]                                                   | nfs-<%= project.name %>          |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | ro,nfsvers=4                     |
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
+      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -741,12 +753,14 @@ Feature: NFS Persistent Volume
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-mount-option.yaml" where:
       | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %> |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
+      | ["spec"]["capacity"]["storage"]                                        | 1Gi                              |
       | ["metadata"]["name"]                                                   | nfs-<%= project.name %>          |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | rw,nfsvers=4,noexec              |
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
+      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
@@ -771,7 +785,7 @@ Feature: NFS Persistent Volume
       | ermission denied |
 
   # @author jhou@redhat.com
-  # @case_id OCP-13467
+  # @case_id OCP-14280
   @admin
   Scenario: Setting NFS mount options in PV annotation
     Given I have a project
@@ -781,12 +795,14 @@ Feature: NFS Persistent Volume
     Given admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/pv-mount-option.yaml" where:
       | ["spec"]["nfs"]["server"]                                              | <%= service("nfs-service").ip %>     |
       | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                        |
+      | ["spec"]["capacity"]["storage"]                                        | 1Gi                                  |
       | ["metadata"]["name"]                                                   | nfs-<%= project.name %>              |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/mount-options"] | nfsvers=4.1,hard,timeo=600,retrans=2 |
     When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-template.json" replacing paths:
-      | ["metadata"]["name"]       | nfsc-<%= project.name %> |
-      | ["spec"]["volumeName"]     | nfs-<%= project.name %>  |
-      | ["spec"]["accessModes"][0] | ReadWriteOnce            |
+      | ["metadata"]["name"]                         | nfsc-<%= project.name %> |
+      | ["spec"]["volumeName"]                       | nfs-<%= project.name %>  |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                      |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
     Then the step should succeed
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfs-<%= project.name %>" PV
 
