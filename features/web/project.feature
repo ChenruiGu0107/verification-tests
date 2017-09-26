@@ -243,7 +243,7 @@ Feature: projects related features via web
   # @author yapei@redhat.com
   # @case_id OCP-10014
   Scenario: Delete project from web console
-    # delete project with project name on /console page
+    # delete project with project name on projects page
     When I create a project via web with:
       | display_name | testing project one |
       | description  ||
@@ -259,16 +259,9 @@ Feature: projects related features via web
       | input_str    | <%= project.name %> |
     Then the step should succeed
     Given I wait for the resource "project" named "<%= project.name %>" to disappear
-    When I run the :get client command with:
-      | resource | project |
-    Then the step should succeed
-    And the output should not contain:
-      | testing project one |
-      | <%= project.name %> |
     # delete project with project display name
-    When I create a project via web with:
+    When I create a project via cli with:
       | display_name | testing project two |
-      | description  ||
     Then the step should succeed
     When I perform the :cancel_delete_project web console action with:
       | project_name | testing project two |
@@ -278,9 +271,3 @@ Feature: projects related features via web
       | input_str    | testing project two |
     Then the step should succeed
     Given I wait for the resource "project" named "<%= project.name %>" to disappear
-    When I run the :get client command with:
-      | resource | project |
-    Then the step should succeed
-    And the output should not contain:
-      | testing project two |
-      | <%= project.name %> |
