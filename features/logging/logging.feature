@@ -170,3 +170,36 @@ Feature: logging related scenarios
     Then the output should match:
       | \[<%= project.name %>\.\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\.\d{4}\.\d{2}\.\d{2}\] |
     """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-14119
+  @admin
+  @destructive
+  Scenario: Heap size limit should be set for Kibana pods
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    Given a pod becomes ready with labels:
+      |  component=kibana,deployment=logging-kibana-1,deploymentconfig=logging-kibana,logging-infra=kibana,provider=openshift |
+    # check kibana pods settings
+    And evaluation of `pod.container(user: user, name: 'kibana').spec.memory_limit` is stored in the :kibana_container_res_limit clipboard
+    And evaluation of `pod.container(user: user, name: 'kibana-proxy').spec.memory_limit` is stored in the :kibana_proxy_container_res_limit clipboard
+    Then the expression should be true> cb.kibana_container_res_limit > 700
+    Then the expression should be true> cb.kibana_proxy_container_res_limit > 100
+    # check kibana dc settings
+    And evaluation of `dc('logging-kibana').container_spec(user: user, name: 'kibana').memory_limit` is stored in the :kibana_dc_res_limit clipboard
+    And evaluation of `dc('logging-kibana').container_spec(user: user, name: 'kibana-proxy').memory_limit` is stored in the :kibana_proxy_dc_res_limit clipboard
+    Then the expression should be true> cb.kibana_container_res_limit == cb.kibana_dc_res_limit
+    Then the expression should be true> cb.kibana_proxy_container_res_limit == cb.kibana_proxy_dc_res_limit
+
+  # @author pruan@redhat.com
+  # @case_id OCP-10523
+  @admin
+  @destructive
+  Scenario: Logging fluentD daemon set should set quota for the pods
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    Given a pod becomes ready with labels:
+      | component=fluentd,logging-infra=fluentd |
+    And evaluation of `pod.container(user: user, name: 'fluentd-elasticsearch').spec.memory_limit` is stored in the :fluentd_pod_mem_limit clipboard
+    And evaluation of `daemon_set('logging-fluentd').container_spec(user: user, name: 'fluentd-elasticsearch').memory_limit` is stored in the :fluentd_container_mem_limit clipboard
+    Then the expression should be true> cb.fluentd_container_mem_limit[1] == cb.fluentd_pod_mem_limit[1]

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'openshift/container_spec'
 require 'openshift/pod_replicator'
 require 'openshift/replication_controller'
 
@@ -7,7 +8,6 @@ module CucuShift
 
   # represents an OpenShift DeploymentConfig (dc for short) used for scaling pods
   class DeploymentConfig < PodReplicator
-
     RESOURCE = 'deploymentconfigs'
     STATUSES = %i[waiting running succeeded failed complete].freeze
     REPLICA_COUNTERS = {
@@ -169,10 +169,30 @@ module CucuShift
       return  trigger_params(user:user, type: "ImageChange")['lastTriggeredImage']
     end
 
-    def template(user:, cached: true, quiet: false)
-      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
-      return spec['template']
-    end
+    # def template(user:, cached: true, quiet: false)
+    #   spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+    #   return spec['template']
+    # end
+
+    # # translate template containers into a Hash key by name instead of just
+    # # Array to make it easier to lookup container information
+    # def containers_spec(user: nil, cached: true, quiet: false)
+    #   containers = {}
+    #   spec = template(user: user)['spec']['containers']
+    #   spec.each do | container |
+    #     cname = container['name']
+    #     containers[cname] = ContainerSpec.new container
+    #   end
+    #   return containers
+    # end
+
+    # def memory_limits(user: nil, name:, cached: true, quiet: false)
+    #   user ||= default_user
+    #   mem = containers_spec(user: user).dig(name).resources.dig('limits', 'memory')
+    #   parsed = mem.match(/\A(\d+)([a-zA-Z]*)\z/)
+    #   number = Integer(parsed[1])
+    #   return number
+    # end
 
   end
 end

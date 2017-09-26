@@ -472,13 +472,13 @@ Feature: SCC policy related scenarios
     Then I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/aosqe-pod-for-ping.json |
     Then the step should succeed
-    And evaluation of `pod('hello-openshift').container(user: user, name: 'hello-openshift', cached: true).scc['runAsUser']` is stored in the :container_run_as_user clipboard
+    And evaluation of `pod('hello-openshift').container(user: user, name: 'hello-openshift', cached: true).spec.scc['runAsUser']` is stored in the :container_run_as_user clipboard
     Then the expression should be true> cb.container_run_as_user == cb.scc_uid
     Given I ensure "hello-openshift" pod is deleted
     When I run oc create over ERB URL: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/tc511602/pod2.json
     Then the step should succeed
     And the pod named "hello-openshift" status becomes :running
-    And evaluation of `pod('hello-openshift').container(user:user, name: 'hello-openshift').scc['runAsNonRoot']` is stored in the :container_run_as_nonroot clipboard
+    And evaluation of `pod('hello-openshift').container(user:user, name: 'hello-openshift').spec.scc['runAsNonRoot']` is stored in the :container_run_as_nonroot clipboard
     And evaluation of `pod('hello-openshift').sc_run_as_nonroot(user:user)` is stored in the :proj_run_as_nonroot clipboard
     Then the expression should be true> cb.container_run_as_nonroot
 
@@ -710,7 +710,7 @@ Feature: SCC policy related scenarios
     Then the step should succeed
     When I get project pod named "pod-add-fsetid" as JSON
     Then the expression should be true> @result[:parsed]['spec']['containers'][0]['securityContext']['capabilities']['add'][0] == "FSETID"
-  
+
   # @author mcurlej@redhat.com
   # @case_id OCP-11498
   @admin
@@ -719,7 +719,7 @@ Feature: SCC policy related scenarios
     When the following scc policy is created: https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/scc_user_mustrunasnonroot.yaml
     Then the step should succeed
     When SCC "scc-user-mustrunasnonroot" is added to the "default" user
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/authorization/scc/pod_requests_uid_root.json |
     Then the step should fail
@@ -733,4 +733,4 @@ Feature: SCC policy related scenarios
       | resource_name | pod-uid-outrange |
       | o             | yaml             |
     Then the step should succeed
-    And the expression should be true> pod.containers(user: user)["pod-uid-outrange"].scc["runAsUser"] == 1000
+    And the expression should be true> pod.containers(user: user)["pod-uid-outrange"].spec.scc["runAsUser"] == 1000

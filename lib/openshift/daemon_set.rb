@@ -1,9 +1,14 @@
-require 'openshift/project_resource'
+require 'openshift/pod_replicator'
 
 module CucuShift
   # represnets an Openshift StatefulSets
-  class DaemonSet < ProjectResource
+  class DaemonSet < PodReplicator
     RESOURCE = "daemonsets"
+    REPLICA_COUNTERS = {
+      desired: %w[spec replicas].freeze,
+      current: %w[status replicas].freeze,
+      ready:   %w[status readyReplicas].freeze,
+    }.freeze
 
     # cache some usualy immutable properties for later fast use; do not cache
     # things that can change at any time like status and spec
@@ -24,5 +29,6 @@ module CucuShift
       spec = get_cached_prop(prop: :status, user: user, cached: cached, quiet: quiet)
       return spec["desiredNumberScheduled"]
     end
+
   end
 end

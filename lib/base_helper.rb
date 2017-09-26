@@ -245,6 +245,26 @@ module CucuShift
           str.encode('utf-8', :invalid => :replace, :undef => :replace)
         end
       end
+
+
+      def convert_to_bytes(mem_str)
+        parsed = mem_str.match(/\A(\d+)([a-zA-Z]*)\z/)
+        number = Integer(parsed[1])
+        unit = parsed[2]
+        case unit
+        when ""
+          return number
+        when "Ki"
+          return number * 1024
+        when "Mi"
+          return number * 1024 * 1204
+        when "Gi"
+          return number * 1024 * 1204 * 1024
+        else
+          raise "unknown memory unit '#{unit}'"
+        end
+      end
+
     end
   end
 end

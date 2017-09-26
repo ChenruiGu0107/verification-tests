@@ -2,6 +2,7 @@
 
 require 'openshift/project_resource'
 require 'active_support/core_ext/hash/slice'
+require 'base_helper'
 
 module CucuShift
   class PodReplicator < ProjectResource
@@ -47,6 +48,33 @@ module CucuShift
     def revision(user:, cached: true, quiet: false)
       annotation('deployment.kubernetes.io/revision',
         user: user, cached: cached, quiet: quiet)
+    end
+
+    ################### container spec related methods ####################
+    def template(user:, cached: true, quiet: false)
+      spec = get_cached_prop(prop: :spec, user: user, cached: cached, quiet: quiet)
+      return spec['template']
+    end
+
+    # translate template containers into ContainerSpec object
+    def containers_spec(user: nil, cached: true, quiet: false)
+      specs = []
+      containers_spec = template(user: user)['spec']['containers']
+      containers_spec.each do | container_spec |
+        specs.push ContainerSpec.new container_spec
+      end
+      return specs
+    end
+
+    # return the spec for a specific container identified by the param name
+    def container_spec(user: nil, name:, cached: true, quiet: false)
+      specs = containers_spec(user: user, cached: cached, quiet: quiet)
+      target_spec = {}
+      specs.each do | spec |
+        target_spec = spec if spec.name == name
+      end
+      raise "No container spec found mathcing '#{name}'!" if target_spec.is_a? Hash
+      return target_spec
     end
 
   end

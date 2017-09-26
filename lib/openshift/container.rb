@@ -1,3 +1,5 @@
+require 'openshift/container_spec'
+
 module CucuShift
   class Container
     include Common::Helper
@@ -32,7 +34,7 @@ module CucuShift
       container_spec.each do | cs |
         spec = cs if cs['name'] == @name
       end
-      return spec
+      return ContainerSpec.new spec
     end
 
     ## status related information for the container @name
@@ -117,30 +119,5 @@ module CucuShift
       return res['state']
     end
 
-    ## spec related information for the container
-    def image_pull_policy(user: nil, cached: true, quiet: false)
-      user ||= default_user
-      res = spec(user: user, cached: cached, quiet: quiet)
-      return res['imagePullPolicy']
-    end
-
-    def ports(user: nil, cached: true, quiet: false)
-      user ||= default_user
-      res = spec(user: user, cached: cached, quiet: quiet)
-      return res['ports']
-    end
-
-    def resources(user: nil, cached: true, quiet: false)
-      user ||= default_user
-      res = spec(user: user, cached: cached, quiet: quiet)
-      return res['resources']
-    end
-
-    # return @Hash representation of scc  for example: {"fsGroup"=>1000400000, "runAsUser"=>1000400000, "seLinuxOptions"=>{"level"=>"s0:c20,c10"}}
-    def scc(user: nil, cached: true, quiet: false)
-      user ||= default_user
-      res = spec(user: user, cached: cached, quiet: quiet)
-      return res['securityContext']
-    end
   end
 end
