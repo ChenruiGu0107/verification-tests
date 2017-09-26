@@ -673,6 +673,7 @@ module CucuShift
     end
 
     def quit_cucumber
+      logger.error "Test Execution will finish prematurely."
       Cucumber.wants_to_quit = true
     end
 
