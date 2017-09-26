@@ -220,7 +220,6 @@ Feature: storageClass related feature
     """
 
   # @author lxia@redhat.com
-  # @case_id OCP-12326 OCP-12348
   @admin
   @destructive
   Scenario Outline: PVC request storage class with specific provisioner
@@ -239,15 +238,15 @@ Feature: storageClass related feature
     When I run the :describe client command with:
       | resource | pvc/pvc-<%= project.name %> |
     Then the output should contain:
-      | <str1> |
-      | <str2> |
+      | <%= "<provisioner>"=="manual" ? "ExternalProvisioning" : "ProvisioningFailed" %>                                                                                                                    |
+      | <%= "<provisioner>"=="manual" ? (env.version_lt("3.7", user: user) ? "provisioned either manually or via external software" : "waiting for a volume to be created") : "no volume plugin matched" %> |
     """
     And the "pvc-<%= project.name %>" PVC status is :pending
 
     Examples:
-      | provisioner           | str1                 | str2 |
-      | manual                | ExternalProvisioning | provisioned either manually or via external software |
-      | kubernetes.io/unknown | ProvisioningFailed   | no volume plugin matched                             |
+      | provisioner           |
+      | manual                | # @case_id OCP-12326
+      | kubernetes.io/unknown | # @case_id OCP-12348
 
   # @author lxia@redhat.com
   # @case_id OCP-12223 OCP-12226 OCP-12227 OCP-13490
@@ -440,7 +439,8 @@ Feature: storageClass related feature
     When I run the :describe client command with:
       | resource | pvc/pvc-<%= project.name %> |
     Then the output should contain:
-      | ProvisioningIgnoreAlpha |
+      | <%= env.version_lt("3.7", user: user) ? "ProvisioningIgnoreAlpha" : "ProvisioningFailed" %>                     |
+      | <%= env.version_lt("3.7", user: user) ? "" : "storageclass.storage.k8s.io \"sc2-#{project.name}\" not found" %> |
     """
 
   # @author chaoyang@redhat.com
