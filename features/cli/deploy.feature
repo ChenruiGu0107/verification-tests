@@ -933,13 +933,13 @@ Feature: deployment related features
     And I get project pod named "hooks-1-hook-pre" as YAML
     And the output should match:
       | mountPath:\\s+/var/lib/origin |
-      | emptyDir:\\s+{}               |
+      | emptyDir:                     |
       | name:\\s+dataem               |
     When the pod named "hooks-1-hook-post" becomes ready
     And I get project pod named "hooks-1-hook-post" as YAML
     And the output should match:
       | mountPath:\\s+/var/lib/origin |
-      | emptyDir:\\s+{}               |
+      | emptyDir:                     |
       | name:\\s+dataem               |
 
   # @author pruan@redhat.com
@@ -1575,12 +1575,6 @@ Feature: deployment related features
       | resource_name | hello-openshift |
       | p             | {"spec":{"template":{"spec":{"containers":[{"name":"hello-openshift","ports":[{"containerPort":80}]}]}}}} |
     Then the step should succeed
-    When I run the :get client command with:
-      | resource      | deployment      |
-      | resource_name | hello-openshift |
-      | template      | {{(index (index .spec.template.spec.containers 0).ports 1).containerPort }} |
-    Then the step should succeed
-    And the output should match "^80$"
     When I run the :get client command with:
       | resource      | deployment                |
       | resource_name | hello-openshift           |
