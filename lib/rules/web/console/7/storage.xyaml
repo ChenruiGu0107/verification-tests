@@ -62,6 +62,19 @@ create_pvc_from_storage_page:
   element:
     selector:
       xpath: //td[@data-title='Name']/a[text()='<pvc_name>']
+create_larger_than_quota_pvc_from_storage_page:
+  action: goto_storage_page
+  action: open_create_pvc_page
+  action: set_pvc_name
+  action: set_pvc_access_mode
+  action: set_storage_size
+  action: set_storage_unit
+  element:
+    selector:
+      xpath: //span[contains(text(),'quota will be exceeded' )] 
+  element:
+    selector:
+      xpath: //a[@href='project/<project_name>/quota' and contains(.,'View')] 
 check_pvc_info:
   action: check_one_pvc_detail
   action: check_pvc_set_info

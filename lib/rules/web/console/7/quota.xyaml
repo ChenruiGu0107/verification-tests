@@ -26,4 +26,6 @@ check_quota_warning_on_storage_page:
   action: goto_storage_page
   elements:
   - selector:
-      xpath: //span[contains(text(),'Storage quota limit has been reached')]
+      xpath: //span[contains(text(),'limit has been reached')]
+  - selector:
+      xpath: //a[contains(.,'Create Storage') and @aria-disabled='true']   

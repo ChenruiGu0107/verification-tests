@@ -638,7 +638,6 @@ Feature: functions about resourcequotas
       | terminating    |
       | notterminating |
     
-
   # @author hasha@redhat.com
   # @case_id OCP-12988
   @admin
@@ -692,4 +691,42 @@ Feature: functions about resourcequotas
     When I perform the :check_quota_warning_on_storage_page web console action with:
       | project_name   | <%= project.name %>    |
     Then the step should succeed
-    
+
+  # @author hasha@redhat.com
+  # @case_id OCP-12990
+  @admin
+  Scenario: Show warning info when storage reaches the storage limits of project quota	
+    Given the master version >= "3.6"
+    Given I have a project
+    # Create quota for current project
+    When I run the :create_quota admin command with:
+      | name | myquota                |
+      | hard | requests.storage=2Gi   |
+      | n    | <%= project.name %>    |
+    Then the step should succeed
+    When I perform the :create_pvc_from_storage_page web console action with:
+      | project_name    | <%= project.name %>       |
+      | pvc_name        | pvc-1                     |
+      | pvc_access_mode | ReadWriteMany             |
+      | storage_size    | 1                         |
+      | storage_unit    | GiB                       |
+    Then the step should succeed
+    When I perform the :create_larger_than_quota_pvc_from_storage_page web console action with:
+      | project_name    | <%= project.name %>       |
+      | pvc_name        | pvc-2                     |
+      | pvc_access_mode | ReadWriteMany             |
+      | storage_size    | 2                         |
+      | storage_unit    | GiB                       |
+    Then the step should succeed
+    When I perform the :create_pvc_from_storage_page web console action with:
+      | project_name    | <%= project.name %>       |
+      | pvc_name        | pvc-3                     |
+      | pvc_access_mode | ReadWriteMany             |
+      | storage_size    | 1                         |
+      | storage_unit    | GiB                       |
+    Then the step should succeed
+    When I perform the :check_quota_warning_on_storage_page web console action with:
+      | project_name   | <%= project.name %>    |
+    Then the step should succeed
+
+      
