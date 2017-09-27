@@ -43,6 +43,39 @@ Given /^the env is using multitenant or networkpolicy network$/ do
   end
 end
 
+Given /^the env is using one of the listed network plugins:$/ do |table|
+  ensure_admin_tagged
+  plugin_list = table.raw.flatten
+
+  _host = node.host rescue nil
+  unless _host
+    step "I store the schedulable nodes in the clipboard"
+    _host = node.host
+  end
+
+  @result = _host.exec('(ovs-ofctl dump-flows br0 -O openflow13 || docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13)| grep table=253')
+  unless @result[:success]
+    raise "failed to get table 253 from the open flows."
+  end
+
+  plugin_type = @result[:response][-17]
+  case plugin_type
+  when "0"
+    plugin_name = "subnet"
+  when "1"
+    plugin_name = "multitenant"
+  when "2"
+    plugin_name = "networkpolicy"
+  else
+    raise "unknow network plugins."
+  end
+  logger.info("environment network plugin name: #{plugin_name}")
+
+  unless plugin_list.include? plugin_name
+    raise "the env network plugin is #{plugin_name} but expecting #{plugin_list}."
+  end
+end
+
 Given /^the network plugin is switched on the#{OPT_QUOTED} node$/ do |node_name|
   ensure_admin_tagged
 
