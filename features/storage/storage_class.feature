@@ -12,6 +12,7 @@ Feature: storageClass related feature
       | ["spec"]["<storage_type>"]["<volume_name>"] | <%= cb.vid %>          |
       | ["spec"]["persistentVolumeReclaimPolicy"]   | Retain                 |
     Then the step should succeed
+    Given default storage class is deleted 
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
