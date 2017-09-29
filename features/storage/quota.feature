@@ -103,7 +103,8 @@ Feature: ResourceQuata for storage
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 1Mi                                 |
     Then the step should succeed
-    Given admin ensures "<%= pvc('pvcnew').volume_name(user: admin) %>" pv is deleted after scenario
+    And the "pvcnew" PVC becomes :bound
+    And admin ensures "<%= pvc('pvcnew').volume_name(user: admin) %>" pv is deleted after scenario
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvcnew2                             |
