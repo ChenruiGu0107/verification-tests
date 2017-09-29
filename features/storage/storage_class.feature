@@ -284,13 +284,7 @@ Feature: storageClass related feature
   @admin
   @destructive
   Scenario Outline: New created PVC without specifying storage class use default class when only one class is marked as default
-    # check there are no default StorageClass
-    When I run the :get admin command with:
-      | resource | storageclass |
-      | o        | yaml         |
-    Then the step should succeed
-    And the output should not contain:
-      | is-default-class: "true" |
+    Given default storage class is deleted
     Given I have a project
     # create one as default StorageClass
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
