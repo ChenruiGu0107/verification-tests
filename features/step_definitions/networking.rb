@@ -1,3 +1,31 @@
+Given /^I run the ovs commands on the host:$/ do | table |
+  ensure_admin_tagged
+  _host = node.host
+
+  ovs_cmd = table.raw.flatten.join
+  if _host.exec_admin("ovs-vsctl --version")[:response].include? "Open vSwitch"
+    logger.info("environment using rpm to launch openvswitch")
+  elsif _host.exec_admin("docker ps")[:response].include? "openvswitch"
+    logger.info("environment using docker to launch openvswith")
+    ovs_cmd = "docker exec openvswitch " + ovs_cmd
+  elsif _host.exec_admin("runc list")[:response].include? "openvswitch"
+    logger.info("environment using runc to launch openvswith")
+    ovs_cmd = "runc exec openvswitch " + ovs_cmd
+  else
+    raise "Cannot find the ovs command"
+  end
+  @result = _host.exec_admin(ovs_cmd)
+end
+
+Given /^I run ovs dump flows commands on the host$/ do
+  ensure_admin_tagged
+  _host = node.host
+
+  step %Q/I run the ovs commands on the host:/, table(%{
+    | ovs-ofctl dump-flows br0 -O openflow13 |
+  })
+end
+
 Given /^the env is using multitenant network$/ do
   ensure_admin_tagged
 
@@ -7,7 +35,7 @@ Given /^the env is using multitenant network$/ do
     _host = node.host
   end
 
-  @result = _host.exec('ovs-ofctl dump-flows br0 -O openflow13 || docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13')
+  step "I run ovs dump flows commands on the host"
   unless @result[:success] && @result[:response] =~ /table=253.*actions=note:01/
     raise "The env is not using multitenant network."
   end
@@ -22,7 +50,7 @@ Given /^the env is using networkpolicy plugin$/ do
     _host = node.host
   end
 
-  @result = _host.exec('ovs-ofctl dump-flows br0 -O openflow13 || docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13')
+  step "I run ovs dump flows commands on the host"
   unless @result[:success] && @result[:response] =~ /table=253.*actions=note:02/
     raise "The env is not using networkpolicy plugin."
   end
@@ -37,7 +65,7 @@ Given /^the env is using multitenant or networkpolicy network$/ do
     _host = node.host
   end
 
-  @result = _host.exec('ovs-ofctl dump-flows br0 -O openflow13 || docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13')
+  step "I run ovs dump flows commands on the host"
   unless @result[:success] && @result[:response] =~ /table=253.*actions=note:0[1|2]/
     raise "The env is not using multitenant or networkpolicy network."
   end
@@ -53,7 +81,9 @@ Given /^the env is using one of the listed network plugins:$/ do |table|
     _host = node.host
   end
 
-  @result = _host.exec('(ovs-ofctl dump-flows br0 -O openflow13 || docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13)| grep table=253')
+  step %Q/I run the ovs commands on the host:/, table([[
+    "ovs-ofctl dump-flows br0 -O openflow13 | grep table=253"
+  ]])
   unless @result[:success]
     raise "failed to get table 253 from the open flows."
   end
@@ -81,7 +111,7 @@ Given /^the network plugin is switched on the#{OPT_QUOTED} node$/ do |node_name|
 
   _node = node(node_name)
   _host = _node.host
-  @result = _host.exec('ovs-ofctl dump-flows br0 -O openflow13 || docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13')
+  step "I run ovs dump flows commands on the host"
 
   if @result[:success] && @result[:response] =~ /table=253.*actions=note:01/
     logger.info "Switch plguin from multitenant to subnet"
@@ -101,7 +131,7 @@ Given /^the#{OPT_QUOTED} node network is verified$/ do |node_name|
   _host = _node.host
 
   net_verify = proc {
-    @result = _host.exec('ovs-ofctl dump-flows br0 -O openflow13 || docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13')
+    step "I run ovs dump flows commands on the host"
     unless @result[:success] || @result[:response] =~ /table=253.*actions=note/
       raise "unexpected network setup, see log"
     end
