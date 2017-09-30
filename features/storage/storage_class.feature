@@ -901,3 +901,14 @@ Feature: storageClass related feature
     And the "pvc-<%= project.name %>" PVC becomes :bound
     And the expression should be true> pvc.storage_class(user:user) == "sc-<%= project.name %>"
     And the expression should be true> pv(pvc.volume_name(user:user)).storage_class_name(user:admin) == "sc-<%= project.name %>"
+
+  # @author chaoyang@redhat.com
+  # @case_id OCP-10228
+  Scenario: AWS ebs volume is dynamic provisioned with default storageclass
+    Given I have a project
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pvc-retain.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %> |
+      | ["spec"]["resources"]["requests"]["storage"] | 1Gi                     |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+
