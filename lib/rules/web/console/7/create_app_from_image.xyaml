@@ -1,4 +1,5 @@
---- # set app param to create app from image
+---
+# set app param to create app from image
 create_app_from_image:
   # *** Required params:
   # image_name, image_tag
@@ -86,9 +87,9 @@ create_app_from_image:
   action:
     if_param:
       sumbit_creation: 'true'
-    ref: create_app_from_image_submit
-
-
+    ref:
+    - wait_second_level_navigation_to_close
+    - create_app_from_image_submit
 create_app_from_image_base_action:
   action: create_app_from_image_navigate
   action: create_app_from_image_default_options
@@ -132,11 +133,11 @@ create_app_from_image_check_label:
 create_app_from_image_set_hpa:
   action: set_autoscaler_strategy_as_automatic
   action:
-    if_param: min_pods 
+    if_param: min_pods
     ref: set_min_pod_on_autoscaler_page
   action: set_max_pod_on_autoscaler_page
   action:
-    if_param: cpu_req_per 
+    if_param: cpu_req_per
     ref: set_cpu_request_percentage
 
 # all sub single action

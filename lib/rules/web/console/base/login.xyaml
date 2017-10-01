@@ -8,6 +8,15 @@ login_sequence:
   # wait to get page loaded first to avoid excessive wait on `if_element`
   action: login_page_loaded
   action:
+    ref:
+    - click_pre_login_button
+    - pre_login_buttons_gone
+    - login_page_loaded
+    if_element:
+      selector: &pre_login_buttons
+        css: .login-redhat
+      timeout: 1
+  action:
     ref: login_console
     if_element:
       selector:
@@ -80,12 +89,9 @@ login_token:
   action: verify_logged_in
 
 login_page_loaded:
-  elements:
-  - selector:
-      id: !ruby/regexp '/(input)?username/i'
-    timeout: 30
-  - selector:
-      id: !ruby/regexp '/(input)?password/i'
+  element:
+    selector:
+      css: "#password, #inputPassword, .login-redhat"
     timeout: 30
 
 verify_logged_in:
@@ -100,3 +106,12 @@ verify_logged_in:
   #  expect_result: true
   - command: return window.localStorage['LocalStorageUserStore.user']
     expect_result: true
+
+click_pre_login_button:
+  element:
+    selector: *pre_login_buttons
+    op: click
+pre_login_buttons_gone:
+  element:
+    selector: *pre_login_buttons
+    missing: true
