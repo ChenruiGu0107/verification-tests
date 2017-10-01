@@ -871,13 +871,13 @@ Feature: Egress-ingress related networking scenarios
     # Check egress rule added in openflow
     Given I select a random node's host
     When I run commands on the host:
-       | (ovs-ofctl dump-flows br0 -O openflow13 \| grep tcp \| grep tp_dst=53  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 | grep tcp  |grep tp_dst=53 )  |
+      | (ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null) \| grep tcp \| grep tp_dst=53 |
     And the output should contain 1 times:
-       | nw_dst=<%= cb.hostip %> |
-      When I run commands on the host:
-       | (ovs-ofctl dump-flows br0 -O openflow13 \| grep udp \| grep tp_dst=53  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 | grep udp  | grep tp-dst=53 )  |
+      | nw_dst=<%= cb.hostip %> |
+    When I run commands on the host:
+      | (ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null) \| grep udp \| grep tp_dst=53 |
     And the output should contain 1 times:
-       | nw_dst=<%= cb.hostip %> |
+      | nw_dst=<%= cb.hostip %> |
     # Create egress policy to allow www.baidu.com
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
