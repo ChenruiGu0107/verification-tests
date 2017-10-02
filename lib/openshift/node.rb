@@ -85,17 +85,7 @@ module CucuShift
       obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
       mem = obj.dig("status", "capacity", "memory")
       return unless mem
-      parsed = mem.match(/\A(\d+)([a-zA-Z]*)\z/)
-      number = Integer(parsed[1])
-      unit = parsed[2]
-      case unit
-      when ""
-        return number
-      when "Ki"
-        return number * 1024
-      else
-        raise "unknown memory unit '#{unit}'"
-      end
+      return convert_to_bytes(mem)
     end
 
     # @return [Integer} capacity cpu in 'm'
@@ -103,17 +93,7 @@ module CucuShift
       obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
       cpu = obj.dig("status", "allocatable", "cpu")
       return unless cpu
-      parsed = cpu.match(/\A(\d+)([a-zA-Z]*)\z/)
-      number = Integer(parsed[1])
-      unit = parsed[2]
-      case unit
-      when ""
-        return number * 1000
-      when "m"
-        return number
-      else
-        raise "unknown cpu unit '#{unit}'"
-      end
+      return convert_cpu(cpu)
     end
 
     def allocatable_pods(user: nil, cached: true, quiet: false)
@@ -126,17 +106,7 @@ module CucuShift
       obj = get_cached_prop(prop: :raw, user: user, cached: cached, quiet: quiet)
       mem = obj.dig("status", "allocatable", "memory")
       return unless mem
-      parsed = mem.match(/\A(\d+)([a-zA-Z]*)\z/)
-      number = Integer(parsed[1])
-      unit = parsed[2]
-      case unit
-      when ""
-        return number
-      when "Ki"
-        return number * 1024
-      else
-        raise "unknown memory unit '#{unit}'"
-      end
+      return convert_to_bytes(mem)
     end
   end
 end

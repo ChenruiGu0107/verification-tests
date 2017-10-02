@@ -1,9 +1,10 @@
 require 'openshift/project_resource'
 require 'openshift/pod_replicator'
+require 'openshift/container_spec'
 
 module CucuShift
   # represents an OpenShift ReplicationController (rc for short) used for scaling pods
-  class ReplicationController < ProjectResource
+  class ReplicationController < PodReplicator
     RESOURCE = "replicationcontrollers"
 
     # cache some usualy immutable properties for later fast use; do not cache

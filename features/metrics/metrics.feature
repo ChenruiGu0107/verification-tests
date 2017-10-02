@@ -293,3 +293,18 @@ Feature: metrics related scenarios
     And I wait for the "hawkular-cassandra" service to become ready
     Then I wait until number of replicas match "1" for replicationController "hawkular-cassandra-1"
 
+  # @author: pruan@redhat.com
+  # @case_id: OCP-12276
+  # combined using unified step for deploying metrics
+  @admin
+  @destructive
+  Scenario: Metrics Admin Command - fresh deploy with resource limits
+    Given I create a project with non-leading digit name
+    Given metrics service is installed in the system using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12276/inventory |
+    And I switch to cluster admin pseudo user
+    And I use the "openshift-infra" project
+    And evaluation of `rc('hawkular-metrics').container_spec(user: user, name: 'hawkular-metrics').cpu_limit_raw` is stored in the :cpu_limit clipboard
+    And evaluation of `rc('hawkular-cassandra-1').container_spec(user: user, name: 'hawkular-cassandra-1').memory_limit_raw` is stored in the :memory_limit clipboard
+    Then the expression should be true> cb.cpu_limit == "100m"
+    Then the expression should be true> cb.memory_limit == "1G"

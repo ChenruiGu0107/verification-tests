@@ -66,10 +66,21 @@ module CucuShift
         return mem_str
       end
 
+      def cpu_limit_raw
+        cpu_str = self.resources.dig('requests', 'cpu')
+        raise "No cpu limits defined in the template" if cpu_str.nil?
+        return cpu_str
+      end
+
       # returns numeric representation of memrory limit in bytes
       def memory_limit
         return convert_to_bytes(self.memory_limit_raw)
       end
+
+      def cpu_limit
+        return convert_cpu(self.cpu_limit_raw)
+      end
+
     end
 
     include ExportMethods

@@ -254,14 +254,28 @@ module CucuShift
         case unit
         when ""
           return number
-        when "Ki"
+        when "Ki", "K"
           return number * 1024
-        when "Mi"
+        when "Mi", "M"
           return number * 1024 * 1204
-        when "Gi"
+        when "Gi", "G"
           return number * 1024 * 1204 * 1024
         else
           raise "unknown memory unit '#{unit}'"
+        end
+      end
+
+      def convert_cpu(cpu_str)
+        parsed = cpu_str.match(/\A(\d+)([a-zA-Z]*)\z/)
+        number = Integer(parsed[1])
+        unit = parsed[2]
+        case unit
+        when ""
+          return number * 1000
+        when "m"
+          return number
+        else
+          raise "unknown cpu unit '#{unit}'"
         end
       end
 
