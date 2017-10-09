@@ -326,3 +326,44 @@ Feature: Dynamic provisioning
       | /mnt/iaas/hello |
     Then the step should succeed
     And the output should contain "Hello OpenShift Storage"
+
+  # @author jhou@redhat.com
+  @admin
+  @destructive
+  Scenario Outline: Specify a file system type for dynamically provisioned volume
+    Given I have a project
+
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass-fstype.yml" where:
+      | ["metadata"]["name"]     | storageclass-<%= project.name %> |
+      | ["provisioner"]          | kubernetes.io/<provisioner>      |
+      | ["parameters"]["fstype"] | <fstype>                         |
+    Then the step should succeed
+
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %>          |
+      | ["spec"]["accessModes"][0]                                             | ReadWriteOnce                    |
+      | ["spec"]["resources"]["requests"]["storage"]                           | 1Gi                              |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | storageclass-<%= project.name %> |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt                    |
+    Then the step should succeed
+    Given the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the pod:
+      | df | -T | /mnt |
+    Then the step should succeed
+    And the output should contain:
+      | <fstype> |
+
+    Examples:
+      | provisioner    | fstype |
+      | aws-ebs        | xfs    | # @case_id OCP-16058
+      | gce-pd         | xfs    | # @case_id OCP-16059
+      | cinder         | xfs    | # @case_id OCP-16060
+      | azure-disk     | xfs    | # @case_id OCP-16061
+      | vsphere-volume | xfs    | # @case_id OCP-16057
