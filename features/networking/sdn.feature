@@ -195,14 +195,7 @@ Feature: SDN related networking scenarios
     And the node service is restarted on the host after scenario
 
     Given the node standard iptables rules are removed
-    And I wait up to 35 seconds for the steps to pass:
-    """
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "5s ago" \| grep iptables.go |
-    Then the output should contain "Syncing openshift iptables rules"
-    And the output should contain "syncIPTableRules took"
-    """
-    Given 5 seconds have passed
+    Given 35 seconds have passed
     Given the node iptables config is verified
 
   # @author bmeng@redhat.com
@@ -228,18 +221,23 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | iptables -D <%= cb.vxlan_rule %> |
     Then the step should succeed
-    And I wait up to 15 seconds for the steps to pass:
+    Given I wait for the steps to pass:
     """
-    When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "5s ago" \| grep iptables.go |
-    Then the output should contain "Syncing openshift iptables rules"
-    And the output should contain "syncIPTableRules took"
-    """
-    Given 5 seconds have passed
     When I run commands on the host:
       | iptables -S -t filter |
     Then the output should contain:
-      | <%= cb.vxlan_rule %> |
+      | <%= cb.vxlan_rule.chomp %> |
+    """
+    When I run commands on the host:
+      | iptables -D <%= cb.vxlan_rule %> |
+    Then the step should succeed
+    And I wait up to 15 seconds for the steps to pass:
+    """
+    When I run commands on the host:
+      | iptables -S -t filter |
+    Then the output should contain:
+      | <%= cb.vxlan_rule.chomp %> |
+    """
 
   # @author bmeng@redhat.com
   # @case_id OCP-11795
