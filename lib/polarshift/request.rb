@@ -102,6 +102,7 @@ module CucuShift
           url: "#{base_url}project/#{project_id}/run/#{run_id}",
           params: params,
           raise_on_error: false,
+          read_timeout: 120,
           **common_opts
         )
       end
