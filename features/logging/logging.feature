@@ -203,3 +203,17 @@ Feature: logging related scenarios
     And evaluation of `pod.container(user: user, name: 'fluentd-elasticsearch').spec.memory_limit` is stored in the :fluentd_pod_mem_limit clipboard
     And evaluation of `daemon_set('logging-fluentd').container_spec(user: user, name: 'fluentd-elasticsearch').memory_limit` is stored in the :fluentd_container_mem_limit clipboard
     Then the expression should be true> cb.fluentd_container_mem_limit[1] == cb.fluentd_pod_mem_limit[1]
+
+  # @author pruan@redhat.com
+  # @case_id OCP-10767
+  @admin
+  @destructive
+  Scenario: Logout kibana web console
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    Given I login to kibana logging web console
+    When I perform the :logout_kibana web action with:
+      | kibana_url | https://<%= cb.logging_route %> |
+    Then the step should succeed
+    And I access the "<%= cb.logging_route %>" url in the web browser
+    Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO|Log In)"

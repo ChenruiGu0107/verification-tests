@@ -24,6 +24,7 @@ require "base64"
       :button => :button,
       :element => :elements,
       :input => :input,
+      :div => :div,
       :js => :execute_script,
       :iframe => :iframe
     }
