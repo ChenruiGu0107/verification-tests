@@ -138,6 +138,17 @@ environments:
     cli: SharedLocalCliExecutor
     admin_cli: false
     api_port: 443
+  online_starter:
+    hosts: api.starter-us-east-1.openshift.com:etcd:master:node
+    web_console_url: https://console.starter-us-east-1.openshift.com
+    hosts_type: Host # we can't basically access that host so this should work
+    type: StaticEnvironment
+    user_manager: auto
+    #set OPENSHIFT_ENV_ONLINE_STARTER_USER_MANAGER_USERS=:user_token1,:user_token2,...
+    #user_manage_users:
+    cli: SharedLocalCliExecutor
+    admin_cli: false
+    api_port: 443
   origin:
     # hosts: use OPENSHIFT_ENV_ORIGIN_HOSTS=host:role1:...,host2:role1:...
     hosts_type: SSHAccessibleHost
