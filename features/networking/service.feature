@@ -326,8 +326,7 @@ Feature: Service related networking scenarios
     Given I use the "service-unsecure" service
     And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
     Given I select a random node's host
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    When I run ovs dump flows commands on the host
     Then the step should succeed
     And the output should contain:
       | <%= cb.service_ip %> |
@@ -336,8 +335,7 @@ Feature: Service related networking scenarios
       | object_name_or_id | service-unsecure |
     Then the step should succeed
     Given I select a random node's host
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    When I run ovs dump flows commands on the host
     Then the step should succeed
     And the output should not contain:
       | <%= cb.service_ip %> |

@@ -435,15 +435,15 @@ Feature: Egress-ingress related networking scenarios
     Then the step should succeed
 
     Given I select a random node's host
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13\|grep 10.3.0.0 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13\|grep 10.3.0.0) |
+    When I run the ovs commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 \| grep 10.3.0.0 |
     And the output should contain 2 times:
       | actions=drop |
       | reg0=0x      |
     Given the node service is restarted on the host
     Given the node service is verified
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13\|grep 10.3.0.0 \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13\|grep 10.3.0.0) |
+    When I run the ovs commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 \| grep 10.3.0.0 |
     And the output should contain 2 times:
       | actions=drop |
       | reg0=0x      |
@@ -677,8 +677,8 @@ Feature: Egress-ingress related networking scenarios
  
     # Check egress rule added in openflow
     Given I select a random node's host
-    When I run commands on the host:
-       | (ovs-ofctl dump-flows br0 -O openflow13 \| grep <%= cb.yahoo_ip %> \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13|grep <%= cb.yahoo_ip %> )  |
+    When I run the ovs commands on the host:
+       | ovs-ofctl dump-flows br0 -O openflow13 \| grep <%= cb.yahoo_ip %> |
     And the output should contain 1 times:
       | actions=drop |
 
@@ -691,8 +691,8 @@ Feature: Egress-ingress related networking scenarios
 
     # Check egress rule deleted in openflow
     Given I select a random node's host
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13 \| grep <%= cb.yahoo_ip %> \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13|grep <%= cb.yahoo_ip %> )  |
+    When I run the ovs commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 \| grep <%= cb.yahoo_ip %> |
     And the output should not contain:
       | actions=drop |
 
@@ -870,12 +870,12 @@ Feature: Egress-ingress related networking scenarios
 
     # Check egress rule added in openflow
     Given I select a random node's host
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null) \| grep tcp \| grep tp_dst=53 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \| grep tcp \| grep tp_dst=53 |
     And the output should contain 1 times:
       | nw_dst=<%= cb.hostip %> |
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null) \| grep udp \| grep tp_dst=53 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \| grep udp \| grep tp_dst=53 |
     And the output should contain 1 times:
       | nw_dst=<%= cb.hostip %> |
     # Create egress policy to allow www.baidu.com

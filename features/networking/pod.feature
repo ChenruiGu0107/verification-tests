@@ -101,8 +101,7 @@ Feature: Pod related networking scenarios
     Given I have a pod-for-ping in the project
     Then I use the "<%= pod.node_name(user: user) %>" node
     Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    When I run ovs dump flows commands on the host
     Then the step should succeed
     And the output should contain:
       | <%=cb.pod_ip %> |
@@ -111,8 +110,7 @@ Feature: Pod related networking scenarios
       | object_name_or_id | hello-pod |
     Then the step should succeed
     Given I select a random node's host
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    When I run ovs dump flows commands on the host
     Then the step should succeed
     And the output should not contain:
       | <%=cb.pod_ip %> |

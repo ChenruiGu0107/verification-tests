@@ -21,16 +21,16 @@ Feature: SDN related networking scenarios
     Given the node service is restarted on the host after scenario
     And I register clean-up steps:
     """
-    When I run commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
     Then the step should succeed
     """
     And the "/etc/origin/node/node-config.yaml" file is restored on host after scenario
     When I run commands on the host:
       | sed -i 's/mtu:.*/mtu: 3450/g' /etc/origin/node/node-config.yaml |
     Then the step should succeed
-    When I run commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
     Then the step should succeed
     When I run commands on the host:
       | systemctl restart atomic-openshift-node |
@@ -65,16 +65,16 @@ Feature: SDN related networking scenarios
     Given the node service is restarted on the host after scenario
     And I register clean-up steps:
     """
-    When I run commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
     Then the step should succeed
     """
     And the "/etc/hosts" file is restored on host after scenario
     When I run commands on the host:
       | echo "127.0.0.1  $(hostname)" >> /etc/hosts |
     Then the step should succeed
-    When I run commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
     Then the step should succeed
     When I run commands on the host:
       | systemctl restart atomic-openshift-node |
@@ -107,15 +107,15 @@ Feature: SDN related networking scenarios
     Given the node service is restarted on the host after scenario
     And I register clean-up steps:
     """
-    When I run commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
     Then the step should succeed
     """
     When I run commands on the host:
       | systemctl stop atomic-openshift-node |
     Then the step should succeed
-    When I run commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:01.ff" -O openflow13 |
     Then the step should succeed
     When I run commands on the host:
       | sysctl -w net.bridge.bridge-nf-call-iptables=1 |
@@ -139,12 +139,12 @@ Feature: SDN related networking scenarios
     Given I select a random node's host
     And the node network is verified
     And the node service is verified
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) \| grep table=253 \| sed -n -e 's/^.*note://p' \| cut -c 1,2 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \| grep table=253 \| sed -n -e 's/^.*note://p' \| cut -c 1,2 |
     Then the step should succeed
     And evaluation of `@result[:response]` is stored in the :plugin_type clipboard
-    When I run commands on the host:
-      | ovs-ofctl mod-flows br0 "table=253, actions=note:<%= cb.plugin_type.chomp %>.ff" -O openflow13 \|\| docker exec openvswitch ovs-ofctl mod-flows br0 "table=253, actions=note:<%= cb.plugin_type.chomp %>.ff" -O openflow13 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl mod-flows br0 "table=253, actions=note:<%= cb.plugin_type.chomp %>.ff" -O openflow13 |
     Then the step should succeed
     When I run commands on the host:
       | systemctl restart atomic-openshift-node |
@@ -323,8 +323,7 @@ Feature: SDN related networking scenarios
     And evaluation of `@result[:parsed]['subnet']` is stored in the :subnet clipboard
 
     Given I select a random node's host
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    When I run ovs dump flows commands on the host
     Then the step should succeed
     And the output should contain:
       | arp_tpa=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1 |
@@ -336,8 +335,7 @@ Feature: SDN related networking scenarios
       | object_name_or_id | f5-<%= cb.hostsubnet_name %> |
     Then the step should succeed
 
-    When I run commands on the host:
-      | (ovs-ofctl dump-flows br0 -O openflow13  \|\| docker exec openvswitch ovs-ofctl dump-flows br0 -O openflow13) |
+    When I run ovs dump flows commands on the host
     Then the step should succeed
     And the output should not contain:
       | arp_tpa=<%= cb.subnet %> actions=load:0->NXM_NX_TUN_ID[0..31],set_field:<%= cb.hostip %>->tun_dst,output:1 |
@@ -407,8 +405,8 @@ Feature: SDN related networking scenarios
       | ip addr show if<%= cb.ifindex %> \| head -1 \| awk -F@ '{ print $1 }' \| awk '{ print $2 }' |
     Then the output should contain "veth"
     And evaluation of `@result[:response].strip` is stored in the :veth_index clipboard
-    When I run commands on the host:
-      | (ovs-ofctl -O openflow13 show br0 \|\| docker exec openvswitch ovs-ofctl -O openflow13 show br0) |
+    When I run the ovs commands on the host:
+      | ovs-ofctl -O openflow13 show br0 |
     Then the output should contain "<%= cb.veth_index %>"
     When I run the :delete client command with:
       | object_type       | pods      |
@@ -418,8 +416,8 @@ Feature: SDN related networking scenarios
     When I run commands on the host:
       | ip a s <%= cb.veth_index %>: |
     Then the step should fail
-    When I run commands on the host:
-      | (ovs-ofctl -O openflow13 show br0 \|\| docker exec openvswitch ovs-ofctl -O openflow13 show br0) |
+    When I run the ovs commands on the host:
+      | ovs-ofctl -O openflow13 show br0 |
     Then the output should not contain "<%= cb.veth_index %>"
 
   # @author zzhao@redhat.com
