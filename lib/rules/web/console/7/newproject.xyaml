@@ -19,13 +19,15 @@ set_project_name:
 set_project_display_name:
   element:
     selector:
-      id: displayName
+      xpath: //input[contains(@id,'displayName')]
+      #id: displayName
     op: send_keys <display_name>
     type: input
 set_project_description:
   element:
     selector:
-      id: description
+      xpath: //textarea[contains(@id,'description')]
+      #id: description
     op: set <description>
     type: textarea
 new_project_form:
