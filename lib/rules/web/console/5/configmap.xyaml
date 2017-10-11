@@ -265,13 +265,15 @@ confirm_error_for_invalid_config_map_name:
   action: check_error_for_invalid_value
 confirm_error_for_long_config_map_name:
   action: check_error_for_long_value
-create_config_map_without_value:
+create_config_map_without_value_from_configmaps_page:
   action: goto_configmaps_page
+  action: create_config_map_without_value
+  action: check_config_map_entry
+create_config_map_without_value:
   action: click_create_config_map_link
   action: set_config_map_name
   action: set_config_map_key
   action: click_create_button
-  action: check_config_map_entry
 check_config_map_entry:
   element:
     selector:

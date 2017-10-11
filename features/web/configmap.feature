@@ -41,7 +41,7 @@ Feature: ConfigMap related features
     Then the step should succeed
     When I run the :confirm_error_for_long_config_map_name web console action
     Then the step should succeed
-    When I perform the :create_config_map_without_value web console action with:
+    When I perform the :create_config_map_without_value_from_configmaps_page web console action with:
        | project_name           | <%= project.name %> |
        | target_config_map_name | test                |
        | config_map_key         | my.key              |
@@ -666,3 +666,78 @@ Feature: ConfigMap related features
       | resource_name | special-config |
       | resource_key  | special.how    |
     Then the step should succeed
+
+  # @author: yanpzhan@redhat.com
+  # @case_id: OCP-12232
+  Scenario: Create new config maps and secrets when adding config files
+    Given the master version >= "3.5"
+    Given I have a project
+    When I run the :run client command with:
+      | name       | myrun                 |
+      | image      | aosqe/hello-openshift |
+      | limits     | memory=256Mi          |
+    Then the step should succeed
+
+    When I perform the :click_add_config_file_from_dc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | myrun               |
+    Then the step should succeed
+
+    When I perform the :create_config_map_without_value web console action with:
+       | project_name           | <%= project.name %> |
+       | target_config_map_name | test12232           |
+       | config_map_key         | my.key              |
+    Then the step should succeed
+
+    When I run the :click_create_secret_link web console action
+    Then the step should succeed
+
+    When I perform the :create_source_secret_with_basic_authentication web console action with:
+      | new_secret_name | secret12232          |
+      | auth_type       | Basic Authentication |
+      | username        | gituser              |
+      | password_token  | 12345678             |
+    Then the step should succeed
+    When I run the :click_create_button web console action
+    Then the step should succeed
+
+    When I perform the :add_values_from_configmap_as_volume web console action with:
+      | target_config_map | test12232 |
+      | config_mount_path | /testdate |
+    Then the step should succeed
+
+    When I perform the :click_add_config_file_from_dc_page web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | myrun               |
+    Then the step should succeed
+
+    When I perform the :add_values_from_secret_as_volume web console action with:
+      | target_secret_name | secret12232 |
+      | config_mount_path  | /date       |
+    Then the step should succeed
+
+    When I run the :get client command with:
+      | resource      | configmap,secret   |
+    Then the step should succeed
+    And the output should contain:
+      | test12232     |
+      | secret12232   |
+
+    When I run the :policy_add_role_to_user client command with:
+      | role      | view                                |
+      | user_name | <%= user(1, switch: false).name  %> |
+    Then the step should succeed
+    Given I switch to the second user
+    Given I login via web console
+
+    When I access the "/console/project/<%= project.name %>/add-config-volume?kind=DeploymentConfig&name=myrun" path in the web console
+    Then the step should succeed
+
+    Given I wait for the steps to pass:
+    """
+    When I get the html of the web page
+    Then the output should contain:
+      | Error |
+      | Access denied |
+      | You do not have authority to update deployment config myrun |
+    """
