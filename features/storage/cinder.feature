@@ -49,3 +49,65 @@ Feature: Cinder Persistent Volume
     Given I ensure "cinder" pod is deleted
     And I ensure "<%= pvc.name %>" pvc is deleted
     And I verify that the IAAS volume with id "<%= cb.vid %>" was deleted
+
+  # @author piqin@redhat.com
+  # @case_id OCP-9828
+  @admin
+  Scenario Outline: Cinder volume racing condition
+    Given I have a project
+    Given I have a 1 GB volume and save volume id in the :vid clipboard
+
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pv-rwx-default.json" where:
+      | ["metadata"]["name"]                      | pv-<%= project.name %> |
+      | ["spec"]["accessModes"][0]                | ReadWriteOnce          |
+      | ["spec"]["capacity"]["storage"]           | 5Gi                    |
+      | ["spec"]["cinder"]["volumeID"]            | <%= cb.vid %>          |
+      | ["spec"]["persistentVolumeReclaimPolicy"] | Retain                 |
+    Then the step should succeed
+
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pvc-rwx.json" replacing paths:
+      | ["metadata"]["name"]                         | pvc-<%= project.name %>  |
+      | ["spec"]["accessModes"][0]                   | ReadWriteOnce            |
+      | ["spec"]["resources"]["requests"]["storaeg"] | 5Gi                      |
+    Then the step should succeed
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | mypod-a-<%= project.name %>                                  |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>                                      |
+      | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.props[:scc_supplemental_groups].split("/")[0] %> |
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]       | <%= project.props[:scc_mcs] %>                               |
+    Then the step should succeed
+    Given the pod named "mypod-a-<%= project.name %>" becomes ready
+
+    When I execute on the pod:
+      | sh                            |
+      | -c                            |
+      | date > /mnt/cinder/<testfile> |
+    Then the step should succeed
+    Then I run the :delete client command with:
+      | object_type       | pod                         |
+      | object_name_or_id | mypod-a-<%= project.name %> |
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/cinder/pod.json" replacing paths:
+      | ["metadata"]["name"]                                         | mypod-b-<%= project.name %>                                  |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %>                                      |
+      | ["spec"]["securityContext"]["fsGroup"]                       | <%= project.props[:scc_supplemental_groups].split("/")[0] %> |
+      | ["spec"]["securityContext"]["seLinuxOptions"]["level"]       | <%= project.props[:scc_mcs] %>                               |
+    Then the step should succeed
+    Given the pod named "mypod-b-<%= project.name %>" becomes ready
+
+    Given I run the steps 6 times:
+    """
+    When I execute on the pod:
+      | sh                         |
+      | -c                         |
+      | cat /mnt/cinder/<testfile> |
+    Then the step should succeed
+    Given 10 seconds have passed
+    """
+
+    Examples:
+    | testfile  |
+    | testfile1 |
+    | testfile2 |
+    | testfile3 |
