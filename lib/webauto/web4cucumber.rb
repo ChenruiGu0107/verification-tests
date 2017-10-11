@@ -64,11 +64,12 @@ require "base64"
       return @browser if @browser && @browser.exists?
       firefox_profile = Selenium::WebDriver::Firefox::Profile.new
       chrome_caps = Selenium::WebDriver::Remote::Capabilities.chrome()
+      chrome_switches = []
       if ENV.has_key? "http_proxy"
         proxy = ENV["http_proxy"].scan(/[\w\.\d\_\-]+\:\d+/)[0] # to get rid of the heading "http://" that breaks the profile
         firefox_profile.proxy = chrome_caps.proxy = Selenium::WebDriver::Proxy.new({:http => proxy, :ssl => proxy})
         firefox_profile['network.proxy.no_proxies_on'] = "localhost, 127.0.0.1"
-        chrome_switches = %w[--proxy-bypass-list=127.0.0.1]
+        chrome_switches.concat %w[--proxy-bypass-list=127.0.0.1]
         ENV['no_proxy'] = '127.0.0.1'
       end
       client = Selenium::WebDriver::Remote::Http::Default.new
