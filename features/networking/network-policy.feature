@@ -91,8 +91,8 @@ Feature: Network policy plugin scenarios
 
     # check the openflow rules
     Given I select a random node's host
-    When I run commands on the host:
-      | ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 \|\| docker exec openvswitch ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 |
     Then the step should succeed
     And the output should not contain "reg0=0x"
 
@@ -104,8 +104,8 @@ Feature: Network policy plugin scenarios
 
     # check the openflow rules
     Given I select a random node's host
-    When I run commands on the host:
-      | ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 \|\| docker exec openvswitch ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 |
     Then the step should succeed
     And the output should not contain "reg0=0x"
 
@@ -119,8 +119,8 @@ Feature: Network policy plugin scenarios
 
     # check the openflow rules
     Given I select a random node's host
-    When I run commands on the host:
-      | ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 \|\| docker exec openvswitch ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 |
+    When I run the ovs commands on the host:
+      | ovs-ofctl -O OpenFlow13 dump-flows br0 \| grep priority=100.*actions=output:NXM_NX_REG2 |
     Then the step should succeed
     And the output should contain "reg0=0x"
 
