@@ -54,10 +54,10 @@ Feature: AWS specific scenarios
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | efspvc-<%= project.name %>           |
     Then the step should succeed
     And the pod named "doublecontainers-<%= project.name %>" becomes ready
-    
+
     When I run the :exec client command with:
       | pod              | doublecontainers-<%= project.name %> |
-      | container        | hello-openshift                      | 
+      | container        | hello-openshift                      |
       | oc_opts_end      |                                      |
       | exec_command     | touch                                |
       | exec_command_arg | /tmp/testfilea                       |
@@ -150,7 +150,7 @@ Feature: AWS specific scenarios
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
 
   # @author chaoyang@redhat.com
-  # @case_id OCP14318 
+  # @case_id OCP-14318
   @admin
   @destructive
   Scenario: Pod is running with EFS storage after restart atomic-openshift-node service
@@ -169,7 +169,7 @@ Feature: AWS specific scenarios
       | ["metadata"]["name"]                                         | pod-<%= project.name %>    |
       | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | efspvc-<%= project.name %> |
     Then the step should succeed
-    And the pod named "pod-<%= project.name %>" becomes ready  
+    And the pod named "pod-<%= project.name %>" becomes ready
     When I execute on the pod:
       | touch | /tmp/testfile_before_restart |
     Then the step should succeed

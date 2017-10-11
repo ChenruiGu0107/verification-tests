@@ -12,7 +12,7 @@ Feature: storageClass related feature
       | ["spec"]["<storage_type>"]["<volume_name>"] | <%= cb.vid %>          |
       | ["spec"]["persistentVolumeReclaimPolicy"]   | Retain                 |
     Then the step should succeed
-    Given default storage class is deleted 
+    Given default storage class is deleted
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
       | ["metadata"]["name"]                                                            | sc-<%= project.name %>      |
       | ["provisioner"]                                                                 | kubernetes.io/<provisioner> |
@@ -96,12 +96,11 @@ Feature: storageClass related feature
       | azure-disk  | # @case_id OCP-13488
 
   # @author lxia@redhat.com
-  # @case_id OCP-12090 OCP-12096 OCP-12097 OCP-13489
   @admin
   @destructive
   Scenario Outline: No dynamic provision when no default storage class
     Given I have a project
-    And default storage class is deleted 
+    And default storage class is deleted
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %>      |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
@@ -125,14 +124,13 @@ Feature: storageClass related feature
 
     Examples:
       | provisioner |
-      | gce-pd      |
-      | aws-ebs     |
-      | cinder      |
-      | azure-disk  |
+      | gce-pd      | # @case_id OCP-12090
+      | aws-ebs     | # @case_id OCP-12096
+      | cinder      | # @case_id OCP-12097
+      | azure-disk  | # @case_id OCP-13489
 
   # @author lxia@redhat.com
   # @author chaoyang@redhat.com
-  # @case_id OCP-11359 OCP-11640 OCP-10160 OCP-10161 OCP-10424
   @admin
   @destructive
   Scenario Outline: storage class provisioner
@@ -180,11 +178,11 @@ Feature: storageClass related feature
 
     Examples:
       | provisioner | type        | zone          | is-default | size  |
-      | gce-pd      | pd-ssd      | us-central1-a | false      | 1Gi   |
-      | gce-pd      | pd-standard | us-central1-a | false      | 2Gi   |
-      | aws-ebs     | gp2         | us-east-1d    | false      | 1Gi   |
-      | aws-ebs     | sc1         | us-east-1d    | false      | 500Gi |
-      | aws-ebs     | st1         | us-east-1d    | false      | 500Gi |
+      | gce-pd      | pd-ssd      | us-central1-a | false      | 1Gi   | # @case_id OCP-11359
+      | gce-pd      | pd-standard | us-central1-a | false      | 2Gi   | # @case_id OCP-11640
+      | aws-ebs     | gp2         | us-east-1d    | false      | 1Gi   | # @case_id OCP-10160
+      | aws-ebs     | sc1         | us-east-1d    | false      | 500Gi | # @case_id OCP-10161
+      | aws-ebs     | st1         | us-east-1d    | false      | 500Gi | # @case_id OCP-10424
 
   # @author lxia@redhat.com
   # @case_id OCP-12299
@@ -281,7 +279,6 @@ Feature: storageClass related feature
       | azure-disk  | # @case_id OCP-13490
 
   # @author lxia@redhat.com
-  # @case_id OCP-12171 OCP-12176 OCP-12177 OCP-13492
   @admin
   @destructive
   Scenario Outline: New created PVC without specifying storage class use default class when only one class is marked as default
@@ -300,10 +297,10 @@ Feature: storageClass related feature
 
     Examples:
       | provisioner |
-      | gce-pd      |
-      | aws-ebs     |
-      | cinder      |
-      | azure-disk  |
+      | gce-pd      | # @case_id OCP-12171
+      | aws-ebs     | # @case_id OCP-12176
+      | cinder      | # @case_id OCP-12177
+      | azure-disk  | # @case_id OCP-13492
 
   # @author wehe@redhat.com
   # @case_id OCP-10218
@@ -333,7 +330,6 @@ Feature: storageClass related feature
       | Parameters.*type=pd-ssd,zone=us-central1-b |
 
   # @author chaoyang@redhat.com
-  # @case_id OCP-10158 OCP-10162
   @admin
   Scenario Outline: PVC with storage class will provision pv with io1 type and 100/20000 iops ebs volume
     Given I have a project
@@ -371,8 +367,8 @@ Feature: storageClass related feature
 
     Examples:
       | size  |
-      | 4Gi   |
-      | 800Gi |
+      | 4Gi   | # @case_id OCP-10158
+      | 800Gi | # @case_id OCP-10162
 
   # @author jhou@redhat.com
   # @case_id OCP-10325
@@ -415,7 +411,6 @@ Feature: storageClass related feature
     """
 
   # @author chaoyang@redhat.com
-  # @case_id OCP-10164 OCP-10425
   @admin
   Scenario Outline: PVC with storage class will not provision pv with st1/sc1 type ebs volume if request size is wrong
     Given I have a project
@@ -444,8 +439,8 @@ Feature: storageClass related feature
 
     Examples:
       | type | size | errorMessage                  |
-      | sc1  | 5Gi  | at least 500 GiB              |
-      | st1  | 17Ti | too large for volume type st1 |
+      | sc1  | 5Gi  | at least 500 GiB              | # @case_id OCP-10164
+      | st1  | 17Ti | too large for volume type st1 | # @case_id OCP-10425
 
   # @author chaoyang@redhat.com
   # @case_id OCP-10163
@@ -518,7 +513,6 @@ Feature: storageClass related feature
     """
 
   # @author lxia@redhat.com
-  # @case_id OCP-11830
   @admin
   @destructive
   Scenario Outline: dynamic provision with storage class in multi-zones
@@ -563,7 +557,7 @@ Feature: storageClass related feature
 
     Examples:
       | provisioner | region1_zone1 | region1_zone2 | region2_zone1  |
-      | gce-pd      | us-central1-a | us-central1-b | europe-west1-d |
+      | gce-pd      | us-central1-a | us-central1-b | europe-west1-d | # @case_id OCP-11830
 
   # @author lxia@redhat.com
   @admin
@@ -851,7 +845,7 @@ Feature: storageClass related feature
       | ["parameters"]["zone"]                                                          | us-east-1d              |
       | ["metadata"]["annotations"]["storageclass.beta.kubernetes.io/is-default-class"] | true                    |
     Then the step should succeed
- 
+
     When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc-without-annotations.json" replacing paths:
       | ["metadata"]["name"] | pvc-<%= project.name %> |
     Then the step should succeed
@@ -865,7 +859,7 @@ Feature: storageClass related feature
   Scenario: Check storageclass is none when pv and pvc does not use storageclass
     Given I have a project
     And I have a 1 GB volume and save volume id in the :vid clipboard
-    
+
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/ebs/pv-rwo.yaml" where:
       | ["metadata"]["name"]                         | pv-<%= project.name %> |
       | ["spec"]["awsElasticBlockStore"]["volumeID"] | <%= cb.vid %>          |

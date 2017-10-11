@@ -162,8 +162,6 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfsc-<%= project.name %>" PVC becomes bound to the "nfspv-<%= project.name %>" PV within 60 seconds
 
   # @author chaoyang@redhat.com
-  # @case_id OCP-10108
-  # @case_id OCP-10112
   @admin
   @destructive
   Scenario Outline: Prebound pv/pvc is availabe/pending due to requested pvc/pv prebound to other pv/pvc
@@ -181,8 +179,8 @@ Feature: Testing for pv and pvc pre-bind feature
     And the "nfspv-<%= project.name %>" PV status is :available
     Examples:
       | pre-bind-pvc              | pre-bind-pv                |
-      | nfsc-<%= project.name %>  | nfspv1-<%= project.name %> |
-      | nfsc1-<%= project.name %> | nfspv-<%= project.name %>  |
+      | nfsc-<%= project.name %>  | nfspv1-<%= project.name %> | # @case_id OCP-10108
+      | nfsc1-<%= project.name %> | nfspv-<%= project.name %>  | # @case_id OCP-10112
 
   # @author lxia@redhat.com
   # @case_id OCP-10124

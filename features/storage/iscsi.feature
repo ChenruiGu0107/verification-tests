@@ -188,7 +188,7 @@ Feature: ISCSI volume plugin testing
     Then the step should succeed
     And the pod named "iscsi1-<%= project.name %>" becomes ready
 
-    # Covering BZ#1419607 
+    # Covering BZ#1419607
     # Delete one of the Pods, the remaining one is still Running
     Given I ensure "iscsi1-<%= project.name %>" pod is deleted
     When I get project pod named "iscsi-<%= project.name %>"

@@ -1,6 +1,5 @@
 Feature: storage security check
   # @author lxia@redhat.com
-  # @case_id OCP-9700 OCP-9699 OCP-9721
   @admin
   Scenario Outline: [origin_infra_20] volume security testing
     Given I have a project
@@ -94,9 +93,9 @@ Feature: storage security check
 
     Examples:
       | storage_type         | volume_name | type   |
-      | gcePersistentDisk    | pdName      | gce    |
-      | awsElasticBlockStore | volumeID    | ebs    |
-      | cinder               | volumeID    | cinder |
+      | gcePersistentDisk    | pdName      | gce    | # @case_id OCP-9700
+      | awsElasticBlockStore | volumeID    | ebs    | # @case_id OCP-9699
+      | cinder               | volumeID    | cinder | # @case_id OCP-9721
 
   # @author wehe@redhat.com
   # @case_id OCP-13915

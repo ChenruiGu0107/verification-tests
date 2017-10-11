@@ -1,9 +1,6 @@
 Feature: testing for parameter fsType
   # @author chaoyang@redhat.com
   # @author lxia@redhat.com
-  # @case_id OCP-9612 OCP-10048 OCP-10049
-  # @case_id OCP-10094 OCP-10095 OCP-10096
-  # @case_id OCP-10097 OCP-10098 OCP-10099
   @admin
   Scenario Outline: persistent volume formated with fsType
     Given I have a project
@@ -32,12 +29,12 @@ Feature: testing for parameter fsType
 
     Examples:
       | fsType | storage_type         | volume_name | type   |
-      | ext3   | gcePersistentDisk    | pdName      | gce    |
-      | ext4   | gcePersistentDisk    | pdName      | gce    |
-      | xfs    | gcePersistentDisk    | pdName      | gce    |
-      | ext3   | awsElasticBlockStore | volumeID    | ebs    |
-      | ext4   | awsElasticBlockStore | volumeID    | ebs    |
-      | xfs    | awsElasticBlockStore | volumeID    | ebs    |
-      | ext3   | cinder               | volumeID    | cinder |
-      | ext4   | cinder               | volumeID    | cinder |
-      | xfs    | cinder               | volumeID    | cinder |
+      | ext3   | gcePersistentDisk    | pdName      | gce    | # @case_id OCP-10095
+      | ext4   | gcePersistentDisk    | pdName      | gce    | # @case_id OCP-10094
+      | xfs    | gcePersistentDisk    | pdName      | gce    | # @case_id OCP-10096
+      | ext3   | awsElasticBlockStore | volumeID    | ebs    | # @case_id OCP-10048
+      | ext4   | awsElasticBlockStore | volumeID    | ebs    | # @case_id OCP-9612
+      | xfs    | awsElasticBlockStore | volumeID    | ebs    | # @case_id OCP-10049
+      | ext3   | cinder               | volumeID    | cinder | # @case_id OCP-10097
+      | ext4   | cinder               | volumeID    | cinder | # @case_id OCP-10098
+      | xfs    | cinder               | volumeID    | cinder | # @case_id OCP-10099

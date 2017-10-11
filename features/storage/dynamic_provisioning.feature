@@ -1,6 +1,5 @@
 Feature: Dynamic provisioning
   # @author lxia@redhat.com
-  # @case_id OCP-12665 OCP-9656 OCP-9685
   @admin
   Scenario Outline: dynamic provisioning
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
@@ -66,9 +65,9 @@ Feature: Dynamic provisioning
 
     Examples:
       | cloud_provider |
-      | cinder         |
-      | ebs            |
-      | gce            |
+      | cinder         | # @case_id OCP-9656
+      | ebs            | # @case_id OCP-9685
+      | gce            | # @case_id OCP-12665
 
   # @author wehe@redhat.com
   # @case_id OCP-13787
@@ -224,7 +223,6 @@ Feature: Dynamic provisioning
       | <%= project.name %> |
 
   # @author wehe@redhat.com
-  # @case_id OCP-10137 OCP-10138 OCP-10139
   @admin
   Scenario Outline: dynamic pvc shows lost after pv is deleted
     Given I have a project
@@ -247,9 +245,9 @@ Feature: Dynamic provisioning
 
     Examples:
       | cloud_provider |
-      | cinder         |
-      | ebs            |
-      | gce            |
+      | cinder         | # @case_id OCP-10139
+      | ebs            | # @case_id OCP-10137
+      | gce            | # @case_id OCP-10138
 
   # @author wehe@redhat.com
   # @case_id OCP-13902

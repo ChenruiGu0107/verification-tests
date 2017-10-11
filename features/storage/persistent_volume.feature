@@ -31,8 +31,6 @@ Feature: Persistent Volume Claim binding policies
   # @author jhou@redhat.com
   # @author wehe@redhat.com
   # @author chaoyang@redhat.com
-  # @author lxia@redhat.com
-  # @case_id OCP-9702 OCP-10680 OCP-11168
   @admin
   @destructive
   Scenario Outline: PVC with one accessMode can bind PV with all accessMode
@@ -63,9 +61,9 @@ Feature: Persistent Volume Claim binding policies
 
     Examples:
       | accessMode1   | accessMode2   | accessMode3   |
-      | ReadOnlyMany  | ReadWriteMany | ReadWriteOnce |
-      | ReadOnlyMany  | ReadWriteOnce | ReadWriteMany |
-      | ReadWriteMany | ReadWriteOnce | ReadOnlyMany  |
+      | ReadOnlyMany  | ReadWriteMany | ReadWriteOnce | # @case_id OCP-9702
+      | ReadOnlyMany  | ReadWriteOnce | ReadWriteMany | # @case_id OCP-10680
+      | ReadWriteMany | ReadWriteOnce | ReadOnlyMany  | # @case_id OCP-11168
 
   # @author yinzhou@redhat.com
   # @case_id OCP-11933
@@ -370,7 +368,6 @@ Feature: Persistent Volume Claim binding policies
 
   # @author lzhou@redhat.com
   # @author jhou@redhat.com
-  # @case_id OCP-13358 OCP-13383 OCP-13384 OCP-13385 OCP-13392
   @admin
   Scenario Outline: Volume should be successfully detached if pod is deleted via namespace deletion
     Given admin creates a project with a random schedulable node selector
@@ -431,8 +428,8 @@ Feature: Persistent Volume Claim binding policies
 
     Examples:
       | provisioner    | platform |
-      | cinder         | cinder   |
-      | gce-pd         | gce      |
-      | aws-ebs        | aws      |
-      | azure-disk     | azure    |
-      | vsphere-volume | vsphere  |
+      | cinder         | cinder   | # @case_id OCP-13358
+      | gce-pd         | gce      | # @case_id OCP-13384
+      | aws-ebs        | aws      | # @case_id OCP-13383
+      | azure-disk     | azure    | # @case_id OCP-13385
+      | vsphere-volume | vsphere  | # @case_id OCP-13392

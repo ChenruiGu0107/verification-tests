@@ -28,7 +28,6 @@ Feature: Persistent Volume reclaim policy tests
     And the PV becomes :available within 300 seconds
 
   # @author lxia@redhat.com
-  # @case_id OCP-12655 OCP-10634 OCP-10105
   @admin
   @destructive
   Scenario Outline: Persistent disk with RWO access mode and Default policy
@@ -66,12 +65,11 @@ Feature: Persistent Volume reclaim policy tests
 
     Examples:
       | storage_type         | volume_name | path_to_file               |
-      | gcePersistentDisk    | pdName      | gce/pv-default-rwo.json    |
-      | awsElasticBlockStore | volumeID    | ebs/pv-rwo.yaml            |
-      | cinder               | volumeID    | cinder/pv-rwx-default.json |
+      | gcePersistentDisk    | pdName      | gce/pv-default-rwo.json    | # @case_id OCP-12655
+      | awsElasticBlockStore | volumeID    | ebs/pv-rwo.yaml            | # @case_id OCP-10634
+      | cinder               | volumeID    | cinder/pv-rwx-default.json | # @case_id OCP-10105
 
   # @author lxia@redhat.com
-  # @case_id OCP-9949 OCP-9944 OCP-9943
   @admin
   @destructive
   Scenario Outline: Persistent volume with RWO access mode and Delete policy
@@ -110,9 +108,9 @@ Feature: Persistent Volume reclaim policy tests
 
     Examples:
       | storage_type         | volume_name | path_to_file               |
-      | gcePersistentDisk    | pdName      | gce/pv-default-rwo.json    |
-      | awsElasticBlockStore | volumeID    | ebs/pv-rwo.yaml            |
-      | cinder               | volumeID    | cinder/pv-rwx-default.json |
+      | gcePersistentDisk    | pdName      | gce/pv-default-rwo.json    | # @case_id OCP-9949
+      | awsElasticBlockStore | volumeID    | ebs/pv-rwo.yaml            | # @case_id OCP-9943
+      | cinder               | volumeID    | cinder/pv-rwx-default.json | # @case_id OCP-9944
 
   # @author lxia@redhat.com
   # @case_id OCP-12836

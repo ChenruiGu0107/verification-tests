@@ -41,7 +41,6 @@ Feature: NFS Persistent Volume
     """
 
   # @author lxia@redhat.com
-  # @case_id OCP-12653 OCP-12656 OCP-12657
   @admin
   @destructive
   Scenario Outline: NFS volume plugin with access mode and reclaim policy
@@ -100,9 +99,9 @@ Feature: NFS Persistent Volume
 
     Examples:
       | access_mode   | reclaim_policy | pv_status | step_status |
-      | ReadOnlyMany  | Retain         | released  | succeed     |
-      | ReadWriteMany | Default        | released  | succeed     |
-      | ReadWriteOnce | Recycle        | available | fail        |
+      | ReadOnlyMany  | Retain         | released  | succeed     | # @case_id OCP-12656
+      | ReadWriteMany | Default        | released  | succeed     | # @case_id OCP-12657
+      | ReadWriteOnce | Recycle        | available | fail        | # @case_id OCP-12653
 
   # @author jhou@redhat.com
   # @case_id OCP-11128
@@ -419,7 +418,7 @@ Feature: NFS Persistent Volume
   # @case_id OCP-10146
   @admin
   @destructive
-  Scenario: New pod could be running after nfs server lost connection 
+  Scenario: New pod could be running after nfs server lost connection
     Given I have a project
     And I have a NFS service in the project
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/image/db-templates/auto-nfs-pv.json" where:
@@ -443,7 +442,6 @@ Feature: NFS Persistent Volume
       | app=mysql-persistent |
 
   # @author chaoyang@redhat.com
-  # @case_id OCP-10930 OCP-10282
   @admin
   @destructive
   Scenario Outline: Check GIDs specified in a PV's annotations to pod's supplemental groups
@@ -494,8 +492,8 @@ Feature: NFS Persistent Volume
 
     Examples:
       | nfs-uid-gid   | pv-gid | pod-gid |
-      | 1234:1234     | 1234   | 1234    |
-      | 111111:111111 | 111111 | 111111  |
+      | 1234:1234     | 1234   | 1234    | # @case_id OCP-10930
+      | 111111:111111 | 111111 | 111111  | # @case_id OCP-10282
 
   # @author chaoyang@redhat.com
   # @case_id OCP-10281
@@ -541,22 +539,22 @@ Feature: NFS Persistent Volume
   # @author wehe@redhat.com
   # @case_id OCP-12880
   @admin
-  Scenario: External provisioner of NFS dynamic provisioning testing 
+  Scenario: External provisioner of NFS dynamic provisioning testing
     Given I have a project
     And I have a nfs-provisioner pod in the project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pod.yaml |
     Then the step should succeed
     Given the pod named "nfsdynpod" becomes ready
     When I execute on the pod:
       | touch | /mnt/nfs/nfs-<%= project.name %> |
     Then the step should succeed
     When I execute on the pod:
-      | ls | /mnt/nfs/nfs-<%= project.name %> | 
+      | ls | /mnt/nfs/nfs-<%= project.name %> |
     Then the step should succeed
     When I execute on the pod:
       | rm | /mnt/nfs/nfs-<%= project.name %> |
@@ -569,7 +567,7 @@ Feature: NFS Persistent Volume
   # @author wehe@redhat.com
   # @case_id OCP-12878
   @admin
-  Scenario: Two NFS provisioner competing for provisioning test 
+  Scenario: Two NFS provisioner competing for provisioning test
     Given I have a project
     And I have a nfs-provisioner pod in the project
     Then the step should succeed
@@ -578,18 +576,18 @@ Feature: NFS Persistent Volume
       | ["metadata"]["name"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pod.yaml |
     Then the step should succeed
     Given the pod named "nfsdynpod" becomes ready
     When I execute on the pod:
       | touch | /mnt/nfs/nfs-<%= project.name %> |
     Then the step should succeed
     When I execute on the pod:
-      | ls | /mnt/nfs/nfs-<%= project.name %> | 
+      | ls | /mnt/nfs/nfs-<%= project.name %> |
     Then the step should succeed
     When I execute on the pod:
       | rm | /mnt/nfs/nfs-<%= project.name %> |
@@ -606,7 +604,7 @@ Feature: NFS Persistent Volume
     Given I have a project
     And I have a nfs-provisioner pod in the project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     And the expression should be true> pv(pvc.volume_name(user: user)).reclaim_policy(user: admin) == "Delete"
@@ -615,40 +613,40 @@ Feature: NFS Persistent Volume
       | object_name_or_id | nfsdynpvc |
     And I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: admin, cached: true) %>" to disappear within 60 seconds
-     
+
   # @author wehe@redhat.com
   # @case_id OCP-13708
   @admin
-  Scenario: NFS provisioner's provision volume should have correct capacity 
+  Scenario: NFS provisioner's provision volume should have correct capacity
     Given I have a project
     And I have a nfs-provisioner pod in the project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
       | ["spec"]["resources"]["requests"]["storage"]                           | 6Gi                                 |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     And admin ensures "<%= pvc('nfsdynpvc').volume_name(user: admin) %>" pv is deleted after scenario
     And the expression should be true> pvc.capacity(user: user) == "6Gi"
-     
+
   # @author wehe@redhat.com
   # @case_id OCP-12891
   @admin
-  Scenario: NFS dynamic provisioner with deployment testing 
+  Scenario: NFS dynamic provisioner with deployment testing
     Given I have a project
     And I have a nfs-provisioner service in the project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pod.yaml |
     Then the step should succeed
     Given the pod named "nfsdynpod" becomes ready
     When I execute on the pod:
       | touch | /mnt/nfs/nfs-<%= project.name %> |
     Then the step should succeed
     When I execute on the pod:
-      | ls | /mnt/nfs/nfs-<%= project.name %> | 
+      | ls | /mnt/nfs/nfs-<%= project.name %> |
     Then the step should succeed
     When I execute on the pod:
       | rm | /mnt/nfs/nfs-<%= project.name %> |
@@ -665,26 +663,26 @@ Feature: NFS Persistent Volume
     Then the step should succeed
     Given I switch to cluster admin pseudo user
     And I wait for the resource "pv" named "<%= pvc.volume_name(user: user) %>" to disappear within 300 seconds
-     
+
   # @author wehe@redhat.com
   # @case_id OCP-12899
   @admin
-  Scenario: NFS dynamic provisioner lost and recovering test 
+  Scenario: NFS dynamic provisioner lost and recovering test
     Given I have a project
     And I have a nfs-provisioner service in the project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pvc.yaml" replacing paths:
-      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> | 
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | nfs-provisioner-<%= project.name %> |
     Then the step should succeed
     Given the "nfsdynpvc" PVC becomes :bound within 120 seconds
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/nfs-provisioner/nfsdyn-pod.yaml |
     Then the step should succeed
     Given the pod named "nfsdynpod" becomes ready
     When I execute on the pod:
       | touch | /mnt/nfs/nfs-<%= project.name %> |
     Then the step should succeed
     When I execute on the pod:
-      | ls | /mnt/nfs/nfs-<%= project.name %> | 
+      | ls | /mnt/nfs/nfs-<%= project.name %> |
     Then the step should succeed
     Given I run the :scale client command with:
       | resource | deployment      |
@@ -697,7 +695,7 @@ Feature: NFS Persistent Volume
       | name     | nfs-provisioner |
       | replicas | 1               |
     When I execute on the pod:
-      | ls | /mnt/nfs/nfs-<%= project.name %> | 
+      | ls | /mnt/nfs/nfs-<%= project.name %> |
     Then the step should succeed
 
   # @author jhou@redhat.com

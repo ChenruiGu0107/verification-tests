@@ -1,7 +1,5 @@
 Feature: NoDiskConflict
   # @author lxia@redhat.com
-  # @case_id OCP-9927
-  # @case_id OCP-9929
   @admin
   Scenario Outline: [storage_201] Only one pod with the same persistent volume can be scheduled when NoDiskConflicts policy is enabled
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
@@ -43,5 +41,5 @@ Feature: NoDiskConflict
 
     Examples:
       | storage_type         | volume_name | path_to_file |
-      | gcePersistentDisk    | pdName      | openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod-NoDiskConflict-1.json              |
-      | awsElasticBlockStore | volumeID    | openshift-qe/v3-testfiles/master/persistent-volumes/ebs/security/ebs-selinux-fsgroup-test.json |
+      | gcePersistentDisk    | pdName      | openshift-qe/v3-testfiles/master/persistent-volumes/gce/pod-NoDiskConflict-1.json              | # @case_id OCP-9927
+      | awsElasticBlockStore | volumeID    | openshift-qe/v3-testfiles/master/persistent-volumes/ebs/security/ebs-selinux-fsgroup-test.json | # @case_id OCP-9929

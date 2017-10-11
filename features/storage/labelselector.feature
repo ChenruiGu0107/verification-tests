@@ -44,7 +44,7 @@ Feature: Target pvc to a specific pv
   # @case_id OCP-10890
   @admin
   @destructive
-  Scenario: PVC with less label selectors could bound to PV 
+  Scenario: PVC with less label selectors could bound to PV
     Given I have a project
     Given default storage class is deleted
     And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
@@ -109,7 +109,7 @@ Feature: Target pvc to a specific pv
   # @case_id OCP-11609
   @admin
   @destructive
-  Scenario: Prebound PVC could bind to pv and ignore the label selector 
+  Scenario: Prebound PVC could bind to pv and ignore the label selector
     Given I have a project
     And admin ensures "nfspv1-<%= project.name %>" pv is deleted after scenario
     And admin ensures "nfspv2-<%= project.name %>" pv is deleted after scenario
@@ -139,7 +139,7 @@ Feature: Target pvc to a specific pv
     Then the step should succeed
     Then I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/labelmatch/pvc7.json" replacing paths:
       | ["metadata"]["name"]   | nfsc1-<%= project.name %>  |
-    Then the step should succeed 
+    Then the step should succeed
     And the "nfsc1-<%= project.name %>" PVC becomes bound to the "nfspv1-<%= project.name %>" PV
     Then I run the :label admin command with:
       | resource | pv                         |

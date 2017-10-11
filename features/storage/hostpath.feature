@@ -2,7 +2,6 @@ Feature: Storage of Hostpath plugin testing
 
   # @author chaoyang@redhat.com
   # @author lxia@redhat.com
-  # @case_id OCP-9639 OCP-11726 OCP-9640
   @admin
   Scenario Outline: Create hostpath pv with access mode and reclaim policy
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
@@ -62,9 +61,9 @@ Feature: Storage of Hostpath plugin testing
 
     Examples:
       | access_mode   | reclaim_policy | pv_status | step_status |
-      | ReadWriteOnce | Retain         | released  | succeed     |
-      | ReadOnlyMany  | Default        | released  | succeed     |
-      | ReadWriteMany | Recycle        | available | fail        |
+      | ReadWriteOnce | Retain         | released  | succeed     | # @case_id OCP-9639
+      | ReadOnlyMany  | Default        | released  | succeed     | # @case_id OCP-11726
+      | ReadWriteMany | Recycle        | available | fail        | # @case_id OCP-9640
 
   # @author chaoyang@redhat.com
   # @case_id OCP-9704
