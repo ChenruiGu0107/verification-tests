@@ -40,25 +40,35 @@ module CucuShift
 
     # @note call without parameters only when props are loaded
     # @return a Ruby Range object i.e. the API returns a string 10120000/1000, string transformed into a ruby Range object
-    def uid_range(user:, cached: true, quiet: false)
-      range_string = get_cached_prop(prop: :scc_uid_range, user: user, cached: cached, quiet: quiet)
+    def uid_range(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      range_string = rr.dig('metadata', 'annotations', 'openshift.io/sa.scc.uid-range')
       uids = range_string.split('/').map { |n| Integer(n) }
       uid_range = (uids[0]...uids[0] + uids[1])
       return uid_range
     end
 
     # scc's mcs (https://www.centos.org/docs/5/html/Deployment_Guide-en-US/sec-mcs-ov.html)
-    def mcs(user:, cached: true, quiet: false)
-      return get_cached_prop(prop: :scc_mcs, user: user, cached: cached, quiet: quiet)
+    def mcs(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      return rr.dig('metadata', 'annotations', 'openshift.io/sa.scc.mcs')
     end
 
     # @return a Ruby Range object i.e. the API returns a string 10120000/1000, string transformed into a ruby Range object
-    def supplemental_groups(user:, cached: true, quiet: false)
-      range_string = get_cached_prop(prop: :scc_supplemental_groups, user: user, cached: cached, quiet: quiet)
+    def supplemental_groups(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      range_string = rr.dig('metadata', 'annotations', 'openshift.io/sa.scc.supplemental-groups')
       groups = range_string.split('/').map { |n| Integer(n) }
       group_range = (groups[0]...groups[0] + groups[1])
       return group_range
     end
+
+    def uid(user: nil, cached: true, quiet: false)
+      rr = raw_resource(user: user, cached: cached, quiet: quiet)
+      return rr.dig('metadata', 'uid')
+    end
+
+
     # creates a new project
     # @param by [CucuShift::User, CucuShift::ClusterAdmin] the user to create project as
     # @param name [String] the name of the project
@@ -75,6 +85,7 @@ module CucuShift
     end
 
     def update_from_api_object(project_hash)
+      super
       h = project_hash["metadata"]
       props[:uid] = h["uid"]
       props[:description] = h["annotations"]["openshift.io/description"]

@@ -217,3 +217,45 @@ Feature: logging related scenarios
     Then the step should succeed
     And I access the "<%= cb.logging_route %>" url in the web browser
     Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO|Log In)"
+
+  # @author pruan@redhat.com
+  # @case_id OCP-11405
+  @admin
+  @destructive
+  Scenario: Use index names of project.project_name.project_uuid.xxx in Elasticsearch
+    Given the master version >= "3.4"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    And a pod becomes ready with labels:
+      | component=es |
+    # index takes over 10 minutes to come up initially
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    And I execute on the pod:
+      | bash                                                                    |
+      | -c                                                                      |
+      | ls /elasticsearch/persistent/logging-es/data/logging-es/nodes/0/indices |
+    And the output should contain:
+      | project.<%= project.name %>.<%= project.uid %> |
+    """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-11266
+  @admin
+  @destructive
+  Scenario: Use index names of project_name.project_uuid.xxx in Elasticsearch
+    Given the master version < "3.4"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    And a pod becomes ready with labels:
+      | component=es |
+    # index takes over 10 minutes to come up initially
+    And I wait up to 900 seconds for the steps to pass:
+    """
+    And I execute on the pod:
+      | bash                                                                    |
+      | -c                                                                      |
+      | ls /elasticsearch/persistent/logging-es/data/logging-es/nodes/0/indices |
+    And the output should contain:
+      | <%= project.name %>.<%= project.uid %> |
+    """
