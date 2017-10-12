@@ -154,9 +154,7 @@ Feature: creating 'apps' with CLI
       | n            | noproject      |
     Then the step should fail
     Then the output should match:
-      | User "<%=@user.name%>" cannot create imagestreams.* in project "noproject" |
-      | User "<%=@user.name%>" cannot create buildconfigs.* in project "noproject" |
-      | User "<%=@user.name%>" cannot create services.* in project "noproject"     |
+      | User "<%=@user.name%>" cannot create imagestream.* in project "noproject" |
     Given I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/hello-pod.json |
       | n | noproject |
