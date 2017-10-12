@@ -35,5 +35,10 @@ module CucuShift
       param = get_cached_prop(prop: :parameters, user: user, cached: cached, quiet: quiet)
       return param["resturl"]
     end
+
+    def monitors(user: nil, cached: true, quiet: false)
+      param = get_cached_prop(prop: :parameters, user: user, cached: cached, quiet: quiet)
+      return param["monitors"]
+    end
   end
 end
