@@ -47,9 +47,6 @@ Feature: REST policy related features
       | resource             | pods                      |
       | user                 | <%= user.name %>          |
     Then the step should fail
-    And the output should match:
-      | [Cc]annot create localsubjectaccessreviews |
-      | [Ff]orbidden |
     And the expression should be true> @result[:exitstatus] == 403
 
     When I run the :oadm_add_role_to_user admin command with:
@@ -66,9 +63,6 @@ Feature: REST policy related features
       | resource             | pods                      |
       | user                 | <%= user(1).name  %>      |
     Then the step should fail
-    And the output should match:
-      | [Cc]annot create localsubjectaccessreviews |
-      | [Ff]orbidden |
     And the expression should be true> @result[:exitstatus] == 403
 
     When I run the :oadm_add_role_to_user admin command with:
