@@ -880,8 +880,8 @@ Feature: Testing route
   Scenario: Don't health check for idle service
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
-    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json" replacing paths:
-      | ["items"][0]["spec"]["replicas"] | 1 |
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/list_for_pods.json |
     Then the step should succeed
     Given a pod becomes ready with labels:
       | name=test-pods |
