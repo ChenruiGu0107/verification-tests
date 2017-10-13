@@ -619,6 +619,7 @@ require "base64"
           res = res.to_a.select { |e| e.exists? }
         rescue Selenium::WebDriver::Error::StaleElementReferenceError,
                Watir::Exception::UnknownObjectException
+          logger.warn($!.inspect)
           logger.info("Looks like we caught stale element, let's try again")
           # https://github.com/watir/watir/issues/571
           res = []
