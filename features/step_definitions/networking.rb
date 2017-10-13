@@ -147,7 +147,11 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
   _host = _node.host
   _admin = admin
 
-  @result = _admin.cli_exec(:get, resource: "clusternetwork", resource_name: "default", template: "{{.network}}")
+  if env.version_lt("3.7", user: user)
+    @result = _admin.cli_exec(:get, resource: "clusternetwork", resource_name: "default", template: "{{.network}}")
+  else
+    @result = _admin.cli_exec(:get, resource: "clusternetwork", resource_name: "default", template: '{{index .clusterNetworks 0 "CIDR"}}')
+  end
   unless @result[:success]
     raise "Can not get clusternetwork resource!"
   end
