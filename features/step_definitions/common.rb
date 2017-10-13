@@ -201,20 +201,23 @@ end
 Given /^(I|admin) waits? for the #{QUOTED} (\w+) to appear(?: in the the#{OPT_QUOTED} project)?(?: up to (\d+) seconds)?$/ do |by, name, type, project_name, timeout|
   _user = by == "admin" ? admin : user
   _resource = resource(name, type, project_name: project_name)
+  _resource.default_user = _user
   timeout = timeout ? timeout.to_i : 60
 
   @result = _resource.wait_to_appear(_user, timeout)
   unless @result[:success]
     raise %Q{#{type} "#{name}" did not appear within timeout}
   end
+  cache_resources _resource
 end
 
-Given(/^I have a "([^"]*)" named "([^"]*)" in the "([^"]*)" namespace$/) do |resource, name, namespace|
-  step %Q/I run the :get admin command with:/, table(%{
-    | resource      | #{resource}  |
-    | resource_name | #{name}      |
-    | namespace     | #{namespace} |
-  })
+# as resource you need to use a string that exists as a resource method in World
+Given(/^(I|admin) checks? that the #{QUOTED} (\w+) exists(?: in the the#{OPT_QUOTED} project)?$/) do |who, name, resource_type, namespace|
+  _user = who == "admin" ? admin : user
 
-  step %Q/the step should succeed/
+  resource = resource(name, resource_type, project_name: namespace)
+  resource.default_user = _user
+
+  resource.get_checked
+  cache_resources resource
 end
