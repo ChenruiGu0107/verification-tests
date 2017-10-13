@@ -260,7 +260,7 @@ Feature: Storage of GlusterFS plugin testing
   Scenario: Dynamically provision a GlusterFS volume using heketi secret
     # A StorageClass preconfigured on the test env
     Given I have a StorageClass named "glusterprovisioner1"
-    Given I have a "secret" named "heketi-secret" in the "default" namespace
+    And admin checks that the "heketi-secret" secret exists in the the "default" project
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/gluster/dynamic-provisioning/claim.yaml" replacing paths:

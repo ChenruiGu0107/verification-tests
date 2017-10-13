@@ -215,7 +215,7 @@ Feature: Storage of Ceph plugin testing
   Scenario: Dynamically provisioned rbd volumes should have correct capacity
     Given I have a StorageClass named "cephrbdprovisioner"
     # CephRBD provisioner needs secret, verify secret and StorageClass both exists
-    Given I have a "secret" named "cephrbd-secret" in the "default" namespace
+    And admin checks that the "cephrbd-secret" secret exists in the the "default" project
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
@@ -234,7 +234,7 @@ Feature: Storage of Ceph plugin testing
   Scenario: Reclaim a dynamically provisioned Ceph RBD volumes
     Given I have a StorageClass named "cephrbdprovisioner"
     # CephRBD provisioner needs secret, verify secret and StorageClass both exists
-    Given I have a "secret" named "cephrbd-secret" in the "default" namespace
+    And admin checks that the "cephrbd-secret" secret exists in the the "default" project
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
@@ -309,16 +309,9 @@ Feature: Storage of Ceph plugin testing
   @admin
   @destructive
   Scenario Outline: Supporting fstype parameter in rbd StorageClass
-    Given I have a project
-    And I have a StorageClass named "cephrbdprovisioner"
-
-    Given I have a "secret" named "cephrbd-secret" in the "default" namespace
-    And I run the :get admin command with:
-      | resource      | secret         |
-      | resource_name | cephrbd-secret |
-      | namespace     | default        |
-      | o             | yaml           |
-    And evaluation of `@result[:parsed]["data"]["key"]` is stored in the :secret_key clipboard
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the the "default" project
+    And evaluation of `secret.value_of("key")` is stored in the :secret_key clipboard
 
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_with_fstype.yaml" where:
       | ["metadata"]["name"]       | sc-<%= project.name %>                              |
@@ -326,6 +319,7 @@ Feature: Storage of Ceph plugin testing
       | ["parameters"]["fstype"]   | <fstype>                                            |
     Then the step should succeed
 
+    Given I have a project
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
       | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
