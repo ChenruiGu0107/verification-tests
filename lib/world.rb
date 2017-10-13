@@ -502,6 +502,7 @@ module CucuShift
         else
           # create new CucuShift::ProjectResource object with specified name
           cache << clazz.new(name: name, project: project)
+          cache.last.default_user = user
           return cache.last
         end
       elsif cache.empty?
