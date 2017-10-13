@@ -1256,8 +1256,8 @@ Feature: change the policy of user/service account
       | role      | view                                |
       | user_name | <%= user(1, switch: false).name  %> |
     Then the step should fail
-    And the output should contain:
-      | rolebindings "view" is forbidden |
+    And the output should match:
+      | rolebindings.* "view" is forbidden |
 
   # @author chuyu@redhat.com
   # @case_id OCP-13474
@@ -1292,8 +1292,8 @@ Feature: change the policy of user/service account
       | role       | view                          |
       | group_name | groups-rolebindingrestriction |
     Then the step should fail
-    And the output should contain:
-      | rolebindings "view" is forbidden |
+    And the output should match:
+      | rolebindings.* "view" is forbidden |
 
   # @author chuyu@redhat.com
   # @case_id OCP-13473
@@ -1325,8 +1325,8 @@ Feature: change the policy of user/service account
       | role           | view    |
       | serviceaccount | default |
     Then the step should fail
-    And the output should contain:
-      | rolebindings "view" is forbidden |
+    And the output should match:
+      | rolebindings.* "view" is forbidden |
 
   # @author chuyu@redhat.com
   # @case_id OCP-13409
