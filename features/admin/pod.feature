@@ -279,7 +279,7 @@ Feature: pod related features
     Given I use the "<%= cb.nodes[0].name %>" node
     Given I run commands on the host:
       | docker rmi -f  docker.io/ocpqe/hello-pod:latest                                                                  |
-      | docker rmi -f  docker.io/ocpqe/hello-pod@sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
+      | docker rmi -f  docker.io/ocpqe/hello-pod@sha256:289953c559120c7d2ca92d92810885887ee45c871c373a1e492e845eca575b8c |
       | docker images --digests \| grep docker.io/ocpqe/hello-pod                                                        |
     Then the step should fail
     Given I have a project
@@ -298,7 +298,7 @@ Feature: pod related features
       | resource_name | <%= cb.nodes[0].name %> |
       | o             | yaml                    |
     Then the output should contain:
-      | - docker.io/ocpqe/hello-pod@sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
+      | - docker.io/ocpqe/hello-pod@sha256:289953c559120c7d2ca92d92810885887ee45c871c373a1e492e845eca575b8c |
       | - docker.io/ocpqe/hello-pod:latest                                                                  |
     """
     When I run the :get client command with:
@@ -308,7 +308,7 @@ Feature: pod related features
     Then the output should match:
       | - containerID: docker://                                                                          |
       | image: docker.io/ocpqe/hello-pod:latest                                                           |
-      | imageID: docker-pullable.*sha256:90b815d55c95fffafd7b68a997787d0b939cdae1bca785c6f52b5d3ffa70714f |
+      | imageID: docker-pullable.*sha256:289953c559120c7d2ca92d92810885887ee45c871c373a1e492e845eca575b8c |
 
   # @author chezhang@redhat.com
   # @case_id OCP-10974
