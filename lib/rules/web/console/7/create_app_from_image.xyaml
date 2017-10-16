@@ -354,10 +354,10 @@ create_app_from_image_submit:
   action: click_create_button
   element:
     selector:
-      text: Application created. Continue to overview.
+      text: Continue to the project overview 
   element:
     selector:
-      text: Manage your app
+      text: Making code changes
 create_app_without_route:
   elements:
   - selector:

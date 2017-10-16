@@ -344,7 +344,7 @@ add_env_var_using_configmap_or_secret:
 click_add_env_var_using_configmap_or_secret:
   element:
     selector:
-      xpath: //a[normalize-space(text())='Add Environment Variable Using a Config Map or Secret']
+      xpath: //a[normalize-space(text())='Add Value from Config Map or Secret']
     op: click
 select_env_var_resource:
   elements:
@@ -422,7 +422,7 @@ change_source_repo_url:
 add_new_env_var:
   element:
     selector:
-      xpath: //a[normalize-space(text())="Add Environment Variable"]
+      xpath: //a[normalize-space(text())='Add Value']
     op: click
 add_env_var_key:
   element:

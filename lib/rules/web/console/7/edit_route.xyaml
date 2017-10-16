@@ -237,4 +237,4 @@ check_path_on_route_page:
 check_termination_type_on_route_page:
   element:
     selector:
-      xpath: //label[contains(., 'TLS Termination')]/following-sibling::div[contains(., '<termination_type>')]
+      xpath: //dt[contains(., 'Termination Type')]/following-sibling::dd[contains(., '<termination_type>')]
