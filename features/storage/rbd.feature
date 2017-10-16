@@ -215,7 +215,7 @@ Feature: Storage of Ceph plugin testing
   Scenario: Dynamically provisioned rbd volumes should have correct capacity
     Given I have a StorageClass named "cephrbdprovisioner"
     # CephRBD provisioner needs secret, verify secret and StorageClass both exists
-    Given I have a "secret" named "cephrbd-secret" in the "default" namespace
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
@@ -234,7 +234,7 @@ Feature: Storage of Ceph plugin testing
   Scenario: Reclaim a dynamically provisioned Ceph RBD volumes
     Given I have a StorageClass named "cephrbdprovisioner"
     # CephRBD provisioner needs secret, verify secret and StorageClass both exists
-    Given I have a "secret" named "cephrbd-secret" in the "default" namespace
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
     And I have a project
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
@@ -285,16 +285,12 @@ Feature: Storage of Ceph plugin testing
   @admin
   Scenario: Supporting features parameter in rbd StorageClass
     Given I have a StorageClass named "cephrbdprovisioner"
-    And I run the :get admin command with:
-      | resource      | storageclass       |
-      | resource_name | cephrbdprovisioner |
-      | o             | yaml               |
+    And I have a project
 
-    # The user secret is retrieved from "cephrbd-secret" for pod mounts
-    Given evaluation of `@result[:parsed]["parameters"]["monitor"]` is stored in the :monitor clipboard
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_with_features.yaml" where:
-      | ["metadata"]["name"]       | sc-<%= project.name %>   |
-      | ["parameters"]["features"] | layering, exclusive-lock |
+      | ["metadata"]["name"]       | sc-<%= project.name %>                              |
+      | ["parameters"]["monitors"] | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["parameters"]["features"] | layering, exclusive-lock                            |
     Then the step should succeed
 
     When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
@@ -302,3 +298,46 @@ Feature: Storage of Ceph plugin testing
       | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
     Then the step should succeed
     And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+  # @author jhou@redhat.com
+  # @case_id OCP-16123
+  @admin
+  @destructive
+  Scenario Outline: Supporting fstype parameter in rbd StorageClass
+    Given I have a StorageClass named "cephrbdprovisioner"
+    And admin checks that the "cephrbd-secret" secret exists in the "default" project
+    And evaluation of `secret.raw_value_of("key")` is stored in the :secret_key clipboard
+
+    Given I have a project
+    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/storageclass_with_fstype.yaml" where:
+      | ["metadata"]["name"]       | sc-<%= project.name %>                              |
+      | ["parameters"]["monitors"] | <%= storage_class("cephrbdprovisioner").monitors %> |
+      | ["parameters"]["fstype"]   | <fstype>                                            |
+    Then the step should succeed
+
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/claim.yaml" replacing paths:
+      | ["metadata"]["name"]                                                   | pvc-<%= project.name %> |
+      | ["metadata"]["annotations"]["volume.beta.kubernetes.io/storage-class"] | sc-<%= project.name %>  |
+    Then the step should succeed
+    And the "pvc-<%= project.name %>" PVC becomes :bound within 120 seconds
+
+    Given I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/rbd/dynamic-provisioning/user_secret.yaml" replacing paths:
+      | ["metadata"]["name"] | cephrbd-secret       |
+      | ["data"]["key"]      | <%= cb.secret_key %> |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pod.yaml" replacing paths:
+      | ["metadata"]["name"]                                         | pod-<%= project.name %> |
+      | ["spec"]["volumes"][0]["persistentVolumeClaim"]["claimName"] | pvc-<%= project.name %> |
+      | ["spec"]["containers"][0]["volumeMounts"][0]["mountPath"]    | /mnt/rbd                |
+    Then the step should succeed
+    Given the pod named "pod-<%= project.name %>" becomes ready
+
+    When I execute on the pod:
+      | df | -T | /mnt/rbd |
+    Then the step should succeed
+    And the output should contain:
+      | <fstype> |
+
+    Examples:
+      | fstype |
+      | xfs    | # @case_id OCP-16123

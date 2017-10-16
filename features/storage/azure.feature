@@ -3,10 +3,10 @@ Feature: Azure disk specific scenarios
   # @author wehe@redhat.com
   # @case_id OCP-10204 OCP-10205 OCP-10203
   @admin
-  Scenario Outline: azureDisk volume with readwrite/readonly cachingmode and xfs fstype 
+  Scenario Outline: azureDisk volume with readwrite/readonly cachingmode and xfs fstype
     Given I have a project
     Then I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/<azpodname>-pod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/<azpodname>-pod.yaml |
       | n | <%= project.name %>                                                                                              |
     Then the step should succeed
     Given the pod named "<azpodname>" becomes ready
@@ -14,7 +14,7 @@ Feature: Azure disk specific scenarios
       | touch | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
     When admin executes on the pod:
-      | ls | /mnt/azure/ad-<%= project.name %> | 
+      | ls | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
     When admin executes on the pod:
       | rm | /mnt/azure/ad-<%= project.name %> |
@@ -25,14 +25,14 @@ Feature: Azure disk specific scenarios
       | azcaro    |
       | azrarw    |
       | azxfs     |
-      
+
   # @author wehe@redhat.com
   # @case_id OCP-10206
   @admin
-  Scenario: azureDisk volume with readwrite cachingmode and readonly filesystem 
+  Scenario: azureDisk volume with readwrite cachingmode and readonly filesystem
     Given I have a project
     Then I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azrwro-pod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azrwro-pod.yaml |
       | n | <%= project.name %>                                                                                         |
     Then the step should succeed
     Given the pod named "azrwro" becomes ready
@@ -40,24 +40,24 @@ Feature: Azure disk specific scenarios
       | touch | /mnt/azure/ad-<%= project.name %> |
     Then the step should fail
     When admin executes on the pod:
-      | ls | /mnt/azure/ | 
-    Then the output should not contain "ad-<%= project.name %>" 
+      | ls | /mnt/azure/ |
+    Then the output should not contain "ad-<%= project.name %>"
 
   # @author wehe@redhat.com
   # @case_id OCP-10198
   @admin
   @destructive
-  Scenario: Persistent Volume with azureDisk volume plugin  
+  Scenario: Persistent Volume with azureDisk volume plugin
     Given I have a project
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpv.yaml" where:
       | ["metadata"]["name"] | ad-<%= project.name %> |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml |
     Then the step should succeed
     Given the "azpvc" PVC becomes bound to the "ad-<%= project.name %>" PV
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml |
       | n | <%= project.name %>                                                                                       |
     Then the step should succeed
     Given the pod named "azpvcpo" becomes ready
@@ -65,14 +65,14 @@ Feature: Azure disk specific scenarios
       | touch | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
     When admin executes on the pod:
-      | ls | /mnt/azure/ad-<%= project.name %> | 
+      | ls | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
     When admin executes on the pod:
       | rm | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
 
   # @author wehe@redhat.com
-  # @case_id OCP-10254 OCP-10255 OCP-10256 OCP-10257 OCP-10258 OCP-10259 OCP-10262 OCP-10413 OCP-13330 
+  # @case_id OCP-10254 OCP-10255 OCP-10256 OCP-10257 OCP-10258 OCP-10259 OCP-10262 OCP-10413 OCP-13330
   @admin
   Scenario Outline: azureDisk dynamic provisioning with storage class
     Given I have a project
@@ -84,7 +84,7 @@ Feature: Azure disk specific scenarios
     Then the step should succeed
     And the "azpvc" PVC becomes :bound within 120 seconds
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml |
       | n | <%= project.name %>                                                                                       |
     Then the step should succeed
     Given the pod named "azpvcpo" becomes ready
@@ -92,7 +92,7 @@ Feature: Azure disk specific scenarios
       | touch | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
     When admin executes on the pod:
-      | ls | /mnt/azure/ad-<%= project.name %> | 
+      | ls | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
     When admin executes on the pod:
       | rm | /mnt/azure/ad-<%= project.name %> |
@@ -118,7 +118,7 @@ Feature: Azure disk specific scenarios
   # @case_id OCP-10200
   @admin
   @destructive
-  Scenario: azureDisk volume with RWO access mode and Delete policy  
+  Scenario: azureDisk volume with RWO access mode and Delete policy
     Given I have a project
     And I have a 1 GB volume from provisioner "azure-disk" and save volume id in the :vid clipboard
     When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvdelete.yaml" where:
@@ -127,11 +127,11 @@ Feature: Azure disk specific scenarios
       | ["spec"]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
     Then the step should succeed
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvc.yaml |
     Then the step should succeed
     Given the "azpvc" PVC becomes bound to the "ad-<%= project.name %>" PV
     When I run the :create admin command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml | 
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azpvcpod.yaml |
       | n | <%= project.name %>                                                                                       |
     Then the step should succeed
     Given the pod named "azpvcpo" becomes ready
@@ -139,7 +139,7 @@ Feature: Azure disk specific scenarios
       | touch | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
     When admin executes on the pod:
-      | ls | /mnt/azure/ad-<%= project.name %> | 
+      | ls | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
     When admin executes on the pod:
       | rm | /mnt/azure/ad-<%= project.name %> |
@@ -149,9 +149,9 @@ Feature: Azure disk specific scenarios
     And I wait for the resource "pv" named "<%= pv.name %>" to disappear within 1200 seconds
 
   # @author wehe@redhat.com
-  # @case_id OCP-10260 OCP-10407  
+  # @case_id OCP-10260 OCP-10407
   @admin
-  Scenario Outline: Negative test of azureDisk with storage class 
+  Scenario Outline: Negative test of azureDisk with storage class
     Given I have a project
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-<sctype>.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %> |
@@ -167,7 +167,7 @@ Feature: Azure disk specific scenarios
     Then the output should contain:
       | ProvisioningFailed |
       | Failed to provision volume with StorageClass "sc-<%= project.name %>" |
-      | failed to find a matching storage account | 
+      | failed to find a matching storage account |
     """
 
     Examples:
@@ -176,7 +176,7 @@ Feature: Azure disk specific scenarios
       | noext   |
 
   # @author wehe@redhat.com
-  # @case_id OCP-13486 
+  # @case_id OCP-13486
   @admin
   @destructive
   Scenario: pre-bound still works with storage class on Azure
@@ -198,12 +198,12 @@ Feature: Azure disk specific scenarios
     And the "azpvc" PVC becomes bound to the "pv-<%= project.name %>" PV
 
   # @author wehe@redhat.com
-  # @case_id OCP-13981 
+  # @case_id OCP-13981
   @admin
   @destructive
-  Scenario: Azure disk should be detached and attached again for scale down and up 
+  Scenario: Azure disk should be detached and attached again for scale down and up
     Given I have a project
-    And environment has at least 2 schedulable nodes 
+    And environment has at least 2 schedulable nodes
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/azsc-NOPAR.yaml" where:
       | ["metadata"]["name"]      | sc-<%= project.name %> |
     Then the step should succeed
@@ -214,7 +214,7 @@ Feature: Azure disk specific scenarios
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/azure/dc.yaml |
     Then the step should succeed
-    Given a pod becomes ready with labels: 
+    Given a pod becomes ready with labels:
       | run=hello-openshift |
     And evaluation of `pod.node_name` is stored in the :pod_node clipboard
     When I run the :scale client command with:
@@ -240,12 +240,12 @@ Feature: Azure disk specific scenarios
       | name     | hello-openshift  |
       | replicas | 1                |
     Then the step should succeed
-    Given a pod becomes ready with labels: 
+    Given a pod becomes ready with labels:
       | run=hello-openshift |
-    And the expression should be true> pod.node_name != cb.pod_node 
+    And the expression should be true> pod.node_name != cb.pod_node
 
   # @author wehe@redhat.com
-  # @case_id OCP-13942 
+  # @case_id OCP-13942
   @admin
   Scenario: Azure disk should work after a bad disk is requested
     Given I have a project
@@ -262,12 +262,12 @@ Feature: Azure disk specific scenarios
       | ["spec"]["volumes"][0]["azureDisk"]["diskURI"]  | <%= cb.vid %>                 |
     Then the step should succeed
     Given the pod named "azcaro" becomes ready
-    When I executes on the pod:
+    When I execute on the pod:
       | touch | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
-    When I executes on the pod:
-      | ls | /mnt/azure/ad-<%= project.name %> | 
+    When I execute on the pod:
+      | ls | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed
-    When I executes on the pod:
+    When I execute on the pod:
       | rm | /mnt/azure/ad-<%= project.name %> |
     Then the step should succeed

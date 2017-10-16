@@ -194,7 +194,10 @@ module CucuShift
 
       res[:matching] = []
       res[:items].zip(res[:parsed]["items"]) { |i, i_hash|
-        res[:matching] << i if !block_given? || yield(i, i_hash)
+        if !block_given? || yield(i, i_hash)
+          i.default_user = user
+          res[:matching] << i
+        end
       }
 
       return res[:matching]
