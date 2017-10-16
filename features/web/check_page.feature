@@ -77,9 +77,13 @@ Feature: check page info related
     Given I login via web console
     When I get the html of the web page
     Then the output should contain:
-      | Welcome to OpenShift                                              |
-      | OpenShift helps you quickly develop, host, and scale applications |
-      | Create a project for your application                             |
+      | Getting Started             |
+      | Take Home Page Tour         |
+      | Documentation               |
+      | Interactive Learning Portal |
+      | Local Development           |
+      | YouTube                     |
+      | Blog                        |
     Given an 8 character random string of type :dns is stored into the :prj_name clipboard
     When I run the :new_project client command with:
       | project_name | <%= cb.prj_name %> |
