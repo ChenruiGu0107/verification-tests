@@ -2,22 +2,22 @@ Feature: projects related features via homepage
 
   # @author hasha@redhat.com
   # @case_id OCP-13717
-  Scenario: Add/Edit/Remove project, direct page, check getting-started and viewall in service catalog page 
+  Scenario: Add/Edit/Remove project, direct page, check getting-started and viewall in service catalog page
     Given the master version >= "3.6"
     Given I have a project
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
-    #When I perform the :create_project_on_homepage web console action with:
-    #  | project_name | <%= cb.proj_name %>  |
-    #  | display_name | test1_desplay        |
-    #  | description  | test1_description    |
-    #Then the step should succeed
+    When I perform the :create_project_on_homepage web console action with:
+      | project_name | <%= cb.proj_name %>  |
+      | display_name | test1_desplay        |
+      | description  | test1_description    |
+    Then the step should succeed
     # use this step to avoid that button is not clickable related error.
     When I run the :goto_home_page web console action
-    Then the step should succeed 
+    Then the step should succeed
     When I run the :check_view_all_link_on_homepage web console action
     Then the step should succeed
-    #When I run the :check_getting_started_section_missing web console action
-    #Then the step should succeed
+    When I run the :check_getting_started_section_missing web console action
+    Then the step should succeed
     When I perform the :edit_project_in_kebab_on_homepage web console action with:
       | project_name | <%= project.name %>  |
       | display_name | test2_display        |
@@ -32,5 +32,3 @@ Feature: projects related features via homepage
     Then the step should succeed
     When I run the :check_getting_started_section_exists web console action
     Then the step should succeed
-    
- 
