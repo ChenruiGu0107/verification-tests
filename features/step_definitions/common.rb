@@ -198,7 +198,7 @@ Given /^(I|admin) ensures? #{QUOTED} (\w+) is deleted(?: from the#{OPT_QUOTED} p
 end
 
 # example: I wait for the "hello-pod" pod to appear up to 42 seconds
-Given /^(I|admin) waits? for the #{QUOTED} (\w+) to appear(?: in the the#{OPT_QUOTED} project)?(?: up to (\d+) seconds)?$/ do |by, name, type, project_name, timeout|
+Given /^(I|admin) waits? for the #{QUOTED} (\w+) to appear(?: in the#{OPT_QUOTED} project)?(?: up to (\d+) seconds)?$/ do |by, name, type, project_name, timeout|
   _user = by == "admin" ? admin : user
   _resource = resource(name, type, project_name: project_name)
   _resource.default_user = _user
@@ -212,7 +212,7 @@ Given /^(I|admin) waits? for the #{QUOTED} (\w+) to appear(?: in the the#{OPT_QU
 end
 
 # as resource you need to use a string that exists as a resource method in World
-Given(/^(I|admin) checks? that the #{QUOTED} (\w+) exists(?: in the the#{OPT_QUOTED} project)?$/) do |who, name, resource_type, namespace|
+Given(/^(I|admin) checks? that the #{QUOTED} (\w+) exists(?: in the#{OPT_QUOTED} project)?$/) do |who, name, resource_type, namespace|
   _user = who == "admin" ? admin : user
 
   resource = resource(name, resource_type, project_name: namespace)
