@@ -373,7 +373,7 @@ Feature: Persistent Volume Claim binding policies
     Given admin creates a project with a random schedulable node selector
 
     # Create storageclass
-    When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
+    When admin creates a StorageClass in the node's zone from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | sc-<%= project.name %>      |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed

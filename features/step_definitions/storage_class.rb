@@ -3,7 +3,7 @@ require 'yaml'
 # will create a StorageClass with a random name and updating any requested path within
 #   the object hash with the given value e.g.
 # | ["metadata"]["name"] | sc-<%= project.name %> |
-When /^admin creates a StorageClass from "([^"]*)" where:$/ do |location, table|
+When /^admin creates a StorageClass( in the node's zone)? from #{QUOTED} where:$/ do |nodezone, location, table|
   ensure_admin_tagged
 
   if location.include? '://'
@@ -24,6 +24,14 @@ When /^admin creates a StorageClass from "([^"]*)" where:$/ do |location, table|
     sc_hash["apiVersion"] = "storage.k8s.io/v1"
   else
     sc_hash["apiVersion"] = "storage.k8s.io/v1beta1"
+  end
+
+  iaas_type = env.iaas[:type] rescue nil
+
+  if nodezone && iaas_type == "gce" &&
+      node.labels.has_key?("failure-domain.beta.kubernetes.io/zone")
+    sc_hash["parameters"] ||= {}
+    sc_hash["parameters"]["zone"] = node.labels["failure-domain.beta.kubernetes.io/zone"]
   end
 
   table.raw.each do |path, value|
