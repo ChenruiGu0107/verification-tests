@@ -12,9 +12,6 @@ Feature: REST related features
     :max_redirects: 0
     """
     Then the step should fail
-    And the output should match:
-      | system:anonymous.* cannot get users at the cluster scope |
-      | eason.*orbidden |
     And the expression should be true> @result[:exitstatus] == 403
 
   # @author cryan@redhat.com
