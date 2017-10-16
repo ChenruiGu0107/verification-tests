@@ -433,3 +433,43 @@ Feature: Persistent Volume Claim binding policies
       | aws-ebs        | aws      | # @case_id OCP-13383
       | azure-disk     | azure    | # @case_id OCP-13385
       | vsphere-volume | vsphere  | # @case_id OCP-13392
+
+  # @author wehe@redhat.com
+  # @case_id OCP-16094
+  # @bug_id 1496256 
+  @admin
+  @destructive
+  Scenario: Deleted in use PVCs cannot break the scheduler 
+    Given I have a project
+    And I have a NFS service in the project
+    And evaluation of `service("nfs-service").ip` is stored in the :nfs_ip clipboard
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-retain.json" where:
+      | ["metadata"]["name"]      | nfs-<%= project.name %> |
+      | ["spec"]["nfs"]["server"] | <%= cb.nfs_ip %>        |
+    Then the step should succeed
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
+      | ["spec"]["volumeName"] | <%= pv.name %> |
+    Then the step should succeed
+    And the "nfsc" PVC becomes :bound
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
+    Then the step should succeed
+    Given the pod named "nfs" becomes ready
+    And I ensure "nfsc" pvc is deleted
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
+      | ["spec"]["volumeName"] | noneexistone |
+    Then the step should succeed
+    And the "nfsc" PVC becomes :pending
+    Given I create a new project
+    When admin creates a PV from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pv-retain.json" where:
+      | ["metadata"]["name"]      | nfs-<%= project.name %> |
+      | ["spec"]["nfs"]["server"] | <%= cb.nfs_ip %>        |
+    Then the step should succeed
+    When I create a manual pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/pvc-rwx.json" replacing paths:
+      | ["spec"]["volumeName"] | <%= pv.name %> |
+    Then the step should succeed
+    And the "nfsc" PVC becomes :bound
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
+    Then the step should succeed
+    Given the pod named "nfs" becomes ready
