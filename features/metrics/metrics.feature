@@ -308,3 +308,39 @@ Feature: metrics related scenarios
     And evaluation of `rc('hawkular-cassandra-1').container_spec(user: user, name: 'hawkular-cassandra-1').memory_limit_raw` is stored in the :memory_limit clipboard
     Then the expression should be true> cb.cpu_limit == "100m"
     Then the expression should be true> cb.memory_limit == "1G"
+
+  # @author: pruan@redhat.com
+  # @case_id: OCP-14519
+  @admin
+  @destructive
+  Scenario: Show CPU,memory, network metrics statistics on pod page of openshift web console
+    Given I create a project with non-leading digit name
+    And evaluation of `project.name` is stored in the :proj_1_name clipboard
+    And metrics service is installed in the system
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/hello-openshift/hello-pod.json |
+    Then the step should succeed
+    And the pod named "hello-openshift" is present
+    Given I login via web console
+    When I perform the :check_pod_metrics_tab web action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | <%= pod.name %>     |
+    Then the step should succeed
+    And I run the :logout web console action
+    # switch user
+    And I switch to the second user
+    Given I create a project with non-leading digit name
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/pod_with_two_containers.json |
+    Then the step should succeed
+    And  the pod named "doublecontainers" becomes ready
+    Given the second user is cluster-admin
+    And I login via web console
+    When I perform the :check_pod_metrics_tab web action with:
+      | project_name | <%= project.name %> |
+      | pod_name     | <%= pod.name %>     |
+    Then the step should succeed
+    When I perform the :check_pod_metrics_tab web action with:
+      | project_name | <%= cb.proj_1_name %> |
+      | pod_name     | hello-openshift       |
+    Then the step should succeed
