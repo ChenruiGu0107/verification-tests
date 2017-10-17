@@ -1,3 +1,9 @@
+Given /^there is no (\w+) in the#{OPT_QUOTED} project$/ do |resource, project_name|
+  project_name = ' "' + project_name + '"' if project_name
+  @result = user.cli_exec(:get, resource: resource, n: project_name)
+  step %Q/the output should match "No resources found"/
+end
+
 Given /^I have a project$/ do
   # system projects should not be selected by default
   sys_projects = CucuShift::Project::SYSTEM_PROJECTS
