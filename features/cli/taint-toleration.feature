@@ -151,8 +151,8 @@ Feature: taint toleration related scenarios
       | resource      | po           |
       | name          | toleration-1 |
     Then the output should match:
-      | Status:\\s+Pending                         |
-      | FailedScheduling\\s+No nodes are available |
+      | Status:\\s+Pending |
+      | FailedScheduling   |
     """
     When I run the :oadm_taint_nodes admin command with:
       | node_name | noescape: <%= cb.nodes.map(&:name).join(" ") %> |
@@ -262,8 +262,8 @@ Feature: taint toleration related scenarios
       | resource      | po             |
       | name          | pod-toleration |
     Then the output should match:
-      | Status:\\s+Pending                         |
-      | FailedScheduling\\s+No nodes are available |
+      | Status:\\s+Pending |
+      | FailedScheduling   |
     """
     Given I ensure "pod-toleration" pod is deleted
     When I run the :create client command with:
@@ -298,8 +298,8 @@ Feature: taint toleration related scenarios
       | resource      | po         |
       | name          | hello-pod1 |
     Then the output should match:
-      | Status:\\s+Pending                         |
-      | FailedScheduling\\s+No nodes are available |
+      | Status:\\s+Pending |
+      | FailedScheduling   |
     """
     Given I ensure "hello-pod1" pod is deleted
     When I run the :create client command with:
@@ -334,8 +334,8 @@ Feature: taint toleration related scenarios
       | resource      | po         |
       | name          | hello-pod1 |
     Then the output should match:
-      | Status:\\s+Pending                         |
-      | FailedScheduling\\s+No nodes are available |
+      | Status:\\s+Pending |
+      | FailedScheduling   |
     """
     Given I ensure "hello-pod1" pod is deleted
     When I run the :create client command with:
