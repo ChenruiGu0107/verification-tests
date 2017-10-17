@@ -65,7 +65,7 @@ click_cancel:
       text: Cancel
     op: click
 click_on_configuration_tab:
-  element:
+  element: &configuration_tab_link
     selector:
       xpath: //uib-tab-heading[contains(.,'Configuration')]
     op: click
@@ -106,7 +106,7 @@ click_on_terminal_tab:
       xpath: //uib-tab-heading[contains(.,'Terminal')]
     op: click
 click_somewhere_out_of_focus:
-  action: expand_help_menu
+  action: click_help_menu
 click_delete:
   elements:
   - selector:
@@ -192,8 +192,17 @@ close_all_toast_notifications:
     selector:
       xpath: //toast-notifications//div[contains(@class,'toast-pf')]
     missing: true
-wait_second_level_navigation_to_close:
+click_help_menu:
   element:
     selector:
-      css: ".nav-pf-secondary-nav"
+      id: help-dropdown
+    op: click
+close_second_level_navigation:
+  element:
+    selector:
+      id: help-dropdown
+    op: hover
+  element:
+    selector:
+      class: nav-pf-secondary-nav
     missing: true
