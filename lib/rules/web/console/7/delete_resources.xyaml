@@ -115,7 +115,7 @@ check_delete_bc_warning_in_delete_action:
   - selector:
       xpath: //h1[contains(.,'Are you sure you want to delete the build config')]
   - selector:
-      xpath: //span[contains(.,'This will delete the build config and all build history')]
+      xpath: //p[contains(.,'It cannot be undone') and contains(.,'Make sure this is something you really want to do')]
 check_delete_statefulsets_warning_in_delete_action:
   action: click_actions_button
   action: click_delete

@@ -1,37 +1,23 @@
 # next step page info relative
 create_from_template_complete_info_on_next_page:
   action: goto_create_from_template_next_page
-  action: check_complete_info_on_next_page
+  action: check_make_code_change_instruc_exist
 create_from_image_complete_info_on_next_page:
   action: goto_create_from_image_next_page
-  action: check_complete_info_on_next_page
+  action: check_make_code_change_instruc_exist
 create_from_template_complete_with_error_info_on_next_page:
   action: goto_create_from_template_next_page
   action: check_complete_with_error_info_on_next_page
 goto_create_from_template_next_page:
   url: /console/project/<project_name>/create/next?name=<template_name>&namespace=<project_name>
-  elements:
-  - selector:
-      text: Next Steps
-  - selector:
-      text: Command line tools
 goto_create_from_image_next_page:
   url: /console/project/<project_name>/create/next?imageStream=<image_name>&imageTag=<image_tag>&namespace=<namespace>&name=<app_name>
+check_make_code_change_instruc_exist:
   elements:
   - selector:
       text: Next Steps
   - selector:
-      text: Command line tools
-check_command_line_tools_instruc_exist:
-  element:
-    selector:
-      text: Command line tools
-check_complete_info_on_next_page:
-  elements:
-  - selector:
-      text: Go to overview
-  - selector:
-      text: Manage your app
+      text: Making code changes
 check_complete_with_error_info_on_next_page:
   elements:
   - selector:
@@ -42,10 +28,6 @@ check_error_alert_message_on_next_page:
   element:
     selector:
       xpath: //div[span[contains(@class,"pficon-error-circle-o")]]/span[contains(text(),'<message>')]
-check_manage_your_app_instruc_exists:
-  element:
-    selector:
-      text: Manage your app
 check_template_message_on_next_page:
   elements:
   - selector:
@@ -91,5 +73,4 @@ check_env_var_key:
         return false;
     expect_result: true
 check_help_and_sug_on_next_step_page:
-  action: check_command_line_tools_instruc_exist
-  action: check_manage_your_app_instruc_exists
+  action: check_make_code_change_instruc_exist

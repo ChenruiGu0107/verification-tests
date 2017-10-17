@@ -1,21 +1,12 @@
-click_to_goto_other_resources_page:
-  action: goto_overview_page
-  elements:
-  - selector:
-      xpath: //a[@data-toggle="dropdown" and contains(.,"Resources")]
-    op: click
-  - selector:
-      xpath: //div[contains(@class,"dropdown-menu")]//a[contains(.,"Other Resources")]
-    op: click
 goto_other_resources_page:
   url: /console/project/<project_name>/browse/other
 check_hpa_labels_on_other_resources_page:
-  action: click_to_goto_other_resources_page
+  action: goto_other_resources_page
   action: select_hpa_from_list
   action: check_hpa_listed
   action: check_labels
 check_hpa_labels_on_other_resources_page_missing:
-  action: click_to_goto_other_resources_page
+  action: goto_other_resources_page
   action: select_hpa_from_list
   action: check_hpa_listed
   action: check_labels_missing
