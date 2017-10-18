@@ -68,10 +68,11 @@ Feature: ansible install related feature
     And metrics service is installed in the "openshift-infra" project with ansible using:
       | inventory        | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory |
       | copy_custom_cert | true                                                                                                   |
+
     And I wait up to 120 seconds for the steps to pass:
     """
     And I run commands on the host:
-      | curl --resolve hawkular-metrics.<%= cb.subdomain %>:443: <%= cb.router_ip[0] %> https://hawkular-metrics.<%= cb.subdomain %> --cacert <%= host.workdir + "/ca.crt" %> |
+      | curl --resolve <%= cb.metrics_route_prefix + "." + cb.subdomain %>:443: <%= cb.router_ip[0] %> https://<%= cb.metrics_route_prefix + "." + cb.subdomain %> --cacert <%= host.workdir + "/ca.crt" %> |
     And the output should contain:
       | Hawkular Metrics                                |
     """
