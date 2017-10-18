@@ -247,24 +247,53 @@ module CucuShift
       end
     end
 
+    # for an array of strings ending on a num, returns first free index for a
+    #   prefix such that adding "#{prefix}#{num}" to the array will not dup
+    def next_index_for_prefix(prefix:, name_list:)
+      return 1 unless name_list
+      max_index = name_list.select { |name|
+        name =~ /^#{Regexp.escape prefix}\d+$/
+      }.map { |n|
+        Integer(n[prefix.size..-1])
+      }.max
+      max_index ? max_index + 1 : 1
+    end
+
+    # generates an array of non-duplicate "#{string}#{num}" based on params
+    def generate_numbered_names(existing_names: nil, prefix:, roles:, num:)
+      full_name_prefix = "#{prefix}#{roles.join("-")}-"
+      index_offset = next_index_for_prefix(prefix: full_name_prefix,
+                                           name_list: existing_names)
+      host_names = num.times.map { |i|
+        "#{full_name_prefix}#{(i + index_offset)}"
+      }
+
+      # limit hostnames to 63 characters per OpenShift installer requirements
+      if host_names.any? { |n| n.size > 63 }
+        short_roles ||= roles.map(&:chars).map(&:first).join
+        new_full_prefix ||= "#{prefix}#{short_roles}-"
+        new_index_offset = next_index_for_prefix(prefix: new_full_prefix,
+                                                 name_list: existing_names)
+        # keepindex continuity if possible
+        new_index_offset = [index_offset, new_index_offset].max
+        host_names = num.times.map { |i|
+          "#{new_full_prefix}#{(i + new_index_offset)}"
+        }
+      end
+
+      return host_names
+    end
+
     # @return [Array<Host>]
     def launch_host_group(host_group, common_launch_opts,
                           user_data_vars: {}, existing_hosts: nil)
 
-      # generate instance names
-      existing_hosts ||= []
-      host_name_prefix = common_launch_opts[:name_prefix]
-      host_roles = host_group[:roles]
-      full_name_prefix = "#{host_name_prefix}#{host_roles.join("-")}-"
-      index_offset = existing_hosts.select { |h|
-        h[:cloud_instance_name] =~ /^#{Regexp.escape full_name_prefix}\d+$/
-      }.map { |h|
-        Integer(h[:cloud_instance_name][full_name_prefix.size..-1])
-      }.max
-      index_offset ||= 0
-      host_names = host_group[:num].times.map { |i|
-        "#{full_name_prefix}#{(i + index_offset + 1)}"
-      }
+      host_names = generate_numbered_names(
+        prefix: common_launch_opts[:name_prefix],
+        existing_names: existing_hosts&.map {|h| h[:cloud_instance_name]},
+        roles: host_group[:roles],
+        num: host_group[:num]
+      )
 
       # get launch instances config
       service_name, launch_opts = merged_launch_opts(common_launch_opts, host_group[:launch_opts])
