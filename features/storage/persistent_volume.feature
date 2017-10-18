@@ -473,3 +473,33 @@ Feature: Persistent Volume Claim binding policies
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
     Then the step should succeed
     Given the pod named "nfs" becomes ready
+
+  # @author lxia@redhat.com
+  # @case_id OCP-16190
+  # @bug_id 1496256
+  Scenario: Deleted in use PVCs will not break the scheduler
+    Given I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | nfsc |
+    Then the step should succeed
+    And the "nfsc" PVC becomes :bound
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
+    Then the step should succeed
+    Given the pod named "nfs" becomes ready
+    And I ensure "nfsc" pvc is deleted
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"]   | nfsc         |
+      | ["spec"]["volumeName"] | noneexistone |
+    Then the step should succeed
+    And the "nfsc" PVC becomes :pending
+    Given I switch to the second user
+    And I have a project
+    When I create a dynamic pvc from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/pvc.json" replacing paths:
+      | ["metadata"]["name"] | nfsc |
+    Then the step should succeed
+    And the "nfsc" PVC becomes :bound
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/nfs/auto/web-pod.json |
+    Then the step should succeed
+    Given the pod named "nfs" becomes ready
