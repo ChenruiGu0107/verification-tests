@@ -196,3 +196,58 @@ Feature: dc hooks related
     Then the step should succeed
     When I run the :check_dc_hook_part_missing_from_dc_page web console action
     Then the step should succeed
+  
+  # @author yanpzhan@redhat.com
+  # @case_id OCP-11412
+  Scenario: Show hooks of rolling strategy DC
+    Given the master version > "3.4"
+    Given I have a project
+    When I run the :new_app client command with:
+      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+    Then the step should succeed
+
+    When I perform the :check_dc_loaded_completely web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | frontend            |
+    Then the step should succeed
+    When I perform the :check_dc_hook_common_settings_from_dc_page web console action with:
+      | hook_type      | pre             |
+      | hook_name      | Pre Hook        |
+      | hook_action    | Run a command   |
+      | failure_policy | Abort           |
+      | container_name | ruby-helloworld |
+    Then the step should succeed
+
+    When I perform the :check_dc_hook_common_settings_from_dc_page web console action with:
+      | hook_type      | post            |
+      | hook_name      | Post Hook       |
+      | hook_action    | Run a command   |
+      | failure_policy | Ignore          |
+      | container_name | ruby-helloworld |
+    Then the step should succeed
+
+    When I run the :patch client command with:
+      | resource      | dc               |
+      | resource_name | frontend         |
+      | p             | {"spec":{"strategy":{"rollingParams":{"pre":null}}}} |
+    Then the step should succeed
+    When I perform the :check_dc_loaded_completely web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | frontend            |
+    Then the step should succeed
+    When I perform the :check_dc_hook_missing_from_dc_page web console action with:
+      | hook_type | pre      |
+      | hook_name | Pre Hook |
+    Then the step should succeed
+
+    When I run the :patch client command with:
+      | resource      | dc               |
+      | resource_name | frontend         |
+      | p             | {"spec":{"strategy":{"rollingParams":{"post":null}}}} |
+    Then the step should succeed
+    When I perform the :check_dc_loaded_completely web console action with:
+      | project_name | <%= project.name %> |
+      | dc_name      | frontend            |
+    Then the step should succeed
+    When I run the :check_dc_hook_part_missing_from_dc_page web console action
+    Then the step should succeed
