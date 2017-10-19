@@ -423,6 +423,7 @@ require "base64"
         url = URI.join(base_url, url).to_s
       end
       logger.info("Navigating to: #{url}")
+      browser.window.move_to 0, 0 # go to safe position to avoid hover actions
       browser.goto url
       return {
         instruction: "opening #{url}",
