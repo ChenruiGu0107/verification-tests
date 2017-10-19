@@ -1,6 +1,31 @@
+Given /^HTTP cookies from result are used in further request$/ do
+  if @result[:cookies]
+    cb.http_cookies = @result[:cookies]
+  else
+    raise "no cookies in result"
+  end
+end
+
+Given /^HTTP cookies from result are saved in the #{SYM} clipboard$/ do |cbname|
+  if @result[:cookies]
+    cb[cbname] = @result[:cookies]
+  else
+    raise "no cookies in result"
+  end
+end
+
+Given /^HTTP cookies from the #{SYM} clipboard are used in further request$/ do |cbname|
+  if cb[cbname]
+    cb.http_cookies = cb[cbname]
+  else
+    raise "no cookies in the :#{cbname} clipboard"
+  end
+end
+
 Then /^a( secure)? web server should be available via the(?: "(.+?)")? route$/ do |secure, route_name|
   proto = secure ? "https" : "http"
-  @result = route(route_name).http_get(by: user, proto: proto)
+  @result = route(route_name).http_get(by: user, proto: proto,
+                                       cookies: cb.http_cookies)
   unless @result[:success]
     logger.error(@result[:response])
     # you may notice now `route` refers to last called route,
@@ -13,7 +38,8 @@ Given /^I wait(?: up to ([0-9]+) seconds)? for a( secure)? web server to become 
   proto = secure ? "https" : "http"
   seconds = seconds.to_i unless seconds.nil?
   @result = route(route_name).wait_http_accessible(by: user, timeout: seconds,
-                                                   proto: proto)
+                                                   proto: proto,
+                                                   cookies: cb.http_cookies)
 
   unless @result[:success]
     logger.error(@result[:response])
@@ -25,15 +51,16 @@ end
 
 When /^I open( secure)? web server via the(?: "(.+?)")? route$/ do |secure, route_name|
   proto = secure ? "https" : "http"
-  @result = route(route_name).http_get(by: user, proto: proto)
+  @result = route(route_name).http_get(by: user, proto: proto,
+                                       cookies: cb.http_cookies)
 end
 
 When /^I open web server via the(?: "(.+?)")? url$/ do |url|
-  @result = CucuShift::Http.get(url: url)
+  @result = CucuShift::Http.get(url: url, cookies: cb.http_cookies)
 end
 
 Given /^I download a file from "(.+?)"(?: into the "(.+?)" dir)?$/ do |url, dl_path|
-  @result = CucuShift::Http.get(url: url)
+  @result = CucuShift::Http.get(url: url, cookies: cb.http_cookies)
   if @result[:success]
     if dl_path
       file_name = File.join(dl_path, File.basename(URI.parse(url).path))
@@ -84,7 +111,11 @@ end
 #   :max_redirects: 0
 #   """
 When /^I perform the HTTP request:$/ do |yaml_request|
-  @result = CucuShift::Http.request(YAML.load yaml_request)
+  opts = YAML.load yaml_request
+  if Symbol == opts[:cookies]
+    opts[:cookies] = cb[opts[:cookies]]
+  end
+  @result = CucuShift::Http.request(opts)
 end
 
 # note that we do not guarantee exact number of invocations, there might be a
