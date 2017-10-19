@@ -159,24 +159,64 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
   subnet = @result[:response]
   cb.clusternetwork = subnet
 
-  if env.version_lt("3.6", user: user)
+  @result = _admin.cli_exec(:get, resource: "clusternetwork", resource_name: "default")
+  unless @result[:success]
+    plugin_type = @result[:response]
+  end
+
+  if env.version_ge("3.7", user: user) && plugin_type =~ /openshift-ovs-networkpolicy/
     filter_matches = [
-      'INPUT -i tun0 -m comment --comment "traffic from(.*)" -j ACCEPT',
-      'INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT',
-      'OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
-      "FORWARD -s #{subnet} -j ACCEPT",
-      "FORWARD -d #{subnet} -j ACCEPT"
+      'INPUT -m comment --comment "Ensure that non-local NodePort traffic can flow" -j KUBE-NODEPORT-NON-LOCAL',
+      'INPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      'INPUT -m comment --comment "firewall overrides" -j OPENSHIFT-FIREWALL-ALLOW',
+      'FORWARD -m comment --comment "firewall overrides" -j OPENSHIFT-FIREWALL-FORWARD',
+      'FORWARD -i tun0 ! -o tun0 -m comment --comment "administrator overrides" -j OPENSHIFT-ADMIN-OUTPUT-RULES',
+      'OPENSHIFT-FIREWALL-ALLOW -p udp -m udp --dport 4789 -m comment --comment "VXLAN incoming" -j ACCEPT',
+      'OPENSHIFT-FIREWALL-ALLOW -i tun0 -m comment --comment "from SDN to localhost" -j ACCEPT',
+      'OPENSHIFT-FIREWALL-ALLOW -i docker0 -m comment --comment "from docker to localhost" -j ACCEPT',
+      "OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"attempted resend after connection close\" -m conntrack --ctstate INVALID -j DROP",
+      "OPENSHIFT-FIREWALL-FORWARD -d #{subnet} -m comment --comment \"forward traffic from SDN\" -j ACCEPT",
+      "OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"forward traffic to SDN\" -j ACCEPT"
     ]
     nat_matches = [
-      'PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
-      'POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING',
-      "POSTROUTING -s #{subnet} -j MASQUERADE"
+      "PREROUTING -m comment --comment \".*\" -j KUBE-SERVICES",
+      "OUTPUT -m comment --comment \"kubernetes service portals\" -j KUBE-SERVICES",
+      "POSTROUTING -m comment --comment \"rules for masquerading OpenShift traffic\" -j OPENSHIFT-MASQUERADE",
+      "OPENSHIFT-MASQUERADE -s #{subnet} -m comment --comment \"masquerade .* traffic\" -j MASQUERADE",
+      "OPENSHIFT-MASQUERADE-2 -d #{subnet} -m comment --comment \"masquerade pod-to-external traffic\" -j RETURN",
+      "OPENSHIFT-MASQUERADE-2 -j MASQUERADE"
     ]
-  else
+  elsif env.version_ge("3.7", user: user)
     filter_matches = [
-      'OPENSHIFT-FIREWALL-ALLOW -i tun0 -m comment --comment "from SDN to localhost" -j ACCEPT',
+      'INPUT -m comment --comment "Ensure that non-local NodePort traffic can flow" -j KUBE-NODEPORT-NON-LOCAL',
+      'INPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      'INPUT -m comment --comment "firewall overrides" -j OPENSHIFT-FIREWALL-ALLOW',
+      'FORWARD -m comment --comment "firewall overrides" -j OPENSHIFT-FIREWALL-FORWARD',
+      'FORWARD -i tun0 ! -o tun0 -m comment --comment "administrator overrides" -j OPENSHIFT-ADMIN-OUTPUT-RULES',
       'OPENSHIFT-FIREWALL-ALLOW -p udp -m udp --dport 4789 -m comment --comment "VXLAN incoming" -j ACCEPT',
-      'OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      'OPENSHIFT-FIREWALL-ALLOW -i tun0 -m comment --comment "from SDN to localhost" -j ACCEPT',
+      'OPENSHIFT-FIREWALL-ALLOW -i docker0 -m comment --comment "from docker to localhost" -j ACCEPT',
+      "OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"attempted resend after connection close\" -m conntrack --ctstate INVALID -j DROP",
+      "OPENSHIFT-FIREWALL-FORWARD -d #{subnet} -m comment --comment \"forward traffic from SDN\" -j ACCEPT",
+      "OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"forward traffic to SDN\" -j ACCEPT"
+    ]
+    nat_matches = [
+      "PREROUTING -m comment --comment \".*\" -j KUBE-SERVICES",
+      "OUTPUT -m comment --comment \"kubernetes service portals\" -j KUBE-SERVICES",
+      "POSTROUTING -m comment --comment \"rules for masquerading OpenShift traffic\" -j OPENSHIFT-MASQUERADE",
+      "OPENSHIFT-MASQUERADE -s #{subnet} -m comment --comment \"masquerade .* traffic\" -j MASQUERADE",
+    ]
+  elsif env.version_eq("3.6", user: user)
+    filter_matches = [
+      'INPUT -m comment --comment "Ensure that non-local NodePort traffic can flow" -j KUBE-NODEPORT-NON-LOCAL',
+      'INPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      'INPUT -m comment --comment "firewall overrides" -j OPENSHIFT-FIREWALL-ALLOW',
+      'FORWARD -m comment --comment "firewall overrides" -j OPENSHIFT-FIREWALL-FORWARD',
+      'FORWARD -i tun0 ! -o tun0 -m comment --comment "administrator overrides" -j OPENSHIFT-ADMIN-OUTPUT-RULES',
+      'OPENSHIFT-FIREWALL-ALLOW -p udp -m udp --dport 4789 -m comment --comment "VXLAN incoming" -j ACCEPT',
+      'OPENSHIFT-FIREWALL-ALLOW -i tun0 -m comment --comment "from SDN to localhost" -j ACCEPT',
+      'OPENSHIFT-FIREWALL-ALLOW -i docker0 -m comment --comment "from docker to localhost" -j ACCEPT',
+      "OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"attempted resend after connection close\" -m conntrack --ctstate INVALID -j DROP",
       "OPENSHIFT-FIREWALL-FORWARD -d #{subnet} -m comment --comment \"forward traffic from SDN\" -j ACCEPT",
       "OPENSHIFT-FIREWALL-FORWARD -s #{subnet} -m comment --comment \"forward traffic to SDN\" -j ACCEPT"
     ]
@@ -188,8 +228,22 @@ Given /^the#{OPT_QUOTED} node iptables config is verified$/ do |node_name|
     #   so use fuzzy matching in nat_matches.
     nat_matches = [
       'PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      "OUTPUT -m comment --comment \"kubernetes service portals\" -j KUBE-SERVICES",
       'POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING',
       "OPENSHIFT-MASQUERADE -s #{subnet} .*--comment \"masquerade .*pod-to-external traffic\" -j MASQUERADE"
+    ]
+  else
+    filter_matches = [
+      'INPUT -i tun0 -m comment --comment "traffic from(.*)" -j ACCEPT',
+      'INPUT -p udp -m multiport --dports 4789 -m comment --comment "001 vxlan incoming" -j ACCEPT',
+      'OUTPUT -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      "FORWARD -s #{subnet} -j ACCEPT",
+      "FORWARD -d #{subnet} -j ACCEPT"
+    ]
+    nat_matches = [
+      'PREROUTING -m comment --comment "kubernetes service portals" -j KUBE-SERVICES',
+      'POSTROUTING -m comment --comment "kubernetes postrouting rules" -j KUBE-POSTROUTING',
+      "POSTROUTING -s #{subnet} -j MASQUERADE"
     ]
   end
 
@@ -253,7 +307,11 @@ Given /^the#{OPT_QUOTED} node standard iptables rules are removed$/ do |node_nam
   _host = _node.host
   _admin = admin
 
-  @result = _admin.cli_exec(:get, resource: "clusternetwork", resource_name: "default", template: "{{.network}}")
+  if env.version_lt("3.7", user: user)
+    @result = _admin.cli_exec(:get, resource: "clusternetwork", resource_name: "default", template: "{{.network}}")
+  else
+    @result = _admin.cli_exec(:get, resource: "clusternetwork", resource_name: "default", template: '{{index .clusterNetworks 0 "CIDR"}}')
+  end
   unless @result[:success]
     raise "Can not get clusternetwork resource!"
   end
