@@ -419,7 +419,7 @@ Feature: Testing route
     When I open web server via the "http://<%= route("slash-test", service("service-unsecure")).dns(by: user) %>/test/" url
     Then the output should contain "Hello-OpenShift-Path-Test"
     """
-    When I open web server via the "http://<%= route("slash-test", service("service-unsecure")).dns(by: user) %>/" url
+    And I wait up to 20 seconds for a web server to become available via the "slash-test" route
     Then the output should contain "Hello-OpenShift"
 
 
