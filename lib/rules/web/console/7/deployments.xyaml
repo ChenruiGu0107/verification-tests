@@ -163,10 +163,10 @@ click_to_goto_deployments_page:
   action: goto_overview_page
   elements:
   - selector:
-      xpath: //a[@data-toggle="dropdown" and contains(.,"Applications")]
+      xpath: //span[contains(@class,"list-group-item-value") and contains(.,"Applications")]
     op: click
   - selector:
-      xpath: //div[contains(@class,"dropdown-menu")]//a[contains(.,"Deployments")]
+      xpath: //span[contains(@class,"list-group-item-value") and contains(.,"Deployments")]
     op: click
 click_to_goto_one_deployment_page:
   action: click_to_goto_deployments_page
