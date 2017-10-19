@@ -268,8 +268,8 @@ module CucuShift
         "#{full_name_prefix}#{(i + index_offset)}"
       }
 
-      # limit hostnames to 63 characters per OpenShift installer requirements
-      if host_names.any? { |n| n.size > 63 }
+      # limit length according to user settings
+      if host_names.any? {|n| n.size > (conf[:max_instance_name_length] || 63)}
         short_roles ||= roles.map(&:chars).map(&:first).join
         new_full_prefix ||= "#{prefix}#{short_roles}-"
         new_index_offset = next_index_for_prefix(prefix: new_full_prefix,
