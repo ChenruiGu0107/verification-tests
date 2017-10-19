@@ -1,8 +1,3 @@
-expand_help_menu:
-  element:
-    selector:
-      id: help-dropdown
-    op: click
 check_default_documentation_link_in_get_started:
   action: goto_projects_page
   elements:
@@ -14,12 +9,12 @@ check_default_documentation_link_in_get_started_online:
   - selector:
       xpath: //a[contains(@href,"https://docs.openshift.com/online/welcome/index.html") and contains(.,'documentation')]
 check_default_documentation_link_in_console_help:
-  action: expand_help_menu
+  action: click_help_menu
   elements:
   - selector:
       xpath: //a[contains(@href,"https://docs.openshift.com/container-platform/3.7/welcome/index.html") and contains(.,'Documentation')]
 check_default_documentation_link_in_console_help_online:
-  action: expand_help_menu
+  action: click_help_menu
   elements:
   - selector:
       xpath: //a[contains(@href,"https://docs.openshift.com/online/welcome/index.html") and contains(.,'Documentation')]

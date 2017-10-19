@@ -1,4 +1,4 @@
-expand_help_menu:
+click_help_menu:
   url: /console
   element:
     selector:
@@ -10,7 +10,7 @@ check_default_documentation_link_in_get_started:
   - selector:
       xpath: //a[contains(@href,"https://docs.openshift.com/enterprise/latest/welcome/index.html") and contains(.,'documentation')]
 check_default_documentation_link_in_console_help:
-  action: expand_help_menu
+  action: click_help_menu
   elements:
   - selector:
       xpath: //a[contains(@href,"https://docs.openshift.com/enterprise/latest/welcome/index.html") and contains(.,'Documentation')]

@@ -88,7 +88,7 @@ create_app_from_image:
     if_param:
       sumbit_creation: 'true'
     ref:
-    - wait_second_level_navigation_to_close
+    - close_second_level_navigation
     - create_app_from_image_submit
 create_app_from_image_base_action:
   action: create_app_from_image_navigate
@@ -354,7 +354,7 @@ create_app_from_image_submit:
   action: click_create_button
   element:
     selector:
-      text: Continue to the project overview 
+      text: Continue to the project overview
   element:
     selector:
       text: Making code changes
