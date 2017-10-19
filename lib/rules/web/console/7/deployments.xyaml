@@ -243,9 +243,6 @@ goto_deployments_page:
   url: /console/project/<project_name>/browse/deployments
 goto_one_dc_page:
   url: /console/project/<project_name>/browse/deployments/<dc_name>
-  element:
-    selector:
-      xpath: //uib-tab-heading[contains(.,'Configuration')]
 goto_one_dc_environment_tab:
   action: goto_one_dc_page
   action: goto_environment_tab
