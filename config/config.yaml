@@ -20,6 +20,13 @@ global:
   #          the users being used in the managed hosts to execute scripts, and
   #          what scripts have been executed.
   ansible_log_level: -vv
+
+  # max length of generated instance names when launching
+  # this is used also for generated hostnames when machines lack such
+  # current value should limit hostnames to less than 63 chars which breaks
+  #   OpenShift installer
+  max_instance_name_length: 38
+
   # base docker registry prefixes for quickstarts;
   #   (one is for the upstream community supported *projects* and the other one
   #   is for the Red Hat enterprise supported *products*);
