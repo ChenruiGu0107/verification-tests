@@ -857,10 +857,10 @@ Feature: create app on web console related
     When I run the :check_complete_with_error_info_on_next_page web console action
     Then the step should succeed
     When I perform the :check_error_alert_message_on_next_page web console action with:
-      | message | Cannot create build config "ruby-sample-build". |
+      | message | Cannot create build config "ruby-sample-build" |
     Then the step should succeed
     When I perform the :check_error_alert_message_on_next_page web console action with:
-      | message | BuildConfig "ruby-sample-build" is invalid: spec.source.git.uri: Required value. |
+      | message | spec.source.git.uri: Required value |
     Then the step should succeed
 
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json"
