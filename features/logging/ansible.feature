@@ -43,3 +43,25 @@ Feature: ansible install related feature
       | logging-es-ops      |
       | logging-fluentd-ops |
       | logging-kibana-ops  |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-15772
+  @admin
+  @destructive
+  Scenario: kibana status is red when the es pod is not running
+    Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
+    And logging service is installed in the system
+    And a replicationController becomes ready with labels:
+      | component=es |
+    # disable es pod by scaling it to 0
+    Then I run the :scale client command with:
+      | resource | replicationController |
+      | name     | <%= rc.name %>        |
+      | replicas | 0                     |
+    And I wait until number of replicas match "0" for replicationController "<%= rc.name %>"
+    And I login to kibana logging web console
+    And I get the visible text on web html page
+    And the output should contain:
+      | Status: Red                                                   |
+      | Unable to connect to Elasticsearch at https://logging-es:9200 |

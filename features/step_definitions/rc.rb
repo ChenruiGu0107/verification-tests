@@ -29,3 +29,23 @@ ready_timeout = 300
     raise "desired replica count not reached within timeout"
   end
 end
+
+Given /^a replicationController becomes ready with labels:$/ do |table|
+  labels = table.raw.flatten # dimentions irrelevant
+  rc_timeout = 10 * 60
+  ready_timeout = 15 * 60
+
+  @result = CucuShift::ReplicationController.wait_for_labeled(*labels, user: user, project: project, seconds: rc_timeout)
+
+  if @result[:matching].empty?
+    raise "See log, waiting for labeled rcs futile: #{labels.join(',')}"
+  end
+
+  cache_resources(*@result[:matching])
+  @result = rc.wait_till_ready(user, ready_timeout)
+
+  unless @result[:success]
+    logger.error(@result[:response])
+    raise "#{rc.name} replication_controller did not become ready"
+  end
+end
