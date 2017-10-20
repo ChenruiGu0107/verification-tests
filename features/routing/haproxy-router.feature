@@ -3912,8 +3912,8 @@ Feature: Testing haproxy router
 
     When I wait for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
-    And the expression should be true> ! @result[:cookies].any? {|c| c.name.include? "invalid-default-cookie"}
-    And the expression should be true> @result[:cookies].any? {|c| c.name.match(/[0-9a-z]{32}/)}
+    And the expression should be true> @result[:cookies].none? {|c| c.name.include? "invalid-default-cookie"}
+    And the expression should be true> @result[:cookies].all? {|c| c.name.match(/[0-9a-z]{32}/)}
 
     When I run the :annotate client command with:
       | resource     | route                                                  |
@@ -3925,5 +3925,5 @@ Feature: Testing haproxy router
     Given 10 seconds have passed
     When I wait for a web server to become available via the "service-unsecure" route
     Then the output should contain "Hello-OpenShift"
-    And the expression should be true> ! @result[:cookies].any? {|c| c.name.include? "invalid-route-cookie"}
-    And the expression should be true> @result[:cookies].any? {|c| c.name.match(/[0-9a-z]{32}/)}
+    And the expression should be true> @result[:cookies].none? {|c| c.name.include? "invalid-route-cookie"}
+    And the expression should be true> @result[:cookies].all? {|c| c.name.match(/[0-9a-z]{32}/)}
