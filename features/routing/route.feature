@@ -14,21 +14,12 @@ Feature: Testing route
     When I expose the "header-test-insecure" service
     Then the step should succeed
     And I wait for a web server to become available via the route
-    When I run the :get client command with:
-      | resource      | route |
-      | resource_name | header-test-insecure |
-      | o             | yaml |
-    And I save the output to file>header-test-insecure.yaml
-    And I replace lines in "header-test-insecure.yaml":
-      | name: header-test-insecure | name: header-test-insecure-dup |
-      | host: header-test-insecure | host: header-test-insecure-dup |
-    When I run the :create client command with:
-      |f | header-test-insecure.yaml |
     Then the step should succeed
-    When I run the :patch client command with:
-      | resource      | route                                           |
-      | resource_name | header-test-insecure-dup                        |
-      | p             | {"spec":{"to":{"name":"header-test-insecure"}}} |
+    When I run the :expose client command with:
+      | resource      | service          |
+      | resource_name | header-test-insecure |
+      | name          | header-test-insecure-dup |
+    Then the step should succeed    
     Then I wait for a web server to become available via the "header-test-insecure-dup" route
 
   # @author zzhao@redhat.com
@@ -419,7 +410,7 @@ Feature: Testing route
     When I open web server via the "http://<%= route("slash-test", service("service-unsecure")).dns(by: user) %>/test/" url
     Then the output should contain "Hello-OpenShift-Path-Test"
     """
-    When I open web server via the "http://<%= route("slash-test", service("service-unsecure")).dns(by: user) %>/" url
+    And I wait up to 20 seconds for a web server to become available via the "slash-test" route
     Then the output should contain "Hello-OpenShift"
 
 
