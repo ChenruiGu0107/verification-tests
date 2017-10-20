@@ -120,10 +120,8 @@ module CucuShift
     end
 
     # simple HTTP GET an URL
-    def self.http_get(url: , max_redirects: 10, raise_on_error: false,
-                      quiet: false, &block)
-      return http_request(url: url, method: :get, max_redirects: max_redirects,
-                          raise_on_error: raise_on_error, quiet: quiet, &block)
+    def self.http_get(**request_opts, &block)
+      return http_request(**request_opts, method: :get, &block)
     end
     class << self
       alias get http_get
