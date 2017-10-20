@@ -682,7 +682,7 @@ Feature: SDN related networking scenarios
     # Check if nodes are reachable from a pod
     Given host subnets are stored in the clipboard
     And evaluation of `IPAddr.new(host_subnet.subnet).succ` is stored in the :nodeA_ip clipboard
-    And evaluation of `IPAddr.new(host_subnet(-1).subnet).succ` is stored in the :nodeB_ip clipboard
+    And evaluation of `IPAddr.new(host_subnet(-2).subnet).succ` is stored in the :nodeB_ip clipboard
 
     And I have a project
     And I have a pod-for-ping in the project
