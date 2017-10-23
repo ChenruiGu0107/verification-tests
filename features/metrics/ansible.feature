@@ -107,3 +107,17 @@ Feature: ansible install related feature
     Then status becomes :running of exactly 2 pods labeled:
       | metrics-infra=hawkular-metrics |
       | name=hawkular-metrics          |
+
+  # @author pruan@redhat.com
+  # @case_id OCP-10214
+  @admin
+  @destructive
+  Scenario: deploy metrics with dynamic volume
+    Given the master version >= "3.5"
+    Given I create a project with non-leading digit name
+    And metrics service is installed in the "openshift-infra" project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-10214/inventory |
+    Given I I login via web console
+    And I open metrics console in the browser
+    Given the metrics service status in the metrics web console is "STARTED"
+

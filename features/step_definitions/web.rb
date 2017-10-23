@@ -214,3 +214,8 @@ When /^I perform the :(.*?) web( console)? action in "([^"]+)" window with:$/ do
     raise "can not switch to the specific window"
   end
 end
+
+Given /^I open metrics console in the browser$/ do
+  step %Q/I store the metrics url to the clipboard/
+  step %Q/I access the "<%= cb.metrics_url %>" url in the web browser/
+end

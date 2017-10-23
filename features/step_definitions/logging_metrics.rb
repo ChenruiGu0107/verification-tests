@@ -260,6 +260,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     raise ("Metrics must be installed into the 'openshift-infra")
   end
 
+  step %Q/I save installation inventory from master to the clipboard/
   logger.info("Performing operation '#{op[0..-3]}' to #{target_proj}...")
   if op == 'installed'
     step %Q/I register clean-up steps:/, table(%{
@@ -278,7 +279,6 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   cb.api_port = '8443' if cb.api_port.nil?
 
   step %Q/I download a file from "<%= "#{ansible_opts[:inventory]}" %>" into the "tmp" dir/
-
   if op == 'installed'
     new_path = "tmp/install_inventory"
   else
@@ -289,6 +289,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   # we may not have the minor version of the image loaded. so just use the
   # major version label
   cb.master_version = cb.master_version[0..2]
+  # get the qe-inventory-file early
   loaded = ERB.new(File.read(@result[:abs_path])).result binding
   File.write(new_path, loaded)
   # create a tmp directory which will store the following files to be 'oc rsync to the pod created
@@ -299,15 +300,16 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
   FileUtils.copy(pem_file_path, "tmp/")
   @result = admin.cli_exec(:oadm_config_view, flatten: true, minify: true)
   File.write(File.expand_path("tmp/admin.kubeconfig"), @result[:response])
-
+  # save the service url for later use
+  if svc_type == 'metrics'
+    service_url = "#{cb.metrics_route_prefix}.#{cb.subdomain}"
+  else
+    service_url = "#{cb.logging_route_prefix}.#{cb.subdomain}"
+  end
   if ansible_opts[:copy_custom_cert]
     key_name = "cucushift_custom.key"
     cert_name = "cucushift_custom.crt"
-    if svc_type == 'metrics'
-      hostname = "#{cb.metrics_route_prefix}.#{cb.subdomain}"
-    else
-      hostname = "#{cb.logging_route_prefix}.#{cb.subdomain}"
-    end
+
     # base_path corresponds to the inventory, for example https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12186/inventory
     base_path = "/tmp/#{File.basename(host.workdir)}/"
     cb.key_path = "#{base_path}/#{key_name}"
@@ -322,9 +324,9 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
     # prior to the ansible install operation
     if ansible_opts[:copy_custom_cert]
       step %Q/the custom certs are generated with:/, table(%{
-        | key       | #{key_name}  |
-        | cert      | #{cert_name} |
-        | hostnames | #{hostnames} |
+        | key       | #{key_name}    |
+        | cert      | #{cert_name}   |
+        | hostnames | #{service_url} |
         })
 
       @result = host.exec_admin("cp -f /etc/origin/master/ca.crt #{host.workdir}")
@@ -675,7 +677,7 @@ Given /^I save the rpm names? matching #{RE} from puddle to the#{OPT_SYM} clipbo
   ensure_admin_tagged
 
   cb_name ||= :rpm_names
-  step %Q/I save installation inventory from master to the clipboard/
+  step %Q/I save installation inventory from master to the clipboard/ unless cb.installation_inventory
   rpm_repos_key = cb[:installation_inventory].keys.include?('openshift_playbook_rpm_repos') ? 'openshift_playbook_rpm_repos' : 'openshift_additional_repos'
   puddle_url = eval(cb[:installation_inventory][rpm_repos_key])[0][:baseurl]
   cb.puddle_url = puddle_url
@@ -729,3 +731,29 @@ Given /^(logging|metrics) service is installed in the system using:$/ do | svc, 
   end
 end
 
+### helper methods essential for logging and metrics
+#
+Given /^I store the metrics url to the#{OPT_SYM} clipboard$/ do |cb_name|
+  ensure_admin_tagged
+  cb_name ||= "metrics_url"
+  if !env.opts[:admin_cli]
+    # for Online/STG/INT, we just get the URL from env
+    cb[cb_name] = env.metrics_console_url
+  else
+    unless cb[cb_name]
+      unless cb.subdomain
+        cb.subdomain = env.router_default_subdomain(user: user, project: project)
+      end
+      cb[cb_name] = 'https://metrics.' + cb[:subdomain] + '/hawkular/metrics'
+    end
+    # if cb.metrics does not have the proper form, we need to set it.
+    cb[cb_name] = 'https://metrics.' + cb[cb_name] + '/hawkular/metrics' unless cb[cb_name].start_with? "https://"
+  end
+end
+
+# we assume user is authenticated already
+Given /^the metrics service status in the metrics web console is #{QUOTED}$/ do |status|
+  metrics_service_status =  browser.page_html.match(/Metrics Service :(\w+)/)[1]
+  matched = metrics_service_status == status
+  raise "Expected #{status}, got #{metrics_service_status}" unless matched
+end
