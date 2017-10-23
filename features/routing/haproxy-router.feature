@@ -3704,3 +3704,226 @@ Feature: Testing haproxy router
       | 8080 |
     And the expression should be true> cb.first_access != @result[:response]
     """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-15872
+  Scenario: can set cookie name for unsecure routes by annotation
+    #create route and service which has two endpoints
+    Given the master version >= "3.7"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    When I run the :annotate client command with:
+      | resource     | route                                             |
+      | resourcename | service-unsecure                                  |
+      | overwrite    | true                                              |
+      | keyval       | router.openshift.io/cookie_name=unsecure-cookie_1 |
+    Then the step should succeed
+
+    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].any? {|c| c.name == "unsecure-cookie_1"}
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+
+    #access the route with cookies
+    Given HTTP cookies from result are used in further request
+    Given I run the steps 6 times:
+    """
+    When I wait for a web server to become available via the "service-unsecure" route
+    Then the expression should be true> cb.first_access == @result[:response]
+    """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-15873
+  Scenario: can set cookie name for edge routes by annotation
+    #create route and service which has two endpoints
+    Given the master version >= "3.7"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/edge/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name    | edge-route       |
+      | service | service-unsecure |
+    Then the step should succeed
+
+    When I run the :annotate client command with:
+      | resource     | route                                         |
+      | resourcename | edge-route                                    |
+      | overwrite    | true                                          |
+      | keyval       | router.openshift.io/cookie_name=2-edge_cookie |
+    Then the step should succeed
+
+    When I use the "service-unsecure" service
+    And I wait up to 20 seconds for a secure web server to become available via the "edge-route" route
+    Then the step should succeed
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].any? {|c| c.name == "2-edge_cookie"}
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+
+    #access the route with cookies
+    Given HTTP cookies from result are used in further request
+    Given I run the steps 6 times:
+    """
+    When I wait for a secure web server to become available via the "edge-route" route
+    And the expression should be true> cb.first_access == @result[:response]
+    """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-15874
+  Scenario: can set cookie name for reencrypt routes by annotation
+    #create route and service which has two endpoints
+    Given the master version >= "3.7"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/service_secure.json |
+    Then the step should succeed
+    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
+    When I run the :create_route_reencrypt client command with:
+      | name       | reen-route              |
+      | service    | service-secure          |
+      | destcacert | route_reencrypt_dest.ca |
+    Then the step should succeed
+
+    When I run the :annotate client command with:
+      | resource     | route                                         |
+      | resourcename | reen-route                                    |
+      | overwrite    | true                                          |
+      | keyval       | router.openshift.io/cookie_name=_reen-cookie3 |
+    Then the step should succeed
+
+    When I use the "service-unsecure" service
+    And I wait up to 20 seconds for a secure web server to become available via the "reen-route" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].any? {|c| c.name == "_reen-cookie3"}
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+
+    #access the route with cookies
+    Given HTTP cookies from result are used in further request
+    Given I run the steps 6 times:
+    """
+    When I wait for a secure web server to become available via the "reen-route" route
+    Then the expression should be true> cb.first_access == @result[:response]
+    """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-15875
+  @admin
+  @destructive
+  Scenario: can set default cookie name for haproxy router and it can be overridden by route annotation
+    Given the master version >= "3.7"
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_COOKIE_NAME=default-cookie |
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker-2.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].any? {|c| c.name == "default-cookie"}
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+
+    #access the route with cookies
+    Given HTTP cookies from result are used in further request
+    Given I run the steps 6 times:
+    """
+    When I wait for a web server to become available via the "service-unsecure" route
+    And the expression should be true> cb.first_access == @result[:response]
+    """
+
+    When I run the :annotate client command with:
+      | resource     | route                                               |
+      | resourcename | service-unsecure                                    |
+      | overwrite    | true                                                |
+      | keyval       | router.openshift.io/cookie_name=overridden-cookie_4 |
+    Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I wait for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].any? {|c| c.name == "overridden-cookie_4"}
+    """
+    And evaluation of `@result[:response]` is stored in the :first_access clipboard
+
+    #access the route with cookies
+    Given HTTP cookies from result are used in further request
+    Given I run the steps 6 times:
+    """
+    When I wait for a web server to become available via the "service-unsecure" route
+    And the expression should be true> cb.first_access == @result[:response]
+    """
+
+  # @author hongli@redhat.com
+  # @case_id OCP-15876
+  @admin
+  @destructive
+  Scenario: invalid cookie name for haproxy router and routes will be ignored
+    Given the master version >= "3.7"
+    Given admin ensures new router pod becomes ready after following env added:
+      | ROUTER_COOKIE_NAME=(<invalid-default-cookie#) |
+
+    Given I switch to the first user
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+
+    When I wait for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].none? {|c| c.name.include? "invalid-default-cookie"}
+    And the expression should be true> @result[:cookies].all? {|c| c.name.match(/[0-9a-z]{32}/)}
+
+    When I run the :annotate client command with:
+      | resource     | route                                                  |
+      | resourcename | service-unsecure                                       |
+      | overwrite    | true                                                   |
+      | keyval       | router.openshift.io/cookie_name=*invalid-route-cookie# |
+    Then the step should succeed
+
+    Given 10 seconds have passed
+    When I wait for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].none? {|c| c.name.include? "invalid-route-cookie"}
+    And the expression should be true> @result[:cookies].all? {|c| c.name.match(/[0-9a-z]{32}/)}
