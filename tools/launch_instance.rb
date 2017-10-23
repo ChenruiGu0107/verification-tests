@@ -252,8 +252,9 @@ module CucuShift
     #   prefix such that adding "#{prefix}#{num}" to the array will not dup
     def next_index_for_prefix(prefix:, name_list:)
       return 1 unless name_list
+      pattern = /^#{Regexp.escape(prefix.tr(?-, ?_)).gsub(?_,"[-_]")}\d+$/
       max_index = name_list.select { |name|
-        name =~ /^#{Regexp.escape prefix}\d+$/
+        name =~ pattern
       }.map { |n|
         Integer(n[prefix.size..-1])
       }.max
@@ -473,7 +474,7 @@ module CucuShift
               host_group.merge({num: req[:num]}),
               common_launch_opts,
               user_data_vars: erb_binding,
-              existing_hosts: existing_hosts
+              existing_hosts: existing_hosts + hosts
             )
           else
             raise "no host group #{req[:ref].inspect} defined"
