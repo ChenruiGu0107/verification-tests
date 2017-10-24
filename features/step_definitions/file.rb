@@ -102,6 +102,10 @@ Given(/^I backup the file "(.+)"$/) do |file|
   else
     FileUtils.cp(file,"#{filename}.bak")
   end
+
+  teardown_add {
+    File.delete("#{filename}.bak") if File.exist?("#{filename}.bak")
+  }
 end
 
 # author gusun@redhat.com
