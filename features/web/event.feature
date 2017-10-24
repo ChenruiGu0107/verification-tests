@@ -178,8 +178,12 @@ Feature: check event feature on web console
       | reason | Scheduled |
     Then the step should succeed
     When I perform the :check_event_message web console action with:
-      | reason | Successful create |
+      | reason | Successful |
     Then the step should succeed
+    When I perform the :check_event_message web console action with:
+      | reason | reate |
+    Then the step should succeed
+
     When I run the :clear_keyword_filters web console action
     Then the step should succeed
 
