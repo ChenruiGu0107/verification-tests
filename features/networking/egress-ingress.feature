@@ -869,7 +869,7 @@ Feature: Egress-ingress related networking scenarios
     And evaluation of `project.name` is stored in the :proj1 clipboard
 
     # Check egress rule added in openflow
-    Given I select a random node's host
+    Given I use the "<%= pod.node_name(user: user) %>" node
     When I run the ovs commands on the host:
       | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \| grep tcp \| grep tp_dst=53 |
     And the output should contain 1 times:
@@ -878,6 +878,7 @@ Feature: Egress-ingress related networking scenarios
       | ovs-ofctl dump-flows br0 -O openflow13 2>/dev/null \| grep udp \| grep tp_dst=53 |
     And the output should contain 1 times:
       | nw_dst=<%= cb.hostip %> |
+
     # Create egress policy to allow www.baidu.com
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egress-ingress/dns-egresspolicy1.json"
     And I replace lines in "dns-egresspolicy1.json":
