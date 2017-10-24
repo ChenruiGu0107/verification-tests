@@ -181,9 +181,8 @@ Feature: SDN related networking scenarios
       | systemctl status atomic-openshift-node |
     Then the output should contain "active (running)"
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep node.go |
+      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep "Using userspace Proxier" |
     Then the step should succeed
-    And the output should contain "Using userspace Proxier"
 
   # @author bmeng@redhat.com
   # @case_id OCP-11286
