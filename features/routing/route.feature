@@ -1330,7 +1330,6 @@ Feature: Testing route
   Scenario: The router can do a case-insensitive match of a hostname for unsecure route
     Given the master version >= "3.6"
     Given I have a project
-    And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
     Then the step should succeed
@@ -1345,18 +1344,11 @@ Feature: Testing route
     When I run the :expose client command with:
       | resource      | service                                   |
       | resource_name | service-unsecure                          |
-      | hostname      | unsecure-for-test.example.com             |
     Then the step should succeed
-    Given I have a pod-for-ping in the project
     #access the route using capitals words
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I execute on the pod:
-      | curl |
-      | --resolve |
-      | UNSECURE-FOR-TEST.EXAMPLE.COM:80:<%= cb.router_ip[0] %> |
-      | http://UNSECURE-FOR-TEST.EXAMPLE.COM/ |
-    Then the step should succeed
+    When I open web server via the "http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user).upcase %>" url
     And the output should contain "Hello-OpenShift-1 http-8080"
     """
 
@@ -1375,22 +1367,14 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    Given I have a pod-for-ping in the project
     #Create the edge route
     When I run the :create_route_edge client command with:
       | name           | route-edge                                |
-      | hostname       | edge-for-test.example.com                 |
       | service        | service-unsecure                          |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I execute on the pod:
-      | curl |
-      | --resolve |
-      | EDGE-for-test.example.com:443:<%= cb.router_ip[0] %> |
-      | https://EDGE-for-test.example.com/ |
-      | -k |
-    Then the step should succeed
+    When I open web server via the "https://<%= route("route-edge", service("service-unsecure")).dns(by: user).upcase %>" url
     And the output should contain "Hello-OpenShift-1 http-8080"
     """
     # for no-sni
@@ -1400,7 +1384,7 @@ Feature: Testing route
       | curl |
       | -s   |
       | -H   |
-      | Host:EDGE-for-test.example.com |
+      | Host:<%= route("route-edge", service("service-unsecure")).dns(by: user).upcase %> |
       | https://<%= cb.router_ip[0] %> |
       | -k |
     Then the step should succeed
@@ -1426,18 +1410,11 @@ Feature: Testing route
     #Create passthrough route
     When I run the :create_route_passthrough client command with:
       | name           | route-pass                                |
-      | hostname       | pass-for-test.example.com                 |
       | service        | service-secure                            |
     Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I execute on the pod:
-      | curl |
-      | --resolve |
-      | pass-FOR-TEST.example.com:443:<%= cb.router_ip[0] %> |
-      | https://pass-FOR-TEST.example.com/ |
-      | -k |
-    Then the step should succeed
+    When I open web server via the "https://<%= route("route-pass", service("service-secure")).dns(by: user).upcase %>" url    
     And the output should contain "Hello-OpenShift-1 https-8443"
     """
 
@@ -1448,34 +1425,15 @@ Feature: Testing route
     Given I have a project
     And I store default router IPs in the :router_ip clipboard
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/wildcard_route/caddy-docker.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/reencrypt-without-all-cert.yaml |
     Then the step should succeed
-    And the pod named "caddy-docker" becomes ready
-
-    #Create the secure service
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
-    Then the step should succeed
+    And the pod named "serving-cert" becomes ready
     Given I have a pod-for-ping in the project
 
-    #Create reencrypt route
-    Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/route_reencrypt_dest.ca"
-    When I run the :create_route_reencrypt client command with:
-      | name           | route-reen                                |
-      | hostname       | reen-for-test.example.com                 |
-      | service        | service-secure                            |
-      | destcacert     | route_reencrypt_dest.ca                   |
-    Then the step should succeed
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I execute on the pod:
-      | curl |
-      | --resolve |
-      | reen-for-test.EXAMPLE.com:443:<%= cb.router_ip[0] %> |
-      | https://reen-for-test.EXAMPLE.com/ |
-      | -k |
-    Then the step should succeed
-    And the output should contain "Hello-OpenShift-1 https-8443"
+    When I open web server via the "https://<%= route("serving-cert", service("serving-cert")).dns(by: user).upcase %>" url
+    And the output should contain "Welcome to nginx"
     """
     #for no-sni
     And I wait up to 20 seconds for the steps to pass:
@@ -1484,11 +1442,11 @@ Feature: Testing route
       | curl |
       | -s   |
       | -H   |
-      | Host:reen-for-test.EXAMPLE.com |
+      | Host:<%= route("serving-cert", service("serving-cert")).dns(by: user).upcase %> |
       | https://<%= cb.router_ip[0] %> |
       | -k |
     Then the step should succeed
-    And the output should contain "Hello-OpenShift-1 https-8443"
+    And the output should contain "Welcome to nginx"
     """
 
   # @author yadu@redhat.com
