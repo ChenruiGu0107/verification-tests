@@ -1023,4 +1023,20 @@ Feature: creating 'apps' with CLI
     Then the step should fail
     #And the output should match:
     #  | error:.*yaml:.*line.*[0-9]+:.*invalid character.* |
+   
+  # @author geliu@redhat.com
+  # @case_id OCP-16295
+  Scenario: 3.7 User can expose the environment variables to pods
+    Given the master version >= "3.7"
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/tc467937/pod467937-new.yaml |
+    Then the step should succeed
+    Given the pod named "kubernetes-metadata-volume-example" becomes ready
+    When I execute on the pod:
+      | ls | -laR | /etc |
+    Then the step should succeed
+    And the output should contain:
+      | annotations -> |
+      | labels -> |
 
