@@ -1047,8 +1047,8 @@ Feature: build 'apps' with CLI
       | o | yaml |
     Then the output should match "xiuwangs2i-2$"
     And the output should not match "xiuwangs2i$"
-    Given 2 pods become ready with labels:
-      |deployment=frontend-1|
+    Given 1 pods become ready with labels:
+      | deploymentconfig=frontend |
     When I execute on the pod:
       | ls | xiuwangs2i |
     Then the step should fail
@@ -1172,8 +1172,8 @@ Feature: build 'apps' with CLI
     Given the "ruby22-sample-build-1" build completes
     When I get project bc named "ruby22-sample-build" as YAML
     Then the output should contain "xiuwangs2i-2"
-    Given 2 pods become ready with labels:
-      | deployment=frontend-1 |
+    Given 1 pods become ready with labels:
+      | deploymentconfig=frontend |
     When I execute on the pod:
       | ls | -al | xiuwangs2i-2 |
     Then the step should succeed
