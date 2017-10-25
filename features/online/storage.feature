@@ -102,10 +102,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-equal.yaml |
     Then the step should succeed
     And the "claim-equal-limit" PVC becomes :bound
-    Then I run the :delete client command with:
-      | object_type       | pvc               |
-      | object_name_or_id | claim-equal-limit |
-    Then the step should succeed
+    And I ensure "claim-equal-limit" pvc is deleted
 
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-over.yaml  |
@@ -113,7 +110,7 @@ Feature: ONLY ONLINE Storage related scripts in this file
     And the output should contain:
       | Forbidden                                              |
       | maximum storage usage per PersistentVolumeClaim is 1Gi |
-      | limit is 5Gi                                           |
+      | request is 5Gi                                         |
 
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/online/dynamic_persistent_volumes/pvc-less.yaml  |
