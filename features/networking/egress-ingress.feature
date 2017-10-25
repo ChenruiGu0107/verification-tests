@@ -118,13 +118,15 @@ Feature: Egress-ingress related networking scenarios
       | default |
       | policy1 |
     Given I select a random node's host
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "1 min ago" \| grep controller.go |
+      | journalctl -l -u atomic-openshift-node --since "2 min ago" \| grep controller.go |
     Then the step should succeed
     And the output should contain:
       | multiple EgressNetworkPolicies in same network namespace |
       | dropping all traffic                                     |
-
+    """
 
   # @author yadu@redhat.com
   # @case_id OCP-10926
@@ -146,21 +148,21 @@ Feature: Egress-ingress related networking scenarios
       | to      | <%= cb.proj2 %> |
     Then the step should succeed
     Given I select a random node's host
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "30 seconds ago" \| grep controller.go |
+      | journalctl -l -u atomic-openshift-node --since "120 seconds ago" \| grep controller.go |
     Then the step should succeed
     And the output should contain:
       | EgressNetworkPolicy not allowed in shared NetNamespace |
       | <%= cb.proj1 %>                                        |
       | <%= cb.proj2 %>                                        |
       | dropping all traffic                                   |
+    """
     When I use the "<%= cb.proj2 %>" project
-    When I execute on the "hello-pod" pod:
-      | curl           |
-      | --head         |
-      | www.google.com |
+    When I execute on the pod:
+      | curl | --connect-timeout | 5 | --head | www.google.com |
     Then the step should fail
-    And the output should contain "Couldn't resolve host"
 
     When I run the :delete admin command with:
       | object_type       | egressnetworkpolicy |
@@ -187,23 +189,22 @@ Feature: Egress-ingress related networking scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/policy.json |
       | n | <%= cb.proj3 %> |
     Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
     Given I select a random node's host
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "30 seconds ago" \| grep controller.go |
+      | journalctl -l -u atomic-openshift-node --since "120 seconds ago" \| grep controller.go |
     Then the step should succeed
     And the output should contain:
       | EgressNetworkPolicy not allowed in shared NetNamespace |
       | <%= cb.proj3 %>                                        |
       | <%= cb.proj4 %>                                        |
       | dropping all traffic                                   |
+    """  
     When I use the "<%= cb.proj3 %>" project
     When I execute on the pod:
-      | curl           |
-      | --head         |
-      | www.google.com |
-   Then the step should fail
-    And the output should contain "Couldn't resolve host"
-
+      | curl | --connect-timeout | 5 | --head | www.google.com |
+    Then the step should fail
 
   # @author yadu@redhat.com
   # @case_id OCP-11335
@@ -219,13 +220,9 @@ Feature: Egress-ingress related networking scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json |
       | n | <%= cb.proj1 %> |
     Then the step should succeed
-    Given I select a random node's host 
     When I execute on the pod:
-      | curl           |
-      | --head         |
-      | www.google.com |
+      | curl | --connect-timeout | 5 | --head | www.google.com |
     Then the step should fail
-    And the output should contain "Couldn't resolve host"
 
     When I run the :oadm_pod_network_make_projects_global admin command with:
       | project | <%= cb.proj1 %> |
@@ -237,11 +234,15 @@ Feature: Egress-ingress related networking scenarios
       | www.google.com |
     Then the step should succeed
     And the output should contain "HTTP/1.1 200"
+    Given I select a random node's host
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I run commands on the host:
-      | journalctl -l -u atomic-openshift-node --since "30 seconds ago" \| grep controller.go |
+      | journalctl -l -u atomic-openshift-node --since "120 seconds ago" \| grep controller.go |
     Then the step should succeed
     And the output should contain:
       | EgressNetworkPolicy in global network namespace is not allowed (<%= cb.proj1 %>:policy1) |
+    """
     And the project is deleted
     Given I create a new project
     And evaluation of `project.name` is stored in the :proj2 clipboard
@@ -252,11 +253,14 @@ Feature: Egress-ingress related networking scenarios
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/egressnetworkpolicy/limit_policy.json |
       | n | <%= cb.proj2 %> |
     Given I select a random node's host
+    And I wait up to 20 seconds for the steps to pass:
+    """
     When I run commands on the host:
       | journalctl -l -u atomic-openshift-node --since "30 seconds ago" \| grep controller.go |
     Then the step should succeed
     And the output should contain:
       | EgressNetworkPolicy in global network namespace is not allowed (<%= cb.proj2 %>:policy1) |
+    """
     When I use the "<%= cb.proj2 %>" project
     Given I have a pod-for-ping in the project
     And the pod named "hello-pod" becomes ready
@@ -288,11 +292,8 @@ Feature: Egress-ingress related networking scenarios
     Given I select a random node's host 
     When I use the "<%= project.name %>" project
     When I execute on the pod:
-      | curl           |
-      | --head         |
-      | www.google.com |
+      | curl | --connect-timeout | 5 | --head | www.google.com |
     Then the step should fail
-    And the output should contain "Couldn't resolve host"
     When I run the :delete admin command with:
       | object_type       | egressnetworkpolicy |
       | object_name_or_id | policy1             |
@@ -473,11 +474,8 @@ Feature: Egress-ingress related networking scenarios
 
     When I use the "<%= project.name %>" project
     When I execute on the pod:
-      | curl           |
-      | --head         |
-      | www.google.com |
+      | curl | --connect-timeout | 5 | --head | www.google.com |
     Then the step should fail
-    And the output should contain "Couldn't resolve host"
 
   # @author weliang@redhat.com
   # @case_id OCP-13499
