@@ -51,6 +51,8 @@ Feature: negative tests
     When I run the :idle client command with:
       | all | true      |
     Then the step should succeed
+    Given all existing pods die with labels:
+      | name=hello-idle |
     When I run the :idle client command with:
       | all | true      |
     Then the step should fail
