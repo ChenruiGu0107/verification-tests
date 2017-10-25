@@ -1055,7 +1055,7 @@ Feature: jenkins.feature
     #Ensure the pre-existing build is still present after jenkins creation
     Given I get project builds
     Then the output should contain "sample-pipeline-1"
-    And I wait up to 60 seconds for the steps to pass:
+    And I wait up to 600 seconds for the steps to pass:
     """
     Given I get project builds
     Then the output should match:
