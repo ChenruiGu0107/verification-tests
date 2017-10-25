@@ -1,9 +1,13 @@
 --- # new project actions
 create_project_on_homepage:
-  action: click_create_project_on_homepage
+  action: click_create_project
   action: new_project_form
   action: click_create_button
-click_create_project_on_homepage:
+  element:
+    selector:
+      xpath: //span[contains(.,'successfully created')]
+    timeout: 20
+click_create_project:
   element:
     selector:
       xpath: //button/span[text()='Create Project']

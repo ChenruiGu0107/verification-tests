@@ -319,7 +319,7 @@ click_add_env_var_using_configmap_or_secret:
 select_env_var_resource:
   elements:
   - selector:
-      xpath: (//div[@placeholder='Select a resource'])[last()]
+      xpath: (//key-value-editor//div[@placeholder='Select a resource'])[last()]
     op: click
   - selector:
       xpath: //ul//div[span/span[normalize-space(text())='<resource_name>']]
@@ -327,7 +327,7 @@ select_env_var_resource:
 select_env_var_key:
   elements:
   - selector:
-      xpath: (//div[@placeholder='Select key'])[last()]
+      xpath: (//key-value-editor//div[@placeholder='Select key'])[last()]
     op: click
   - selector:
       xpath: //ul//div[span/span[normalize-space(text())='<resource_key>']]

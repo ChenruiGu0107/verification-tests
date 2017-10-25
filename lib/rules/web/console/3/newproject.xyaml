@@ -7,6 +7,9 @@ new_project:
     selector:
       xpath: //div[contains(@class,"catalog-header-left") and contains(.,'Choose from web frameworks')]
     timeout: 60
+create_project_without_filling_any_parameter:
+  action: new_project_navigate
+  action: get_disabled_project_submit_button
 new_project_navigate:
   # url unconditionally directs browser at URL (relative or absolute)
   url: /console/createProject

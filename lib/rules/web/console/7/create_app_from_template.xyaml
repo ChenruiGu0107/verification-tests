@@ -148,3 +148,4 @@ check_error_message_on_create_fromfile:
   element:
     selector:
       text: <error_message>
+    timeout: 10

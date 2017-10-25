@@ -21,13 +21,11 @@ check_make_code_change_instruc_exist:
 check_complete_with_error_info_on_next_page:
   elements:
   - selector:
-      text: Completed, with errors
-  - selector:
-      text: Things you can do
+      xpath: //h1[contains(.,'failed to be created')]
 check_error_alert_message_on_next_page:
   element:
     selector:
-      xpath: //div[span[contains(@class,"pficon-error-circle-o")]]/span[contains(text(),'<message>')]
+      text: !ruby/regexp /.*<message>.*/
 check_template_message_on_next_page:
   elements:
   - selector:

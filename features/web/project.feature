@@ -18,9 +18,7 @@ Feature: projects related features via web
   # @case_id OCP-10623
   Scenario: Create a project with an invalid name on web console
     Given I login via web console
-    When I access the "/console/createProject" path in the web console
-    Then the step should succeed
-    When I run the :get_disabled_project_submit_button web console action
+    When I run the :create_project_without_filling_any_parameter web console action
     Then the step should succeed
     #create the project with a duplicate project name
     Given a 5 characters random string of type :dns is stored into the :proj_name clipboard
