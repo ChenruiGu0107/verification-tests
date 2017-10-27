@@ -15,10 +15,7 @@ Feature: oc set image related tests
     Then the step should succeed
     Given 2 pods become ready with labels:
       | deployment=dctest-1 |
-    When I run the :tag client command with:
-      | source | aosqe/hello-openshift          |
-      | dest   | <%= project.name%>/test:latest |
-    Then the step should succeed
+
     When I run the :label client command with:
       | resource | pods                 |
       | name     | <%= @pods[0].name %> |
@@ -26,20 +23,21 @@ Feature: oc set image related tests
     Then the step should succeed
     When I run the :set_image client command with:
       | resource | pod                                      |
-      | keyval   | dctest-1=<%= project.name %>/test:latest |
+      | keyval   | dctest-1=openshift/python:latest         |
       | l        | test=1234                                |
     Then the step should succeed
     And the output should contain ""<%= @pods[0].name %>" image updated"
+    
     When I run the :describe client command with:
       | resource | pod                  |
       | name     | <%= @pods[0].name %> |
     Then the step should succeed
-    And the output should match " Image:\s+<%= project.name%>/test:latest"
+    And the output should match "Image:.*python"
     When I run the :describe client command with:
       | resource | pod                  |
       | name     | <%= @pods[1].name %> |
     Then the step should succeed
-    And the output should not match " Image:\s+aosqe/hello-openshift"
+    And the output should not match "Image:.*python"
 
   # @author xiaocwan@redhat.com
   # @case_id OCP-10390
