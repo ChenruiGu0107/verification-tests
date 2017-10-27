@@ -34,7 +34,7 @@ Feature: oc set image related tests
       | resource | pod                  |
       | name     | <%= @pods[0].name %> |
     Then the step should succeed
-    And the output should match " Image:\s+aosqe/hello-openshift"
+    And the output should match " Image:\s+<%= project.name%>/test:latest"
     When I run the :describe client command with:
       | resource | pod                  |
       | name     | <%= @pods[1].name %> |
