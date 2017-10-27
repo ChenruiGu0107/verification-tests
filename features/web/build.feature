@@ -112,7 +112,7 @@ Feature: build related feature on web console
   # @case_id OCP-12211
   Scenario: Negative test for modify buildconfig
     Given I have a project
-    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     When I perform the :wait_latest_build_to_status web console action with:
       | project_name  | <%= project.name %>  |
@@ -1104,7 +1104,7 @@ Feature: build related feature on web console
   Scenario Outline: Check build trigger info about webhook on web
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
 
     Given I download a file from "https://raw.githubusercontent.com/openshift/origin/master/pkg/build/webhook/<path><file>"
@@ -1174,7 +1174,7 @@ Feature: build related feature on web console
   # @case_id OCP-10477
   Scenario: Check webhook URL are consistent
     Given I have a project
-    When I process and create "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    When I process and create "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     When I run the :describe client command with:
       | resource | bc/ruby-sample-build |

@@ -323,7 +323,7 @@ Feature: functions about resourcequotas
     Then the step should succeed
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
 
     When I perform the :create_app_from_template_without_label web console action with:
