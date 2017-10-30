@@ -61,7 +61,7 @@ Feature: create app on web console related
     Then the step should succeed
     Given I use the "<%= project.name %>" project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I replace resource "template" named "ruby-helloworld-sample" saving edit to "tempsti.json":
       | Service | Test |
@@ -109,7 +109,7 @@ Feature: create app on web console related
     Then the step should succeed
     Given I use the "<%= project.name %>" project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     When I perform the :create_app_from_template_with_label web console action with:
       | project_name  | <%= project.name %>    |
@@ -222,7 +222,7 @@ Feature: create app on web console related
     Given I use the "<%= project.name %>" project
 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
 
     When I perform the :create_app_from_template_without_label web console action with:
@@ -335,7 +335,7 @@ Feature: create app on web console related
   # @case_id OCP-11233
   Scenario: Create resource from template contains fake api group
     Given I have a project
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
     And I run oc create with "application-template-stibuild.json" replacing paths:
       | ["objects"][0]["apiVersion"] | fake/v1          |
     Then the step should succeed
@@ -598,7 +598,7 @@ Feature: create app on web console related
       | display_name | test                |
       | description  | test                |
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
       | project_name     | <%= project.name %>                                                       |
@@ -820,7 +820,7 @@ Feature: create app on web console related
       | display_name | test                |
       | description  | test                |
     Then the step should succeed
-    When I download a file from "https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json"
+    When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
     Given I backup the file "application-template-stibuild.json"
     And I replace lines in "application-template-stibuild.json":
@@ -890,7 +890,7 @@ Feature: create app on web console related
   Scenario: web console:parameter requirement check works correctly
     Given I have a project
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     When I perform the :create_app_from_template_with_required_field_empty web console action with:
       | project_name  | <%= project.name %>    |

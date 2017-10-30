@@ -78,7 +78,7 @@ Feature: check image streams page
   Scenario: Check ImageStreamTag picker on BC edit page
     Given I have a project
     And I run the :new_app client command with:
-      | app_repo | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | app_repo | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given the "ruby-sample-build-1" build was created
     When I perform the :check_buildconfig_edit_page_loaded_completely web console action with:

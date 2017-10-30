@@ -95,7 +95,7 @@ Feature: web secrets related
       | credential_file | secretfile2 |
     Then the step should succeed
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     When I perform the :click_to_goto_edit_bc_page web console action with:
       | project_name | <%= project.name %> |
@@ -525,7 +525,7 @@ Feature: web secrets related
     Given the master version >= "3.6"
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
 
     When I run the :create client command with:
