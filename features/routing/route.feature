@@ -1755,3 +1755,185 @@ Feature: Testing route
     And the output should contain "host: <%= route("route-reen", service("header-test-secure")).dns(by: user) %>"
     And the output should not contain "proxy: 10.10.10.10"
     """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15976
+  Scenario: The edge route should support HSTS
+    Given the master version >= "3.7"
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name     | myroute          |
+      | service  | service-unsecure |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                                    |
+      | resourcename | myroute                                                  |
+      | keyval       | haproxy.router.openshift.io/hsts_header=max-age=31536000 |
+    Then the step should succeed
+    Given I use the "service-unsecure" service
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I wait for a secure web server to become available via the "myroute" route
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:headers]["strict-transport-security"] == ["max-age=31536000"]
+    """
+    When I run the :annotate client command with:
+      | resource     | route                                                                      |
+      | resourcename | myroute                                                                    |
+      | keyval       | haproxy.router.openshift.io/hsts_header=max-age=31536000;includeSubDomains |
+      | overwrite    | true                                                                       |
+    Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    And I wait for a secure web server to become available via the "myroute" route
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:headers]["strict-transport-security"] == ["max-age=31536000;includeSubDomains"]
+    """
+
+    When I run the :annotate client command with:
+      | resource     | route                                                                         |
+      | resourcename | myroute                                                                       |
+      | keyval       | haproxy.router.openshift.io/hsts_header=max-age=100;includeSubDomains;preload |
+      | overwrite    | true                                                                          |
+    Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    And I wait for a secure web server to become available via the "myroute" route
+    And the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:headers]["strict-transport-security"] == ["max-age=100;includeSubDomains;preload"]
+    """
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-16368
+  Scenario: The reencrypt route should support HSTS
+    Given the master version >= "3.7"
+    And I have a project
+    And I store default router IPs in the :router_ip clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/reencrypt-without-all-cert.yaml |
+    Then the step should succeed
+    And all pods in the project are ready
+    
+    #Add hsts by annotate
+    When I run the :annotate client command with:
+      | resource     | route                                                         |
+      | resourcename | route-reencrypt                                               |
+      | keyval       | haproxy.router.openshift.io/hsts_header=max-age=100;includeSubDomains;preload |
+    Then the step should succeed
+    Given I use the "service-secure" service    
+    And I wait up to 20 seconds for a secure web server to become available via the "route-reencrypt" route    
+    And the expression should be true> @result[:headers]["strict-transport-security"] == ["max-age=100;includeSubDomains;preload"]
+
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-16369
+  Scenario: The unsecure/passthrough route should NOT support HSTS
+    Given the master version >= "3.7"
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I expose the "service-unsecure" service
+    Then the step should succeed
+    # here also added 'router.openshift.io/cookie_name' and check the result in the following curl.  if found the related info that's mean the router had been reload.
+    When I run the :annotate client command with:
+      | resource     | route                                                    |
+      | resourcename | service-unsecure                                         |
+      | keyval       | haproxy.router.openshift.io/hsts_header=max-age=31536000;includeSubDomains;preload |
+      | keyval       | router.openshift.io/cookie_name=unsecure-cookie_1 |
+    Then the step should succeed
+    When I wait up to 20 seconds for a web server to become available via the "service-unsecure" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].any? {|c| c.name == "unsecure-cookie_1"}
+    And the expression should be true> !@result[:headers].include?("strict-transport-security")
+
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/passthrough/service_secure.json |
+    Then the step should succeed
+    # Create passthrough termination route
+    When I run the :create_route_passthrough client command with:
+      | name     | myroute |
+      | service  | service-secure     |
+    Then the step should succeed
+    When I run the :annotate client command with:
+      | resource     | route                                                    |
+      | resourcename | myroute                                                  |
+      | keyval       | haproxy.router.openshift.io/hsts_header=max-age=31536000 |
+    Then the step should succeed
+    When I wait up to 20 seconds for a secure web server to become available via the "myroute" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> !@result[:headers].include?("strict-transport-security")
+
+  # @author zzhao@redhat.com
+  # @case_id OCP-15977
+  Scenario: Negative testing for route HSTS policy
+    Given the master version >= "3.7"
+    And I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
+    Then the step should succeed
+    And all pods in the project are ready
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
+    Then the step should succeed
+    When I run the :create_route_edge client command with:
+      | name     | myroute          |
+      | service  | service-unsecure |
+    Then the step should succeed
+    #using a invalid value for 'max-age'
+    When I run the :annotate client command with:
+      | resource     | route                                                    |
+      | resourcename | myroute                                                  |
+      | keyval       | haproxy.router.openshift.io/hsts_header=max-age=-20      |
+      | keyval       | router.openshift.io/cookie_name=edge-with-invalid-hsts   |
+    Then the step should succeed
+    Given I use the "service-unsecure" service
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I wait for a secure web server to become available via the "myroute" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].any? {|c| c.name == "edge-with-invalid-hsts"}
+    And the expression should be true> !@result[:headers].include?("strict-transport-security")
+    """
+    #using a invalid NOT 'includeSubDomains'
+    When I run the :annotate client command with:
+      | resource     | route                                                                      |
+      | resourcename | myroute                                                                    |
+      | keyval       | haproxy.router.openshift.io/hsts_header=max-age=20;invalid                 |
+      | keyval       | router.openshift.io/cookie_name=edge-with-invalid-hsts-subdomain           |
+      | overwrite    | true                                                                       |
+    Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I wait for a secure web server to become available via the "myroute" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].any? {|c| c.name == "edge-with-invalid-hsts-subdomain"}
+    And the expression should be true> !@result[:headers].include?("strict-transport-security")
+    """
+
+    #using a invalid NOT 'preload'
+    When I run the :annotate client command with:
+      | resource     | route                                                                          |
+      | resourcename | myroute                                                                        |
+      | keyval       | haproxy.router.openshift.io/hsts_header=max-age=20;includeSubDomains;invalid   |
+      | keyval       | router.openshift.io/cookie_name=edge-with-invalid-hsts-preload                 | 
+      | overwrite    | true                                                                           |
+    Then the step should succeed
+    And I wait up to 20 seconds for the steps to pass:
+    """
+    When I wait for a secure web server to become available via the "myroute" route
+    Then the output should contain "Hello-OpenShift"
+    And the expression should be true> @result[:cookies].any? {|c| c.name == "edge-with-invalid-hsts-preload"}
+    And the expression should be true> !@result[:headers].include?("strict-transport-security")
+    """
