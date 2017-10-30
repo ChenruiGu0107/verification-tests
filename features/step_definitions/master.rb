@@ -85,6 +85,13 @@ Given /^I use the first master host$/ do
   @host = env.master_hosts.first
 end
 
+Given /^I run commands on all masters:$/ do |table|
+  ensure_admin_tagged
+  @result = CucuShift::ResultHash.aggregate_results env.master_hosts.map { |host|
+    host.exec_admin(table.raw.flatten)
+  }
+end
+
 Given /^the master is operational$/ do
   ensure_admin_tagged
   success = wait_for(60) {
@@ -101,3 +108,4 @@ Given /^the etcd version is stored in the#{OPT_SYM} clipboard$/ do |cb_name|
   raise "Can not retrieve the etcd version" if etcd_version.nil?
   cb[cb_name] = etcd_version
 end
+
