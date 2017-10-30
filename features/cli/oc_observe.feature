@@ -7,7 +7,7 @@ Feature: oc observe related tests
   Scenario: Negative tests of oc observe
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/cli/oc_observe_scripts/known_resources.sh"
     Then the step should succeed
@@ -61,7 +61,7 @@ Feature: oc observe related tests
   Scenario: Use oc observe to watch resources with misc flags
     Given I have a project
     When I run the :new_app client command with:
-      | file | https://raw.githubusercontent.com/openshift/origin/master/examples/sample-app/application-template-stibuild.json |
+      | file | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
     Given I wait for the "frontend" dc to appear
     Given I wait for the "database" dc to appear
