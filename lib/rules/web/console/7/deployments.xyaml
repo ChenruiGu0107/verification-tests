@@ -695,7 +695,7 @@ check_no_cpu_req_warning:
 check_no_dc_to_show:
   element:
     selector:
-      xpath: //em[text()="No deployment configurations to show"]
+      xpath: //h2[text()="No deployments."]
 check_label:
   element:
     selector:
