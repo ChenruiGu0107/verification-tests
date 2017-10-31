@@ -159,6 +159,9 @@ Feature: SDN related networking scenarios
   @admin
   @destructive
   Scenario: kubelet proxy could change to userspace mode
+    Given the env is using one of the listed network plugins:
+      | subnet      |
+      | multitenant |
     Given I select a random node's host
     And the node network is verified
     And the node service is verified
