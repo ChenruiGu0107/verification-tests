@@ -174,3 +174,105 @@ Feature: Check overview page
 
     When I run the :check_no_deployments_or_pods web console action
     Then the step should succeed
+
+  # @author hasha@redhat.com
+  # @case_id OCP-13641
+  Scenario: Check app resources on overview page
+    Given the master version >= "3.6"
+    Given I have a project
+    When I run the :new_app client command with:
+      | image_stream | openshift/ruby:latest                    |
+      | app_repo     | https://github.com/openshift/ruby-ex.git |
+    Then the step should succeed
+    Given a pod becomes ready with labels:
+      | app=ruby-ex |
+    When I expose the "ruby-ex" service
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :check_app_heading_on_overview web console action with:
+      | app_name | ruby-ex |
+    Then the step should succeed
+    When I perform the :check_application_block_info_on_overview web console action with:
+      | resource_name        | ruby-ex                                      |
+      | resource_type        | deployment                                   |
+      | project_name         | <%= project.name %>                          |
+      | build_num            | 1                                            |
+      | build_status         | complete                                     |
+      | route_url            | http://<%= route("ruby-ex").dns(by: user) %> |
+      | route_port_info      | 8080-tcp                                     |
+      | service_port_mapping | 8080/TCP (8080-tcp) 8080                     |
+    Then the step should succeed
+    When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
+      | project_name  | <%= project.name %> |
+      | resource_name | ruby-ex             |
+      | viewlog_type  | rc                  |
+      | log_name      | ruby-ex-1           |
+    Then the step should succeed
+
+  # @author hasha@redhat.com
+  # @case_id OCP-11684 
+  Scenario: Check ReplicaSet/StatefulSet/k8s deployment on overview page 
+    Given the master version >= "3.6"
+    Given I have a project
+    # create ReplicaSet
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536601/replicaset.yaml" replacing paths:
+       | ["spec"]["replicas"] | 1 |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | app=guestbook |
+    Then evaluation of `pod.name` is stored in the :replica_pod clipboard
+    When I perform the :goto_overview_page web console action with:
+      | project_name | <%= project.name %> |
+    Then the step should succeed
+    When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
+      | project_name  | <%= project.name %> |
+      | edityaml_type | ReplicaSet          |
+      | resource_name | frontend            |  
+      | yaml_name     | frontend            |
+      | group         | extensions          |
+      | viewlog_type  | pods                |
+      | log_name      | <%= cb.replica_pod%>| 
+    Then the step should succeed
+    When I run the :scale client command with:
+      | resource | replicaset |
+      | name     | frontend   |
+      | replicas | 0          |
+    Then the step should succeed
+
+    # create StatefulSet
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/statefulset/statefulset-hello.yaml | 
+      | n | <%= project.name %>                                                                                   |
+    Then the step should succeed
+    And a pod becomes ready with labels:
+      | app=hello |
+    Then evaluation of `pod.name` is stored in the :hello_pod clipboard
+    When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
+      | project_name  | <%= project.name %> |
+      | edityaml_type | StatefulSet         |
+      | resource_name | hello               |
+      | yaml_name     | hello               |
+      | group         | apps                |
+      | viewlog_type  | pods                |
+      | log_name      | <%= cb.hello_pod%>  |
+    Then the step should succeed
+
+    # create k8s deployment 
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/tc536600/hello-deployment-1.yaml" replacing paths:
+       | ["spec"]["replicas"] | 1 |
+    Then the step should succeed
+
+    And a pod becomes ready with labels:
+      | app=hello-openshift |
+    Then evaluation of `pod.name` is stored in the :openshift_pod clipboard
+    When I perform the :operate_in_kebab_drop_down_list_on_overview web console action with:
+      | project_name  | <%= project.name %>   |
+      | edityaml_type | Deployment            |
+      | resource_name | hello-openshift       |
+      | yaml_name     | hello-openshift       |
+      | group         | apps                  |
+      | viewlog_type  | pods                  |
+      | log_name      | <%= cb.openshift_pod%>|
+    Then the step should succeed
+

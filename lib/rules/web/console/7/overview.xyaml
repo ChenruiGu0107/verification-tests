@@ -295,6 +295,8 @@ operate_in_kebab_drop_down_list_on_overview:
     - manually_build_in_kebab_on_overview
     - click_kebab_drop_down_list_on_overview
     - manually_deploy_in_kebab_on_overview
+    - click_kebab_drop_down_list_on_overview
+    - edit_yaml_in_kebab_on_overview
 click_kebab_drop_down_list_on_overview:
   elements:
   - selector:
@@ -326,6 +328,16 @@ click_build_on_overview_page:
     op: click
   - selector:
       xpath: //span[contains(text(),'successfully queued')]
+edit_yaml_in_kebab_on_overview:
+  action:
+    if_element:
+      selector:
+        xpath: .//ul//a[text()='Edit YAML']
+    ref: check_edit_yaml_link
+check_edit_yaml_link:
+  element:
+    selector:
+      xpath: .//ul//a[@href="project/<project_name>/edit/yaml?kind=<edityaml_type>&name=<yaml_name>&group=<group>&returnURL="]
 check_edit_link_in_kebab_on_overview:
   action:
     if_element: 
