@@ -639,9 +639,7 @@ Feature: change the policy of user/service account
     When I run the :describe client command with:
       | resource | storageclass           |
       | name     | sc-<%= project.name %> |
-    Then the step should fail
-    And the output should match:
-      | Error.*storageclasses.* at the cluster scope |
+    Then the step should succeed 
 
     When I run the :delete client command with:
       | object_type       | storageclass           |
