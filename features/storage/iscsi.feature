@@ -195,3 +195,39 @@ Feature: ISCSI volume plugin testing
     Then the step should succeed
     And the output should contain:
       | Running |
+
+  # @author piqin@redhat.com
+  # @case_id OCP-13100
+  @admin
+  @destructive
+  Scenario: Multipath support for iscsi volume plugin
+    Given I have a iSCSI setup in the environment
+    Given I create a second iSCSI path
+    And I have a project
+
+    Given I switch to cluster admin pseudo user
+    And I use the "<%= project.name %>" project
+
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/pod-direct.json" replacing paths:
+      | ["metadata"]["name"]                            | iscsi-<%= project.name %>                                |
+      | ["spec"]["volumes"][0]["iscsi"]["targetPortal"] | <%= cb.iscsi_ip_2 %>:3260                                |
+      | ["spec"]["volumes"][0]["iscsi"]["portals"]      | {"<%= cb.iscsi_ip_2%>:3260", "<%= cb.iscsi_ip%>:3260"}   |
+    Then the step should succeed
+    And the pod named "iscsi-<%= project.name %>" becomes ready
+    When I execute on the pod:
+      | cp | /hello | /mnt/iscsi|
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/iscsi/hello |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
+
+    When I disable the second iSCSI path
+    Then the step should succeed
+    When I execute on the pod:
+      | /mnt/iscsi/hello |
+    Then the step should succeed
+    And the output should contain "Hello OpenShift Storage"
+    When I execute on the pod:
+      | touch | /mnt/iscsi/testfile |
+    Then the step should succeed

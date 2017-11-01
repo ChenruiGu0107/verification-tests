@@ -514,6 +514,33 @@ Given /^I have a iSCSI setup in the environment$/ do
   end
 end
 
+# Using after step: I have a iSCSI setup in the environment
+Given /^I create a second iSCSI path$/ do
+  ensure_admin_tagged
+
+  _project = project("default", switch: false)
+  step %Q{I download a file from "https://raw.githubusercontent.com/openshift-qe/docker-iscsi/master/service.json"}
+  service_content = JSON.load(@result[:response])
+  path = @result[:abs_path].rpartition(".")[0] + ".yaml"
+  service_content["metadata"]["name"] = "iscsi-target-2"
+  File.write(path, service_content.to_yaml)
+  @result = admin.cli_exec(:create, f: path)
+  raise "could not create iSCSI service" unless @result[:success]
+  _service_2 = service("iscsi-target-2", _project)
+  cb.iscsi_ip_2 = _service_2.ip(user: admin)
+  teardown_add {
+    _service_2.ensure_deleted(user: admin)
+  }
+end
+
+Given /^I disable the second iSCSI path$/ do
+  ensure_destructive_tagged
+
+  _project = project("default", switch: false)
+  _service_2 = service('iscsi-target-2', _project)
+  _service_2.ensure_deleted(user: admin)
+end
+
 Given /^default router is disabled and replaced by a duplicate$/ do
   ensure_destructive_tagged
   orig_project = project(0) rescue nil
