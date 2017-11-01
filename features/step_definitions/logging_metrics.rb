@@ -55,17 +55,17 @@ end
 # helper step that does the following:
 # 1. figure out project and route information
 Given /^I login to kibana logging web console$/ do
-  step %Q/I save the logging project name to the :logging clipboard/
-  step %Q/admin save the hostname of route "logging-kibana" in project "<%= cb['logging'] %>" to the :logging_route clipboard/
+  #step %Q/I store the logging url to the :logging_route clipboard/
+  cb.logging_console_url = env.logging_console_url
   step %Q/I have a browser with:/, table(%{
-    | rules    | lib/rules/web/images/logging/   |
-    | rules    | lib/rules/web/console/base/     |
-    | base_url | https://<%= cb.logging_route %> |
+    | rules    | lib/rules/web/images/logging/ |
+    | rules    | lib/rules/web/console/base/   |
+    | base_url | <%= cb.logging_console_url %> |
     })
   step %Q/I perform the :kibana_login web action with:/, table(%{
-    | username   | <%= user.name %>                |
-    | password   | <%= user.password %>            |
-    | kibana_url | https://<%= cb.logging_route %> |
+    | username   | <%= user.name %>              |
+    | password   | <%= user.password %>          |
+    | kibana_url | <%= cb.logging_console_url %> |
     })
 end
 
@@ -83,19 +83,7 @@ end
 # NOTE: for GET operation, the data retrieved are stored in cb.metrics_data which is an array
 # NOTE: if we agree to use a fixed name for the first part of the metrics URL, then we don't need admin access privilege to run this step.
 When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table |
-  if !env.opts[:admin_cli]
-    # for Online/STG/INT, we just get the URL from env
-    cb['metrics'] = env.metrics_console_url
-  else
-    unless cb[:metrics]
-      unless cb.subdomain
-        cb.subdomain = env.router_default_subdomain(user: user, project: project)
-      end
-      cb[:metrics] = 'https://metrics.' + cb[:subdomain] + '/hawkular'
-    end
-    # if cb.metrics does not have the proper form, we need to set it.
-    cb[:metrics] = 'https://metrics.' + cb.metrics + '/hawkular' unless cb.metrics.start_with? "https://"
-  end
+  cb[:metrics] = env.metrics_console_url(user: user, project: project)
   opts = opts_array_to_hash(table.raw)
   raise "required parameter 'path' is missing" unless opts[:path]
 
@@ -732,24 +720,6 @@ Given /^(logging|metrics) service is installed in the system using:$/ do | svc, 
 end
 
 ### helper methods essential for logging and metrics
-#
-Given /^I store the metrics url to the#{OPT_SYM} clipboard$/ do |cb_name|
-  ensure_admin_tagged
-  cb_name ||= "metrics_url"
-  if !env.opts[:admin_cli]
-    # for Online/STG/INT, we just get the URL from env
-    cb[cb_name] = env.metrics_console_url
-  else
-    unless cb[cb_name]
-      unless cb.subdomain
-        cb.subdomain = env.router_default_subdomain(user: user, project: project)
-      end
-      cb[cb_name] = 'https://metrics.' + cb[:subdomain] + '/hawkular/metrics'
-    end
-    # if cb.metrics does not have the proper form, we need to set it.
-    cb[cb_name] = 'https://metrics.' + cb[cb_name] + '/hawkular/metrics' unless cb[cb_name].start_with? "https://"
-  end
-end
 
 # we assume user is authenticated already
 Given /^the metrics service status in the metrics web console is #{QUOTED}$/ do |status|

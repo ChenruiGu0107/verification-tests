@@ -140,16 +140,27 @@ module CucuShift
       opts[:web_console_url] || api_endpoint_url
     end
 
-    # naming scheme is https://logs.<cluster_id>.openshift.com
-    # only return the predefined url if we don't have admin access.
+    # naming scheme is https://logs.<cluster_id>.openshift.com for Online
+    # for OCP it's https://logs.<subdomain>.openshift.com
     def logging_console_url
-      opts[:logging_console_url] || web_console_url.gsub('console.', 'logs.')
+      if admin?
+        route = self.router_default_subdomain(user: 'admin', project: 'default')
+        opts[:logging_console_url] = "https://logs." + route
+      else
+        # no admin privilege
+        opts[:logging_console_url] || web_console_url.gsub('console.', 'logs.')
+      end
     end
 
     # naming scheme is
     # https://metrics.<cluster_id>.openshift.com/hawkular/metrics
     def metrics_console_url
-      opts[:metrics_console_url] || web_console_url.gsub('console.', 'metrics.') + "/hawkular/metrics"
+      if admin?
+        route = self.router_default_subdomain(user: 'admin', project: 'default')
+        opts[:metrics_console_url] = "https://metrics." + route + "/hawkular/metrics"
+      else
+        opts[:metrics_console_url] || web_console_url.gsub('console.', 'metrics.') + "/hawkular/metrics"
+      end
     end
 
     # @return docker repo host[:port] used to launch env by checking one of the

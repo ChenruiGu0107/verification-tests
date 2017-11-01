@@ -205,17 +205,17 @@ Feature: logging related scenarios
     Then the expression should be true> cb.fluentd_container_mem_limit[1] == cb.fluentd_pod_mem_limit[1]
 
   # @author pruan@redhat.com
-  # @case_id OCP-10767
+  # @case_id OCP-16414
   @admin
   @destructive
-  Scenario: Logout kibana web console
+  Scenario: Logout kibana web console with installation step included
     Given I create a project with non-leading digit name
     And logging service is installed in the system
     Given I login to kibana logging web console
     When I perform the :logout_kibana web action with:
-      | kibana_url | https://<%= cb.logging_route %> |
+      | kibana_url | <%= cb.logging_console_url %> |
     Then the step should succeed
-    And I access the "<%= cb.logging_route %>" url in the web browser
+    And I access the "<%= cb.logging_console_url %>" url in the web browser
     Given I wait for the title of the web browser to match "(Login|Sign\s+in|SSO|Log In)"
 
   # @author pruan@redhat.com
