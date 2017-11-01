@@ -138,3 +138,50 @@ Feature: podAffinity
     Then the step should succeed
     Given the pod named "pod-affinity-proj-case14697" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.node
+
+
+  # @author wjiang@redhat.com
+  # @case_id OCP-14698
+  Scenario: pod with pod affinity will not be scheduled if not all matchExpressions are satisfied
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-s1.yaml |
+    Then the step should succeed
+    Given the pod named "security-s1" status becomes :running within 300 seconds
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/pod-pod-affinity-multi-matchexpressions.yaml | 
+    Then the step should succeed
+    And I wait for the steps to pass:
+    """
+    When I run the :describe client command with:
+      | resource  | pod                                 |
+      | name      | pod-affinity-multi-matchexpressions |
+    Then the step should succeed
+    And the output should match:
+      | PodScheduled\\s+False |
+      | FailedScheduling      |
+      | MatchInterPodAffinity |
+    """
+
+  # @author wjiang@redhat.com
+  @admin
+  Scenario Outline: pod will be scheduled on the node which meets pod affinity
+    Given environment has at least 2 schedulable nodes
+    Given I have a project
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/<pod-affinity-dst-pod> |
+    Then the step should succeed
+    Given the pod named "<dst-pod-name>" status becomes :running within 300 seconds
+    And evaluation of `pod("<dst-pod-name>").node_name` is stored in the :node clipboard
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/pod-affinity/<pod-affinity-src-pod> |
+    Then the step should succeed
+    And the pod named "<src-pod-name>" status becomes :running within 300 seconds
+    Then the expression should be true> pod.node_name <same_node>= cb.node
+    Examples:
+      | dst-pod-name  | pod-affinity-dst-pod  | src-pod-name              | pod-affinity-src-pod                | same_node |
+      | security-s1   | pod-s1.yaml           | pod-affinity-notin-s2     | pod-pod-affinity-notin-s2.yaml      | =         | # @case_id OCP-14689
+      | security-s1   | pod-s1.yaml           | pod-affinity-doesnotexist | pod-pod-affinity-doesnotexist.yaml  | !         | # @case_id OCP-14692
+      # below examples not implemented yet, maybe will be available in v3.8
+      | team4         | pod-pod-team4.yaml    | pod-affinity-lt-5         | pod-pod-affinity-lt-5.yaml          | =         | # @case_id OCP-14694
+      | team4         | pod-pod-team4.yaml    | pod-affinity-gt-3         | pod-pod-affinity-gt-3.yaml          | =         | # @case_id OCP-14693
