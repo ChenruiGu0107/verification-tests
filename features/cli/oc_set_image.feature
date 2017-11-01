@@ -148,24 +148,15 @@ Feature: oc set image related tests
   # @case_id OCP-10308
   Scenario: oc set image to update existed image for all resource using local file without and with apply
     Given I have a project
-    ## 1.  Create pod container(s) and ISs for project
+    ## 1.  Create pod container(s) and dc,rc for project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/dc-with-two-containers.yaml |
     Then the step should succeed
-    When I run the :tag client command with:
-      | source      | docker.io/openshift/hello-openshift   |
-      | dest        | <%= project.name %>/ho:latest         |
-    Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    When I get project istag
-    Then the output should contain:
-      | ho:latest   |
-    """
+    ## 2. set image with keywork python for compatibility between 3.6 and 3.7 
     When I run the :set_image client command with:
-      | type_name       | dc,rc                             |
-      | container_image | dctest-1=<%= project.name %>/ho:latest     |  
-      | all             | true                              |
+      | type_name       | dc,rc                            |
+      | container_image | dctest-1=openshift/python:latest |  
+      | all             | true                             |
     Then the step should succeed 
     ## step 3 checking
     When I run the :describe client command with:
@@ -173,13 +164,13 @@ Feature: oc set image related tests
       | name            | dctest                            |
     Then the step should succeed
     And the output should match:
-      | dctest-1:\n.*[Ii]mage.*openshift/hello-openshift    |
+      | dctest-1:\n.*[Ii]mage.*python |
     When I run the :describe client command with:
       | resource        | rc                                |
       | name            | dctest-1                          |
     Then the step should succeed
     And the output should match:
-      | [Ii]mage.*openshift/hello-openshift                 |
+      | [Ii]mage.*python  |
     ## 4. Local update the 2nd container without actually apply
     When I run the :get client command with:
       | resource | dc   |
@@ -188,27 +179,27 @@ Feature: oc set image related tests
     And I save the output to file> dc.yaml
     When I run the :set_image client command with:
       | filename        | dc.yaml                           |
-      | container_image | dctest-2=<%= project.name %>/ho:latest     |
+      | container_image | dctest-2=openshift/ruby:latest    |
       | local           | true                              |
     Then the step should succeed
     When I run the :describe client command with:
       | resource        | dc                                |
       | name            | dctest                            |
     Then the step should succeed
-    And the output should match:
-      | dctest-2.*\n.*[Ii]mage.*yapei/hello-openshift-fedora|
+    And the output should not match:
+      | ruby |
     ## 5. Update without --local to apply
     When I run the :set_image client command with:
       | filename        | dc.yaml                           |
-      | container_image | dctest-2=<%= project.name %>/ho:latest     |  
+      | container_image | dctest-2=openshift/ruby:latest    |  
     Then the step should succeed 
     When I run the :describe client command with:
       | resource        | dc                                |
       | name            | dctest                            |
     Then the step should succeed
     And the output should match:
-      | dctest-1:\n.*[Ii]mage.*openshift/hello-openshift    |
-      | dctest-2:\n.*[Ii]mage.*openshift/hello-openshift    |
+      | dctest-1:\n.*[Ii]mage.*python      |
+      | dctest-2:\n.*[Ii]mage.*ruby        |
 
   # @author yinzhou@redhat.com
   # @case_id OCP-11623
