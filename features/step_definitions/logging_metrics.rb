@@ -343,6 +343,7 @@ Given /^(logging|metrics) service is (installed|uninstalled) (?:in|from) the#{OP
         step %Q/all logging pods are running in the "#{target_proj}" project/
       else
         step %Q/all metrics pods are running in the "#{target_proj}" project/
+        step %Q/I verify metrics service is functioning/
       end
     else
       if svc_type == 'logging'
@@ -515,6 +516,7 @@ Given /^metrics service is installed in the project using deployer:$/ do |table|
   step %Q/I wait for the container named "deployer" of the "#{pod.name}" pod to terminate with reason :completed/
   # verify metrics is installed
   step %Q/all metrics pods are running in the project/
+  step %Q/I verify metrics service is functioning/
   # we need to switch back to normal user and the original project
   @user = org_user
   project(org_proj_name)
@@ -726,4 +728,19 @@ Given /^the metrics service status in the metrics web console is #{QUOTED}$/ do 
   metrics_service_status =  browser.page_html.match(/Metrics Service :(\w+)/)[1]
   matched = metrics_service_status == status
   raise "Expected #{status}, got #{metrics_service_status}" unless matched
+end
+
+# do a quick sanity check using oadm diagnostics MetricsApiProxy
+# XXX: only seems to be supported by OCP >= 3.3
+# https://docs.openshift.com/container-platform/3.3/install_config/cluster_metrics.html
+# https://docs.openshift.com/container-platform/3.6/install_config/cluster_metrics.html
+Given /^I verify metrics service is functioning$/ do
+  ensure_admin_tagged
+  @result = admin.cli_exec(:oadm_diagnostics, diagnostics_name: "MetricsApiProxy")
+
+  if @result[:success]
+    raise "Failed diagnostic, output: #{@result[:response]}"  unless @result[:response].include? 'Completed with no errors or warnings seen'
+  else
+    raise "Failed diagnostic, output: #{@result[:response]}"
+  end
 end

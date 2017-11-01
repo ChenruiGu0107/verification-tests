@@ -121,3 +121,30 @@ Feature: ansible install related feature
     And I open metrics console in the browser
     Given the metrics service status in the metrics web console is "STARTED"
 
+
+  # @author pruan@redhat.com
+  # @case_id OCP-12012
+  @admin
+  @destructive
+  Scenario: Metrics Admin Command - Deploy set user_write_access
+    Given the master version >= "3.5"
+    Given I have a project
+    And metrics service is installed in the "openshift-infra" project with ansible using:
+      | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12012/inventory |
+
+    Given I wait up to 180 seconds for the steps to pass:
+    """
+    Given I perform the GET metrics rest request with:
+      | project_name | <%= project.name %> |
+      | path         | /metrics/ |
+    And the step succeeded
+    """
+    Given I perform the POST metrics rest request with:
+      | project_name | <%= project.name %>                                                                               |
+      | path         | /metrics/gauges                                                                                   |
+      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
+    Given I perform the GET metrics rest request with:
+      | project_name | <%= project.name %> |
+      | path         | /metrics/gauges     |
+    Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1460111065369
+    Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1460413065369

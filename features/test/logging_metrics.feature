@@ -67,3 +67,14 @@ Feature: test logging and metrics related steps
     Given I create a project with non-leading digit name
     Given metrics service is installed in the system using:
       | inventory | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-12305/inventory |
+
+  Scenario: test post and get step
+  	Given I have a project
+    Given I perform the POST metrics rest request with:
+      | project_name | <%= project.name %>                                                                               |
+      | path         | /metrics/gauges                                                                                   |
+      | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
+    Given I perform the GET metrics rest request with:
+      | project_name | <%= project.name %> |
+      | path         | /metrics/gauges     |
+    Then the expression should be true> @result[:exitstatus] == 200
