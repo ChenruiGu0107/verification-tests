@@ -133,19 +133,19 @@ Feature: idle service related scenarios
   # @author hongli@redhat.com
   # @case_id OCP-10216
   @admin
-  Scenario: The iptables rules for the service should be replaced by the REDIRECT rule after being idled
+  Scenario: The iptables rules for the service should be DNAT or REDIRECT to node after being idled
     Given I have a project
     And evaluation of `project.name` is stored in the :proj_name clipboard
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json |
+    When I run oc create over "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/list_for_pods.json" replacing paths:
+      | ["items"][0]["spec"]["replicas"] | 1 |
     Then the step should succeed
-    Given I wait until replicationController "test-rc" is ready
-    And I wait until number of replicas match "2" for replicationController "test-rc"
+    And I wait until number of replicas match "1" for replicationController "test-rc"
     Given I use the "test-service" service
     And evaluation of `service.ip(user: user)` is stored in the :service_ip clipboard
-    Given I select a random node's host
-    And the node network is verified
-    And the node service is verified
+
+    Given I have a pod-for-ping in the project
+    And evaluation of `pod('hello-pod').node_ip(user: user)` is stored in the :hostip clipboard
+    Given I use the "<%= pod.node_name(user: user) %>" node
     When I run the :idle client command with:
       | svc_name | test-service |
     Then the step should succeed
@@ -156,12 +156,12 @@ Feature: idle service related scenarios
     And the output should match:
       | test-service.*none |
     When I run commands on the host:
-      | iptables -nL -t nat \| grep <%= cb.proj_name %>/test-service |
+      | iptables -S -t nat \| grep <%= cb.proj_name %>/test-service |
     Then the step should succeed
     And the output should match:
-      | REDIRECT   tcp  --  0.0.0.0/0\s+<%= cb.service_ip %>\s+/\* <%= cb.proj_name %>/test-service:http \*/ tcp dpt:27017 redir ports \d+        |
-      | DNAT       tcp  --  0.0.0.0/0\s+<%= cb.service_ip %>\s+/\* <%= cb.proj_name %>/test-service:http \*/ tcp dpt:27017 to:\d+.\d+.\d+.\d+:\d+ |
-    Given I have a pod-for-ping in the project
+      | KUBE-PORTALS-CONTAINER -d <%= cb.service_ip %>/32 -p tcp .* -m tcp --dport 27017 -j (DNAT --to-destination <%= cb.hostip %>:\d+\|REDIRECT --to-ports \d+) |
+      | KUBE-PORTALS-HOST -d <%= cb.service_ip %>/32 -p tcp .* -m tcp --dport 27017 -j DNAT --to-destination <%= cb.hostip %>:\d+ |
+
     Then I wait up to 60 seconds for the steps to pass:
     """
     When I execute on the pod:
@@ -169,21 +169,23 @@ Feature: idle service related scenarios
       | <%= cb.service_ip %>:27017 |
     Then the output should contain "Hello OpenShift!"
     """
-    Given I wait until number of replicas match "2" for replicationController "test-rc"
+    Given a pod becomes ready with labels:
+      | name=test-pods |
+    Then evaluation of `pod.ip` is stored in the :pod_ip clipboard
     When I run the :get client command with:
       | resource | endpoints |
     Then the step should succeed
     And the output should match:
-      | test-service.*\d+.\d+.\d+.\d+:8080,\d+.\d+.\d+.\d+:8080 |
+      | test-service\s+<%= cb.pod_ip %>:8080 |
     When I run commands on the host:
-      | iptables -nL -t nat \| grep <%= cb.proj_name %>/test-service |
+      | iptables -S -t nat \| grep <%= cb.proj_name %>/test-service |
     Then the step should succeed
     And the output should not contain "REDIRECT"
     And the output should match:
-      | KUBE-MARK-MASQ  all  --  \d+.\d+.\d+.\d+\s+0.0.0.0/0\s+/\* <%= cb.proj_name %>/test-service:http \*/                            |
-      | DNAT       tcp  --  0.0.0.0/0\s+0.0.0.0/0\s+/\* <%= cb.proj_name %>/test-service:http \*/ tcp to:\d+.\d+.\d+.\d+:8080           |
-      | KUBE-SVC-.+  tcp  --  0.0.0.0/0\s+<%= cb.service_ip %>\s+/\* <%= cb.proj_name %>/test-service:http cluster IP \*/ tcp dpt:27017 |
-      | KUBE-SEP-.+  all  --  0.0.0.0/0\s+0.0.0.0/0\s+/\* <%= cb.proj_name %>/test-service:http \*/                                     |
+      | KUBE-SEP-.+ -s <%= cb.pod_ip %>/32 .* -j KUBE-MARK-MASQ                                |
+      | KUBE-SEP-.+ -p tcp .* -m tcp -j DNAT --to-destination <%= cb.pod_ip %>:8080            |
+      | KUBE-SERVICES -d <%= cb.service_ip %>/32 -p tcp .* -m tcp --dport 27017 -j KUBE-SVC-.+ |
+      | KUBE-SVC-.+ .* -j KUBE-SEP-.+                                                          |
 
   # @author hongli@redhat.com
   # @case_id OCP-10215
