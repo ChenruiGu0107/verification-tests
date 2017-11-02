@@ -10,11 +10,11 @@ Feature: metrics related scenarios
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
     Given I perform the POST metrics rest request with:
       | project_name | <%= project.name %>                                                                               |
-      | path         | /metrics/gauges                                                                                   |
+      | path         | /gauges                                                                                           |
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
     Given I perform the GET metrics rest request with:
       | project_name | <%= project.name %> |
-      | path         | /metrics/gauges     |
+      | path         | /gauges             |
     Then the expression should be true> cb.metrics_data[0][:parsed]['minTimestamp'] == 1460111065369
     Then the expression should be true> cb.metrics_data[0][:parsed]['maxTimestamp'] == 1460413065369
 
@@ -30,7 +30,7 @@ Feature: metrics related scenarios
     And I switch to the second user
     Given I perform the POST metrics rest request with:
       | project_name | <%= project.name %>                                                                               |
-      | path         | /metrics/gauges                                                                                   |
+      | path         | /gauges                                                                                           |
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
     # for older oc version, the status code was 401
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
@@ -44,11 +44,11 @@ Feature: metrics related scenarios
     Given metrics service is installed in the system
     Given I perform the GET metrics rest request with:
       | project_name | <%= project.name %> |
-      | path         | /metrics/gauges     |
+      | path         | /gauges     |
     Then the expression should be true> @result[:exitstatus] == 204
     Given I perform the POST metrics rest request with:
       | project_name | <%= project.name %>                                                                               |
-      | path         | /metrics/gauges                                                                                   |
+      | path         | /gauges                                                                                           |
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
     # for older oc version, the status code was 401
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
@@ -80,7 +80,7 @@ Feature: metrics related scenarios
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
     And I perform the POST metrics rest request with:
       | project_name | _system                                                                                           |
-      | path         | /metrics/gauges                                                                                   |
+      | path         | /gauges                                                                                           |
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
     Then the expression should be true> @result[:exitstatus] == 403
 
@@ -93,11 +93,11 @@ Feature: metrics related scenarios
     Given metrics service is installed in the system
     Given I perform the GET metrics rest request with:
       | project_name | <%= project.name %> |
-      | path         | /metrics/gauges     |
+      | path         | /gauges             |
     Then the expression should be true> @result[:exitstatus] == 204
     Given I perform the POST metrics rest request with:
       | project_name | <%= project.name %>                                                                               |
-      | path         | /metrics/gauges                                                                                   |
+      | path         | /gauges                                                                                           |
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
     # for older oc version, the status code was 401
     Then the expression should be true> [401, 403].include? @result[:exitstatus]
@@ -115,25 +115,25 @@ Feature: metrics related scenarios
     Given cluster role "cluster-admin" is added to the "first" user
     And I perform the POST metrics rest request with:
       | project_name | _system                                                                                           |
-      | path         | /metrics/availability                                                                             |
+      | path         | /availability                                                                                     |
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
     And I perform the GET metrics rest request with:
       | project_name | _system              |
-      | path         | /metrics/metrics     |
+      | path         | /metrics             |
       | token        | <%= cb.user_token %> |
     Then the step should succeed
     And evaluation of `@result[:parsed].map { |e| e['type'] }.uniq.sort!` is stored in the :metrics_result clipboard
     And the expression should be true> cb.metrics_result == ['counter', 'gauge']
     And I perform the GET metrics rest request with:
       | project_name | _system              |
-      | path         | /metrics/gauges      |
+      | path         | /gauges              |
       | token        | <%= cb.user_token %> |
     Then the step should succeed
     And evaluation of `@result[:parsed].map { |e| e['type'] }.uniq` is stored in the :gauge_result clipboard
     And the expression should be true> cb.gauge_result == ['gauge']
     And I perform the GET metrics rest request with:
       | project_name | _system              |
-      | path         | /metrics/counters    |
+      | path         | /counters            |
       | token        | <%= cb.user_token %> |
     Then the step should succeed
     And evaluation of `@result[:parsed].map { |e| e['type'] }.uniq` is stored in the :counter_result clipboard
@@ -150,7 +150,7 @@ Feature: metrics related scenarios
       | deployer_config | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/OCP-11821/deployer_ocp11821.yaml |
     Given I perform the POST metrics rest request with:
       | project_name | :false                                                                                            |
-      | path         | /metrics/gauges                                                                                   |
+      | path         | /gauges                                                                                           |
       | payload      | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/logging_metrics/test_data.json |
     Then the expression should be true> @result[:exitstatus] == 400
 

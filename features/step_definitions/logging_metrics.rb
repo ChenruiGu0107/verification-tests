@@ -83,7 +83,7 @@ end
 # NOTE: for GET operation, the data retrieved are stored in cb.metrics_data which is an array
 # NOTE: if we agree to use a fixed name for the first part of the metrics URL, then we don't need admin access privilege to run this step.
 When /^I perform the (GET|POST) metrics rest request with:$/ do | op_type, table |
-  cb[:metrics] = env.metrics_console_url(user: user, project: project)
+  cb[:metrics] = env.metrics_console_url
   opts = opts_array_to_hash(table.raw)
   raise "required parameter 'path' is missing" unless opts[:path]
 
