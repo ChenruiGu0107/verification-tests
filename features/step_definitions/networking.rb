@@ -403,3 +403,20 @@ Given /^the DefaultDeny policy is applied to the "(.+?)" namespace$/ do | projec
     end
   end
 end
+
+Given /^the cluster network plugin type and version and stored in the clipboard$/ do
+  ensure_admin_tagged
+  _host = node.host
+
+  step %Q/I run the ovs commands on the host:/, table([[
+    "ovs-ofctl dump-flows br0 -O openflow13 | grep table=253 | sed -n -e 's/^.*note://p'"
+  ]])
+  if @result[:success]
+    of_note = @result[:response].chomp
+  end
+
+  cb.net_plugin = {
+    type: of_note[0,2],
+    version: of_note[3,2]
+  }
+end
