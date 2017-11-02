@@ -444,14 +444,17 @@ Feature: Add pvc to pod from web related
 
   # @author wehe@redhat.com
   @admin
+  @destructive
   Scenario Outline: Create persist volume claim with storage class on web console
     Given I have a project
+    And default storage class is deleted
     When admin creates a StorageClass from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/persistent-volumes/misc/storageClass.yaml" where:
       | ["metadata"]["name"] | <%= project.name %>         |
       | ["provisioner"]      | kubernetes.io/<provisioner> |
     Then the step should succeed
 
-    # Create ROX type pvc
+    Given I wait up to 180 seconds for the steps to pass:
+    """
     When I perform the :create_pvc_with_storage_class web console action with:
       | project_name     | <%= project.name %> |
       | pvc_name         | pvc-1               |
@@ -467,6 +470,7 @@ Feature: Add pvc to pod from web related
       | pvc_access_mode | RWO (Read-Write-Once) |
       | storage_size    | 2 GiB                 |
     Then the step should succeed
+    """
     Given admin ensures "<%= pvc("pvc-1").volume_name(user: user) %>" pv is deleted after scenario
 
     When I perform the :check_pvc_info_with_status web console action with:
@@ -477,7 +481,6 @@ Feature: Add pvc to pod from web related
       | storage_size    | 1099511627776 mB      |
     Then the step should succeed
 
-    # Create RWX type pvc
     Given I wait up to 180 seconds for the steps to pass:
     """
     When I perform the :create_pvc_with_storage_class web console action with:
@@ -506,7 +509,6 @@ Feature: Add pvc to pod from web related
       | storage_size    | 2 GiB                 |
     Then the step should succeed
 
-    # Create RWO type pvc
     Given I wait up to 180 seconds for the steps to pass:
     """
     When I perform the :create_pvc_with_storage_class web console action with:
