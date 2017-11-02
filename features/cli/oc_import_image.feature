@@ -214,9 +214,9 @@ Feature: oc import-image related feature
   Scenario: oc import-image should take the new api endpoint to run imports instead of clearing the annotation
     Given I have a project
     When I run the :tag client command with:
-      | source_type | docker                 |
-      | source      | hello-openshift:latest |
-      | dest        | <%= project.name %>/ho:latest |
+      | source_type | docker                           |
+      | source      | openshift/hello-openshift:latest |
+      | dest        | <%= project.name %>/ho:latest    |
     Then the output should match:
       | [Tt]ag ho:latest |
     Given I wait up to 15 seconds for the steps to pass:
@@ -226,10 +226,10 @@ Feature: oc import-image related feature
       | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
     """
     When I run the :import_image client command with:
-      | image_name    | ho |
-      | loglevel | 6  |
+      | image_name | ho |
+      | loglevel   | 6  |
     Then the output should contain:
-      | /oapi/v1/namespaces/<%= project.name %>/imagestreams/ho |
+      | /v1/namespaces/<%= project.name %>/imagestreams/ho |
     When I get project is named "ho" as YAML
     Then the output should match:
       | annotations:\\s+openshift.io/image.dockerRepositoryCheck:|
