@@ -68,8 +68,14 @@ Feature:policy related features on web console
   Scenario: Cluster-admin can completely disable access to request project.
     Given I log the message> this scenario is only valid for oc >= 3.4
     Given cluster roles are restored after scenario
-    Given as admin I replace resource "clusterrole" named "basic-user":
-      | projectrequests\n  verbs:\n  - list\n | projectrequests\n  verbs:\n |
+    When I run the :get client command with:
+      | resource | clusterrole/basic-user |
+      | o        | json                   |
+    Then the step should succeed
+    And the output should contain "projectrequests"
+    And I save the output to file> clusterrole.json
+    When I run oc replace as admin with "clusterrole.json" replacing paths:
+      | ["rules"][1]["verbs"][0] | "" |
     Then the step should succeed
     When I run the :describe admin command with:
       | resource         | clusterrole     |

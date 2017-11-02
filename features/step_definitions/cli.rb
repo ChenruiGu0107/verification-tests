@@ -82,6 +82,31 @@ When /^I run oc create( as admin)? (?:over|with) #{QUOTED} replacing paths:$/ do
   end
 end
 
+When /^I run oc replace( as admin)? (?:over|with) #{QUOTED} replacing paths:$/ do |admin, file, table|
+  if file.include? '://'
+    step %Q|I download a file from "#{file}"|
+    resource_hash = YAML.load(@result[:response])
+  else
+    resource_hash = YAML.load_file(expand_path(file))
+  end
+
+  # replace paths from table
+  table.raw.each do |path, value|
+    eval "resource_hash#{path} = YAML.load value"
+    # e.g. resource["spec"]["nfs"]["server"] = 10.10.10.10
+    #      resource["spec"]["containers"][0]["name"] = "xyz"
+  end
+  resource = resource_hash.to_json
+  logger.info resource
+
+  if admin
+    ensure_admin_tagged
+    @result = self.admin.cli_exec(:replace, {f: "-", _stdin: resource})
+  else
+    @result = user.cli_exec(:replace, {f: "-", _stdin: resource})
+  end
+end
+
 # instead of writing multiple steps, this step does this in one go:
 # 1. download file from URL
 # 2. load it as an ERB file with the cucumber scenario variables binding
