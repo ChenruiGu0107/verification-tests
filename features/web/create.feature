@@ -4,10 +4,7 @@ Feature: create app on web console related
   # @case_id OCP-9568
   @admin
   Scenario: create app from template with custom build on web console
-    When I create a project via web with:
-      | display_name | :null               |
-      | description  ||
-    Then the step should succeed
+    Given I have a project
     When I run the :policy_add_role_to_user admin command with:
       | role            | system:build-strategy-custom |
       | user name       |   <%= user.name %>           |
@@ -55,10 +52,7 @@ Feature: create app on web console related
   # @author xxing@redhat.com
   # @case_id OCP-9561
   Scenario: Create app from template containing invalid type on web console
-    When I create a project via web with:
-      | display_name | :null |
-      | description  ||
-    Then the step should succeed
+    Given I have a project
     Given I use the "<%= project.name %>" project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
@@ -105,9 +99,7 @@ Feature: create app on web console related
   # @author xxing@redhat.com
   # @case_id OCP-11445
   Scenario: Create application from template with invalid parameters on web console
-    When I create a new project via web
-    Then the step should succeed
-    Given I use the "<%= project.name %>" project
+    Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json |
     Then the step should succeed
@@ -129,8 +121,7 @@ Feature: create app on web console related
   # @author xxing@redhat.com
   # @case_id OCP-10691
   Scenario: Show help info and suggestions after creating app from web console
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>   |
       | image_name   | nodejs                |
@@ -145,7 +136,6 @@ Feature: create app on web console related
   # @author wsun@redhat.com
   # @case_id OCP-12596
   Scenario: Create the app with invalid name
-    Given I login via web console
     Given I have a project
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                        |
@@ -248,8 +238,7 @@ Feature: create app on web console related
   # @author wsun@redhat.com
   # @case_id OCP-12597
   Scenario: Could edit Routing on create from source page
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     When I perform the :create_app_without_route_action web console action with:
       | namespace    | openshift |
       | project_name | <%= project.name %> |
@@ -265,8 +254,7 @@ Feature: create app on web console related
   # @author yapei@redhat.com
   # @case_id OCP-10737
   Scenario: Setting env vars for buildconfig on web can be available in assemble phase of STI build
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     When I perform the :create_app_from_image web console action with:
       | namespace    | openshift                          |
       | project_name | <%= project.name %>                |

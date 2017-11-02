@@ -3,9 +3,7 @@ Feature: check image streams page
   # @case_id OCP-10738
   @smoke
   Scenario: check image stream page
-    # create project on web
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     When I perform the :check_empty_image_streams_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed

@@ -27,8 +27,7 @@ Feature: Check links in Openshift
     Then the step should succeed
 
     # check doc link on next step page
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     When I perform the :check_documentation_link_in_next_step_page web console action with:
       | project_name | <%= project.name %>   |
       | image_name   | nodejs                |

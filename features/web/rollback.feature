@@ -2,9 +2,7 @@ Feature: Deployments rollback features
   # @author yapei@redhat.com
   # @case_id OCP-11167 OCP-11741 OCP-11914 OCP-11511
   Scenario Outline: rollback from web console
-    # create a project on web console
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     # create deployment from template on web console
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |

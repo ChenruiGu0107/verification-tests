@@ -3,7 +3,7 @@ check_empty_routes_page:
   action: goto_routes_page
   elements:
   - selector:
-      xpath: //tbody[@class='ng-scope']//em[contains(text(), 'No routes to show')]
+      text: !ruby/regexp /.*No routes*/
 check_response_string:
   elements:
   - selector:

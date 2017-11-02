@@ -51,7 +51,6 @@ Feature: check page info related
   @smoke
   Scenario: Check Events page
     Given I login via web console
-    Given I have a project
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                        |
       | image_name   | nodejs                                     |
@@ -97,9 +96,7 @@ Feature: check page info related
   # @author yanpzhan@redhat.com
   # @case_id OCP-11219
   Scenario: Check storage page on web console
-    When I create a new project via web
-    Then the step should succeed
-
+    Given I have a project
     When I perform the :check_empty_storage_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed

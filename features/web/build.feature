@@ -3,8 +3,7 @@ Feature: build related feature on web console
   # @author xxing@redhat.com
   # @case_id OCP-10627
   Scenario: Check the build information from web console
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                        |
       | image_name   | python                                     |
@@ -46,8 +45,7 @@ Feature: build related feature on web console
   # @author xxing@redhat.com
   # @case_id OCP-10674
   Scenario: Cancel the New/Pending/Running build on web console
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     Given I wait for the :create_app_from_image web console action to succeed with:
       | project_name | <%= project.name %> |
       | image_name   | ruby                |
@@ -738,8 +736,7 @@ Feature: build related feature on web console
   # @author yanpzhan@redhat.com
   # @case_id OCP-11258
   Scenario: View build logs when build status are pending/running/complete/failed/cancelled from web console
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     When I run the :new_build client command with:
       | code           | https://github.com/openshift/ruby-hello-world |
       | image_stream   | openshift/ruby                                |
@@ -937,8 +934,7 @@ Feature: build related feature on web console
   # @author etrott@redhat.com
   # @case_id OCP-10253
   Scenario: Check Build,Deployment,Pod logs and Events on Monitoring
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     Given I perform the :create_app_from_image web console action with:
       | project_name    | <%= project.name %> |
       | image_name      | nodejs              |

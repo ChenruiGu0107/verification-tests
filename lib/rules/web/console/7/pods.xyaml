@@ -8,7 +8,7 @@ check_pod_list_with_no_pod:
   action: check_pod_list_page
   element:
     selector:
-      xpath: //em[contains(text(),'No pods to show')]
+      text: !ruby/regexp /.*No pods*/
 goto_one_pod_page:
   url: /console/project/<project_name>/browse/pods/<pod_name>
   elements:
