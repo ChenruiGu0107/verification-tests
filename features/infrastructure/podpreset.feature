@@ -87,3 +87,43 @@ Feature: podpreset
       | expansion:\\s+whoami                              |
       | /cache from cache-volume                          |
       | /etc/app/config.json from secret-volume           |
+
+  # @author wmeng@redhat.com
+  # @case_id OCP-15055
+  @admin
+  @destructive
+  Scenario: pod can exclude from podpreset
+    Given the master version >= "3.7"
+    Given master config is merged with the following hash:
+    """
+    admissionConfig:
+      pluginConfig:
+        PodPreset:
+          configuration:
+            kind: DefaultAdmissionConfig
+            apiVersion: v1
+            disable: false
+
+    kubernetesMasterConfig:
+      apiServerArguments:
+        runtime-config:
+        - apis/settings.k8s.io/v1alpha1=true
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    And I have a project
+    When I run the :create admin command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/podpreset-simple.yaml |
+      | n | <%= project.name %>                                                                                               |
+    Then the step should succeed
+    When I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/infrastructure/podpreset/pod-no-podpreset.yaml |
+    Then the step should succeed
+    Given the pod named "no-podpreset" status becomes :running within 90 seconds
+    Then I run the :describe client command with:
+      | resource | pod          |
+      | name     | no-podpreset |
+    And the output should not match:
+      | podpreset.admission.kubernetes.io/.*allow-database |
+      | DB_PORT:\\s+6379                                   |
+      | /cache from cache-volume                           |
