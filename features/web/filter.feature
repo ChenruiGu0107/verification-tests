@@ -4,9 +4,7 @@ Feature: filter on create page
   # @case_id OCP-10692
   Scenario: search and filter for things on the create page
     Given the master version <= "3.3"
-    When I create a new project via web
-    Then the step should succeed
-
+    Given I have a project
     # filter by tag instant-app
     When I perform the :filter_by_tags web console action with:
       | tag_name | instant-app |
@@ -157,9 +155,7 @@ Feature: filter on create page
   # @author yanpzhan@redhat.com
   # @case_id OCP-11077
   Scenario: Filter resources by labels under Browse page
-    When I create a new project via web
-    Then the step should succeed
-
+    Given I have a project
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>                        |
       | image_name   | python                                     |

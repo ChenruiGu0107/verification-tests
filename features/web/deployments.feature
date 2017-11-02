@@ -3,9 +3,7 @@ Feature: Check deployments function
   # @case_id OCP-10679
   @smoke
   Scenario: make deployment from web console
-    # create a project on web console
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     # create dc
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/cancel-deployment-gracefully.json |
@@ -42,7 +40,6 @@ Feature: Check deployments function
   # @case_id OCP-10749
   Scenario: Scale the application by changing replicas in deployment config
     Given I login via web console
-    Given I have a project
     And I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/deployment/deployment1.json |
     Then the step should succeed
@@ -157,7 +154,7 @@ Feature: Check deployments function
   # @author yanpzhan@redhat.com
   # @case_id OCP-11198
   Scenario: View deployments streaming logs
-    Given I create a new project via web
+    Given I have a project
     When I run the :new_app client command with:
       | name  | mytest                |
       | image | mysql                 |
@@ -414,7 +411,7 @@ Feature: Check deployments function
   # @case_id OCP-12375
   Scenario: Check ReplicaSet on Overview and ReplicaSet page
     Given the master version >= "3.4"
-    Given I create a new project via web
+    Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/replicaSet/tc536601/replicaset.yaml |
     Then the step should succeed

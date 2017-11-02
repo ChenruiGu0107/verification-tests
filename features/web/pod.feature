@@ -2,9 +2,7 @@ Feature: Pod related features on web console
   # @author yanpzhan@redhat.com
   # @case_id OCP-11534
   Scenario: View streaming logs for a running pod
-    When I create a new project via web
-    Then the step should succeed
-
+    Given I have a project
     #Create a pod
     And I run the :run client command with:
       | name         | testpod                   |
@@ -137,10 +135,7 @@ Feature: Pod related features on web console
   # @author yapei@redhat.com
   # @case_id OCP-9592
   Scenario: Generate same labels in the UI as CLI
-    When I create a project via web with:
-      | display_name | :null |
-      | description  ||
-    Then the step should succeed
+    Given I have a project
     When I perform the :create_app_from_image web console action with:
       | project_name | <%= project.name %>  |
       | image_name   | python               |
@@ -178,10 +173,7 @@ Feature: Pod related features on web console
   # @case_id OCP-14311
   Scenario: Pod details should show information about init containers.
     Given the master version >= "3.6"
-    When I create a project via web with:
-      | display_name | :null |
-      | description  ||
-    Then the step should succeed
+    Given I have a project
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/pods/initContainers/initContainer.yaml  |
     Then the step should succeed

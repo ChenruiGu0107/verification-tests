@@ -4,8 +4,7 @@ Feature: Add pvc to pod from web related
   @admin
   @destructive
   Scenario: Attach pvc to pod with multiple containers from web console
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     And I have a NFS service in the project
 
     When I run the :create client command with:

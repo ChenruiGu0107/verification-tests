@@ -4,8 +4,7 @@ Feature: memberships related features via web
   # @case_id OCP-11651
   Scenario: Manage project membership about groups
     Given the master version >= "3.4"
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     When I perform the :add_role_on_membership web console action with:
       | project_name | <%= project.name %> |
       | tab_name     | Groups              |
@@ -82,8 +81,7 @@ Feature: memberships related features via web
   # @case_id OCP-11843
   Scenario: Manage project membership about users
     Given the master version >= "3.4"
-    When I create a new project via web
-    Then the step should succeed
+    Given I have a project
     When I perform the :check_entry_content_on_membership web console action with:
       | project_name | <%= project.name %> |
       | tab_name     | Users               |

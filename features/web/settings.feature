@@ -3,10 +3,7 @@ Feature: check settings page on web console
   # @case_id OCP-12631
   @admin
   Scenario: create project limit and quota, check settings on web console
-    # create project on web console
-    When I create a new project via web
-    Then the step should succeed
-
+    Given I have a project
     # create limit and quota via CLI
     Given I use the "<%= project.name %>" project
     And I run the :create admin command with:
