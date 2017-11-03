@@ -3375,22 +3375,10 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: Could not get certificate info for unsecure routes after enable ROUTER_STRICT_SNI
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router               |
-      | e        | ROUTER_STRICT_SNI=true  |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
-
-    Given I switch to the first user
-    And I have a project
+    Given I have a project
+    And evaluation of `project.name` is stored in the :proj1 clipboard
+    And I store default router IPs in the :router_ip clipboard
+    And I store default router subdomain in the :subdomain clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -3398,45 +3386,70 @@ Feature: Testing haproxy router
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/unsecure/service_unsecure.json |
     Then the step should succeed
-    When I expose the "service-unsecure" service
+    When I run the :expose client command with:
+      | resource      | service              |
+      | resource_name | service-unsecure     |
+      | hostname      | <%= rand_str(5, :dns) %>-unsecure.example.com  |
     Then the step should succeed
-    When I wait up to 15 seconds for a web server to become available via the "service-unsecure" route
-    Then the output should contain "Hello-OpenShift"
-    
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
+    # check the route works well
+    And I wait up to 15 seconds for the steps to pass:
+    """
     When I execute on the pod:
       | curl |
-      | -kv  |
-      | https://<%= route.dns(by: user) %> |
+      | --resolve |
+      | <%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>:80:<%= cb.router_ip[0] %> |
+      | http://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+    Then the step should succeed
+    And the output should contain:
+      | Hello-OpenShift |
+    """
+    # Route will return certs info
+    And I wait up to 15 seconds for the steps to pass:
+    """
+    When I execute on the pod:
+      | curl |
+      | --resolve |
+      | <%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+      | -kv |
+    Then the step should succeed
+    And the output should contain:
+      | CN=*.<%= cb.subdomain %> |
+    """    
+    # Enable ROUTER_STRICT_SNI
+    Given admin ensures new router pod becomes ready after following env added:
+      |  ROUTER_STRICT_SNI=true|
+
+    # Route will not return the certs info
+    Given I switch to the first user
+    Given I use the "<%= cb.proj1 %>" project
+    And I wait up to 15 seconds for the steps to pass:
+    """
+    When I execute on the "hello-pod" pod:
+      | curl |
+      | --resolve |
+      | <%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
+      | https://<%= route("service-unsecure", service("service-unsecure")).dns(by: user) %>/ |
+      | -kv |
     Then the step should fail
     And the output should contain "(35)"
     And the output should not contain "CN="
+    """
 
   # @author yadu@redhat.com
   # @case_id OCP-14768
   @admin
   @destructive
   Scenario: Could get certificate info for edge routes after enable ROUTER_STRICT_SNI
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router               |
-      | e        | ROUTER_STRICT_SNI=true  |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    # Enable ROUTER_STRICT_SNI		
+    Given admin ensures new router pod becomes ready after following env added:
+      |  ROUTER_STRICT_SNI=true|    
 
     Given I switch to the first user
     And I have a project
     And I store default router IPs in the :router_ip clipboard
+    And I store default router subdomain in the :subdomain clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -3457,14 +3470,11 @@ Feature: Testing haproxy router
       | cacert   | ca.pem |      
     Then the step should succeed
     When I run the :create_route_edge client command with:
-      | name    | edge-route2      |
-      | service | service-unsecure |
+      | name     | edge-route2      |
+      | hostname | <%= rand_str(5, :dns) %>-edge.example.com |
+      | service  | service-unsecure |
     Then the step should succeed
-
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
+    Given I have a pod-for-ping in the project
     And I wait up to 15 seconds for the steps to pass:
     """ 
     When I execute on the pod:
@@ -3482,11 +3492,14 @@ Feature: Testing haproxy router
     """ 
     When I execute on the pod:
       | curl |
+      |  --resolve |
+      | <%= route("edge-route2", service("edge-route2")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("edge-route2", service("edge-route2")).dns(by: user) %>/ |
       | -kv |
     Then the step should fail
-    # return curl: (35) ssl_handshake error since could not use default certs when enable ROUTER_STRICT_SNI
+    # will not retrun certs info when enable ROUTER_STRICT_SNI
     And the output should contain "(35)"
+    And the output should not contain "CN="
     """
 
   # @author yadu@redhat.com
@@ -3494,23 +3507,13 @@ Feature: Testing haproxy router
   @admin
   @destructive
   Scenario: Could get certificate info for reencrypt routes after enable ROUTER_STRICT_SNI
-    Given I switch to cluster admin pseudo user
-    And I use the "default" project
-    And a pod becomes ready with labels:
-      | deploymentconfig=router |
-    Then evaluation of `pod.name` is stored in the :router_pod clipboard
-    Given default router deployment config is restored after scenario
-    When I run the :env client command with:
-      | resource | dc/router               |
-      | e        | ROUTER_STRICT_SNI=true  |
-    Then the step should succeed
-    And I wait for the pod named "<%= cb.router_pod %>" to die
-    When a pod becomes ready with labels:
-      | deploymentconfig=router |
+    Given admin ensures new router pod becomes ready after following env added:
+      |  ROUTER_STRICT_SNI=true|
 
     Given I switch to the first user
     And I have a project
     And I store default router IPs in the :router_ip clipboard
+    And I store default router subdomain in the :subdomain clipboard
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/caddy-docker.json |
     Then the step should succeed
@@ -3536,15 +3539,12 @@ Feature: Testing haproxy router
 
     When I run the :create_route_reencrypt client command with:
       | name       | reen-route2 |
+      | hostname   | <%= rand_str(5, :dns) %>.reen.com |
       | service    | service-secure |
       | destcacert | route_reencrypt_dest.ca |
     Then the step should succeed
 
-    When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/networking/pod-for-ping.json |
-    Then the step should succeed
-    Given the pod named "hello-pod" becomes ready
-
+    Given I have a pod-for-ping in the project
     And I wait up to 15 seconds for the steps to pass:
     """ 
     When I execute on the pod:
@@ -3562,12 +3562,15 @@ Feature: Testing haproxy router
     """ 
     When I execute on the pod:
       | curl |
+      |  --resolve |
+      | <%= route("reen-route2", service("reen-route2")).dns(by: user) %>:443:<%= cb.router_ip[0] %> |
       | https://<%= route("reen-route2", service("reen-route2")).dns(by: user) %>/ |
       | -kv |
     Then the step should fail
-    # return curl: (35) ssl_handshake error since could not use default certs when enable ROUTER_STRICT_SNI
+    # will not retrun certs info when enable ROUTER_STRICT_SNI
     And the output should contain "(35)"
-    """    
+    And the output should not contain "CN="
+    """ 
 
   # @author zzhao@redhat.com
   # @case_id OCP-15023
