@@ -385,3 +385,33 @@ Feature: nodeAffinity
     Then the step should succeed
     Given the pod named "node-affinity-lt6-required-case14525" status becomes :running within 60 seconds
     Then the expression should be true> pod.node_name == cb.nodes[1].name
+
+
+  # @author wjiang@redhat.com
+  @admin
+  @destructive
+  Scenario Outline: pod prefers to be scheduled to the nodes which matches affinity rules
+    Given environment has at least 2 schedulable nodes
+    Given I run commands on all masters:
+      |curl -o /tmp/<scheduler_file> https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/<scheduler_file> |
+    Then the step should succeed
+    Given master config is merged with the following hash:
+    """
+    kubernetesMasterConfig:
+      schedulerConfigFile: /tmp/<scheduler_file>
+    """
+    Then the step should succeed
+    And the master service is restarted on all master nodes
+    And I store the schedulable nodes in the :nodes clipboard
+    And label "<label>" is added to the "<%= cb.nodes[0].name %>" node
+    Then the step should succeed
+    Given I have a project
+    And I run the :create client command with:
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/scheduler/node-affinity/<pod_file_name>.yaml |
+    Then the step should succeed
+    Given the pod named "<pod_file_name>" status becomes :running within 300 seconds
+    Then the expression should be true> pod.node_name == cb.nodes[0].name
+    Examples:
+      | scheduler_file                          | label                         | pod_file_name                 |
+      | scheduler_nodeaffinity_priority_10.json | beta.kubernetes.io/arch=intel | node-anti-affinity-preferred  | # @case_id OCP-14505
+      | scheduler_nodeaffinity_priority_10.json | zone=us                       | node-affinity-preferred-us    | # @case_id OCP-14498

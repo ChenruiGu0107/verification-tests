@@ -192,19 +192,25 @@ Given /^label #{QUOTED} is added to the#{OPT_QUOTED} node$/ do |label, node_name
   _admin = admin
   _node = node(node_name)
 
-  _opts = {resource: :node, name: _node.name}
+  _opts = {resource: :node, name: _node.name, overwrite: true}
   label_now = {key_val: label}
-  label_clean = {key_val: label.sub(/^(.*?)=.*$/, "\\1") + "-"}
+  label_key = label.sub(/^(.*?)=.*$/, "\\1")
+  label_clean = {key_val:  label_key + "-"}
+
+  if _node.labels.has_key?(label_key)
+    step %Q/the "#{node_name}" node labels are restored after scenario/
+  else
+    teardown_add {
+      @result = _admin.cli_exec(:label, **_opts, **label_clean)
+      unless @result[:success]
+        raise "cannot remove label #{label} from node #{_node.name}"
+      end
+    }
+  end
 
   @result = _admin.cli_exec(:label, **_opts, **label_now)
   raise "cannot add label to node" unless @result[:success]
 
-  teardown_add {
-    @result = _admin.cli_exec(:label, **_opts, **label_clean)
-    unless @result[:success]
-      raise "cannot remove label #{label} from node #{_node.name}"
-    end
-  }
 end
 
 Given /^the#{OPT_QUOTED} node service is verified$/ do |node_name|
