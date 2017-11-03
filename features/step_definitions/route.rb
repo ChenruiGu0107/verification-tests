@@ -57,3 +57,25 @@ Given /^admin ensures new router pod becomes ready after following env added:$/ 
     @user = org_user
   end
 end
+
+Given /^admin ensures a F5 router pod is ready$/ do
+  ensure_admin_tagged
+
+  org_user = @user
+  step %Q/I switch to cluster admin pseudo user/
+  step %Q/I use the "default" project/
+  step %Q/a pod becomes ready with labels:/, table(%{
+      | deploymentconfig=f5router |
+  })
+  @user = org_user
+end
+
+Given /^F5 router public IP is stored in the :vserver_ip clipboard$/ do
+  steps """
+    Given I use the first master host
+    When I run commands on the host:
+      | cat /root/f5-vip.conf |
+    Then the step should succeed
+    And evaluation of `@result[:response].chomp` is stored in the :vserver_ip clipboard
+  """
+end
