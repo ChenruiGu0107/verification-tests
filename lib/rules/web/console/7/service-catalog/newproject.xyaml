@@ -40,7 +40,7 @@ view_membership_in_kebab_on_homepage:
     timeout: 80
   action: goto_home_page
 click_kebab_on_homepage:
-  elemens:
+  element:
     selector:
       id: dropdownKebab
     op: click
