@@ -1294,9 +1294,9 @@ Feature: Testing route
       | f |  https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/reencrypt-without-all-cert.yaml |
     Then the step should succeed
     And all pods in the project are ready
-    Given I use the "serving-cert" service
-    When I wait up to 20 seconds for a secure web server to become available via the "serving-cert" route
-    And the output should contain "Welcome to nginx"
+    Given I use the "service-secure" service
+    When I wait up to 20 seconds for a secure web server to become available via the "route-reencrypt" route
+    And the output should contain "Hello-OpenShift"
 
   # @author zzhao@redhat.com
   # @case_id OCP-14089
@@ -1427,13 +1427,13 @@ Feature: Testing route
     When I run the :create client command with:
       | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/reencrypt/reencrypt-without-all-cert.yaml |
     Then the step should succeed
-    And the pod named "serving-cert" becomes ready
+    And the pod named "caddy-docker" becomes ready
     Given I have a pod-for-ping in the project
 
     And I wait up to 20 seconds for the steps to pass:
     """
-    When I open web server via the "https://<%= route("serving-cert", service("serving-cert")).dns(by: user).upcase %>" url
-    And the output should contain "Welcome to nginx"
+    When I open web server via the "https://<%= route("route-reencrypt", service("service-secure")).dns(by: user).upcase %>" url
+    And the output should contain "Hello-OpenShift"
     """
     #for no-sni
     And I wait up to 20 seconds for the steps to pass:
@@ -1442,11 +1442,11 @@ Feature: Testing route
       | curl |
       | -s   |
       | -H   |
-      | Host:<%= route("serving-cert", service("serving-cert")).dns(by: user).upcase %> |
+      | Host:<%= route("route-reencrypt", service("service-secure")).dns(by: user).upcase %> |
       | https://<%= cb.router_ip[0] %> |
       | -k |
     Then the step should succeed
-    And the output should contain "Welcome to nginx"
+    And the output should contain "Hello-OpenShift"
     """
 
   # @author yadu@redhat.com
