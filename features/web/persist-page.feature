@@ -156,20 +156,6 @@ Feature: persist page state
     And the expression should be true> browser.url =~ /pods\?labelFilter=.*matchExpressions.*key.*label2.*operator.*In.*values.*test2/
     """
 
-    When I perform the :goto_storage_page web console action with:
-      | project_name | <%= project.name%> |
-    Then the step should succeed
-    When I perform the :filter_resources_with_non_existing_label web console action with:
-      | label_key     | label2 |
-      | press_enter   | :enter |
-      | label_value   | test2  |
-      | filter_action | in ... |
-    Then the step should succeed
-    And I wait for the steps to pass:
-    """
-    And the expression should be true> browser.url =~ /storage\?labelFilter=.*matchExpressions.*key.*label2.*operator.*In.*values.*test2/
-    """
-
   # @author yanpzhan@redhat.com
   # @case_id OCP-11642
   Scenario: Persist page state when filter by kind on other resource page

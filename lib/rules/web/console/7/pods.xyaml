@@ -1,13 +1,8 @@
 #----check pod page-----
-check_pod_list_page:
-  action: goto_pods_page
-  element:
-    selector:
-      xpath: //table[descendant::th[text()="Name"]]
 check_pod_list_with_no_pod:
-  action: check_pod_list_page
-  element:
-    selector:
+  action: goto_pods_page
+  elements:
+  - selector:
       text: !ruby/regexp /.*No pods*/
 goto_one_pod_page:
   url: /console/project/<project_name>/browse/pods/<pod_name>
