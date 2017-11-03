@@ -336,7 +336,7 @@ Feature: create app on web console related
   Scenario: Create resource from template contains fake api group
     Given I have a project
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
-    And I run oc create with "application-template-stibuild.json" replacing paths:
+    And I run oc create with "application-template-stibuild-without-customize-route.json" replacing paths:
       | ["objects"][0]["apiVersion"] | fake/v1          |
     Then the step should succeed
     When I perform the :create_app_from_template_without_label web console action with:
@@ -351,7 +351,7 @@ Feature: create app on web console related
     Then the step should fail
     When I get the html of the web page
     Then the output should match:
-      | not.*create.*fake |
+      | not.*create.*fake/v1 |
 
   # @author yanpzhan@redhat.com
   # @case_id OCP-9794
@@ -822,23 +822,23 @@ Feature: create app on web console related
     Then the step should succeed
     When I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/templates/ui/application-template-stibuild-without-customize-route.json"
     Then the step should succeed
-    Given I backup the file "application-template-stibuild.json"
-    And I replace lines in "application-template-stibuild.json":
+    Given I backup the file "application-template-stibuild-without-customize-route.json"
+    And I replace lines in "application-template-stibuild-without-customize-route.json":
       | "name": "ruby-helloworld-sample", | |
     Then the step should succeed
     When I perform the :create_from_template_file_with_error web console action with:
-      | project_name     | <%= project.name %>                                                       |
-      | file_path        | <%= File.join(localhost.workdir, "application-template-stibuild.json") %> |
-      | error_message    | Resource name is missing in metadata field.                               |
+      | project_name     | <%= project.name %>                                                                       |
+      | file_path        | <%= localhost.absolutize("application-template-stibuild-without-customize-route.json") %> |
+      | error_message    | Resource name is missing in metadata field.                                               |
     Then the step should succeed
 
-    Given I restore the file "application-template-stibuild.json"
-    And I replace lines in "application-template-stibuild.json":
+    Given I restore the file "application-template-stibuild-without-customize-route.json"
+    And I replace lines in "application-template-stibuild-without-customize-route.json":
       | "uri": "https://github.com/openshift/ruby-hello-world.git" | |
     Then the step should succeed
     When I perform the :create_from_template_file web console action with:
-      | project_name     | <%= project.name %>                                                       |
-      | file_path        | <%= File.join(localhost.workdir, "application-template-stibuild.json") %> |
+      | project_name     | <%= project.name %>                                                                       |
+      | file_path        | <%= localhost.absolutize("application-template-stibuild-without-customize-route.json") %> |
     Then the step should succeed
     And I wait for the steps to pass:
     """
