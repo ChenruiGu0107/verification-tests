@@ -259,3 +259,21 @@ Feature: logging related scenarios
     And the output should contain:
       | <%= project.name %>.<%= project.uid %> |
     """
+
+  # @author pruan@redhat.com
+  # @case_id OCP-11847
+  @admin
+  @destructive
+  Scenario: Check for packages inside fluentd pod to support journald log driver
+    Given I create a project with non-leading digit name
+    Given logging service is installed in the system
+    And a pod becomes ready with labels:
+      |  component=fluentd |
+    And I execute on the pod:
+      | bash                                 |
+      | -c                                   |
+      | rpm -qa \| grep -e journal -e fluent |
+    And the output should contain:
+      | rubygem-systemd-journal                  |
+      | rubygem-fluent-plugin-systemd            |
+      | rubygem-fluent-plugin-rewrite-tag-filter |
