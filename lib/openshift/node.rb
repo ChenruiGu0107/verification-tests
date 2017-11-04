@@ -35,12 +35,21 @@ module CucuShift
     # 1. if the node name matches hosts, then use host
     # 2. if  any env pre-defined hosts woned node name ip, then use it.
     def host
-      host = env.hosts.find { |h| h.hostname == self.name }
-      return host if host
-      env.hosts.each do | h|
-        hname = h.exec("hostname")[:response].gsub("\n","")
-        return h if hname == self.name
+      return @host if @host
+
+      # try to figure this out from host specification
+      potential = env.hosts.select { |h| h.hostname.start_with? self.name }
+      if potential.size == 1
+        @host = potential.first
+        return @host
       end
+
+      # check whether we detect node hostname as local to any hosts
+      @host = env.hosts.find do |h|
+        h.local_ip?(labels["kubernetes.io/hostname"] || name)
+      end
+      return @host if @host
+
       raise("no host mapping for #{self.name}")
     end
 
