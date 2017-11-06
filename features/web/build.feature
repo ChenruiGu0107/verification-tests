@@ -67,7 +67,8 @@ Feature: build related feature on web console
       | project_name           | <%= project.name %> |
       | bc_and_build_name      | ruby-sample/ruby-sample-2 |
     Then the step should succeed
-    Given I wait for the :check_pod_list_with_no_pod web console action to succeed with:
+    Given I wait for the resource "pod" named "ruby-sample-2-build" to disappear
+    When I perform the :check_pod_list_with_no_pod web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
     # Make build failed by design
