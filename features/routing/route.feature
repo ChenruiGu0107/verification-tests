@@ -1715,29 +1715,22 @@ Feature: Testing route
     Given the master version >= "3.6"
     And I have a project
     And I store default router IPs in the :router_ip clipboard
-    Given I have a header test service in the project
-    #Create the secure service
+    #Create the pod/svc/route 
     When I run the :create client command with:
-      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/secure-service.json |
+      | f | https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/header-reecrypt-without-CA.json |
     Then the step should succeed
-    And I download a file from "https://raw.githubusercontent.com/openshift-qe/v3-testfiles/master/routing/header-test/head-test.pem"
-    #Create the reencrypt route
-    When I run the :create_route_reencrypt client command with:
-      | name           | route-reen                                |
-      | service        | header-test-secure                        |
-      | destcacert     | head-test.pem                             |
-    Then the step should succeed    
     Given I have a pod-for-ping in the project
+    And all pods in the project are ready
     And I wait up to 20 seconds for the steps to pass:
     """
     When I execute on the pod:
       | curl |
       | -H   |
       | proxy:10.10.10.10 |
-      | https://<%= route("route-reen", service("header-test-secure")).dns(by: user) %> |
+      | https://<%= route("header-reencrypt", service("service-reen")).dns(by: user) %> |
       | -k |
     Then the step should succeed
-    And the output should contain "host: <%= route("route-reen", service("header-test-secure")).dns(by: user) %>"
+    And the output should contain "host: <%= route("header-reencrypt", service("service-reen")).dns(by: user) %>"
     And the output should not contain "proxy: 10.10.10.10"
     """
     #for no-sni
@@ -1748,11 +1741,11 @@ Feature: Testing route
       | -H   |
       | proxy:10.10.10.10 |
       | -H   |
-      | Host:<%= route("route-reen", service("header-test-secure")).dns(by: user) %>  |
+      | Host:<%= route("header-reencrypt", service("service-reen")).dns(by: user) %>  |
       | https://<%= cb.router_ip[0] %> |
       | -k |
     Then the step should succeed
-    And the output should contain "host: <%= route("route-reen", service("header-test-secure")).dns(by: user) %>"
+    And the output should contain "host: <%= route("header-reencrypt", service("service-reen")).dns(by: user) %>"
     And the output should not contain "proxy: 10.10.10.10"
     """
 
