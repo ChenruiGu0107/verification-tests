@@ -11,7 +11,7 @@ check_buildconfig_edit_page_loaded_completely:
   - selector:
       xpath: //h3[contains(.,'Environment Variables')]
 
---- # Source Configuration
+# Source Configuration
 edit_bc_binary_input:
   action: check_buildconfig_edit_page_loaded_completely
   action: change_bc_binary_input
@@ -63,7 +63,7 @@ change_source_repo_url:
       xpath: //input[@name='sourceUrl']
     op: send_keys <changing_source_repo_url>
 
----# Image Configuration
+# Image Configuration
 add_bc_source_and_destination_paths:
   action: check_buildconfig_edit_page_loaded_completely
   action: choose_image_source_from
@@ -319,7 +319,7 @@ check_image_configuration_on_bc_edit_page:
   #     image_type: Docker Image
   #     ref: check_docker_image_on_bc_edit_page
 
---- # Environment Variables
+# Environment Variables
 change_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
   action: change_env_vars
@@ -327,7 +327,7 @@ delete_env_vars_on_buildconfig_edit_page:
   action: check_buildconfig_edit_page_loaded_completely
   action: delete_env_var
 
---- # Triggers
+# Triggers
 check_bc_github_webhook_trigger_on_bc_edit_page:
   action: goto_buildconfig_edit_page
   action: click_to_show_advanced_options
@@ -375,7 +375,7 @@ set_force_pull_on_buildconfig_edit_page:
       xpath: //input[@ng-model='options.forcePull']
     op: click
 
---- # Run Policy
+# Run Policy
 change_bc_run_policy_to_parallel:
   elements:
   - selector:
@@ -393,4 +393,4 @@ change_bc_run_policy_to_serial:
       xpath: //ul[@repeat="type in runPolicyTypes"]/li/div[@role="option"][1]
     op: click
 
---- # Post-Commit Hooks
+# Post-Commit Hooks

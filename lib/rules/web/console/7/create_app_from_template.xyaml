@@ -28,35 +28,56 @@ fromtemplate_submit_and_confirm:
   action: click_create_button
   element:
     selector:
-      text: Application created. Continue to overview.
-  element:
-    selector:
-      text: Manage your app
+      text: Continue to the project overview
 fromtemplate_navigate:
   url: /console/project/<project_name>/create/fromtemplate?template=<template_name>&namespace=<namespace>
 fromtemplate_param_form:
-  elements:
-  - selector:
+  action:
+    if_param: param_one
+    ref: input_first_param_if_exist
+  action:
+    if_param: param_two
+    ref: input_second_param_if_exist
+  action:
+    if_param: param_three
+    ref: input_third_param_if_exist
+  action:
+    if_param: param_four
+    ref: input_forth_param_if_exist
+  action:
+    if_param: param_five
+    ref: input_fifth_param_if_exist
+input_first_param_if_exist:
+  element:  
+    selector:
       id: param-0
     op: send_keys <param_one>
     type: input
     optional: true
-  - selector:
+input_second_param_if_exist:
+  element:
+    selector:
       id: param-1
     op: send_keys <param_two>
     type: input
     optional: true
-  - selector:
+input_third_param_if_exist:
+  element: 
+    selector:
       id: param-2
     op: send_keys <param_three>
     type: input
     optional: true
-  - selector:
+input_forth_param_if_exist:
+  element:
+    selector:
       id: param-3
     op: send_keys <param_four>
     type: input
     optional: true
-  - selector:
+input_fifth_param_if_exist:
+  element:
+    selector:
       id: param-4
     op: send_keys <param_five>
     type: input
