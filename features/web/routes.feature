@@ -8,14 +8,10 @@ Feature: Routes related features on web console
     When I perform the :check_empty_routes_page web console action with:
       | project_name | <%= project.name %> |
     Then the step should succeed
-
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>                        |
-      | image_name   | nodejs                                     |
-      | image_tag    | 0.10                                       |
-      | namespace    | openshift                                  |
-      | app_name     | nodejs-sample                              |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/nodejs:latest                |
+      | code         | https://github.com/openshift/nodejs-ex |
+      | name         | nodejs-sample                          |
     Then the step should succeed
     Given the "nodejs-sample-1" build was created
     Given the "nodejs-sample-1" build completed

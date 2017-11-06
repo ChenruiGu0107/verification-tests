@@ -3,13 +3,10 @@ Feature: check event feature on web console
   # @case_id OCP-10783
   Scenario: Check events tab on individual resource pages
     Given I have a project
-    When I perform the :create_app_from_image web console action with:
-      | project_name | <%= project.name %>                        |
-      | image_name   | nodejs                                     |
-      | image_tag    | latest                                     |
-      | namespace    | openshift                                  |
-      | app_name     | nodejs-sample                              |
-      | source_url   | https://github.com/openshift/nodejs-ex.git |
+    When I run the :new_app client command with:
+      | image_stream | openshift/nodejs:latest                |
+      | code         | https://github.com/openshift/nodejs-ex |
+      | name         | nodejs-sample                          |
     Then the step should succeed
 
     Given the "nodejs-sample-1" build completed
