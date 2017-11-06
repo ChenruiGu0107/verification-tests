@@ -319,9 +319,9 @@ Feature: Downward API
     Then the step should succeed
     And the output should contain:
       | MY_MEM_LIMIT=67108864 |
-      | MY_CPU_LIMIT=2        |
+      | MY_CPU_LIMIT=1        |
       | MY_MEM_REQUEST=64     |
-      | MY_CPU_REQUEST=2      |
+      | MY_CPU_REQUEST=1      |
     # Test file without limits, use node allocatable as limits by default
     Given I ensure "dapi-resources-env-magic-keys-pod-without-requests" pod is deleted
     When I run the :create client command with:
