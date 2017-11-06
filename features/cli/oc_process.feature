@@ -40,6 +40,10 @@ Feature: oc_process.feature
     Given I have a project
     When I process and create template "openshift//jenkins-persistent"
     Then the step should succeed
+    Given I run the :delete client command with:
+      | object_type | pvc |
+      | all         |     |
+    Then the step should succeed
     When I process and create template "openshift/template/mongodb-persistent"
     Then the step should succeed
     When I run the :process client command with:
