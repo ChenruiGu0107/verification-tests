@@ -87,8 +87,6 @@ check_webhook_trigger_doc_link_in_next_step_page_online:
 check_documentation_link_in_next_step_page:
   action: create_app_from_image
   action: create_from_image_complete_info_on_next_page
-  action: check_cli_reference_doc_link_in_next_step_page
-  action: check_basic_cli_reference_doc_link_in_next_step_page
   action: check_webhook_trigger_doc_link_in_next_step_page
 check_documentation_link_in_next_step_page_online:
   action: create_app_from_image
